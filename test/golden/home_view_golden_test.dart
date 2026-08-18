@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/ui/views/home/home_view.dart';
 
 void main() {
-  setUpAll(() => setupLocator());
+  setUpAll(() => setupLocator(stackedRouter: stackedRouter));
   tearDownAll(() => locator.reset());
 
   testGoldens('HomeView - default state', (tester) async {
@@ -13,7 +14,7 @@ void main() {
 
     // Set device pixel ratio and size for web
     await tester.binding.setSurfaceSize(const Size(1920, 1080));
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
+    tester.view.devicePixelRatio = 1.0;
 
     await tester.pumpWidget(
       const MediaQuery(
