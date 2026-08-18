@@ -50,5 +50,8 @@ app.*.map.json
 # Claude Code local tooling config (machine/environment-specific, not portable)
 .claude/
 
+# Working implementation plan — internal planning notes, not for the public repo
+/PLAN.md
+
 # golden_toolkit failure-diff output (local debugging only)
 test/golden/failures/
