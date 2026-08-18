@@ -4,9 +4,10 @@ import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/experience_bullet.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
+import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
@@ -15,9 +16,18 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 /// What the right-hand editor panel is currently showing, if anything.
-/// `experience`/`education` are keyed by id (many possible cards);
-/// `basics`/`skills`/`hobbies` are singletons (exactly one card each).
-enum VaultEditorTarget { none, basics, experience, education, skills, hobbies }
+/// `experience`/`project`/`education` are keyed by id (many possible
+/// cards); `basics`/`skills`/`hobbies` are singletons (exactly one card
+/// each).
+enum VaultEditorTarget {
+  none,
+  basics,
+  experience,
+  project,
+  education,
+  skills,
+  hobbies,
+}
 
 class VaultViewModel extends ReactiveViewModel {
   final _vaultService = locator<VaultService>();
@@ -60,6 +70,7 @@ class VaultViewModel extends ReactiveViewModel {
   void openHobbiesEditor() => _open(VaultEditorTarget.hobbies);
   void openExperienceEditor(String id) =>
       _open(VaultEditorTarget.experience, id);
+  void openProjectEditor(String id) => _open(VaultEditorTarget.project, id);
   void openEducationEditor(String id) => _open(VaultEditorTarget.education, id);
 
   void closeEditor() {
@@ -126,7 +137,7 @@ class VaultViewModel extends ReactiveViewModel {
   Future<void> addBullet(String experienceId) =>
       _vaultService.addBullet(experienceId, text: '');
 
-  Future<void> updateBullet(String experienceId, ExperienceBullet bullet) =>
+  Future<void> updateBullet(String experienceId, CvBullet bullet) =>
       _vaultService.updateBullet(experienceId, bullet);
 
   Future<void> deleteBullet(String experienceId, String bulletId) =>
@@ -134,6 +145,41 @@ class VaultViewModel extends ReactiveViewModel {
 
   Future<void> reorderBullets(String experienceId, List<String> orderedIds) =>
       _vaultService.reorderBullets(experienceId, orderedIds);
+
+  // --- projects ---
+
+  Future<void> addProject() async {
+    final created = await _vaultService.addProject(title: '');
+    openProjectEditor(created.id);
+  }
+
+  Future<void> updateProject(Project project) =>
+      _vaultService.updateProject(project);
+
+  Future<void> deleteProject(String id) async {
+    final confirmed = await _confirmDelete(
+      title: 'Delete this project?',
+      description:
+          "This removes it and all of its bullets. This can't be undone.",
+    );
+    if (!confirmed) return;
+    await _vaultService.deleteProject(id);
+    if (_openId == id) closeEditor();
+  }
+
+  Future<void> addProjectBullet(String projectId) =>
+      _vaultService.addProjectBullet(projectId, text: '');
+
+  Future<void> updateProjectBullet(String projectId, CvBullet bullet) =>
+      _vaultService.updateProjectBullet(projectId, bullet);
+
+  Future<void> deleteProjectBullet(String projectId, String bulletId) =>
+      _vaultService.deleteProjectBullet(projectId, bulletId);
+
+  Future<void> reorderProjectBullets(
+    String projectId,
+    List<String> orderedIds,
+  ) => _vaultService.reorderProjectBullets(projectId, orderedIds);
 
   // --- skills ---
 

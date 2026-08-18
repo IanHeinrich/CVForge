@@ -7,6 +7,7 @@ import 'basics_editor_card.dart';
 import 'education_list_section.dart';
 import 'experience_list_section.dart';
 import 'hobbies_editor_card.dart';
+import 'project_list_section.dart';
 import 'skills_editor_card.dart';
 import 'vault_persist_error_banner.dart';
 
@@ -43,6 +44,16 @@ class VaultCardList extends StatelessWidget {
           onOpen: viewModel.openExperienceEditor,
           onAdd: viewModel.addExperience,
           onDelete: viewModel.deleteExperience,
+        ),
+        verticalSpaceMedium,
+        ProjectListSection(
+          projects: vault.projects,
+          openId: viewModel.openTarget == VaultEditorTarget.project
+              ? viewModel.openId
+              : null,
+          onOpen: viewModel.openProjectEditor,
+          onAdd: viewModel.addProject,
+          onDelete: viewModel.deleteProject,
         ),
         verticalSpaceMedium,
         SkillsEditorCard(

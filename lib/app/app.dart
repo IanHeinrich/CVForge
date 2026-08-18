@@ -18,6 +18,8 @@ import 'package:cv_forge/features/studio/views/studio/studio_view.dart';
 
 import 'package:cv_forge/features/vault/dialogs/confirm_delete/confirm_delete_dialog.dart';
 
+import 'package:cv_forge/services/template_registry_service.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -40,6 +42,7 @@ import 'package:cv_forge/features/vault/dialogs/confirm_delete/confirm_delete_di
     LazySingleton(classType: VaultService),
     LazySingleton(classType: DraftService),
     LazySingleton(classType: FileDownloadService),
+    LazySingleton(classType: TemplateRegistryService),
     // @stacked-service
   ],
   bottomsheets: [

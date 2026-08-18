@@ -15,6 +15,7 @@ import 'package:stacked_shared/stacked_shared.dart';
 import '../services/draft_service.dart';
 import '../services/file_download_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/template_registry_service.dart';
 import '../services/vault_service.dart';
 import 'app.router.dart';
 
@@ -39,6 +40,7 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => VaultService());
   locator.registerLazySingleton(() => DraftService());
   locator.registerLazySingleton(() => FileDownloadService());
+  locator.registerLazySingleton(() => TemplateRegistryService());
   if (stackedRouter == null) {
     throw Exception(
       'Stacked is building to use the Router (Navigator 2.0) navigation but no stackedRouter is supplied. Pass the stackedRouter to the setupLocator function in main.dart',

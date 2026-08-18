@@ -86,12 +86,13 @@ extension ResolvedSectionPatterns on ResolvedSection {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolvedSummarySection value)?  summary,TResult Function( ResolvedExperienceSection value)?  experience,TResult Function( ResolvedSkillsSection value)?  skills,TResult Function( ResolvedEducationSection value)?  education,TResult Function( ResolvedHobbiesSection value)?  hobbies,TResult Function( ResolvedReferencesSection value)?  references,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolvedSummarySection value)?  summary,TResult Function( ResolvedExperienceSection value)?  experience,TResult Function( ResolvedProjectsSection value)?  projects,TResult Function( ResolvedSkillsSection value)?  skills,TResult Function( ResolvedEducationSection value)?  education,TResult Function( ResolvedHobbiesSection value)?  hobbies,TResult Function( ResolvedReferencesSection value)?  references,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that);case ResolvedExperienceSection() when experience != null:
-return experience(_that);case ResolvedSkillsSection() when skills != null:
+return experience(_that);case ResolvedProjectsSection() when projects != null:
+return projects(_that);case ResolvedSkillsSection() when skills != null:
 return skills(_that);case ResolvedEducationSection() when education != null:
 return education(_that);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that);case ResolvedReferencesSection() when references != null:
@@ -113,12 +114,13 @@ return references(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolvedSummarySection value)  summary,required TResult Function( ResolvedExperienceSection value)  experience,required TResult Function( ResolvedSkillsSection value)  skills,required TResult Function( ResolvedEducationSection value)  education,required TResult Function( ResolvedHobbiesSection value)  hobbies,required TResult Function( ResolvedReferencesSection value)  references,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolvedSummarySection value)  summary,required TResult Function( ResolvedExperienceSection value)  experience,required TResult Function( ResolvedProjectsSection value)  projects,required TResult Function( ResolvedSkillsSection value)  skills,required TResult Function( ResolvedEducationSection value)  education,required TResult Function( ResolvedHobbiesSection value)  hobbies,required TResult Function( ResolvedReferencesSection value)  references,}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
 return summary(_that);case ResolvedExperienceSection():
-return experience(_that);case ResolvedSkillsSection():
+return experience(_that);case ResolvedProjectsSection():
+return projects(_that);case ResolvedSkillsSection():
 return skills(_that);case ResolvedEducationSection():
 return education(_that);case ResolvedHobbiesSection():
 return hobbies(_that);case ResolvedReferencesSection():
@@ -136,12 +138,13 @@ return references(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolvedSummarySection value)?  summary,TResult? Function( ResolvedExperienceSection value)?  experience,TResult? Function( ResolvedSkillsSection value)?  skills,TResult? Function( ResolvedEducationSection value)?  education,TResult? Function( ResolvedHobbiesSection value)?  hobbies,TResult? Function( ResolvedReferencesSection value)?  references,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolvedSummarySection value)?  summary,TResult? Function( ResolvedExperienceSection value)?  experience,TResult? Function( ResolvedProjectsSection value)?  projects,TResult? Function( ResolvedSkillsSection value)?  skills,TResult? Function( ResolvedEducationSection value)?  education,TResult? Function( ResolvedHobbiesSection value)?  hobbies,TResult? Function( ResolvedReferencesSection value)?  references,}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that);case ResolvedExperienceSection() when experience != null:
-return experience(_that);case ResolvedSkillsSection() when skills != null:
+return experience(_that);case ResolvedProjectsSection() when projects != null:
+return projects(_that);case ResolvedSkillsSection() when skills != null:
 return skills(_that);case ResolvedEducationSection() when education != null:
 return education(_that);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that);case ResolvedReferencesSection() when references != null:
@@ -162,11 +165,12 @@ return references(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedProject> items)?  projects,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
-return experience(_that.title,_that.groups);case ResolvedSkillsSection() when skills != null:
+return experience(_that.title,_that.groups);case ResolvedProjectsSection() when projects != null:
+return projects(_that.title,_that.items);case ResolvedSkillsSection() when skills != null:
 return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
@@ -188,11 +192,12 @@ return references(_that.title,_that.text);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedProject> items)  projects,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
 return summary(_that.title,_that.text);case ResolvedExperienceSection():
-return experience(_that.title,_that.groups);case ResolvedSkillsSection():
+return experience(_that.title,_that.groups);case ResolvedProjectsSection():
+return projects(_that.title,_that.items);case ResolvedSkillsSection():
 return skills(_that.title,_that.groups);case ResolvedEducationSection():
 return education(_that.title,_that.items);case ResolvedHobbiesSection():
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection():
@@ -210,11 +215,12 @@ return references(_that.title,_that.text);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedProject> items)?  projects,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
-return experience(_that.title,_that.groups);case ResolvedSkillsSection() when skills != null:
+return experience(_that.title,_that.groups);case ResolvedProjectsSection() when projects != null:
+return projects(_that.title,_that.items);case ResolvedSkillsSection() when skills != null:
 return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
@@ -362,6 +368,80 @@ class _$ResolvedExperienceSectionCopyWithImpl<$Res>
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
 as List<ResolvedCompanyGroup>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ResolvedProjectsSection implements ResolvedSection {
+  const ResolvedProjectsSection({required this.title, required final  List<ResolvedProject> items}): _items = items;
+  
+
+@override final  String title;
+ final  List<ResolvedProject> _items;
+ List<ResolvedProject> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_items);
+}
+
+
+/// Create a copy of ResolvedSection
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ResolvedProjectsSectionCopyWith<ResolvedProjectsSection> get copyWith => _$ResolvedProjectsSectionCopyWithImpl<ResolvedProjectsSection>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedProjectsSection&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other._items, _items));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,const DeepCollectionEquality().hash(_items));
+
+@override
+String toString() {
+  return 'ResolvedSection.projects(title: $title, items: $items)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ResolvedProjectsSectionCopyWith<$Res> implements $ResolvedSectionCopyWith<$Res> {
+  factory $ResolvedProjectsSectionCopyWith(ResolvedProjectsSection value, $Res Function(ResolvedProjectsSection) _then) = _$ResolvedProjectsSectionCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, List<ResolvedProject> items
+});
+
+
+
+
+}
+/// @nodoc
+class _$ResolvedProjectsSectionCopyWithImpl<$Res>
+    implements $ResolvedProjectsSectionCopyWith<$Res> {
+  _$ResolvedProjectsSectionCopyWithImpl(this._self, this._then);
+
+  final ResolvedProjectsSection _self;
+  final $Res Function(ResolvedProjectsSection) _then;
+
+/// Create a copy of ResolvedSection
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? items = null,}) {
+  return _then(ResolvedProjectsSection(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<ResolvedProject>,
   ));
 }
 
@@ -1461,6 +1541,275 @@ as String,
 }
 
 /// @nodoc
+mixin _$ResolvedProject {
+
+ String get title; String? get link; List<ResolvedBullet> get bullets;
+/// Create a copy of ResolvedProject
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ResolvedProjectCopyWith<ResolvedProject> get copyWith => _$ResolvedProjectCopyWithImpl<ResolvedProject>(this as ResolvedProject, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedProject&&(identical(other.title, title) || other.title == title)&&(identical(other.link, link) || other.link == link)&&const DeepCollectionEquality().equals(other.bullets, bullets));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,link,const DeepCollectionEquality().hash(bullets));
+
+@override
+String toString() {
+  return 'ResolvedProject(title: $title, link: $link, bullets: $bullets)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ResolvedProjectCopyWith<$Res>  {
+  factory $ResolvedProjectCopyWith(ResolvedProject value, $Res Function(ResolvedProject) _then) = _$ResolvedProjectCopyWithImpl;
+@useResult
+$Res call({
+ String title, String? link, List<ResolvedBullet> bullets
+});
+
+
+
+
+}
+/// @nodoc
+class _$ResolvedProjectCopyWithImpl<$Res>
+    implements $ResolvedProjectCopyWith<$Res> {
+  _$ResolvedProjectCopyWithImpl(this._self, this._then);
+
+  final ResolvedProject _self;
+  final $Res Function(ResolvedProject) _then;
+
+/// Create a copy of ResolvedProject
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? link = freezed,Object? bullets = null,}) {
+  return _then(_self.copyWith(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<ResolvedBullet>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ResolvedProject].
+extension ResolvedProjectPatterns on ResolvedProject {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ResolvedProject value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ResolvedProject() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ResolvedProject value)  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedProject():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ResolvedProject value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedProject() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? link,  List<ResolvedBullet> bullets)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ResolvedProject() when $default != null:
+return $default(_that.title,_that.link,_that.bullets);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? link,  List<ResolvedBullet> bullets)  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedProject():
+return $default(_that.title,_that.link,_that.bullets);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? link,  List<ResolvedBullet> bullets)?  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedProject() when $default != null:
+return $default(_that.title,_that.link,_that.bullets);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ResolvedProject implements ResolvedProject {
+  const _ResolvedProject({required this.title, this.link, final  List<ResolvedBullet> bullets = const <ResolvedBullet>[]}): _bullets = bullets;
+  
+
+@override final  String title;
+@override final  String? link;
+ final  List<ResolvedBullet> _bullets;
+@override@JsonKey() List<ResolvedBullet> get bullets {
+  if (_bullets is EqualUnmodifiableListView) return _bullets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bullets);
+}
+
+
+/// Create a copy of ResolvedProject
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ResolvedProjectCopyWith<_ResolvedProject> get copyWith => __$ResolvedProjectCopyWithImpl<_ResolvedProject>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedProject&&(identical(other.title, title) || other.title == title)&&(identical(other.link, link) || other.link == link)&&const DeepCollectionEquality().equals(other._bullets, _bullets));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,link,const DeepCollectionEquality().hash(_bullets));
+
+@override
+String toString() {
+  return 'ResolvedProject(title: $title, link: $link, bullets: $bullets)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ResolvedProjectCopyWith<$Res> implements $ResolvedProjectCopyWith<$Res> {
+  factory _$ResolvedProjectCopyWith(_ResolvedProject value, $Res Function(_ResolvedProject) _then) = __$ResolvedProjectCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, String? link, List<ResolvedBullet> bullets
+});
+
+
+
+
+}
+/// @nodoc
+class __$ResolvedProjectCopyWithImpl<$Res>
+    implements _$ResolvedProjectCopyWith<$Res> {
+  __$ResolvedProjectCopyWithImpl(this._self, this._then);
+
+  final _ResolvedProject _self;
+  final $Res Function(_ResolvedProject) _then;
+
+/// Create a copy of ResolvedProject
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? link = freezed,Object? bullets = null,}) {
+  return _then(_ResolvedProject(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,bullets: null == bullets ? _self._bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<ResolvedBullet>,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$ResolvedSkillGroup {
 
  String get category; List<String> get skills;
@@ -1730,7 +2079,7 @@ as List<String>,
 mixin _$ResolvedQualification {
 
  String get qualification; String get institution; String? get location;/// Pre-formatted (e.g. "2021"), not a raw int — same reasoning as
-/// [ResolvedRole.dateRange].
+/// [ResolvedPosition.dateRange].
  String? get yearLabel; String? get grade; String? get details;
 /// Create a copy of ResolvedQualification
 /// with the given fields replaced by the non-null parameter values.
@@ -1935,7 +2284,7 @@ class _ResolvedQualification implements ResolvedQualification {
 @override final  String institution;
 @override final  String? location;
 /// Pre-formatted (e.g. "2021"), not a raw int — same reasoning as
-/// [ResolvedRole.dateRange].
+/// [ResolvedPosition.dateRange].
 @override final  String? yearLabel;
 @override final  String? grade;
 @override final  String? details;

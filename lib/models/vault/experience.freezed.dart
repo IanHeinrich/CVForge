@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Experience {
 
- String get id; String get role; String get company; String get location; YearMonth get start; YearMonth? get end; bool get isCurrent; List<ExperienceBullet> get bullets;/// Shared by every [Experience] that represents a promotion within the
+ String get id; String get role; String get company; String get location; YearMonth get start; YearMonth? get end; bool get isCurrent; List<CvBullet> get bullets;/// Shared by every [Experience] that represents a promotion within the
 /// same company — `null` means "not grouped with anything". A group of
 /// one (a group id set on only one experience) renders identically to
 /// an ungrouped entry, so nothing needs to clear this when a group
@@ -54,7 +54,7 @@ abstract mixin class $ExperienceCopyWith<$Res>  {
   factory $ExperienceCopyWith(Experience value, $Res Function(Experience) _then) = _$ExperienceCopyWithImpl;
 @useResult
 $Res call({
- String id, String role, String company, String location, YearMonth start, YearMonth? end, bool isCurrent, List<ExperienceBullet> bullets, String? companyGroupId
+ String id, String role, String company, String location, YearMonth start, YearMonth? end, bool isCurrent, List<CvBullet> bullets, String? companyGroupId
 });
 
 
@@ -81,7 +81,7 @@ as String,start: null == start ? _self.start : start // ignore: cast_nullable_to
 as YearMonth,end: freezed == end ? _self.end : end // ignore: cast_nullable_to_non_nullable
 as YearMonth?,isCurrent: null == isCurrent ? _self.isCurrent : isCurrent // ignore: cast_nullable_to_non_nullable
 as bool,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
-as List<ExperienceBullet>,companyGroupId: freezed == companyGroupId ? _self.companyGroupId : companyGroupId // ignore: cast_nullable_to_non_nullable
+as List<CvBullet>,companyGroupId: freezed == companyGroupId ? _self.companyGroupId : companyGroupId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -188,7 +188,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String role,  String company,  String location,  YearMonth start,  YearMonth? end,  bool isCurrent,  List<ExperienceBullet> bullets,  String? companyGroupId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String role,  String company,  String location,  YearMonth start,  YearMonth? end,  bool isCurrent,  List<CvBullet> bullets,  String? companyGroupId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Experience() when $default != null:
 return $default(_that.id,_that.role,_that.company,_that.location,_that.start,_that.end,_that.isCurrent,_that.bullets,_that.companyGroupId);case _:
@@ -209,7 +209,7 @@ return $default(_that.id,_that.role,_that.company,_that.location,_that.start,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String role,  String company,  String location,  YearMonth start,  YearMonth? end,  bool isCurrent,  List<ExperienceBullet> bullets,  String? companyGroupId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String role,  String company,  String location,  YearMonth start,  YearMonth? end,  bool isCurrent,  List<CvBullet> bullets,  String? companyGroupId)  $default,) {final _that = this;
 switch (_that) {
 case _Experience():
 return $default(_that.id,_that.role,_that.company,_that.location,_that.start,_that.end,_that.isCurrent,_that.bullets,_that.companyGroupId);case _:
@@ -229,7 +229,7 @@ return $default(_that.id,_that.role,_that.company,_that.location,_that.start,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String role,  String company,  String location,  YearMonth start,  YearMonth? end,  bool isCurrent,  List<ExperienceBullet> bullets,  String? companyGroupId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String role,  String company,  String location,  YearMonth start,  YearMonth? end,  bool isCurrent,  List<CvBullet> bullets,  String? companyGroupId)?  $default,) {final _that = this;
 switch (_that) {
 case _Experience() when $default != null:
 return $default(_that.id,_that.role,_that.company,_that.location,_that.start,_that.end,_that.isCurrent,_that.bullets,_that.companyGroupId);case _:
@@ -244,7 +244,7 @@ return $default(_that.id,_that.role,_that.company,_that.location,_that.start,_th
 @JsonSerializable()
 
 class _Experience implements Experience {
-  const _Experience({required this.id, required this.role, required this.company, required this.location, required this.start, this.end, this.isCurrent = false, final  List<ExperienceBullet> bullets = const <ExperienceBullet>[], this.companyGroupId}): _bullets = bullets;
+  const _Experience({required this.id, required this.role, required this.company, required this.location, required this.start, this.end, this.isCurrent = false, final  List<CvBullet> bullets = const <CvBullet>[], this.companyGroupId}): _bullets = bullets;
   factory _Experience.fromJson(Map<String, dynamic> json) => _$ExperienceFromJson(json);
 
 @override final  String id;
@@ -254,8 +254,8 @@ class _Experience implements Experience {
 @override final  YearMonth start;
 @override final  YearMonth? end;
 @override@JsonKey() final  bool isCurrent;
- final  List<ExperienceBullet> _bullets;
-@override@JsonKey() List<ExperienceBullet> get bullets {
+ final  List<CvBullet> _bullets;
+@override@JsonKey() List<CvBullet> get bullets {
   if (_bullets is EqualUnmodifiableListView) return _bullets;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_bullets);
@@ -302,7 +302,7 @@ abstract mixin class _$ExperienceCopyWith<$Res> implements $ExperienceCopyWith<$
   factory _$ExperienceCopyWith(_Experience value, $Res Function(_Experience) _then) = __$ExperienceCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String role, String company, String location, YearMonth start, YearMonth? end, bool isCurrent, List<ExperienceBullet> bullets, String? companyGroupId
+ String id, String role, String company, String location, YearMonth start, YearMonth? end, bool isCurrent, List<CvBullet> bullets, String? companyGroupId
 });
 
 
@@ -329,7 +329,7 @@ as String,start: null == start ? _self.start : start // ignore: cast_nullable_to
 as YearMonth,end: freezed == end ? _self.end : end // ignore: cast_nullable_to_non_nullable
 as YearMonth?,isCurrent: null == isCurrent ? _self.isCurrent : isCurrent // ignore: cast_nullable_to_non_nullable
 as bool,bullets: null == bullets ? _self._bullets : bullets // ignore: cast_nullable_to_non_nullable
-as List<ExperienceBullet>,companyGroupId: freezed == companyGroupId ? _self.companyGroupId : companyGroupId // ignore: cast_nullable_to_non_nullable
+as List<CvBullet>,companyGroupId: freezed == companyGroupId ? _self.companyGroupId : companyGroupId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

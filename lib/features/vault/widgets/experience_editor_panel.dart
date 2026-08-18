@@ -1,5 +1,5 @@
 import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/experience_bullet.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -41,7 +41,7 @@ class ExperienceEditorPanel extends StatelessWidget {
   /// promotion at the same company), or `null` to ungroup it.
   final ValueChanged<String?> onGroupChanged;
   final VoidCallback onAddBullet;
-  final ValueChanged<ExperienceBullet> onBulletChanged;
+  final ValueChanged<CvBullet> onBulletChanged;
   final ValueChanged<String> onBulletDeleted;
   final ValueChanged<List<String>> onBulletsReordered;
 

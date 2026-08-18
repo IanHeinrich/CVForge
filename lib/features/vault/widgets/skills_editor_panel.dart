@@ -1,5 +1,5 @@
 import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/experience_bullet.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
@@ -255,7 +255,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
     );
   }
 
-  String _chipLabel(ExperienceBullet bullet) {
+  String _chipLabel(CvBullet bullet) {
     final text = bullet.label ?? bullet.text;
     return text.length > 28 ? '${text.substring(0, 28)}…' : text;
   }

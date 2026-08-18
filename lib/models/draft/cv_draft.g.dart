@@ -22,6 +22,17 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
             MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
       ) ??
       const <String, List<String>>{},
+  projectIds:
+      (json['projectIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const <String>[],
+  projectBulletIds:
+      (json['projectBulletIds'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+      ) ??
+      const <String, List<String>>{},
   skillIds:
       (json['skillIds'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const <String>[],
@@ -54,6 +65,8 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'templateId': instance.templateId,
   'experienceIds': instance.experienceIds,
   'bulletIds': instance.bulletIds,
+  'projectIds': instance.projectIds,
+  'projectBulletIds': instance.projectBulletIds,
   'skillIds': instance.skillIds,
   'educationIds': instance.educationIds,
   'hobbyIds': instance.hobbyIds,
@@ -67,8 +80,9 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
 
 const _$CvSectionTypeEnumMap = {
   CvSectionType.summary: 'summary',
-  CvSectionType.experience: 'experience',
   CvSectionType.skills: 'skills',
+  CvSectionType.experience: 'experience',
+  CvSectionType.projects: 'projects',
   CvSectionType.education: 'education',
   CvSectionType.hobbies: 'hobbies',
   CvSectionType.references: 'references',

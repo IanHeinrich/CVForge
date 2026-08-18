@@ -1,5 +1,6 @@
 import '../draft/cv_draft.dart';
 import '../draft/cv_section_type.dart';
+import '../vault/cv_bullet.dart';
 import '../vault/cv_vault.dart';
 import '../vault/experience.dart';
 import 'region_profile.dart';
@@ -45,8 +46,9 @@ abstract final class CvComposer {
 
       final section = switch (type) {
         CvSectionType.summary => _buildSummary(vault, draft),
-        CvSectionType.experience => _buildExperience(vault, draft, region),
         CvSectionType.skills => _buildSkills(vault, draft),
+        CvSectionType.experience => _buildExperience(vault, draft, region),
+        CvSectionType.projects => _buildProjects(vault, draft),
         CvSectionType.education => _buildEducation(vault, draft),
         CvSectionType.hobbies => _buildHobbies(vault, draft),
         CvSectionType.references => _buildReferences(vault),
@@ -87,7 +89,11 @@ abstract final class CvComposer {
       final position = ResolvedPosition(
         role: experience.role,
         dateRange: _formatDateRange(experience, region),
-        bullets: _resolveBullets(experience, draft),
+        bullets: _resolveBullets(
+          experience.bullets,
+          draft.bulletIds[experience.id] ?? const <String>[],
+          draft.bulletOverrides,
+        ),
       );
 
       final key = experience.companyGroupId ?? 'ungrouped:$expId';
@@ -110,24 +116,46 @@ abstract final class CvComposer {
     }
 
     if (groups.isEmpty) return null;
-    return ResolvedSection.experience(title: 'Work history', groups: groups);
+    return ResolvedSection.experience(title: 'Experience', groups: groups);
   }
 
+  /// Shared by [_buildExperience] and [_buildProjects] — both just filter
+  /// and order a [CvBullet] list by a selected-id list, applying any
+  /// [CvDraft.bulletOverrides] on the way.
   static List<ResolvedBullet> _resolveBullets(
-    Experience experience,
-    CvDraft draft,
+    List<CvBullet> bullets,
+    List<String> selectedBulletIds,
+    Map<String, String> overrides,
   ) {
-    final bulletsById = {for (final b in experience.bullets) b.id: b};
-    final selectedBulletIds =
-        draft.bulletIds[experience.id] ?? const <String>[];
+    final bulletsById = {for (final b in bullets) b.id: b};
     return [
       for (final bulletId in selectedBulletIds)
         if (bulletsById[bulletId] case final bullet?)
           ResolvedBullet(
             label: bullet.label,
-            text: draft.bulletOverrides[bulletId] ?? bullet.text,
+            text: overrides[bulletId] ?? bullet.text,
           ),
     ];
+  }
+
+  static ResolvedSection? _buildProjects(CvVault vault, CvDraft draft) {
+    final byId = {for (final p in vault.projects) p.id: p};
+    final items = <ResolvedProject>[
+      for (final id in draft.projectIds)
+        if (byId[id] case final project?)
+          ResolvedProject(
+            title: project.title,
+            link: project.link,
+            bullets: _resolveBullets(
+              project.bullets,
+              draft.projectBulletIds[id] ?? const <String>[],
+              draft.bulletOverrides,
+            ),
+          ),
+    ];
+
+    if (items.isEmpty) return null;
+    return ResolvedSection.projects(title: 'Projects', items: items);
   }
 
   static ResolvedSection? _buildSkills(CvVault vault, CvDraft draft) {

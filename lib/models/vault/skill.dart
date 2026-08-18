@@ -9,7 +9,7 @@ abstract class Skill with _$Skill {
     required String id,
     required String label,
 
-    /// [ExperienceBullet] ids this skill was demonstrated in — bullet
+    /// [CvBullet] ids this skill was demonstrated in — bullet
     /// granularity, not experience granularity, because that's the unit a
     /// future Copilot actually rewrites (see `CvDraft.bulletOverrides`);
     /// grounding at the job level would leave it guessing which of a job's
