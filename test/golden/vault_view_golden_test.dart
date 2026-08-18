@@ -2,6 +2,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/views/vault/vault_view.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/example_vault.dart';
+import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/ui/common/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +16,12 @@ void main() {
   late MockVaultService vaultService;
 
   setUp(() {
-    vaultService = getAndRegisterVaultService();
+    // registerServices() (not just getAndRegisterVaultService()) — VaultView
+    // pulls in DialogService via VaultViewModel's delete-confirmation flow,
+    // and it's easy to add another service dependency later without
+    // remembering to update every golden test's setUp individually.
+    registerServices();
+    vaultService = locator<VaultService>() as MockVaultService;
   });
   tearDown(() => locator.reset());
 
