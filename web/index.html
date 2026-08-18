@@ -37,9 +37,6 @@
 
   <title>CV Forge</title>
   <link rel="manifest" href="manifest.json">
-
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
 </head>
 
 <body>
@@ -133,6 +130,9 @@
     }
   </style>
   <script>
+    {{flutter_js}}
+    {{flutter_build_config}}
+
     function delay(time) {
       return new Promise(resolve => setTimeout(resolve, time));
     }
