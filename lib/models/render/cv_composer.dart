@@ -70,36 +70,64 @@ abstract final class CvComposer {
     RegionProfile region,
   ) {
     final byId = {for (final e in vault.experiences) e.id: e};
-    final roles = <ResolvedRole>[];
+
+    // Grouped by Experience.companyGroupId, but the LIST order and each
+    // group's internal position order both come from draft.experienceIds —
+    // same "the draft is the source of truth for order" rule every other
+    // section follows. An experience with no companyGroupId is simply the
+    // only member of its own group, which renders identically to a
+    // one-position group, so there's no separate ungrouped code path.
+    final groups = <ResolvedCompanyGroup>[];
+    final groupIndexByKey = <String, int>{};
 
     for (final expId in draft.experienceIds) {
       final experience = byId[expId];
       if (experience == null) continue; // dangling id — silently dropped
 
-      final bulletsById = {for (final b in experience.bullets) b.id: b};
-      final selectedBulletIds = draft.bulletIds[expId] ?? const <String>[];
-      final bullets = <ResolvedBullet>[
-        for (final bulletId in selectedBulletIds)
-          if (bulletsById[bulletId] case final bullet?)
-            ResolvedBullet(
-              label: bullet.label,
-              text: draft.bulletOverrides[bulletId] ?? bullet.text,
-            ),
-      ];
-
-      roles.add(
-        ResolvedRole(
-          role: experience.role,
-          company: experience.company,
-          location: experience.location,
-          dateRange: _formatDateRange(experience, region),
-          bullets: bullets,
-        ),
+      final position = ResolvedPosition(
+        role: experience.role,
+        dateRange: _formatDateRange(experience, region),
+        bullets: _resolveBullets(experience, draft),
       );
+
+      final key = experience.companyGroupId ?? 'ungrouped:$expId';
+      final existingIndex = groupIndexByKey[key];
+      if (existingIndex != null) {
+        final existing = groups[existingIndex];
+        groups[existingIndex] = existing.copyWith(
+          positions: [...existing.positions, position],
+        );
+      } else {
+        groupIndexByKey[key] = groups.length;
+        groups.add(
+          ResolvedCompanyGroup(
+            company: experience.company,
+            location: experience.location,
+            positions: [position],
+          ),
+        );
+      }
     }
 
-    if (roles.isEmpty) return null;
-    return ResolvedSection.experience(title: 'Work history', roles: roles);
+    if (groups.isEmpty) return null;
+    return ResolvedSection.experience(title: 'Work history', groups: groups);
+  }
+
+  static List<ResolvedBullet> _resolveBullets(
+    Experience experience,
+    CvDraft draft,
+  ) {
+    final bulletsById = {for (final b in experience.bullets) b.id: b};
+    final selectedBulletIds =
+        draft.bulletIds[experience.id] ?? const <String>[];
+    return [
+      for (final bulletId in selectedBulletIds)
+        if (bulletsById[bulletId] case final bullet?)
+          ResolvedBullet(
+            label: bullet.label,
+            text: draft.bulletOverrides[bulletId] ?? bullet.text,
+          ),
+    ];
   }
 
   static ResolvedSection? _buildSkills(CvVault vault, CvDraft draft) {

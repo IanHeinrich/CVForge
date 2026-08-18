@@ -189,6 +189,34 @@ class VaultService with ListenableServiceMixin {
     );
   }
 
+  /// Groups [experienceId] with [withExperienceId] as a promotion (same
+  /// company, sequential roles) — or, when [withExperienceId] is `null`,
+  /// removes [experienceId] from whatever group it's in. Reuses the
+  /// target's existing `companyGroupId` if it already has one, so grouping
+  /// a third role with an existing pair joins the same group rather than
+  /// creating a new one.
+  Future<void> groupExperience(
+    String experienceId,
+    String? withExperienceId,
+  ) async {
+    await _ready();
+    if (withExperienceId == null) {
+      _updateExperience(experienceId, (e) => e.copyWith(companyGroupId: null));
+      return;
+    }
+    final target = vault.experiences.firstWhere(
+      (e) => e.id == withExperienceId,
+    );
+    final groupId = target.companyGroupId ?? _uuid.v4();
+    if (target.companyGroupId == null) {
+      _updateExperience(
+        withExperienceId,
+        (e) => e.copyWith(companyGroupId: groupId),
+      );
+    }
+    _updateExperience(experienceId, (e) => e.copyWith(companyGroupId: groupId));
+  }
+
   // --- bullets ---
 
   Future<ExperienceBullet> addBullet(

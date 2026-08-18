@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
@@ -88,6 +89,60 @@ void main() {
 
         await service.deleteExperience(experience.id);
         expect(service.vault.experiences, isEmpty);
+
+        await service.flushPendingWrites();
+      });
+    });
+
+    group('grouping -', () {
+      test('groupExperience assigns a shared companyGroupId, reusing an '
+          'existing group when adding a third member, and ungrouping only '
+          'affects the one experience', () async {
+        when(storage.read(any, any)).thenAnswer((_) async => null);
+        when(
+          storage.write(any, any, any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final service = VaultService();
+        await service.load();
+
+        final junior = await service.addExperience(
+          role: 'Junior Engineer',
+          company: 'Acme',
+          location: 'London',
+          start: const YearMonth(year: 2019, month: 1),
+        );
+        final mid = await service.addExperience(
+          role: 'Engineer',
+          company: 'Acme',
+          location: 'London',
+          start: const YearMonth(year: 2021, month: 1),
+        );
+        final senior = await service.addExperience(
+          role: 'Senior Engineer',
+          company: 'Acme',
+          location: 'London',
+          start: const YearMonth(year: 2023, month: 1),
+          isCurrent: true,
+        );
+
+        Experience byId(String id) =>
+            service.vault.experiences.firstWhere((e) => e.id == id);
+
+        await service.groupExperience(mid.id, junior.id);
+        final groupId = byId(mid.id).companyGroupId;
+        expect(groupId, isNotNull);
+        expect(byId(junior.id).companyGroupId, groupId);
+
+        // Grouping a third experience with an already-grouped one joins
+        // the same group rather than creating a new one.
+        await service.groupExperience(senior.id, mid.id);
+        expect(byId(senior.id).companyGroupId, groupId);
+
+        await service.groupExperience(junior.id, null);
+        expect(byId(junior.id).companyGroupId, isNull);
+        expect(byId(mid.id).companyGroupId, groupId);
+        expect(byId(senior.id).companyGroupId, groupId);
 
         await service.flushPendingWrites();
       });

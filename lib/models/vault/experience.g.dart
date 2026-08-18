@@ -21,6 +21,7 @@ _Experience _$ExperienceFromJson(Map<String, dynamic> json) => _Experience(
           ?.map((e) => ExperienceBullet.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const <ExperienceBullet>[],
+  companyGroupId: json['companyGroupId'] as String?,
 );
 
 Map<String, dynamic> _$ExperienceToJson(_Experience instance) =>
@@ -33,4 +34,5 @@ Map<String, dynamic> _$ExperienceToJson(_Experience instance) =>
       'end': instance.end?.toJson(),
       'isCurrent': instance.isCurrent,
       'bullets': instance.bullets.map((e) => e.toJson()).toList(),
+      'companyGroupId': instance.companyGroupId,
     };

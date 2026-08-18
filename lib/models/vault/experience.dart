@@ -17,6 +17,14 @@ abstract class Experience with _$Experience {
     YearMonth? end,
     @Default(false) bool isCurrent,
     @Default(<ExperienceBullet>[]) List<ExperienceBullet> bullets,
+
+    /// Shared by every [Experience] that represents a promotion within the
+    /// same company — `null` means "not grouped with anything". A group of
+    /// one (a group id set on only one experience) renders identically to
+    /// an ungrouped entry, so nothing needs to clear this when a group
+    /// shrinks back down. See `CvComposer._buildExperience` for how this
+    /// becomes a single company heading with multiple role/date lines.
+    String? companyGroupId,
   }) = _Experience;
 
   factory Experience.fromJson(Map<String, dynamic> json) =>

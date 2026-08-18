@@ -1,4 +1,5 @@
 import 'package:cv_forge/models/vault/experience_bullet.dart';
+import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -13,6 +14,7 @@ class BulletListEditor extends StatelessWidget {
   const BulletListEditor({
     super.key,
     required this.bullets,
+    required this.skillCategories,
     required this.onAdd,
     required this.onChanged,
     required this.onDelete,
@@ -20,6 +22,11 @@ class BulletListEditor extends StatelessWidget {
   });
 
   final List<ExperienceBullet> bullets;
+
+  /// Read-only here — which skills link to a bullet is set from the
+  /// Skills panel (`_SkillBulletLinkPicker`), not from this one. Shown
+  /// underneath each bullet so it's visible without switching panels.
+  final List<SkillCategory> skillCategories;
   final VoidCallback onAdd;
   final ValueChanged<ExperienceBullet> onChanged;
   final ValueChanged<String> onDelete;
@@ -27,6 +34,15 @@ class BulletListEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final skillLabelsByBulletId = <String, List<String>>{};
+    for (final category in skillCategories) {
+      for (final skill in category.skills) {
+        for (final bulletId in skill.linkedBulletIds) {
+          (skillLabelsByBulletId[bulletId] ??= []).add(skill.label);
+        }
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -83,6 +99,20 @@ class BulletListEditor extends StatelessWidget {
                           maxLines: 3,
                           onChanged: (v) => onChanged(bullet.copyWith(text: v)),
                         ),
+                        if (skillLabelsByBulletId[bullet.id] case final labels?
+                            when labels.isNotEmpty) ...[
+                          verticalSpaceTiny,
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Skills: ${labels.join(', ')}',
+                              style: const TextStyle(
+                                color: kcLightGrey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

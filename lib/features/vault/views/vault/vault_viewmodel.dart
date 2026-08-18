@@ -107,6 +107,9 @@ class VaultViewModel extends ReactiveViewModel {
   Future<void> updateExperience(Experience experience) =>
       _vaultService.updateExperience(experience);
 
+  Future<void> groupExperience(String experienceId, String? withId) =>
+      _vaultService.groupExperience(experienceId, withId);
+
   Future<void> deleteExperience(String id) async {
     final confirmed = await _confirmDelete(
       title: 'Delete this experience?',
