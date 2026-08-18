@@ -1,0 +1,107 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time; don't cancel one that's mid-flight.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      bumped: ${{ steps.version.outputs.bumped }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect version bump
+        id: version
+        run: |
+          NEW_VERSION=$(grep '^version:' pubspec.yaml | head -1 | awk '{print $2}')
+          BEFORE_SHA="${{ github.event.before }}"
+
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "First push to main, nothing to compare against — skipping deploy."
+            OLD_VERSION=""
+          else
+            OLD_VERSION=$(git show "$BEFORE_SHA:pubspec.yaml" 2>/dev/null | grep '^version:' | head -1 | awk '{print $2}' || true)
+          fi
+
+          echo "previous version: ${OLD_VERSION:-<none>}"
+          echo "current version:  $NEW_VERSION"
+
+          if [ -n "$OLD_VERSION" ] && [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+            echo "bumped=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bumped=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        if: steps.version.outputs.bumped == 'true'
+        with:
+          flutter-version: "3.47.0"
+          channel: stable
+          cache: true
+
+      - name: Build web release
+        if: steps.version.outputs.bumped == 'true'
+        run: |
+          flutter pub get
+          flutter build web --release --base-href /cv-forge/
+
+      - uses: actions/configure-pages@v5
+        if: steps.version.outputs.bumped == 'true'
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.version.outputs.bumped == 'true'
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.bumped == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  tag:
+    needs: [build, deploy]
+    if: needs.build.outputs.bumped == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      - name: Create and push version tag
+        run: |
+          VERSION="${{ needs.build.outputs.version }}"
+          TAG="v${VERSION%%+*}"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists, skipping."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
