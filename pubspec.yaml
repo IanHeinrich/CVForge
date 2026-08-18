@@ -1,7 +1,7 @@
 name: cv_forge
 description: "CV Forge - resume/CV builder web app"
 publish_to: 'none'
-version: 0.1.2
+version: 0.2.0
 
 environment:
   sdk: '>=3.8.0 <4.0.0'

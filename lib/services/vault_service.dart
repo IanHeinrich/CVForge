@@ -9,6 +9,7 @@ import 'package:cv_forge/models/vault/example_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/experience_bullet.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
@@ -94,6 +95,45 @@ class VaultService with ListenableServiceMixin {
   Future<void> updateBasics(ContactBasics basics) async {
     await _ready();
     _setVault((v) => v.copyWith(basics: basics));
+  }
+
+  Future<ProfileLink> addProfileLink({
+    required String label,
+    required String url,
+  }) async {
+    await _ready();
+    final link = ProfileLink(id: _uuid.v4(), label: label, url: url);
+    _setVault(
+      (v) => v.copyWith(
+        basics: v.basics.copyWith(links: [...v.basics.links, link]),
+      ),
+    );
+    return link;
+  }
+
+  Future<void> updateProfileLink(ProfileLink link) async {
+    await _ready();
+    _setVault(
+      (v) => v.copyWith(
+        basics: v.basics.copyWith(
+          links: [
+            for (final l in v.basics.links)
+              if (l.id == link.id) link else l,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> deleteProfileLink(String id) async {
+    await _ready();
+    _setVault(
+      (v) => v.copyWith(
+        basics: v.basics.copyWith(
+          links: v.basics.links.where((l) => l.id != id).toList(),
+        ),
+      ),
+    );
   }
 
   Future<void> updateReferencesNote(String? note) async {
