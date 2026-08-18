@@ -6,6 +6,14 @@ import 'package:cv_forge/ui/views/unknown/unknown_view.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import 'package:cv_forge/services/local_storage_service.dart';
+
+import 'package:cv_forge/services/vault_service.dart';
+
+import 'package:cv_forge/services/draft_service.dart';
+
+import 'package:cv_forge/services/file_download_service.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -23,6 +31,10 @@ import 'package:stacked_services/stacked_services.dart';
     LazySingleton(classType: BottomSheetService),
     LazySingleton(classType: DialogService),
     LazySingleton(classType: RouterService),
+    LazySingleton(classType: LocalStorageService),
+    LazySingleton(classType: VaultService),
+    LazySingleton(classType: DraftService),
+    LazySingleton(classType: FileDownloadService),
     // @stacked-service
   ],
   bottomsheets: [

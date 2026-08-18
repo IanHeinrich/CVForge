@@ -2,6 +2,10 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:cv_forge/services/local_storage_service.dart';
+import 'package:cv_forge/services/vault_service.dart';
+import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/file_download_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -12,6 +16,10 @@ import 'test_helpers.mocks.dart';
     MockSpec<RouterService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<BottomSheetService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<DialogService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<LocalStorageService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<VaultService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<DraftService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<FileDownloadService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -19,6 +27,10 @@ void registerServices() {
   getAndRegisterRouterService();
   getAndRegisterBottomSheetService();
   getAndRegisterDialogService();
+  getAndRegisterLocalStorageService();
+  getAndRegisterVaultService();
+  getAndRegisterDraftService();
+  getAndRegisterFileDownloadService();
   // @stacked-mock-register
 }
 
@@ -76,6 +88,33 @@ MockDialogService getAndRegisterDialogService() {
   return service;
 }
 
+MockLocalStorageService getAndRegisterLocalStorageService() {
+  _removeRegistrationIfExists<LocalStorageService>();
+  final service = MockLocalStorageService();
+  locator.registerSingleton<LocalStorageService>(service);
+  return service;
+}
+
+MockVaultService getAndRegisterVaultService() {
+  _removeRegistrationIfExists<VaultService>();
+  final service = MockVaultService();
+  locator.registerSingleton<VaultService>(service);
+  return service;
+}
+
+MockDraftService getAndRegisterDraftService() {
+  _removeRegistrationIfExists<DraftService>();
+  final service = MockDraftService();
+  locator.registerSingleton<DraftService>(service);
+  return service;
+}
+
+MockFileDownloadService getAndRegisterFileDownloadService() {
+  _removeRegistrationIfExists<FileDownloadService>();
+  final service = MockFileDownloadService();
+  locator.registerSingleton<FileDownloadService>(service);
+  return service;
+}
 // @stacked-mock-create
 
 void _removeRegistrationIfExists<T extends Object>() {
