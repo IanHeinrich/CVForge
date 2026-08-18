@@ -15,7 +15,15 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Skill {
 
- String get id; String get label;
+ String get id; String get label;/// [ExperienceBullet] ids this skill was demonstrated in — bullet
+/// granularity, not experience granularity, because that's the unit a
+/// future Copilot actually rewrites (see `CvDraft.bulletOverrides`);
+/// grounding at the job level would leave it guessing which of a job's
+/// several bullets a given skill applies to. Bullet ids are already
+/// globally unique (`Uuid` from `VaultService`), so a flat list here
+/// needs no experience id alongside it. Purely descriptive metadata in
+/// Phase 1 — the composer/template don't read it.
+ List<String> get linkedBulletIds;
 /// Create a copy of Skill
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +36,16 @@ $SkillCopyWith<Skill> get copyWith => _$SkillCopyWithImpl<Skill>(this as Skill, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Skill&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Skill&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&const DeepCollectionEquality().equals(other.linkedBulletIds, linkedBulletIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label);
+int get hashCode => Object.hash(runtimeType,id,label,const DeepCollectionEquality().hash(linkedBulletIds));
 
 @override
 String toString() {
-  return 'Skill(id: $id, label: $label)';
+  return 'Skill(id: $id, label: $label, linkedBulletIds: $linkedBulletIds)';
 }
 
 
@@ -48,7 +56,7 @@ abstract mixin class $SkillCopyWith<$Res>  {
   factory $SkillCopyWith(Skill value, $Res Function(Skill) _then) = _$SkillCopyWithImpl;
 @useResult
 $Res call({
- String id, String label
+ String id, String label, List<String> linkedBulletIds
 });
 
 
@@ -65,11 +73,12 @@ class _$SkillCopyWithImpl<$Res>
 
 /// Create a copy of Skill
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? linkedBulletIds = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String,
+as String,linkedBulletIds: null == linkedBulletIds ? _self.linkedBulletIds : linkedBulletIds // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -154,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label,  List<String> linkedBulletIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Skill() when $default != null:
-return $default(_that.id,_that.label);case _:
+return $default(_that.id,_that.label,_that.linkedBulletIds);case _:
   return orElse();
 
 }
@@ -175,10 +184,10 @@ return $default(_that.id,_that.label);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label,  List<String> linkedBulletIds)  $default,) {final _that = this;
 switch (_that) {
 case _Skill():
-return $default(_that.id,_that.label);case _:
+return $default(_that.id,_that.label,_that.linkedBulletIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +204,10 @@ return $default(_that.id,_that.label);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label,  List<String> linkedBulletIds)?  $default,) {final _that = this;
 switch (_that) {
 case _Skill() when $default != null:
-return $default(_that.id,_that.label);case _:
+return $default(_that.id,_that.label,_that.linkedBulletIds);case _:
   return null;
 
 }
@@ -210,11 +219,34 @@ return $default(_that.id,_that.label);case _:
 @JsonSerializable()
 
 class _Skill implements Skill {
-  const _Skill({required this.id, required this.label});
+  const _Skill({required this.id, required this.label, final  List<String> linkedBulletIds = const <String>[]}): _linkedBulletIds = linkedBulletIds;
   factory _Skill.fromJson(Map<String, dynamic> json) => _$SkillFromJson(json);
 
 @override final  String id;
 @override final  String label;
+/// [ExperienceBullet] ids this skill was demonstrated in — bullet
+/// granularity, not experience granularity, because that's the unit a
+/// future Copilot actually rewrites (see `CvDraft.bulletOverrides`);
+/// grounding at the job level would leave it guessing which of a job's
+/// several bullets a given skill applies to. Bullet ids are already
+/// globally unique (`Uuid` from `VaultService`), so a flat list here
+/// needs no experience id alongside it. Purely descriptive metadata in
+/// Phase 1 — the composer/template don't read it.
+ final  List<String> _linkedBulletIds;
+/// [ExperienceBullet] ids this skill was demonstrated in — bullet
+/// granularity, not experience granularity, because that's the unit a
+/// future Copilot actually rewrites (see `CvDraft.bulletOverrides`);
+/// grounding at the job level would leave it guessing which of a job's
+/// several bullets a given skill applies to. Bullet ids are already
+/// globally unique (`Uuid` from `VaultService`), so a flat list here
+/// needs no experience id alongside it. Purely descriptive metadata in
+/// Phase 1 — the composer/template don't read it.
+@override@JsonKey() List<String> get linkedBulletIds {
+  if (_linkedBulletIds is EqualUnmodifiableListView) return _linkedBulletIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_linkedBulletIds);
+}
+
 
 /// Create a copy of Skill
 /// with the given fields replaced by the non-null parameter values.
@@ -229,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Skill&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Skill&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&const DeepCollectionEquality().equals(other._linkedBulletIds, _linkedBulletIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label);
+int get hashCode => Object.hash(runtimeType,id,label,const DeepCollectionEquality().hash(_linkedBulletIds));
 
 @override
 String toString() {
-  return 'Skill(id: $id, label: $label)';
+  return 'Skill(id: $id, label: $label, linkedBulletIds: $linkedBulletIds)';
 }
 
 
@@ -249,7 +281,7 @@ abstract mixin class _$SkillCopyWith<$Res> implements $SkillCopyWith<$Res> {
   factory _$SkillCopyWith(_Skill value, $Res Function(_Skill) _then) = __$SkillCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String label
+ String id, String label, List<String> linkedBulletIds
 });
 
 
@@ -266,11 +298,12 @@ class __$SkillCopyWithImpl<$Res>
 
 /// Create a copy of Skill
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? linkedBulletIds = null,}) {
   return _then(_Skill(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String,
+as String,linkedBulletIds: null == linkedBulletIds ? _self._linkedBulletIds : linkedBulletIds // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

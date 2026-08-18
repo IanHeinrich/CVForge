@@ -43,8 +43,12 @@ class VaultEditorPanelRouter extends StatelessWidget {
         final experienceId = experience.id;
         return ExperienceEditorPanel(
           experience: experience,
+          allExperiences: viewModel.vault.experiences,
+          skillCategories: viewModel.vault.skillCategories,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateExperience,
+          onGroupChanged: (withId) =>
+              viewModel.groupExperience(experienceId, withId),
           onAddBullet: () => viewModel.addBullet(experienceId),
           onBulletChanged: (bullet) =>
               viewModel.updateBullet(experienceId, bullet),
@@ -70,6 +74,7 @@ class VaultEditorPanelRouter extends StatelessWidget {
       case VaultEditorTarget.skills:
         return SkillsEditorPanel(
           categories: viewModel.vault.skillCategories,
+          experiences: viewModel.vault.experiences,
           onClose: viewModel.closeEditor,
           onAddCategory: () => viewModel.addSkillCategory('New category'),
           onUpdateCategory: viewModel.updateSkillCategory,

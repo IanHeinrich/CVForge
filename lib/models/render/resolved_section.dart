@@ -14,7 +14,7 @@ sealed class ResolvedSection with _$ResolvedSection {
 
   const factory ResolvedSection.experience({
     required String title,
-    required List<ResolvedRole> roles,
+    required List<ResolvedCompanyGroup> groups,
   }) = ResolvedExperienceSection;
 
   const factory ResolvedSection.skills({
@@ -38,18 +38,29 @@ sealed class ResolvedSection with _$ResolvedSection {
   }) = ResolvedReferencesSection;
 }
 
+/// One company heading. Holds one [ResolvedPosition] for a normal entry,
+/// or several for a promotion — grouped ([Experience.companyGroupId]) and
+/// ungrouped entries render through the same shape, so a template has one
+/// code path rather than a special case for promotions.
 @freezed
-abstract class ResolvedRole with _$ResolvedRole {
-  const factory ResolvedRole({
-    required String role,
+abstract class ResolvedCompanyGroup with _$ResolvedCompanyGroup {
+  const factory ResolvedCompanyGroup({
     required String company,
     required String location,
+    @Default(<ResolvedPosition>[]) List<ResolvedPosition> positions,
+  }) = _ResolvedCompanyGroup;
+}
+
+@freezed
+abstract class ResolvedPosition with _$ResolvedPosition {
+  const factory ResolvedPosition({
+    required String role,
 
     /// Pre-formatted, e.g. "01/2025 - current". Formatting happens in the
     /// composer, not here and not in a template.
     required String dateRange,
     @Default(<ResolvedBullet>[]) List<ResolvedBullet> bullets,
-  }) = _ResolvedRole;
+  }) = _ResolvedPosition;
 }
 
 @freezed

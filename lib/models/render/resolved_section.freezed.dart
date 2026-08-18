@@ -162,11 +162,11 @@ return references(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedRole> roles)?  experience,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
-return experience(_that.title,_that.roles);case ResolvedSkillsSection() when skills != null:
+return experience(_that.title,_that.groups);case ResolvedSkillsSection() when skills != null:
 return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
@@ -188,11 +188,11 @@ return references(_that.title,_that.text);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedRole> roles)  experience,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
 return summary(_that.title,_that.text);case ResolvedExperienceSection():
-return experience(_that.title,_that.roles);case ResolvedSkillsSection():
+return experience(_that.title,_that.groups);case ResolvedSkillsSection():
 return skills(_that.title,_that.groups);case ResolvedEducationSection():
 return education(_that.title,_that.items);case ResolvedHobbiesSection():
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection():
@@ -210,11 +210,11 @@ return references(_that.title,_that.text);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedRole> roles)?  experience,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
-return experience(_that.title,_that.roles);case ResolvedSkillsSection() when skills != null:
+return experience(_that.title,_that.groups);case ResolvedSkillsSection() when skills != null:
 return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
@@ -298,15 +298,15 @@ as String,
 
 
 class ResolvedExperienceSection implements ResolvedSection {
-  const ResolvedExperienceSection({required this.title, required final  List<ResolvedRole> roles}): _roles = roles;
+  const ResolvedExperienceSection({required this.title, required final  List<ResolvedCompanyGroup> groups}): _groups = groups;
   
 
 @override final  String title;
- final  List<ResolvedRole> _roles;
- List<ResolvedRole> get roles {
-  if (_roles is EqualUnmodifiableListView) return _roles;
+ final  List<ResolvedCompanyGroup> _groups;
+ List<ResolvedCompanyGroup> get groups {
+  if (_groups is EqualUnmodifiableListView) return _groups;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_roles);
+  return EqualUnmodifiableListView(_groups);
 }
 
 
@@ -320,16 +320,16 @@ $ResolvedExperienceSectionCopyWith<ResolvedExperienceSection> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedExperienceSection&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other._roles, _roles));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedExperienceSection&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other._groups, _groups));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,title,const DeepCollectionEquality().hash(_roles));
+int get hashCode => Object.hash(runtimeType,title,const DeepCollectionEquality().hash(_groups));
 
 @override
 String toString() {
-  return 'ResolvedSection.experience(title: $title, roles: $roles)';
+  return 'ResolvedSection.experience(title: $title, groups: $groups)';
 }
 
 
@@ -340,7 +340,7 @@ abstract mixin class $ResolvedExperienceSectionCopyWith<$Res> implements $Resolv
   factory $ResolvedExperienceSectionCopyWith(ResolvedExperienceSection value, $Res Function(ResolvedExperienceSection) _then) = _$ResolvedExperienceSectionCopyWithImpl;
 @override @useResult
 $Res call({
- String title, List<ResolvedRole> roles
+ String title, List<ResolvedCompanyGroup> groups
 });
 
 
@@ -357,11 +357,11 @@ class _$ResolvedExperienceSectionCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedSection
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? roles = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? groups = null,}) {
   return _then(ResolvedExperienceSection(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,roles: null == roles ? _self._roles : roles // ignore: cast_nullable_to_non_nullable
-as List<ResolvedRole>,
+as String,groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
+as List<ResolvedCompanyGroup>,
   ));
 }
 
@@ -659,42 +659,40 @@ as String,
 }
 
 /// @nodoc
-mixin _$ResolvedRole {
+mixin _$ResolvedCompanyGroup {
 
- String get role; String get company; String get location;/// Pre-formatted, e.g. "01/2025 - current". Formatting happens in the
-/// composer, not here and not in a template.
- String get dateRange; List<ResolvedBullet> get bullets;
-/// Create a copy of ResolvedRole
+ String get company; String get location; List<ResolvedPosition> get positions;
+/// Create a copy of ResolvedCompanyGroup
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$ResolvedRoleCopyWith<ResolvedRole> get copyWith => _$ResolvedRoleCopyWithImpl<ResolvedRole>(this as ResolvedRole, _$identity);
+$ResolvedCompanyGroupCopyWith<ResolvedCompanyGroup> get copyWith => _$ResolvedCompanyGroupCopyWithImpl<ResolvedCompanyGroup>(this as ResolvedCompanyGroup, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedRole&&(identical(other.role, role) || other.role == role)&&(identical(other.company, company) || other.company == company)&&(identical(other.location, location) || other.location == location)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&const DeepCollectionEquality().equals(other.bullets, bullets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedCompanyGroup&&(identical(other.company, company) || other.company == company)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other.positions, positions));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,role,company,location,dateRange,const DeepCollectionEquality().hash(bullets));
+int get hashCode => Object.hash(runtimeType,company,location,const DeepCollectionEquality().hash(positions));
 
 @override
 String toString() {
-  return 'ResolvedRole(role: $role, company: $company, location: $location, dateRange: $dateRange, bullets: $bullets)';
+  return 'ResolvedCompanyGroup(company: $company, location: $location, positions: $positions)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ResolvedRoleCopyWith<$Res>  {
-  factory $ResolvedRoleCopyWith(ResolvedRole value, $Res Function(ResolvedRole) _then) = _$ResolvedRoleCopyWithImpl;
+abstract mixin class $ResolvedCompanyGroupCopyWith<$Res>  {
+  factory $ResolvedCompanyGroupCopyWith(ResolvedCompanyGroup value, $Res Function(ResolvedCompanyGroup) _then) = _$ResolvedCompanyGroupCopyWithImpl;
 @useResult
 $Res call({
- String role, String company, String location, String dateRange, List<ResolvedBullet> bullets
+ String company, String location, List<ResolvedPosition> positions
 });
 
 
@@ -702,31 +700,29 @@ $Res call({
 
 }
 /// @nodoc
-class _$ResolvedRoleCopyWithImpl<$Res>
-    implements $ResolvedRoleCopyWith<$Res> {
-  _$ResolvedRoleCopyWithImpl(this._self, this._then);
+class _$ResolvedCompanyGroupCopyWithImpl<$Res>
+    implements $ResolvedCompanyGroupCopyWith<$Res> {
+  _$ResolvedCompanyGroupCopyWithImpl(this._self, this._then);
 
-  final ResolvedRole _self;
-  final $Res Function(ResolvedRole) _then;
+  final ResolvedCompanyGroup _self;
+  final $Res Function(ResolvedCompanyGroup) _then;
 
-/// Create a copy of ResolvedRole
+/// Create a copy of ResolvedCompanyGroup
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? role = null,Object? company = null,Object? location = null,Object? dateRange = null,Object? bullets = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? company = null,Object? location = null,Object? positions = null,}) {
   return _then(_self.copyWith(
-role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
-as String,company: null == company ? _self.company : company // ignore: cast_nullable_to_non_nullable
+company: null == company ? _self.company : company // ignore: cast_nullable_to_non_nullable
 as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as String,dateRange: null == dateRange ? _self.dateRange : dateRange // ignore: cast_nullable_to_non_nullable
-as String,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
-as List<ResolvedBullet>,
+as String,positions: null == positions ? _self.positions : positions // ignore: cast_nullable_to_non_nullable
+as List<ResolvedPosition>,
   ));
 }
 
 }
 
 
-/// Adds pattern-matching-related methods to [ResolvedRole].
-extension ResolvedRolePatterns on ResolvedRole {
+/// Adds pattern-matching-related methods to [ResolvedCompanyGroup].
+extension ResolvedCompanyGroupPatterns on ResolvedCompanyGroup {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -739,10 +735,10 @@ extension ResolvedRolePatterns on ResolvedRole {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ResolvedRole value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ResolvedCompanyGroup value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _ResolvedRole() when $default != null:
+case _ResolvedCompanyGroup() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -761,10 +757,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ResolvedRole value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ResolvedCompanyGroup value)  $default,){
 final _that = this;
 switch (_that) {
-case _ResolvedRole():
+case _ResolvedCompanyGroup():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -782,10 +778,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ResolvedRole value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ResolvedCompanyGroup value)?  $default,){
 final _that = this;
 switch (_that) {
-case _ResolvedRole() when $default != null:
+case _ResolvedCompanyGroup() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -803,10 +799,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String role,  String company,  String location,  String dateRange,  List<ResolvedBullet> bullets)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String company,  String location,  List<ResolvedPosition> positions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _ResolvedRole() when $default != null:
-return $default(_that.role,_that.company,_that.location,_that.dateRange,_that.bullets);case _:
+case _ResolvedCompanyGroup() when $default != null:
+return $default(_that.company,_that.location,_that.positions);case _:
   return orElse();
 
 }
@@ -824,10 +820,10 @@ return $default(_that.role,_that.company,_that.location,_that.dateRange,_that.bu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String role,  String company,  String location,  String dateRange,  List<ResolvedBullet> bullets)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String company,  String location,  List<ResolvedPosition> positions)  $default,) {final _that = this;
 switch (_that) {
-case _ResolvedRole():
-return $default(_that.role,_that.company,_that.location,_that.dateRange,_that.bullets);case _:
+case _ResolvedCompanyGroup():
+return $default(_that.company,_that.location,_that.positions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -844,10 +840,10 @@ return $default(_that.role,_that.company,_that.location,_that.dateRange,_that.bu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String role,  String company,  String location,  String dateRange,  List<ResolvedBullet> bullets)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String company,  String location,  List<ResolvedPosition> positions)?  $default,) {final _that = this;
 switch (_that) {
-case _ResolvedRole() when $default != null:
-return $default(_that.role,_that.company,_that.location,_that.dateRange,_that.bullets);case _:
+case _ResolvedCompanyGroup() when $default != null:
+return $default(_that.company,_that.location,_that.positions);case _:
   return null;
 
 }
@@ -858,13 +854,282 @@ return $default(_that.role,_that.company,_that.location,_that.dateRange,_that.bu
 /// @nodoc
 
 
-class _ResolvedRole implements ResolvedRole {
-  const _ResolvedRole({required this.role, required this.company, required this.location, required this.dateRange, final  List<ResolvedBullet> bullets = const <ResolvedBullet>[]}): _bullets = bullets;
+class _ResolvedCompanyGroup implements ResolvedCompanyGroup {
+  const _ResolvedCompanyGroup({required this.company, required this.location, final  List<ResolvedPosition> positions = const <ResolvedPosition>[]}): _positions = positions;
+  
+
+@override final  String company;
+@override final  String location;
+ final  List<ResolvedPosition> _positions;
+@override@JsonKey() List<ResolvedPosition> get positions {
+  if (_positions is EqualUnmodifiableListView) return _positions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_positions);
+}
+
+
+/// Create a copy of ResolvedCompanyGroup
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ResolvedCompanyGroupCopyWith<_ResolvedCompanyGroup> get copyWith => __$ResolvedCompanyGroupCopyWithImpl<_ResolvedCompanyGroup>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedCompanyGroup&&(identical(other.company, company) || other.company == company)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other._positions, _positions));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,company,location,const DeepCollectionEquality().hash(_positions));
+
+@override
+String toString() {
+  return 'ResolvedCompanyGroup(company: $company, location: $location, positions: $positions)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ResolvedCompanyGroupCopyWith<$Res> implements $ResolvedCompanyGroupCopyWith<$Res> {
+  factory _$ResolvedCompanyGroupCopyWith(_ResolvedCompanyGroup value, $Res Function(_ResolvedCompanyGroup) _then) = __$ResolvedCompanyGroupCopyWithImpl;
+@override @useResult
+$Res call({
+ String company, String location, List<ResolvedPosition> positions
+});
+
+
+
+
+}
+/// @nodoc
+class __$ResolvedCompanyGroupCopyWithImpl<$Res>
+    implements _$ResolvedCompanyGroupCopyWith<$Res> {
+  __$ResolvedCompanyGroupCopyWithImpl(this._self, this._then);
+
+  final _ResolvedCompanyGroup _self;
+  final $Res Function(_ResolvedCompanyGroup) _then;
+
+/// Create a copy of ResolvedCompanyGroup
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? company = null,Object? location = null,Object? positions = null,}) {
+  return _then(_ResolvedCompanyGroup(
+company: null == company ? _self.company : company // ignore: cast_nullable_to_non_nullable
+as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as String,positions: null == positions ? _self._positions : positions // ignore: cast_nullable_to_non_nullable
+as List<ResolvedPosition>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ResolvedPosition {
+
+ String get role;/// Pre-formatted, e.g. "01/2025 - current". Formatting happens in the
+/// composer, not here and not in a template.
+ String get dateRange; List<ResolvedBullet> get bullets;
+/// Create a copy of ResolvedPosition
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ResolvedPositionCopyWith<ResolvedPosition> get copyWith => _$ResolvedPositionCopyWithImpl<ResolvedPosition>(this as ResolvedPosition, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedPosition&&(identical(other.role, role) || other.role == role)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&const DeepCollectionEquality().equals(other.bullets, bullets));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,role,dateRange,const DeepCollectionEquality().hash(bullets));
+
+@override
+String toString() {
+  return 'ResolvedPosition(role: $role, dateRange: $dateRange, bullets: $bullets)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ResolvedPositionCopyWith<$Res>  {
+  factory $ResolvedPositionCopyWith(ResolvedPosition value, $Res Function(ResolvedPosition) _then) = _$ResolvedPositionCopyWithImpl;
+@useResult
+$Res call({
+ String role, String dateRange, List<ResolvedBullet> bullets
+});
+
+
+
+
+}
+/// @nodoc
+class _$ResolvedPositionCopyWithImpl<$Res>
+    implements $ResolvedPositionCopyWith<$Res> {
+  _$ResolvedPositionCopyWithImpl(this._self, this._then);
+
+  final ResolvedPosition _self;
+  final $Res Function(ResolvedPosition) _then;
+
+/// Create a copy of ResolvedPosition
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? role = null,Object? dateRange = null,Object? bullets = null,}) {
+  return _then(_self.copyWith(
+role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,dateRange: null == dateRange ? _self.dateRange : dateRange // ignore: cast_nullable_to_non_nullable
+as String,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<ResolvedBullet>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ResolvedPosition].
+extension ResolvedPositionPatterns on ResolvedPosition {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ResolvedPosition value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ResolvedPosition() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ResolvedPosition value)  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedPosition():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ResolvedPosition value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedPosition() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String role,  String dateRange,  List<ResolvedBullet> bullets)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ResolvedPosition() when $default != null:
+return $default(_that.role,_that.dateRange,_that.bullets);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String role,  String dateRange,  List<ResolvedBullet> bullets)  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedPosition():
+return $default(_that.role,_that.dateRange,_that.bullets);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String role,  String dateRange,  List<ResolvedBullet> bullets)?  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedPosition() when $default != null:
+return $default(_that.role,_that.dateRange,_that.bullets);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ResolvedPosition implements ResolvedPosition {
+  const _ResolvedPosition({required this.role, required this.dateRange, final  List<ResolvedBullet> bullets = const <ResolvedBullet>[]}): _bullets = bullets;
   
 
 @override final  String role;
-@override final  String company;
-@override final  String location;
 /// Pre-formatted, e.g. "01/2025 - current". Formatting happens in the
 /// composer, not here and not in a template.
 @override final  String dateRange;
@@ -876,37 +1141,37 @@ class _ResolvedRole implements ResolvedRole {
 }
 
 
-/// Create a copy of ResolvedRole
+/// Create a copy of ResolvedPosition
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$ResolvedRoleCopyWith<_ResolvedRole> get copyWith => __$ResolvedRoleCopyWithImpl<_ResolvedRole>(this, _$identity);
+_$ResolvedPositionCopyWith<_ResolvedPosition> get copyWith => __$ResolvedPositionCopyWithImpl<_ResolvedPosition>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedRole&&(identical(other.role, role) || other.role == role)&&(identical(other.company, company) || other.company == company)&&(identical(other.location, location) || other.location == location)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&const DeepCollectionEquality().equals(other._bullets, _bullets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedPosition&&(identical(other.role, role) || other.role == role)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&const DeepCollectionEquality().equals(other._bullets, _bullets));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,role,company,location,dateRange,const DeepCollectionEquality().hash(_bullets));
+int get hashCode => Object.hash(runtimeType,role,dateRange,const DeepCollectionEquality().hash(_bullets));
 
 @override
 String toString() {
-  return 'ResolvedRole(role: $role, company: $company, location: $location, dateRange: $dateRange, bullets: $bullets)';
+  return 'ResolvedPosition(role: $role, dateRange: $dateRange, bullets: $bullets)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$ResolvedRoleCopyWith<$Res> implements $ResolvedRoleCopyWith<$Res> {
-  factory _$ResolvedRoleCopyWith(_ResolvedRole value, $Res Function(_ResolvedRole) _then) = __$ResolvedRoleCopyWithImpl;
+abstract mixin class _$ResolvedPositionCopyWith<$Res> implements $ResolvedPositionCopyWith<$Res> {
+  factory _$ResolvedPositionCopyWith(_ResolvedPosition value, $Res Function(_ResolvedPosition) _then) = __$ResolvedPositionCopyWithImpl;
 @override @useResult
 $Res call({
- String role, String company, String location, String dateRange, List<ResolvedBullet> bullets
+ String role, String dateRange, List<ResolvedBullet> bullets
 });
 
 
@@ -914,20 +1179,18 @@ $Res call({
 
 }
 /// @nodoc
-class __$ResolvedRoleCopyWithImpl<$Res>
-    implements _$ResolvedRoleCopyWith<$Res> {
-  __$ResolvedRoleCopyWithImpl(this._self, this._then);
+class __$ResolvedPositionCopyWithImpl<$Res>
+    implements _$ResolvedPositionCopyWith<$Res> {
+  __$ResolvedPositionCopyWithImpl(this._self, this._then);
 
-  final _ResolvedRole _self;
-  final $Res Function(_ResolvedRole) _then;
+  final _ResolvedPosition _self;
+  final $Res Function(_ResolvedPosition) _then;
 
-/// Create a copy of ResolvedRole
+/// Create a copy of ResolvedPosition
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? role = null,Object? company = null,Object? location = null,Object? dateRange = null,Object? bullets = null,}) {
-  return _then(_ResolvedRole(
+@override @pragma('vm:prefer-inline') $Res call({Object? role = null,Object? dateRange = null,Object? bullets = null,}) {
+  return _then(_ResolvedPosition(
 role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
-as String,company: null == company ? _self.company : company // ignore: cast_nullable_to_non_nullable
-as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String,dateRange: null == dateRange ? _self.dateRange : dateRange // ignore: cast_nullable_to_non_nullable
 as String,bullets: null == bullets ? _self._bullets : bullets // ignore: cast_nullable_to_non_nullable
 as List<ResolvedBullet>,

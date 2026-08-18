@@ -812,6 +812,21 @@ class MockVaultService extends _i1.Mock implements _i21.VaultService {
           as _i13.Future<void>);
 
   @override
+  _i13.Future<void> groupExperience(
+    String? experienceId,
+    String? withExperienceId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#groupExperience, [
+              experienceId,
+              withExperienceId,
+            ]),
+            returnValue: _i13.Future<void>.value(),
+            returnValueForMissingStub: _i13.Future<void>.value(),
+          )
+          as _i13.Future<void>);
+
+  @override
   _i13.Future<_i6.ExperienceBullet> addBullet(
     String? experienceId, {
     String? label,
