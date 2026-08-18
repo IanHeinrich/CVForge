@@ -28,6 +28,10 @@ class VaultViewModel extends ReactiveViewModel {
 
   CvVault get vault => _vaultService.vault;
 
+  bool get hasPersistError => _vaultService.persistError != null;
+
+  Future<void> retryPersist() => _vaultService.flushPendingWrites();
+
   bool _emptyStateDismissed = false;
   bool get showEmptyState => !_emptyStateDismissed && vault.isEmpty;
 

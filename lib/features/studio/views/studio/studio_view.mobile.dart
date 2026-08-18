@@ -1,9 +1,8 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_chrome/app_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
+import '../../widgets/studio_empty_preview.dart';
 import 'studio_viewmodel.dart';
 
 class StudioViewMobile extends ViewModelWidget<StudioViewModel> {
@@ -13,37 +12,7 @@ class StudioViewMobile extends ViewModelWidget<StudioViewModel> {
   Widget build(BuildContext context, StudioViewModel viewModel) {
     return const AppChrome(
       currentSection: AppSection.studio,
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.design_services_outlined,
-                size: 40,
-                color: kcLightGrey,
-              ),
-              verticalSpaceMedium,
-              Text(
-                'Nothing to preview yet',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: kcWhite,
-                ),
-              ),
-              verticalSpaceSmall,
-              Text(
-                'Add something to your Vault, then come back to build a CV.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: kcLightGrey),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: StudioEmptyPreview(compact: true),
     );
   }
 }

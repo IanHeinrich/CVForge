@@ -9,11 +9,9 @@ import 'package:stacked_services/stacked_services.dart';
 /// Runs once before the app is usable: brings storage online and loads the
 /// Vault/Draft into memory, then routes to [VaultViewRoute].
 ///
-/// This is largely an optimisation, not a correctness requirement — this
-/// is a web app with real URLs, and a user refreshing directly on
-/// `/studio` bypasses this View entirely. `VaultService`/`DraftService`
-/// each gate their own reads on an internal readiness future, so they
-/// self-initialize correctly even if this never ran.
+/// This is largely an optimisation, not a correctness requirement — see
+/// [LocalStorageService] for why every service can self-initialize even
+/// if this View never ran.
 class StartupViewModel extends BaseViewModel {
   final _localStorageService = locator<LocalStorageService>();
   final _vaultService = locator<VaultService>();
@@ -33,9 +31,9 @@ class StartupViewModel extends BaseViewModel {
     await _localStorageService.ensureInitialized();
     await _vaultService.load();
     await _draftService.load();
-    // FontService.warmUp() (not awaited — fonts are ~1.5MB and a user who
-    // never exports shouldn't have first paint blocked on them) is wired
-    // in here once P1.6 adds that service.
+    // FontService.warmUp() will be wired in here once it exists — not
+    // awaited, since fonts are ~1.5MB and a user who never exports
+    // shouldn't have first paint blocked on them.
   }
 
   Future<void> retry() => runStartupLogic();

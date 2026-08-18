@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
 
 /// The common chrome every editor panel (basics, one experience, one
@@ -21,7 +22,12 @@ class VaultEditorPanelScaffold extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
+          padding: const EdgeInsets.fromLTRB(
+            kdPaddingPanel,
+            kdPaddingDefault,
+            12,
+            kdPaddingDefault,
+          ),
           child: Row(
             children: [
               Expanded(
@@ -45,7 +51,7 @@ class VaultEditorPanelScaffold extends StatelessWidget {
         const Divider(height: 1, color: kcMediumGrey),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(kdPaddingPanel),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: children,

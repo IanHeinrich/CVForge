@@ -8,8 +8,14 @@ import '../../widgets/vault_editor_panel_router.dart';
 import '../../widgets/vault_empty_state.dart';
 import 'vault_viewmodel.dart';
 
+/// The tablet variant ([VaultViewTablet]) is identical except for the
+/// card-list/editor-panel flex split, so it subclasses this and overrides
+/// just [cardListFlex]/[editorPanelFlex] rather than duplicating [build].
 class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
   const VaultViewDesktop({super.key});
+
+  int get cardListFlex => 3;
+  int get editorPanelFlex => 4;
 
   @override
   Widget build(BuildContext context, VaultViewModel viewModel) {
@@ -22,11 +28,14 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
             )
           : Row(
               children: [
-                Expanded(flex: 3, child: VaultCardList(viewModel: viewModel)),
+                Expanded(
+                  flex: cardListFlex,
+                  child: VaultCardList(viewModel: viewModel),
+                ),
                 if (viewModel.isEditorOpen) ...[
                   const VerticalDivider(width: 1, color: kcMediumGrey),
                   Expanded(
-                    flex: 4,
+                    flex: editorPanelFlex,
                     child: ColoredBox(
                       color: kcDarkGreyColor,
                       child: VaultEditorPanelRouter(viewModel: viewModel),

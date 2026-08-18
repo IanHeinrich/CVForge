@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,7 @@ class VaultEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

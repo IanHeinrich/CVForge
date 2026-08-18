@@ -1,5 +1,6 @@
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
 
 import 'vault_section_heading.dart';
@@ -33,7 +34,7 @@ class EducationListSection extends StatelessWidget {
         ),
         if (education.isEmpty)
           const Padding(
-            padding: EdgeInsets.only(bottom: 8),
+            padding: EdgeInsets.only(bottom: kdPaddingTight),
             child: Text(
               'No education yet.',
               style: TextStyle(color: kcLightGrey),

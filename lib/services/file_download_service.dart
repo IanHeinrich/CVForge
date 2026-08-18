@@ -5,10 +5,8 @@ import 'package:file_saver/file_saver.dart';
 /// The only file in this project that imports `file_saver`.
 ///
 /// `FileSaver.instance` is a static singleton and therefore unmockable —
-/// wrapping it here is the only way a test can assert that the PDF
-/// exporter (P1.6) actually produced bytes and called the saver with the
-/// right filename/mime type, rather than the mock just being the
-/// singleton itself.
+/// wrapping it here is the only way a test can assert what the PDF
+/// exporter hands off, rather than mocking the singleton itself.
 class FileDownloadService {
   /// [nameWithoutExtension] must NOT include the extension — passing e.g.
   /// "cv.pdf" here with fileExtension "pdf" produces "cv.pdf.pdf" on disk.
