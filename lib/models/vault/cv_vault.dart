@@ -35,3 +35,14 @@ abstract class CvVault with _$CvVault {
     updatedAt: DateTime.now(),
   );
 }
+
+/// A pure structural predicate — not presentation logic — used to decide
+/// whether to show the Vault's first-run empty state.
+extension CvVaultEmptiness on CvVault {
+  bool get isEmpty =>
+      basics.fullName.trim().isEmpty &&
+      experiences.isEmpty &&
+      skillCategories.isEmpty &&
+      education.isEmpty &&
+      hobbies.isEmpty;
+}

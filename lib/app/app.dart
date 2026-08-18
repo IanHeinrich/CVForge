@@ -1,5 +1,4 @@
 import 'package:cv_forge/ui/bottom_sheets/notice/notice_sheet.dart';
-import 'package:cv_forge/ui/dialogs/info_alert/info_alert_dialog.dart';
 import 'package:cv_forge/ui/views/startup/startup_view.dart';
 import 'package:cv_forge/ui/views/unknown/unknown_view.dart';
 import 'package:stacked/stacked_annotations.dart';
@@ -16,6 +15,8 @@ import 'package:cv_forge/services/file_download_service.dart';
 import 'package:cv_forge/features/vault/views/vault/vault_view.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_view.dart';
+
+import 'package:cv_forge/features/vault/dialogs/confirm_delete/confirm_delete_dialog.dart';
 
 // @stacked-import
 
@@ -46,7 +47,7 @@ import 'package:cv_forge/features/studio/views/studio/studio_view.dart';
     // @stacked-bottom-sheet
   ],
   dialogs: [
-    StackedDialog(classType: InfoAlertDialog),
+    StackedDialog(classType: ConfirmDeleteDialog),
     // @stacked-dialog
   ],
 )
