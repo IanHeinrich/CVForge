@@ -16,9 +16,9 @@ class _TranslateOnHoverState extends State<TranslateOnHover> {
 
   @override
   Widget build(BuildContext context) {
-    final nonHoverTransform = Matrix4.identity()..translate(0, 0, 0);
+    final nonHoverTransform = Matrix4.identity()..translateByDouble(0, 0, 0, 1);
     final hoverTransform = Matrix4.identity()
-      ..translate(widget.x ?? 0, widget.y ?? 0);
+      ..translateByDouble(widget.x ?? 0, widget.y ?? 0, 0, 1);
     return MouseRegion(
       onEnter: (e) => _mouseEnter(true),
       onExit: (e) => _mouseEnter(false),
