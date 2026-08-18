@@ -1,0 +1,30 @@
+name: Update goldens
+
+# Manual only. Golden baselines are OS-dependent (font rasterization
+# differs between Windows and Linux), so a locally-generated baseline
+# reliably fails on CI (ubuntu-latest). Generate/update them here instead,
+# on the same OS the CI test job actually runs on, then commit the
+# resulting PNGs from the downloaded artifact.
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.0"
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter test --update-goldens
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: goldens
+          path: test/**/goldens
