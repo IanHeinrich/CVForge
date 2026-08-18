@@ -49,3 +49,6 @@ app.*.map.json
 
 # Claude Code local tooling config (machine/environment-specific, not portable)
 .claude/
+
+# golden_toolkit failure-diff output (local debugging only)
+test/golden/failures/
