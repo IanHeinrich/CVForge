@@ -5,6 +5,7 @@ import 'basics_editor_panel.dart';
 import 'education_editor_panel.dart';
 import 'experience_editor_panel.dart';
 import 'hobbies_editor_panel.dart';
+import 'project_editor_panel.dart';
 import 'skills_editor_panel.dart';
 
 /// Resolves [VaultViewModel.openTarget]/[openId] to the correct editor
@@ -56,6 +57,28 @@ class VaultEditorPanelRouter extends StatelessWidget {
               viewModel.deleteBullet(experienceId, bulletId),
           onBulletsReordered: (ids) =>
               viewModel.reorderBullets(experienceId, ids),
+        );
+
+      case VaultEditorTarget.project:
+        final project = _findById(
+          viewModel.vault.projects,
+          viewModel.openId,
+          (p) => p.id,
+        );
+        if (project == null) return const SizedBox.shrink();
+        final projectId = project.id;
+        return ProjectEditorPanel(
+          project: project,
+          skillCategories: viewModel.vault.skillCategories,
+          onClose: viewModel.closeEditor,
+          onChanged: viewModel.updateProject,
+          onAddBullet: () => viewModel.addProjectBullet(projectId),
+          onBulletChanged: (bullet) =>
+              viewModel.updateProjectBullet(projectId, bullet),
+          onBulletDeleted: (bulletId) =>
+              viewModel.deleteProjectBullet(projectId, bulletId),
+          onBulletsReordered: (ids) =>
+              viewModel.reorderProjectBullets(projectId, ids),
         );
 
       case VaultEditorTarget.education:

@@ -1,18 +1,20 @@
 import 'contact_basics.dart';
+import 'cv_bullet.dart';
 import 'cv_vault.dart';
 import 'education.dart';
 import 'experience.dart';
-import 'experience_bullet.dart';
 import 'hobby_item.dart';
 import 'profile_link.dart';
+import 'project.dart';
 import 'skill.dart';
 import 'skill_category.dart';
 import 'year_month.dart';
 
 /// A wholly fictional persona, structured to mirror the shape of a real
 /// reference CV used during design (labelled AND unlabelled work bullets,
-/// two skill categories, two education entries, hobbies, a references
-/// note) so it exercises every branch of the `classic_serif` template.
+/// two skill categories, two projects, two education entries, hobbies, a
+/// references note) so it exercises every branch of the `ats_minimal`
+/// template.
 ///
 /// Used by the "Load example CV" button and as the deterministic fixture
 /// behind golden tests. Deliberately NOT real personal data — this repo
@@ -47,21 +49,21 @@ CvVault buildExampleVault() => CvVault(
       start: const YearMonth(year: 2023, month: 3),
       isCurrent: true,
       bullets: const [
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-1-b1',
           label: 'Platform migration',
           text:
               'Led a phased migration of the core ledger service, '
               'cutting transaction processing latency by 60%.',
         ),
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-1-b2',
           label: 'Security uplift',
           text:
               'Introduced automated dependency scanning into CI, '
               'resolving 80% of known vulnerabilities pre-release.',
         ),
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-1-b3',
           label: 'Mentorship',
           text:
@@ -78,20 +80,20 @@ CvVault buildExampleVault() => CvVault(
       start: const YearMonth(year: 2020, month: 6),
       end: const YearMonth(year: 2023, month: 2),
       bullets: const [
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-2-b1',
           text:
               'Built a multi-tenant reporting platform used by over '
               '40 enterprise clients to track compliance metrics.',
         ),
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-2-b2',
           label: 'Performance',
           text:
               'Refactored a slow ORM query path, reducing page load '
               'times from 4s to under 400ms.',
         ),
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-2-b3',
           label: 'API design',
           text:
@@ -108,14 +110,14 @@ CvVault buildExampleVault() => CvVault(
       start: const YearMonth(year: 2019, month: 1),
       end: const YearMonth(year: 2020, month: 5),
       bullets: const [
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-3-b1',
           label: 'Foundational work',
           text:
               'Contributed to the initial release of a booking '
               'system now used by 200+ small businesses.',
         ),
-        ExperienceBullet(
+        CvBullet(
           id: 'exp-3-b2',
           label: 'Testing',
           text:
@@ -142,6 +144,39 @@ CvVault buildExampleVault() => CvVault(
         Skill(id: 'skill-aws', label: 'AWS'),
         Skill(id: 'skill-gcp', label: 'GCP'),
         Skill(id: 'skill-cicd', label: 'CI/CD Pipeline Automation'),
+      ],
+    ),
+  ],
+  projects: const [
+    Project(
+      id: 'proj-1',
+      title: 'Ledger Reconciliation Dashboard',
+      link: 'github.com/jordanellery/ledger-dashboard',
+      bullets: [
+        CvBullet(
+          id: 'proj-1-b1',
+          text:
+              'Built an internal dashboard that surfaces reconciliation '
+              'discrepancies in real time, replacing a daily manual '
+              'spreadsheet export.',
+        ),
+        CvBullet(
+          id: 'proj-1-b2',
+          text: 'Actively used by the finance operations team of 12.',
+        ),
+      ],
+    ),
+    Project(
+      id: 'proj-2',
+      title: 'cv-forge',
+      link: 'github.com/jordanellery/cv-forge',
+      bullets: [
+        CvBullet(
+          id: 'proj-2-b1',
+          text:
+              'A privacy-first, client-side CV builder — nothing leaves '
+              'the browser.',
+        ),
       ],
     ),
   ],

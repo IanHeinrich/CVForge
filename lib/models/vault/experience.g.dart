@@ -18,9 +18,9 @@ _Experience _$ExperienceFromJson(Map<String, dynamic> json) => _Experience(
   isCurrent: json['isCurrent'] as bool? ?? false,
   bullets:
       (json['bullets'] as List<dynamic>?)
-          ?.map((e) => ExperienceBullet.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => CvBullet.fromJson(e as Map<String, dynamic>))
           .toList() ??
-      const <ExperienceBullet>[],
+      const <CvBullet>[],
   companyGroupId: json['companyGroupId'] as String?,
 );
 

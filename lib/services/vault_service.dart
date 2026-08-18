@@ -7,9 +7,10 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/example_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/experience_bullet.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
+import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
@@ -219,13 +220,13 @@ class VaultService with ListenableServiceMixin {
 
   // --- bullets ---
 
-  Future<ExperienceBullet> addBullet(
+  Future<CvBullet> addBullet(
     String experienceId, {
     String? label,
     required String text,
   }) async {
     await _ready();
-    final bullet = ExperienceBullet(id: _uuid.v4(), label: label, text: text);
+    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
     _updateExperience(
       experienceId,
       (e) => e.copyWith(bullets: [...e.bullets, bullet]),
@@ -233,10 +234,7 @@ class VaultService with ListenableServiceMixin {
     return bullet;
   }
 
-  Future<void> updateBullet(
-    String experienceId,
-    ExperienceBullet bullet,
-  ) async {
+  Future<void> updateBullet(String experienceId, CvBullet bullet) async {
     await _ready();
     _updateExperience(
       experienceId,
@@ -283,6 +281,98 @@ class VaultService with ListenableServiceMixin {
         experiences: [
           for (final e in v.experiences)
             if (e.id == experienceId) update(e) else e,
+        ],
+      ),
+    );
+  }
+
+  // --- projects ---
+
+  Future<Project> addProject({required String title, String? link}) async {
+    await _ready();
+    final project = Project(id: _uuid.v4(), title: title, link: link);
+    _setVault((v) => v.copyWith(projects: [...v.projects, project]));
+    return project;
+  }
+
+  Future<void> updateProject(Project project) async {
+    await _ready();
+    _setVault(
+      (v) => v.copyWith(
+        projects: _replaceById(v.projects, project.id, project, (p) => p.id),
+      ),
+    );
+  }
+
+  Future<void> deleteProject(String projectId) async {
+    await _ready();
+    _setVault(
+      (v) =>
+          v.copyWith(projects: _removeById(v.projects, projectId, (p) => p.id)),
+    );
+  }
+
+  // --- project bullets ---
+
+  Future<CvBullet> addProjectBullet(
+    String projectId, {
+    String? label,
+    required String text,
+  }) async {
+    await _ready();
+    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
+    _updateProject(
+      projectId,
+      (p) => p.copyWith(bullets: [...p.bullets, bullet]),
+    );
+    return bullet;
+  }
+
+  Future<void> updateProjectBullet(String projectId, CvBullet bullet) async {
+    await _ready();
+    _updateProject(
+      projectId,
+      (p) => p.copyWith(
+        bullets: _replaceById(p.bullets, bullet.id, bullet, (b) => b.id),
+      ),
+    );
+  }
+
+  Future<void> deleteProjectBullet(String projectId, String bulletId) async {
+    await _ready();
+    _updateProject(
+      projectId,
+      (p) => p.copyWith(bullets: _removeById(p.bullets, bulletId, (b) => b.id)),
+    );
+  }
+
+  Future<void> reorderProjectBullets(
+    String projectId,
+    List<String> orderedBulletIds,
+  ) async {
+    await _ready();
+    _updateProject(
+      projectId,
+      (p) => p.copyWith(
+        bullets: [
+          for (final id in orderedBulletIds)
+            ...p.bullets.where((b) => b.id == id).take(1),
+        ],
+      ),
+    );
+  }
+
+  /// Applies [update] to the single project matching [projectId]. Mirrors
+  /// [_updateExperience] — same shape, one entity type over.
+  void _updateProject(
+    String projectId,
+    Project Function(Project current) update,
+  ) {
+    _setVault(
+      (v) => v.copyWith(
+        projects: [
+          for (final p in v.projects)
+            if (p.id == projectId) update(p) else p,
         ],
       ),
     );

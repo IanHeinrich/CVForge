@@ -1,4 +1,4 @@
-import 'package:cv_forge/models/vault/experience_bullet.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
@@ -21,14 +21,14 @@ class BulletListEditor extends StatelessWidget {
     required this.onReorder,
   });
 
-  final List<ExperienceBullet> bullets;
+  final List<CvBullet> bullets;
 
   /// Read-only here — which skills link to a bullet is set from the
   /// Skills panel (`_SkillBulletLinkPicker`), not from this one. Shown
   /// underneath each bullet so it's visible without switching panels.
   final List<SkillCategory> skillCategories;
   final VoidCallback onAdd;
-  final ValueChanged<ExperienceBullet> onChanged;
+  final ValueChanged<CvBullet> onChanged;
   final ValueChanged<String> onDelete;
   final ValueChanged<List<String>> onReorder;
 

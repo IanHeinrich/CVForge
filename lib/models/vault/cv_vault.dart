@@ -4,6 +4,7 @@ import 'contact_basics.dart';
 import 'education.dart';
 import 'experience.dart';
 import 'hobby_item.dart';
+import 'project.dart';
 import 'skill_category.dart';
 
 part 'cv_vault.freezed.dart';
@@ -20,6 +21,7 @@ abstract class CvVault with _$CvVault {
     required ContactBasics basics,
     @Default(<Experience>[]) List<Experience> experiences,
     @Default(<SkillCategory>[]) List<SkillCategory> skillCategories,
+    @Default(<Project>[]) List<Project> projects,
     @Default(<Education>[]) List<Education> education,
     @Default(<HobbyItem>[]) List<HobbyItem> hobbies,
     String? referencesNote,
@@ -43,6 +45,7 @@ extension CvVaultEmptiness on CvVault {
       basics.fullName.trim().isEmpty &&
       experiences.isEmpty &&
       skillCategories.isEmpty &&
+      projects.isEmpty &&
       education.isEmpty &&
       hobbies.isEmpty;
 }

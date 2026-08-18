@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'experience_bullet.dart';
+import 'cv_bullet.dart';
 import 'year_month.dart';
 
 part 'experience.freezed.dart';
@@ -16,7 +16,7 @@ abstract class Experience with _$Experience {
     required YearMonth start,
     YearMonth? end,
     @Default(false) bool isCurrent,
-    @Default(<ExperienceBullet>[]) List<ExperienceBullet> bullets,
+    @Default(<CvBullet>[]) List<CvBullet> bullets,
 
     /// Shared by every [Experience] that represents a promotion within the
     /// same company — `null` means "not grouped with anything". A group of

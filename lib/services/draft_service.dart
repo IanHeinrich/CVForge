@@ -82,21 +82,14 @@ class DraftService with ListenableServiceMixin {
     String experienceId, {
     required bool included,
     List<String> bulletIds = const [],
-  }) async {
-    await _ready();
-    _setDraft((d) {
-      final ids = [...d.experienceIds];
-      final map = {...d.bulletIds};
-      if (included) {
-        if (!ids.contains(experienceId)) ids.add(experienceId);
-        map[experienceId] = bulletIds;
-      } else {
-        ids.remove(experienceId);
-        map.remove(experienceId);
-      }
-      return d.copyWith(experienceIds: ids, bulletIds: map);
-    });
-  }
+  }) => _setIncludedWithBullets(
+    experienceId,
+    included: included,
+    bulletIds: bulletIds,
+    idsOf: (d) => d.experienceIds,
+    bulletIdsOf: (d) => d.bulletIds,
+    copyWith: (d, ids, map) => d.copyWith(experienceIds: ids, bulletIds: map),
+  );
 
   Future<void> setBulletsForExperience(
     String experienceId,
@@ -106,6 +99,65 @@ class DraftService with ListenableServiceMixin {
     _setDraft(
       (d) => d.copyWith(bulletIds: {...d.bulletIds, experienceId: bulletIds}),
     );
+  }
+
+  /// Same shape as [setExperienceIncluded], one entity type over — a
+  /// [Project] instead of an [Experience].
+  Future<void> setProjectIncluded(
+    String projectId, {
+    required bool included,
+    List<String> bulletIds = const [],
+  }) => _setIncludedWithBullets(
+    projectId,
+    included: included,
+    bulletIds: bulletIds,
+    idsOf: (d) => d.projectIds,
+    bulletIdsOf: (d) => d.projectBulletIds,
+    copyWith: (d, ids, map) =>
+        d.copyWith(projectIds: ids, projectBulletIds: map),
+  );
+
+  Future<void> setBulletsForProject(
+    String projectId,
+    List<String> bulletIds,
+  ) async {
+    await _ready();
+    _setDraft(
+      (d) => d.copyWith(
+        projectBulletIds: {...d.projectBulletIds, projectId: bulletIds},
+      ),
+    );
+  }
+
+  /// Shared by [setExperienceIncluded] and [setProjectIncluded] — both
+  /// toggle an entity's id in one list while keeping a parallel
+  /// entityId->bulletIds map in sync, so the two can never drift apart.
+  Future<void> _setIncludedWithBullets(
+    String id, {
+    required bool included,
+    required List<String> bulletIds,
+    required List<String> Function(CvDraft draft) idsOf,
+    required Map<String, List<String>> Function(CvDraft draft) bulletIdsOf,
+    required CvDraft Function(
+      CvDraft draft,
+      List<String> ids,
+      Map<String, List<String>> bulletIds,
+    )
+    copyWith,
+  }) async {
+    await _ready();
+    _setDraft((d) {
+      final ids = [...idsOf(d)];
+      final map = {...bulletIdsOf(d)};
+      if (included) {
+        if (!ids.contains(id)) ids.add(id);
+        map[id] = bulletIds;
+      } else {
+        ids.remove(id);
+        map.remove(id);
+      }
+      return copyWith(d, ids, map);
+    });
   }
 
   Future<void> setSkillIncluded(String skillId, {required bool included}) =>

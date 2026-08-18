@@ -17,6 +17,11 @@ sealed class ResolvedSection with _$ResolvedSection {
     required List<ResolvedCompanyGroup> groups,
   }) = ResolvedExperienceSection;
 
+  const factory ResolvedSection.projects({
+    required String title,
+    required List<ResolvedProject> items,
+  }) = ResolvedProjectsSection;
+
   const factory ResolvedSection.skills({
     required String title,
     required List<ResolvedSkillGroup> groups,
@@ -70,6 +75,15 @@ abstract class ResolvedBullet with _$ResolvedBullet {
 }
 
 @freezed
+abstract class ResolvedProject with _$ResolvedProject {
+  const factory ResolvedProject({
+    required String title,
+    String? link,
+    @Default(<ResolvedBullet>[]) List<ResolvedBullet> bullets,
+  }) = _ResolvedProject;
+}
+
+@freezed
 abstract class ResolvedSkillGroup with _$ResolvedSkillGroup {
   const factory ResolvedSkillGroup({
     required String category,
@@ -85,7 +99,7 @@ abstract class ResolvedQualification with _$ResolvedQualification {
     String? location,
 
     /// Pre-formatted (e.g. "2021"), not a raw int — same reasoning as
-    /// [ResolvedRole.dateRange].
+    /// [ResolvedPosition.dateRange].
     String? yearLabel,
     String? grade,
     String? details,

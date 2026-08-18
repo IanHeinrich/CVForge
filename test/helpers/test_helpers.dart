@@ -6,6 +6,7 @@ import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/file_download_service.dart';
+import 'package:cv_forge/services/template_registry_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -20,6 +21,9 @@ import 'test_helpers.mocks.dart';
     MockSpec<VaultService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<DraftService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<FileDownloadService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<TemplateRegistryService>(
+      onMissingStub: OnMissingStub.returnDefault,
+    ),
     // @stacked-mock-spec
   ],
 )
@@ -31,6 +35,7 @@ void registerServices() {
   getAndRegisterVaultService();
   getAndRegisterDraftService();
   getAndRegisterFileDownloadService();
+  getAndRegisterTemplateRegistryService();
   // @stacked-mock-register
 }
 
@@ -113,6 +118,13 @@ MockFileDownloadService getAndRegisterFileDownloadService() {
   _removeRegistrationIfExists<FileDownloadService>();
   final service = MockFileDownloadService();
   locator.registerSingleton<FileDownloadService>(service);
+  return service;
+}
+
+MockTemplateRegistryService getAndRegisterTemplateRegistryService() {
+  _removeRegistrationIfExists<TemplateRegistryService>();
+  final service = MockTemplateRegistryService();
+  locator.registerSingleton<TemplateRegistryService>(service);
   return service;
 }
 // @stacked-mock-create

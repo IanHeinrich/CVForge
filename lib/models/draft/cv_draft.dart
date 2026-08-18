@@ -32,6 +32,12 @@ abstract class CvDraft with _$CvDraft {
     /// map is populated by the service layer when an experience is added
     /// to a draft, not inferred here.
     @Default(<String, List<String>>{}) Map<String, List<String>> bulletIds,
+    @Default(<String>[]) List<String> projectIds,
+
+    /// Same shape and rationale as [bulletIds], one level over for
+    /// [Project] bullets instead of [Experience] bullets.
+    @Default(<String, List<String>>{})
+    Map<String, List<String>> projectBulletIds,
     @Default(<String>[]) List<String> skillIds,
     @Default(<String>[]) List<String> educationIds,
     @Default(<String>[]) List<String> hobbyIds,

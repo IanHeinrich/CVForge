@@ -4,50 +4,42 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
 /// The "nothing to preview yet" placeholder shown until the Studio has
-/// real content to render. [compact] tightens icon/text sizing and wraps
-/// in horizontal padding for the mobile breakpoint; desktop and tablet
-/// use the default sizing.
+/// real content to render.
 class StudioEmptyPreview extends StatelessWidget {
-  const StudioEmptyPreview({super.key, this.compact = false});
-
-  final bool compact;
+  const StudioEmptyPreview({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final content = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.design_services_outlined,
-          size: compact ? 40 : 48,
-          color: kcLightGrey,
-        ),
-        verticalSpaceMedium,
-        Text(
-          'Nothing to preview yet',
-          textAlign: compact ? TextAlign.center : null,
-          style: TextStyle(
-            fontSize: compact ? 20 : 22,
-            fontWeight: FontWeight.w700,
-            color: kcWhite,
-          ),
-        ),
-        verticalSpaceSmall,
-        Text(
-          'Add something to your Vault, then come back to build a CV.',
-          textAlign: compact ? TextAlign.center : null,
-          style: const TextStyle(color: kcLightGrey),
-        ),
-      ],
-    );
-
     return Center(
-      child: compact
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
-              child: content,
-            )
-          : content,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.design_services_outlined,
+              size: 48,
+              color: kcLightGrey,
+            ),
+            verticalSpaceMedium,
+            const Text(
+              'Nothing to preview yet',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: kcWhite,
+              ),
+            ),
+            verticalSpaceSmall,
+            const Text(
+              'Add something to your Vault, then come back to build a CV.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: kcLightGrey),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
