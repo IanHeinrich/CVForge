@@ -1,5 +1,6 @@
 import 'package:cv_forge/models/vault/experience_bullet.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +33,7 @@ class BulletListEditor extends StatelessWidget {
         VaultSectionHeading(title: 'Bullets', onAdd: onAdd),
         if (bullets.isEmpty)
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: kdPaddingTight),
             child: Text(
               'No bullets yet.',
               style: TextStyle(color: kcLightGrey),
@@ -53,7 +54,7 @@ class BulletListEditor extends StatelessWidget {
             final bullet = bullets[index];
             return Padding(
               key: ValueKey(bullet.id),
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: kdPaddingTight),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

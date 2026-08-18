@@ -5,6 +5,9 @@ import 'package:stacked/stacked.dart';
 
 import 'unknown_viewmodel.dart';
 
+/// The tablet and mobile variants are byte-identical to this one — a 404
+/// page has nothing to adapt per breakpoint — so they subclass this
+/// rather than each redeclaring the same [build].
 class UnknownViewDesktop extends ViewModelWidget<UnknownViewModel> {
   const UnknownViewDesktop({super.key});
 

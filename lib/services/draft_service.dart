@@ -16,13 +16,18 @@ import 'package:stacked/stacked.dart';
 /// (dangling ids are handled by `CvComposer`, not here).
 class DraftService with ListenableServiceMixin {
   DraftService() {
-    listenToReactiveValues([_draft]);
+    listenToReactiveValues([_draft, _persistError]);
   }
 
   final _localStorage = locator<LocalStorageService>();
 
   final ReactiveValue<CvDraft> _draft = ReactiveValue<CvDraft>(CvDraft.empty());
   CvDraft get draft => _draft.value;
+
+  /// Set when the most recent write to [LocalStorageService] failed;
+  /// cleared on the next successful one. Mirrors [VaultService.persistError].
+  final ReactiveValue<Object?> _persistError = ReactiveValue<Object?>(null);
+  Object? get persistError => _persistError.value;
 
   Future<void>? _readyFuture;
   Timer? _writeDebounce;
@@ -103,51 +108,50 @@ class DraftService with ListenableServiceMixin {
     );
   }
 
-  Future<void> setSkillIncluded(
-    String skillId, {
-    required bool included,
-  }) async {
-    await _ready();
-    _setDraft((d) {
-      final ids = [...d.skillIds];
-      if (included) {
-        ids.add(skillId);
-      } else {
-        ids.remove(skillId);
-      }
-      return d.copyWith(skillIds: ids.toSet().toList());
-    });
-  }
+  Future<void> setSkillIncluded(String skillId, {required bool included}) =>
+      _setIdIncluded(
+        skillId,
+        included: included,
+        idsOf: (d) => d.skillIds,
+        copyWith: (d, ids) => d.copyWith(skillIds: ids),
+      );
 
   Future<void> setEducationIncluded(
     String educationId, {
     required bool included,
-  }) async {
-    await _ready();
-    _setDraft((d) {
-      final ids = [...d.educationIds];
-      if (included) {
-        ids.add(educationId);
-      } else {
-        ids.remove(educationId);
-      }
-      return d.copyWith(educationIds: ids.toSet().toList());
-    });
-  }
+  }) => _setIdIncluded(
+    educationId,
+    included: included,
+    idsOf: (d) => d.educationIds,
+    copyWith: (d, ids) => d.copyWith(educationIds: ids),
+  );
 
-  Future<void> setHobbyIncluded(
-    String hobbyId, {
+  Future<void> setHobbyIncluded(String hobbyId, {required bool included}) =>
+      _setIdIncluded(
+        hobbyId,
+        included: included,
+        idsOf: (d) => d.hobbyIds,
+        copyWith: (d, ids) => d.copyWith(hobbyIds: ids),
+      );
+
+  /// Shared by [setSkillIncluded], [setEducationIncluded], and
+  /// [setHobbyIncluded] — each just toggles [id] in a different one of
+  /// [CvDraft]'s flat id lists.
+  Future<void> _setIdIncluded(
+    String id, {
     required bool included,
+    required List<String> Function(CvDraft draft) idsOf,
+    required CvDraft Function(CvDraft draft, List<String> ids) copyWith,
   }) async {
     await _ready();
     _setDraft((d) {
-      final ids = [...d.hobbyIds];
+      final ids = [...idsOf(d)];
       if (included) {
-        ids.add(hobbyId);
+        ids.add(id);
       } else {
-        ids.remove(hobbyId);
+        ids.remove(id);
       }
-      return d.copyWith(hobbyIds: ids.toSet().toList());
+      return copyWith(d, ids.toSet().toList());
     });
   }
 
@@ -197,19 +201,25 @@ class DraftService with ListenableServiceMixin {
     });
   }
 
+  /// Persists immediately, bypassing any pending debounce timer. See
+  /// [VaultService.flushPendingWrites] for the two production call sites.
   Future<void> flushPendingWrites() async {
-    if (_writeDebounce == null) return;
-    _writeDebounce!.cancel();
+    _writeDebounce?.cancel();
     _writeDebounce = null;
     await _persist();
   }
 
   Future<void> _persist() async {
-    final json = jsonEncode(_draft.value.toJson());
-    await _localStorage.write(
-      StorageBoxes.drafts,
-      StorageKeys.currentDraftId,
-      json,
-    );
+    try {
+      final json = jsonEncode(_draft.value.toJson());
+      await _localStorage.write(
+        StorageBoxes.drafts,
+        StorageKeys.currentDraftId,
+        json,
+      );
+      _persistError.value = null;
+    } catch (e) {
+      _persistError.value = e;
+    }
   }
 }

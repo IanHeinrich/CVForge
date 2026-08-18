@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -5,8 +6,9 @@ import '../views/vault/vault_viewmodel.dart';
 import 'basics_editor_card.dart';
 import 'education_list_section.dart';
 import 'experience_list_section.dart';
-import 'hobbies_editor_section.dart';
-import 'skills_editor_section.dart';
+import 'hobbies_editor_card.dart';
+import 'skills_editor_card.dart';
+import 'vault_persist_error_banner.dart';
 
 /// The main scrolling list of collapsed entity summary cards. Shared by
 /// every breakpoint so desktop/tablet/mobile can't drift on which
@@ -21,8 +23,12 @@ class VaultCardList extends StatelessWidget {
     final vault = viewModel.vault;
 
     return ListView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(kdPaddingPage),
       children: [
+        if (viewModel.hasPersistError) ...[
+          VaultPersistErrorBanner(onRetry: viewModel.retryPersist),
+          verticalSpaceMedium,
+        ],
         BasicsEditorCard(
           basics: vault.basics,
           selected: viewModel.openTarget == VaultEditorTarget.basics,

@@ -1,5 +1,6 @@
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
 
 import 'vault_section_heading.dart';
@@ -33,7 +34,7 @@ class ExperienceListSection extends StatelessWidget {
         ),
         if (experiences.isEmpty)
           const Padding(
-            padding: EdgeInsets.only(bottom: 8),
+            padding: EdgeInsets.only(bottom: kdPaddingTight),
             child: Text(
               'No experience yet.',
               style: TextStyle(color: kcLightGrey),

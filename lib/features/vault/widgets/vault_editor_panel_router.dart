@@ -1,13 +1,11 @@
-import 'package:cv_forge/models/vault/education.dart';
-import 'package:cv_forge/models/vault/experience.dart';
 import 'package:flutter/material.dart';
 
 import '../views/vault/vault_viewmodel.dart';
-import 'basics_editor_card.dart';
+import 'basics_editor_panel.dart';
 import 'education_editor_panel.dart';
 import 'experience_editor_panel.dart';
-import 'hobbies_editor_section.dart';
-import 'skills_editor_section.dart';
+import 'hobbies_editor_panel.dart';
+import 'skills_editor_panel.dart';
 
 /// Resolves [VaultViewModel.openTarget]/[openId] to the correct editor
 /// panel widget. Kept in one place so desktop/tablet/mobile layouts don't
@@ -36,7 +34,11 @@ class VaultEditorPanelRouter extends StatelessWidget {
         );
 
       case VaultEditorTarget.experience:
-        final experience = _findExperience(viewModel);
+        final experience = _findById(
+          viewModel.vault.experiences,
+          viewModel.openId,
+          (e) => e.id,
+        );
         if (experience == null) return const SizedBox.shrink();
         final experienceId = experience.id;
         return ExperienceEditorPanel(
@@ -53,7 +55,11 @@ class VaultEditorPanelRouter extends StatelessWidget {
         );
 
       case VaultEditorTarget.education:
-        final education = _findEducation(viewModel);
+        final education = _findById(
+          viewModel.vault.education,
+          viewModel.openId,
+          (e) => e.id,
+        );
         if (education == null) return const SizedBox.shrink();
         return EducationEditorPanel(
           education: education,
@@ -84,16 +90,11 @@ class VaultEditorPanelRouter extends StatelessWidget {
     }
   }
 
-  Experience? _findExperience(VaultViewModel viewModel) {
-    for (final e in viewModel.vault.experiences) {
-      if (e.id == viewModel.openId) return e;
-    }
-    return null;
-  }
-
-  Education? _findEducation(VaultViewModel viewModel) {
-    for (final e in viewModel.vault.education) {
-      if (e.id == viewModel.openId) return e;
+  /// Finds the item whose [idOf] matches [id], or `null` if it's been
+  /// deleted since the panel was opened (or [id] itself is `null`).
+  T? _findById<T>(List<T> items, String? id, String Function(T item) idOf) {
+    for (final item in items) {
+      if (idOf(item) == id) return item;
     }
     return null;
   }

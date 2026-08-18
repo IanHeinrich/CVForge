@@ -108,6 +108,15 @@ they're meant to be reused:
   vertical slicing here is about where source files live, not about
   splitting Stacked's `@StackedApp` wiring itself.
 
+Two non-feature layers sit alongside these:
+- `lib/models/` — pure Dart freezed models (`vault/`, `draft/`, `render/`).
+  **Must never import `flutter` or `pdf`.** `render/cv_composer.dart` is the
+  only place Vault and Draft data are joined.
+- `lib/templates/` — the dual-renderer boundary. `design/` holds
+  framework-agnostic tokens plus exactly one Flutter adapter and one pdf
+  adapter; each template owns a screen renderer and a pdf renderer that
+  share nothing but those tokens.
+
 ### How to scaffold into a feature slice
 
 `stacked create view/dialog/bottom_sheet` don't have a `-p/--path` flag, so
@@ -222,6 +231,34 @@ tests of private helpers or implementation details.
 - If asked to "test" a change without further detail, default to an
   outside-in ViewModel/Service test (or a golden test for a View change),
   not a unit test.
+- **Golden tests must call `registerServices()`**, not a hand-picked subset
+  of `getAndRegister*` calls. A View pulls in every service its ViewModel's
+  constructor resolves; a partial setup crashes at widget-build time rather
+  than failing a pixel comparison, and `--update-goldens` does not catch it.
+
+## Code style
+
+Each of these was a real mistake in this repo, not hypothetical:
+
+- **State a cross-cutting rationale once.** Document an invariant in the file
+  that owns it and reference that file elsewhere. The same explanation
+  restated in four files rots in four places.
+- **No plan/phase numbers (`P1.6`) or schedule references in code comments.**
+  They're stale as soon as the plan moves on. Describe the gap, not when it
+  gets filled.
+- **Comments explain why, not what.** `// --- experiences ---` style banners
+  usually mean the file wants splitting instead.
+- **Never fire-and-forget a write of user data.** `unawaited(...)` on a
+  persistence call silently loses data; surface the failure.
+- **No production API that only tests call.** If a method exists solely so a
+  test can force something, wire it into a real call site or delete it.
+- **Responsive variants (`*.desktop/.tablet/.mobile.dart`) that differ only
+  in constants share one widget** parameterised by those constants, rather
+  than three copies of the same tree.
+- **One naming convention per widget shape.** A summary card and its editor
+  panel are `foo_editor_card.dart` + `foo_editor_panel.dart` — don't mix
+  "card"/"section"/"list_section" for the same concept, and don't put a
+  150-line panel in a file named `..._card.dart`.
 
 ## General AI-development practices for this repo
 

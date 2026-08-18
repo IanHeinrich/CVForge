@@ -70,6 +70,10 @@ class _VaultTextFieldState extends State<VaultTextField> {
 
   @override
   void dispose() {
+    // A pending debounce means the last keystroke(s) haven't reached
+    // onChanged yet — cancelling it outright without flushing would drop
+    // them (e.g. the panel closes right after a final edit).
+    if (_debounce?.isActive ?? false) widget.onChanged(_controller.text);
     _debounce?.cancel();
     _focusNode.removeListener(_handleFocusChange);
     _focusNode.dispose();

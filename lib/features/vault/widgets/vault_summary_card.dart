@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,7 @@ class VaultSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: kdPaddingTight),
       color: selected ? kcPrimaryColorDark : kcDarkGreyColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -38,7 +39,10 @@ class VaultSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kdPaddingDefault,
+            vertical: 14,
+          ),
           child: Row(
             children: [
               if (leading != null) ...[leading!, horizontalSpaceSmall],
