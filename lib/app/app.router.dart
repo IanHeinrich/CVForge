@@ -14,18 +14,20 @@ import '../ui/views/home/home_view.dart' as _i2;
 import '../ui/views/startup/startup_view.dart' as _i1;
 import '../ui/views/unknown/unknown_view.dart' as _i3;
 
-final stackedRouter =
-    StackedRouterWeb(navigatorKey: _i4.StackedService.navigatorKey);
+final stackedRouter = StackedRouterWeb(
+  navigatorKey: _i4.StackedService.navigatorKey,
+);
 
 class StackedRouterWeb extends _i5.RootStackRouter {
   StackedRouterWeb({_i6.GlobalKey<_i6.NavigatorState>? navigatorKey})
-      : super(navigatorKey);
+    : super(navigatorKey);
 
   @override
   final Map<String, _i5.PageFactory> pagesMap = {
     StartupViewRoute.name: (routeData) {
       final args = routeData.argsAs<StartupViewArgs>(
-          orElse: () => const StartupViewArgs());
+        orElse: () => const StartupViewArgs(),
+      );
       return _i5.CustomPage<dynamic>(
         routeData: routeData,
         child: _i1.StartupView(key: args.key),
@@ -34,8 +36,9 @@ class StackedRouterWeb extends _i5.RootStackRouter {
       );
     },
     HomeViewRoute.name: (routeData) {
-      final args =
-          routeData.argsAs<HomeViewArgs>(orElse: () => const HomeViewArgs());
+      final args = routeData.argsAs<HomeViewArgs>(
+        orElse: () => const HomeViewArgs(),
+      );
       return _i5.CustomPage<dynamic>(
         routeData: routeData,
         child: _i2.HomeView(key: args.key),
@@ -45,7 +48,8 @@ class StackedRouterWeb extends _i5.RootStackRouter {
     },
     UnknownViewRoute.name: (routeData) {
       final args = routeData.argsAs<UnknownViewArgs>(
-          orElse: () => const UnknownViewArgs());
+        orElse: () => const UnknownViewArgs(),
+      );
       return _i5.CustomPage<dynamic>(
         routeData: routeData,
         child: _i3.UnknownView(key: args.key),
@@ -57,36 +61,27 @@ class StackedRouterWeb extends _i5.RootStackRouter {
 
   @override
   List<_i5.RouteConfig> get routes => [
-        _i5.RouteConfig(
-          StartupViewRoute.name,
-          path: '/',
-        ),
-        _i5.RouteConfig(
-          HomeViewRoute.name,
-          path: '/home-view',
-        ),
-        _i5.RouteConfig(
-          UnknownViewRoute.name,
-          path: '/404',
-        ),
-        _i5.RouteConfig(
-          '*#redirect',
-          path: '*',
-          redirectTo: '/404',
-          fullMatch: true,
-        ),
-      ];
+    _i5.RouteConfig(StartupViewRoute.name, path: '/'),
+    _i5.RouteConfig(HomeViewRoute.name, path: '/home-view'),
+    _i5.RouteConfig(UnknownViewRoute.name, path: '/404'),
+    _i5.RouteConfig(
+      '*#redirect',
+      path: '*',
+      redirectTo: '/404',
+      fullMatch: true,
+    ),
+  ];
 }
 
 /// generated route for
 /// [_i1.StartupView]
 class StartupViewRoute extends _i5.PageRouteInfo<StartupViewArgs> {
   StartupViewRoute({_i6.Key? key})
-      : super(
-          StartupViewRoute.name,
-          path: '/',
-          args: StartupViewArgs(key: key),
-        );
+    : super(
+        StartupViewRoute.name,
+        path: '/',
+        args: StartupViewArgs(key: key),
+      );
 
   static const String name = 'StartupView';
 }
@@ -106,11 +101,11 @@ class StartupViewArgs {
 /// [_i2.HomeView]
 class HomeViewRoute extends _i5.PageRouteInfo<HomeViewArgs> {
   HomeViewRoute({_i6.Key? key})
-      : super(
-          HomeViewRoute.name,
-          path: '/home-view',
-          args: HomeViewArgs(key: key),
-        );
+    : super(
+        HomeViewRoute.name,
+        path: '/home-view',
+        args: HomeViewArgs(key: key),
+      );
 
   static const String name = 'HomeView';
 }
@@ -130,11 +125,11 @@ class HomeViewArgs {
 /// [_i3.UnknownView]
 class UnknownViewRoute extends _i5.PageRouteInfo<UnknownViewArgs> {
   UnknownViewRoute({_i6.Key? key})
-      : super(
-          UnknownViewRoute.name,
-          path: '/404',
-          args: UnknownViewArgs(key: key),
-        );
+    : super(
+        UnknownViewRoute.name,
+        path: '/404',
+        args: UnknownViewArgs(key: key),
+      );
 
   static const String name = 'UnknownView';
 }
@@ -155,71 +150,41 @@ extension RouterStateExtension on _i4.RouterService {
     _i6.Key? key,
     void Function(_i5.NavigationFailure)? onFailure,
   }) async {
-    return navigateTo(
-      StartupViewRoute(
-        key: key,
-      ),
-      onFailure: onFailure,
-    );
+    return navigateTo(StartupViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> navigateToHomeView({
     _i6.Key? key,
     void Function(_i5.NavigationFailure)? onFailure,
   }) async {
-    return navigateTo(
-      HomeViewRoute(
-        key: key,
-      ),
-      onFailure: onFailure,
-    );
+    return navigateTo(HomeViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> navigateToUnknownView({
     _i6.Key? key,
     void Function(_i5.NavigationFailure)? onFailure,
   }) async {
-    return navigateTo(
-      UnknownViewRoute(
-        key: key,
-      ),
-      onFailure: onFailure,
-    );
+    return navigateTo(UnknownViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> replaceWithStartupView({
     _i6.Key? key,
     void Function(_i5.NavigationFailure)? onFailure,
   }) async {
-    return replaceWith(
-      StartupViewRoute(
-        key: key,
-      ),
-      onFailure: onFailure,
-    );
+    return replaceWith(StartupViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> replaceWithHomeView({
     _i6.Key? key,
     void Function(_i5.NavigationFailure)? onFailure,
   }) async {
-    return replaceWith(
-      HomeViewRoute(
-        key: key,
-      ),
-      onFailure: onFailure,
-    );
+    return replaceWith(HomeViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> replaceWithUnknownView({
     _i6.Key? key,
     void Function(_i5.NavigationFailure)? onFailure,
   }) async {
-    return replaceWith(
-      UnknownViewRoute(
-        key: key,
-      ),
-      onFailure: onFailure,
-    );
+    return replaceWith(UnknownViewRoute(key: key), onFailure: onFailure);
   }
 }
