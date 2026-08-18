@@ -4,3 +4,10 @@ targets:
       stacked_generator|stackedRouterGenerator:
         options:
           navigator2: true
+      json_serializable:
+        options:
+          # Without this, nested @freezed objects inside an aggregate (e.g.
+          # Experience inside CvVault) serialize as `Instance of 'Experience'`
+          # instead of a nested JSON object — a silent persistence bug.
+          explicit_to_json: true
+          field_rename: none
