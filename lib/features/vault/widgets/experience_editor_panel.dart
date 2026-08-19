@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
 import 'vault_editor_panel_scaffold.dart';
-import 'vault_text_field.dart';
+import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class ExperienceEditorPanel extends StatelessWidget {
   const ExperienceEditorPanel({
@@ -51,19 +51,19 @@ class ExperienceEditorPanel extends StatelessWidget {
       title: experience.role.isEmpty ? 'New experience' : experience.role,
       onClose: onClose,
       children: [
-        VaultTextField(
+        AppTextField(
           label: 'Role',
           initialValue: experience.role,
           onChanged: (v) => onChanged(experience.copyWith(role: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Company',
           initialValue: experience.company,
           onChanged: (v) => onChanged(experience.copyWith(company: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Location',
           initialValue: experience.location,
           onChanged: (v) => onChanged(experience.copyWith(location: v)),
@@ -73,7 +73,7 @@ class ExperienceEditorPanel extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: VaultTextField(
+              child: AppTextField(
                 label: 'Start month',
                 initialValue: experience.start.month.toString(),
                 keyboardType: TextInputType.number,
@@ -91,7 +91,7 @@ class ExperienceEditorPanel extends StatelessWidget {
             ),
             horizontalSpaceSmall,
             Expanded(
-              child: VaultTextField(
+              child: AppTextField(
                 label: 'Start year',
                 initialValue: experience.start.year.toString(),
                 keyboardType: TextInputType.number,
@@ -131,7 +131,7 @@ class ExperienceEditorPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: VaultTextField(
+                child: AppTextField(
                   label: 'End month',
                   initialValue: experience.end?.month.toString() ?? '',
                   keyboardType: TextInputType.number,
@@ -147,7 +147,7 @@ class ExperienceEditorPanel extends StatelessWidget {
               ),
               horizontalSpaceSmall,
               Expanded(
-                child: VaultTextField(
+                child: AppTextField(
                   label: 'End year',
                   initialValue: experience.end?.year.toString() ?? '',
                   keyboardType: TextInputType.number,

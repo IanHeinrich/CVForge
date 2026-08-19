@@ -44,8 +44,8 @@ class AppChrome extends StatelessWidget {
                 _navigateTo(AppSection.values[index]),
             destinations: const [
               NavigationRailDestination(
-                icon: Icon(Icons.folder_outlined),
-                selectedIcon: Icon(Icons.folder),
+                icon: Icon(Icons.lock_outline),
+                selectedIcon: Icon(Icons.lock),
                 label: Text('Vault'),
               ),
               NavigationRailDestination(

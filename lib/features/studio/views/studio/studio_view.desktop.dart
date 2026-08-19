@@ -20,16 +20,37 @@ import 'studio_viewmodel.dart';
 class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
   const StudioViewDesktop({super.key});
 
+  /// The config panel scales with available width between these bounds
+  /// instead of staying fixed at [_minPanelWidth]. Past a point, extra
+  /// window width buys nothing for the preview — it's a fixed-aspect-
+  /// ratio page, not content that benefits from stretching — so that
+  /// width is better spent on the panel's checklists and tailoring
+  /// editors, which always have a use for more room.
+  static const _minPanelWidth = 380.0;
+  static const _maxPanelWidth = 676.0; // 520 + 30%
+  static const _panelWidthFraction = 0.32;
+
   @override
   Widget build(BuildContext context, StudioViewModel viewModel) {
     return AppChrome(
       currentSection: AppSection.studio,
-      child: Row(
-        children: [
-          SizedBox(width: 380, child: StudioConfigPanel(viewModel: viewModel)),
-          const VerticalDivider(width: 1, color: kcMediumGrey),
-          Expanded(child: StudioPreviewPane(viewModel: viewModel)),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final panelWidth = (constraints.maxWidth * _panelWidthFraction).clamp(
+            _minPanelWidth,
+            _maxPanelWidth,
+          );
+          return Row(
+            children: [
+              SizedBox(
+                width: panelWidth,
+                child: StudioConfigPanel(viewModel: viewModel),
+              ),
+              const VerticalDivider(width: 1, color: kcMediumGrey),
+              Expanded(child: StudioPreviewPane(viewModel: viewModel)),
+            ],
+          );
+        },
       ),
     );
   }
@@ -144,7 +165,10 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
           message:
               'Your Vault has ${viewModel.vaultItemCount} items, but none '
               'are included in this CV.',
-          actionLabel: 'Select all',
+          // Same "Add all" wording as every other bulk-include action in
+          // Studio (per-category and per-bullet) — this is that same
+          // action at the widest scope, not a different one.
+          actionLabel: 'Add all',
           onAction: viewModel.includeEverything,
         );
       case StudioPreviewState.ready:

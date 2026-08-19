@@ -295,6 +295,34 @@ class DraftService with ListenableServiceMixin {
     });
   }
 
+  Future<void> setHeadlineOverride(String? headline) async {
+    await _ready();
+    _setDraft((d) => d.copyWith(headlineOverride: headline));
+  }
+
+  Future<void> setReferencesOverride(String? references) async {
+    await _ready();
+    _setDraft((d) => d.copyWith(referencesOverride: references));
+  }
+
+  /// Same shape as [setBulletOverride], one entity type over — only
+  /// [Education.details] is prose-overridable.
+  Future<void> setEducationDetailsOverride(
+    String educationId,
+    String? text,
+  ) async {
+    await _ready();
+    _setDraft((d) {
+      final overrides = {...d.educationDetailsOverrides};
+      if (text == null) {
+        overrides.remove(educationId);
+      } else {
+        overrides[educationId] = text;
+      }
+      return d.copyWith(educationDetailsOverrides: overrides);
+    });
+  }
+
   void _setDraft(CvDraft Function(CvDraft current) update) {
     _isFreshDraft = false;
     _draft.value = update(_draft.value).copyWith(updatedAt: DateTime.now());

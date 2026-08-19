@@ -43,16 +43,34 @@ abstract class CvDraft with _$CvDraft {
     @Default(<String>[]) List<String> hobbyIds,
     @Default(<CvSectionType>{}) Set<CvSectionType> hiddenSections,
 
-    /// Set by a future tailoring feature; honoured by the composer today
-    /// (falls back to the Vault's own summary when null) so that feature
-    /// never needs to mutate the master Vault to rewrite a summary.
+    /// A draft-only rewrite of the Vault's professional summary — null
+    /// means "inherit the Vault's", never "omit" (the Summary section
+    /// checkbox is what omits it). `CvComposer` prefers this over the
+    /// Vault's own summary, so tailoring a draft never mutates the master
+    /// Vault, preserving the master/draft separation that is this
+    /// product's entire premise.
     String? tailoredSummary,
 
-    /// bulletId -> rewritten text. Same rationale as [tailoredSummary]:
-    /// lets a future tailoring feature rewrite a bullet for one draft
-    /// without touching the Vault, preserving the master/draft separation
-    /// that is this product's entire premise.
+    /// bulletId -> rewritten text. Same null-means-inherit rationale as
+    /// [tailoredSummary], one level down — lets a bullet be rewritten for
+    /// one draft without touching the Vault. Bullet ids are globally
+    /// unique (see `Skill.linkedBulletIds`'s doc comment), so this map
+    /// doesn't need to be scoped per experience/project.
     @Default(<String, String>{}) Map<String, String> bulletOverrides,
+
+    /// Same null-means-inherit rationale as [tailoredSummary], one field
+    /// over, for `ContactBasics.headline`.
+    String? headlineOverride,
+
+    /// Same null-means-inherit rationale as [tailoredSummary], one field
+    /// over, for `CvVault.referencesNote`.
+    String? referencesOverride,
+
+    /// educationId -> rewritten `Education.details` text. Same
+    /// null-means-inherit rationale as [bulletOverrides], one entity type
+    /// over — only `details` is prose; qualification/institution/grade/
+    /// year stay Vault-sourced, never overridable here.
+    @Default(<String, String>{}) Map<String, String> educationDetailsOverrides,
     required DateTime updatedAt,
   }) = _CvDraft;
 
