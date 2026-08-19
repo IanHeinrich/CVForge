@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
-import 'vault_text_field.dart';
+import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class HobbiesEditorPanel extends StatelessWidget {
   const HobbiesEditorPanel({
@@ -41,7 +41,7 @@ class HobbiesEditorPanel extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: VaultTextField(
+                  child: AppTextField(
                     initialValue: hobby.text,
                     onChanged: (v) => onChanged(hobby.copyWith(text: v)),
                   ),

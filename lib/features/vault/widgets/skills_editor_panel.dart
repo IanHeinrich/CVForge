@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
-import 'vault_text_field.dart';
+import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class SkillsEditorPanel extends StatelessWidget {
   const SkillsEditorPanel({
@@ -73,7 +73,7 @@ class SkillsEditorPanel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: VaultTextField(
+                      child: AppTextField(
                         label: 'Category name',
                         initialValue: category.name,
                         onChanged: (v) =>
@@ -99,7 +99,7 @@ class SkillsEditorPanel extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: VaultTextField(
+                              child: AppTextField(
                                 hint: 'Skill',
                                 initialValue: skill.label,
                                 onChanged: (v) => onUpdateSkill(

@@ -3,6 +3,9 @@ import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
+import 'studio_panel_heading.dart';
+import 'tailorable_field.dart';
+
 /// One selectable row in a [VaultItemSelectorList] — also reused for the
 /// nested rows in [bullets], since a bullet is just a title plus a
 /// selected/onToggle pair like any other entry.
@@ -14,6 +17,8 @@ class SelectorItem {
     required this.selected,
     required this.onToggle,
     this.bullets = const [],
+    this.onAddAllBullets,
+    this.tailorable,
   });
 
   final String id;
@@ -26,6 +31,21 @@ class SelectorItem {
   /// it's selected — picking which bullets appear in the draft only makes
   /// sense for an entry that's already in it.
   final List<SelectorItem> bullets;
+
+  /// Selects every currently-unselected bullet in [bullets], sequentially
+  /// — non-null only when [bullets] is non-empty. Must await each toggle
+  /// before starting the next (see `StudioViewModel.addAllExperienceBullets`);
+  /// firing every toggle synchronously in one loop makes them all read the
+  /// same stale draft and only the last one lands, which is exactly the
+  /// bug this replaced.
+  final VoidCallback? onAddAllBullets;
+
+  /// Non-null only for entries with a manually-rewritable prose field —
+  /// a bullet's own text, or an education entry's `details`. Null for
+  /// everything else (skills, hobbies, the top-level experience/project/
+  /// education rows themselves) — see `StudioConfigPanel`'s call sites
+  /// for which is which.
+  final TailorableField? tailorable;
 }
 
 /// A titled checkbox list for one Vault collection (experiences, projects,
@@ -37,6 +57,8 @@ class SelectorItem {
 /// Bullet sub-lists are collapsed by default and expand per entry — local
 /// `_expandedIds` is pure presentation state, not draft data, matching
 /// `_SkillBulletLinkPicker`'s rationale for the same pattern in Vault.
+/// `_editingTextIds` is the same idea one field over, for which
+/// [SelectorItem.tailorable] row currently has its inline editor open.
 class VaultItemSelectorList extends StatefulWidget {
   const VaultItemSelectorList({
     super.key,
@@ -57,6 +79,10 @@ class VaultItemSelectorList extends StatefulWidget {
 
 class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
   final _expandedIds = <String>{};
+  final _editingTextIds = <String>{};
+
+  void _toggleId(Set<String> ids, String id) =>
+      setState(() => ids.contains(id) ? ids.remove(id) : ids.add(id));
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +95,7 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  widget.title,
-                  style: const TextStyle(
-                    color: kcWhite,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
+              Expanded(child: StudioPanelHeading(widget.title)),
               if (widget.unselectedCount > 0 && widget.onAddAll != null)
                 TextButton(
                   onPressed: widget.onAddAll,
@@ -89,6 +106,7 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
           verticalSpaceTiny,
           for (final item in widget.items) ...[
             CheckboxListTile(
+              key: ValueKey('item_${item.id}'),
               value: item.selected,
               onChanged: (_) => item.onToggle(),
               dense: true,
@@ -105,12 +123,28 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
             ),
             if (item.selected && item.bullets.isNotEmpty)
               _BulletSublist(
+                key: ValueKey('bullets_${item.id}'),
                 item: item,
                 expanded: _expandedIds.contains(item.id),
-                onToggleExpanded: () => setState(
-                  () => _expandedIds.contains(item.id)
-                      ? _expandedIds.remove(item.id)
-                      : _expandedIds.add(item.id),
+                onToggleExpanded: () => _toggleId(_expandedIds, item.id),
+                editingTextIds: _editingTextIds,
+                onToggleEditingText: (id) => _toggleId(_editingTextIds, id),
+              ),
+            // A top-level tailorable field (Education's `details` — a
+            // bullet's own text has nowhere else to sit, but a bullet's
+            // does: its own checkbox row's title. See `_BulletSublist`
+            // for that half of this feature.
+            if (item.selected && item.tailorable != null)
+              Padding(
+                key: ValueKey('tailor_${item.id}'),
+                padding: const EdgeInsets.only(
+                  left: kdPaddingDefault,
+                  bottom: kdPaddingTight,
+                ),
+                child: _TailorableFieldRow(
+                  field: item.tailorable!,
+                  editing: _editingTextIds.contains(item.id),
+                  onToggleEdit: () => _toggleId(_editingTextIds, item.id),
                 ),
               ),
           ],
@@ -122,19 +156,30 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
 
 class _BulletSublist extends StatelessWidget {
   const _BulletSublist({
+    super.key,
     required this.item,
     required this.expanded,
     required this.onToggleExpanded,
+    required this.editingTextIds,
+    required this.onToggleEditingText,
   });
 
   final SelectorItem item;
   final bool expanded;
   final VoidCallback onToggleExpanded;
+  final Set<String> editingTextIds;
+  final ValueChanged<String> onToggleEditingText;
 
   @override
   Widget build(BuildContext context) {
     final selectedCount = item.bullets.where((b) => b.selected).length;
-    final unselected = item.bullets.where((b) => !b.selected);
+    final unselectedCount = item.bullets.length - selectedCount;
+    final tailoredCount = item.bullets
+        .where((b) => b.tailorable?.hasOverride ?? false)
+        .length;
+    final countLabel = tailoredCount > 0
+        ? '$selectedCount/${item.bullets.length} bullets · $tailoredCount tailored'
+        : '$selectedCount/${item.bullets.length} bullets';
 
     return Padding(
       padding: const EdgeInsets.only(left: kdPaddingDefault),
@@ -150,43 +195,161 @@ class _BulletSublist extends StatelessWidget {
                     expanded ? Icons.expand_less : Icons.expand_more,
                     size: 16,
                   ),
-                  label: Text(
-                    '$selectedCount/${item.bullets.length} bullets',
-                    style: const TextStyle(fontSize: 12),
-                  ),
+                  label: Text(countLabel, style: const TextStyle(fontSize: 12)),
                 ),
               ),
-              if (expanded && unselected.isNotEmpty)
+              if (expanded &&
+                  unselectedCount > 0 &&
+                  item.onAddAllBullets != null)
                 TextButton(
-                  onPressed: () {
-                    for (final bullet in unselected) {
-                      bullet.onToggle();
-                    }
-                  },
-                  child: const Text(
-                    'Select all',
-                    style: TextStyle(fontSize: 12),
+                  onPressed: item.onAddAllBullets,
+                  // Same "Add all (N)" wording as every category-level
+                  // list above this one — this is the identical action
+                  // one level down (bullets within one entry instead of
+                  // entries within a category), so it should read the
+                  // same, not "Select all".
+                  child: Text(
+                    'Add all ($unselectedCount)',
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ),
             ],
           ),
           if (expanded)
             for (final bullet in item.bullets)
-              CheckboxListTile(
-                value: bullet.selected,
-                onChanged: (_) => bullet.onToggle(),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                activeColor: kcPrimaryColor,
-                title: Text(
-                  bullet.title,
-                  style: const TextStyle(color: kcLightGrey, fontSize: 13),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              _BulletRow(
+                key: ValueKey('bullet_${bullet.id}'),
+                bullet: bullet,
+                editing: editingTextIds.contains(bullet.id),
+                onToggleEdit: () => onToggleEditingText(bullet.id),
               ),
         ],
+      ),
+    );
+  }
+}
+
+/// One bullet's checkbox row plus, while editing, its inline text editor
+/// — held together by [TailoringHighlight] so the open editor reads as
+/// attached to this bullet rather than to the sub-list.
+///
+/// A bullet's effective (already-overridden) text is its own row title,
+/// so unlike [_TailorableFieldRow] there's no separate preview line; the
+/// title just tightens to one line while editing, since the editor
+/// directly below is showing the same text in full.
+class _BulletRow extends StatelessWidget {
+  const _BulletRow({
+    super.key,
+    required this.bullet,
+    required this.editing,
+    required this.onToggleEdit,
+  });
+
+  final SelectorItem bullet;
+  final bool editing;
+  final VoidCallback onToggleEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final tailorable = bullet.tailorable;
+    return TailoringHighlight(
+      active: editing,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CheckboxListTile(
+            value: bullet.selected,
+            onChanged: (_) => bullet.onToggle(),
+            dense: true,
+            contentPadding: const EdgeInsets.only(right: kdPaddingTight),
+            controlAffinity: ListTileControlAffinity.leading,
+            activeColor: kcPrimaryColor,
+            title: Text(
+              bullet.title,
+              style: const TextStyle(color: kcLightGrey, fontSize: 13),
+              maxLines: editing ? 1 : 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            secondary: tailorable == null
+                ? null
+                : TailorIconButtons(
+                    hasOverride: tailorable.hasOverride,
+                    editing: editing,
+                    onToggleEdit: onToggleEdit,
+                    onRevert: tailorable.onRevert,
+                  ),
+          ),
+          if (tailorable != null && editing)
+            Padding(
+              padding: const EdgeInsets.only(
+                left: kdCheckboxTitleInset,
+                right: kdPaddingTight,
+                bottom: kdPaddingTight,
+              ),
+              child: InlineTextOverrideEditor(
+                field: tailorable,
+                onDone: onToggleEdit,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Education's collapsed `details` row: preview text (or an empty-state
+/// prompt when there's nothing yet) plus the edit affordance, expanding to
+/// [InlineTextOverrideEditor] beneath it while editing.
+class _TailorableFieldRow extends StatelessWidget {
+  const _TailorableFieldRow({
+    required this.field,
+    required this.editing,
+    required this.onToggleEdit,
+  });
+
+  final TailorableField field;
+  final bool editing;
+  final VoidCallback onToggleEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasText = field.effectiveText.trim().isNotEmpty;
+    return TailoringHighlight(
+      active: editing,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kdPaddingTight),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    hasText ? field.effectiveText : (field.emptyMessage ?? ''),
+                    // One line while editing: the box directly below
+                    // is already showing this text in full.
+                    maxLines: editing ? 1 : 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: hasText ? kcLightGrey : kcMediumGrey,
+                      fontSize: 12,
+                      fontStyle: hasText ? FontStyle.normal : FontStyle.italic,
+                    ),
+                  ),
+                ),
+                TailorIconButtons(
+                  hasOverride: field.hasOverride,
+                  editing: editing,
+                  onToggleEdit: onToggleEdit,
+                  onRevert: field.onRevert,
+                ),
+              ],
+            ),
+            if (editing)
+              InlineTextOverrideEditor(field: field, onDone: onToggleEdit),
+          ],
+        ),
       ),
     );
   }

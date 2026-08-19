@@ -25,7 +25,7 @@ class VaultEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.folder_open, size: 48, color: kcLightGrey),
+            const Icon(Icons.lock_outline, size: 48, color: kcLightGrey),
             verticalSpaceMedium,
             const Text(
               'Your Vault is empty',

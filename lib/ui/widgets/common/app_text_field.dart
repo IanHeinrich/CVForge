@@ -7,15 +7,17 @@ import 'package:flutter/material.dart';
 /// and immediately on losing focus — per CLAUDE.md's convention that
 /// controllers live in the View and carry text, while every actual
 /// mutation decision lives in the ViewModel via [onChanged].
-class VaultTextField extends StatefulWidget {
-  const VaultTextField({
+class AppTextField extends StatefulWidget {
+  const AppTextField({
     super.key,
     required this.initialValue,
     required this.onChanged,
     this.label,
     this.hint,
     this.maxLines = 1,
+    this.minLines,
     this.keyboardType,
+    this.autofocus = false,
   });
 
   final String initialValue;
@@ -23,13 +25,15 @@ class VaultTextField extends StatefulWidget {
   final String? label;
   final String? hint;
   final int maxLines;
+  final int? minLines;
   final TextInputType? keyboardType;
+  final bool autofocus;
 
   @override
-  State<VaultTextField> createState() => _VaultTextFieldState();
+  State<AppTextField> createState() => _AppTextFieldState();
 }
 
-class _VaultTextFieldState extends State<VaultTextField> {
+class _AppTextFieldState extends State<AppTextField> {
   late final TextEditingController _controller;
   final _focusNode = FocusNode();
   Timer? _debounce;
@@ -42,7 +46,7 @@ class _VaultTextFieldState extends State<VaultTextField> {
   }
 
   @override
-  void didUpdateWidget(covariant VaultTextField oldWidget) {
+  void didUpdateWidget(covariant AppTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Only resync from outside when unfocused — otherwise a reactive
     // rebuild while the user is mid-keystroke would fight their typing.
@@ -86,7 +90,9 @@ class _VaultTextFieldState extends State<VaultTextField> {
     return TextField(
       controller: _controller,
       focusNode: _focusNode,
+      autofocus: widget.autofocus,
       maxLines: widget.maxLines,
+      minLines: widget.minLines,
       keyboardType: widget.keyboardType,
       onChanged: _handleChanged,
       style: const TextStyle(color: kcWhite),

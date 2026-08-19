@@ -63,14 +63,17 @@ void main() {
       List<Project> projects = const [],
       List<SkillCategory> skillCategories = const [],
       List<HobbyItem> hobbies = const [],
+      ContactBasics? basics,
+      String? referencesNote,
     }) => CvVault(
       schemaVersion: 1,
-      basics: ContactBasics.empty(),
+      basics: basics ?? ContactBasics.empty(),
       experiences: experiences,
       education: education,
       projects: projects,
       skillCategories: skillCategories,
       hobbies: hobbies,
+      referencesNote: referencesNote,
       updatedAt: DateTime.now(),
     );
 
@@ -82,6 +85,10 @@ void main() {
       List<String> educationIds = const [],
       Set<CvSectionType> hiddenSections = const {},
       Map<String, String> bulletOverrides = const {},
+      String? tailoredSummary,
+      String? headlineOverride,
+      String? referencesOverride,
+      Map<String, String> educationDetailsOverrides = const {},
     }) => CvDraft(
       schemaVersion: 1,
       id: 'current',
@@ -94,6 +101,10 @@ void main() {
       educationIds: educationIds,
       hiddenSections: hiddenSections,
       bulletOverrides: bulletOverrides,
+      tailoredSummary: tailoredSummary,
+      headlineOverride: headlineOverride,
+      referencesOverride: referencesOverride,
+      educationDetailsOverrides: educationDetailsOverrides,
       updatedAt: DateTime.now(),
     );
 
@@ -447,6 +458,464 @@ void main() {
       await model.toggleProjectBullet(project, project.bullets[0]);
 
       verify(draftService.setBulletsForProject(project.id, ['pb2'])).called(1);
+    });
+
+    test('addAllExperienceBullets selects every unselected bullet without '
+        'dropping earlier selections — each toggle must be awaited before '
+        'the next reads the draft, or they all race against the same stale '
+        'state and only the last one lands', () async {
+      when(vaultService.vault).thenReturn(vaultWith(experiences: [experience]));
+      var draft = draftWith(
+        experienceIds: [experience.id],
+        bulletIds: {experience.id: <String>[]},
+      );
+      when(draftService.draft).thenAnswer((_) => draft);
+      when(draftService.setBulletsForExperience(any, any)).thenAnswer((
+        invocation,
+      ) async {
+        final ids = invocation.positionalArguments[1] as List<String>;
+        draft = draft.copyWith(
+          bulletIds: {...draft.bulletIds, experience.id: ids},
+        );
+      });
+
+      final model = StudioViewModel();
+      await model.addAllExperienceBullets(experience);
+
+      expect(draft.bulletIds[experience.id], ['b1', 'b2']);
+    });
+
+    test('addAllProjectBullets selects every unselected bullet without '
+        'dropping earlier selections', () async {
+      when(vaultService.vault).thenReturn(vaultWith(projects: [project]));
+      var draft = draftWith(
+        projectIds: [project.id],
+        projectBulletIds: {project.id: <String>[]},
+      );
+      when(draftService.draft).thenAnswer((_) => draft);
+      when(draftService.setBulletsForProject(any, any)).thenAnswer((
+        invocation,
+      ) async {
+        final ids = invocation.positionalArguments[1] as List<String>;
+        draft = draft.copyWith(
+          projectBulletIds: {...draft.projectBulletIds, project.id: ids},
+        );
+      });
+
+      final model = StudioViewModel();
+      await model.addAllProjectBullets(project);
+
+      expect(draft.projectBulletIds[project.id], ['pb1', 'pb2']);
+    });
+
+    group('tailored summary -', () {
+      setUp(() {
+        when(
+          draftService.setTailoredSummary(any),
+        ).thenAnswer((_) => Future<void>.value());
+      });
+
+      test(
+        'the tailored summary wins over the Vault summary in resolvedCv',
+        () {
+          when(vaultService.vault).thenReturn(
+            vaultWith(
+              basics: ContactBasics.empty().copyWith(summary: 'Vault text'),
+            ),
+          );
+          when(
+            draftService.draft,
+          ).thenReturn(draftWith(tailoredSummary: 'Tailored text'));
+
+          final model = StudioViewModel();
+          final section =
+              model.resolvedCv.sections.single as ResolvedSummarySection;
+
+          expect(section.text, 'Tailored text');
+        },
+      );
+
+      test('blank input stores null so the draft stays inherited', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(summary: 'Vault text'),
+          ),
+        );
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setTailoredSummary('   ');
+
+        verify(draftService.setTailoredSummary(null)).called(1);
+      });
+
+      test('input identical to the Vault summary stores null rather than an '
+          'identical-but-separate override', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(summary: 'Same text'),
+          ),
+        );
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setTailoredSummary('Same text');
+
+        verify(draftService.setTailoredSummary(null)).called(1);
+      });
+
+      test('genuinely different input stores the override verbatim', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(summary: 'Vault text'),
+          ),
+        );
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setTailoredSummary('New tailored text');
+
+        verify(draftService.setTailoredSummary('New tailored text')).called(1);
+      });
+
+      test('revertSummaryToVault clears the override and resolvedCv falls back '
+          'to the Vault text', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(summary: 'Vault text'),
+          ),
+        );
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(tailoredSummary: 'Tailored text'));
+
+        final model = StudioViewModel();
+        await model.revertSummaryToVault();
+
+        verify(draftService.setTailoredSummary(null)).called(1);
+      });
+
+      test(
+        'hasTailoredSummary and summaryText reflect draft-vs-Vault state',
+        () {
+          when(vaultService.vault).thenReturn(
+            vaultWith(
+              basics: ContactBasics.empty().copyWith(summary: 'Vault text'),
+            ),
+          );
+          when(draftService.draft).thenReturn(draftWith());
+
+          final inherited = StudioViewModel();
+          expect(inherited.hasTailoredSummary, isFalse);
+          expect(inherited.summaryText, 'Vault text');
+
+          when(
+            draftService.draft,
+          ).thenReturn(draftWith(tailoredSummary: 'Tailored text'));
+
+          final custom = StudioViewModel();
+          expect(custom.hasTailoredSummary, isTrue);
+          expect(custom.summaryText, 'Tailored text');
+        },
+      );
+    });
+
+    group('headline override -', () {
+      setUp(() {
+        when(
+          draftService.setHeadlineOverride(any),
+        ).thenAnswer((_) => Future<void>.value());
+      });
+
+      test('the headline override wins over the Vault headline in '
+          'resolvedCv', () {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(headline: 'Vault title'),
+          ),
+        );
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(headlineOverride: 'Tailored title'));
+
+        final model = StudioViewModel();
+
+        expect(model.resolvedCv.header.headline, 'Tailored title');
+      });
+
+      test('blank input stores null so the draft stays inherited', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(headline: 'Vault title'),
+          ),
+        );
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setHeadlineOverride('   ');
+
+        verify(draftService.setHeadlineOverride(null)).called(1);
+      });
+
+      test('input identical to the Vault headline stores null rather than '
+          'an identical-but-separate override', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(headline: 'Same title'),
+          ),
+        );
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setHeadlineOverride('Same title');
+
+        verify(draftService.setHeadlineOverride(null)).called(1);
+      });
+
+      test('revertHeadlineToVault clears the override', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            basics: ContactBasics.empty().copyWith(headline: 'Vault title'),
+          ),
+        );
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(headlineOverride: 'Tailored title'));
+
+        final model = StudioViewModel();
+        await model.revertHeadlineToVault();
+
+        verify(draftService.setHeadlineOverride(null)).called(1);
+      });
+    });
+
+    group('references override -', () {
+      setUp(() {
+        when(
+          draftService.setReferencesOverride(any),
+        ).thenAnswer((_) => Future<void>.value());
+      });
+
+      test('the references override wins over the Vault note in '
+          'resolvedCv', () {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(referencesNote: 'Vault note'));
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(referencesOverride: 'Tailored note'));
+
+        final model = StudioViewModel();
+        final section =
+            model.resolvedCv.sections.single as ResolvedReferencesSection;
+
+        expect(section.text, 'Tailored note');
+      });
+
+      test('blank input stores null so the draft stays inherited', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(referencesNote: 'Vault note'));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setReferencesOverride('   ');
+
+        verify(draftService.setReferencesOverride(null)).called(1);
+      });
+
+      test('input identical to the Vault note stores null rather than an '
+          'identical-but-separate override', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(referencesNote: 'Same note'));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setReferencesOverride('Same note');
+
+        verify(draftService.setReferencesOverride(null)).called(1);
+      });
+
+      test('revertReferencesToVault clears the override', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(referencesNote: 'Vault note'));
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(referencesOverride: 'Tailored note'));
+
+        final model = StudioViewModel();
+        await model.revertReferencesToVault();
+
+        verify(draftService.setReferencesOverride(null)).called(1);
+      });
+
+      test('hasReferences accounts for an override on a Vault with no '
+          'references note of its own', () {
+        when(vaultService.vault).thenReturn(vaultWith());
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(referencesOverride: 'Tailored note'));
+
+        final model = StudioViewModel();
+
+        expect(model.hasReferences, isTrue);
+      });
+    });
+
+    group('bullet text override -', () {
+      setUp(() {
+        when(
+          draftService.setBulletOverride(any, any),
+        ).thenAnswer((_) => Future<void>.value());
+      });
+
+      test('blank input stores null so the draft stays inherited', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience]));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setBulletOverride(experience.bullets.first, '   ');
+
+        verify(draftService.setBulletOverride('b1', null)).called(1);
+      });
+
+      test('input identical to the Vault bullet text stores null rather '
+          'than an identical-but-separate override', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience]));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setBulletOverride(experience.bullets.first, 'Did a thing');
+
+        verify(draftService.setBulletOverride('b1', null)).called(1);
+      });
+
+      test('revertBulletOverride clears the override', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience]));
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(bulletOverrides: {'b1': 'Rewritten text'}));
+
+        final model = StudioViewModel();
+        await model.revertBulletOverride('b1');
+
+        verify(draftService.setBulletOverride('b1', null)).called(1);
+      });
+
+      test('bulletText/hasBulletOverride reflect draft-vs-Vault state', () {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience]));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        expect(model.hasBulletOverride('b1'), isFalse);
+        expect(model.bulletText(experience.bullets.first), 'Did a thing');
+
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(bulletOverrides: {'b1': 'Rewritten text'}));
+
+        expect(model.hasBulletOverride('b1'), isTrue);
+        expect(model.bulletText(experience.bullets.first), 'Rewritten text');
+      });
+    });
+
+    group('education details override -', () {
+      setUp(() {
+        when(
+          draftService.setEducationDetailsOverride(any, any),
+        ).thenAnswer((_) => Future<void>.value());
+      });
+
+      test('the details override wins over the Vault details in '
+          'resolvedCv', () {
+        final detailed = education.copyWith(details: 'Vault details');
+        when(vaultService.vault).thenReturn(vaultWith(education: [detailed]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            educationIds: [detailed.id],
+            educationDetailsOverrides: {detailed.id: 'Tailored details'},
+          ),
+        );
+
+        final model = StudioViewModel();
+        final section =
+            model.resolvedCv.sections.single as ResolvedEducationSection;
+
+        expect(section.items.single.details, 'Tailored details');
+      });
+
+      test('blank input stores null so the draft stays inherited', () async {
+        final detailed = education.copyWith(details: 'Vault details');
+        when(vaultService.vault).thenReturn(vaultWith(education: [detailed]));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setEducationDetailsOverride(detailed, '   ');
+
+        verify(
+          draftService.setEducationDetailsOverride(detailed.id, null),
+        ).called(1);
+      });
+
+      test('input identical to the Vault details stores null rather than '
+          'an identical-but-separate override', () async {
+        final detailed = education.copyWith(details: 'Same details');
+        when(vaultService.vault).thenReturn(vaultWith(education: [detailed]));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        await model.setEducationDetailsOverride(detailed, 'Same details');
+
+        verify(
+          draftService.setEducationDetailsOverride(detailed.id, null),
+        ).called(1);
+      });
+
+      test('revertEducationDetailsOverride clears the override', () async {
+        when(vaultService.vault).thenReturn(vaultWith(education: [education]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            educationDetailsOverrides: {education.id: 'Tailored details'},
+          ),
+        );
+
+        final model = StudioViewModel();
+        await model.revertEducationDetailsOverride(education.id);
+
+        verify(
+          draftService.setEducationDetailsOverride(education.id, null),
+        ).called(1);
+      });
+
+      test('educationDetailsText/hasEducationDetailsOverride reflect '
+          'draft-vs-Vault state, defaulting to blank when the Vault has no '
+          'details at all', () {
+        when(vaultService.vault).thenReturn(vaultWith(education: [education]));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        expect(model.hasEducationDetailsOverride(education.id), isFalse);
+        expect(model.educationDetailsText(education), '');
+
+        when(draftService.draft).thenReturn(
+          draftWith(
+            educationDetailsOverrides: {education.id: 'Tailored details'},
+          ),
+        );
+
+        expect(model.hasEducationDetailsOverride(education.id), isTrue);
+        expect(model.educationDetailsText(education), 'Tailored details');
+      });
     });
   });
 }

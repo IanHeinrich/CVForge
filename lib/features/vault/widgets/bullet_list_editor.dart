@@ -6,7 +6,7 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
 import 'vault_section_heading.dart';
-import 'vault_text_field.dart';
+import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 /// The bullet list inside an experience's editor panel — labelled/
 /// unlabelled text, add, delete, and drag-to-reorder.
@@ -84,7 +84,7 @@ class BulletListEditor extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        VaultTextField(
+                        AppTextField(
                           label: 'Label (optional)',
                           hint: 'e.g. Performance',
                           initialValue: bullet.label ?? '',
@@ -93,7 +93,7 @@ class BulletListEditor extends StatelessWidget {
                           ),
                         ),
                         verticalSpaceTiny,
-                        VaultTextField(
+                        AppTextField(
                           label: 'Text',
                           initialValue: bullet.text,
                           maxLines: 3,

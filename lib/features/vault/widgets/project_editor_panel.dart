@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
 import 'vault_editor_panel_scaffold.dart';
-import 'vault_text_field.dart';
+import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class ProjectEditorPanel extends StatelessWidget {
   const ProjectEditorPanel({
@@ -36,13 +36,13 @@ class ProjectEditorPanel extends StatelessWidget {
       title: project.title.isEmpty ? 'New project' : project.title,
       onClose: onClose,
       children: [
-        VaultTextField(
+        AppTextField(
           label: 'Title',
           initialValue: project.title,
           onChanged: (v) => onChanged(project.copyWith(title: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Link (optional)',
           hint: 'e.g. github.com/you/project',
           initialValue: project.link ?? '',

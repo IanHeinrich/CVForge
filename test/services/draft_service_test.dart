@@ -134,5 +134,66 @@ void main() {
         await service.flushPendingWrites();
       },
     );
+
+    test('setHeadlineOverride sets and clears the override', () async {
+      when(storage.read(any, any)).thenAnswer((_) async => null);
+      when(
+        storage.write(any, any, any),
+      ).thenAnswer((_) => Future<void>.value());
+
+      final service = DraftService();
+      await service.load();
+
+      await service.setHeadlineOverride('Rewritten headline');
+      expect(service.draft.headlineOverride, 'Rewritten headline');
+
+      await service.setHeadlineOverride(null);
+      expect(service.draft.headlineOverride, isNull);
+
+      await service.flushPendingWrites();
+    });
+
+    test('setReferencesOverride sets and clears the override', () async {
+      when(storage.read(any, any)).thenAnswer((_) async => null);
+      when(
+        storage.write(any, any, any),
+      ).thenAnswer((_) => Future<void>.value());
+
+      final service = DraftService();
+      await service.load();
+
+      await service.setReferencesOverride('Rewritten references');
+      expect(service.draft.referencesOverride, 'Rewritten references');
+
+      await service.setReferencesOverride(null);
+      expect(service.draft.referencesOverride, isNull);
+
+      await service.flushPendingWrites();
+    });
+
+    test('setEducationDetailsOverride sets and clears the override — '
+        'round-trips correctly', () async {
+      when(storage.read(any, any)).thenAnswer((_) async => null);
+      when(
+        storage.write(any, any, any),
+      ).thenAnswer((_) => Future<void>.value());
+
+      final service = DraftService();
+      await service.load();
+
+      await service.setEducationDetailsOverride('edu-1', 'Rewritten details');
+      expect(
+        service.draft.educationDetailsOverrides['edu-1'],
+        'Rewritten details',
+      );
+
+      await service.setEducationDetailsOverride('edu-1', null);
+      expect(
+        service.draft.educationDetailsOverrides.containsKey('edu-1'),
+        isFalse,
+      );
+
+      await service.flushPendingWrites();
+    });
   });
 }

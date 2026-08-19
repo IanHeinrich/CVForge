@@ -27,7 +27,7 @@ abstract final class CvComposer {
   }) {
     final header = ResolvedHeader(
       fullName: vault.basics.fullName,
-      headline: vault.basics.headline,
+      headline: draft.headlineOverride ?? vault.basics.headline,
       email: vault.basics.email,
       phone: vault.basics.phone,
       location: vault.basics.location,
@@ -51,7 +51,7 @@ abstract final class CvComposer {
         CvSectionType.projects => _buildProjects(vault, draft),
         CvSectionType.education => _buildEducation(vault, draft),
         CvSectionType.hobbies => _buildHobbies(vault, draft),
-        CvSectionType.references => _buildReferences(vault),
+        CvSectionType.references => _buildReferences(vault, draft),
       };
 
       if (section != null) sections.add(section);
@@ -211,7 +211,7 @@ abstract final class CvComposer {
             location: edu.location,
             yearLabel: edu.year?.toString(),
             grade: edu.grade,
-            details: edu.details,
+            details: draft.educationDetailsOverrides[edu.id] ?? edu.details,
           ),
     ];
 
@@ -233,8 +233,8 @@ abstract final class CvComposer {
     );
   }
 
-  static ResolvedSection? _buildReferences(CvVault vault) {
-    final text = vault.referencesNote;
+  static ResolvedSection? _buildReferences(CvVault vault, CvDraft draft) {
+    final text = draft.referencesOverride ?? vault.referencesNote;
     if (text == null || text.trim().isEmpty) return null;
     return ResolvedSection.references(title: 'References', text: text);
   }
