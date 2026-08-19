@@ -2,9 +2,10 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'vault_section_heading.dart';
-import 'vault_summary_card.dart';
+import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 
 class ProjectListSection extends StatelessWidget {
   const ProjectListSection({
@@ -41,16 +42,13 @@ class ProjectListSection extends StatelessWidget {
             ),
           ),
         for (final project in projects)
-          VaultSummaryCard(
+          AppSummaryCard(
             title: project.title.isEmpty ? 'Untitled project' : project.title,
             subtitle: project.link,
             selected: project.id == openId,
             onTap: () => onOpen(project.id),
             onDelete: () => onDelete(project.id),
-            leading: const Icon(
-              Icons.rocket_launch_outlined,
-              color: kcLightGrey,
-            ),
+            leading: const Icon(RemixIcons.rocket_line, color: kcLightGrey),
           ),
       ],
     );

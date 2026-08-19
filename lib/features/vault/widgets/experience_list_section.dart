@@ -2,9 +2,10 @@ import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'vault_section_heading.dart';
-import 'vault_summary_card.dart';
+import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 
 class ExperienceListSection extends StatelessWidget {
   const ExperienceListSection({
@@ -41,13 +42,13 @@ class ExperienceListSection extends StatelessWidget {
             ),
           ),
         for (final experience in experiences)
-          VaultSummaryCard(
+          AppSummaryCard(
             title: experience.role.isEmpty ? 'Untitled role' : experience.role,
             subtitle: experience.company,
             selected: experience.id == openId,
             onTap: () => onOpen(experience.id),
             onDelete: () => onDelete(experience.id),
-            leading: const Icon(Icons.work_outline, color: kcLightGrey),
+            leading: const Icon(RemixIcons.briefcase_line, color: kcLightGrey),
           ),
       ],
     );

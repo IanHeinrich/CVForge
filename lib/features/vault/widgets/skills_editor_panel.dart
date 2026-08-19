@@ -6,6 +6,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
@@ -82,7 +83,7 @@ class SkillsEditorPanel extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(
-                        Icons.delete_outline,
+                        RemixIcons.delete_bin_line,
                         color: kcLightGrey,
                       ),
                       onPressed: () => onDeleteCategory(category.id),
@@ -110,7 +111,7 @@ class SkillsEditorPanel extends StatelessWidget {
                             ),
                             IconButton(
                               icon: const Icon(
-                                Icons.close,
+                                RemixIcons.close_line,
                                 color: kcLightGrey,
                                 size: 18,
                               ),
@@ -134,7 +135,7 @@ class SkillsEditorPanel extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     onPressed: () => onAddSkill(category.id),
-                    icon: const Icon(Icons.add, size: 16),
+                    icon: const Icon(RemixIcons.add_line, size: 16),
                     label: const Text('Add skill'),
                   ),
                 ),
@@ -188,7 +189,9 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
           child: TextButton.icon(
             onPressed: () => setState(() => _expanded = !_expanded),
             icon: Icon(
-              _expanded ? Icons.expand_less : Icons.expand_more,
+              _expanded
+                  ? RemixIcons.arrow_up_s_line
+                  : RemixIcons.arrow_down_s_line,
               size: 16,
             ),
             label: Text(

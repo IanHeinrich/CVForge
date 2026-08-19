@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
@@ -47,7 +48,10 @@ class HobbiesEditorPanel extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: kcLightGrey),
+                  icon: const Icon(
+                    RemixIcons.delete_bin_line,
+                    color: kcLightGrey,
+                  ),
                   onPressed: () => onDelete(hobby.id),
                   tooltip: 'Delete',
                 ),

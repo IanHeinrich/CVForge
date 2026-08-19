@@ -11,9 +11,11 @@ import 'package:cv_forge/ui/widgets/common/app_chrome/app_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../widgets/studio_config_panel.dart';
+import '../../widgets/studio_draft_header.dart';
 import '../../widgets/studio_empty_preview.dart';
 import 'studio_viewmodel.dart';
 
@@ -34,23 +36,28 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
   Widget build(BuildContext context, StudioViewModel viewModel) {
     return AppChrome(
       currentSection: AppSection.studio,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final panelWidth = (constraints.maxWidth * _panelWidthFraction).clamp(
-            _minPanelWidth,
-            _maxPanelWidth,
-          );
-          return Row(
-            children: [
-              SizedBox(
-                width: panelWidth,
-                child: StudioConfigPanel(viewModel: viewModel),
-              ),
-              const VerticalDivider(width: 1, color: kcMediumGrey),
-              Expanded(child: StudioPreviewPane(viewModel: viewModel)),
-            ],
-          );
-        },
+      child: Column(
+        children: [
+          StudioDraftHeader(viewModel: viewModel),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final panelWidth = (constraints.maxWidth * _panelWidthFraction)
+                    .clamp(_minPanelWidth, _maxPanelWidth);
+                return Row(
+                  children: [
+                    SizedBox(
+                      width: panelWidth,
+                      child: StudioConfigPanel(viewModel: viewModel),
+                    ),
+                    const VerticalDivider(width: 1, color: kcMediumGrey),
+                    Expanded(child: StudioPreviewPane(viewModel: viewModel)),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -125,7 +132,11 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: kcLightGrey, size: 40),
+            const Icon(
+              RemixIcons.error_warning_line,
+              color: kcLightGrey,
+              size: 40,
+            ),
             verticalSpaceMedium,
             const Text(
               "Couldn't render the preview",
@@ -249,7 +260,7 @@ class _ExportFab extends StatelessWidget {
                     color: kcWhite,
                   ),
                 )
-              : const Icon(Icons.download),
+              : const Icon(RemixIcons.download_line),
           label: Text(viewModel.isExporting ? 'Exporting…' : 'Export PDF'),
         ),
       ],

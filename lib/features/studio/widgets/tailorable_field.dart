@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// The value bundle backing one entity-scoped tailorable field — a
 /// bullet's own text, or one education entry's `details`. Same read-only-
@@ -45,7 +46,7 @@ const double kdTailorIconSize = 18;
 
 /// The trailing icon cluster shared by every tailorable row — always
 /// exactly two icons, never three: a left slot that's a plain
-/// [Icons.lock] glyph when the field is still the Vault's, or the
+/// [RemixIcons.lock_line] glyph when the field is still the Vault's, or the
 /// **undo** button once it's been tailored, plus the pencil/checkmark on
 /// the right. The undo button's mere presence *is* the "this has been
 /// tailored" signal — a separate status icon on top of it said the same
@@ -82,7 +83,7 @@ class TailorIconButtons extends StatelessWidget {
       children: [
         if (hasOverride)
           IconButton(
-            icon: const Icon(Icons.undo),
+            icon: const Icon(RemixIcons.arrow_go_back_line),
             iconSize: kdTailorIconSize,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
@@ -94,14 +95,14 @@ class TailorIconButtons extends StatelessWidget {
           Tooltip(
             message: 'From your Vault — not yet tailored',
             child: Icon(
-              Icons.lock,
+              RemixIcons.lock_line,
               size: kdTailorIconSize,
               color: kcMediumGrey,
             ),
           ),
         const SizedBox(width: 4),
         IconButton(
-          icon: Icon(editing ? Icons.check : Icons.edit_outlined),
+          icon: Icon(editing ? RemixIcons.check_line : RemixIcons.edit_line),
           iconSize: kdTailorIconSize,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),

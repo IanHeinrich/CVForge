@@ -8,9 +8,10 @@
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app.locator.dart';
+import '../features/studio/dialogs/edit_draft/edit_draft_dialog.dart';
 import '../features/vault/dialogs/confirm_delete/confirm_delete_dialog.dart';
 
-enum DialogType { confirmDelete }
+enum DialogType { confirmDelete, editDraft }
 
 void setupDialogUi() {
   final dialogService = locator<DialogService>();
@@ -18,6 +19,8 @@ void setupDialogUi() {
   final Map<DialogType, DialogBuilder> builders = {
     DialogType.confirmDelete: (context, request, completer) =>
         ConfirmDeleteDialog(request: request, completer: completer),
+    DialogType.editDraft: (context, request, completer) =>
+        EditDraftDialog(request: request, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);

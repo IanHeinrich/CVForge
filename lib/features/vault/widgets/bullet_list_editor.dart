@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'vault_section_heading.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
@@ -78,7 +79,7 @@ class BulletListEditor extends StatelessWidget {
                     index: index,
                     child: const Padding(
                       padding: EdgeInsets.only(top: 14, right: 4),
-                      child: Icon(Icons.drag_handle, color: kcMediumGrey),
+                      child: Icon(RemixIcons.draggable, color: kcMediumGrey),
                     ),
                   ),
                   Expanded(
@@ -117,7 +118,10 @@ class BulletListEditor extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: kcLightGrey),
+                    icon: const Icon(
+                      RemixIcons.delete_bin_line,
+                      color: kcLightGrey,
+                    ),
                     onPressed: () => onDelete(bullet.id),
                     tooltip: 'Delete bullet',
                   ),
