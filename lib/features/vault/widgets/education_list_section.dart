@@ -2,9 +2,10 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'vault_section_heading.dart';
-import 'vault_summary_card.dart';
+import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 
 class EducationListSection extends StatelessWidget {
   const EducationListSection({
@@ -41,7 +42,7 @@ class EducationListSection extends StatelessWidget {
             ),
           ),
         for (final entry in education)
-          VaultSummaryCard(
+          AppSummaryCard(
             title: entry.qualification.isEmpty
                 ? 'Untitled qualification'
                 : entry.qualification,
@@ -49,7 +50,10 @@ class EducationListSection extends StatelessWidget {
             selected: entry.id == openId,
             onTap: () => onOpen(entry.id),
             onDelete: () => onDelete(entry.id),
-            leading: const Icon(Icons.school_outlined, color: kcLightGrey),
+            leading: const Icon(
+              RemixIcons.graduation_cap_line,
+              color: kcLightGrey,
+            ),
           ),
       ],
     );

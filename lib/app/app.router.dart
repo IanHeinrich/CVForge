@@ -6,30 +6,31 @@
 // **************************************************************************
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:flutter/material.dart' as _i7;
-import 'package:stacked/stacked.dart' as _i6;
-import 'package:stacked_services/stacked_services.dart' as _i5;
+import 'package:flutter/material.dart' as _i8;
+import 'package:stacked/stacked.dart' as _i7;
+import 'package:stacked_services/stacked_services.dart' as _i6;
 
+import '../features/studio/views/drafts_list/drafts_list_view.dart' as _i4;
 import '../features/studio/views/studio/studio_view.dart' as _i3;
 import '../features/vault/views/vault/vault_view.dart' as _i2;
 import '../ui/views/startup/startup_view.dart' as _i1;
-import '../ui/views/unknown/unknown_view.dart' as _i4;
+import '../ui/views/unknown/unknown_view.dart' as _i5;
 
 final stackedRouter = StackedRouterWeb(
-  navigatorKey: _i5.StackedService.navigatorKey,
+  navigatorKey: _i6.StackedService.navigatorKey,
 );
 
-class StackedRouterWeb extends _i6.RootStackRouter {
-  StackedRouterWeb({_i7.GlobalKey<_i7.NavigatorState>? navigatorKey})
+class StackedRouterWeb extends _i7.RootStackRouter {
+  StackedRouterWeb({_i8.GlobalKey<_i8.NavigatorState>? navigatorKey})
     : super(navigatorKey);
 
   @override
-  final Map<String, _i6.PageFactory> pagesMap = {
+  final Map<String, _i7.PageFactory> pagesMap = {
     StartupViewRoute.name: (routeData) {
       final args = routeData.argsAs<StartupViewArgs>(
         orElse: () => const StartupViewArgs(),
       );
-      return _i6.CustomPage<dynamic>(
+      return _i7.CustomPage<dynamic>(
         routeData: routeData,
         child: _i1.StartupView(key: args.key),
         opaque: true,
@@ -40,7 +41,7 @@ class StackedRouterWeb extends _i6.RootStackRouter {
       final args = routeData.argsAs<VaultViewArgs>(
         orElse: () => const VaultViewArgs(),
       );
-      return _i6.CustomPage<dynamic>(
+      return _i7.CustomPage<dynamic>(
         routeData: routeData,
         child: _i2.VaultView(key: args.key),
         opaque: true,
@@ -51,9 +52,20 @@ class StackedRouterWeb extends _i6.RootStackRouter {
       final args = routeData.argsAs<StudioViewArgs>(
         orElse: () => const StudioViewArgs(),
       );
-      return _i6.CustomPage<dynamic>(
+      return _i7.CustomPage<dynamic>(
         routeData: routeData,
         child: _i3.StudioView(key: args.key),
+        opaque: true,
+        barrierDismissible: false,
+      );
+    },
+    DraftsListViewRoute.name: (routeData) {
+      final args = routeData.argsAs<DraftsListViewArgs>(
+        orElse: () => const DraftsListViewArgs(),
+      );
+      return _i7.CustomPage<dynamic>(
+        routeData: routeData,
+        child: _i4.DraftsListView(key: args.key),
         opaque: true,
         barrierDismissible: false,
       );
@@ -62,9 +74,9 @@ class StackedRouterWeb extends _i6.RootStackRouter {
       final args = routeData.argsAs<UnknownViewArgs>(
         orElse: () => const UnknownViewArgs(),
       );
-      return _i6.CustomPage<dynamic>(
+      return _i7.CustomPage<dynamic>(
         routeData: routeData,
-        child: _i4.UnknownView(key: args.key),
+        child: _i5.UnknownView(key: args.key),
         opaque: true,
         barrierDismissible: false,
       );
@@ -72,12 +84,13 @@ class StackedRouterWeb extends _i6.RootStackRouter {
   };
 
   @override
-  List<_i6.RouteConfig> get routes => [
-    _i6.RouteConfig(StartupViewRoute.name, path: '/'),
-    _i6.RouteConfig(VaultViewRoute.name, path: '/vault'),
-    _i6.RouteConfig(StudioViewRoute.name, path: '/studio'),
-    _i6.RouteConfig(UnknownViewRoute.name, path: '/404'),
-    _i6.RouteConfig(
+  List<_i7.RouteConfig> get routes => [
+    _i7.RouteConfig(StartupViewRoute.name, path: '/'),
+    _i7.RouteConfig(VaultViewRoute.name, path: '/vault'),
+    _i7.RouteConfig(StudioViewRoute.name, path: '/studio'),
+    _i7.RouteConfig(DraftsListViewRoute.name, path: '/drafts'),
+    _i7.RouteConfig(UnknownViewRoute.name, path: '/404'),
+    _i7.RouteConfig(
       '*#redirect',
       path: '*',
       redirectTo: '/404',
@@ -88,8 +101,8 @@ class StackedRouterWeb extends _i6.RootStackRouter {
 
 /// generated route for
 /// [_i1.StartupView]
-class StartupViewRoute extends _i6.PageRouteInfo<StartupViewArgs> {
-  StartupViewRoute({_i7.Key? key})
+class StartupViewRoute extends _i7.PageRouteInfo<StartupViewArgs> {
+  StartupViewRoute({_i8.Key? key})
     : super(
         StartupViewRoute.name,
         path: '/',
@@ -102,7 +115,7 @@ class StartupViewRoute extends _i6.PageRouteInfo<StartupViewArgs> {
 class StartupViewArgs {
   const StartupViewArgs({this.key});
 
-  final _i7.Key? key;
+  final _i8.Key? key;
 
   @override
   String toString() {
@@ -112,8 +125,8 @@ class StartupViewArgs {
 
 /// generated route for
 /// [_i2.VaultView]
-class VaultViewRoute extends _i6.PageRouteInfo<VaultViewArgs> {
-  VaultViewRoute({_i7.Key? key})
+class VaultViewRoute extends _i7.PageRouteInfo<VaultViewArgs> {
+  VaultViewRoute({_i8.Key? key})
     : super(
         VaultViewRoute.name,
         path: '/vault',
@@ -126,7 +139,7 @@ class VaultViewRoute extends _i6.PageRouteInfo<VaultViewArgs> {
 class VaultViewArgs {
   const VaultViewArgs({this.key});
 
-  final _i7.Key? key;
+  final _i8.Key? key;
 
   @override
   String toString() {
@@ -136,8 +149,8 @@ class VaultViewArgs {
 
 /// generated route for
 /// [_i3.StudioView]
-class StudioViewRoute extends _i6.PageRouteInfo<StudioViewArgs> {
-  StudioViewRoute({_i7.Key? key})
+class StudioViewRoute extends _i7.PageRouteInfo<StudioViewArgs> {
+  StudioViewRoute({_i8.Key? key})
     : super(
         StudioViewRoute.name,
         path: '/studio',
@@ -150,7 +163,7 @@ class StudioViewRoute extends _i6.PageRouteInfo<StudioViewArgs> {
 class StudioViewArgs {
   const StudioViewArgs({this.key});
 
-  final _i7.Key? key;
+  final _i8.Key? key;
 
   @override
   String toString() {
@@ -159,9 +172,33 @@ class StudioViewArgs {
 }
 
 /// generated route for
-/// [_i4.UnknownView]
-class UnknownViewRoute extends _i6.PageRouteInfo<UnknownViewArgs> {
-  UnknownViewRoute({_i7.Key? key})
+/// [_i4.DraftsListView]
+class DraftsListViewRoute extends _i7.PageRouteInfo<DraftsListViewArgs> {
+  DraftsListViewRoute({_i8.Key? key})
+    : super(
+        DraftsListViewRoute.name,
+        path: '/drafts',
+        args: DraftsListViewArgs(key: key),
+      );
+
+  static const String name = 'DraftsListView';
+}
+
+class DraftsListViewArgs {
+  const DraftsListViewArgs({this.key});
+
+  final _i8.Key? key;
+
+  @override
+  String toString() {
+    return 'DraftsListViewArgs{key: $key}';
+  }
+}
+
+/// generated route for
+/// [_i5.UnknownView]
+class UnknownViewRoute extends _i7.PageRouteInfo<UnknownViewArgs> {
+  UnknownViewRoute({_i8.Key? key})
     : super(
         UnknownViewRoute.name,
         path: '/404',
@@ -174,7 +211,7 @@ class UnknownViewRoute extends _i6.PageRouteInfo<UnknownViewArgs> {
 class UnknownViewArgs {
   const UnknownViewArgs({this.key});
 
-  final _i7.Key? key;
+  final _i8.Key? key;
 
   @override
   String toString() {
@@ -182,59 +219,73 @@ class UnknownViewArgs {
   }
 }
 
-extension RouterStateExtension on _i5.RouterService {
+extension RouterStateExtension on _i6.RouterService {
   Future<dynamic> navigateToStartupView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return navigateTo(StartupViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> navigateToVaultView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return navigateTo(VaultViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> navigateToStudioView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return navigateTo(StudioViewRoute(key: key), onFailure: onFailure);
   }
 
+  Future<dynamic> navigateToDraftsListView({
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
+  }) async {
+    return navigateTo(DraftsListViewRoute(key: key), onFailure: onFailure);
+  }
+
   Future<dynamic> navigateToUnknownView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return navigateTo(UnknownViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> replaceWithStartupView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return replaceWith(StartupViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> replaceWithVaultView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return replaceWith(VaultViewRoute(key: key), onFailure: onFailure);
   }
 
   Future<dynamic> replaceWithStudioView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return replaceWith(StudioViewRoute(key: key), onFailure: onFailure);
   }
 
+  Future<dynamic> replaceWithDraftsListView({
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
+  }) async {
+    return replaceWith(DraftsListViewRoute(key: key), onFailure: onFailure);
+  }
+
   Future<dynamic> replaceWithUnknownView({
-    _i7.Key? key,
-    void Function(_i6.NavigationFailure)? onFailure,
+    _i8.Key? key,
+    void Function(_i7.NavigationFailure)? onFailure,
   }) async {
     return replaceWith(UnknownViewRoute(key: key), onFailure: onFailure);
   }

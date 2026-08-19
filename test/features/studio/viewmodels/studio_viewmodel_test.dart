@@ -1,5 +1,6 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
+import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
@@ -16,6 +17,7 @@ import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
@@ -109,6 +111,7 @@ void main() {
     );
 
     late MockRouterService routerService;
+    late MockDialogService dialogService;
 
     setUp(() {
       vaultService = getAndRegisterVaultService();
@@ -116,6 +119,7 @@ void main() {
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
       routerService = getAndRegisterRouterService();
+      dialogService = getAndRegisterDialogService();
     });
     tearDown(() => locator.reset());
 
@@ -153,6 +157,70 @@ void main() {
           expect(model.hasExportError, isFalse);
         },
       );
+
+      test('a fresh draft (never before persisted) is populated from the '
+          'Vault once loaded', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience], hobbies: [hobby]));
+        when(vaultService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.isFreshDraft).thenReturn(true);
+        when(
+          draftService.selectAllFromVault(
+            experienceIds: anyNamed('experienceIds'),
+            bulletIds: anyNamed('bulletIds'),
+            projectIds: anyNamed('projectIds'),
+            projectBulletIds: anyNamed('projectBulletIds'),
+            skillIds: anyNamed('skillIds'),
+            educationIds: anyNamed('educationIds'),
+            hobbyIds: anyNamed('hobbyIds'),
+          ),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        model.initialise();
+        await pumpEventQueue();
+
+        verify(
+          draftService.selectAllFromVault(
+            experienceIds: [experience.id],
+            bulletIds: {
+              experience.id: ['b1', 'b2'],
+            },
+            projectIds: [],
+            projectBulletIds: {},
+            skillIds: [],
+            educationIds: [],
+            hobbyIds: [hobby.id],
+          ),
+        ).called(1);
+      });
+
+      test('a non-fresh draft is left as-is', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience]));
+        when(vaultService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.isFreshDraft).thenReturn(false);
+
+        final model = StudioViewModel();
+        model.initialise();
+        await pumpEventQueue();
+
+        verifyNever(
+          draftService.selectAllFromVault(
+            experienceIds: anyNamed('experienceIds'),
+            bulletIds: anyNamed('bulletIds'),
+            projectIds: anyNamed('projectIds'),
+            projectBulletIds: anyNamed('projectBulletIds'),
+            skillIds: anyNamed('skillIds'),
+            educationIds: anyNamed('educationIds'),
+            hobbyIds: anyNamed('hobbyIds'),
+          ),
+        );
+      });
     });
 
     group('previewState -', () {
@@ -224,6 +292,103 @@ void main() {
       await model.goToVault();
 
       verify(routerService.replaceWith(argThat(isA<VaultViewRoute>())));
+    });
+
+    test('goToDrafts navigates to DraftsListViewRoute', () async {
+      when(vaultService.vault).thenReturn(CvVault.empty());
+      when(draftService.draft).thenReturn(draftWith());
+      when(routerService.replaceWith(any)).thenAnswer((_) async => null);
+
+      final model = StudioViewModel();
+      await model.goToDrafts();
+
+      verify(routerService.replaceWith(argThat(isA<DraftsListViewRoute>())));
+    });
+
+    test('draftName/draftNotes read through to the active draft', () {
+      when(vaultService.vault).thenReturn(CvVault.empty());
+      when(
+        draftService.draft,
+      ).thenReturn(draftWith().copyWith(name: 'Acme CV', notes: 'For Acme'));
+
+      final model = StudioViewModel();
+
+      expect(model.draftName, 'Acme CV');
+      expect(model.draftNotes, 'For Acme');
+    });
+
+    group('editDraftDetails -', () {
+      test(
+        'confirming updates the draft via DraftService.updateDraftDetails',
+        () async {
+          when(vaultService.vault).thenReturn(CvVault.empty());
+          when(
+            draftService.draft,
+          ).thenReturn(draftWith().copyWith(name: 'Old name', notes: ''));
+          when(
+            dialogService.showCustomDialog(
+              variant: anyNamed('variant'),
+              title: anyNamed('title'),
+              data: anyNamed('data'),
+              mainButtonTitle: anyNamed('mainButtonTitle'),
+              secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+            ),
+          ).thenAnswer(
+            (_) async => DialogResponse<EditDraftDialogData>(
+              confirmed: true,
+              data: const EditDraftDialogData(
+                name: 'New name',
+                notes: 'New notes',
+              ),
+            ),
+          );
+          when(
+            draftService.updateDraftDetails(
+              any,
+              name: anyNamed('name'),
+              notes: anyNamed('notes'),
+            ),
+          ).thenAnswer((_) => Future<void>.value());
+
+          final model = StudioViewModel();
+          await model.editDraftDetails();
+
+          verify(
+            draftService.updateDraftDetails(
+              'current',
+              name: 'New name',
+              notes: 'New notes',
+            ),
+          ).called(1);
+        },
+      );
+
+      test('cancelling updates nothing', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        when(
+          dialogService.showCustomDialog(
+            variant: anyNamed('variant'),
+            title: anyNamed('title'),
+            data: anyNamed('data'),
+            mainButtonTitle: anyNamed('mainButtonTitle'),
+            secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+          ),
+        ).thenAnswer(
+          (_) async => DialogResponse<EditDraftDialogData>(confirmed: false),
+        );
+
+        final model = StudioViewModel();
+        await model.editDraftDetails();
+
+        verifyNever(
+          draftService.updateDraftDetails(
+            any,
+            name: anyNamed('name'),
+            notes: anyNamed('notes'),
+          ),
+        );
+      });
     });
 
     test('includeEverything selects every Vault item and unhides every '

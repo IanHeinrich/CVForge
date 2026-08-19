@@ -4,12 +4,12 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i16;
-import 'dart:typed_data' as _i30;
+import 'dart:typed_data' as _i31;
 import 'dart:ui' as _i20;
 
 import 'package:cv_forge/models/draft/cv_draft.dart' as _i12;
-import 'package:cv_forge/models/draft/cv_section_type.dart' as _i28;
-import 'package:cv_forge/models/render/resolved_cv.dart' as _i35;
+import 'package:cv_forge/models/draft/cv_section_type.dart' as _i29;
+import 'package:cv_forge/models/render/resolved_cv.dart' as _i36;
 import 'package:cv_forge/models/vault/contact_basics.dart' as _i25;
 import 'package:cv_forge/models/vault/cv_bullet.dart' as _i6;
 import 'package:cv_forge/models/vault/cv_vault.dart' as _i3;
@@ -22,18 +22,19 @@ import 'package:cv_forge/models/vault/skill.dart' as _i9;
 import 'package:cv_forge/models/vault/skill_category.dart' as _i8;
 import 'package:cv_forge/models/vault/year_month.dart' as _i26;
 import 'package:cv_forge/services/draft_service.dart' as _i27;
-import 'package:cv_forge/services/file_download_service.dart' as _i29;
-import 'package:cv_forge/services/font_service.dart' as _i33;
+import 'package:cv_forge/services/file_download_service.dart' as _i30;
+import 'package:cv_forge/services/font_service.dart' as _i34;
 import 'package:cv_forge/services/local_storage_service.dart' as _i23;
-import 'package:cv_forge/services/pdf_export_service.dart' as _i34;
-import 'package:cv_forge/services/template_registry_service.dart' as _i32;
+import 'package:cv_forge/services/pdf_export_service.dart' as _i35;
+import 'package:cv_forge/services/template_registry_service.dart' as _i33;
 import 'package:cv_forge/services/vault_service.dart' as _i24;
 import 'package:cv_forge/templates/cv_template.dart' as _i13;
 import 'package:cv_forge/templates/design/cv_font_set.dart' as _i14;
-import 'package:file_saver/file_saver.dart' as _i31;
+import 'package:file_saver/file_saver.dart' as _i32;
 import 'package:flutter/material.dart' as _i17;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:pdf/pdf.dart' as _i36;
+import 'package:mockito/src/dummies.dart' as _i28;
+import 'package:pdf/pdf.dart' as _i37;
 import 'package:stacked/stacked.dart' as _i2;
 import 'package:stacked_services/src/bottom_sheet/bottom_sheet_service.dart'
     as _i18;
@@ -1240,6 +1241,15 @@ class MockVaultService extends _i1.Mock implements _i24.VaultService {
 /// See the documentation for Mockito's code generation for more information.
 class MockDraftService extends _i1.Mock implements _i27.DraftService {
   @override
+  List<_i12.CvDraft> get drafts =>
+      (super.noSuchMethod(
+            Invocation.getter(#drafts),
+            returnValue: <_i12.CvDraft>[],
+            returnValueForMissingStub: <_i12.CvDraft>[],
+          )
+          as List<_i12.CvDraft>);
+
+  @override
   _i12.CvDraft get draft =>
       (super.noSuchMethod(
             Invocation.getter(#draft),
@@ -1273,6 +1283,95 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
   _i16.Future<void> load() =>
       (super.noSuchMethod(
             Invocation.method(#load, []),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
+  _i16.Future<String> createDraft({
+    required String? name,
+    String? notes = '',
+    String? templateId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#createDraft, [], {
+              #name: name,
+              #notes: notes,
+              #templateId: templateId,
+            }),
+            returnValue: _i16.Future<String>.value(
+              _i28.dummyValue<String>(
+                this,
+                Invocation.method(#createDraft, [], {
+                  #name: name,
+                  #notes: notes,
+                  #templateId: templateId,
+                }),
+              ),
+            ),
+            returnValueForMissingStub: _i16.Future<String>.value(
+              _i28.dummyValue<String>(
+                this,
+                Invocation.method(#createDraft, [], {
+                  #name: name,
+                  #notes: notes,
+                  #templateId: templateId,
+                }),
+              ),
+            ),
+          )
+          as _i16.Future<String>);
+
+  @override
+  _i16.Future<void> openDraft(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#openDraft, [id]),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
+  _i16.Future<void> updateDraftDetails(
+    String? id, {
+    required String? name,
+    required String? notes,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #updateDraftDetails,
+              [id],
+              {#name: name, #notes: notes},
+            ),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
+  _i16.Future<String> duplicateDraft(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#duplicateDraft, [id]),
+            returnValue: _i16.Future<String>.value(
+              _i28.dummyValue<String>(
+                this,
+                Invocation.method(#duplicateDraft, [id]),
+              ),
+            ),
+            returnValueForMissingStub: _i16.Future<String>.value(
+              _i28.dummyValue<String>(
+                this,
+                Invocation.method(#duplicateDraft, [id]),
+              ),
+            ),
+          )
+          as _i16.Future<String>);
+
+  @override
+  _i16.Future<void> deleteDraft(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteDraft, [id]),
             returnValue: _i16.Future<void>.value(),
             returnValueForMissingStub: _i16.Future<void>.value(),
           )
@@ -1423,7 +1522,7 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
 
   @override
   _i16.Future<void> setSectionHidden(
-    _i28.CvSectionType? type, {
+    _i29.CvSectionType? type, {
     required bool? hidden,
   }) =>
       (super.noSuchMethod(
@@ -1523,13 +1622,13 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockFileDownloadService extends _i1.Mock
-    implements _i29.FileDownloadService {
+    implements _i30.FileDownloadService {
   @override
   _i16.Future<void> saveFile({
     required String? nameWithoutExtension,
-    required _i30.Uint8List? bytes,
+    required _i31.Uint8List? bytes,
     required String? extension,
-    required _i31.MimeType? mimeType,
+    required _i32.MimeType? mimeType,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#saveFile, [], {
@@ -1548,7 +1647,7 @@ class MockFileDownloadService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTemplateRegistryService extends _i1.Mock
-    implements _i32.TemplateRegistryService {
+    implements _i33.TemplateRegistryService {
   @override
   List<_i13.CvTemplateDescriptor> get available =>
       (super.noSuchMethod(
@@ -1592,7 +1691,7 @@ class MockTemplateRegistryService extends _i1.Mock
 /// A class which mocks [FontService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFontService extends _i1.Mock implements _i33.FontService {
+class MockFontService extends _i1.Mock implements _i34.FontService {
   @override
   _i16.Future<_i14.CvFontSet> load() =>
       (super.noSuchMethod(
@@ -1619,14 +1718,14 @@ class MockFontService extends _i1.Mock implements _i33.FontService {
 /// A class which mocks [PdfExportService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPdfExportService extends _i1.Mock implements _i34.PdfExportService {
+class MockPdfExportService extends _i1.Mock implements _i35.PdfExportService {
   @override
   _i16.Future<void> export({
-    required _i35.ResolvedCv? cv,
+    required _i36.ResolvedCv? cv,
     required String? templateId,
     required String? fullName,
     required String? draftName,
-    _i36.PdfPageFormat? format = _i36.PdfPageFormat.a4,
+    _i37.PdfPageFormat? format = _i37.PdfPageFormat.a4,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#export, [], {
@@ -1642,10 +1741,10 @@ class MockPdfExportService extends _i1.Mock implements _i34.PdfExportService {
           as _i16.Future<void>);
 
   @override
-  _i16.Future<_i30.Uint8List> render({
-    required _i35.ResolvedCv? cv,
+  _i16.Future<_i31.Uint8List> render({
+    required _i36.ResolvedCv? cv,
     required String? templateId,
-    _i36.PdfPageFormat? format = _i36.PdfPageFormat.a4,
+    _i37.PdfPageFormat? format = _i37.PdfPageFormat.a4,
     bool? compress = true,
   }) =>
       (super.noSuchMethod(
@@ -1655,10 +1754,10 @@ class MockPdfExportService extends _i1.Mock implements _i34.PdfExportService {
               #format: format,
               #compress: compress,
             }),
-            returnValue: _i16.Future<_i30.Uint8List>.value(_i30.Uint8List(0)),
-            returnValueForMissingStub: _i16.Future<_i30.Uint8List>.value(
-              _i30.Uint8List(0),
+            returnValue: _i16.Future<_i31.Uint8List>.value(_i31.Uint8List(0)),
+            returnValueForMissingStub: _i16.Future<_i31.Uint8List>.value(
+              _i31.Uint8List(0),
             ),
           )
-          as _i16.Future<_i30.Uint8List>);
+          as _i16.Future<_i31.Uint8List>);
 }

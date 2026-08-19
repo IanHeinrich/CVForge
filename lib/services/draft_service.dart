@@ -4,11 +4,17 @@ import 'dart:convert';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/draft/draft_index.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:stacked/stacked.dart';
+import 'package:uuid/uuid.dart';
 
-/// Owns the current tailoring/selection state — "The Studio" draft.
+/// Owns every saved CV draft — "The Studio" — and which one is currently
+/// open. Each [CvDraft] is its own storage entry (`draft_<id>`); a small
+/// [DraftIndex] entry tracks the full set of ids, their order, and
+/// [activeDraftId] so opening/renaming/reordering drafts never requires
+/// rewriting every other draft's JSON.
 ///
 /// Deliberately has NO dependency on [VaultService] — it only ever stores
 /// ids, never resolves them. That decoupling is what makes deleting a
@@ -16,23 +22,45 @@ import 'package:stacked/stacked.dart';
 /// (dangling ids are handled by `CvComposer`, not here).
 class DraftService with ListenableServiceMixin {
   DraftService() {
-    listenToReactiveValues([_draft, _persistError]);
+    listenToReactiveValues([_drafts, _activeDraftId, _persistError]);
   }
 
   final _localStorage = locator<LocalStorageService>();
+  final _uuid = const Uuid();
 
-  final ReactiveValue<CvDraft> _draft = ReactiveValue<CvDraft>(CvDraft.empty());
-  CvDraft get draft => _draft.value;
+  final ReactiveValue<List<CvDraft>> _drafts = ReactiveValue<List<CvDraft>>([]);
 
-  /// True only for a draft that has never been persisted — i.e. this is
-  /// the user's very first time in Studio. Cleared by the first call to
-  /// [selectAllFromVault] or any other mutation, whichever comes first, so
-  /// it only ever fires once per install. Deliberately does NOT cover the
-  /// "corrupted draft, quarantined" path in [_load] — that's an existing
-  /// (if unreadable) draft, not a first-time user, so it stays opt-in-empty
-  /// like every other draft.
-  bool _isFreshDraft = false;
-  bool get isFreshDraft => _isFreshDraft;
+  /// Every saved draft, most recently updated first.
+  List<CvDraft> get drafts =>
+      [..._drafts.value]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+  final ReactiveValue<String?> _activeDraftId = ReactiveValue<String?>(null);
+  String? get activeDraftId => _activeDraftId.value;
+
+  /// The currently-open draft. Falls back to an unpersisted empty draft if
+  /// somehow nothing is active (e.g. every draft has been deleted) — call
+  /// sites that need to distinguish "no drafts at all" from "a real draft"
+  /// should check [drafts]/[activeDraftId] instead of this getter.
+  CvDraft get draft {
+    final id = _activeDraftId.value;
+    if (id == null) return CvDraft.empty();
+    return _drafts.value.firstWhere(
+      (d) => d.id == id,
+      orElse: () =>
+          _drafts.value.isNotEmpty ? _drafts.value.first : CvDraft.empty(),
+    );
+  }
+
+  /// Ids of drafts that have never had a manual selection made — i.e. a
+  /// draft the user just created (or the very first draft a first-time
+  /// user gets seeded with), so its consumer knows to default it to
+  /// "everything in the Vault selected" rather than empty. Cleared by the
+  /// first call to [selectAllFromVault] or any other mutation on that
+  /// draft, whichever comes first, so it only ever fires once per draft.
+  final Set<String> _freshDraftIds = {};
+  bool get isFreshDraft =>
+      _activeDraftId.value != null &&
+      _freshDraftIds.contains(_activeDraftId.value);
 
   /// Set when the most recent write to [LocalStorageService] failed;
   /// cleared on the next successful one. Mirrors [VaultService.persistError].
@@ -57,24 +85,109 @@ class DraftService with ListenableServiceMixin {
 
   Future<void> _load() async {
     await _localStorage.ensureInitialized();
-    final raw = await _localStorage.read(
+
+    final indexRaw = await _localStorage.read(
+      StorageBoxes.drafts,
+      StorageKeys.draftIndex,
+    );
+    if (indexRaw != null) {
+      await _loadFromIndex(indexRaw);
+      return;
+    }
+
+    // No index yet — a pre-multi-draft install may still have its one
+    // draft under the old single-key scheme. Migrate it rather than
+    // discarding it (see `StorageKeys.currentDraftId`'s doc comment).
+    final legacyRaw = await _localStorage.read(
       StorageBoxes.drafts,
       StorageKeys.currentDraftId,
     );
-    if (raw == null) {
-      _draft.value = CvDraft.empty();
-      _isFreshDraft = true;
+    if (legacyRaw != null) {
+      await _migrateLegacyDraft(legacyRaw);
       return;
     }
-    try {
-      _draft.value = _migrate(jsonDecode(raw) as Map<String, dynamic>);
-    } catch (_) {
-      await _quarantine(raw);
-      _draft.value = CvDraft.empty();
-    }
+
+    // Truly first-ever load: seed one fresh draft so Studio/Drafts aren't
+    // empty — matches the pre-multi-draft "first-time user starts with a
+    // draft ready to populate" experience.
+    await _seedFirstDraft();
   }
 
-  CvDraft _migrate(Map<String, dynamic> json) {
+  Future<void> _loadFromIndex(String indexRaw) async {
+    DraftIndex index;
+    try {
+      index = _migrateIndex(jsonDecode(indexRaw) as Map<String, dynamic>);
+    } catch (_) {
+      await _quarantine(StorageKeys.draftIndex, indexRaw);
+      index = DraftIndex.empty();
+    }
+
+    final loaded = <CvDraft>[];
+    for (final id in index.draftIds) {
+      final raw = await _localStorage.read(
+        StorageBoxes.drafts,
+        StorageKeys.draftEntry(id),
+      );
+      if (raw == null) continue; // dangling index entry — drop silently.
+      try {
+        loaded.add(_migrateDraft(jsonDecode(raw) as Map<String, dynamic>));
+      } catch (_) {
+        await _quarantine(StorageKeys.draftEntry(id), raw);
+      }
+    }
+
+    if (loaded.isEmpty) {
+      await _seedFirstDraft();
+      return;
+    }
+
+    _drafts.value = loaded;
+    final requestedActive = index.activeDraftId;
+    final activeStillExists = loaded.any((d) => d.id == requestedActive);
+    _activeDraftId.value = activeStillExists
+        ? requestedActive
+        : loaded.first.id;
+
+    // Repair the persisted index if it referenced dangling/missing ids or
+    // a stale active id, so the drift doesn't get re-derived on every load.
+    final repaired =
+        !activeStillExists || index.draftIds.length != loaded.length;
+    if (repaired) await _persistIndex();
+  }
+
+  Future<void> _migrateLegacyDraft(String raw) async {
+    CvDraft draft;
+    try {
+      draft = _migrateDraft(jsonDecode(raw) as Map<String, dynamic>);
+      // The legacy scheme always used this literal id; give it a real one
+      // now that ids are meaningful (they key per-draft storage entries).
+      if (draft.id == StorageKeys.currentDraftId) {
+        draft = draft.copyWith(id: _uuid.v4());
+      }
+    } catch (_) {
+      await _quarantine(StorageKeys.currentDraftId, raw);
+      draft = CvDraft.empty(id: _uuid.v4());
+      _freshDraftIds.add(draft.id);
+    }
+
+    _drafts.value = [draft];
+    _activeDraftId.value = draft.id;
+    await _persistDraft(draft);
+    await _persistIndex();
+    // The old key is left in place, dead but harmless — no destructive
+    // delete needed once its data has a home in the new scheme.
+  }
+
+  Future<void> _seedFirstDraft() async {
+    final first = CvDraft.empty(id: _uuid.v4());
+    _drafts.value = [first];
+    _activeDraftId.value = first.id;
+    _freshDraftIds.add(first.id);
+    await _persistDraft(first);
+    await _persistIndex();
+  }
+
+  CvDraft _migrateDraft(Map<String, dynamic> json) {
     final version = json['schemaVersion'];
     if (version != 1) {
       throw FormatException('Unsupported draft schemaVersion: $version');
@@ -82,11 +195,121 @@ class DraftService with ListenableServiceMixin {
     return CvDraft.fromJson(json);
   }
 
-  Future<void> _quarantine(String raw) async {
+  DraftIndex _migrateIndex(Map<String, dynamic> json) {
+    final version = json['schemaVersion'];
+    if (version != 1) {
+      throw FormatException('Unsupported draft index schemaVersion: $version');
+    }
+    return DraftIndex.fromJson(json);
+  }
+
+  Future<void> _quarantine(String originalKey, String raw) async {
     final key =
-        '${StorageKeys.currentDraftId}_corrupt_${DateTime.now().millisecondsSinceEpoch}';
+        '${originalKey}_corrupt_${DateTime.now().millisecondsSinceEpoch}';
     await _localStorage.write(StorageBoxes.drafts, key, raw);
   }
+
+  // --- draft list management (create/open/rename/duplicate/delete) ---
+  //
+  // These are deliberate, infrequent user actions (a button press, a
+  // dialog confirm) rather than continuous typing, so unlike the
+  // selection/tailoring setters below they persist immediately instead of
+  // going through the debounce.
+
+  /// Creates a new draft, makes it the active one, and marks it fresh (see
+  /// [isFreshDraft]) so Studio defaults it to everything-selected. Returns
+  /// the new draft's id.
+  Future<String> createDraft({
+    required String name,
+    String notes = '',
+    String? templateId,
+  }) async {
+    await _ready();
+    final id = _uuid.v4();
+    final created = CvDraft.empty(
+      id: id,
+      name: name,
+      templateId: templateId ?? draft.templateId,
+    ).copyWith(notes: notes);
+    _drafts.value = [..._drafts.value, created];
+    _activeDraftId.value = id;
+    _freshDraftIds.add(id);
+    await _persistDraft(created);
+    await _persistIndex();
+    return id;
+  }
+
+  /// Switches which draft [draft] resolves to. No-ops for an unknown id.
+  Future<void> openDraft(String id) async {
+    await _ready();
+    if (_activeDraftId.value == id) return;
+    if (!_drafts.value.any((d) => d.id == id)) return;
+    _activeDraftId.value = id;
+    await _persistIndex();
+  }
+
+  /// Updates a draft's name/notes without touching its selections. No-ops
+  /// for an unknown id.
+  Future<void> updateDraftDetails(
+    String id, {
+    required String name,
+    required String notes,
+  }) async {
+    await _ready();
+    final index = _drafts.value.indexWhere((d) => d.id == id);
+    if (index == -1) return;
+    final updated = _drafts.value[index].copyWith(
+      name: name,
+      notes: notes,
+      updatedAt: DateTime.now(),
+    );
+    _drafts.value = [
+      for (final d in _drafts.value)
+        if (d.id == id) updated else d,
+    ];
+    await _persistDraft(updated);
+  }
+
+  /// Clones [id] as a new draft (new id, name suffixed) and makes the copy
+  /// active — the fast path for starting the next application from an
+  /// already-tailored CV. Returns the new draft's id, or [id] unchanged if
+  /// no draft with that id exists.
+  Future<String> duplicateDraft(String id) async {
+    await _ready();
+    final index = _drafts.value.indexWhere((d) => d.id == id);
+    if (index == -1) return id;
+    final source = _drafts.value[index];
+    final newId = _uuid.v4();
+    final copy = source.copyWith(
+      id: newId,
+      name: '${source.name} (copy)',
+      updatedAt: DateTime.now(),
+    );
+    _drafts.value = [..._drafts.value, copy];
+    _activeDraftId.value = newId;
+    await _persistDraft(copy);
+    await _persistIndex();
+    return newId;
+  }
+
+  /// Deletes a draft. If it was active, another draft (arbitrarily, the
+  /// first remaining) becomes active, or [activeDraftId] becomes null if
+  /// none are left.
+  Future<void> deleteDraft(String id) async {
+    await _ready();
+    if (!_drafts.value.any((d) => d.id == id)) return;
+    _drafts.value = _drafts.value.where((d) => d.id != id).toList();
+    _freshDraftIds.remove(id);
+    if (_activeDraftId.value == id) {
+      _activeDraftId.value = _drafts.value.isEmpty
+          ? null
+          : _drafts.value.first.id;
+    }
+    await _localStorage.delete(StorageBoxes.drafts, StorageKeys.draftEntry(id));
+    await _persistIndex();
+  }
+
+  // --- active-draft selection/tailoring (Studio) ---
 
   Future<void> setTemplate(String templateId) async {
     await _ready();
@@ -94,13 +317,13 @@ class DraftService with ListenableServiceMixin {
   }
 
   /// Populates a never-before-persisted draft with everything the caller
-  /// hands it — meant to be called once, right after [load], with the
-  /// caller's full Vault content, so a first-time user's CV starts fully
-  /// populated instead of empty. No-ops if [isFreshDraft] is already
-  /// false, so a caller doesn't need to re-check it right before calling.
+  /// hands it — meant to be called once, right after opening it, with the
+  /// caller's full Vault content, so a fresh draft starts fully populated
+  /// instead of empty. No-ops if [isFreshDraft] is already false, so a
+  /// caller doesn't need to re-check it right before calling.
   ///
   /// Still takes plain ids/maps rather than Vault types — this service
-  /// stays decoupled from [VaultService] (see the class doc comment); the
+  /// stays decoupled from `VaultService` (see the class doc comment); the
   /// caller (which already depends on both services) resolves the Vault
   /// into these shapes.
   Future<void> selectAllFromVault({
@@ -113,7 +336,7 @@ class DraftService with ListenableServiceMixin {
     required List<String> hobbyIds,
   }) async {
     await _ready();
-    if (!_isFreshDraft) return;
+    if (!isFreshDraft) return;
     _setDraft(
       (d) => d.copyWith(
         experienceIds: experienceIds,
@@ -323,16 +546,26 @@ class DraftService with ListenableServiceMixin {
     });
   }
 
+  /// Applies [update] to the active draft, stamps it, and schedules a
+  /// debounced write — the shared path for every selection/tailoring
+  /// setter above, all of which mutate the draft the user is currently
+  /// looking at in Studio.
   void _setDraft(CvDraft Function(CvDraft current) update) {
-    _isFreshDraft = false;
-    _draft.value = update(_draft.value).copyWith(updatedAt: DateTime.now());
-    _scheduleWrite();
+    final id = _activeDraftId.value;
+    if (id == null) return; // No draft loaded yet — defensive no-op.
+    _freshDraftIds.remove(id);
+    final updated = update(draft).copyWith(updatedAt: DateTime.now());
+    _drafts.value = [
+      for (final d in _drafts.value)
+        if (d.id == id) updated else d,
+    ];
+    _scheduleWrite(updated);
   }
 
-  void _scheduleWrite() {
+  void _scheduleWrite(CvDraft target) {
     _writeDebounce?.cancel();
     _writeDebounce = Timer(const Duration(milliseconds: 300), () {
-      unawaited(_persist());
+      unawaited(_persistDraft(target));
     });
   }
 
@@ -341,16 +574,34 @@ class DraftService with ListenableServiceMixin {
   Future<void> flushPendingWrites() async {
     _writeDebounce?.cancel();
     _writeDebounce = null;
-    await _persist();
+    await _persistDraft(draft);
   }
 
-  Future<void> _persist() async {
+  Future<void> _persistDraft(CvDraft target) async {
     try {
-      final json = jsonEncode(_draft.value.toJson());
+      final json = jsonEncode(target.toJson());
       await _localStorage.write(
         StorageBoxes.drafts,
-        StorageKeys.currentDraftId,
+        StorageKeys.draftEntry(target.id),
         json,
+      );
+      _persistError.value = null;
+    } catch (e) {
+      _persistError.value = e;
+    }
+  }
+
+  Future<void> _persistIndex() async {
+    try {
+      final index = DraftIndex(
+        schemaVersion: 1,
+        draftIds: [for (final d in _drafts.value) d.id],
+        activeDraftId: _activeDraftId.value,
+      );
+      await _localStorage.write(
+        StorageBoxes.drafts,
+        StorageKeys.draftIndex,
+        jsonEncode(index.toJson()),
       );
       _persistError.value = null;
     } catch (e) {

@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// The common chrome every editor panel (basics, one experience, one
 /// education entry, skills, hobbies) renders inside: a title bar with a
@@ -41,7 +42,7 @@ class VaultEditorPanelScaffold extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: kcLightGrey),
+                icon: const Icon(RemixIcons.close_line, color: kcLightGrey),
                 onPressed: onClose,
                 tooltip: 'Close',
               ),

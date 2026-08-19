@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// Shown wherever a load from local storage genuinely failed — e.g.
 /// Firefox strict-privacy mode or private browsing, where IndexedDB is
@@ -22,7 +23,11 @@ class StorageUnavailableCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.error_outline, color: kcLightGrey, size: 40),
+          const Icon(
+            RemixIcons.error_warning_line,
+            color: kcLightGrey,
+            size: 40,
+          ),
           verticalSpaceMedium,
           const Text(
             "CVForge couldn't load your data",

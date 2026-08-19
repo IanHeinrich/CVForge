@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// The "SECTION NAME  [+]" row above each list of summary cards.
 ///
@@ -41,7 +42,10 @@ class VaultSectionHeading extends StatelessWidget {
           if (onAdd != null)
             IconButton(
               onPressed: onAdd,
-              icon: const Icon(Icons.add_circle_outline, color: kcPrimaryColor),
+              icon: const Icon(
+                RemixIcons.add_circle_line,
+                color: kcPrimaryColor,
+              ),
               tooltip: addLabel,
               visualDensity: VisualDensity.compact,
             ),
