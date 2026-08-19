@@ -20,6 +20,10 @@ import 'package:cv_forge/features/vault/dialogs/confirm_delete/confirm_delete_di
 
 import 'package:cv_forge/services/template_registry_service.dart';
 
+import 'package:cv_forge/services/font_service.dart';
+
+import 'package:cv_forge/services/pdf_export_service.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -43,6 +47,8 @@ import 'package:cv_forge/services/template_registry_service.dart';
     LazySingleton(classType: DraftService),
     LazySingleton(classType: FileDownloadService),
     LazySingleton(classType: TemplateRegistryService),
+    LazySingleton(classType: FontService),
+    LazySingleton(classType: PdfExportService),
     // @stacked-service
   ],
   bottomsheets: [

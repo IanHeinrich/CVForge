@@ -13,6 +13,7 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/templates/cv_template.dart';
@@ -30,6 +31,7 @@ class StudioViewModel extends ReactiveViewModel {
   final _vaultService = locator<VaultService>();
   final _draftService = locator<DraftService>();
   final _templateRegistry = locator<TemplateRegistryService>();
+  final _pdfExportService = locator<PdfExportService>();
 
   @override
   List<ListenableServiceMixin> get listenableServices => [
@@ -211,4 +213,24 @@ class StudioViewModel extends ReactiveViewModel {
       await toggleHobby(hobby);
     }
   }
+
+  // --- export ---
+
+  bool get isExporting => isBusy;
+  bool get hasExportError => hasError;
+  Object? get exportError => modelError;
+
+  /// Fires straight off the calling `onPressed` with fonts already warmed
+  /// by `StartupViewModel` — web export needs a real user gesture, and the
+  /// longer the async gap after the click, the stricter Safari gets about
+  /// still honouring it.
+  Future<void> exportPdf() => runBusyFuture(
+    _pdfExportService.export(
+      cv: resolvedCv,
+      templateId: template.id,
+      fullName: _vault.basics.fullName,
+      draftName: _draft.name,
+      format: pageFormat,
+    ),
+  );
 }

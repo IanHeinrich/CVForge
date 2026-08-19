@@ -16,6 +16,27 @@ abstract class YearMonth with _$YearMonth {
   factory YearMonth.fromJson(Map<String, dynamic> json) =>
       _$YearMonthFromJson(json);
 
-  /// "MM/YYYY", matching the reference CV's date format.
+  /// "MM/YYYY", matching the original reference CV's date format.
   String toMmYyyy() => '${month.toString().padLeft(2, '0')}/$year';
+
+  /// "Mon YYYY" (e.g. "Aug 2022"), matching the `ats_minimal` reference
+  /// template's date format. "Sept" rather than "Sep" and "June"/"July"
+  /// rather than "Jun"/"Jul" is a deliberate resume convention, not a
+  /// typo — it's what the reference template itself uses.
+  String toMonYyyy() => '${_monthNames[month - 1]} $year';
 }
+
+const _monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'June',
+  'July',
+  'Aug',
+  'Sept',
+  'Oct',
+  'Nov',
+  'Dec',
+];

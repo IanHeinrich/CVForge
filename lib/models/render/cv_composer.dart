@@ -73,13 +73,16 @@ abstract final class CvComposer {
   ) {
     final byId = {for (final e in vault.experiences) e.id: e};
 
-    // Grouped by Experience.companyGroupId, but the LIST order and each
-    // group's internal position order both come from draft.experienceIds —
-    // same "the draft is the source of truth for order" rule every other
-    // section follows. An experience with no companyGroupId is simply the
-    // only member of its own group, which renders identically to a
-    // one-position group, so there's no separate ungrouped code path.
+    // Each group's internal position order comes from draft.experienceIds
+    // (a promotion's roles are entered oldest-first, so that stays as-is),
+    // but the GROUPS themselves are sorted reverse-chronological below —
+    // Phase 1 has no manual drag-reorder UI, so trusting toggle-on order
+    // for the group sequence would scramble the CV unpredictably. An
+    // experience with no companyGroupId is simply the only member of its
+    // own group, which renders identically to a one-position group, so
+    // there's no separate ungrouped code path.
     final groups = <ResolvedCompanyGroup>[];
+    final mostRecentByGroup = <int>[];
     final groupIndexByKey = <String, int>{};
 
     for (final expId in draft.experienceIds) {
@@ -97,12 +100,16 @@ abstract final class CvComposer {
       );
 
       final key = experience.companyGroupId ?? 'ungrouped:$expId';
+      final recency = _recencyKey(experience);
       final existingIndex = groupIndexByKey[key];
       if (existingIndex != null) {
         final existing = groups[existingIndex];
         groups[existingIndex] = existing.copyWith(
           positions: [...existing.positions, position],
         );
+        if (recency > mostRecentByGroup[existingIndex]) {
+          mostRecentByGroup[existingIndex] = recency;
+        }
       } else {
         groupIndexByKey[key] = groups.length;
         groups.add(
@@ -112,11 +119,28 @@ abstract final class CvComposer {
             positions: [position],
           ),
         );
+        mostRecentByGroup.add(recency);
       }
     }
 
     if (groups.isEmpty) return null;
-    return ResolvedSection.experience(title: 'Experience', groups: groups);
+
+    final order = List<int>.generate(groups.length, (i) => i)
+      ..sort((a, b) => mostRecentByGroup[b].compareTo(mostRecentByGroup[a]));
+
+    return ResolvedSection.experience(
+      title: 'Experience',
+      groups: [for (final i in order) groups[i]],
+    );
+  }
+
+  /// Sort key for reverse-chronological ordering. An ongoing role sorts as
+  /// if dated in the far future; otherwise it's the role's end month, or
+  /// its start month if open-ended with no end recorded.
+  static int _recencyKey(Experience experience) {
+    if (experience.isCurrent) return 1 << 30;
+    final effective = experience.end ?? experience.start;
+    return effective.year * 12 + effective.month;
   }
 
   /// Shared by [_buildExperience] and [_buildProjects] — both just filter
@@ -220,9 +244,11 @@ abstract final class CvComposer {
     // (and spelling normalisation) plugs into.
     switch (region) {
       case RegionProfile.uk:
-        final start = experience.start.toMmYyyy();
-        if (experience.isCurrent) return '$start - current';
-        final end = experience.end?.toMmYyyy();
+        final start = experience.start.toMonYyyy();
+        // Capitalized — the ATS-recognized keyword token for an ongoing
+        // role, matched by standard regex date parsers.
+        if (experience.isCurrent) return '$start - Present';
+        final end = experience.end?.toMonYyyy();
         return end == null ? start : '$start - $end';
     }
   }

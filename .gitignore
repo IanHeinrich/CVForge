@@ -49,6 +49,13 @@ app.*.map.json
 
 # Claude Code local tooling config (machine/environment-specific, not portable)
 .claude/
+# Dart MCP server config — command/env.PATH point at this machine's Flutter
+# SDK install location, not portable across devs or OSes.
+.mcp.json
+
+# Working implementation plan — internal planning notes, not for the public repo
+/PLAN.md
+/HANDOVER.md
 
 # golden_toolkit failure-diff output (local debugging only)
 test/golden/failures/

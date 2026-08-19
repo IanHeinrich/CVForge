@@ -66,6 +66,7 @@ class CvDesignTokens {
     required this.body,
     required this.bulletLabel,
     required this.bullet,
+    required this.bulletGlyph,
   });
 
   // Page margins, PDF points.
@@ -101,4 +102,11 @@ class CvDesignTokens {
   final CvTypeToken body;
   final CvTypeToken bulletLabel;
   final CvTypeToken bullet;
+
+  /// The bullet glyph itself (e.g. "•"), styled separately from [bullet]'s
+  /// body text — sizing/weighting the marker independently of the text
+  /// that follows it is a common per-template tweak, and splitting it out
+  /// here is what makes that a one-line token change instead of a
+  /// renderer-level `copyWith`.
+  final CvTypeToken bulletGlyph;
 }
