@@ -29,12 +29,33 @@ enum VaultEditorTarget {
   hobbies,
 }
 
-class VaultViewModel extends ReactiveViewModel {
+class VaultViewModel extends ReactiveViewModel implements Initialisable {
   final _vaultService = locator<VaultService>();
   final _dialogService = locator<DialogService>();
 
   @override
   List<ListenableServiceMixin> get listenableServices => [_vaultService];
+
+  /// Loads [VaultService] on this View's own account rather than assuming
+  /// `StartupView` already ran — refreshing (or deep-linking) straight to
+  /// `/vault` skips `StartupView` entirely, and without this the Vault
+  /// would render as empty even though real data is sitting in storage.
+  /// Implementing [Initialisable] makes Stacked call this automatically
+  /// when the ViewModel is created.
+  @override
+  void initialise() => runBusyFuture(_load());
+
+  /// A real `async` wrapper, not `runBusyFuture(_vaultService.load())`
+  /// directly — [runBusyFuture]'s argument is evaluated *before*
+  /// `runBusyFuture` itself runs, so a call that throws synchronously
+  /// (a mocked service in a test; see `VaultService._ready`'s doc comment
+  /// for why production code shouldn't either, but can't be trusted to
+  /// never regress) would throw straight out of [initialise] and never
+  /// reach `runBusyFuture`'s error handling at all.
+  Future<void> _load() async => _vaultService.load();
+
+  bool get isLoading => isBusy;
+  bool get hasLoadError => hasError;
 
   CvVault get vault => _vaultService.vault;
 
@@ -43,7 +64,8 @@ class VaultViewModel extends ReactiveViewModel {
   Future<void> retryPersist() => _vaultService.flushPendingWrites();
 
   bool _emptyStateDismissed = false;
-  bool get showEmptyState => !_emptyStateDismissed && vault.isEmpty;
+  bool get showEmptyState =>
+      !isLoading && !_emptyStateDismissed && vault.isEmpty;
 
   void dismissEmptyState() {
     _emptyStateDismissed = true;

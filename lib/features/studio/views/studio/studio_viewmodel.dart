@@ -1,4 +1,5 @@
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
@@ -19,6 +20,13 @@ import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/templates/cv_template.dart';
 import 'package:pdf/pdf.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
+
+/// What the preview pane should show, distinguishing an empty Vault (no
+/// source data at all) from a Vault with data that just isn't included in
+/// this draft — the two look identical as an empty [ResolvedCv] but need
+/// different copy and a different recovery action.
+enum StudioPreviewState { vaultEmpty, nothingSelected, ready }
 
 /// Owns Studio's selection UI. It reads [VaultService] for the master data
 /// and [DraftService] for what's currently selected, then hands both to
@@ -27,17 +35,44 @@ import 'package:stacked/stacked.dart';
 /// outside-in testing convention (a dedicated composer test would be a
 /// unit test of a pure function, which the project's conventions avoid
 /// unless asked for).
-class StudioViewModel extends ReactiveViewModel {
+class StudioViewModel extends ReactiveViewModel implements Initialisable {
   final _vaultService = locator<VaultService>();
   final _draftService = locator<DraftService>();
   final _templateRegistry = locator<TemplateRegistryService>();
   final _pdfExportService = locator<PdfExportService>();
+  final _routerService = locator<RouterService>();
 
   @override
   List<ListenableServiceMixin> get listenableServices => [
     _vaultService,
     _draftService,
   ];
+
+  /// Loads both services on this View's own account — see
+  /// `VaultViewModel.initialise`'s doc comment for why. Keyed on
+  /// [_loadBusyKey] rather than the model-level `isBusy`/`hasError` so a
+  /// load in progress can't be confused with [isExporting]/
+  /// [hasExportError], which reuse the model-level flags for the export
+  /// action.
+  static const _loadBusyKey = 'studio_load';
+
+  @override
+  void initialise() => runBusyFuture(_load(), busyObject: _loadBusyKey);
+
+  Future<void> _load() async {
+    await _vaultService.load();
+    await _draftService.load();
+  }
+
+  bool get isLoading => busy(_loadBusyKey);
+  bool get hasLoadError => hasErrorForKey(_loadBusyKey);
+
+  /// Mirrors `VaultViewModel.hasPersistError`/`retryPersist` for the draft
+  /// side, so a failed selection write is surfaced rather than silently
+  /// lost.
+  bool get hasPersistError => _draftService.persistError != null;
+
+  Future<void> retryPersist() => _draftService.flushPendingWrites();
 
   CvVault get _vault => _vaultService.vault;
   CvDraft get _draft => _draftService.draft;
@@ -51,7 +86,44 @@ class StudioViewModel extends ReactiveViewModel {
   ResolvedCv get resolvedCv =>
       CvComposer.compose(_vault, _draft, region: RegionProfile.uk);
 
-  bool get hasContent => resolvedCv.sections.isNotEmpty;
+  /// [CvVault.isEmpty] (no source data anywhere) is checked ahead of an
+  /// empty [resolvedCv] (data exists but nothing is included) — the two
+  /// states render the same "nothing to preview" outcome but need
+  /// different copy and different recovery actions, see
+  /// [StudioPreviewState].
+  StudioPreviewState get previewState {
+    if (_vault.isEmpty) return StudioPreviewState.vaultEmpty;
+    if (resolvedCv.sections.isEmpty) return StudioPreviewState.nothingSelected;
+    return StudioPreviewState.ready;
+  }
+
+  /// Total count of individual Vault items (not categories/groups) — used
+  /// in the [StudioPreviewState.nothingSelected] message so it can say
+  /// how much is sitting unselected, not just that something is.
+  int get vaultItemCount =>
+      experiences.length +
+      projects.length +
+      _allSkills.length +
+      education.length +
+      hobbies.length;
+
+  Future<void> goToVault() => _routerService.replaceWith(VaultViewRoute());
+
+  /// The recovery action for [StudioPreviewState.nothingSelected]: unhides
+  /// every section and selects every Vault item, the same starting point a
+  /// first-time user gets from `StartupViewModel._selectAllFromVault`. Runs
+  /// sequentially rather than via `Future.wait` so each step reads the
+  /// selection state left by the one before it, not a stale snapshot.
+  Future<void> includeEverything() async {
+    await addAllExperiences();
+    await addAllProjects();
+    await addAllSkills();
+    await addAllEducation();
+    await addAllHobbies();
+    for (final type in CvSectionType.values) {
+      if (isSectionHidden(type)) await toggleSectionHidden(type);
+    }
+  }
 
   // --- section visibility ---
 

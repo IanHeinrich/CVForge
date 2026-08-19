@@ -1,4 +1,5 @@
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
@@ -8,7 +9,10 @@ import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/skill.dart';
+import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -46,17 +50,27 @@ void main() {
         CvBullet(id: 'pb2', text: 'Built another thing'),
       ],
     );
+    const skillCategory = SkillCategory(
+      id: 'cat-1',
+      name: 'Languages',
+      skills: [Skill(id: 'skill-1', label: 'Dart')],
+    );
+    const hobby = HobbyItem(id: 'hobby-1', text: 'Climbing');
 
     CvVault vaultWith({
       List<Experience> experiences = const [],
       List<Education> education = const [],
       List<Project> projects = const [],
+      List<SkillCategory> skillCategories = const [],
+      List<HobbyItem> hobbies = const [],
     }) => CvVault(
       schemaVersion: 1,
       basics: ContactBasics.empty(),
       experiences: experiences,
       education: education,
       projects: projects,
+      skillCategories: skillCategories,
+      hobbies: hobbies,
       updatedAt: DateTime.now(),
     );
 
@@ -83,13 +97,223 @@ void main() {
       updatedAt: DateTime.now(),
     );
 
+    late MockRouterService routerService;
+
     setUp(() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
+      routerService = getAndRegisterRouterService();
     });
     tearDown(() => locator.reset());
+
+    group('initialise -', () {
+      test('loads both VaultService and DraftService', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(vaultService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.load()).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        model.initialise();
+        expect(model.isLoading, isTrue);
+
+        await pumpEventQueue();
+
+        verify(vaultService.load()).called(1);
+        verify(draftService.load()).called(1);
+        expect(model.isLoading, isFalse);
+        expect(model.hasLoadError, isFalse);
+      });
+
+      test(
+        'a failed load surfaces via hasLoadError without disturbing '
+        'isExporting/hasExportError — the two must not share state',
+        () async {
+          when(vaultService.vault).thenReturn(CvVault.empty());
+          when(vaultService.load()).thenThrow(Exception('boom'));
+
+          final model = StudioViewModel();
+          model.initialise();
+          await pumpEventQueue();
+
+          expect(model.hasLoadError, isTrue);
+          expect(model.isExporting, isFalse);
+          expect(model.hasExportError, isFalse);
+        },
+      );
+    });
+
+    group('previewState -', () {
+      test('vaultEmpty when the Vault has no data at all', () {
+        when(vaultService.vault).thenReturn(vaultWith());
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+
+        expect(model.previewState, StudioPreviewState.vaultEmpty);
+      });
+
+      test('nothingSelected when the Vault has data but none of it is '
+          "included in this draft — distinct from vaultEmpty, since "
+          '"add something to your Vault" would be wrong here', () {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience]));
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+
+        expect(model.previewState, StudioPreviewState.nothingSelected);
+      });
+
+      test('ready once at least one section resolves', () {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: [experience]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            experienceIds: [experience.id],
+            bulletIds: {
+              experience.id: ['b1', 'b2'],
+            },
+          ),
+        );
+
+        final model = StudioViewModel();
+
+        expect(model.previewState, StudioPreviewState.ready);
+      });
+    });
+
+    test('vaultItemCount totals individual items across every category, '
+        'not categories/groups', () {
+      when(vaultService.vault).thenReturn(
+        vaultWith(
+          experiences: [experience],
+          projects: [project],
+          education: [education],
+          skillCategories: [skillCategory],
+          hobbies: [hobby],
+        ),
+      );
+      when(draftService.draft).thenReturn(draftWith());
+
+      final model = StudioViewModel();
+
+      expect(model.vaultItemCount, 5);
+    });
+
+    test('goToVault navigates to VaultViewRoute', () async {
+      when(vaultService.vault).thenReturn(CvVault.empty());
+      when(draftService.draft).thenReturn(draftWith());
+      when(routerService.replaceWith(any)).thenAnswer((_) async => null);
+
+      final model = StudioViewModel();
+      await model.goToVault();
+
+      verify(routerService.replaceWith(argThat(isA<VaultViewRoute>())));
+    });
+
+    test('includeEverything selects every Vault item and unhides every '
+        'hidden section', () async {
+      when(vaultService.vault).thenReturn(
+        vaultWith(
+          experiences: [experience],
+          projects: [project],
+          education: [education],
+          skillCategories: [skillCategory],
+          hobbies: [hobby],
+        ),
+      );
+      when(draftService.draft).thenReturn(
+        draftWith(
+          hiddenSections: {CvSectionType.experience, CvSectionType.education},
+        ),
+      );
+      when(
+        draftService.setExperienceIncluded(
+          any,
+          included: anyNamed('included'),
+          bulletIds: anyNamed('bulletIds'),
+        ),
+      ).thenAnswer((_) => Future<void>.value());
+      when(
+        draftService.setProjectIncluded(
+          any,
+          included: anyNamed('included'),
+          bulletIds: anyNamed('bulletIds'),
+        ),
+      ).thenAnswer((_) => Future<void>.value());
+      when(
+        draftService.setSkillIncluded(any, included: anyNamed('included')),
+      ).thenAnswer((_) => Future<void>.value());
+      when(
+        draftService.setEducationIncluded(any, included: anyNamed('included')),
+      ).thenAnswer((_) => Future<void>.value());
+      when(
+        draftService.setHobbyIncluded(any, included: anyNamed('included')),
+      ).thenAnswer((_) => Future<void>.value());
+      when(
+        draftService.setSectionHidden(any, hidden: anyNamed('hidden')),
+      ).thenAnswer((_) => Future<void>.value());
+
+      final model = StudioViewModel();
+      await model.includeEverything();
+
+      verify(
+        draftService.setExperienceIncluded(
+          experience.id,
+          included: true,
+          bulletIds: ['b1', 'b2'],
+        ),
+      ).called(1);
+      verify(
+        draftService.setProjectIncluded(
+          project.id,
+          included: true,
+          bulletIds: ['pb1', 'pb2'],
+        ),
+      ).called(1);
+      verify(
+        draftService.setSkillIncluded('skill-1', included: true),
+      ).called(1);
+      verify(
+        draftService.setEducationIncluded(education.id, included: true),
+      ).called(1);
+      verify(draftService.setHobbyIncluded(hobby.id, included: true)).called(1);
+      verify(
+        draftService.setSectionHidden(CvSectionType.experience, hidden: false),
+      ).called(1);
+      verify(
+        draftService.setSectionHidden(CvSectionType.education, hidden: false),
+      ).called(1);
+      verifyNever(
+        draftService.setSectionHidden(
+          CvSectionType.skills,
+          hidden: anyNamed('hidden'),
+        ),
+      );
+    });
+
+    group('persist error -', () {
+      test('hasPersistError mirrors DraftService.persistError, and '
+          'retryPersist delegates to flushPendingWrites', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        when(draftService.persistError).thenReturn(Exception('write failed'));
+        when(
+          draftService.flushPendingWrites(),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        expect(model.hasPersistError, isTrue);
+
+        await model.retryPersist();
+
+        verify(draftService.flushPendingWrites()).called(1);
+      });
+    });
 
     test('resolvedCv includes only the experiences selected in the draft, '
         'and silently drops a dangling id', () {

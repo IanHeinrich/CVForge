@@ -15,23 +15,27 @@ import 'storage_keys.dart';
 class LocalStorageService {
   Future<void>? _initFuture;
 
-  Future<void> ensureInitialized() => _initFuture ??= _init();
+  /// A failed init (e.g. IndexedDB genuinely unavailable in Firefox
+  /// strict-privacy mode) must not poison every subsequent call — the
+  /// reset lives here, chained via [Future.catchError], not inside
+  /// [_init] itself. See `VaultService._ready`'s doc comment for exactly
+  /// why: a reset written inside [_init]'s own `catch` block would run
+  /// (and be silently clobbered by this `??=` assignment) before this
+  /// assignment ever executes, if the very first awaited call ever throws
+  /// synchronously.
+  Future<void> ensureInitialized() =>
+      _initFuture ??= _init().catchError((Object error, StackTrace stackTrace) {
+        _initFuture = null;
+        Error.throwWithStackTrace(error, stackTrace);
+      });
 
   Future<void> _init() async {
-    try {
-      await Hive.initFlutter();
-      await Future.wait([
-        Hive.openBox<String>(StorageBoxes.vault),
-        Hive.openBox<String>(StorageBoxes.drafts),
-        Hive.openBox<String>(StorageBoxes.settings),
-      ]);
-    } catch (_) {
-      // Allow a subsequent call to retry (e.g. IndexedDB genuinely
-      // unavailable in Firefox strict-privacy mode) rather than being
-      // stuck forever on one failed cached Future.
-      _initFuture = null;
-      rethrow;
-    }
+    await Hive.initFlutter();
+    await Future.wait([
+      Hive.openBox<String>(StorageBoxes.vault),
+      Hive.openBox<String>(StorageBoxes.drafts),
+      Hive.openBox<String>(StorageBoxes.settings),
+    ]);
   }
 
   Future<String?> read(String boxName, String key) async {

@@ -25,6 +25,25 @@ void main() {
       expect(service.draft.hiddenSections, isEmpty);
     });
 
+    test('A failed load (storage genuinely unavailable) can be retried — '
+        'the failure is not cached forever', () async {
+      when(
+        storage.ensureInitialized(),
+      ).thenThrow(Exception('IndexedDB unavailable'));
+
+      final service = DraftService();
+      await expectLater(service.load(), throwsException);
+
+      when(storage.ensureInitialized()).thenAnswer((_) => Future<void>.value());
+      when(storage.read(any, any)).thenAnswer((_) async => null);
+
+      // If the first failure's Future were still memoized, this would
+      // replay the same rejection instead of actually retrying.
+      await service.load();
+
+      expect(service.draft.schemaVersion, 1);
+    });
+
     test(
       'Toggling an experience id includes/excludes it, with its bullets',
       () async {
