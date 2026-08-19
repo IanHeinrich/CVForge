@@ -25,6 +25,11 @@ abstract class CvDraft with _$CvDraft {
     required String id,
     required String name,
     required String templateId,
+
+    /// Free-text, for the user's own tracking ("tailored for the Acme
+    /// Backend role, applied 2026-08-19") — never rendered into the CV
+    /// itself.
+    @Default('') String notes,
     @Default(<String>[]) List<String> experienceIds,
 
     /// experienceId -> ordered bulletIds included for that experience.

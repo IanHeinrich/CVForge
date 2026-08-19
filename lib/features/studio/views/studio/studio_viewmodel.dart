@@ -1,5 +1,7 @@
+import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
+import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
@@ -41,6 +43,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   final _templateRegistry = locator<TemplateRegistryService>();
   final _pdfExportService = locator<PdfExportService>();
   final _routerService = locator<RouterService>();
+  final _dialogService = locator<DialogService>();
 
   @override
   List<ListenableServiceMixin> get listenableServices => [
@@ -62,6 +65,33 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> _load() async {
     await _vaultService.load();
     await _draftService.load();
+    if (_draftService.isFreshDraft) await _selectAllFromVault();
+  }
+
+  /// A never-before-persisted draft (a first-time user's seeded draft, or
+  /// one just created via "New CV") starts with everything in the Vault
+  /// selected, rather than empty — once the user checks/unchecks anything,
+  /// that becomes the real, persisted selection and this never runs again
+  /// for that draft (see [DraftService.isFreshDraft]).
+  Future<void> _selectAllFromVault() async {
+    final vault = _vaultService.vault;
+    await _draftService.selectAllFromVault(
+      experienceIds: [for (final e in vault.experiences) e.id],
+      bulletIds: {
+        for (final e in vault.experiences)
+          e.id: [for (final b in e.bullets) b.id],
+      },
+      projectIds: [for (final p in vault.projects) p.id],
+      projectBulletIds: {
+        for (final p in vault.projects) p.id: [for (final b in p.bullets) b.id],
+      },
+      skillIds: [
+        for (final category in vault.skillCategories)
+          for (final skill in category.skills) skill.id,
+      ],
+      educationIds: [for (final e in vault.education) e.id],
+      hobbyIds: [for (final h in vault.hobbies) h.id],
+    );
   }
 
   bool get isLoading => busy(_loadBusyKey);
@@ -108,6 +138,33 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       hobbies.length;
 
   Future<void> goToVault() => _routerService.replaceWith(VaultViewRoute());
+
+  Future<void> goToDrafts() =>
+      _routerService.replaceWith(DraftsListViewRoute());
+
+  String get draftName => _draft.name;
+  String get draftNotes => _draft.notes;
+
+  /// Opens the same name/notes editor "New CV" uses, pre-filled with this
+  /// draft's current values, so a CV can be renamed without leaving Studio
+  /// for the drafts list.
+  Future<void> editDraftDetails() async {
+    final response = await _dialogService
+        .showCustomDialog<EditDraftDialogData, EditDraftDialogData>(
+          variant: DialogType.editDraft,
+          title: 'Edit CV details',
+          data: EditDraftDialogData(name: _draft.name, notes: _draft.notes),
+          mainButtonTitle: 'Save',
+          secondaryButtonTitle: 'Cancel',
+        );
+    final result = response?.data;
+    if (response?.confirmed != true || result == null) return;
+    await _draftService.updateDraftDetails(
+      _draft.id,
+      name: result.name,
+      notes: result.notes,
+    );
+  }
 
   /// The recovery action for [StudioPreviewState.nothingSelected]: unhides
   /// every section and selects every Vault item, the same starting point a

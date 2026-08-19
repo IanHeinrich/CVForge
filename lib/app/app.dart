@@ -24,6 +24,10 @@ import 'package:cv_forge/services/font_service.dart';
 
 import 'package:cv_forge/services/pdf_export_service.dart';
 
+import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog.dart';
+
+import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -31,6 +35,7 @@ import 'package:cv_forge/services/pdf_export_service.dart';
     CustomRoute(page: StartupView, initial: true),
     CustomRoute(page: VaultView, path: '/vault'),
     CustomRoute(page: StudioView, path: '/studio'),
+    CustomRoute(page: DraftsListView, path: '/drafts'),
     // @stacked-route
 
     CustomRoute(page: UnknownView, path: '/404'),
@@ -57,6 +62,7 @@ import 'package:cv_forge/services/pdf_export_service.dart';
   ],
   dialogs: [
     StackedDialog(classType: ConfirmDeleteDialog),
+    StackedDialog(classType: EditDraftDialog),
     // @stacked-dialog
   ],
 )

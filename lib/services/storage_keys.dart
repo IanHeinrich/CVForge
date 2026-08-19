@@ -17,7 +17,16 @@ abstract final class StorageKeys {
   /// The Vault is a single aggregate — one key.
   static const vaultProfile = 'profile';
 
-  /// Phase 1 only ever has one draft; multi-draft support (Phase 2) just
-  /// means using real draft ids as keys instead of always this constant.
+  /// The Phase 1 single-draft key. No longer written, but still read once
+  /// on first load (see `DraftService._load`) to migrate a pre-multi-draft
+  /// install's one saved draft into the indexed scheme below rather than
+  /// discarding it.
   static const currentDraftId = 'current';
+
+  /// The [DraftIndex] manifest — which draft ids exist and which is active.
+  static const draftIndex = 'index';
+
+  /// The per-draft storage key. Prefixed so it can never collide with
+  /// [draftIndex] or a quarantined-payload key.
+  static String draftEntry(String draftId) => 'draft_$draftId';
 }

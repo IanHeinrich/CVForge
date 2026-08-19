@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// One selectable row in a [VaultItemSelectorList] — also reused for the
 /// nested rows in [bullets], since a bullet is just a title plus a
@@ -147,7 +148,9 @@ class _BulletSublist extends StatelessWidget {
                 child: TextButton.icon(
                   onPressed: onToggleExpanded,
                   icon: Icon(
-                    expanded ? Icons.expand_less : Icons.expand_more,
+                    expanded
+                        ? RemixIcons.arrow_up_s_line
+                        : RemixIcons.arrow_down_s_line,
                     size: 16,
                   ),
                   label: Text(

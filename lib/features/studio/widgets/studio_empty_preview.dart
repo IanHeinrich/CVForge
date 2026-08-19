@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// The "nothing to preview yet" placeholder — shown both when the Vault
 /// itself is empty and when it has data but none of it is included in
@@ -31,11 +32,7 @@ class StudioEmptyPreview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.design_services_outlined,
-              size: 48,
-              color: kcLightGrey,
-            ),
+            const Icon(RemixIcons.quill_pen_line, size: 48, color: kcLightGrey),
             verticalSpaceMedium,
             Text(
               title,

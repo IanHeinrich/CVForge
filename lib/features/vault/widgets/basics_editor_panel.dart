@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
@@ -103,7 +104,10 @@ class BasicsEditorPanel extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: kcLightGrey),
+                  icon: const Icon(
+                    RemixIcons.delete_bin_line,
+                    color: kcLightGrey,
+                  ),
                   onPressed: () => onLinkDeleted(link.id),
                   tooltip: 'Delete link',
                 ),

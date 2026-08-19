@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// Shown when a service's most recent write to local storage failed — the
 /// change is only in memory. Inline and dismiss-free by design: it should
@@ -35,7 +36,7 @@ class PersistErrorBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: kcErrorColor),
+          const Icon(RemixIcons.error_warning_line, color: kcErrorColor),
           horizontalSpaceSmall,
           Expanded(
             child: Text(message, style: const TextStyle(color: kcWhite)),
