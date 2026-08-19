@@ -130,6 +130,14 @@
     }
   </style>
   <script>
+    // Serve pdf.js locally, not from unpkg.com — keeps PDF preview
+    // rendering fully offline/on-device, matching this app's privacy
+    // stance. Relative path (leading "./" required — printing's plugin
+    // feeds this straight into a dynamic import(), and browsers reject a
+    // bare "pdfjs/..." specifier there) so it resolves correctly under
+    // --base-href on the deployed Pages build too.
+    window.dartPdfJsBaseUrl = './pdfjs/';
+
     {{flutter_js}}
     {{flutter_build_config}}
 

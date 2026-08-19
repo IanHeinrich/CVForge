@@ -19,6 +19,7 @@ void main() {
       vault = getAndRegisterVaultService();
       draft = getAndRegisterDraftService();
       router = getAndRegisterRouterService();
+      getAndRegisterFontService();
     });
     tearDown(() => locator.reset());
 

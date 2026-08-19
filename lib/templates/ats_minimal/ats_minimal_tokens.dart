@@ -17,11 +17,13 @@ const CvDesignTokens atsMinimalTokens = CvDesignTokens(
   marginRight: 40,
   marginBottom: 40,
   marginLeft: 40,
-  sectionGap: 14,
-  sectionRuleGap: 6,
-  itemGap: 8,
-  bulletGap: 3,
-  bulletIndent: 14,
+  sectionGap: 10,
+  sectionRuleGap: 4,
+  itemGap: 6,
+  bulletGap: 2,
+  // The reference template keeps bullets flush with the job
+  // title/project name above them, not indented under it.
+  bulletIndent: 0,
   ruleThickness: 0.75,
   ruleColorArgb: 0xFF333333,
   inkArgb: _ink,
@@ -29,16 +31,20 @@ const CvDesignTokens atsMinimalTokens = CvDesignTokens(
   skillColumnCount: 1,
   skillColumnGap: 0,
   name: CvTypeToken(sizePt: 24, weight: CvWeight.bold, colorArgb: _ink),
-  contact: CvTypeToken(sizePt: 10, colorArgb: _mutedInk),
-  sectionHeading: CvTypeToken(
-    sizePt: 12,
-    weight: CvWeight.bold,
-    colorArgb: _ink,
-  ),
+  // Ink, not muted — the reference r/EngineeringResumes template uses one
+  // text color throughout; grey reads as lower-priority to some ATS
+  // parsers and adds nothing here.
+  contact: CvTypeToken(sizePt: 10, colorArgb: _ink),
+  // Larger than body text but not bold — the size alone is enough to read
+  // as a heading.
+  sectionHeading: CvTypeToken(sizePt: 12, colorArgb: _ink),
   role: CvTypeToken(sizePt: 10.5, weight: CvWeight.bold, colorArgb: _ink),
   company: CvTypeToken(sizePt: 10.5, colorArgb: _ink),
-  meta: CvTypeToken(sizePt: 10, colorArgb: _mutedInk),
+  meta: CvTypeToken(sizePt: 10, colorArgb: _ink),
   body: CvTypeToken(sizePt: 10, lineSpacingPt: 2, colorArgb: _ink),
   bulletLabel: CvTypeToken(sizePt: 10, weight: CvWeight.bold, colorArgb: _ink),
   bullet: CvTypeToken(sizePt: 10, lineSpacingPt: 2, colorArgb: _ink),
+  // Kept as a separate token (not the same size as the bullet body) so a
+  // future size/weight tweak to just the marker is a one-line change.
+  bulletGlyph: CvTypeToken(sizePt: 20, colorArgb: _ink),
 );

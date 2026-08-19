@@ -7,6 +7,8 @@ import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/file_download_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
+import 'package:cv_forge/services/font_service.dart';
+import 'package:cv_forge/services/pdf_export_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -24,6 +26,8 @@ import 'test_helpers.mocks.dart';
     MockSpec<TemplateRegistryService>(
       onMissingStub: OnMissingStub.returnDefault,
     ),
+    MockSpec<FontService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<PdfExportService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -36,6 +40,8 @@ void registerServices() {
   getAndRegisterDraftService();
   getAndRegisterFileDownloadService();
   getAndRegisterTemplateRegistryService();
+  getAndRegisterFontService();
+  getAndRegisterPdfExportService();
   // @stacked-mock-register
 }
 
@@ -125,6 +131,20 @@ MockTemplateRegistryService getAndRegisterTemplateRegistryService() {
   _removeRegistrationIfExists<TemplateRegistryService>();
   final service = MockTemplateRegistryService();
   locator.registerSingleton<TemplateRegistryService>(service);
+  return service;
+}
+
+MockFontService getAndRegisterFontService() {
+  _removeRegistrationIfExists<FontService>();
+  final service = MockFontService();
+  locator.registerSingleton<FontService>(service);
+  return service;
+}
+
+MockPdfExportService getAndRegisterPdfExportService() {
+  _removeRegistrationIfExists<PdfExportService>();
+  final service = MockPdfExportService();
+  locator.registerSingleton<PdfExportService>(service);
   return service;
 }
 // @stacked-mock-create

@@ -275,3 +275,15 @@ Each of these was a real mistake in this repo, not hypothetical:
   hand — those are inserted and maintained by the CLI. If wiring looks wrong,
   fix it via the CLI (e.g. regenerate) rather than editing the markers
   directly.
+- **If a Dart MCP server (`dart mcp-server`) is connected, prefer its native
+  tools** — `hot_reload`/`hot_restart`, `run_tests`, `analyze_files`,
+  `dart_format`, `dtd` — over shelling out to `flutter`/`dart` directly.
+  It's faster (no cold-start per invocation, real hot reload against a
+  running app instead of killing/restarting a dev server) and avoids a
+  Windows-specific gotcha in some sandboxed shells: `dart` internally shells
+  out to `WHERE` and `PowerShell.exe` (both in `C:\Windows\System32`), which
+  some Bash tool environments strip from `PATH` by default, silently
+  breaking `dart`/`flutter`/`stacked` invocations. A project-scoped
+  `.mcp.json` configuring this server (not checked in — it's inherently
+  machine-specific: absolute SDK path, `PATH` env fixup) is a reasonable
+  one-time local setup step if it isn't already present.

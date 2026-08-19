@@ -87,6 +87,7 @@ void main() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
       getAndRegisterTemplateRegistryService();
+      getAndRegisterPdfExportService();
     });
     tearDown(() => locator.reset());
 

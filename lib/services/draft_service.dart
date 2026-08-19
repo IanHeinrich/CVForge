@@ -24,6 +24,16 @@ class DraftService with ListenableServiceMixin {
   final ReactiveValue<CvDraft> _draft = ReactiveValue<CvDraft>(CvDraft.empty());
   CvDraft get draft => _draft.value;
 
+  /// True only for a draft that has never been persisted — i.e. this is
+  /// the user's very first time in Studio. Cleared by the first call to
+  /// [selectAllFromVault] or any other mutation, whichever comes first, so
+  /// it only ever fires once per install. Deliberately does NOT cover the
+  /// "corrupted draft, quarantined" path in [_load] — that's an existing
+  /// (if unreadable) draft, not a first-time user, so it stays opt-in-empty
+  /// like every other draft.
+  bool _isFreshDraft = false;
+  bool get isFreshDraft => _isFreshDraft;
+
   /// Set when the most recent write to [LocalStorageService] failed;
   /// cleared on the next successful one. Mirrors [VaultService.persistError].
   final ReactiveValue<Object?> _persistError = ReactiveValue<Object?>(null);
@@ -44,6 +54,7 @@ class DraftService with ListenableServiceMixin {
     );
     if (raw == null) {
       _draft.value = CvDraft.empty();
+      _isFreshDraft = true;
       return;
     }
     try {
@@ -71,6 +82,40 @@ class DraftService with ListenableServiceMixin {
   Future<void> setTemplate(String templateId) async {
     await _ready();
     _setDraft((d) => d.copyWith(templateId: templateId));
+  }
+
+  /// Populates a never-before-persisted draft with everything the caller
+  /// hands it — meant to be called once, right after [load], with the
+  /// caller's full Vault content, so a first-time user's CV starts fully
+  /// populated instead of empty. No-ops if [isFreshDraft] is already
+  /// false, so a caller doesn't need to re-check it right before calling.
+  ///
+  /// Still takes plain ids/maps rather than Vault types — this service
+  /// stays decoupled from [VaultService] (see the class doc comment); the
+  /// caller (which already depends on both services) resolves the Vault
+  /// into these shapes.
+  Future<void> selectAllFromVault({
+    required List<String> experienceIds,
+    required Map<String, List<String>> bulletIds,
+    required List<String> projectIds,
+    required Map<String, List<String>> projectBulletIds,
+    required List<String> skillIds,
+    required List<String> educationIds,
+    required List<String> hobbyIds,
+  }) async {
+    await _ready();
+    if (!_isFreshDraft) return;
+    _setDraft(
+      (d) => d.copyWith(
+        experienceIds: experienceIds,
+        bulletIds: bulletIds,
+        projectIds: projectIds,
+        projectBulletIds: projectBulletIds,
+        skillIds: skillIds,
+        educationIds: educationIds,
+        hobbyIds: hobbyIds,
+      ),
+    );
   }
 
   /// Includes/excludes an experience. When including, [bulletIds] should
@@ -242,6 +287,7 @@ class DraftService with ListenableServiceMixin {
   }
 
   void _setDraft(CvDraft Function(CvDraft current) update) {
+    _isFreshDraft = false;
     _draft.value = update(_draft.value).copyWith(updatedAt: DateTime.now());
     _scheduleWrite();
   }
