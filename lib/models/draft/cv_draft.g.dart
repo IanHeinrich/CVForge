@@ -55,6 +55,13 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
         (k, e) => MapEntry(k, e as String),
       ) ??
       const <String, String>{},
+  headlineOverride: json['headlineOverride'] as String?,
+  referencesOverride: json['referencesOverride'] as String?,
+  educationDetailsOverrides:
+      (json['educationDetailsOverrides'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const <String, String>{},
   updatedAt: DateTime.parse(json['updatedAt'] as String),
 );
 
@@ -75,6 +82,9 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
       .toList(),
   'tailoredSummary': instance.tailoredSummary,
   'bulletOverrides': instance.bulletOverrides,
+  'headlineOverride': instance.headlineOverride,
+  'referencesOverride': instance.referencesOverride,
+  'educationDetailsOverrides': instance.educationDetailsOverrides,
   'updatedAt': instance.updatedAt.toIso8601String(),
 };
 

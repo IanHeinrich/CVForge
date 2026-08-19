@@ -1452,6 +1452,39 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
           as _i16.Future<void>);
 
   @override
+  _i16.Future<void> setHeadlineOverride(String? headline) =>
+      (super.noSuchMethod(
+            Invocation.method(#setHeadlineOverride, [headline]),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
+  _i16.Future<void> setReferencesOverride(String? references) =>
+      (super.noSuchMethod(
+            Invocation.method(#setReferencesOverride, [references]),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
+  _i16.Future<void> setEducationDetailsOverride(
+    String? educationId,
+    String? text,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#setEducationDetailsOverride, [
+              educationId,
+              text,
+            ]),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
   _i16.Future<void> flushPendingWrites() =>
       (super.noSuchMethod(
             Invocation.method(#flushPendingWrites, []),

@@ -131,7 +131,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       (_draft.tailoredSummary ?? _vault.basics.summary)?.trim().isNotEmpty ??
       false;
 
-  bool get hasReferences => (_vault.referencesNote ?? '').trim().isNotEmpty;
+  bool get hasReferences =>
+      (_draft.referencesOverride ?? _vault.referencesNote ?? '')
+          .trim()
+          .isNotEmpty;
 
   /// Whether [type] has any underlying data at all — a section with
   /// nothing behind it gets no visibility toggle, since hiding/showing an
@@ -145,6 +148,63 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     CvSectionType.hobbies => hobbies.isNotEmpty,
     CvSectionType.references => hasReferences,
   };
+
+  // --- text overrides ---
+  //
+  // Every override setter below shares one rule: empty input, or input
+  // identical to the Vault's own value, collapses back to "no override"
+  // (null) rather than persisting a draft value that's merely a copy of
+  // the Vault's. Without this, opening an editor and blurring without
+  // actually changing anything would silently disconnect that field from
+  // future Vault edits — see `StudioFieldOverrideCard`'s doc comment for
+  // the UI-level reasoning this backs.
+
+  /// Shared by every override setter in this section.
+  String? _normalizeOverride(String value, String? source) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty || trimmed == (source ?? '').trim() ? null : value;
+  }
+
+  // --- headline override ---
+
+  String get vaultHeadline => _vault.basics.headline;
+  String get headlineText => _draft.headlineOverride ?? _vault.basics.headline;
+  bool get hasHeadlineOverride => _draft.headlineOverride != null;
+
+  Future<void> setHeadlineOverride(String value) => _draftService
+      .setHeadlineOverride(_normalizeOverride(value, _vault.basics.headline));
+
+  Future<void> revertHeadlineToVault() =>
+      _draftService.setHeadlineOverride(null);
+
+  // --- tailored summary ---
+
+  String? get vaultSummary => _vault.basics.summary;
+
+  /// What the editor box shows: the draft's override if it has one, else
+  /// the Vault's text (which the box starts pre-filled with).
+  String get summaryText =>
+      _draft.tailoredSummary ?? _vault.basics.summary ?? '';
+
+  bool get hasTailoredSummary => _draft.tailoredSummary != null;
+
+  Future<void> setTailoredSummary(String value) => _draftService
+      .setTailoredSummary(_normalizeOverride(value, _vault.basics.summary));
+
+  Future<void> revertSummaryToVault() => _draftService.setTailoredSummary(null);
+
+  // --- references override ---
+
+  String? get vaultReferencesNote => _vault.referencesNote;
+  String get referencesText =>
+      _draft.referencesOverride ?? _vault.referencesNote ?? '';
+  bool get hasReferencesOverride => _draft.referencesOverride != null;
+
+  Future<void> setReferencesOverride(String value) => _draftService
+      .setReferencesOverride(_normalizeOverride(value, _vault.referencesNote));
+
+  Future<void> revertReferencesToVault() =>
+      _draftService.setReferencesOverride(null);
 
   bool isSectionHidden(CvSectionType type) =>
       _draft.hiddenSections.contains(type);
@@ -189,6 +249,20 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     );
   }
 
+  /// Selects every bullet of [experience] not already included. Must
+  /// `await` each [toggleExperienceBullet] before starting the next —
+  /// each call reads `_draft.bulletIds` fresh to compute its own updated
+  /// list, so firing them all without awaiting would have every call read
+  /// the same pre-toggle draft and only the last write survive (the "just
+  /// selects one extra at a time" bug this fixed).
+  Future<void> addAllExperienceBullets(Experience experience) async {
+    for (final bullet in experience.bullets) {
+      if (!isExperienceBulletIncluded(experience.id, bullet.id)) {
+        await toggleExperienceBullet(experience, bullet);
+      }
+    }
+  }
+
   // --- projects ---
 
   List<Project> get projects => _vault.projects;
@@ -223,6 +297,34 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       project.bullets.map((b) => b.id).where(selected.contains).toList(),
     );
   }
+
+  /// Same shape as [addAllExperienceBullets], one entity type over.
+  Future<void> addAllProjectBullets(Project project) async {
+    for (final bullet in project.bullets) {
+      if (!isProjectBulletIncluded(project.id, bullet.id)) {
+        await toggleProjectBullet(project, bullet);
+      }
+    }
+  }
+
+  // --- bullet text overrides ---
+  //
+  // Shared by experience and project bullets alike — bullet ids are
+  // globally unique (see `Skill.linkedBulletIds`'s doc comment), so an
+  // override lookup needs only the bullet, never which entity it belongs
+  // to.
+
+  String bulletText(CvBullet bullet) =>
+      _draft.bulletOverrides[bullet.id] ?? bullet.text;
+
+  bool hasBulletOverride(String bulletId) =>
+      _draft.bulletOverrides.containsKey(bulletId);
+
+  Future<void> setBulletOverride(CvBullet bullet, String value) => _draftService
+      .setBulletOverride(bullet.id, _normalizeOverride(value, bullet.text));
+
+  Future<void> revertBulletOverride(String bulletId) =>
+      _draftService.setBulletOverride(bulletId, null);
 
   // --- skills ---
 
@@ -265,6 +367,23 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       await toggleEducation(entry);
     }
   }
+
+  /// Same shape as [bulletText] — only [Education.details] is prose, so
+  /// that's the only field an override map exists for.
+  String educationDetailsText(Education entry) =>
+      _draft.educationDetailsOverrides[entry.id] ?? entry.details ?? '';
+
+  bool hasEducationDetailsOverride(String educationId) =>
+      _draft.educationDetailsOverrides.containsKey(educationId);
+
+  Future<void> setEducationDetailsOverride(Education entry, String value) =>
+      _draftService.setEducationDetailsOverride(
+        entry.id,
+        _normalizeOverride(value, entry.details),
+      );
+
+  Future<void> revertEducationDetailsOverride(String educationId) =>
+      _draftService.setEducationDetailsOverride(educationId, null);
 
   // --- hobbies ---
 

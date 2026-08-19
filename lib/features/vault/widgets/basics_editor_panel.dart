@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
-import 'vault_text_field.dart';
+import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class BasicsEditorPanel extends StatelessWidget {
   const BasicsEditorPanel({
@@ -37,40 +37,40 @@ class BasicsEditorPanel extends StatelessWidget {
       title: 'Basics',
       onClose: onClose,
       children: [
-        VaultTextField(
+        AppTextField(
           label: 'Full name',
           initialValue: basics.fullName,
           onChanged: (v) => onChanged(basics.copyWith(fullName: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Headline',
           hint: 'e.g. Senior Software Engineer',
           initialValue: basics.headline,
           onChanged: (v) => onChanged(basics.copyWith(headline: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Email',
           initialValue: basics.email,
           keyboardType: TextInputType.emailAddress,
           onChanged: (v) => onChanged(basics.copyWith(email: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Phone',
           initialValue: basics.phone,
           keyboardType: TextInputType.phone,
           onChanged: (v) => onChanged(basics.copyWith(phone: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Location',
           initialValue: basics.location,
           onChanged: (v) => onChanged(basics.copyWith(location: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Professional summary',
           initialValue: basics.summary ?? '',
           maxLines: 4,
@@ -86,7 +86,7 @@ class BasicsEditorPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: VaultTextField(
+                  child: AppTextField(
                     label: 'Label',
                     hint: 'e.g. LinkedIn',
                     initialValue: link.label,
@@ -96,7 +96,7 @@ class BasicsEditorPanel extends StatelessWidget {
                 horizontalSpaceSmall,
                 Expanded(
                   flex: 2,
-                  child: VaultTextField(
+                  child: AppTextField(
                     label: 'URL',
                     initialValue: link.url,
                     onChanged: (v) => onLinkChanged(link.copyWith(url: v)),
@@ -111,7 +111,7 @@ class BasicsEditorPanel extends StatelessWidget {
             ),
           ),
         verticalSpaceMedium,
-        VaultTextField(
+        AppTextField(
           label: 'References',
           hint: 'e.g. "Available on request."',
           initialValue: referencesNote ?? '',

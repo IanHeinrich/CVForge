@@ -3,7 +3,7 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
 import 'vault_editor_panel_scaffold.dart';
-import 'vault_text_field.dart';
+import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class EducationEditorPanel extends StatelessWidget {
   const EducationEditorPanel({
@@ -25,27 +25,27 @@ class EducationEditorPanel extends StatelessWidget {
           : education.qualification,
       onClose: onClose,
       children: [
-        VaultTextField(
+        AppTextField(
           label: 'Qualification',
           hint: 'e.g. BSc Computer Science',
           initialValue: education.qualification,
           onChanged: (v) => onChanged(education.copyWith(qualification: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Institution',
           initialValue: education.institution,
           onChanged: (v) => onChanged(education.copyWith(institution: v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Location (optional)',
           initialValue: education.location ?? '',
           onChanged: (v) =>
               onChanged(education.copyWith(location: v.isEmpty ? null : v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Year (optional)',
           initialValue: education.year?.toString() ?? '',
           keyboardType: TextInputType.number,
@@ -55,7 +55,7 @@ class EducationEditorPanel extends StatelessWidget {
           },
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Grade (optional)',
           hint: 'e.g. First Class Honours',
           initialValue: education.grade ?? '',
@@ -63,7 +63,7 @@ class EducationEditorPanel extends StatelessWidget {
               onChanged(education.copyWith(grade: v.isEmpty ? null : v)),
         ),
         verticalSpaceSmall,
-        VaultTextField(
+        AppTextField(
           label: 'Details (optional)',
           initialValue: education.details ?? '',
           maxLines: 3,
