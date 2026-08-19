@@ -69,6 +69,11 @@ router/locator/logger generators in one pass. Do not hand-write or hand-edit
 any `*.g.dart` or `*.freezed.dart` file — these are generated output and get
 overwritten.
 
+**Run `dart format .` immediately after every `stacked generate`, before
+committing.** Generated output (freezed 3.x in particular) isn't always
+CI-format-clean, and `dart format --set-exit-if-changed .` failing on
+generated files is this repo's highest-frequency CI failure mode.
+
 ### `stacked.json`
 
 Project-specific CLI configuration (paths, locator name, line length, etc.)
@@ -115,7 +120,11 @@ Two non-feature layers sit alongside these:
 - `lib/templates/` — the dual-renderer boundary. `design/` holds
   framework-agnostic tokens plus exactly one Flutter adapter and one pdf
   adapter; each template owns a screen renderer and a pdf renderer that
-  share nothing but those tokens.
+  share nothing but those tokens. **A template's `buildDocument` must hand
+  `pw.MultiPage.build` a flat `List<pw.Widget>`, never a single wrapping
+  `pw.Column`** — a `pw.Column` root can't be split across pages, so
+  everything silently overflows onto page 1 and reads like a package
+  limitation rather than the actual cause.
 
 ### How to scaffold into a feature slice
 

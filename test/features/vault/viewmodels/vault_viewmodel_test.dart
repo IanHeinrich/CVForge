@@ -22,6 +22,59 @@ void main() {
     });
     tearDown(() => locator.reset());
 
+    group('initialise -', () {
+      test(
+        'loads VaultService — this is what makes a deep-link/refresh '
+        'straight to /vault work rather than showing a false empty state',
+        () async {
+          when(vaultService.load()).thenAnswer((_) => Future<void>.value());
+
+          final model = VaultViewModel();
+          model.initialise();
+          expect(model.isLoading, isTrue);
+
+          await pumpEventQueue();
+
+          verify(vaultService.load()).called(1);
+          expect(model.isLoading, isFalse);
+          expect(model.hasLoadError, isFalse);
+        },
+      );
+
+      test(
+        'a failed load surfaces via hasLoadError, and is retryable by '
+        'calling initialise again — the failure must not be a dead end',
+        () async {
+          when(vaultService.load()).thenThrow(Exception('boom'));
+
+          final model = VaultViewModel();
+          model.initialise();
+          await pumpEventQueue();
+
+          expect(model.hasLoadError, isTrue);
+
+          when(vaultService.load()).thenAnswer((_) => Future<void>.value());
+          model.initialise();
+          await pumpEventQueue();
+
+          expect(model.hasLoadError, isFalse);
+        },
+      );
+
+      test('showEmptyState stays false while a load is in flight, even though '
+          'CvVault.empty() is the placeholder value until it resolves — '
+          'otherwise "Load example CV" could overwrite real data still '
+          'loading in the background', () async {
+        when(vaultService.load()).thenAnswer((_) => Future<void>.value());
+
+        final model = VaultViewModel();
+        model.initialise();
+
+        expect(model.isLoading, isTrue);
+        expect(model.showEmptyState, isFalse);
+      });
+    });
+
     test('addExperience creates a blank experience via VaultService and '
         'opens its editor', () async {
       final created = Experience(

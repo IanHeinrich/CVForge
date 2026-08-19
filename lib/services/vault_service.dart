@@ -46,7 +46,26 @@ class VaultService with ListenableServiceMixin {
   Future<void>? _readyFuture;
   Timer? _writeDebounce;
 
-  Future<void> _ready() => _readyFuture ??= _load();
+  /// [_load] failing (storage genuinely unavailable) must not poison every
+  /// future call — the reset lives here, chained via [Future.catchError]
+  /// rather than inside [_load] itself. [Future] callbacks are always
+  /// deferred to a later microtask, even on an already-completed future,
+  /// so this reset is guaranteed to run *after* the `??=` below has
+  /// assigned [_load]'s result to [_readyFuture]. A reset written inside
+  /// [_load]'s own `catch` block instead does not have that guarantee: if
+  /// the very first awaited call throws synchronously — which a real
+  /// storage failure won't, but a test double can — [_load]'s entire body
+  /// runs to completion (including that reset) before this `??=` gets a
+  /// chance to run at all, so the reset would fire first and then
+  /// immediately be clobbered by the assignment that was already in
+  /// flight.
+  Future<void> _ready() => _readyFuture ??= _load().catchError((
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    _readyFuture = null;
+    Error.throwWithStackTrace(error, stackTrace);
+  });
 
   /// Explicit load, normally called once from `StartupViewModel`. Safe to
   /// call multiple times or not at all — every mutator/read below awaits

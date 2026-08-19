@@ -59,6 +59,27 @@ void main() {
           ).called(1);
         },
       );
+
+      test('A failed load (storage genuinely unavailable) can be retried — '
+          'the failure is not cached forever', () async {
+        when(
+          storage.ensureInitialized(),
+        ).thenThrow(Exception('IndexedDB unavailable'));
+
+        final service = VaultService();
+        await expectLater(service.load(), throwsException);
+
+        when(
+          storage.ensureInitialized(),
+        ).thenAnswer((_) => Future<void>.value());
+        when(storage.read(any, any)).thenAnswer((_) async => null);
+
+        // If the first failure's Future were still memoized, this would
+        // replay the same rejection instead of actually retrying.
+        await service.load();
+
+        expect(service.vault.schemaVersion, 1);
+      });
     });
 
     group('experiences -', () {

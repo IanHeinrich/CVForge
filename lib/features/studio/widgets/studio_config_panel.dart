@@ -3,6 +3,7 @@ import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
 
 import '../views/studio/studio_viewmodel.dart';
@@ -21,6 +22,13 @@ class StudioConfigPanel extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(kdPaddingPage),
       children: [
+        if (viewModel.hasPersistError) ...[
+          PersistErrorBanner(
+            message: "Your last selection change couldn't be saved.",
+            onRetry: viewModel.retryPersist,
+          ),
+          verticalSpaceMedium,
+        ],
         const Text(
           'Sections',
           style: TextStyle(

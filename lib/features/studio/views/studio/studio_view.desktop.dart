@@ -91,10 +91,65 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
     );
   }
 
+  /// Replaces `printing`'s default [ErrorWidget] (a raw framework error
+  /// box) when rasterizing the preview fails — most likely the deployed
+  /// build's font assets not resolving under `--base-href`. Export uses
+  /// the same [PdfExportService.render] call this preview does, so if the
+  /// export button still works despite this, that's worth telling the user
+  /// rather than implying the whole feature is broken.
+  Widget _buildPreviewError(BuildContext context, Object error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: kcLightGrey, size: 40),
+            verticalSpaceMedium,
+            const Text(
+              "Couldn't render the preview",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: kcWhite,
+              ),
+            ),
+            verticalSpaceSmall,
+            const Text(
+              'The export button below uses the same PDF generation and '
+              'may still work — try it, or reload the page.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: kcLightGrey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.viewModel;
-    if (!viewModel.hasContent) return const StudioEmptyPreview();
+    switch (viewModel.previewState) {
+      case StudioPreviewState.vaultEmpty:
+        return StudioEmptyPreview(
+          title: 'Nothing to preview yet',
+          message: 'Add something to your Vault, then come back to build a CV.',
+          actionLabel: 'Go to Vault',
+          onAction: viewModel.goToVault,
+        );
+      case StudioPreviewState.nothingSelected:
+        return StudioEmptyPreview(
+          title: 'Nothing selected yet',
+          message:
+              'Your Vault has ${viewModel.vaultItemCount} items, but none '
+              'are included in this CV.',
+          actionLabel: 'Select all',
+          onAction: viewModel.includeEverything,
+        );
+      case StudioPreviewState.ready:
+        break;
+    }
 
     final currentCv = viewModel.resolvedCv;
     if (currentCv != _settledCv) {
@@ -121,6 +176,7 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
             useActions: false,
             canChangePageFormat: false,
             canChangeOrientation: false,
+            onError: _buildPreviewError,
           ),
         ),
         Positioned(

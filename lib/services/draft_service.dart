@@ -42,7 +42,16 @@ class DraftService with ListenableServiceMixin {
   Future<void>? _readyFuture;
   Timer? _writeDebounce;
 
-  Future<void> _ready() => _readyFuture ??= _load();
+  /// See `VaultService._ready`'s doc comment for why the reset lives here
+  /// (via `catchError`, deferred to a later microtask) rather than inside
+  /// `_load` itself.
+  Future<void> _ready() => _readyFuture ??= _load().catchError((
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    _readyFuture = null;
+    Error.throwWithStackTrace(error, stackTrace);
+  });
 
   Future<void> load() => _ready();
 

@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
 
 import '../views/vault/vault_viewmodel.dart';
@@ -9,7 +10,6 @@ import 'experience_list_section.dart';
 import 'hobbies_editor_card.dart';
 import 'project_list_section.dart';
 import 'skills_editor_card.dart';
-import 'vault_persist_error_banner.dart';
 
 /// The main scrolling list of collapsed entity summary cards. Shared by
 /// every breakpoint so desktop/tablet/mobile can't drift on which
@@ -27,7 +27,10 @@ class VaultCardList extends StatelessWidget {
       padding: const EdgeInsets.all(kdPaddingPage),
       children: [
         if (viewModel.hasPersistError) ...[
-          VaultPersistErrorBanner(onRetry: viewModel.retryPersist),
+          PersistErrorBanner(
+            message: "Your last change couldn't be saved.",
+            onRetry: viewModel.retryPersist,
+          ),
           verticalSpaceMedium,
         ],
         BasicsEditorCard(
