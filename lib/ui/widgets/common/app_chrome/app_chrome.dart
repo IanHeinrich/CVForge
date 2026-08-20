@@ -1,6 +1,7 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/widgets/common/storage_unavailable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -33,6 +34,40 @@ class AppChrome extends StatelessWidget {
 
   final AppSection currentSection;
   final Widget child;
+
+  /// The loading/error/ready gate every top-level View needs: a refresh
+  /// or deep-link straight to a route skips `StartupView`, so that View's
+  /// own ViewModel loads its services on its own account (via
+  /// `Initialisable.initialise`), and this is what that load looks like
+  /// in progress or failed, before there's real content to show.
+  /// [content] is called only once neither is true, so building it never
+  /// has to guard against a not-yet-loaded ViewModel.
+  factory AppChrome.gated({
+    Key? key,
+    required AppSection section,
+    required bool isLoading,
+    required bool hasError,
+    required VoidCallback onRetry,
+    required Widget Function() content,
+  }) {
+    if (isLoading) {
+      return AppChrome(
+        key: key,
+        currentSection: section,
+        child: const Center(
+          child: CircularProgressIndicator(color: kcPrimaryColor),
+        ),
+      );
+    }
+    if (hasError) {
+      return AppChrome(
+        key: key,
+        currentSection: section,
+        child: StorageUnavailableCard(onRetry: onRetry),
+      );
+    }
+    return AppChrome(key: key, currentSection: section, child: content());
+  }
 
   /// [AppSection.studio] has no rail entry of its own — being in Studio
   /// visually highlights the "CVs" tab it was reached from.

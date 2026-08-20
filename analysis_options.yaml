@@ -9,3 +9,9 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # Generated, zero-bottomsheets output — Stacked's generator emits
+    # `enum BottomSheetType {}` when no bottom sheet is registered, which
+    # is itself a lint error (enum_without_constants). Regenerated
+    # wholesale by `stacked generate`, never hand-edited, so excluding it
+    # here is the same treatment other generated output gets.
+    - lib/app/app.bottomsheets.dart

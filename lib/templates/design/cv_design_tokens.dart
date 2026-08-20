@@ -1,31 +1,28 @@
-/// The shared layout vocabulary consumed by both render trees.
+/// The shared layout vocabulary consumed by every template's renderer.
 ///
 /// Pure Dart, imports nothing — this file must never depend on `flutter`
-/// or `pdf`. Two thin adapters (`cv_design_tokens_flutter.dart` and
-/// `cv_design_tokens_pdf.dart`) each import exactly one of those and map
-/// these tokens to that framework's style types. All dimensions are in
+/// or `pdf`. `cv_design_tokens_pdf.dart` is the one adapter that imports
+/// `pdf` and maps these tokens to `pw` style types. All dimensions are in
 /// PDF points, and colours are `int` ARGB — the PDF is the source of
-/// truth; the screen preview adapts to it, not the other way round.
+/// truth; Studio's live preview rasterizes that same PDF rather than
+/// maintaining a second render tree.
 library;
 
 enum CvWeight { regular, bold }
 
 /// A single named typographic style — think "the 'role' text style" — not
-/// a raw Flutter/pdf TextStyle, so both renderers can derive their own
-/// concrete style object from the same numbers.
+/// a raw `pw.TextStyle`, so a template's tokens stay framework-agnostic
+/// even though `pdf` is the only renderer that ever consumes them.
 class CvTypeToken {
   const CvTypeToken({
     required this.sizePt,
     this.weight = CvWeight.regular,
     this.italic = false,
-    this.smallCaps = false,
 
-    /// EXTRA points added between lines — not a multiplier. pw.TextStyle's
-    /// `lineSpacing` is extra points; Flutter's TextStyle.height is a
-    /// multiplier of the whole line box. Storing the pt-based value here
-    /// (the PDF's native unit) and having the Flutter adapter compute
-    /// `height: (sizePt + lineSpacingPt) / sizePt` is what keeps the two
-    /// renderers within a line or two of each other over a full page.
+    /// EXTRA points added between lines — not a multiplier. Matches
+    /// `pw.TextStyle.lineSpacing`'s own unit (see
+    /// `CvTypeTokenPdf.toPdfStyle`), so no conversion happens between this
+    /// token and the style it produces.
     this.lineSpacingPt = 0,
     this.letterSpacingPt = 0,
     this.colorArgb,
@@ -34,7 +31,6 @@ class CvTypeToken {
   final double sizePt;
   final CvWeight weight;
   final bool italic;
-  final bool smallCaps;
   final double lineSpacingPt;
   final double letterSpacingPt;
   final int? colorArgb;
@@ -55,8 +51,6 @@ class CvDesignTokens {
     required this.ruleColorArgb,
     required this.inkArgb,
     required this.mutedInkArgb,
-    required this.skillColumnCount,
-    required this.skillColumnGap,
     required this.name,
     required this.contact,
     required this.sectionHeading,
@@ -89,9 +83,6 @@ class CvDesignTokens {
 
   final int inkArgb;
   final int mutedInkArgb;
-
-  final int skillColumnCount;
-  final double skillColumnGap;
 
   final CvTypeToken name;
   final CvTypeToken contact;

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
+import 'tailoring_controls.dart';
 
 /// A block-card tailoring editor for a page-level, singular text field —
 /// collapsed (showing either the Vault's value or, once tailored, the
@@ -18,19 +19,15 @@ import 'tailorable_field.dart';
 /// editing state machine is identical, so that's the only thing this
 /// widget owns.
 ///
-/// **The literal same interaction as the entity-scoped rows** (bullets,
-/// education details), not just a similar one: the same
-/// [TailorIconButtons] lock/undo/pencil cluster (no separate status icon
-/// in the header — the cluster itself already says "from Vault" or
-/// "tailored" via which left icon it shows), and once editing, the same
-/// [InlineTextOverrideEditor] (built here from a [TailorableField]
-/// wrapping this widget's own primitives) — so Escape, the "Only affects
-/// this CV." footer, and the collapse behaviour can't drift between the
-/// two call sites by construction. Only the frame differs: this is a
+/// Reuses the entity-scoped rows' interaction by construction, not just by
+/// resemblance: the same [TailorIconButtons] cluster, and once editing,
+/// the same [InlineTextOverrideEditor] (built here from a
+/// [TailorableField] wrapping this widget's own primitives) — so Escape,
+/// the "Only affects this CV." footer, and the collapse behaviour can't
+/// drift between the two call sites. Only the frame differs: this adds a
 /// titled block card with an empty-Vault message and a hidden-section
-/// notice, because a page-level field has no parent row to hang off; a
-/// bullet already sits inside a checkbox row that supplies all of that
-/// context.
+/// notice, since a page-level field has no parent row to hang off, unlike
+/// a bullet's own checkbox row.
 ///
 /// [_editing] is local presentation state, always starting collapsed
 /// regardless of [hasOverride] (mirroring bullets — tailoring a field

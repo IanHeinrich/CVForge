@@ -8,7 +8,7 @@ part 'draft_index.g.dart';
 /// currently open. Kept separate from the drafts themselves so opening or
 /// reordering drafts never requires rewriting every draft's own JSON, and
 /// so a single corrupted draft entry can be dropped without losing the
-/// index of the others (see `DraftService._load`).
+/// index of the others (see `DraftService.loadFromStorage`).
 @freezed
 abstract class DraftIndex with _$DraftIndex {
   const factory DraftIndex({

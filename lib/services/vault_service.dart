@@ -1,13 +1,13 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
-import 'package:cv_forge/models/vault/example_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/cv_bullet.dart';
+import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/project.dart';
@@ -15,6 +15,7 @@ import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
+import 'package:cv_forge/services/persisted_store.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:stacked/stacked.dart';
 import 'package:uuid/uuid.dart';
@@ -24,55 +25,30 @@ import 'package:uuid/uuid.dart';
 /// mixes in `ReactiveViewModelMixin` with this in its `reactiveServices`
 /// rebuilds automatically whenever [vault] or [persistError] changes.
 ///
-/// Every read-path method awaits [_ready] first — see [LocalStorageService]
-/// for why that matters on a web app with real URLs.
-class VaultService with ListenableServiceMixin {
+/// Every read-path method awaits [ready] first (from [PersistedStoreMixin])
+/// — see [LocalStorageService] for why that matters on a web app with real
+/// URLs.
+class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
   VaultService() {
-    listenToReactiveValues([_vault, _persistError]);
+    listenToReactiveValues([_vault, persistErrorNotifier]);
   }
 
   final _localStorage = locator<LocalStorageService>();
   final _uuid = const Uuid();
 
+  @override
+  LocalStorageService get storage => _localStorage;
+
   final ReactiveValue<CvVault> _vault = ReactiveValue<CvVault>(CvVault.empty());
   CvVault get vault => _vault.value;
 
-  /// Set when the most recent write to [LocalStorageService] failed;
-  /// cleared on the next successful one. ViewModels surface this instead
-  /// of letting a failed save disappear silently.
-  final ReactiveValue<Object?> _persistError = ReactiveValue<Object?>(null);
-  Object? get persistError => _persistError.value;
-
-  Future<void>? _readyFuture;
-  Timer? _writeDebounce;
-
-  /// [_load] failing (storage genuinely unavailable) must not poison every
-  /// future call — the reset lives here, chained via [Future.catchError]
-  /// rather than inside [_load] itself. [Future] callbacks are always
-  /// deferred to a later microtask, even on an already-completed future,
-  /// so this reset is guaranteed to run *after* the `??=` below has
-  /// assigned [_load]'s result to [_readyFuture]. A reset written inside
-  /// [_load]'s own `catch` block instead does not have that guarantee: if
-  /// the very first awaited call throws synchronously — which a real
-  /// storage failure won't, but a test double can — [_load]'s entire body
-  /// runs to completion (including that reset) before this `??=` gets a
-  /// chance to run at all, so the reset would fire first and then
-  /// immediately be clobbered by the assignment that was already in
-  /// flight.
-  Future<void> _ready() => _readyFuture ??= _load().catchError((
-    Object error,
-    StackTrace stackTrace,
-  ) {
-    _readyFuture = null;
-    Error.throwWithStackTrace(error, stackTrace);
-  });
-
   /// Explicit load, normally called once from `StartupViewModel`. Safe to
   /// call multiple times or not at all — every mutator/read below awaits
-  /// the same underlying future via [_ready].
-  Future<void> load() => _ready();
+  /// the same underlying future via [ready].
+  Future<void> load() => ready();
 
-  Future<void> _load() async {
+  @override
+  Future<void> loadFromStorage() async {
     await _localStorage.ensureInitialized();
     final raw = await _localStorage.read(
       StorageBoxes.vault,
@@ -85,39 +61,30 @@ class VaultService with ListenableServiceMixin {
     try {
       _vault.value = _migrate(jsonDecode(raw) as Map<String, dynamic>);
     } catch (_) {
-      await _quarantine(raw);
+      await quarantine(StorageBoxes.vault, StorageKeys.vaultProfile, raw);
       _vault.value = CvVault.empty();
     }
   }
 
   CvVault _migrate(Map<String, dynamic> json) {
-    // schemaVersion 1 is the only version that exists today. An unknown
-    // version is treated the same as corruption (quarantine + fall back)
-    // rather than risking CvVault.fromJson silently misinterpreting a
-    // future, differently-shaped payload. A real v2 migration would add a
-    // case here that upgrades the map before calling fromJson.
-    final version = json['schemaVersion'];
-    if (version != 1) {
-      throw FormatException('Unsupported vault schemaVersion: $version');
-    }
+    // schemaVersion 1 is the only version that exists today. A real v2
+    // migration would add a case here that upgrades the map before
+    // calling fromJson — see [requireSchemaVersion]'s doc comment for why
+    // an unknown version is treated as corruption rather than risking
+    // fromJson silently misinterpreting a differently-shaped payload.
+    requireSchemaVersion(json, 'vault');
     return CvVault.fromJson(json);
   }
 
-  Future<void> _quarantine(String raw) async {
-    final key =
-        '${StorageKeys.vaultProfile}_corrupt_${DateTime.now().millisecondsSinceEpoch}';
-    await _localStorage.write(StorageBoxes.vault, key, raw);
-  }
-
   Future<void> loadExampleVault() async {
-    await _ready();
+    await ready();
     _setVault((_) => buildExampleVault());
   }
 
   // --- basics ---
 
   Future<void> updateBasics(ContactBasics basics) async {
-    await _ready();
+    await ready();
     _setVault((v) => v.copyWith(basics: basics));
   }
 
@@ -125,7 +92,7 @@ class VaultService with ListenableServiceMixin {
     required String label,
     required String url,
   }) async {
-    await _ready();
+    await ready();
     final link = ProfileLink(id: _uuid.v4(), label: label, url: url);
     _setVault(
       (v) => v.copyWith(
@@ -136,29 +103,29 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> updateProfileLink(ProfileLink link) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
         basics: v.basics.copyWith(
-          links: _replaceById(v.basics.links, link.id, link, (l) => l.id),
+          links: v.basics.links.replaceById(link.id, link, (l) => l.id),
         ),
       ),
     );
   }
 
   Future<void> deleteProfileLink(String id) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
         basics: v.basics.copyWith(
-          links: _removeById(v.basics.links, id, (l) => l.id),
+          links: v.basics.links.removeById(id, (l) => l.id),
         ),
       ),
     );
   }
 
   Future<void> updateReferencesNote(String? note) async {
-    await _ready();
+    await ready();
     _setVault((v) => v.copyWith(referencesNote: note));
   }
 
@@ -172,7 +139,7 @@ class VaultService with ListenableServiceMixin {
     YearMonth? end,
     bool isCurrent = false,
   }) async {
-    await _ready();
+    await ready();
     final experience = Experience(
       id: _uuid.v4(),
       role: role,
@@ -187,11 +154,10 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> updateExperience(Experience experience) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        experiences: _replaceById(
-          v.experiences,
+        experiences: v.experiences.replaceById(
           experience.id,
           experience,
           (e) => e.id,
@@ -201,10 +167,10 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> deleteExperience(String experienceId) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        experiences: _removeById(v.experiences, experienceId, (e) => e.id),
+        experiences: v.experiences.removeById(experienceId, (e) => e.id),
       ),
     );
   }
@@ -219,7 +185,7 @@ class VaultService with ListenableServiceMixin {
     String experienceId,
     String? withExperienceId,
   ) async {
-    await _ready();
+    await ready();
     if (withExperienceId == null) {
       _updateExperience(experienceId, (e) => e.copyWith(companyGroupId: null));
       return;
@@ -244,7 +210,7 @@ class VaultService with ListenableServiceMixin {
     String? label,
     required String text,
   }) async {
-    await _ready();
+    await ready();
     final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
     _updateExperience(
       experienceId,
@@ -254,20 +220,20 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> updateBullet(String experienceId, CvBullet bullet) async {
-    await _ready();
+    await ready();
     _updateExperience(
       experienceId,
       (e) => e.copyWith(
-        bullets: _replaceById(e.bullets, bullet.id, bullet, (b) => b.id),
+        bullets: e.bullets.replaceById(bullet.id, bullet, (b) => b.id),
       ),
     );
   }
 
   Future<void> deleteBullet(String experienceId, String bulletId) async {
-    await _ready();
+    await ready();
     _updateExperience(
       experienceId,
-      (e) => e.copyWith(bullets: _removeById(e.bullets, bulletId, (b) => b.id)),
+      (e) => e.copyWith(bullets: e.bullets.removeById(bulletId, (b) => b.id)),
     );
   }
 
@@ -275,7 +241,7 @@ class VaultService with ListenableServiceMixin {
     String experienceId,
     List<String> orderedBulletIds,
   ) async {
-    await _ready();
+    await ready();
     _updateExperience(
       experienceId,
       (e) => e.copyWith(
@@ -308,26 +274,26 @@ class VaultService with ListenableServiceMixin {
   // --- projects ---
 
   Future<Project> addProject({required String title, String? link}) async {
-    await _ready();
+    await ready();
     final project = Project(id: _uuid.v4(), title: title, link: link);
     _setVault((v) => v.copyWith(projects: [...v.projects, project]));
     return project;
   }
 
   Future<void> updateProject(Project project) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        projects: _replaceById(v.projects, project.id, project, (p) => p.id),
+        projects: v.projects.replaceById(project.id, project, (p) => p.id),
       ),
     );
   }
 
   Future<void> deleteProject(String projectId) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) =>
-          v.copyWith(projects: _removeById(v.projects, projectId, (p) => p.id)),
+          v.copyWith(projects: v.projects.removeById(projectId, (p) => p.id)),
     );
   }
 
@@ -338,7 +304,7 @@ class VaultService with ListenableServiceMixin {
     String? label,
     required String text,
   }) async {
-    await _ready();
+    await ready();
     final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
     _updateProject(
       projectId,
@@ -348,20 +314,20 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> updateProjectBullet(String projectId, CvBullet bullet) async {
-    await _ready();
+    await ready();
     _updateProject(
       projectId,
       (p) => p.copyWith(
-        bullets: _replaceById(p.bullets, bullet.id, bullet, (b) => b.id),
+        bullets: p.bullets.replaceById(bullet.id, bullet, (b) => b.id),
       ),
     );
   }
 
   Future<void> deleteProjectBullet(String projectId, String bulletId) async {
-    await _ready();
+    await ready();
     _updateProject(
       projectId,
-      (p) => p.copyWith(bullets: _removeById(p.bullets, bulletId, (b) => b.id)),
+      (p) => p.copyWith(bullets: p.bullets.removeById(bulletId, (b) => b.id)),
     );
   }
 
@@ -369,7 +335,7 @@ class VaultService with ListenableServiceMixin {
     String projectId,
     List<String> orderedBulletIds,
   ) async {
-    await _ready();
+    await ready();
     _updateProject(
       projectId,
       (p) => p.copyWith(
@@ -400,7 +366,7 @@ class VaultService with ListenableServiceMixin {
   // --- skill categories & skills ---
 
   Future<SkillCategory> addSkillCategory(String name) async {
-    await _ready();
+    await ready();
     final category = SkillCategory(id: _uuid.v4(), name: name);
     _setVault(
       (v) => v.copyWith(skillCategories: [...v.skillCategories, category]),
@@ -409,11 +375,10 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> updateSkillCategory(SkillCategory category) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        skillCategories: _replaceById(
-          v.skillCategories,
+        skillCategories: v.skillCategories.replaceById(
           category.id,
           category,
           (c) => c.id,
@@ -423,20 +388,16 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> deleteSkillCategory(String categoryId) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        skillCategories: _removeById(
-          v.skillCategories,
-          categoryId,
-          (c) => c.id,
-        ),
+        skillCategories: v.skillCategories.removeById(categoryId, (c) => c.id),
       ),
     );
   }
 
   Future<Skill> addSkill(String categoryId, String label) async {
-    await _ready();
+    await ready();
     final skill = Skill(id: _uuid.v4(), label: label);
     _updateSkillCategory(
       categoryId,
@@ -446,20 +407,20 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> updateSkill(String categoryId, Skill skill) async {
-    await _ready();
+    await ready();
     _updateSkillCategory(
       categoryId,
       (c) => c.copyWith(
-        skills: _replaceById(c.skills, skill.id, skill, (s) => s.id),
+        skills: c.skills.replaceById(skill.id, skill, (s) => s.id),
       ),
     );
   }
 
   Future<void> deleteSkill(String categoryId, String skillId) async {
-    await _ready();
+    await ready();
     _updateSkillCategory(
       categoryId,
-      (c) => c.copyWith(skills: _removeById(c.skills, skillId, (s) => s.id)),
+      (c) => c.copyWith(skills: c.skills.removeById(skillId, (s) => s.id)),
     );
   }
 
@@ -490,7 +451,7 @@ class VaultService with ListenableServiceMixin {
     String? grade,
     String? details,
   }) async {
-    await _ready();
+    await ready();
     final education = Education(
       id: _uuid.v4(),
       qualification: qualification,
@@ -505,11 +466,10 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> updateEducation(Education education) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        education: _replaceById(
-          v.education,
+        education: v.education.replaceById(
           education.id,
           education,
           (e) => e.id,
@@ -519,10 +479,10 @@ class VaultService with ListenableServiceMixin {
   }
 
   Future<void> deleteEducation(String educationId) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        education: _removeById(v.education, educationId, (e) => e.id),
+        education: v.education.removeById(educationId, (e) => e.id),
       ),
     );
   }
@@ -530,25 +490,25 @@ class VaultService with ListenableServiceMixin {
   // --- hobbies ---
 
   Future<HobbyItem> addHobby(String text) async {
-    await _ready();
+    await ready();
     final hobby = HobbyItem(id: _uuid.v4(), text: text);
     _setVault((v) => v.copyWith(hobbies: [...v.hobbies, hobby]));
     return hobby;
   }
 
   Future<void> updateHobby(HobbyItem hobby) async {
-    await _ready();
+    await ready();
     _setVault(
       (v) => v.copyWith(
-        hobbies: _replaceById(v.hobbies, hobby.id, hobby, (h) => h.id),
+        hobbies: v.hobbies.replaceById(hobby.id, hobby, (h) => h.id),
       ),
     );
   }
 
   Future<void> deleteHobby(String hobbyId) async {
-    await _ready();
+    await ready();
     _setVault(
-      (v) => v.copyWith(hobbies: _removeById(v.hobbies, hobbyId, (h) => h.id)),
+      (v) => v.copyWith(hobbies: v.hobbies.removeById(hobbyId, (h) => h.id)),
     );
   }
 
@@ -556,33 +516,7 @@ class VaultService with ListenableServiceMixin {
 
   void _setVault(CvVault Function(CvVault current) update) {
     _vault.value = update(_vault.value).copyWith(updatedAt: DateTime.now());
-    _scheduleWrite();
-  }
-
-  /// Replaces the item whose [idOf] matches [id] with [replacement],
-  /// leaving every other item and the list order untouched.
-  List<T> _replaceById<T>(
-    List<T> items,
-    String id,
-    T replacement,
-    String Function(T item) idOf,
-  ) => [
-    for (final item in items)
-      if (idOf(item) == id) replacement else item,
-  ];
-
-  /// Drops the item whose [idOf] matches [id].
-  List<T> _removeById<T>(
-    List<T> items,
-    String id,
-    String Function(T item) idOf,
-  ) => items.where((item) => idOf(item) != id).toList();
-
-  void _scheduleWrite() {
-    _writeDebounce?.cancel();
-    _writeDebounce = Timer(const Duration(milliseconds: 300), () {
-      unawaited(_persist());
-    });
+    scheduleWrite(_vault.value);
   }
 
   /// Persists immediately, bypassing any pending debounce timer. Called
@@ -590,23 +524,12 @@ class VaultService with ListenableServiceMixin {
   /// be hidden or closed (a debounce timer alone can't survive that), and
   /// from the Vault UI's "Retry" affordance after a [persistError] — both
   /// need the same "write right now" behaviour, so one method serves both.
-  Future<void> flushPendingWrites() async {
-    _writeDebounce?.cancel();
-    _writeDebounce = null;
-    await _persist();
-  }
+  Future<void> flushPendingWrites() => persistNow(_vault.value);
 
-  Future<void> _persist() async {
-    try {
-      final json = jsonEncode(_vault.value.toJson());
-      await _localStorage.write(
-        StorageBoxes.vault,
-        StorageKeys.vaultProfile,
-        json,
-      );
-      _persistError.value = null;
-    } catch (e) {
-      _persistError.value = e;
-    }
-  }
+  @override
+  Future<void> writeToStorage(CvVault value) => _localStorage.write(
+    StorageBoxes.vault,
+    StorageKeys.vaultProfile,
+    jsonEncode(value.toJson()),
+  );
 }

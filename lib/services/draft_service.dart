@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
@@ -6,7 +5,9 @@ import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
+import 'package:cv_forge/services/persisted_store.dart';
 import 'package:cv_forge/services/storage_keys.dart';
+import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:uuid/uuid.dart';
 
@@ -20,19 +21,30 @@ import 'package:uuid/uuid.dart';
 /// ids, never resolves them. That decoupling is what makes deleting a
 /// Vault entry safe without touching every draft that might reference it
 /// (dangling ids are handled by `CvComposer`, not here).
-class DraftService with ListenableServiceMixin {
+class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   DraftService() {
-    listenToReactiveValues([_drafts, _activeDraftId, _persistError]);
+    listenToReactiveValues([_drafts, _activeDraftId, persistErrorNotifier]);
   }
 
   final _localStorage = locator<LocalStorageService>();
+  final _templateRegistry = locator<TemplateRegistryService>();
   final _uuid = const Uuid();
+
+  @override
+  LocalStorageService get storage => _localStorage;
 
   final ReactiveValue<List<CvDraft>> _drafts = ReactiveValue<List<CvDraft>>([]);
 
-  /// Every saved draft, most recently updated first.
-  List<CvDraft> get drafts =>
-      [..._drafts.value]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+  /// Every saved draft, most recently updated first. Kept sorted at every
+  /// write (see [_sortedByRecency] and its call sites) rather than
+  /// resorting on every read here — this getter is read from build
+  /// methods, so it shouldn't do the sorting work, or hand back a
+  /// different list identity, on every single call.
+  List<CvDraft> get drafts => _drafts.value;
+
+  /// [drafts], most recently updated first.
+  List<CvDraft> _sortedByRecency(List<CvDraft> drafts) =>
+      [...drafts]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
   final ReactiveValue<String?> _activeDraftId = ReactiveValue<String?>(null);
   String? get activeDraftId => _activeDraftId.value;
@@ -43,13 +55,23 @@ class DraftService with ListenableServiceMixin {
   /// should check [drafts]/[activeDraftId] instead of this getter.
   CvDraft get draft {
     final id = _activeDraftId.value;
-    if (id == null) return CvDraft.empty();
+    if (id == null) return _emptyDraft();
     return _drafts.value.firstWhere(
       (d) => d.id == id,
       orElse: () =>
-          _drafts.value.isNotEmpty ? _drafts.value.first : CvDraft.empty(),
+          _drafts.value.isNotEmpty ? _drafts.value.first : _emptyDraft(),
     );
   }
+
+  /// An unpersisted placeholder draft for when nothing is active yet (e.g.
+  /// every draft has been deleted) — always stamped with a real, currently
+  /// registered template id rather than a stale literal, so
+  /// `TemplateRegistryService.byId`'s unknown-id fallback is never the only
+  /// thing standing between this draft and a phantom template.
+  CvDraft _emptyDraft() => CvDraft.empty(
+    id: _uuid.v4(),
+    templateId: _templateRegistry.defaultTemplate.id,
+  );
 
   /// Ids of drafts that have never had a manual selection made — i.e. a
   /// draft the user just created (or the very first draft a first-time
@@ -62,28 +84,10 @@ class DraftService with ListenableServiceMixin {
       _activeDraftId.value != null &&
       _freshDraftIds.contains(_activeDraftId.value);
 
-  /// Set when the most recent write to [LocalStorageService] failed;
-  /// cleared on the next successful one. Mirrors [VaultService.persistError].
-  final ReactiveValue<Object?> _persistError = ReactiveValue<Object?>(null);
-  Object? get persistError => _persistError.value;
+  Future<void> load() => ready();
 
-  Future<void>? _readyFuture;
-  Timer? _writeDebounce;
-
-  /// See `VaultService._ready`'s doc comment for why the reset lives here
-  /// (via `catchError`, deferred to a later microtask) rather than inside
-  /// `_load` itself.
-  Future<void> _ready() => _readyFuture ??= _load().catchError((
-    Object error,
-    StackTrace stackTrace,
-  ) {
-    _readyFuture = null;
-    Error.throwWithStackTrace(error, stackTrace);
-  });
-
-  Future<void> load() => _ready();
-
-  Future<void> _load() async {
+  @override
+  Future<void> loadFromStorage() async {
     await _localStorage.ensureInitialized();
 
     final indexRaw = await _localStorage.read(
@@ -118,7 +122,7 @@ class DraftService with ListenableServiceMixin {
     try {
       index = _migrateIndex(jsonDecode(indexRaw) as Map<String, dynamic>);
     } catch (_) {
-      await _quarantine(StorageKeys.draftIndex, indexRaw);
+      await quarantine(StorageBoxes.drafts, StorageKeys.draftIndex, indexRaw);
       index = DraftIndex.empty();
     }
 
@@ -132,7 +136,7 @@ class DraftService with ListenableServiceMixin {
       try {
         loaded.add(_migrateDraft(jsonDecode(raw) as Map<String, dynamic>));
       } catch (_) {
-        await _quarantine(StorageKeys.draftEntry(id), raw);
+        await quarantine(StorageBoxes.drafts, StorageKeys.draftEntry(id), raw);
       }
     }
 
@@ -141,7 +145,7 @@ class DraftService with ListenableServiceMixin {
       return;
     }
 
-    _drafts.value = loaded;
+    _drafts.value = _sortedByRecency(loaded);
     final requestedActive = index.activeDraftId;
     final activeStillExists = loaded.any((d) => d.id == requestedActive);
     _activeDraftId.value = activeStillExists
@@ -165,48 +169,36 @@ class DraftService with ListenableServiceMixin {
         draft = draft.copyWith(id: _uuid.v4());
       }
     } catch (_) {
-      await _quarantine(StorageKeys.currentDraftId, raw);
-      draft = CvDraft.empty(id: _uuid.v4());
+      await quarantine(StorageBoxes.drafts, StorageKeys.currentDraftId, raw);
+      draft = _emptyDraft();
       _freshDraftIds.add(draft.id);
     }
 
     _drafts.value = [draft];
     _activeDraftId.value = draft.id;
-    await _persistDraft(draft);
+    await persistImmediately(draft);
     await _persistIndex();
     // The old key is left in place, dead but harmless — no destructive
     // delete needed once its data has a home in the new scheme.
   }
 
   Future<void> _seedFirstDraft() async {
-    final first = CvDraft.empty(id: _uuid.v4());
+    final first = _emptyDraft();
     _drafts.value = [first];
     _activeDraftId.value = first.id;
     _freshDraftIds.add(first.id);
-    await _persistDraft(first);
+    await persistImmediately(first);
     await _persistIndex();
   }
 
   CvDraft _migrateDraft(Map<String, dynamic> json) {
-    final version = json['schemaVersion'];
-    if (version != 1) {
-      throw FormatException('Unsupported draft schemaVersion: $version');
-    }
+    requireSchemaVersion(json, 'draft');
     return CvDraft.fromJson(json);
   }
 
   DraftIndex _migrateIndex(Map<String, dynamic> json) {
-    final version = json['schemaVersion'];
-    if (version != 1) {
-      throw FormatException('Unsupported draft index schemaVersion: $version');
-    }
+    requireSchemaVersion(json, 'draft index');
     return DraftIndex.fromJson(json);
-  }
-
-  Future<void> _quarantine(String originalKey, String raw) async {
-    final key =
-        '${originalKey}_corrupt_${DateTime.now().millisecondsSinceEpoch}';
-    await _localStorage.write(StorageBoxes.drafts, key, raw);
   }
 
   // --- draft list management (create/open/rename/duplicate/delete) ---
@@ -224,24 +216,24 @@ class DraftService with ListenableServiceMixin {
     String notes = '',
     String? templateId,
   }) async {
-    await _ready();
+    await ready();
     final id = _uuid.v4();
     final created = CvDraft.empty(
       id: id,
       name: name,
       templateId: templateId ?? draft.templateId,
     ).copyWith(notes: notes);
-    _drafts.value = [..._drafts.value, created];
+    _drafts.value = _sortedByRecency([..._drafts.value, created]);
     _activeDraftId.value = id;
     _freshDraftIds.add(id);
-    await _persistDraft(created);
+    await persistImmediately(created);
     await _persistIndex();
     return id;
   }
 
   /// Switches which draft [draft] resolves to. No-ops for an unknown id.
   Future<void> openDraft(String id) async {
-    await _ready();
+    await ready();
     if (_activeDraftId.value == id) return;
     if (!_drafts.value.any((d) => d.id == id)) return;
     _activeDraftId.value = id;
@@ -255,7 +247,7 @@ class DraftService with ListenableServiceMixin {
     required String name,
     required String notes,
   }) async {
-    await _ready();
+    await ready();
     final index = _drafts.value.indexWhere((d) => d.id == id);
     if (index == -1) return;
     final updated = _drafts.value[index].copyWith(
@@ -263,11 +255,11 @@ class DraftService with ListenableServiceMixin {
       notes: notes,
       updatedAt: DateTime.now(),
     );
-    _drafts.value = [
+    _drafts.value = _sortedByRecency([
       for (final d in _drafts.value)
         if (d.id == id) updated else d,
-    ];
-    await _persistDraft(updated);
+    ]);
+    await persistImmediately(updated);
   }
 
   /// Clones [id] as a new draft (new id, name suffixed) and makes the copy
@@ -275,7 +267,7 @@ class DraftService with ListenableServiceMixin {
   /// already-tailored CV. Returns the new draft's id, or [id] unchanged if
   /// no draft with that id exists.
   Future<String> duplicateDraft(String id) async {
-    await _ready();
+    await ready();
     final index = _drafts.value.indexWhere((d) => d.id == id);
     if (index == -1) return id;
     final source = _drafts.value[index];
@@ -285,9 +277,9 @@ class DraftService with ListenableServiceMixin {
       name: '${source.name} (copy)',
       updatedAt: DateTime.now(),
     );
-    _drafts.value = [..._drafts.value, copy];
+    _drafts.value = _sortedByRecency([..._drafts.value, copy]);
     _activeDraftId.value = newId;
-    await _persistDraft(copy);
+    await persistImmediately(copy);
     await _persistIndex();
     return newId;
   }
@@ -296,7 +288,7 @@ class DraftService with ListenableServiceMixin {
   /// first remaining) becomes active, or [activeDraftId] becomes null if
   /// none are left.
   Future<void> deleteDraft(String id) async {
-    await _ready();
+    await ready();
     if (!_drafts.value.any((d) => d.id == id)) return;
     _drafts.value = _drafts.value.where((d) => d.id != id).toList();
     _freshDraftIds.remove(id);
@@ -312,7 +304,7 @@ class DraftService with ListenableServiceMixin {
   // --- active-draft selection/tailoring (Studio) ---
 
   Future<void> setTemplate(String templateId) async {
-    await _ready();
+    await ready();
     _setDraft((d) => d.copyWith(templateId: templateId));
   }
 
@@ -335,7 +327,7 @@ class DraftService with ListenableServiceMixin {
     required List<String> educationIds,
     required List<String> hobbyIds,
   }) async {
-    await _ready();
+    await ready();
     if (!isFreshDraft) return;
     _setDraft(
       (d) => d.copyWith(
@@ -372,7 +364,7 @@ class DraftService with ListenableServiceMixin {
     String experienceId,
     List<String> bulletIds,
   ) async {
-    await _ready();
+    await ready();
     _setDraft(
       (d) => d.copyWith(bulletIds: {...d.bulletIds, experienceId: bulletIds}),
     );
@@ -398,7 +390,7 @@ class DraftService with ListenableServiceMixin {
     String projectId,
     List<String> bulletIds,
   ) async {
-    await _ready();
+    await ready();
     _setDraft(
       (d) => d.copyWith(
         projectBulletIds: {...d.projectBulletIds, projectId: bulletIds},
@@ -422,7 +414,7 @@ class DraftService with ListenableServiceMixin {
     )
     copyWith,
   }) async {
-    await _ready();
+    await ready();
     _setDraft((d) {
       final ids = [...idsOf(d)];
       final map = {...bulletIdsOf(d)};
@@ -472,15 +464,15 @@ class DraftService with ListenableServiceMixin {
     required List<String> Function(CvDraft draft) idsOf,
     required CvDraft Function(CvDraft draft, List<String> ids) copyWith,
   }) async {
-    await _ready();
+    await ready();
     _setDraft((d) {
       final ids = [...idsOf(d)];
       if (included) {
-        ids.add(id);
+        if (!ids.contains(id)) ids.add(id);
       } else {
         ids.remove(id);
       }
-      return copyWith(d, ids.toSet().toList());
+      return copyWith(d, ids);
     });
   }
 
@@ -488,7 +480,7 @@ class DraftService with ListenableServiceMixin {
     CvSectionType type, {
     required bool hidden,
   }) async {
-    await _ready();
+    await ready();
     _setDraft((d) {
       final hiddenSections = {...d.hiddenSections};
       if (hidden) {
@@ -501,12 +493,12 @@ class DraftService with ListenableServiceMixin {
   }
 
   Future<void> setTailoredSummary(String? summary) async {
-    await _ready();
+    await ready();
     _setDraft((d) => d.copyWith(tailoredSummary: summary));
   }
 
   Future<void> setBulletOverride(String bulletId, String? text) async {
-    await _ready();
+    await ready();
     _setDraft((d) {
       final overrides = {...d.bulletOverrides};
       if (text == null) {
@@ -519,12 +511,12 @@ class DraftService with ListenableServiceMixin {
   }
 
   Future<void> setHeadlineOverride(String? headline) async {
-    await _ready();
+    await ready();
     _setDraft((d) => d.copyWith(headlineOverride: headline));
   }
 
   Future<void> setReferencesOverride(String? references) async {
-    await _ready();
+    await ready();
     _setDraft((d) => d.copyWith(referencesOverride: references));
   }
 
@@ -534,7 +526,7 @@ class DraftService with ListenableServiceMixin {
     String educationId,
     String? text,
   ) async {
-    await _ready();
+    await ready();
     _setDraft((d) {
       final overrides = {...d.educationDetailsOverrides};
       if (text == null) {
@@ -555,41 +547,23 @@ class DraftService with ListenableServiceMixin {
     if (id == null) return; // No draft loaded yet — defensive no-op.
     _freshDraftIds.remove(id);
     final updated = update(draft).copyWith(updatedAt: DateTime.now());
-    _drafts.value = [
+    _drafts.value = _sortedByRecency([
       for (final d in _drafts.value)
         if (d.id == id) updated else d,
-    ];
-    _scheduleWrite(updated);
-  }
-
-  void _scheduleWrite(CvDraft target) {
-    _writeDebounce?.cancel();
-    _writeDebounce = Timer(const Duration(milliseconds: 300), () {
-      unawaited(_persistDraft(target));
-    });
+    ]);
+    scheduleWrite(updated);
   }
 
   /// Persists immediately, bypassing any pending debounce timer. See
   /// [VaultService.flushPendingWrites] for the two production call sites.
-  Future<void> flushPendingWrites() async {
-    _writeDebounce?.cancel();
-    _writeDebounce = null;
-    await _persistDraft(draft);
-  }
+  Future<void> flushPendingWrites() => persistNow(draft);
 
-  Future<void> _persistDraft(CvDraft target) async {
-    try {
-      final json = jsonEncode(target.toJson());
-      await _localStorage.write(
-        StorageBoxes.drafts,
-        StorageKeys.draftEntry(target.id),
-        json,
-      );
-      _persistError.value = null;
-    } catch (e) {
-      _persistError.value = e;
-    }
-  }
+  @override
+  Future<void> writeToStorage(CvDraft value) => _localStorage.write(
+    StorageBoxes.drafts,
+    StorageKeys.draftEntry(value.id),
+    jsonEncode(value.toJson()),
+  );
 
   Future<void> _persistIndex() async {
     try {
@@ -603,9 +577,9 @@ class DraftService with ListenableServiceMixin {
         StorageKeys.draftIndex,
         jsonEncode(index.toJson()),
       );
-      _persistError.value = null;
+      persistError = null;
     } catch (e) {
-      _persistError.value = e;
+      persistError = e;
     }
   }
 }

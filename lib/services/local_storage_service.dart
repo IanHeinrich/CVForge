@@ -18,7 +18,7 @@ class LocalStorageService {
   /// A failed init (e.g. IndexedDB genuinely unavailable in Firefox
   /// strict-privacy mode) must not poison every subsequent call — the
   /// reset lives here, chained via [Future.catchError], not inside
-  /// [_init] itself. See `VaultService._ready`'s doc comment for exactly
+  /// [_init] itself. See `PersistedStoreMixin.ready`'s doc comment for exactly
   /// why: a reset written inside [_init]'s own `catch` block would run
   /// (and be silently clobbered by this `??=` assignment) before this
   /// assignment ever executes, if the very first awaited call ever throws
@@ -31,30 +31,33 @@ class LocalStorageService {
 
   Future<void> _init() async {
     await Hive.initFlutter();
-    await Future.wait([
-      Hive.openBox<String>(StorageBoxes.vault),
-      Hive.openBox<String>(StorageBoxes.drafts),
-      Hive.openBox<String>(StorageBoxes.settings),
-    ]);
+  }
+
+  /// Opens [boxName] if it isn't already — idempotent and cheap to call on
+  /// every access, since Hive returns the cached instance once a box is
+  /// open. Boxes are opened lazily, one at a time on first actual access,
+  /// rather than all up front at boot: [StorageBoxes.settings] has no
+  /// reader yet, and there's no reason its IndexedDB round-trip should sit
+  /// on the critical path to first paint for a feature that doesn't exist.
+  Future<Box<String>> _box(String boxName) async {
+    await ensureInitialized();
+    return Hive.isBoxOpen(boxName)
+        ? Hive.box<String>(boxName)
+        : Hive.openBox<String>(boxName);
   }
 
   Future<String?> read(String boxName, String key) async {
-    await ensureInitialized();
-    return Hive.box<String>(boxName).get(key);
+    final box = await _box(boxName);
+    return box.get(key);
   }
 
   Future<void> write(String boxName, String key, String value) async {
-    await ensureInitialized();
-    await Hive.box<String>(boxName).put(key, value);
+    final box = await _box(boxName);
+    await box.put(key, value);
   }
 
   Future<void> delete(String boxName, String key) async {
-    await ensureInitialized();
-    await Hive.box<String>(boxName).delete(key);
-  }
-
-  Future<List<String>> keys(String boxName) async {
-    await ensureInitialized();
-    return Hive.box<String>(boxName).keys.cast<String>().toList();
+    final box = await _box(boxName);
+    await box.delete(key);
   }
 }

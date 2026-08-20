@@ -1,7 +1,18 @@
+/// Baselines are generated on `ubuntu-latest` (see
+/// `.github/workflows/update-goldens.yml`) and compared there again on
+/// every PR by `ci.yml`'s plain `flutter test` — that's the run that
+/// actually catches a real visual regression. Font rasterization differs
+/// by platform, so these fail with a small pixel diff on a non-Linux dev
+/// machine even with no changes at all; run `flutter test
+/// --exclude-tags=golden` locally to skip them, or `--tags=golden` to run
+/// just these.
+@Tags(['golden'])
+library;
+
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/views/vault/vault_view.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
-import 'package:cv_forge/models/vault/example_vault.dart';
+import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/ui/common/app_theme.dart';
 import 'package:flutter/material.dart';

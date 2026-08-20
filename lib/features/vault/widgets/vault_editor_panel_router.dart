@@ -1,6 +1,7 @@
+import 'package:cv_forge/models/identified_list.dart';
 import 'package:flutter/material.dart';
 
-import '../views/vault/vault_viewmodel.dart';
+import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
 import 'basics_editor_panel.dart';
 import 'education_editor_panel.dart';
 import 'experience_editor_panel.dart';
@@ -35,8 +36,7 @@ class VaultEditorPanelRouter extends StatelessWidget {
         );
 
       case VaultEditorTarget.experience:
-        final experience = _findById(
-          viewModel.vault.experiences,
+        final experience = viewModel.vault.experiences.findById(
           viewModel.openId,
           (e) => e.id,
         );
@@ -60,8 +60,7 @@ class VaultEditorPanelRouter extends StatelessWidget {
         );
 
       case VaultEditorTarget.project:
-        final project = _findById(
-          viewModel.vault.projects,
+        final project = viewModel.vault.projects.findById(
           viewModel.openId,
           (p) => p.id,
         );
@@ -82,8 +81,7 @@ class VaultEditorPanelRouter extends StatelessWidget {
         );
 
       case VaultEditorTarget.education:
-        final education = _findById(
-          viewModel.vault.education,
+        final education = viewModel.vault.education.findById(
           viewModel.openId,
           (e) => e.id,
         );
@@ -116,14 +114,5 @@ class VaultEditorPanelRouter extends StatelessWidget {
           onDelete: viewModel.deleteHobby,
         );
     }
-  }
-
-  /// Finds the item whose [idOf] matches [id], or `null` if it's been
-  /// deleted since the panel was opened (or [id] itself is `null`).
-  T? _findById<T>(List<T> items, String? id, String Function(T item) idOf) {
-    for (final item in items) {
-      if (idOf(item) == id) return item;
-    }
-    return null;
   }
 }

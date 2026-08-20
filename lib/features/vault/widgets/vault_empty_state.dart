@@ -1,6 +1,4 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
-import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -20,48 +18,22 @@ class VaultEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(RemixIcons.safe_line, size: 48, color: kcLightGrey),
-            verticalSpaceMedium,
-            const Text(
-              'Your Vault is empty',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: kcWhite,
-              ),
-            ),
-            verticalSpaceSmall,
-            const Text(
-              'Add your work history, skills, and education here — this '
-              'is your master record, separate from any CV you export.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: kcLightGrey),
-            ),
-            verticalSpaceMedium,
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children: [
-                OutlinedButton(
-                  onPressed: onLoadExample,
-                  child: const Text('Load example CV'),
-                ),
-                FilledButton(
-                  onPressed: onStartFromScratch,
-                  child: const Text('Start from scratch'),
-                ),
-              ],
-            ),
-          ],
+    return AppEmptyState(
+      icon: RemixIcons.safe_line,
+      title: 'Your Vault is empty',
+      message:
+          'Add your work history, skills, and education here — this is '
+          'your master record, separate from any CV you export.',
+      actions: [
+        OutlinedButton(
+          onPressed: onLoadExample,
+          child: const Text('Load example CV'),
         ),
-      ),
+        FilledButton(
+          onPressed: onStartFromScratch,
+          child: const Text('Start from scratch'),
+        ),
+      ],
     );
   }
 }

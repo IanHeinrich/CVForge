@@ -1,6 +1,4 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
-import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -26,34 +24,11 @@ class StudioEmptyPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(RemixIcons.quill_pen_line, size: 48, color: kcLightGrey),
-            verticalSpaceMedium,
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: kcWhite,
-              ),
-            ),
-            verticalSpaceSmall,
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: kcLightGrey),
-            ),
-            verticalSpaceMedium,
-            FilledButton(onPressed: onAction, child: Text(actionLabel)),
-          ],
-        ),
-      ),
+    return AppEmptyState(
+      icon: RemixIcons.quill_pen_line,
+      title: title,
+      message: message,
+      actions: [FilledButton(onPressed: onAction, child: Text(actionLabel))],
     );
   }
 }

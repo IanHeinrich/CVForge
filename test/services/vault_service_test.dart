@@ -5,6 +5,7 @@ import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
+import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -230,6 +231,11 @@ void main() {
         start: const YearMonth(year: 2020, month: 1),
       );
 
+      // DraftService resolves TemplateRegistryService for real to stamp a
+      // genuinely registered template id on the draft it seeds.
+      locator.registerLazySingleton<TemplateRegistryService>(
+        TemplateRegistryService.new,
+      );
       final draftService = DraftService();
       await draftService.load();
       await draftService.setExperienceIncluded(experience.id, included: true);

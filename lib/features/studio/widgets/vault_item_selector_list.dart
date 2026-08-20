@@ -6,6 +6,7 @@ import 'package:remixicon/remixicon.dart';
 
 import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
+import 'tailoring_controls.dart';
 
 /// One selectable row in a [VaultItemSelectorList] — also reused for the
 /// nested rows in [bullets], since a bullet is just a title plus a
@@ -37,8 +38,7 @@ class SelectorItem {
   /// — non-null only when [bullets] is non-empty. Must await each toggle
   /// before starting the next (see `StudioViewModel.addAllExperienceBullets`);
   /// firing every toggle synchronously in one loop makes them all read the
-  /// same stale draft and only the last one lands, which is exactly the
-  /// bug this replaced.
+  /// same stale draft, and only the last one lands.
   final VoidCallback? onAddAllBullets;
 
   /// Non-null only for entries with a manually-rewritable prose field —
@@ -131,10 +131,9 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                 editingTextIds: _editingTextIds,
                 onToggleEditingText: (id) => _toggleId(_editingTextIds, id),
               ),
-            // A top-level tailorable field (Education's `details` — a
-            // bullet's own text has nowhere else to sit, but a bullet's
-            // does: its own checkbox row's title. See `_BulletSublist`
-            // for that half of this feature.
+            // Education's `details` has no row of its own to hang off, so
+            // it gets a dedicated row here. A bullet's text uses its own
+            // checkbox row's title instead — see `_BulletSublist`.
             if (item.selected && item.tailorable != null)
               Padding(
                 key: ValueKey('tailor_${item.id}'),

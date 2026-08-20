@@ -1,8 +1,8 @@
-import '../draft/cv_draft.dart';
-import '../draft/cv_section_type.dart';
-import '../vault/cv_bullet.dart';
-import '../vault/cv_vault.dart';
-import '../vault/experience.dart';
+import 'package:cv_forge/models/draft/cv_draft.dart';
+import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
+import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/experience.dart';
 import 'region_profile.dart';
 import 'resolved_cv.dart';
 import 'resolved_section.dart';

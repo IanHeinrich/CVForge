@@ -1,14 +1,14 @@
-import 'contact_basics.dart';
-import 'cv_bullet.dart';
-import 'cv_vault.dart';
-import 'education.dart';
-import 'experience.dart';
-import 'hobby_item.dart';
-import 'profile_link.dart';
-import 'project.dart';
-import 'skill.dart';
-import 'skill_category.dart';
-import 'year_month.dart';
+import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
+import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/education.dart';
+import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/profile_link.dart';
+import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/skill.dart';
+import 'package:cv_forge/models/vault/skill_category.dart';
+import 'package:cv_forge/models/vault/year_month.dart';
 
 /// A wholly fictional persona, structured to mirror the shape of a real
 /// reference CV used during design (labelled AND unlabelled work bullets,

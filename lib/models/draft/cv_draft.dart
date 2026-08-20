@@ -82,10 +82,18 @@ abstract class CvDraft with _$CvDraft {
   factory CvDraft.fromJson(Map<String, dynamic> json) =>
       _$CvDraftFromJson(json);
 
+  /// [id] and [templateId] are required, not defaulted — both are identity
+  /// fields with no value that's ever correct to manufacture on a caller's
+  /// behalf. A default id risks colliding with a real one (the legacy
+  /// single-draft storage key was exactly this kind of literal); a default
+  /// template id can only ever be a guess at what's actually registered,
+  /// and `TemplateRegistryService.byId`'s graceful unknown-id fallback
+  /// means a wrong guess here fails silently rather than loudly. Callers
+  /// should pass `TemplateRegistryService.defaultTemplate.id`.
   factory CvDraft.empty({
-    String id = 'current',
+    required String id,
+    required String templateId,
     String name = 'My CV',
-    String templateId = 'classic_serif',
   }) => CvDraft(
     schemaVersion: 1,
     id: id,

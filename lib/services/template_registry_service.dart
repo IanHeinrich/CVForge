@@ -6,17 +6,6 @@ import 'package:cv_forge/templates/cv_template.dart';
 class TemplateRegistryService {
   static const List<CvTemplate> _templates = [AtsMinimalTemplate()];
 
-  /// Id/name/description only — a picker built against this never touches
-  /// a renderer.
-  List<CvTemplateDescriptor> get available => [
-    for (final template in _templates)
-      CvTemplateDescriptor(
-        id: template.id,
-        displayName: template.displayName,
-        description: template.description,
-      ),
-  ];
-
   CvTemplate get defaultTemplate => _templates.first;
 
   /// Falls back to [defaultTemplate] for an unknown id — never throws, so

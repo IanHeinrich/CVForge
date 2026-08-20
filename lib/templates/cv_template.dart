@@ -1,7 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../models/render/resolved_cv.dart';
+import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'design/cv_design_tokens.dart';
 import 'design/cv_font_set.dart';
 
@@ -27,19 +27,4 @@ abstract interface class CvTemplate {
     CvFontSet fonts, {
     bool compress = true,
   });
-}
-
-/// What a template picker needs to list options — deliberately excludes
-/// [CvTemplate.tokens] and the render methods, so building a picker UI
-/// never touches a renderer.
-class CvTemplateDescriptor {
-  const CvTemplateDescriptor({
-    required this.id,
-    required this.displayName,
-    required this.description,
-  });
-
-  final String id;
-  final String displayName;
-  final String description;
 }

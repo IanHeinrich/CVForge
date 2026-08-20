@@ -1,4 +1,4 @@
-import '../design/cv_design_tokens.dart';
+import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 
 const _ink = 0xFF000000;
 const _mutedInk = 0xFF555555;
@@ -8,10 +8,9 @@ const _mutedInk = 0xFF555555;
 /// caps anywhere, one rule per section (not flanking rules either side).
 ///
 /// Every non-muted [CvTypeToken] below sets [CvTypeToken.colorArgb]
-/// explicitly to [_ink] rather than leaving it null — a null color falls
-/// back to the ambient `DefaultTextStyle` in the Flutter screen renderer,
-/// which picks up the app chrome's theme color (not this template's ink)
-/// since the CV page is rendered inside that theme, not a page of its own.
+/// explicitly to [_ink] rather than leaving it null — the printed ink
+/// should never silently depend on `package:pdf`'s own default text
+/// color rather than this template's own choice.
 const CvDesignTokens atsMinimalTokens = CvDesignTokens(
   marginTop: 40,
   marginRight: 40,
@@ -28,8 +27,6 @@ const CvDesignTokens atsMinimalTokens = CvDesignTokens(
   ruleColorArgb: 0xFF333333,
   inkArgb: _ink,
   mutedInkArgb: _mutedInk,
-  skillColumnCount: 1,
-  skillColumnGap: 0,
   name: CvTypeToken(sizePt: 24, weight: CvWeight.bold, colorArgb: _ink),
   // Ink, not muted — the reference r/EngineeringResumes template uses one
   // text color throughout; grey reads as lower-priority to some ATS

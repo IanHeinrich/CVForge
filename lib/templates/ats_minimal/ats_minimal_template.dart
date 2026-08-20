@@ -1,12 +1,12 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../models/render/resolved_cv.dart';
-import '../../models/render/resolved_section.dart';
-import '../cv_template.dart';
-import '../design/cv_design_tokens.dart';
-import '../design/cv_design_tokens_pdf.dart';
-import '../design/cv_font_set.dart';
+import 'package:cv_forge/models/render/resolved_cv.dart';
+import 'package:cv_forge/models/render/resolved_section.dart';
+import 'package:cv_forge/templates/cv_template.dart';
+import 'package:cv_forge/templates/design/cv_design_tokens.dart';
+import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
+import 'package:cv_forge/templates/design/cv_font_set.dart';
 import 'ats_minimal_pdf_renderer.dart';
 import 'ats_minimal_tokens.dart';
 
@@ -51,7 +51,7 @@ class AtsMinimalTemplate implements CvTemplate {
       pw.MultiPage(
         pageFormat: format,
         margin: tokens.pageMargins,
-        build: (context) => buildAtsMinimalPdfContent(cv, fonts),
+        build: (context) => buildAtsMinimalPdfContent(cv, tokens, fonts),
       ),
     );
     return doc;

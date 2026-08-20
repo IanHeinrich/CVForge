@@ -7,7 +7,9 @@ abstract final class StorageBoxes {
   static const vault = 'cvforge_vault';
   static const drafts = 'cvforge_drafts';
 
-  /// Opened now, unused until Phase 2 (BYOK API keys, region preference).
+  /// Unused today (a future BYOK API key / region preference feature's
+  /// eventual home) — lazily opened like every other box, so an unused
+  /// box costs nothing on the boot path.
   static const settings = 'cvforge_settings';
 }
 
@@ -17,8 +19,9 @@ abstract final class StorageKeys {
   /// The Vault is a single aggregate — one key.
   static const vaultProfile = 'profile';
 
-  /// The Phase 1 single-draft key. No longer written, but still read once
-  /// on first load (see `DraftService._load`) to migrate a pre-multi-draft
+  /// The original single-draft key, from before multiple drafts existed.
+  /// No longer written, but still read once on first load (see
+  /// `DraftService.loadFromStorage`) to migrate a pre-multi-draft
   /// install's one saved draft into the indexed scheme below rather than
   /// discarding it.
   static const currentDraftId = 'current';

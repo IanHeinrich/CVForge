@@ -57,8 +57,10 @@ app.*.map.json
 /PLAN.md
 /HANDOVER.md
 
-# Working implementation plan — internal planning notes, not for the public repo
-/PLAN.md
-
 # golden_toolkit failure-diff output (local debugging only)
 test/golden/failures/
+
+# A per-developer default (e.g. `exclude_tags: golden`, see CLAUDE.md's
+# testing section) — must never be committed, since CI needs the golden
+# tests to actually run on every PR.
+/dart_test.yaml
