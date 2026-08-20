@@ -164,10 +164,16 @@ class AtsAnalyzerService {
       // characters to show for it — the specific failure the spike found
       // for a non-embedded-font PUA bullet, which left a nonzero width
       // and zero surviving characters rather than a visible PUA/
-      // replacement codepoint. Only checked on short runs, since it's the
-      // per-character average that's diagnostic, not a long run's total.
+      // replacement codepoint. Only checked on short runs with at least
+      // one non-whitespace character: a *pure*-whitespace run (`trimmed`
+      // empty) never had any characters to drop in the first place, and a
+      // wide single-space run is a completely ordinary PDF layout
+      // technique for justification/alignment — confirmed a real false
+      // positive against cv-forge's own generated PDFs, which pad a line
+      // to width with exactly this kind of run.
       final fontSize = node.transform.fontSize;
-      if (fontSize > 0 && str.trim().length <= 3 && str.isNotEmpty) {
+      final trimmed = str.trim();
+      if (fontSize > 0 && trimmed.isNotEmpty && trimmed.length <= 3) {
         final avgCharWidth = node.width / str.length;
         if (avgCharWidth > fontSize * 1.3) phantomGlyphCount++;
       }
