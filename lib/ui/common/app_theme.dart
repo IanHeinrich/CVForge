@@ -25,16 +25,17 @@ ThemeData buildAppTheme() {
   // checkboxes) instead of a washed-out seed-derived approximation of it.
   // Every other slot stays seed-derived — nobody's designed a value for
   // those yet.
-  final colorScheme = ColorScheme.fromSeed(
-    seedColor: kcPrimaryColor,
-    brightness: Brightness.dark,
-    surface: kcDarkGreyColor,
-  ).copyWith(
-    primary: kcPrimaryColor,
-    onPrimary: kcWhite,
-    error: kcErrorColor,
-    onError: kcWhite,
-  );
+  final colorScheme =
+      ColorScheme.fromSeed(
+        seedColor: kcPrimaryColor,
+        brightness: Brightness.dark,
+        surface: kcDarkGreyColor,
+      ).copyWith(
+        primary: kcPrimaryColor,
+        onPrimary: kcWhite,
+        error: kcErrorColor,
+        onError: kcWhite,
+      );
 
   // Deliberately squares off Material 3's default pill-shaped buttons to
   // `appRadius.medium` — the same radius already used by cards, dialogs,
