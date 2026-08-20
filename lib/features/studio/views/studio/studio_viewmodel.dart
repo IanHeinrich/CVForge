@@ -20,6 +20,7 @@ import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/templates/cv_template.dart';
+import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:pdf/pdf.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -124,12 +125,14 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   CvTemplate get template => _templateRegistry.byId(_draft.templateId);
 
-  /// A4 today — [RegionProfile] is the seam a future Letter-format preset
-  /// plugs into without touching this ViewModel.
-  PdfPageFormat get pageFormat => PdfPageFormat.a4;
+  RegionProfile get region => _draft.region;
+  Future<void> setRegion(RegionProfile region) =>
+      _draftService.setRegion(region);
+
+  PdfPageFormat get pageFormat => _draft.region.preset.page.toPdfPageFormat;
 
   ResolvedCv get resolvedCv =>
-      CvComposer.compose(_vault, _draft, region: RegionProfile.uk);
+      CvComposer.compose(_vault, _draft, region: _draft.region);
 
   /// [CvVault.isEmpty] (no source data anywhere) is checked ahead of an
   /// empty [resolvedCv] (data exists but nothing is included) — the two

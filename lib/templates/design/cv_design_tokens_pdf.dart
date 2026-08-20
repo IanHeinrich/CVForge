@@ -1,6 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'cv_design_tokens.dart';
 import 'cv_font_set.dart';
 
@@ -34,4 +35,11 @@ extension CvTypeTokenPdf on CvTypeToken {
 extension CvDesignTokensPdf on CvDesignTokens {
   pw.EdgeInsets get pageMargins =>
       pw.EdgeInsets.fromLTRB(marginLeft, marginTop, marginRight, marginBottom);
+}
+
+extension PdfPageFormatTokenPdf on PdfPageFormatToken {
+  PdfPageFormat get toPdfPageFormat => switch (this) {
+    PdfPageFormatToken.a4 => PdfPageFormat.a4,
+    PdfPageFormatToken.letter => PdfPageFormat.letter,
+  };
 }

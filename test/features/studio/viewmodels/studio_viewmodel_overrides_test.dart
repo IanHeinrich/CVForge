@@ -8,12 +8,14 @@ import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:pdf/pdf.dart';
 
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
@@ -72,11 +74,13 @@ void main() {
       String? headlineOverride,
       String? referencesOverride,
       Map<String, String> educationDetailsOverrides = const {},
+      RegionProfile region = RegionProfile.uk,
     }) => CvDraft(
       schemaVersion: 1,
       id: 'current',
       name: 'My CV',
       templateId: 'ats_minimal',
+      region: region,
       experienceIds: experienceIds,
       bulletIds: bulletIds,
       projectIds: projectIds,
@@ -511,6 +515,34 @@ void main() {
 
         expect(model.hasEducationDetailsOverride(education.id), isTrue);
         expect(model.educationDetailsText(education), 'Tailored details');
+      });
+    });
+
+    group('region -', () {
+      test('pageFormat resolves through the draft\'s region', () {
+        when(vaultService.vault).thenReturn(vaultWith());
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(region: RegionProfile.uk));
+        expect(StudioViewModel().pageFormat, PdfPageFormat.a4);
+
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(region: RegionProfile.us));
+        expect(StudioViewModel().pageFormat, PdfPageFormat.letter);
+      });
+
+      test('setRegion delegates to DraftService', () async {
+        when(vaultService.vault).thenReturn(vaultWith());
+        when(draftService.draft).thenReturn(draftWith());
+        when(
+          draftService.setRegion(any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        await model.setRegion(RegionProfile.us);
+
+        verify(draftService.setRegion(RegionProfile.us)).called(1);
       });
     });
   });

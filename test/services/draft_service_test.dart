@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
@@ -44,6 +46,7 @@ void main() {
   group('DraftServiceTest -', () {
     late MockLocalStorageService storage;
     late Map<String, String> memory;
+    late MockSettingsService settings;
 
     setUp(() {
       storage = getAndRegisterLocalStorageService();
@@ -54,6 +57,8 @@ void main() {
       locator.registerLazySingleton<TemplateRegistryService>(
         TemplateRegistryService.new,
       );
+      settings = getAndRegisterSettingsService();
+      when(settings.settings).thenReturn(AppSettings.empty());
     });
     tearDown(() => locator.reset());
 
@@ -265,6 +270,31 @@ void main() {
         await service.flushPendingWrites();
       },
     );
+
+    test('setRegion sets the active draft region', () async {
+      final service = DraftService();
+      await service.load();
+      expect(service.draft.region, RegionProfile.uk);
+
+      await service.setRegion(RegionProfile.us);
+      expect(service.draft.region, RegionProfile.us);
+
+      await service.flushPendingWrites();
+    });
+
+    test('createDraft defaults a new draft\'s region from '
+        "SettingsService's defaultRegion", () async {
+      when(settings.settings).thenReturn(
+        AppSettings.empty().copyWith(defaultRegion: RegionProfile.us),
+      );
+
+      final service = DraftService();
+      await service.load();
+
+      final newId = await service.createDraft(name: 'US application');
+      expect(service.activeDraftId, newId);
+      expect(service.draft.region, RegionProfile.us);
+    });
 
     test('setHeadlineOverride sets and clears the override', () async {
       final service = DraftService();

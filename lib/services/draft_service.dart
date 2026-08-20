@@ -4,8 +4,10 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:stacked/stacked.dart';
@@ -28,6 +30,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
 
   final _localStorage = locator<LocalStorageService>();
   final _templateRegistry = locator<TemplateRegistryService>();
+  final _settings = locator<SettingsService>();
   final _uuid = const Uuid();
 
   @override
@@ -68,10 +71,12 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// registered template id rather than a stale literal, so
   /// `TemplateRegistryService.byId`'s unknown-id fallback is never the only
   /// thing standing between this draft and a phantom template.
-  CvDraft _emptyDraft() => CvDraft.empty(
-    id: _uuid.v4(),
-    templateId: _templateRegistry.defaultTemplate.id,
-  );
+  CvDraft _emptyDraft({RegionProfile region = RegionProfile.uk}) =>
+      CvDraft.empty(
+        id: _uuid.v4(),
+        templateId: _templateRegistry.defaultTemplate.id,
+        region: region,
+      );
 
   /// Ids of drafts that have never had a manual selection made — i.e. a
   /// draft the user just created (or the very first draft a first-time
@@ -183,7 +188,8 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   }
 
   Future<void> _seedFirstDraft() async {
-    final first = _emptyDraft();
+    await _settings.ready();
+    final first = _emptyDraft(region: _settings.settings.defaultRegion);
     _drafts.value = [first];
     _activeDraftId.value = first.id;
     _freshDraftIds.add(first.id);
@@ -217,11 +223,13 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     String? templateId,
   }) async {
     await ready();
+    await _settings.ready();
     final id = _uuid.v4();
     final created = CvDraft.empty(
       id: id,
       name: name,
       templateId: templateId ?? draft.templateId,
+      region: _settings.settings.defaultRegion,
     ).copyWith(notes: notes);
     _drafts.value = _sortedByRecency([..._drafts.value, created]);
     _activeDraftId.value = id;
@@ -344,6 +352,11 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   Future<void> setTemplate(String templateId) async {
     await ready();
     _setDraft((d) => d.copyWith(templateId: templateId));
+  }
+
+  Future<void> setRegion(RegionProfile region) async {
+    await ready();
+    _setDraft((d) => d.copyWith(region: region));
   }
 
   /// Populates a never-before-persisted draft with everything the caller

@@ -1,4 +1,5 @@
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -32,6 +33,21 @@ class StudioConfigPanel extends StatelessWidget {
           ),
           const VGap.medium(),
         ],
+        const StudioPanelHeading('Document'),
+        const VGap.tiny(),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final region in RegionProfile.values)
+              ChoiceChip(
+                label: Text(region.preset.displayName),
+                selected: viewModel.region == region,
+                onSelected: (_) => viewModel.setRegion(region),
+              ),
+          ],
+        ),
+        const VGap.medium(),
         const StudioPanelHeading('Sections'),
         const VGap.tiny(),
         for (final type in CvSectionType.values)

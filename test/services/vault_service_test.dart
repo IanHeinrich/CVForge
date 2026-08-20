@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -236,6 +237,9 @@ void main() {
       locator.registerLazySingleton<TemplateRegistryService>(
         TemplateRegistryService.new,
       );
+      when(
+        getAndRegisterSettingsService().settings,
+      ).thenReturn(AppSettings.empty());
       final draftService = DraftService();
       await draftService.load();
       await draftService.setExperienceIncluded(experience.id, included: true);

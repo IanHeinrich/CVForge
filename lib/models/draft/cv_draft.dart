@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cv_forge/models/render/region_profile.dart';
+
 import 'cv_section_type.dart';
 
 part 'cv_draft.freezed.dart';
@@ -25,6 +27,7 @@ abstract class CvDraft with _$CvDraft {
     required String id,
     required String name,
     required String templateId,
+    @Default(RegionProfile.uk) RegionProfile region,
 
     /// Free-text, for the user's own tracking ("tailored for the Acme
     /// Backend role, applied 2026-08-19") — never rendered into the CV
@@ -94,11 +97,13 @@ abstract class CvDraft with _$CvDraft {
     required String id,
     required String templateId,
     String name = 'My CV',
+    RegionProfile region = RegionProfile.uk,
   }) => CvDraft(
     schemaVersion: 1,
     id: id,
     name: name,
     templateId: templateId,
+    region: region,
     updatedAt: DateTime.now(),
   );
 }

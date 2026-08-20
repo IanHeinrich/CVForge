@@ -282,6 +282,8 @@ One PR each. Bumps only where a deploy is worth eyeballing in a real browser —
 
 > **Status (2026-08-20):** the above is stale as of P1.6 merging — kept verbatim rather than rewritten, matching this doc's existing drift-note convention. Actual state: **P1.0 through P2.3.2 are all shipped** (PR #3–#14; see each sub-phase's "✅ shipped" marker and shipped-note above for what actually landed vs. the original spec). One more PR landed with no corresponding sub-phase in this doc — **[PR #15](https://github.com/IanHeinrich/cv-forge/pull/15), "Code review cleanup"**: dead code, DRY, docs, and correctness fixes found in a review pass, not tied to a feature. Repo version is still `1.1.0` (P2.1's bump); nothing since has warranted another. **Phase 3 — Theming system & UI polish** (PR #16–#23) is also done; see its own section below, after the Phase 2 sketch. Three items flagged during Phase 2/Phase 3 as deliberately deferred (the chip selection color, `/studio` deep-linking, and export error classification) were picked up together afterward — see [PR #25](https://github.com/IanHeinrich/cv-forge/pull/25) ("Follow-up fixes" below, after Phase 3). **Nothing spec'd in this doc is unbuilt as of PR #25.** The next work is **Phase 4 — Portability, presets, templates, and the Copilot**, specified after "Follow-up fixes" below: the four features Phase 1's Context listed as "designed for but not built". It is a plan only — no sub-phase of it has started.
 
+> **Status (2026-08-20, later the same day):** Phase 4 is no longer just a plan. **4.1 (Settings surface) and 4.2 (JSON export/import) shipped together** as [PR #27](https://github.com/IanHeinrich/cv-forge/pull/27) — see each sub-phase's "✅ shipped" marker and the "Actually shipped" note after 4.2 for what landed vs. spec. Repo version is now `1.2.0`. Remaining Phase 4 work, in decision 1's locked order: **4.3 (regional presets) next**, then 4.4/4.5 (Copilot plumbing + the tailoring pass), then 4.6 (second template). None of 4.3–4.6 has started.
+
 ---
 
 ## Sub-phase detail
@@ -726,7 +728,7 @@ The Phase-1 "Phase 2 corners avoided" table claimed most of this was nearly free
 
 One PR each, same as every phase before it. 4.5 takes the major bump: it's the first time this app talks to a network at all, and the README's privacy stance changes with it.
 
-### 4.1 — Settings surface + `SettingsService`
+### 4.1 — Settings surface + `SettingsService` ✅ shipped
 
 ```bash
 stacked create service settings
@@ -745,7 +747,7 @@ Ships with the region default (4.3's dependency) and the export/import buttons (
 
 **This PR regenerates every golden, and that is not optional.** All three golden tests (`vault_view_empty`, `vault_view_populated`, `drafts_list_view_empty`) pump their View directly, and every View wraps itself in `AppChrome` — so a third nav rail destination changes all three baselines. Dispatch `update-goldens.yml` on the Linux runner and commit the PNGs *in this PR*, not after. This repo has already shipped an icon change twice without doing it (P2.3.1, then P2.3.2 compounding on top), and both times the note ended with "not done as part of this pass".
 
-### 4.2 — JSON export / import → **bump 1.2.0**
+### 4.2 — JSON export / import → **bump 1.2.0** ✅ shipped
 
 **The bundle.** One file, one envelope, everything in it:
 
@@ -780,6 +782,15 @@ Filename `cvforge_backup_<yyyy-mm-dd>.json`, through the existing `FileDownloadS
 **Also worth exporting: a single draft.** A per-CV "Export as JSON" on the Drafts list, producing a bundle with `vault: null` and one draft, importable as "add this CV to my existing Vault" — the one *non*-destructive import, and the only merge-shaped operation in the phase (it appends a draft with a fresh id; it never reconciles Vault ids). Ships in this PR if it fits, otherwise a follow-up — it's genuinely optional, the full bundle is the feature.
 
 **Tests:** round-trip the backup service through mocked storage — export a known state, import the bytes back, assert every draft, override map, and the active-draft pointer survive. Explicit cases for: a truncated/invalid JSON file, a future `bundleVersion`, and a bundle whose `vault` parses but whose third draft doesn't (must write nothing at all). No "the key isn't in the export" test is needed, because there is no code path that could put it there — which is the point of leaving settings out entirely.
+
+> **Actually shipped (2026-08-20, [PR #27](https://github.com/IanHeinrich/cv-forge/pull/27)):** 4.1 and 4.2 landed together in one PR, per 4.1's own "doesn't merge alone" note — decision 1's locked order picked backup over region as the pairing. A few specifics the spec above left open:
+> - `AppSettings` shipped with the full `defaultRegion`/`copilotProviderId`/`copilotModelId`/`rememberApiKey` field set as planned, but `SettingsService` itself grew **zero mutators** — not even for `defaultRegion` — since nothing in this PR has a real call site for one yet; only `load()` and the `settings` getter exist. Same "no production API that only tests call" reasoning the plan already applies to `setTemplate` elsewhere.
+> - The bundle's `appVersion` field is a hardcoded `const` inside `BackupService`, not read from `pubspec.yaml` via `package_info_plus` — the field is provenance-only and never branched on, so a new dependency to keep one string in sync felt disproportionate. Real cost: it needs a manual bump alongside every `pubspec.yaml` version bump, or it drifts. Flagging in case that tradeoff should be revisited once a second consumer of "the app's own version string" shows up.
+> - Import's step 6 ("force `VaultService`/`DraftService` to reload") became two new methods, `VaultService.replaceAll`/`DraftService.replaceAll`, rather than a literal storage-reload — they write through and update in-memory state directly (the write already happened; there's nothing a reload would learn that isn't already known). Both flush (`persistNow`) any write still sitting in the 300ms debounce timer *before* overwriting — a correctness detail the original spec didn't call out: without it, a normal edit made just before import can fire after import and silently clobber the restored data. `DraftService.replaceAll` also deletes the storage entry for every draft that fell out of the imported set, so replace-the-world (decision 3) holds at the storage layer, not just the in-memory index.
+> - The confirm dialog reused `ConfirmDeleteDialog`/`DialogType.confirmDelete` as-is — no new dialog was built for step 5.
+> - `AppChrome`'s `NavigationRail.selectedIndex` had to become nullable (`null` when Settings is the active section) since Settings sits in `trailing`, outside the indexed `destinations` list the spec didn't fully resolve this mechanism for.
+> - **Not shipped:** the optional per-draft "Export as single CV" — still a legitimate follow-up, per the spec's own "otherwise a follow-up" allowance.
+> - All 5 golden baselines (4 existing views + the new `settings_view_default`) regenerated via `update-goldens.yml` on `ubuntu-latest` and committed in the same PR, per the "not optional" instruction above.
 
 ### 4.3 — Regional presets → **bump 1.3.0**
 
