@@ -74,7 +74,9 @@ class BulletListEditor extends StatelessWidget {
             final bullet = bullets[index];
             return Padding(
               key: ValueKey(bullet.id),
-              padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
+              padding: EdgeInsets.only(
+                bottom: context.appSpacing.paddingDefault,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

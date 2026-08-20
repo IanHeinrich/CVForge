@@ -108,7 +108,6 @@ class AppSummaryCard extends StatelessWidget {
                   onPressed: onDelete,
                   tooltip: 'Delete',
                 ),
-              const Icon(RemixIcons.arrow_right_s_line, color: kcLightGrey),
             ],
           ),
         ),
