@@ -16,26 +16,11 @@ import 'tokens/app_typography.dart';
 /// chrome (highlighted nav item, "included in draft" toggle, etc.) — it
 /// must never appear inside the CV output itself.
 ThemeData buildAppTheme() {
-  // `fromSeed` fills every ColorScheme slot with a tastefully-derived
-  // value; `copyWith` then pins only the slots this app already has a
-  // named, in-use color for (`kc*` in app_colors.dart). The rest — the
-  // slots nobody has actually designed a value for yet — stay
-  // seed-derived rather than guessed at here.
-  final colorScheme =
-      ColorScheme.fromSeed(
-        seedColor: kcPrimaryColor,
-        brightness: Brightness.dark,
-      ).copyWith(
-        primary: kcPrimaryColor,
-        onPrimary: kcWhite,
-        primaryContainer: kcPrimaryColorDark,
-        onPrimaryContainer: kcWhite,
-        surface: kcDarkGreyColor,
-        onSurface: kcWhite,
-        outline: kcMediumGrey,
-        error: kcErrorColor,
-        onError: kcWhite,
-      );
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: kcPrimaryColor,
+    brightness: Brightness.dark,
+    surface: kcDarkGreyColor,
+  );
 
   return ThemeData(
     useMaterial3: true,
