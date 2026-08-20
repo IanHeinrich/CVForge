@@ -22,6 +22,14 @@ ThemeData buildAppTheme() {
     surface: kcDarkGreyColor,
   );
 
+  // Deliberately squares off Material 3's default pill-shaped buttons to
+  // `appRadius.medium` — the same radius already used by cards, dialogs,
+  // and panels — so buttons stop being the one pill-shaped element in an
+  // otherwise squared-off UI. Colors are untouched; only shape changes.
+  final buttonShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(appRadius.medium),
+  );
+
   return ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
@@ -30,5 +38,25 @@ ThemeData buildAppTheme() {
     canvasColor: kcBackgroundColor,
     dividerColor: kcMediumGrey,
     extensions: const [appSpacing, appRadius, appTypography, appMotion],
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(shape: buttonShape),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(shape: buttonShape),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(shape: buttonShape),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: kcDarkGreyColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(appRadius.large),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(appRadius.medium),
+      ),
+    ),
   );
 }
