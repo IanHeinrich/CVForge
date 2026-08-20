@@ -261,16 +261,17 @@ void main() {
     });
 
     test('a short run whose width implies characters the extracted string '
-        "does not have (a dropped glyph that left no visible trace) is an "
-        'info-level finding — the known limitation is this only catches an '
-        'isolated short run, not a dropped glyph merged into a longer '
-        'sentence run, which the spike’s real capture happened to '
-        'produce; see AtsAnalyzerService._checkGarbledText', () {
+        "does not have (a dropped glyph that left one surviving visible "
+        'character) is an info-level finding — the known limitation is '
+        'this only catches an isolated short run, not a dropped glyph '
+        'merged into a longer sentence run, which the spike’s real '
+        'capture happened to produce; see '
+        'AtsAnalyzerService._checkGarbledText', () {
       final result = service.analyze(
-        // A run with an 18pt advance but only a space left over — the
-        // shape a dropped leading glyph leaves.
+        // A run with an 18pt advance but only one surviving character —
+        // the shape a dropped glyph next to a surviving one leaves.
         _doc(
-          nodes: [_node(str: ' ', x: 56.69, y: 700, width: 18, fontSize: 10)],
+          nodes: [_node(str: 'x', x: 56.69, y: 700, width: 18, fontSize: 10)],
         ),
       );
 
@@ -283,6 +284,29 @@ void main() {
                 f.severity == AtsFindingSeverity.info,
           ),
         ),
+      );
+    });
+
+    test('a wide PURE-whitespace run is never flagged as a phantom glyph — '
+        'regression test for a real false positive found against '
+        'cv-forge’s own exported PDFs: justified/right-aligned text pads a '
+        'line to width with exactly one wide single-space run (confirmed '
+        'via a real extraction: str " " at width 138-329pt, fontSize '
+        '10.5pt), which has no missing characters to have dropped in the '
+        'first place', () {
+      final result = service.analyze(
+        _doc(
+          nodes: [
+            _node(str: ' ', x: 56.69, y: 700, width: 212.45, fontSize: 10.5),
+          ],
+        ),
+      );
+
+      expect(
+        result.findings.where(
+          (f) => f.category == AtsFindingCategory.garbledText,
+        ),
+        isEmpty,
       );
     });
 
