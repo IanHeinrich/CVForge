@@ -53,8 +53,7 @@ app.*.map.json
 # SDK install location, not portable across devs or OSes.
 .mcp.json
 
-# Working implementation plan — internal planning notes, not for the public repo
-/PLAN.md
+# Working handover notes — internal, not for the public repo
 /HANDOVER.md
 
 # golden_toolkit failure-diff output (local debugging only)
