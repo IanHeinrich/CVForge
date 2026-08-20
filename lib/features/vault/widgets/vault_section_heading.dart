@@ -1,6 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
-import 'package:cv_forge/ui/common/app_text_styles.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -25,13 +25,13 @@ class VaultSectionHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: kdPaddingTight),
+      padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
       child: Row(
         children: [
           Expanded(
             child: Text(
               title,
-              style: ktsTitleSmall,
+              style: context.appTypography.titleSmall,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

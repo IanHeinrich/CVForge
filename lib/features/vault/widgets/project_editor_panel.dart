@@ -41,7 +41,7 @@ class ProjectEditorPanel extends StatelessWidget {
           initialValue: project.title,
           onChanged: (v) => onChanged(project.copyWith(title: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Link (optional)',
           hint: 'e.g. github.com/you/project',
@@ -49,7 +49,7 @@ class ProjectEditorPanel extends StatelessWidget {
           onChanged: (v) =>
               onChanged(project.copyWith(link: v.isEmpty ? null : v)),
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         BulletListEditor(
           bullets: project.bullets,
           skillCategories: skillCategories,

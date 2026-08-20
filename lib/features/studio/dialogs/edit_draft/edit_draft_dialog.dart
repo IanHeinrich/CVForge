@@ -45,7 +45,7 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
         );
       },
       children: [
-        verticalSpaceMedium,
+        const VGap.medium(),
         TextField(
           controller: viewModel.nameController,
           autofocus: true,
@@ -57,7 +57,7 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
             errorText: viewModel.showNameError ? 'Give this CV a name' : null,
           ),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         TextField(
           controller: viewModel.notesController,
           minLines: 2,

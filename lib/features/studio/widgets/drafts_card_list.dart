@@ -1,6 +1,6 @@
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
@@ -27,10 +27,10 @@ class DraftsCardList extends StatelessWidget {
           _DraftsEmptyState(onNewCv: viewModel.createDraft)
         else
           ListView(
-            padding: const EdgeInsets.fromLTRB(
-              kdPaddingPage,
-              kdPaddingPage,
-              kdPaddingPage,
+            padding: EdgeInsets.fromLTRB(
+              context.appSpacing.paddingPage,
+              context.appSpacing.paddingPage,
+              context.appSpacing.paddingPage,
               96,
             ),
             children: [
@@ -39,7 +39,7 @@ class DraftsCardList extends StatelessWidget {
                   message: "Your last change couldn't be saved.",
                   onRetry: viewModel.retryPersist,
                 ),
-                verticalSpaceMedium,
+                const VGap.medium(),
               ],
               for (final draft in viewModel.drafts)
                 _DraftCard(
@@ -53,8 +53,8 @@ class DraftsCardList extends StatelessWidget {
             ],
           ),
         Positioned(
-          right: kdPaddingPage,
-          bottom: kdPaddingPage,
+          right: context.appSpacing.paddingPage,
+          bottom: context.appSpacing.paddingPage,
           child: FloatingActionButton.extended(
             onPressed: viewModel.createDraft,
             icon: const Icon(RemixIcons.add_line),

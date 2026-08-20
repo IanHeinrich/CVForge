@@ -1,6 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
-import 'package:cv_forge/ui/common/app_text_styles.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -17,9 +17,9 @@ class StudioDraftHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: kdPaddingPage,
-        vertical: 8,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.appSpacing.paddingPage,
+        vertical: context.appSpacing.paddingTight,
       ),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: kcMediumGrey)),
@@ -35,7 +35,7 @@ class StudioDraftHeader extends StatelessWidget {
             child: Text(
               viewModel.draftName,
               overflow: TextOverflow.ellipsis,
-              style: ktsTitleSmall,
+              style: context.appTypography.titleSmall,
             ),
           ),
           IconButton(

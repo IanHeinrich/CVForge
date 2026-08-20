@@ -28,7 +28,7 @@ class UnknownViewContent extends ViewModelWidget<UnknownViewModel> {
                 letterSpacing: 20.0,
               ),
             ),
-            verticalSpaceSmall,
+            VGap.small(),
             Text(
               'PAGE NOT FOUND',
               style: TextStyle(

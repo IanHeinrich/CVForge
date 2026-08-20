@@ -1,6 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
-import 'package:cv_forge/ui/common/app_text_styles.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -34,21 +34,27 @@ class AppEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.appSpacing.paddingPage,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 48, color: kcLightGrey),
-            verticalSpaceMedium,
-            Text(title, textAlign: TextAlign.center, style: ktsTitleLarge),
-            verticalSpaceSmall,
+            const VGap.medium(),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: context.appTypography.titleLarge,
+            ),
+            const VGap.small(),
             Text(
               message,
               textAlign: TextAlign.center,
               style: const TextStyle(color: kcLightGrey),
             ),
             if (actions.isNotEmpty) ...[
-              verticalSpaceMedium,
+              const VGap.medium(),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,

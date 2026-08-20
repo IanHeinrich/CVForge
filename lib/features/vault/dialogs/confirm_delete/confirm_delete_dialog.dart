@@ -36,7 +36,7 @@ class ConfirmDeleteDialog extends StackedView<ConfirmDeleteDialogModel> {
       onConfirm: () => completer(DialogResponse(confirmed: true)),
       children: [
         if (request.description != null) ...[
-          verticalSpaceSmall,
+          const VGap.small(),
           Text(
             request.description!,
             style: const TextStyle(fontSize: 14, color: kcLightGrey),

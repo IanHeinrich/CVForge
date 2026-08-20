@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:theme_tailor_annotation/theme_tailor_annotation.dart';
 
-import '../app_text_styles.dart';
+import '../app_colors.dart';
 
 part 'app_typography.tailor.dart';
 
-/// The named text-style roles from `app_text_styles.dart`, re-exposed as a
-/// swappable [ThemeExtension]. The `ktsX` constants stay in place — and
-/// stay the values this reads — for the reason documented there (Material
-/// 3's `TextTheme` merge shifts glyph metrics enough to break pixel-exact
-/// golden tests); this only changes *how* a widget reaches them, from a
-/// top-level const to `context.appTypography`, so they can vary by theme
-/// later without that risk.
+/// Named text-style roles for the chrome — Vault/Studio's own UI, not the
+/// CV document (that's styled entirely by `CvDesignTokens`; see
+/// `app_theme.dart`'s doc comment). A [ThemeExtension], not routed through
+/// `ThemeData.textTheme`: Material 3 merges a supplied `TextTheme` into
+/// its own `Typography` defaults, which introduces non-null
+/// `letterSpacing`/`height` a bare `TextStyle` doesn't have and measurably
+/// shifts glyph metrics — confirmed against this project's pixel-exact
+/// golden tests. A `ThemeExtension` field is what stays byte-identical to
+/// what widgets used to declare inline, while still being reachable via
+/// `context.appTypography` instead of a top-level const.
+///
+/// A widget applies one of these directly (`style:
+/// context.appTypography.titleLarge`) rather than inventing its own
+/// fontSize/fontWeight pair, so the same conceptual heading role can't end
+/// up at three different sizes across three widgets.
 @TailorMixin()
 class AppTypography extends ThemeExtension<AppTypography>
     with _$AppTypographyTailorMixin {
@@ -33,8 +41,26 @@ class AppTypography extends ThemeExtension<AppTypography>
 }
 
 const appTypography = AppTypography(
-  titleLarge: ktsTitleLarge,
-  titleMedium: ktsTitleMedium,
-  titleSmall: ktsTitleSmall,
-  bodySmall: ktsBodySmall,
+  // A page-level empty/error state's heading — "Your Vault is empty",
+  // "CVForge couldn't load your data".
+  titleLarge: TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: kcWhite,
+  ),
+  // A dialog or side-panel's own title.
+  titleMedium: TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: kcWhite,
+  ),
+  // A heading above one group of cards/items — "Work history", "Sections".
+  titleSmall: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    color: kcWhite,
+  ),
+  // A collapsed card's secondary line, or italic free-text notes beneath
+  // it — see `AppSummaryCard`.
+  bodySmall: TextStyle(fontSize: 13, color: kcLightGrey),
 );

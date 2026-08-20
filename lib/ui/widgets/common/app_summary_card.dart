@@ -1,7 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
-import 'package:cv_forge/ui/common/app_text_styles.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -42,7 +42,7 @@ class AppSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: kdPaddingTight),
+      margin: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
       color: selected ? kcPrimaryColorDark : kcDarkGreyColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(context.appRadius.medium),
@@ -54,13 +54,13 @@ class AppSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.appRadius.medium),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kdPaddingDefault,
+          padding: EdgeInsets.symmetric(
+            horizontal: context.appSpacing.paddingDefault,
             vertical: 14,
           ),
           child: Row(
             children: [
-              if (leading != null) ...[leading!, horizontalSpaceSmall],
+              if (leading != null) ...[leading!, const HGap.small()],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,19 +75,19 @@ class AppSummaryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (subtitle != null && subtitle!.isNotEmpty) ...[
-                      verticalSpaceTiny,
+                      const VGap.tiny(),
                       Text(
                         subtitle!,
-                        style: ktsBodySmall,
+                        style: context.appTypography.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                     if (notes != null && notes!.isNotEmpty) ...[
-                      verticalSpaceTiny,
+                      const VGap.tiny(),
                       Text(
                         notes!,
-                        style: ktsBodySmall.copyWith(
+                        style: context.appTypography.bodySmall.copyWith(
                           fontStyle: FontStyle.italic,
                         ),
                         maxLines: 1,
