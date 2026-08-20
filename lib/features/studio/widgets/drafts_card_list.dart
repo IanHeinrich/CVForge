@@ -2,12 +2,13 @@ import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
-import '../views/drafts_list/drafts_list_viewmodel.dart';
+import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_viewmodel.dart';
 
 /// The Drafts landing page's content: every saved CV as a card, plus a
 /// "New CV" action. Kept as one widget (no empty-state/populated split
@@ -128,34 +129,13 @@ class _DraftsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kdPaddingPage),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(RemixIcons.file_text_line, size: 48, color: kcLightGrey),
-            verticalSpaceMedium,
-            const Text(
-              'No CVs yet',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: kcWhite,
-              ),
-            ),
-            verticalSpaceSmall,
-            const Text(
-              'Create a CV to start tailoring your Vault for a specific '
-              'application.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: kcLightGrey),
-            ),
-            verticalSpaceMedium,
-            FilledButton(onPressed: onNewCv, child: const Text('New CV')),
-          ],
-        ),
-      ),
+    return AppEmptyState(
+      icon: RemixIcons.file_text_line,
+      title: 'No CVs yet',
+      message:
+          'Create a CV to start tailoring your Vault for a specific '
+          'application.',
+      actions: [FilledButton(onPressed: onNewCv, child: const Text('New CV'))],
     );
   }
 }

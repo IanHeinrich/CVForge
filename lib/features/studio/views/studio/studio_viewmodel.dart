@@ -167,13 +167,21 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   /// The recovery action for [StudioPreviewState.nothingSelected]: unhides
-  /// every section and selects every Vault item, the same starting point a
-  /// first-time user gets from `StartupViewModel._selectAllFromVault`. Runs
-  /// sequentially rather than via `Future.wait` so each step reads the
-  /// selection state left by the one before it, not a stale snapshot.
+  /// every section and selects every Vault item — including every bullet
+  /// of every included experience/project, not just the top-level entries
+  /// — the same starting point a fresh draft gets from
+  /// [_selectAllFromVault]. Runs sequentially rather than via
+  /// `Future.wait` so each step reads the selection state left by the one
+  /// before it, not a stale snapshot.
   Future<void> includeEverything() async {
     await addAllExperiences();
+    for (final experience in experiences) {
+      await addAllExperienceBullets(experience);
+    }
     await addAllProjects();
+    for (final project in projects) {
+      await addAllProjectBullets(project);
+    }
     await addAllSkills();
     await addAllEducation();
     await addAllHobbies();
@@ -271,25 +279,28 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   // --- experiences ---
 
+  late final _experienceSelection = _Selection<Experience>(
+    items: () => _vault.experiences,
+    idOf: (e) => e.id,
+    selectedIds: () => _draft.experienceIds,
+    setIncluded: (e, {required included}) =>
+        _draftService.setExperienceIncluded(
+          e.id,
+          included: included,
+          bulletIds: e.bullets.map((b) => b.id).toList(),
+        ),
+  );
+
   List<Experience> get experiences => _vault.experiences;
 
-  bool isExperienceIncluded(String id) => _draft.experienceIds.contains(id);
+  bool isExperienceIncluded(String id) => _experienceSelection.isIncluded(id);
 
   Future<void> toggleExperience(Experience experience) =>
-      _draftService.setExperienceIncluded(
-        experience.id,
-        included: !isExperienceIncluded(experience.id),
-        bulletIds: experience.bullets.map((b) => b.id).toList(),
-      );
+      _experienceSelection.toggle(experience);
 
-  List<Experience> get unselectedExperiences =>
-      experiences.where((e) => !isExperienceIncluded(e.id)).toList();
+  List<Experience> get unselectedExperiences => _experienceSelection.unselected;
 
-  Future<void> addAllExperiences() async {
-    for (final experience in unselectedExperiences) {
-      await toggleExperience(experience);
-    }
-  }
+  Future<void> addAllExperiences() => _experienceSelection.addAll();
 
   bool isExperienceBulletIncluded(String experienceId, String bulletId) =>
       (_draft.bulletIds[experienceId] ?? const []).contains(bulletId);
@@ -310,8 +321,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   /// `await` each [toggleExperienceBullet] before starting the next —
   /// each call reads `_draft.bulletIds` fresh to compute its own updated
   /// list, so firing them all without awaiting would have every call read
-  /// the same pre-toggle draft and only the last write survive (the "just
-  /// selects one extra at a time" bug this fixed).
+  /// the same pre-toggle draft and only the last write survive.
   Future<void> addAllExperienceBullets(Experience experience) async {
     for (final bullet in experience.bullets) {
       if (!isExperienceBulletIncluded(experience.id, bullet.id)) {
@@ -322,25 +332,27 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   // --- projects ---
 
+  late final _projectSelection = _Selection<Project>(
+    items: () => _vault.projects,
+    idOf: (p) => p.id,
+    selectedIds: () => _draft.projectIds,
+    setIncluded: (p, {required included}) => _draftService.setProjectIncluded(
+      p.id,
+      included: included,
+      bulletIds: p.bullets.map((b) => b.id).toList(),
+    ),
+  );
+
   List<Project> get projects => _vault.projects;
 
-  bool isProjectIncluded(String id) => _draft.projectIds.contains(id);
+  bool isProjectIncluded(String id) => _projectSelection.isIncluded(id);
 
   Future<void> toggleProject(Project project) =>
-      _draftService.setProjectIncluded(
-        project.id,
-        included: !isProjectIncluded(project.id),
-        bulletIds: project.bullets.map((b) => b.id).toList(),
-      );
+      _projectSelection.toggle(project);
 
-  List<Project> get unselectedProjects =>
-      projects.where((p) => !isProjectIncluded(p.id)).toList();
+  List<Project> get unselectedProjects => _projectSelection.unselected;
 
-  Future<void> addAllProjects() async {
-    for (final project in unselectedProjects) {
-      await toggleProject(project);
-    }
-  }
+  Future<void> addAllProjects() => _projectSelection.addAll();
 
   bool isProjectBulletIncluded(String projectId, String bulletId) =>
       (_draft.projectBulletIds[projectId] ?? const []).contains(bulletId);
@@ -385,45 +397,48 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   // --- skills ---
 
+  late final _skillSelection = _Selection<Skill>(
+    items: () => _allSkills,
+    idOf: (s) => s.id,
+    selectedIds: () => _draft.skillIds,
+    setIncluded: (s, {required included}) =>
+        _draftService.setSkillIncluded(s.id, included: included),
+  );
+
   List<SkillCategory> get skillCategories => _vault.skillCategories;
 
   List<Skill> get _allSkills => [
     for (final category in skillCategories) ...category.skills,
   ];
 
-  bool isSkillIncluded(String id) => _draft.skillIds.contains(id);
+  bool isSkillIncluded(String id) => _skillSelection.isIncluded(id);
 
-  Future<void> toggleSkill(Skill skill) => _draftService.setSkillIncluded(
-    skill.id,
-    included: !isSkillIncluded(skill.id),
-  );
+  Future<void> toggleSkill(Skill skill) => _skillSelection.toggle(skill);
 
-  List<Skill> get unselectedSkills =>
-      _allSkills.where((s) => !isSkillIncluded(s.id)).toList();
+  List<Skill> get unselectedSkills => _skillSelection.unselected;
 
-  Future<void> addAllSkills() async {
-    for (final skill in unselectedSkills) {
-      await toggleSkill(skill);
-    }
-  }
+  Future<void> addAllSkills() => _skillSelection.addAll();
 
   // --- education ---
 
+  late final _educationSelection = _Selection<Education>(
+    items: () => _vault.education,
+    idOf: (e) => e.id,
+    selectedIds: () => _draft.educationIds,
+    setIncluded: (e, {required included}) =>
+        _draftService.setEducationIncluded(e.id, included: included),
+  );
+
   List<Education> get education => _vault.education;
 
-  bool isEducationIncluded(String id) => _draft.educationIds.contains(id);
+  bool isEducationIncluded(String id) => _educationSelection.isIncluded(id);
 
-  Future<void> toggleEducation(Education entry) => _draftService
-      .setEducationIncluded(entry.id, included: !isEducationIncluded(entry.id));
+  Future<void> toggleEducation(Education entry) =>
+      _educationSelection.toggle(entry);
 
-  List<Education> get unselectedEducation =>
-      education.where((e) => !isEducationIncluded(e.id)).toList();
+  List<Education> get unselectedEducation => _educationSelection.unselected;
 
-  Future<void> addAllEducation() async {
-    for (final entry in unselectedEducation) {
-      await toggleEducation(entry);
-    }
-  }
+  Future<void> addAllEducation() => _educationSelection.addAll();
 
   /// Same shape as [bulletText] — only [Education.details] is prose, so
   /// that's the only field an override map exists for.
@@ -444,23 +459,23 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   // --- hobbies ---
 
-  List<HobbyItem> get hobbies => _vault.hobbies;
-
-  bool isHobbyIncluded(String id) => _draft.hobbyIds.contains(id);
-
-  Future<void> toggleHobby(HobbyItem hobby) => _draftService.setHobbyIncluded(
-    hobby.id,
-    included: !isHobbyIncluded(hobby.id),
+  late final _hobbySelection = _Selection<HobbyItem>(
+    items: () => _vault.hobbies,
+    idOf: (h) => h.id,
+    selectedIds: () => _draft.hobbyIds,
+    setIncluded: (h, {required included}) =>
+        _draftService.setHobbyIncluded(h.id, included: included),
   );
 
-  List<HobbyItem> get unselectedHobbies =>
-      hobbies.where((h) => !isHobbyIncluded(h.id)).toList();
+  List<HobbyItem> get hobbies => _vault.hobbies;
 
-  Future<void> addAllHobbies() async {
-    for (final hobby in unselectedHobbies) {
-      await toggleHobby(hobby);
-    }
-  }
+  bool isHobbyIncluded(String id) => _hobbySelection.isIncluded(id);
+
+  Future<void> toggleHobby(HobbyItem hobby) => _hobbySelection.toggle(hobby);
+
+  List<HobbyItem> get unselectedHobbies => _hobbySelection.unselected;
+
+  Future<void> addAllHobbies() => _hobbySelection.addAll();
 
   // --- export ---
 
@@ -481,4 +496,48 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       format: pageFormat,
     ),
   );
+}
+
+/// Backs every `isXIncluded`/`toggleX`/`unselectedX`/`addAllX` quartet
+/// above — experiences, projects, skills, education, and hobbies are all
+/// "a flat list of ids, toggled by id against [DraftService]" with only
+/// the Vault collection and the setter differing, so one generic class
+/// replaces five near-identical copies.
+///
+/// [items] and [selectedIds] are closures re-evaluated on every call, not
+/// values captured once — the ViewModel's own `_vault`/`_draft` getters
+/// change out from under a `late final _xSelection` field across its
+/// lifetime, and this is what lets one `_Selection` instance stay correct
+/// for that instance's whole lifetime rather than only reflecting
+/// whatever was true when it was first constructed.
+class _Selection<T> {
+  _Selection({
+    required this.items,
+    required this.idOf,
+    required this.selectedIds,
+    required this.setIncluded,
+  });
+
+  final List<T> Function() items;
+  final String Function(T item) idOf;
+  final List<String> Function() selectedIds;
+  final Future<void> Function(T item, {required bool included}) setIncluded;
+
+  bool isIncluded(String id) => selectedIds().contains(id);
+
+  Future<void> toggle(T item) =>
+      setIncluded(item, included: !isIncluded(idOf(item)));
+
+  List<T> get unselected =>
+      items().where((item) => !isIncluded(idOf(item))).toList();
+
+  /// Includes every currently-unselected item, one at a time — each
+  /// [toggle] must be awaited before the next starts, since [isIncluded]
+  /// reads [selectedIds] fresh on every call and a synchronous loop would
+  /// have every toggle see the same pre-toggle selection.
+  Future<void> addAll() async {
+    for (final item in unselected) {
+      await toggle(item);
+    }
+  }
 }

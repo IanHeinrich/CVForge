@@ -4,6 +4,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
+import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -47,6 +48,12 @@ void main() {
     setUp(() {
       storage = getAndRegisterLocalStorageService();
       memory = _wireMemoryStorage(storage);
+      // DraftService resolves this for real (not mocked) to stamp a
+      // genuinely registered template id on every seeded/migrated draft —
+      // see CvDraft.empty's doc comment.
+      locator.registerLazySingleton<TemplateRegistryService>(
+        TemplateRegistryService.new,
+      );
     });
     tearDown(() => locator.reset());
 
@@ -110,6 +117,29 @@ void main() {
 
       await service.openDraft('does-not-exist');
       expect(service.activeDraftId, firstId);
+    });
+
+    test('flushPendingWrites persists the draft a debounced edit was made to, '
+        'even if a different draft has since become active — switching away '
+        'from a draft mid-debounce must not drop its edit', () async {
+      final service = DraftService();
+      await service.load();
+      final firstId = service.draft.id;
+
+      // Debounced — not yet persisted (no flush, no 300ms wait).
+      await service.setHeadlineOverride('Tailored for this application');
+
+      // Switch away before the debounce timer fires. The pending write
+      // is still for the first draft, not whatever's active now.
+      final secondId = await service.createDraft(name: 'Second CV');
+      expect(service.activeDraftId, secondId);
+
+      await service.flushPendingWrites();
+
+      final reloaded = DraftService();
+      await reloaded.load();
+      final persistedFirst = reloaded.drafts.firstWhere((d) => d.id == firstId);
+      expect(persistedFirst.headlineOverride, 'Tailored for this application');
     });
 
     test(

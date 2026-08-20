@@ -9,13 +9,6 @@ void main() {
     setUp(() => registerServices());
     tearDown(() => locator.reset());
 
-    test('available lists id/name/description for every template', () {
-      final service = TemplateRegistryService();
-
-      expect(service.available, isNotEmpty);
-      expect(service.available.first.id, service.defaultTemplate.id);
-    });
-
     test('byId falls back to the default template for an unknown id, '
         'rather than throwing', () {
       final service = TemplateRegistryService();

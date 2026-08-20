@@ -4,7 +4,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:pdf/pdf.dart';
 
-import '../models/render/resolved_cv.dart';
+import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'file_download_service.dart';
 import 'font_service.dart';
 import 'template_registry_service.dart';

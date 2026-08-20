@@ -15,9 +15,8 @@ extension CvTypeTokenPdf on CvTypeToken {
         : pw.FontWeight.normal,
     fontStyle: italic ? pw.FontStyle.italic : pw.FontStyle.normal,
     // pw.TextStyle.lineSpacing is already EXTRA points between lines —
-    // the same unit this token stores it in, no conversion needed
-    // (contrast the Flutter adapter, which must convert to a
-    // multiplier).
+    // the same unit lineSpacingPt is stored in, so no conversion is
+    // needed here.
     lineSpacing: lineSpacingPt,
     letterSpacing: letterSpacingPt,
     color: colorArgb == null ? null : PdfColor.fromInt(colorArgb!),

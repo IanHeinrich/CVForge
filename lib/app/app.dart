@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/bottom_sheets/notice/notice_sheet.dart';
 import 'package:cv_forge/ui/views/startup/startup_view.dart';
 import 'package:cv_forge/ui/views/unknown/unknown_view.dart';
 import 'package:stacked/stacked_annotations.dart';
@@ -44,7 +43,6 @@ import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart
     RedirectRoute(path: '*', redirectTo: '/404'),
   ],
   dependencies: [
-    LazySingleton(classType: BottomSheetService),
     LazySingleton(classType: DialogService),
     LazySingleton(classType: RouterService),
     LazySingleton(classType: LocalStorageService),
@@ -57,7 +55,6 @@ import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart
     // @stacked-service
   ],
   bottomsheets: [
-    StackedBottomsheet(classType: NoticeSheet),
     // @stacked-bottom-sheet
   ],
   dialogs: [

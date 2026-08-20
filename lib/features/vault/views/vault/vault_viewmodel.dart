@@ -29,6 +29,17 @@ enum VaultEditorTarget {
   hobbies,
 }
 
+/// Most of this ViewModel's mutators are one-line forwards straight to
+/// [VaultService] — deliberately, not an oversight: it keeps one stable,
+/// mockable surface the View talks to (so a test only ever stubs
+/// `VaultViewModel`'s own dependencies, never reaches past it to
+/// `VaultService`), and it's the seam where a future mutator that needs
+/// real ViewModel logic (validation, a confirmation dialog, panel-state
+/// bookkeeping — see [deleteExperience]/[openExperienceEditor] for
+/// examples that already do) can grow without moving the View onto a
+/// different object. A future entity type's ViewModel should follow the
+/// same shape: forward the plain mutators, add logic only where the View
+/// genuinely needs it.
 class VaultViewModel extends ReactiveViewModel implements Initialisable {
   final _vaultService = locator<VaultService>();
   final _dialogService = locator<DialogService>();
@@ -48,10 +59,10 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   /// A real `async` wrapper, not `runBusyFuture(_vaultService.load())`
   /// directly — [runBusyFuture]'s argument is evaluated *before*
   /// `runBusyFuture` itself runs, so a call that throws synchronously
-  /// (a mocked service in a test; see `VaultService._ready`'s doc comment
-  /// for why production code shouldn't either, but can't be trusted to
-  /// never regress) would throw straight out of [initialise] and never
-  /// reach `runBusyFuture`'s error handling at all.
+  /// (a mocked service in a test; see `PersistedStoreMixin.ready`'s doc
+  /// comment for why production code shouldn't either, but can't be
+  /// trusted to never regress) would throw straight out of [initialise]
+  /// and never reach `runBusyFuture`'s error handling at all.
   Future<void> _load() async => _vaultService.load();
 
   bool get isLoading => isBusy;

@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
 
-import '../templates/design/cv_font_set.dart';
+import 'package:cv_forge/templates/design/cv_font_set.dart';
 
 /// Loads the Roboto TTFs declared under `assets/fonts/` into [pw.Font]
 /// objects, caching the result so an export never reloads them.

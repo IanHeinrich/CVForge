@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -29,80 +30,45 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
     EditDraftDialogModel viewModel,
     Widget? child,
   ) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      backgroundColor: kcDarkGreyColor,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                request.title ?? 'CV details',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: kcWhite,
-                ),
-              ),
-              verticalSpaceMedium,
-              TextField(
-                controller: viewModel.nameController,
-                autofocus: true,
-                onChanged: viewModel.onNameChanged,
-                style: const TextStyle(color: kcWhite),
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  hintText: 'e.g. "Acme — Backend Engineer"',
-                  errorText: viewModel.showNameError
-                      ? 'Give this CV a name'
-                      : null,
-                ),
-              ),
-              verticalSpaceSmall,
-              TextField(
-                controller: viewModel.notesController,
-                minLines: 2,
-                maxLines: 5,
-                style: const TextStyle(color: kcWhite),
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
-                  hintText: 'What this CV is for, or anything to remember',
-                ),
-              ),
-              verticalSpaceMedium,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => completer(
-                      DialogResponse<EditDraftDialogData>(confirmed: false),
-                    ),
-                    child: Text(request.secondaryButtonTitle ?? 'Cancel'),
-                  ),
-                  horizontalSpaceSmall,
-                  FilledButton(
-                    onPressed: () {
-                      final result = viewModel.submit();
-                      if (result == null) return;
-                      completer(
-                        DialogResponse<EditDraftDialogData>(
-                          confirmed: true,
-                          data: result,
-                        ),
-                      );
-                    },
-                    child: Text(request.mainButtonTitle ?? 'Save'),
-                  ),
-                ],
-              ),
-            ],
+    return AppDialogScaffold(
+      title: request.title ?? 'CV details',
+      maxWidth: 420,
+      cancelLabel: request.secondaryButtonTitle ?? 'Cancel',
+      confirmLabel: request.mainButtonTitle ?? 'Save',
+      onCancel: () =>
+          completer(DialogResponse<EditDraftDialogData>(confirmed: false)),
+      onConfirm: () {
+        final result = viewModel.submit();
+        if (result == null) return;
+        completer(
+          DialogResponse<EditDraftDialogData>(confirmed: true, data: result),
+        );
+      },
+      children: [
+        verticalSpaceMedium,
+        TextField(
+          controller: viewModel.nameController,
+          autofocus: true,
+          onChanged: viewModel.onNameChanged,
+          style: const TextStyle(color: kcWhite),
+          decoration: InputDecoration(
+            labelText: 'Name',
+            hintText: 'e.g. "Acme — Backend Engineer"',
+            errorText: viewModel.showNameError ? 'Give this CV a name' : null,
           ),
         ),
-      ),
+        verticalSpaceSmall,
+        TextField(
+          controller: viewModel.notesController,
+          minLines: 2,
+          maxLines: 5,
+          style: const TextStyle(color: kcWhite),
+          decoration: const InputDecoration(
+            labelText: 'Notes',
+            hintText: 'What this CV is for, or anything to remember',
+          ),
+        ),
+      ],
     );
   }
 

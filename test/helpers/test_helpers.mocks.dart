@@ -4,13 +4,13 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i16;
-import 'dart:typed_data' as _i31;
-import 'dart:ui' as _i20;
+import 'dart:typed_data' as _i30;
+import 'dart:ui' as _i21;
 
 import 'package:cv_forge/models/draft/cv_draft.dart' as _i12;
-import 'package:cv_forge/models/draft/cv_section_type.dart' as _i29;
-import 'package:cv_forge/models/render/resolved_cv.dart' as _i36;
-import 'package:cv_forge/models/vault/contact_basics.dart' as _i25;
+import 'package:cv_forge/models/draft/cv_section_type.dart' as _i28;
+import 'package:cv_forge/models/render/resolved_cv.dart' as _i35;
+import 'package:cv_forge/models/vault/contact_basics.dart' as _i24;
 import 'package:cv_forge/models/vault/cv_bullet.dart' as _i6;
 import 'package:cv_forge/models/vault/cv_vault.dart' as _i3;
 import 'package:cv_forge/models/vault/education.dart' as _i10;
@@ -20,27 +20,25 @@ import 'package:cv_forge/models/vault/profile_link.dart' as _i4;
 import 'package:cv_forge/models/vault/project.dart' as _i7;
 import 'package:cv_forge/models/vault/skill.dart' as _i9;
 import 'package:cv_forge/models/vault/skill_category.dart' as _i8;
-import 'package:cv_forge/models/vault/year_month.dart' as _i26;
-import 'package:cv_forge/services/draft_service.dart' as _i27;
-import 'package:cv_forge/services/file_download_service.dart' as _i30;
-import 'package:cv_forge/services/font_service.dart' as _i34;
-import 'package:cv_forge/services/local_storage_service.dart' as _i23;
-import 'package:cv_forge/services/pdf_export_service.dart' as _i35;
-import 'package:cv_forge/services/template_registry_service.dart' as _i33;
-import 'package:cv_forge/services/vault_service.dart' as _i24;
+import 'package:cv_forge/models/vault/year_month.dart' as _i25;
+import 'package:cv_forge/services/draft_service.dart' as _i26;
+import 'package:cv_forge/services/file_download_service.dart' as _i29;
+import 'package:cv_forge/services/font_service.dart' as _i33;
+import 'package:cv_forge/services/local_storage_service.dart' as _i22;
+import 'package:cv_forge/services/pdf_export_service.dart' as _i34;
+import 'package:cv_forge/services/template_registry_service.dart' as _i32;
+import 'package:cv_forge/services/vault_service.dart' as _i23;
 import 'package:cv_forge/templates/cv_template.dart' as _i13;
 import 'package:cv_forge/templates/design/cv_font_set.dart' as _i14;
-import 'package:file_saver/file_saver.dart' as _i32;
+import 'package:file_saver/file_saver.dart' as _i31;
 import 'package:flutter/material.dart' as _i17;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i28;
-import 'package:pdf/pdf.dart' as _i37;
+import 'package:mockito/src/dummies.dart' as _i27;
+import 'package:pdf/pdf.dart' as _i36;
 import 'package:stacked/stacked.dart' as _i2;
-import 'package:stacked_services/src/bottom_sheet/bottom_sheet_service.dart'
-    as _i18;
-import 'package:stacked_services/src/dialog/dialog_service.dart' as _i21;
-import 'package:stacked_services/src/models/overlay_request.dart' as _i22;
-import 'package:stacked_services/src/models/overlay_response.dart' as _i19;
+import 'package:stacked_services/src/dialog/dialog_service.dart' as _i18;
+import 'package:stacked_services/src/models/overlay_request.dart' as _i19;
+import 'package:stacked_services/src/models/overlay_response.dart' as _i20;
 import 'package:stacked_services/src/navigation/router_service.dart' as _i15;
 
 // ignore_for_file: type=lint
@@ -340,129 +338,13 @@ class MockRouterService extends _i1.Mock implements _i15.RouterService {
           as _i16.Future<T?>);
 }
 
-/// A class which mocks [BottomSheetService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockBottomSheetService extends _i1.Mock
-    implements _i18.BottomSheetService {
-  @override
-  void setCustomSheetBuilders(Map<dynamic, _i18.SheetBuilder>? builders) =>
-      super.noSuchMethod(
-        Invocation.method(#setCustomSheetBuilders, [builders]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  _i16.Future<_i19.SheetResponse<dynamic>?> showBottomSheet({
-    required String? title,
-    String? description,
-    String? confirmButtonTitle = 'Ok',
-    String? cancelButtonTitle,
-    bool? enableDrag = true,
-    bool? barrierDismissible = true,
-    bool? isScrollControlled = false,
-    Duration? exitBottomSheetDuration,
-    Duration? enterBottomSheetDuration,
-    bool? ignoreSafeArea,
-    bool? useRootNavigator = false,
-    double? elevation = 1.0,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#showBottomSheet, [], {
-              #title: title,
-              #description: description,
-              #confirmButtonTitle: confirmButtonTitle,
-              #cancelButtonTitle: cancelButtonTitle,
-              #enableDrag: enableDrag,
-              #barrierDismissible: barrierDismissible,
-              #isScrollControlled: isScrollControlled,
-              #exitBottomSheetDuration: exitBottomSheetDuration,
-              #enterBottomSheetDuration: enterBottomSheetDuration,
-              #ignoreSafeArea: ignoreSafeArea,
-              #useRootNavigator: useRootNavigator,
-              #elevation: elevation,
-            }),
-            returnValue: _i16.Future<_i19.SheetResponse<dynamic>?>.value(),
-            returnValueForMissingStub:
-                _i16.Future<_i19.SheetResponse<dynamic>?>.value(),
-          )
-          as _i16.Future<_i19.SheetResponse<dynamic>?>);
-
-  @override
-  _i16.Future<_i19.SheetResponse<T>?> showCustomSheet<T, R>({
-    dynamic variant,
-    String? title,
-    String? description,
-    bool? hasImage = false,
-    String? imageUrl,
-    bool? showIconInMainButton = false,
-    String? mainButtonTitle,
-    bool? showIconInSecondaryButton = false,
-    String? secondaryButtonTitle,
-    bool? showIconInAdditionalButton = false,
-    String? additionalButtonTitle,
-    bool? takesInput = false,
-    _i20.Color? barrierColor = const _i20.Color(2315255808),
-    double? elevation = 1.0,
-    bool? barrierDismissible = true,
-    bool? isScrollControlled = false,
-    String? barrierLabel = '',
-    dynamic customData,
-    R? data,
-    bool? enableDrag = true,
-    Duration? exitBottomSheetDuration,
-    Duration? enterBottomSheetDuration,
-    bool? ignoreSafeArea,
-    bool? useRootNavigator = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#showCustomSheet, [], {
-              #variant: variant,
-              #title: title,
-              #description: description,
-              #hasImage: hasImage,
-              #imageUrl: imageUrl,
-              #showIconInMainButton: showIconInMainButton,
-              #mainButtonTitle: mainButtonTitle,
-              #showIconInSecondaryButton: showIconInSecondaryButton,
-              #secondaryButtonTitle: secondaryButtonTitle,
-              #showIconInAdditionalButton: showIconInAdditionalButton,
-              #additionalButtonTitle: additionalButtonTitle,
-              #takesInput: takesInput,
-              #barrierColor: barrierColor,
-              #elevation: elevation,
-              #barrierDismissible: barrierDismissible,
-              #isScrollControlled: isScrollControlled,
-              #barrierLabel: barrierLabel,
-              #customData: customData,
-              #data: data,
-              #enableDrag: enableDrag,
-              #exitBottomSheetDuration: exitBottomSheetDuration,
-              #enterBottomSheetDuration: enterBottomSheetDuration,
-              #ignoreSafeArea: ignoreSafeArea,
-              #useRootNavigator: useRootNavigator,
-            }),
-            returnValue: _i16.Future<_i19.SheetResponse<T>?>.value(),
-            returnValueForMissingStub:
-                _i16.Future<_i19.SheetResponse<T>?>.value(),
-          )
-          as _i16.Future<_i19.SheetResponse<T>?>);
-
-  @override
-  void completeSheet(_i19.SheetResponse<dynamic>? response) =>
-      super.noSuchMethod(
-        Invocation.method(#completeSheet, [response]),
-        returnValueForMissingStub: null,
-      );
-}
-
 /// A class which mocks [DialogService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDialogService extends _i1.Mock implements _i21.DialogService {
+class MockDialogService extends _i1.Mock implements _i18.DialogService {
   @override
   void registerCustomDialogBuilders(
-    Map<dynamic, _i21.DialogBuilder>? builders,
+    Map<dynamic, _i18.DialogBuilder>? builders,
   ) => super.noSuchMethod(
     Invocation.method(#registerCustomDialogBuilders, [builders]),
     returnValueForMissingStub: null,
@@ -473,8 +355,8 @@ class MockDialogService extends _i1.Mock implements _i21.DialogService {
     required dynamic variant,
     required _i17.Widget Function(
       _i17.BuildContext,
-      _i22.DialogRequest<dynamic>,
-      dynamic Function(_i19.DialogResponse<dynamic>),
+      _i19.DialogRequest<dynamic>,
+      dynamic Function(_i20.DialogResponse<dynamic>),
     )?
     builder,
   }) => super.noSuchMethod(
@@ -486,17 +368,17 @@ class MockDialogService extends _i1.Mock implements _i21.DialogService {
   );
 
   @override
-  _i16.Future<_i19.DialogResponse<dynamic>?> showDialog({
+  _i16.Future<_i20.DialogResponse<dynamic>?> showDialog({
     String? title,
     String? description,
     String? cancelTitle,
-    _i20.Color? cancelTitleColor,
+    _i21.Color? cancelTitleColor,
     String? buttonTitle = 'Ok',
-    _i20.Color? buttonTitleColor,
+    _i21.Color? buttonTitleColor,
     bool? barrierDismissible = false,
     _i17.RouteSettings? routeSettings,
     _i17.GlobalKey<_i17.NavigatorState>? navigatorKey,
-    _i21.DialogPlatform? dialogPlatform,
+    _i18.DialogPlatform? dialogPlatform,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#showDialog, [], {
@@ -511,14 +393,14 @@ class MockDialogService extends _i1.Mock implements _i21.DialogService {
               #navigatorKey: navigatorKey,
               #dialogPlatform: dialogPlatform,
             }),
-            returnValue: _i16.Future<_i19.DialogResponse<dynamic>?>.value(),
+            returnValue: _i16.Future<_i20.DialogResponse<dynamic>?>.value(),
             returnValueForMissingStub:
-                _i16.Future<_i19.DialogResponse<dynamic>?>.value(),
+                _i16.Future<_i20.DialogResponse<dynamic>?>.value(),
           )
-          as _i16.Future<_i19.DialogResponse<dynamic>?>);
+          as _i16.Future<_i20.DialogResponse<dynamic>?>);
 
   @override
-  _i16.Future<_i19.DialogResponse<T>?> showCustomDialog<T, R>({
+  _i16.Future<_i20.DialogResponse<T>?> showCustomDialog<T, R>({
     dynamic variant,
     String? title,
     String? description,
@@ -531,7 +413,7 @@ class MockDialogService extends _i1.Mock implements _i21.DialogService {
     bool? showIconInAdditionalButton = false,
     String? additionalButtonTitle,
     bool? takesInput = false,
-    _i20.Color? barrierColor = const _i20.Color(2315255808),
+    _i21.Color? barrierColor = const _i21.Color(2315255808),
     bool? barrierDismissible = false,
     String? barrierLabel = '',
     bool? useSafeArea = true,
@@ -565,23 +447,23 @@ class MockDialogService extends _i1.Mock implements _i21.DialogService {
               #customData: customData,
               #data: data,
             }),
-            returnValue: _i16.Future<_i19.DialogResponse<T>?>.value(),
+            returnValue: _i16.Future<_i20.DialogResponse<T>?>.value(),
             returnValueForMissingStub:
-                _i16.Future<_i19.DialogResponse<T>?>.value(),
+                _i16.Future<_i20.DialogResponse<T>?>.value(),
           )
-          as _i16.Future<_i19.DialogResponse<T>?>);
+          as _i16.Future<_i20.DialogResponse<T>?>);
 
   @override
-  _i16.Future<_i19.DialogResponse<dynamic>?> showConfirmationDialog({
+  _i16.Future<_i20.DialogResponse<dynamic>?> showConfirmationDialog({
     String? title,
     String? description,
     String? cancelTitle = 'Cancel',
-    _i20.Color? cancelTitleColor,
+    _i21.Color? cancelTitleColor,
     String? confirmationTitle = 'Ok',
-    _i20.Color? confirmationTitleColor,
+    _i21.Color? confirmationTitleColor,
     bool? barrierDismissible = false,
     _i17.RouteSettings? routeSettings,
-    _i21.DialogPlatform? dialogPlatform,
+    _i18.DialogPlatform? dialogPlatform,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#showConfirmationDialog, [], {
@@ -595,14 +477,14 @@ class MockDialogService extends _i1.Mock implements _i21.DialogService {
               #routeSettings: routeSettings,
               #dialogPlatform: dialogPlatform,
             }),
-            returnValue: _i16.Future<_i19.DialogResponse<dynamic>?>.value(),
+            returnValue: _i16.Future<_i20.DialogResponse<dynamic>?>.value(),
             returnValueForMissingStub:
-                _i16.Future<_i19.DialogResponse<dynamic>?>.value(),
+                _i16.Future<_i20.DialogResponse<dynamic>?>.value(),
           )
-          as _i16.Future<_i19.DialogResponse<dynamic>?>);
+          as _i16.Future<_i20.DialogResponse<dynamic>?>);
 
   @override
-  void completeDialog(_i19.DialogResponse<dynamic>? response) =>
+  void completeDialog(_i20.DialogResponse<dynamic>? response) =>
       super.noSuchMethod(
         Invocation.method(#completeDialog, [response]),
         returnValueForMissingStub: null,
@@ -613,7 +495,7 @@ class MockDialogService extends _i1.Mock implements _i21.DialogService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLocalStorageService extends _i1.Mock
-    implements _i23.LocalStorageService {
+    implements _i22.LocalStorageService {
   @override
   _i16.Future<void> ensureInitialized() =>
       (super.noSuchMethod(
@@ -649,23 +531,12 @@ class MockLocalStorageService extends _i1.Mock
             returnValueForMissingStub: _i16.Future<void>.value(),
           )
           as _i16.Future<void>);
-
-  @override
-  _i16.Future<List<String>> keys(String? boxName) =>
-      (super.noSuchMethod(
-            Invocation.method(#keys, [boxName]),
-            returnValue: _i16.Future<List<String>>.value(<String>[]),
-            returnValueForMissingStub: _i16.Future<List<String>>.value(
-              <String>[],
-            ),
-          )
-          as _i16.Future<List<String>>);
 }
 
 /// A class which mocks [VaultService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockVaultService extends _i1.Mock implements _i24.VaultService {
+class MockVaultService extends _i1.Mock implements _i23.VaultService {
   @override
   _i3.CvVault get vault =>
       (super.noSuchMethod(
@@ -706,7 +577,7 @@ class MockVaultService extends _i1.Mock implements _i24.VaultService {
           as _i16.Future<void>);
 
   @override
-  _i16.Future<void> updateBasics(_i25.ContactBasics? basics) =>
+  _i16.Future<void> updateBasics(_i24.ContactBasics? basics) =>
       (super.noSuchMethod(
             Invocation.method(#updateBasics, [basics]),
             returnValue: _i16.Future<void>.value(),
@@ -774,8 +645,8 @@ class MockVaultService extends _i1.Mock implements _i24.VaultService {
     required String? role,
     required String? company,
     required String? location,
-    required _i26.YearMonth? start,
-    _i26.YearMonth? end,
+    required _i25.YearMonth? start,
+    _i25.YearMonth? end,
     bool? isCurrent = false,
   }) =>
       (super.noSuchMethod(
@@ -1239,7 +1110,7 @@ class MockVaultService extends _i1.Mock implements _i24.VaultService {
 /// A class which mocks [DraftService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDraftService extends _i1.Mock implements _i27.DraftService {
+class MockDraftService extends _i1.Mock implements _i26.DraftService {
   @override
   List<_i12.CvDraft> get drafts =>
       (super.noSuchMethod(
@@ -1301,7 +1172,7 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
               #templateId: templateId,
             }),
             returnValue: _i16.Future<String>.value(
-              _i28.dummyValue<String>(
+              _i27.dummyValue<String>(
                 this,
                 Invocation.method(#createDraft, [], {
                   #name: name,
@@ -1311,7 +1182,7 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
               ),
             ),
             returnValueForMissingStub: _i16.Future<String>.value(
-              _i28.dummyValue<String>(
+              _i27.dummyValue<String>(
                 this,
                 Invocation.method(#createDraft, [], {
                   #name: name,
@@ -1354,13 +1225,13 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
       (super.noSuchMethod(
             Invocation.method(#duplicateDraft, [id]),
             returnValue: _i16.Future<String>.value(
-              _i28.dummyValue<String>(
+              _i27.dummyValue<String>(
                 this,
                 Invocation.method(#duplicateDraft, [id]),
               ),
             ),
             returnValueForMissingStub: _i16.Future<String>.value(
-              _i28.dummyValue<String>(
+              _i27.dummyValue<String>(
                 this,
                 Invocation.method(#duplicateDraft, [id]),
               ),
@@ -1522,7 +1393,7 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
 
   @override
   _i16.Future<void> setSectionHidden(
-    _i29.CvSectionType? type, {
+    _i28.CvSectionType? type, {
     required bool? hidden,
   }) =>
       (super.noSuchMethod(
@@ -1622,13 +1493,13 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockFileDownloadService extends _i1.Mock
-    implements _i30.FileDownloadService {
+    implements _i29.FileDownloadService {
   @override
   _i16.Future<void> saveFile({
     required String? nameWithoutExtension,
-    required _i31.Uint8List? bytes,
+    required _i30.Uint8List? bytes,
     required String? extension,
-    required _i32.MimeType? mimeType,
+    required _i31.MimeType? mimeType,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#saveFile, [], {
@@ -1647,16 +1518,7 @@ class MockFileDownloadService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTemplateRegistryService extends _i1.Mock
-    implements _i33.TemplateRegistryService {
-  @override
-  List<_i13.CvTemplateDescriptor> get available =>
-      (super.noSuchMethod(
-            Invocation.getter(#available),
-            returnValue: <_i13.CvTemplateDescriptor>[],
-            returnValueForMissingStub: <_i13.CvTemplateDescriptor>[],
-          )
-          as List<_i13.CvTemplateDescriptor>);
-
+    implements _i32.TemplateRegistryService {
   @override
   _i13.CvTemplate get defaultTemplate =>
       (super.noSuchMethod(
@@ -1691,7 +1553,7 @@ class MockTemplateRegistryService extends _i1.Mock
 /// A class which mocks [FontService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFontService extends _i1.Mock implements _i34.FontService {
+class MockFontService extends _i1.Mock implements _i33.FontService {
   @override
   _i16.Future<_i14.CvFontSet> load() =>
       (super.noSuchMethod(
@@ -1718,14 +1580,14 @@ class MockFontService extends _i1.Mock implements _i34.FontService {
 /// A class which mocks [PdfExportService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPdfExportService extends _i1.Mock implements _i35.PdfExportService {
+class MockPdfExportService extends _i1.Mock implements _i34.PdfExportService {
   @override
   _i16.Future<void> export({
-    required _i36.ResolvedCv? cv,
+    required _i35.ResolvedCv? cv,
     required String? templateId,
     required String? fullName,
     required String? draftName,
-    _i37.PdfPageFormat? format = _i37.PdfPageFormat.a4,
+    _i36.PdfPageFormat? format = _i36.PdfPageFormat.a4,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#export, [], {
@@ -1741,10 +1603,10 @@ class MockPdfExportService extends _i1.Mock implements _i35.PdfExportService {
           as _i16.Future<void>);
 
   @override
-  _i16.Future<_i31.Uint8List> render({
-    required _i36.ResolvedCv? cv,
+  _i16.Future<_i30.Uint8List> render({
+    required _i35.ResolvedCv? cv,
     required String? templateId,
-    _i37.PdfPageFormat? format = _i37.PdfPageFormat.a4,
+    _i36.PdfPageFormat? format = _i36.PdfPageFormat.a4,
     bool? compress = true,
   }) =>
       (super.noSuchMethod(
@@ -1754,10 +1616,10 @@ class MockPdfExportService extends _i1.Mock implements _i35.PdfExportService {
               #format: format,
               #compress: compress,
             }),
-            returnValue: _i16.Future<_i31.Uint8List>.value(_i31.Uint8List(0)),
-            returnValueForMissingStub: _i16.Future<_i31.Uint8List>.value(
-              _i31.Uint8List(0),
+            returnValue: _i16.Future<_i30.Uint8List>.value(_i30.Uint8List(0)),
+            returnValueForMissingStub: _i16.Future<_i30.Uint8List>.value(
+              _i30.Uint8List(0),
             ),
           )
-          as _i16.Future<_i31.Uint8List>);
+          as _i16.Future<_i30.Uint8List>);
 }

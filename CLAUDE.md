@@ -117,10 +117,13 @@ Two non-feature layers sit alongside these:
 - `lib/models/` — pure Dart freezed models (`vault/`, `draft/`, `render/`).
   **Must never import `flutter` or `pdf`.** `render/cv_composer.dart` is the
   only place Vault and Draft data are joined.
-- `lib/templates/` — the dual-renderer boundary. `design/` holds
-  framework-agnostic tokens plus exactly one Flutter adapter and one pdf
-  adapter; each template owns a screen renderer and a pdf renderer that
-  share nothing but those tokens. **A template's `buildDocument` must hand
+- `lib/templates/` — the single-renderer boundary. `design/` holds
+  framework-agnostic tokens plus one `pdf`-only adapter
+  (`cv_design_tokens_pdf.dart`); each template owns one pdf renderer.
+  Studio's live preview rasterizes that same PDF via `printing.PdfPreview`
+  rather than maintaining a second, hand-built Flutter render tree
+  alongside it — preview and export are the same bytes, so they can't
+  drift on content *or* pixels. **A template's `buildDocument` must hand
   `pw.MultiPage.build` a flat `List<pw.Widget>`, never a single wrapping
   `pw.Column`** — a `pw.Column` root can't be split across pages, so
   everything silently overflows onto page 1 and reads like a package
@@ -244,6 +247,14 @@ tests of private helpers or implementation details.
   of `getAndRegister*` calls. A View pulls in every service its ViewModel's
   constructor resolves; a partial setup crashes at widget-build time rather
   than failing a pixel comparison, and `--update-goldens` does not catch it.
+- **Golden tests are tagged `@Tags(['golden'])`** and baselined on
+  `ubuntu-latest` (see `update-goldens.yml`) — font rasterization differs by
+  platform, so they show a small pixel diff on a non-Linux dev machine even
+  with no real change. Run `flutter test --exclude-tags=golden` locally for
+  a signal that's actually green; `ci.yml`'s plain `flutter test` on Linux
+  is what verifies them for real on every PR. Run `flutter test
+  --tags=golden` to check just these before pushing a deliberate UI change,
+  or trigger `update-goldens.yml` to regenerate the baselines afterward.
 
 ## Code style
 
@@ -268,6 +279,14 @@ Each of these was a real mistake in this repo, not hypothetical:
   panel are `foo_editor_card.dart` + `foo_editor_panel.dart` — don't mix
   "card"/"section"/"list_section" for the same concept, and don't put a
   150-line panel in a file named `..._card.dart`.
+- **An import that reaches outside its own directory (`../`) uses
+  `package:cv_forge/...`, not a relative path.** A same-directory sibling
+  import (`import 'foo.dart';`) is fine either way — this is specifically
+  about not mixing `../../models/...` and `package:cv_forge/models/...`
+  for the same import in different files. Not enforced by a lint
+  (`always_use_package_imports` would also flag same-directory imports,
+  which are idiomatic and common here) — this is a convention to follow by
+  hand, not a rule `flutter analyze` checks.
 
 ## General AI-development practices for this repo
 

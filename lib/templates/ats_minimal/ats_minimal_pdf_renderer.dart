@@ -1,12 +1,11 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../models/render/resolved_cv.dart';
-import '../../models/render/resolved_section.dart';
-import '../design/cv_design_tokens.dart';
-import '../design/cv_design_tokens_pdf.dart';
-import '../design/cv_font_set.dart';
-import 'ats_minimal_tokens.dart';
+import 'package:cv_forge/models/render/resolved_cv.dart';
+import 'package:cv_forge/models/render/resolved_section.dart';
+import 'package:cv_forge/templates/design/cv_design_tokens.dart';
+import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
+import 'package:cv_forge/templates/design/cv_font_set.dart';
 
 /// Horizontal gap between the bullet glyph and the text beside it — a
 /// fixed layout constant, not a design token, since it's a spacing
@@ -14,30 +13,46 @@ import 'ats_minimal_tokens.dart';
 /// would want to restyle.
 const _bulletGlyphGap = 6.0;
 
-/// `pw`-only rendering of [ResolvedCv] in the `ats_minimal` style, mirroring
-/// `ats_minimal_screen_renderer.dart` section-for-section so the two render
-/// trees can't drift on content — only on pixels.
+/// `pw`-only rendering of [ResolvedCv] in the `ats_minimal` style — the
+/// sole render tree for this template; Studio's live preview rasterizes
+/// this same output via `printing.PdfPreview` rather than a second,
+/// hand-built Flutter tree, so there's nothing else for this to drift
+/// against.
+///
+/// Takes [tokens] as a parameter, rather than reaching for
+/// `atsMinimalTokens` directly, so this render tree is genuinely reusable
+/// by a future template rather than hard-wired to one token set —
+/// `AtsMinimalTemplate.buildDocument` is the only caller today, and it
+/// supplies its own [CvTemplate.tokens].
 ///
 /// Returns a FLAT top-level widget list, one entry per header/heading/item
 /// rather than one enclosing `pw.Column` — feeding `pw.MultiPage.build` a
 /// single nested `pw.Column` silently defeats its page-splitting (see
 /// `CvTemplate.buildDocument`'s doc comment).
-List<pw.Widget> buildAtsMinimalPdfContent(ResolvedCv cv, CvFontSet fonts) {
-  final widgets = <pw.Widget>[_header(cv.header, fonts)];
+List<pw.Widget> buildAtsMinimalPdfContent(
+  ResolvedCv cv,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  final widgets = <pw.Widget>[_header(cv.header, tokens, fonts)];
   for (final section in cv.sections) {
-    widgets.add(pw.SizedBox(height: atsMinimalTokens.sectionGap));
+    widgets.add(pw.SizedBox(height: tokens.sectionGap));
     // The summary sits directly under the header with no heading of its
-    // own — matches the screen renderer's `isSummary` special case.
+    // own — the one section type with no title rule above it.
     if (section is! ResolvedSummarySection) {
-      widgets.add(_sectionHeading(section.title, fonts));
+      widgets.add(_sectionHeading(section.title, tokens, fonts));
     }
-    widgets.addAll(_sectionBody(section, fonts));
+    widgets.addAll(_sectionBody(section, tokens, fonts));
   }
   return widgets;
 }
 
-pw.Widget _header(ResolvedHeader header, CvFontSet fonts) {
-  final contactStyle = atsMinimalTokens.contact.toPdfStyle(fonts);
+pw.Widget _header(
+  ResolvedHeader header,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  final contactStyle = tokens.contact.toPdfStyle(fonts);
 
   pw.Widget contactPart(String text, {String? url}) {
     final widget = pw.Text(text, style: contactStyle);
@@ -67,14 +82,14 @@ pw.Widget _header(ResolvedHeader header, CvFontSet fonts) {
       pw.Text(
         header.fullName,
         textAlign: pw.TextAlign.center,
-        style: atsMinimalTokens.name.toPdfStyle(fonts),
+        style: tokens.name.toPdfStyle(fonts),
       ),
       if (header.headline.trim().isNotEmpty) ...[
         pw.SizedBox(height: 2),
         pw.Text(
           header.headline,
           textAlign: pw.TextAlign.center,
-          style: atsMinimalTokens.company.toPdfStyle(fonts),
+          style: tokens.company.toPdfStyle(fonts),
         ),
       ],
       if (contactParts.isNotEmpty) ...[
@@ -105,17 +120,21 @@ String _withScheme(String url) =>
     ? url
     : 'https://$url';
 
-pw.Widget _sectionHeading(String title, CvFontSet fonts) {
+pw.Widget _sectionHeading(
+  String title,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
-      pw.Text(title, style: atsMinimalTokens.sectionHeading.toPdfStyle(fonts)),
-      pw.SizedBox(height: atsMinimalTokens.sectionRuleGap),
+      pw.Text(title, style: tokens.sectionHeading.toPdfStyle(fonts)),
+      pw.SizedBox(height: tokens.sectionRuleGap),
       pw.Container(
-        height: atsMinimalTokens.ruleThickness,
-        color: PdfColor.fromInt(atsMinimalTokens.ruleColorArgb),
+        height: tokens.ruleThickness,
+        color: PdfColor.fromInt(tokens.ruleColorArgb),
       ),
-      pw.SizedBox(height: atsMinimalTokens.sectionRuleGap),
+      pw.SizedBox(height: tokens.sectionRuleGap),
     ],
   );
 }
@@ -123,30 +142,36 @@ pw.Widget _sectionHeading(String title, CvFontSet fonts) {
 /// One top-level widget per item within [section]'s body, so `MultiPage`
 /// can split between e.g. two experience entries, not just between whole
 /// sections.
-List<pw.Widget> _sectionBody(ResolvedSection section, CvFontSet fonts) =>
-    switch (section) {
-      ResolvedSummarySection(text: final text) => [_bodyText(text, fonts)],
-      ResolvedSkillsSection(groups: final groups) => _skillGroups(
-        groups,
-        fonts,
-      ),
-      ResolvedExperienceSection(groups: final groups) => [
-        for (final group in groups) _companyGroup(group, fonts),
-      ],
-      ResolvedProjectsSection(items: final items) => [
-        for (final project in items) _project(project, fonts),
-      ],
-      ResolvedEducationSection(items: final items) => [
-        for (final edu in items) _education(edu, fonts),
-      ],
-      ResolvedHobbiesSection(items: final items) => [
-        _bodyText(items.join(', '), fonts),
-      ],
-      ResolvedReferencesSection(text: final text) => [_bodyText(text, fonts)],
-    };
+List<pw.Widget> _sectionBody(
+  ResolvedSection section,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) => switch (section) {
+  ResolvedSummarySection(text: final text) => [_bodyText(text, tokens, fonts)],
+  ResolvedSkillsSection(groups: final groups) => _skillGroups(
+    groups,
+    tokens,
+    fonts,
+  ),
+  ResolvedExperienceSection(groups: final groups) => [
+    for (final group in groups) _companyGroup(group, tokens, fonts),
+  ],
+  ResolvedProjectsSection(items: final items) => [
+    for (final project in items) _project(project, tokens, fonts),
+  ],
+  ResolvedEducationSection(items: final items) => [
+    for (final edu in items) _education(edu, tokens, fonts),
+  ],
+  ResolvedHobbiesSection(items: final items) => [
+    _bodyText(items.join(', '), tokens, fonts),
+  ],
+  ResolvedReferencesSection(text: final text) => [
+    _bodyText(text, tokens, fonts),
+  ],
+};
 
-pw.Widget _bodyText(String text, CvFontSet fonts) =>
-    pw.Text(text, style: atsMinimalTokens.body.toPdfStyle(fonts));
+pw.Widget _bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
+    pw.Text(text, style: tokens.body.toPdfStyle(fonts));
 
 /// A left label + right value on one row — the "role, dates" and
 /// "institution, year" rows every section but Skills uses. `pw.Expanded`
@@ -157,12 +182,13 @@ pw.Widget _bodyText(String text, CvFontSet fonts) =>
 pw.Widget _labelledRow(
   pw.InlineSpan left,
   String? right,
+  CvDesignTokens tokens,
   CvFontSet fonts, {
   String? rightUrl,
 }) {
   final rightWidget = right == null || right.isEmpty
       ? null
-      : pw.Text(right, style: atsMinimalTokens.meta.toPdfStyle(fonts));
+      : pw.Text(right, style: tokens.meta.toPdfStyle(fonts));
 
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -186,33 +212,23 @@ pw.Widget _labelledRow(
 /// layout box. This is what lets `bulletGlyph.sizePt` be tuned freely
 /// without the vertical rhythm between bullets/items changing.
 ///
-/// `Transform.scale`'s default `Alignment.center` anchors the scale on the
-/// *box's* geometric center — the font's full ascent/descent box, not the
-/// `•` glyph's own ink. In Roboto, that ink sits slightly above the true
-/// box center (measured from `Roboto-Regular.ttf`: ascent 0.9277em,
-/// descent -0.2441em, glyph ink spans 0.2612em-0.4741em above the
-/// baseline, i.e. an ink center at 0.3677em vs. the box's own center at
-/// 0.3599em of its 1.1719em height — only ~0.008em off). Scaling around
-/// the mismatched box-center anchor drags the ink away from its natural
-/// position by an amount proportional to (scale-1), which is what made it
-/// float visibly at `bulletGlyph.sizePt: 25` despite barely registering at
-/// `bullet.sizePt: 10`.
-///
-/// [_bulletGlyphAlignmentY] is the box-center-relative offset that instead
-/// anchors the scale exactly on the glyph's own ink center. Because
-/// `Transform.scale`'s alignment is a *fraction* of the (fixed,
-/// bullet.sizePt-based) box, anchoring on the ink keeps the glyph's ink at
-/// its natural, unscaled position — the same place it would sit if printed
-/// plain at whatever size — for any `bulletGlyph.sizePt`, not just the one
-/// last checked against a real export.
+/// [_bulletGlyphAlignmentY] anchors that scale on the `•` glyph's own ink
+/// center rather than `Transform.scale`'s default box-center (the font's
+/// full ascent/descent box). In Roboto the two are only ~0.008em apart
+/// (measured from `Roboto-Regular.ttf`: ink center at 0.3677em vs. box
+/// center at 0.3599em, of a 1.1719em box) — negligible at
+/// `bullet.sizePt`, but scaling around the mismatched box-center anchor
+/// drags the ink away from its natural position by an amount proportional
+/// to `(scale - 1)`, which becomes visible at a large `bulletGlyph.sizePt`.
+/// Anchoring on the ink instead keeps it at its natural, unscaled
+/// position for any `bulletGlyph.sizePt`.
 const _bulletGlyphAlignmentY = 0.04416;
 
-pw.Widget _bulletGlyph(CvFontSet fonts) {
-  final scale =
-      atsMinimalTokens.bulletGlyph.sizePt / atsMinimalTokens.bullet.sizePt;
-  final layoutStyle = atsMinimalTokens.bulletGlyph
+pw.Widget _bulletGlyph(CvDesignTokens tokens, CvFontSet fonts) {
+  final scale = tokens.bulletGlyph.sizePt / tokens.bullet.sizePt;
+  final layoutStyle = tokens.bulletGlyph
       .toPdfStyle(fonts)
-      .copyWith(fontSize: atsMinimalTokens.bullet.sizePt);
+      .copyWith(fontSize: tokens.bullet.sizePt);
   return pw.Transform.scale(
     scale: scale,
     alignment: const pw.Alignment(0, _bulletGlyphAlignmentY),
@@ -222,19 +238,23 @@ pw.Widget _bulletGlyph(CvFontSet fonts) {
   );
 }
 
-pw.Widget _bullets(List<ResolvedBullet> bullets, CvFontSet fonts) {
+pw.Widget _bullets(
+  List<ResolvedBullet> bullets,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
   if (bullets.isEmpty) return pw.SizedBox.shrink();
   return pw.Padding(
     padding: pw.EdgeInsets.only(
-      top: atsMinimalTokens.bulletGap,
-      left: atsMinimalTokens.bulletIndent,
+      top: tokens.bulletGap,
+      left: tokens.bulletIndent,
     ),
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         for (final bullet in bullets)
           pw.Padding(
-            padding: pw.EdgeInsets.only(bottom: atsMinimalTokens.bulletGap),
+            padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
             // A Row with a start-aligned cross axis, not an inline
             // TextSpan — mixed-size spans in one RichText share a
             // baseline, so once bulletGlyph's size diverges from bullet's,
@@ -252,7 +272,7 @@ pw.Widget _bullets(List<ResolvedBullet> bullets, CvFontSet fonts) {
             child: pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _bulletGlyph(fonts),
+                _bulletGlyph(tokens, fonts),
                 pw.SizedBox(width: _bulletGlyphGap),
                 pw.Expanded(
                   child: pw.RichText(
@@ -261,13 +281,11 @@ pw.Widget _bullets(List<ResolvedBullet> bullets, CvFontSet fonts) {
                         if (bullet.label != null)
                           pw.TextSpan(
                             text: '${bullet.label}: ',
-                            style: atsMinimalTokens.bulletLabel.toPdfStyle(
-                              fonts,
-                            ),
+                            style: tokens.bulletLabel.toPdfStyle(fonts),
                           ),
                         pw.TextSpan(
                           text: bullet.text,
-                          style: atsMinimalTokens.bullet.toPdfStyle(fonts),
+                          style: tokens.bullet.toPdfStyle(fonts),
                         ),
                       ],
                     ),
@@ -281,73 +299,50 @@ pw.Widget _bullets(List<ResolvedBullet> bullets, CvFontSet fonts) {
   );
 }
 
-/// Splits [groups] across [CvDesignTokens.skillColumnCount] columns,
-/// filling all of the first column before the next — matches
-/// `ats_minimal`'s current single-column token, but generalises to a
-/// future template whose token sets more than one.
-List<pw.Widget> _skillGroups(List<ResolvedSkillGroup> groups, CvFontSet fonts) {
-  final columnCount = atsMinimalTokens.skillColumnCount.clamp(
-    1,
-    groups.isEmpty ? 1 : groups.length,
-  );
-  final perColumn = (groups.length / columnCount).ceil();
-  final columns = <List<ResolvedSkillGroup>>[
-    for (var i = 0; i < columnCount; i++)
-      groups.skip(i * perColumn).take(perColumn).toList(),
-  ];
-
-  pw.Widget groupLine(ResolvedSkillGroup group) => pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: atsMinimalTokens.bulletGap),
-    child: pw.RichText(
-      text: pw.TextSpan(
-        children: [
-          pw.TextSpan(
-            text: '${group.category}: ',
-            style: atsMinimalTokens.bulletLabel.toPdfStyle(fonts),
-          ),
-          pw.TextSpan(
-            text: group.skills.join(', '),
-            style: atsMinimalTokens.body.toPdfStyle(fonts),
-          ),
-        ],
-      ),
-    ),
-  );
-
-  if (columnCount <= 1) {
-    return [for (final group in groups) groupLine(group)];
-  }
-
+List<pw.Widget> _skillGroups(
+  List<ResolvedSkillGroup> groups,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
   return [
-    pw.Row(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < columns.length; i++) ...[
-          if (i > 0) pw.SizedBox(width: atsMinimalTokens.skillColumnGap),
-          pw.Expanded(
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-              children: [for (final group in columns[i]) groupLine(group)],
-            ),
+    for (final group in groups)
+      pw.Padding(
+        padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
+        child: pw.RichText(
+          text: pw.TextSpan(
+            children: [
+              pw.TextSpan(
+                text: '${group.category}: ',
+                style: tokens.bulletLabel.toPdfStyle(fonts),
+              ),
+              pw.TextSpan(
+                text: group.skills.join(', '),
+                style: tokens.body.toPdfStyle(fonts),
+              ),
+            ],
           ),
-        ],
-      ],
-    ),
+        ),
+      ),
   ];
 }
 
-pw.Widget _companyGroup(ResolvedCompanyGroup group, CvFontSet fonts) {
+pw.Widget _companyGroup(
+  ResolvedCompanyGroup group,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
   return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: atsMinimalTokens.itemGap),
+    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
     child: group.positions.length == 1
-        ? _singlePosition(group.positions.single, group, fonts)
-        : _promotionGroup(group, fonts),
+        ? _singlePosition(group.positions.single, group, tokens, fonts)
+        : _promotionGroup(group, tokens, fonts),
   );
 }
 
 pw.Widget _singlePosition(
   ResolvedPosition position,
   ResolvedCompanyGroup group,
+  CvDesignTokens tokens,
   CvFontSet fonts,
 ) {
   return pw.Column(
@@ -358,37 +353,42 @@ pw.Widget _singlePosition(
           children: [
             pw.TextSpan(
               text: '${position.role}, ',
-              style: atsMinimalTokens.role.toPdfStyle(fonts),
+              style: tokens.role.toPdfStyle(fonts),
             ),
             pw.TextSpan(
               text: '${group.company} – ${group.location}',
-              style: atsMinimalTokens.company.toPdfStyle(fonts),
+              style: tokens.company.toPdfStyle(fonts),
             ),
           ],
         ),
         position.dateRange,
+        tokens,
         fonts,
       ),
-      _bullets(position.bullets, fonts),
+      _bullets(position.bullets, tokens, fonts),
     ],
   );
 }
 
 /// A promotion: the company is shown once, then each role with its own
 /// date range and bullets nested beneath.
-pw.Widget _promotionGroup(ResolvedCompanyGroup group, CvFontSet fonts) {
+pw.Widget _promotionGroup(
+  ResolvedCompanyGroup group,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
       pw.Text(
         '${group.company} – ${group.location}',
-        style: atsMinimalTokens.role.toPdfStyle(fonts),
+        style: tokens.role.toPdfStyle(fonts),
       ),
       for (final position in group.positions)
         pw.Padding(
           padding: pw.EdgeInsets.only(
-            top: atsMinimalTokens.bulletGap,
-            left: atsMinimalTokens.bulletIndent,
+            top: tokens.bulletGap,
+            left: tokens.bulletIndent,
           ),
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.stretch,
@@ -396,12 +396,13 @@ pw.Widget _promotionGroup(ResolvedCompanyGroup group, CvFontSet fonts) {
               _labelledRow(
                 pw.TextSpan(
                   text: position.role,
-                  style: atsMinimalTokens.company.toPdfStyle(fonts),
+                  style: tokens.company.toPdfStyle(fonts),
                 ),
                 position.dateRange,
+                tokens,
                 fonts,
               ),
-              _bullets(position.bullets, fonts),
+              _bullets(position.bullets, tokens, fonts),
             ],
           ),
         ),
@@ -409,22 +410,27 @@ pw.Widget _promotionGroup(ResolvedCompanyGroup group, CvFontSet fonts) {
   );
 }
 
-pw.Widget _project(ResolvedProject project, CvFontSet fonts) {
+pw.Widget _project(
+  ResolvedProject project,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
   return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: atsMinimalTokens.itemGap),
+    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
         _labelledRow(
           pw.TextSpan(
             text: project.title,
-            style: atsMinimalTokens.role.toPdfStyle(fonts),
+            style: tokens.role.toPdfStyle(fonts),
           ),
           project.link,
+          tokens,
           fonts,
           rightUrl: project.link == null ? null : _withScheme(project.link!),
         ),
-        _bullets(project.bullets, fonts),
+        _bullets(project.bullets, tokens, fonts),
       ],
     ),
   );
@@ -433,7 +439,11 @@ pw.Widget _project(ResolvedProject project, CvFontSet fonts) {
 /// Grade/details fold into the same line as the institution–qualification
 /// text, comma-separated — the reference template keeps one education
 /// entry to one line, with no second row underneath.
-pw.Widget _education(ResolvedQualification edu, CvFontSet fonts) {
+pw.Widget _education(
+  ResolvedQualification edu,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
   final detail = [
     edu.grade,
     edu.details,
@@ -441,21 +451,22 @@ pw.Widget _education(ResolvedQualification edu, CvFontSet fonts) {
   final suffix = detail.isEmpty ? '' : ', $detail';
 
   return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: atsMinimalTokens.bulletGap),
+    padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
     child: _labelledRow(
       pw.TextSpan(
         children: [
           pw.TextSpan(
             text: edu.institution,
-            style: atsMinimalTokens.role.toPdfStyle(fonts),
+            style: tokens.role.toPdfStyle(fonts),
           ),
           pw.TextSpan(
             text: ' – ${edu.qualification}$suffix',
-            style: atsMinimalTokens.company.toPdfStyle(fonts),
+            style: tokens.company.toPdfStyle(fonts),
           ),
         ],
       ),
       edu.yearLabel,
+      tokens,
       fonts,
     ),
   );

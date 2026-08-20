@@ -5,7 +5,7 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
 
-import '../views/studio/studio_viewmodel.dart';
+import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'studio_field_override_card.dart';
 import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';

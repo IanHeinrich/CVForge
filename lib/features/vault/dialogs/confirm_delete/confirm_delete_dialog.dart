@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -26,51 +27,22 @@ class ConfirmDeleteDialog extends StackedView<ConfirmDeleteDialogModel> {
     ConfirmDeleteDialogModel viewModel,
     Widget? child,
   ) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      backgroundColor: kcDarkGreyColor,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              request.title ?? 'Delete this?',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: kcWhite,
-              ),
-            ),
-            if (request.description != null) ...[
-              verticalSpaceSmall,
-              Text(
-                request.description!,
-                style: const TextStyle(fontSize: 14, color: kcLightGrey),
-              ),
-            ],
-            verticalSpaceMedium,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => completer(DialogResponse(confirmed: false)),
-                  child: Text(request.secondaryButtonTitle ?? 'Cancel'),
-                ),
-                horizontalSpaceSmall,
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red.shade700,
-                  ),
-                  onPressed: () => completer(DialogResponse(confirmed: true)),
-                  child: Text(request.mainButtonTitle ?? 'Delete'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return AppDialogScaffold(
+      title: request.title ?? 'Delete this?',
+      destructive: true,
+      cancelLabel: request.secondaryButtonTitle ?? 'Cancel',
+      confirmLabel: request.mainButtonTitle ?? 'Delete',
+      onCancel: () => completer(DialogResponse(confirmed: false)),
+      onConfirm: () => completer(DialogResponse(confirmed: true)),
+      children: [
+        if (request.description != null) ...[
+          verticalSpaceSmall,
+          Text(
+            request.description!,
+            style: const TextStyle(fontSize: 14, color: kcLightGrey),
+          ),
+        ],
+      ],
     );
   }
 

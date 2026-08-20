@@ -1,9 +1,9 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
-import '../views/studio/studio_view.desktop.dart';
-import '../views/studio/studio_viewmodel.dart';
+import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'studio_config_panel.dart';
+import 'studio_preview_pane.dart';
 
 /// Tablet and mobile share this: too narrow for the config panel and
 /// preview side by side, so they're tabs instead.
