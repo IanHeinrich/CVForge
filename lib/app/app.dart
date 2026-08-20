@@ -27,6 +27,14 @@ import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog.da
 
 import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart';
 
+import 'package:cv_forge/services/settings_service.dart';
+
+import 'package:cv_forge/services/backup_service.dart';
+
+import 'package:cv_forge/services/file_upload_service.dart';
+
+import 'package:cv_forge/features/settings/views/settings/settings_view.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -35,6 +43,7 @@ import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart
     CustomRoute(page: VaultView, path: '/vault'),
     CustomRoute(page: StudioView, path: '/studio'),
     CustomRoute(page: DraftsListView, path: '/drafts'),
+    CustomRoute(page: SettingsView, path: '/settings'),
     // @stacked-route
 
     CustomRoute(page: UnknownView, path: '/404'),
@@ -52,6 +61,9 @@ import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart
     LazySingleton(classType: TemplateRegistryService),
     LazySingleton(classType: FontService),
     LazySingleton(classType: PdfExportService),
+    LazySingleton(classType: SettingsService),
+    LazySingleton(classType: BackupService),
+    LazySingleton(classType: FileUploadService),
     // @stacked-service
   ],
   bottomsheets: [

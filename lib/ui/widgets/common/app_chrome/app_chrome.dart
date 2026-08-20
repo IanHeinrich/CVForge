@@ -1,13 +1,14 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/storage_unavailable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 /// The top-level sections of the app. Declaration order matches the nav
-/// rail's destination order.
+/// rail's main destination order.
 ///
 /// [studio] is deliberately not a rail destination — the editor only ever
 /// makes sense once a CV has been chosen from [drafts], so it's reached by
@@ -15,7 +16,14 @@ import 'package:stacked_services/stacked_services.dart';
 /// inside), never clicked into directly. It still exists as an enum value
 /// so `StudioView` has a [AppSection] to pass; [AppChrome] just renders it
 /// as [drafts] being the highlighted rail entry (see [_visualSection]).
-enum AppSection { vault, drafts, studio }
+///
+/// [settings], unlike [studio], *is* a real peer section — its own
+/// highlighted state, reachable directly — but it's pinned to the rail's
+/// `trailing` slot rather than its indexed `destinations` list, since it's
+/// a utility surface rather than a workspace. That's why it's excluded from
+/// `destinations` further down even though it participates fully in
+/// [_visualSection]/highlighting.
+enum AppSection { vault, drafts, studio, settings }
 
 /// The shared shell every top-level View wraps itself in: a left nav rail
 /// (Vault / CVs) over the dark [kcBackgroundColor] backdrop, with [child]
@@ -82,7 +90,13 @@ class AppChrome extends StatelessWidget {
         children: [
           NavigationRail(
             backgroundColor: kcDarkGreyColor,
-            selectedIndex: _visualSection.index,
+            // `settings` sits outside the indexed `destinations` list below
+            // (it's rendered via `trailing` instead), so it has no valid
+            // index to report here — `null` is "no destination selected",
+            // and the trailing settings button draws its own selected state.
+            selectedIndex: _visualSection == AppSection.settings
+                ? null
+                : _visualSection.index,
             labelType: NavigationRailLabelType.all,
             selectedIconTheme: const IconThemeData(color: kcPrimaryColor),
             selectedLabelTextStyle: const TextStyle(color: kcPrimaryColor),
@@ -102,6 +116,28 @@ class AppChrome extends StatelessWidget {
                 label: Text('CVs'),
               ),
             ],
+            trailing: Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: context.appSpacing.paddingDefault,
+                  ),
+                  child: IconButton(
+                    tooltip: 'Settings',
+                    icon: Icon(
+                      _visualSection == AppSection.settings
+                          ? RemixIcons.settings_fill
+                          : RemixIcons.settings_line,
+                      color: _visualSection == AppSection.settings
+                          ? kcPrimaryColor
+                          : kcLightGrey,
+                    ),
+                    onPressed: () => _navigateTo(AppSection.settings),
+                  ),
+                ),
+              ),
+            ),
           ),
           const VerticalDivider(width: 1, color: kcMediumGrey),
           Expanded(child: child),
@@ -120,6 +156,8 @@ class AppChrome extends StatelessWidget {
         router.replaceWith(DraftsListViewRoute());
       case AppSection.studio:
         break; // Unreachable — not a rail destination, see the class doc.
+      case AppSection.settings:
+        router.replaceWith(SettingsViewRoute());
     }
   }
 }

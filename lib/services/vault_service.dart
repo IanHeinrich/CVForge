@@ -512,6 +512,19 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     );
   }
 
+  /// Wholesale-replaces the Vault — the one call site is `BackupService`'s
+  /// import flow. Flushes (via [persistNow]) any write still sitting in
+  /// the debounce timer *before* overwriting in-memory state, so a normal
+  /// edit made just before import can't fire after import and silently
+  /// clobber the freshly-restored data. [vault]'s own `updatedAt` is kept
+  /// as-is — importing isn't itself an edit to the vault's content.
+  Future<void> replaceAll(CvVault vault) async {
+    await ready();
+    await persistNow(_vault.value);
+    _vault.value = vault;
+    await persistImmediately(vault);
+  }
+
   // --- persistence plumbing ---
 
   void _setVault(CvVault Function(CvVault current) update) {

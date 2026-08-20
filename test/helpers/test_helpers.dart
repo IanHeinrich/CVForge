@@ -8,6 +8,9 @@ import 'package:cv_forge/services/file_download_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/font_service.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/services/backup_service.dart';
+import 'package:cv_forge/services/file_upload_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -26,6 +29,9 @@ import 'test_helpers.mocks.dart';
     ),
     MockSpec<FontService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<PdfExportService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<SettingsService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<BackupService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<FileUploadService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -39,6 +45,9 @@ void registerServices() {
   getAndRegisterTemplateRegistryService();
   getAndRegisterFontService();
   getAndRegisterPdfExportService();
+  getAndRegisterSettingsService();
+  getAndRegisterBackupService();
+  getAndRegisterFileUploadService();
   // @stacked-mock-register
 }
 
@@ -102,6 +111,27 @@ MockPdfExportService getAndRegisterPdfExportService() {
   _removeRegistrationIfExists<PdfExportService>();
   final service = MockPdfExportService();
   locator.registerSingleton<PdfExportService>(service);
+  return service;
+}
+
+MockSettingsService getAndRegisterSettingsService() {
+  _removeRegistrationIfExists<SettingsService>();
+  final service = MockSettingsService();
+  locator.registerSingleton<SettingsService>(service);
+  return service;
+}
+
+MockBackupService getAndRegisterBackupService() {
+  _removeRegistrationIfExists<BackupService>();
+  final service = MockBackupService();
+  locator.registerSingleton<BackupService>(service);
+  return service;
+}
+
+MockFileUploadService getAndRegisterFileUploadService() {
+  _removeRegistrationIfExists<FileUploadService>();
+  final service = MockFileUploadService();
+  locator.registerSingleton<FileUploadService>(service);
   return service;
 }
 // @stacked-mock-create
