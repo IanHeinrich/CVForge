@@ -1,6 +1,4 @@
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/app/app.router.dart';
-import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
@@ -12,12 +10,10 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
-import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:stacked_services/stacked_services.dart';
 
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
@@ -44,21 +40,6 @@ void main() {
       qualification: 'BSc Computing',
       institution: 'Leeds',
     );
-    final project = Project(
-      id: 'proj-1',
-      title: 'CV Forge',
-      bullets: const [
-        CvBullet(id: 'pb1', text: 'Built a thing'),
-        CvBullet(id: 'pb2', text: 'Built another thing'),
-      ],
-    );
-    const skillCategory = SkillCategory(
-      id: 'cat-1',
-      name: 'Languages',
-      skills: [Skill(id: 'skill-1', label: 'Dart')],
-    );
-    const hobby = HobbyItem(id: 'hobby-1', text: 'Climbing');
-
     CvVault vaultWith({
       List<Experience> experiences = const [],
       List<Education> education = const [],
@@ -110,16 +91,16 @@ void main() {
       updatedAt: DateTime.now(),
     );
 
-    late MockRouterService routerService;
-    late MockDialogService dialogService;
-
     setUp(() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
-      routerService = getAndRegisterRouterService();
-      dialogService = getAndRegisterDialogService();
+      // Not read by any test in this file, but still needed: StudioViewModel's
+      // constructor resolves both eagerly via locator regardless of which
+      // tests actually exercise navigation/dialogs.
+      getAndRegisterRouterService();
+      getAndRegisterDialogService();
     });
     tearDown(() => locator.reset());
 
