@@ -287,6 +287,23 @@ Each of these was a real mistake in this repo, not hypothetical:
   (`always_use_package_imports` would also flag same-directory imports,
   which are idiomatic and common here) — this is a convention to follow by
   hand, not a rule `flutter analyze` checks.
+- **Chrome UI spacing, radius, typography, and motion go through
+  `lib/ui/common/tokens/`, never a restated literal.** `AppSpacing`/
+  `AppRadius`/`AppTypography`/`AppMotion` are `ThemeExtension`s registered
+  on `buildAppTheme()`, reachable as `context.appSpacing`/
+  `context.appRadius`/`context.appTypography`/`context.appMotion`;
+  `ui_helpers.dart`'s `VGap`/`HGap` cover sibling-spacing gaps the same
+  way. A new `fontSize:`, `BorderRadius.circular(<n>)`, or
+  `EdgeInsets.only(<n>)` in `lib/ui/**` or `lib/features/**` should reuse
+  one of these, not restate the number. If a value genuinely doesn't fit
+  the existing scale, that's a sign a new named field belongs in
+  `tokens/`, not a reason to inline it — the CV document's own type/rule
+  scale (`lib/templates/design/CvDesignTokens`) is the precedent for that:
+  a deliberately separate system, but never raw numbers scattered through
+  renderer code. This convention is what a `stacked create widget`
+  scaffold won't set up for you, since the CLI has no way to know a given
+  double is meant to be a spacing/radius value rather than an arbitrary
+  layout constant.
 
 ## General AI-development practices for this repo
 
