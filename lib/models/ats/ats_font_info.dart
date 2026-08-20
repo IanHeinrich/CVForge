@@ -25,5 +25,14 @@ abstract class AtsFontInfo with _$AtsFontInfo {
     required bool missingFile,
     required bool isType3Font,
     required bool isInvalidPDFjsFont,
+
+    /// Fraction of em, PDF font-metric convention (ascent positive,
+    /// descent negative). `null` when `pdf.js` doesn't report it for this
+    /// font — the X-Ray overlay's ink-box derivation falls back to
+    /// typical defaults in that case rather than requiring these
+    /// (`AtsMatrixMath.atsInkBoxRect`, see `docs/
+    /// ats-xray-overlay-handover.md` §5.4).
+    double? ascent,
+    double? descent,
   }) = _AtsFontInfo;
 }
