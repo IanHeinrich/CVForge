@@ -16,11 +16,26 @@ import 'tokens/app_typography.dart';
 /// chrome (highlighted nav item, "included in draft" toggle, etc.) — it
 /// must never appear inside the CV output itself.
 ThemeData buildAppTheme() {
-  final colorScheme = ColorScheme.fromSeed(
-    seedColor: kcPrimaryColor,
-    brightness: Brightness.dark,
-    surface: kcDarkGreyColor,
-  );
+  // `fromSeed` derives every ColorScheme slot as a *tone* of the seed hue
+  // tuned for dark-mode contrast — `primary` comes out a pale lavender,
+  // not the actual brand purple. `copyWith` then pins the slots this app
+  // already has a named, in-use color for (`kc*` in app_colors.dart) so
+  // Material-default-styled widgets (buttons, chips, TextField's error
+  // state) match the brand color used everywhere else (the nav rail,
+  // checkboxes) instead of a washed-out seed-derived approximation of it.
+  // Every other slot stays seed-derived — nobody's designed a value for
+  // those yet.
+  final colorScheme =
+      ColorScheme.fromSeed(
+        seedColor: kcPrimaryColor,
+        brightness: Brightness.dark,
+        surface: kcDarkGreyColor,
+      ).copyWith(
+        primary: kcPrimaryColor,
+        onPrimary: kcWhite,
+        error: kcErrorColor,
+        onError: kcWhite,
+      );
 
   // Deliberately squares off Material 3's default pill-shaped buttons to
   // `appRadius.medium` — the same radius already used by cards, dialogs,
