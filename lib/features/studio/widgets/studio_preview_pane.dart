@@ -181,13 +181,17 @@ class _ExportFab extends StatelessWidget {
       children: [
         if (viewModel.hasExportError) ...[
           Container(
+            // The per-stage messages below run noticeably longer than the
+            // one generic message this replaced — capped so a long one
+            // wraps instead of overflowing past the preview pane's edge.
+            constraints: const BoxConstraints(maxWidth: 240),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: kcDarkGreyColor,
               borderRadius: BorderRadius.circular(context.appRadius.medium),
             ),
             child: Text(
-              "Couldn't export the PDF — try again.",
+              viewModel.exportErrorMessage,
               style: context.appTypography.caption.copyWith(
                 color: kcErrorColor,
               ),

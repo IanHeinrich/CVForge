@@ -18,8 +18,19 @@ class FontService {
   // services in this project use for the same reason.
   Future<CvFontSet>? _loadFuture;
 
-  /// Loads and caches the font set if it isn't already, then returns it.
-  Future<CvFontSet> load() => _loadFuture ??= _loadFonts();
+  /// Loads and caches the font set if it isn't already, then returns it. A
+  /// failed load (e.g. a font asset 404ing under a bad `--base-href`) must
+  /// not poison every later call, including a user-triggered export retry
+  /// — the reset is chained via [Future.catchError], not written inside
+  /// [_loadFonts] itself, for the exact clobber-order reason
+  /// `LocalStorageService.ensureInitialized`'s doc comment explains.
+  Future<CvFontSet> load() => _loadFuture ??= _loadFonts().catchError((
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    _loadFuture = null;
+    Error.throwWithStackTrace(error, stackTrace);
+  });
 
   /// Fire-and-forget warm-up so fonts are already cached by the time a user
   /// clicks export. Not awaited by callers — `load()` still awaits the same

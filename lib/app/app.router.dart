@@ -49,12 +49,13 @@ class StackedRouterWeb extends _i7.RootStackRouter {
       );
     },
     StudioViewRoute.name: (routeData) {
+      final queryParams = routeData.queryParams;
       final args = routeData.argsAs<StudioViewArgs>(
-        orElse: () => const StudioViewArgs(),
+        orElse: () => StudioViewArgs(draftId: queryParams.optString('draftId')),
       );
       return _i7.CustomPage<dynamic>(
         routeData: routeData,
-        child: _i3.StudioView(key: args.key),
+        child: _i3.StudioView(key: args.key, draftId: args.draftId),
         opaque: true,
         barrierDismissible: false,
       );
@@ -150,24 +151,27 @@ class VaultViewArgs {
 /// generated route for
 /// [_i3.StudioView]
 class StudioViewRoute extends _i7.PageRouteInfo<StudioViewArgs> {
-  StudioViewRoute({_i8.Key? key})
+  StudioViewRoute({_i8.Key? key, String? draftId})
     : super(
         StudioViewRoute.name,
         path: '/studio',
-        args: StudioViewArgs(key: key),
+        args: StudioViewArgs(key: key, draftId: draftId),
+        rawQueryParams: {'draftId': draftId},
       );
 
   static const String name = 'StudioView';
 }
 
 class StudioViewArgs {
-  const StudioViewArgs({this.key});
+  const StudioViewArgs({this.key, this.draftId});
 
   final _i8.Key? key;
 
+  final String? draftId;
+
   @override
   String toString() {
-    return 'StudioViewArgs{key: $key}';
+    return 'StudioViewArgs{key: $key, draftId: $draftId}';
   }
 }
 
@@ -236,9 +240,13 @@ extension RouterStateExtension on _i6.RouterService {
 
   Future<dynamic> navigateToStudioView({
     _i8.Key? key,
+    String? draftId,
     void Function(_i7.NavigationFailure)? onFailure,
   }) async {
-    return navigateTo(StudioViewRoute(key: key), onFailure: onFailure);
+    return navigateTo(
+      StudioViewRoute(key: key, draftId: draftId),
+      onFailure: onFailure,
+    );
   }
 
   Future<dynamic> navigateToDraftsListView({
@@ -271,9 +279,13 @@ extension RouterStateExtension on _i6.RouterService {
 
   Future<dynamic> replaceWithStudioView({
     _i8.Key? key,
+    String? draftId,
     void Function(_i7.NavigationFailure)? onFailure,
   }) async {
-    return replaceWith(StudioViewRoute(key: key), onFailure: onFailure);
+    return replaceWith(
+      StudioViewRoute(key: key, draftId: draftId),
+      onFailure: onFailure,
+    );
   }
 
   Future<dynamic> replaceWithDraftsListView({

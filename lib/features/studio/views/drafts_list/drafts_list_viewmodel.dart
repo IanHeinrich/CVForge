@@ -46,17 +46,17 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
       mainButtonTitle: 'Create',
     );
     if (result == null) return;
-    await _draftService.createDraft(
+    final id = await _draftService.createDraft(
       name: result.name,
       notes: result.notes,
       templateId: _templateRegistry.defaultTemplate.id,
     );
-    await _routerService.replaceWith(StudioViewRoute());
+    await _routerService.replaceWith(StudioViewRoute(draftId: id));
   }
 
   Future<void> openDraft(String id) async {
     await _draftService.openDraft(id);
-    await _routerService.replaceWith(StudioViewRoute());
+    await _routerService.replaceWith(StudioViewRoute(draftId: id));
   }
 
   Future<void> editDraft(CvDraft draft) async {
@@ -74,8 +74,8 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   Future<void> duplicateDraft(CvDraft draft) async {
-    await _draftService.duplicateDraft(draft.id);
-    await _routerService.replaceWith(StudioViewRoute());
+    final id = await _draftService.duplicateDraft(draft.id);
+    await _routerService.replaceWith(StudioViewRoute(draftId: id));
   }
 
   Future<void> deleteDraft(CvDraft draft) async {

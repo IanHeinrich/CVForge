@@ -73,5 +73,15 @@ ThemeData buildAppTheme() {
         borderRadius: BorderRadius.circular(appRadius.medium),
       ),
     ),
+    // FilterChip/ChoiceChip selection reads `selectedColor`, not `primary`
+    // — pinning only `colorScheme.primary` above (see its doc comment)
+    // left selected chips on the seed-derived `secondaryContainer` tone,
+    // a visibly different color family from the nav rail/buttons. Only
+    // the selected-state slots are pinned; unselected chips keep their
+    // seed-derived look, same as every other not-yet-designed slot.
+    chipTheme: ChipThemeData(
+      selectedColor: kcPrimaryColor,
+      checkmarkColor: kcWhite,
+    ),
   );
 }

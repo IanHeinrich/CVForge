@@ -38,6 +38,14 @@ enum StudioPreviewState { vaultEmpty, nothingSelected, ready }
 /// unit test of a pure function, which the project's conventions avoid
 /// unless asked for).
 class StudioViewModel extends ReactiveViewModel implements Initialisable {
+  StudioViewModel({this.requestedDraftId});
+
+  /// The `?draftId=…` query param `StudioView` was opened with, if any —
+  /// see its doc comment for why this is a query param rather than a path
+  /// segment. `null` means "show whatever `DraftService` already has
+  /// active", the pre-existing behaviour.
+  final String? requestedDraftId;
+
   final _vaultService = locator<VaultService>();
   final _draftService = locator<DraftService>();
   final _templateRegistry = locator<TemplateRegistryService>();
@@ -65,6 +73,13 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> _load() async {
     await _vaultService.load();
     await _draftService.load();
+    // No-ops for a null/unknown/already-active id (see `DraftService.
+    // openDraft`'s doc comment) — a stale bookmark to a since-deleted
+    // draft just falls back to whatever's active, the same "dangling ids
+    // are normal" rule the rest of this app already follows.
+    if (requestedDraftId != null) {
+      await _draftService.openDraft(requestedDraftId!);
+    }
     if (_draftService.isFreshDraft) await _selectAllFromVault();
   }
 
@@ -482,6 +497,28 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   bool get isExporting => isBusy;
   bool get hasExportError => hasError;
   Object? get exportError => modelError;
+
+  /// Recovery copy for [hasExportError], one per [PdfExportStage] — falls
+  /// back to a generic message for anything that isn't a
+  /// [PdfExportException] (there shouldn't be one, but a raw exception
+  /// leaking past `PdfExportService` shouldn't crash this getter).
+  String get exportErrorMessage {
+    final error = exportError;
+    if (error is! PdfExportException) {
+      return "Couldn't export the PDF — try again.";
+    }
+    return switch (error.stage) {
+      PdfExportStage.fonts =>
+        "Couldn't load the fonts needed to export — check your "
+            'connection and try again.',
+      PdfExportStage.render =>
+        "Couldn't generate the PDF — try again, and if it keeps "
+            'failing, check your CV for unusual characters or formatting.',
+      PdfExportStage.save =>
+        "Couldn't save the file — check your browser's download "
+            'settings and try again.',
+    };
+  }
 
   /// Fires straight off the calling `onPressed` with fonts already warmed
   /// by `StartupViewModel` — web export needs a real user gesture, and the
