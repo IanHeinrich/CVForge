@@ -7,9 +7,8 @@ abstract final class StorageBoxes {
   static const vault = 'cvforge_vault';
   static const drafts = 'cvforge_drafts';
 
-  /// Unused today (a future BYOK API key / region preference feature's
-  /// eventual home) — lazily opened like every other box, so an unused
-  /// box costs nothing on the boot path.
+  /// Backs `SettingsService`'s [AppSettings] row (see [StorageKeys.appSettings])
+  /// — lazily opened like every other box.
   static const settings = 'cvforge_settings';
 }
 
@@ -18,6 +17,10 @@ abstract final class StorageKeys {
 
   /// The Vault is a single aggregate — one key.
   static const vaultProfile = 'profile';
+
+  /// The Settings aggregate is also a single key — same "one JSON string
+  /// under a named key" shape as [vaultProfile].
+  static const appSettings = 'app_settings';
 
   /// The original single-draft key, from before multiple drafts existed.
   /// No longer written, but still read once on first load (see

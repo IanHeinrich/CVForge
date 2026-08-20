@@ -301,6 +301,44 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     await _persistIndex();
   }
 
+  /// Wholesale-replaces every draft — the one call site is `BackupService`'s
+  /// import flow. Flushes (via [persistNow]) any write still sitting in the
+  /// debounce timer *before* overwriting in-memory state, for the same
+  /// stale-write-clobbers-the-import reason as [VaultService.replaceAll].
+  ///
+  /// Deletes the storage entry for every draft id that existed before the
+  /// replacement but isn't in [drafts] — what makes "replace the world"
+  /// actually true at the storage layer, not just in the in-memory index;
+  /// otherwise an orphaned `draft_<id>` entry survives forever, unreferenced
+  /// but never cleaned up.
+  Future<void> replaceAll(
+    List<CvDraft> drafts, {
+    required String? activeDraftId,
+  }) async {
+    await ready();
+    await persistNow(draft);
+
+    final oldIds = _drafts.value.map((d) => d.id).toSet();
+    final newIds = drafts.map((d) => d.id).toSet();
+    for (final id in oldIds.difference(newIds)) {
+      await _localStorage.delete(
+        StorageBoxes.drafts,
+        StorageKeys.draftEntry(id),
+      );
+    }
+
+    _freshDraftIds.clear(); // imported drafts are never "fresh"
+    _drafts.value = _sortedByRecency(drafts);
+    _activeDraftId.value = drafts.any((d) => d.id == activeDraftId)
+        ? activeDraftId
+        : (drafts.isNotEmpty ? drafts.first.id : null);
+
+    for (final d in drafts) {
+      await persistImmediately(d);
+    }
+    await _persistIndex();
+  }
+
   // --- active-draft selection/tailoring (Studio) ---
 
   Future<void> setTemplate(String templateId) async {
