@@ -14,6 +14,7 @@ mixin _$AppTypographyTailorMixin on ThemeExtension<AppTypography> {
   TextStyle get titleMedium;
   TextStyle get titleSmall;
   TextStyle get bodySmall;
+  TextStyle get caption;
 
   @override
   AppTypography copyWith({
@@ -21,12 +22,14 @@ mixin _$AppTypographyTailorMixin on ThemeExtension<AppTypography> {
     TextStyle? titleMedium,
     TextStyle? titleSmall,
     TextStyle? bodySmall,
+    TextStyle? caption,
   }) {
     return AppTypography(
       titleLarge: titleLarge ?? this.titleLarge,
       titleMedium: titleMedium ?? this.titleMedium,
       titleSmall: titleSmall ?? this.titleSmall,
       bodySmall: bodySmall ?? this.bodySmall,
+      caption: caption ?? this.caption,
     );
   }
 
@@ -38,6 +41,7 @@ mixin _$AppTypographyTailorMixin on ThemeExtension<AppTypography> {
       titleMedium: TextStyle.lerp(titleMedium, other.titleMedium, t)!,
       titleSmall: TextStyle.lerp(titleSmall, other.titleSmall, t)!,
       bodySmall: TextStyle.lerp(bodySmall, other.bodySmall, t)!,
+      caption: TextStyle.lerp(caption, other.caption, t)!,
     );
   }
 
@@ -58,7 +62,8 @@ mixin _$AppTypographyTailorMixin on ThemeExtension<AppTypography> {
               titleSmall,
               other.titleSmall,
             ) &&
-            const DeepCollectionEquality().equals(bodySmall, other.bodySmall));
+            const DeepCollectionEquality().equals(bodySmall, other.bodySmall) &&
+            const DeepCollectionEquality().equals(caption, other.caption));
   }
 
   @override
@@ -69,6 +74,7 @@ mixin _$AppTypographyTailorMixin on ThemeExtension<AppTypography> {
       const DeepCollectionEquality().hash(titleMedium),
       const DeepCollectionEquality().hash(titleSmall),
       const DeepCollectionEquality().hash(bodySmall),
+      const DeepCollectionEquality().hash(caption),
     );
   }
 }
@@ -79,4 +85,12 @@ extension AppTypographyBuildContextProps on BuildContext {
   TextStyle get titleMedium => appTypography.titleMedium;
   TextStyle get titleSmall => appTypography.titleSmall;
   TextStyle get bodySmall => appTypography.bodySmall;
+
+  /// The smallest text in the chrome — helper/status text under a form
+  /// field, a chip label, a bulk-action button. Deliberately carries no
+  /// color of its own (unlike [bodySmall]): every call site so far picks
+  /// its own color (or none, inheriting the ambient one) and sometimes a
+  /// weight or italic, so this only centralizes the one thing they all
+  /// actually share — the size — via `.copyWith(...)`.
+  TextStyle get caption => appTypography.caption;
 }

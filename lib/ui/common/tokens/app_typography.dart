@@ -28,6 +28,7 @@ class AppTypography extends ThemeExtension<AppTypography>
     required this.titleMedium,
     required this.titleSmall,
     required this.bodySmall,
+    required this.caption,
   });
 
   @override
@@ -38,6 +39,15 @@ class AppTypography extends ThemeExtension<AppTypography>
   final TextStyle titleSmall;
   @override
   final TextStyle bodySmall;
+
+  /// The smallest text in the chrome — helper/status text under a form
+  /// field, a chip label, a bulk-action button. Deliberately carries no
+  /// color of its own (unlike [bodySmall]): every call site so far picks
+  /// its own color (or none, inheriting the ambient one) and sometimes a
+  /// weight or italic, so this only centralizes the one thing they all
+  /// actually share — the size — via `.copyWith(...)`.
+  @override
+  final TextStyle caption;
 }
 
 const appTypography = AppTypography(
@@ -63,4 +73,5 @@ const appTypography = AppTypography(
   // A collapsed card's secondary line, or italic free-text notes beneath
   // it — see `AppSummaryCard`.
   bodySmall: TextStyle(fontSize: 13, color: kcLightGrey),
+  caption: TextStyle(fontSize: 12),
 );

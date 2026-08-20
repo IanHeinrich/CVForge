@@ -14,6 +14,7 @@ class AppSpacing extends ThemeExtension<AppSpacing>
     required this.gapTiny,
     required this.gapSmall,
     required this.gapMedium,
+    required this.paddingHairline,
     required this.paddingTight,
     required this.paddingCompact,
     required this.paddingDefault,
@@ -32,6 +33,13 @@ class AppSpacing extends ThemeExtension<AppSpacing>
 
   /// Padding inside a container's own border — was `app_constants.dart`'s
   /// `kdPadding*`.
+  ///
+  /// [paddingHairline] is the one tier below [paddingTight] — the smallest
+  /// deliberate gap in the scale (an icon nudged next to adjacent text, an
+  /// inline editor's own vertical breathing room), rather than a semantic
+  /// role of its own like the others.
+  @override
+  final double paddingHairline;
   @override
   final double paddingTight;
   @override
@@ -48,6 +56,7 @@ const appSpacing = AppSpacing(
   gapTiny: 5,
   gapSmall: 10,
   gapMedium: 25,
+  paddingHairline: 4,
   paddingTight: 8,
   paddingCompact: 12,
   paddingDefault: 16,

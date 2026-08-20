@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -68,7 +69,7 @@ class ExperienceEditorPanel extends StatelessWidget {
           initialValue: experience.location,
           onChanged: (v) => onChanged(experience.copyWith(location: v)),
         ),
-        ..._buildGroupPicker(),
+        ..._buildGroupPicker(context),
         const VGap.medium(),
         Row(
           children: [
@@ -180,7 +181,7 @@ class ExperienceEditorPanel extends StatelessWidget {
   /// Same-company candidates this entry can be grouped with as a
   /// promotion. Matched on trimmed, case-insensitive company name so
   /// "Acme" and "Acme " (or "acme") still match.
-  List<Widget> _buildGroupPicker() {
+  List<Widget> _buildGroupPicker(BuildContext context) {
     final company = experience.company.trim().toLowerCase();
     if (company.isEmpty) return const [];
 
@@ -192,10 +193,7 @@ class ExperienceEditorPanel extends StatelessWidget {
 
     return [
       const VGap.medium(),
-      const Text(
-        'Promotion — group with',
-        style: TextStyle(color: kcLightGrey, fontSize: 13),
-      ),
+      Text('Promotion — group with', style: context.appTypography.bodySmall),
       const VGap.tiny(),
       Wrap(
         spacing: 8,

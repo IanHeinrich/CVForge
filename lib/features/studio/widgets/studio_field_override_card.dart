@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -172,10 +173,10 @@ class _HiddenNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: Text(
             'Hidden in this CV',
-            style: TextStyle(color: kcErrorColor, fontSize: 12),
+            style: context.appTypography.caption.copyWith(color: kcErrorColor),
           ),
         ),
         TextButton(onPressed: onShow, child: const Text('Show')),

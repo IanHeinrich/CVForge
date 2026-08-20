@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -119,7 +120,9 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                   ? null
                   : Text(
                       item.subtitle!,
-                      style: const TextStyle(color: kcLightGrey, fontSize: 12),
+                      style: context.appTypography.caption.copyWith(
+                        color: kcLightGrey,
+                      ),
                     ),
             ),
             if (item.selected && item.bullets.isNotEmpty)
@@ -197,7 +200,7 @@ class _BulletSublist extends StatelessWidget {
                         : RemixIcons.arrow_down_s_line,
                     size: 16,
                   ),
-                  label: Text(countLabel, style: const TextStyle(fontSize: 12)),
+                  label: Text(countLabel, style: context.appTypography.caption),
                 ),
               ),
               if (expanded &&
@@ -212,7 +215,7 @@ class _BulletSublist extends StatelessWidget {
                   // same, not "Select all".
                   child: Text(
                     'Add all ($unselectedCount)',
-                    style: const TextStyle(fontSize: 12),
+                    style: context.appTypography.caption,
                   ),
                 ),
             ],
@@ -271,7 +274,7 @@ class _BulletRow extends StatelessWidget {
             activeColor: kcPrimaryColor,
             title: Text(
               bullet.title,
-              style: const TextStyle(color: kcLightGrey, fontSize: 13),
+              style: context.appTypography.bodySmall,
               maxLines: editing ? 1 : 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -337,9 +340,8 @@ class _TailorableFieldRow extends StatelessWidget {
                     // is already showing this text in full.
                     maxLines: editing ? 1 : 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: context.appTypography.caption.copyWith(
                       color: hasText ? kcLightGrey : kcMediumGrey,
-                      fontSize: 12,
                       fontStyle: hasText ? FontStyle.normal : FontStyle.italic,
                     ),
                   ),
