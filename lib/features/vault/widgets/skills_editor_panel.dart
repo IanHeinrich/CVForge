@@ -211,14 +211,14 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
           for (final experience in experiencesWithBullets)
             Padding(
               padding: EdgeInsets.only(
-                top: context.appSpacing.paddingTight,
+                top: context.appSpacing.paddingDefault,
                 left: context.appSpacing.paddingTight,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    experience.role.isEmpty ? 'Untitled role' : experience.role,
+                    _experienceHeading(experience),
                     style: context.appTypography.caption.copyWith(
                       color: kcLightGrey,
                       fontWeight: FontWeight.w600,
@@ -230,27 +230,30 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
                     runSpacing: 6,
                     children: [
                       for (final bullet in experience.bullets)
-                        FilterChip(
-                          label: Text(
-                            _chipLabel(bullet),
-                            style: context.appTypography.caption,
+                        Tooltip(
+                          message: bullet.label ?? bullet.text,
+                          child: FilterChip(
+                            label: Text(
+                              _chipLabel(bullet),
+                              style: context.appTypography.caption,
+                            ),
+                            visualDensity: VisualDensity.compact,
+                            selected: widget.skill.linkedBulletIds.contains(
+                              bullet.id,
+                            ),
+                            onSelected: (selected) {
+                              final ids = [...widget.skill.linkedBulletIds];
+                              if (selected) {
+                                ids.add(bullet.id);
+                              } else {
+                                ids.remove(bullet.id);
+                              }
+                              widget.onUpdateSkill(
+                                widget.categoryId,
+                                widget.skill.copyWith(linkedBulletIds: ids),
+                              );
+                            },
                           ),
-                          visualDensity: VisualDensity.compact,
-                          selected: widget.skill.linkedBulletIds.contains(
-                            bullet.id,
-                          ),
-                          onSelected: (selected) {
-                            final ids = [...widget.skill.linkedBulletIds];
-                            if (selected) {
-                              ids.add(bullet.id);
-                            } else {
-                              ids.remove(bullet.id);
-                            }
-                            widget.onUpdateSkill(
-                              widget.categoryId,
-                              widget.skill.copyWith(linkedBulletIds: ids),
-                            );
-                          },
                         ),
                     ],
                   ),
@@ -259,6 +262,17 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
             ),
       ],
     );
+  }
+
+  /// "Role · Company" — falls back to just the role when there's no
+  /// company to disambiguate against (or vice versa), rather than a
+  /// dangling " · " with nothing on one side. Several roles can easily
+  /// share a title ("Software Engineer" at three different companies),
+  /// so the heading needs the company to actually tell them apart.
+  String _experienceHeading(Experience experience) {
+    final role = experience.role.isEmpty ? 'Untitled role' : experience.role;
+    final company = experience.company;
+    return company.isEmpty ? role : '$role · $company';
   }
 
   String _chipLabel(CvBullet bullet) {
