@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -56,6 +57,9 @@ void main() {
       locator.registerLazySingleton<TemplateRegistryService>(
         TemplateRegistryService.new,
       );
+      when(
+        getAndRegisterSettingsService().settings,
+      ).thenReturn(AppSettings.empty());
 
       vaultService = VaultService();
       locator.registerSingleton<VaultService>(vaultService);

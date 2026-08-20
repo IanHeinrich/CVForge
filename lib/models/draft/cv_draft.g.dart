@@ -11,6 +11,9 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
   id: json['id'] as String,
   name: json['name'] as String,
   templateId: json['templateId'] as String,
+  region:
+      $enumDecodeNullable(_$RegionProfileEnumMap, json['region']) ??
+      RegionProfile.uk,
   notes: json['notes'] as String? ?? '',
   experienceIds:
       (json['experienceIds'] as List<dynamic>?)
@@ -71,6 +74,7 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
   'templateId': instance.templateId,
+  'region': _$RegionProfileEnumMap[instance.region]!,
   'notes': instance.notes,
   'experienceIds': instance.experienceIds,
   'bulletIds': instance.bulletIds,
@@ -89,6 +93,8 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'educationDetailsOverrides': instance.educationDetailsOverrides,
   'updatedAt': instance.updatedAt.toIso8601String(),
 };
+
+const _$RegionProfileEnumMap = {RegionProfile.uk: 'uk', RegionProfile.us: 'us'};
 
 const _$CvSectionTypeEnumMap = {
   CvSectionType.summary: 'summary',

@@ -240,10 +240,11 @@ abstract final class CvComposer {
   }
 
   static String _formatDateRange(Experience experience, RegionProfile region) {
-    // Single case today; this switch is the seam a future US date format
-    // (and spelling normalisation) plugs into.
+    // uk and us format identically today — "Mon YYYY" reads fine on both
+    // sides of the Atlantic — but region stays threaded through as the
+    // seam for whichever one needs to diverge first.
     switch (region) {
-      case RegionProfile.uk:
+      case RegionProfile.uk || RegionProfile.us:
         final start = experience.start.toMonYyyy();
         // Capitalized — the ATS-recognized keyword token for an ongoing
         // role, matched by standard regex date parsers.

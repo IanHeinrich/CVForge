@@ -4,13 +4,14 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i18;
-import 'dart:typed_data' as _i31;
+import 'dart:typed_data' as _i32;
 import 'dart:ui' as _i23;
 
-import 'package:cv_forge/models/backup/cv_backup_bundle.dart' as _i40;
+import 'package:cv_forge/models/backup/cv_backup_bundle.dart' as _i41;
 import 'package:cv_forge/models/draft/cv_draft.dart' as _i13;
-import 'package:cv_forge/models/draft/cv_section_type.dart' as _i29;
-import 'package:cv_forge/models/render/resolved_cv.dart' as _i36;
+import 'package:cv_forge/models/draft/cv_section_type.dart' as _i30;
+import 'package:cv_forge/models/render/region_profile.dart' as _i29;
+import 'package:cv_forge/models/render/resolved_cv.dart' as _i37;
 import 'package:cv_forge/models/settings/app_settings.dart' as _i16;
 import 'package:cv_forge/models/vault/contact_basics.dart' as _i25;
 import 'package:cv_forge/models/vault/cv_bullet.dart' as _i7;
@@ -23,23 +24,23 @@ import 'package:cv_forge/models/vault/project.dart' as _i8;
 import 'package:cv_forge/models/vault/skill.dart' as _i10;
 import 'package:cv_forge/models/vault/skill_category.dart' as _i9;
 import 'package:cv_forge/models/vault/year_month.dart' as _i26;
-import 'package:cv_forge/services/backup_service.dart' as _i39;
+import 'package:cv_forge/services/backup_service.dart' as _i40;
 import 'package:cv_forge/services/draft_service.dart' as _i27;
-import 'package:cv_forge/services/file_download_service.dart' as _i30;
-import 'package:cv_forge/services/file_upload_service.dart' as _i41;
-import 'package:cv_forge/services/font_service.dart' as _i34;
+import 'package:cv_forge/services/file_download_service.dart' as _i31;
+import 'package:cv_forge/services/file_upload_service.dart' as _i42;
+import 'package:cv_forge/services/font_service.dart' as _i35;
 import 'package:cv_forge/services/local_storage_service.dart' as _i3;
-import 'package:cv_forge/services/pdf_export_service.dart' as _i35;
-import 'package:cv_forge/services/settings_service.dart' as _i38;
-import 'package:cv_forge/services/template_registry_service.dart' as _i33;
+import 'package:cv_forge/services/pdf_export_service.dart' as _i36;
+import 'package:cv_forge/services/settings_service.dart' as _i39;
+import 'package:cv_forge/services/template_registry_service.dart' as _i34;
 import 'package:cv_forge/services/vault_service.dart' as _i24;
 import 'package:cv_forge/templates/cv_template.dart' as _i14;
 import 'package:cv_forge/templates/design/cv_font_set.dart' as _i15;
-import 'package:file_saver/file_saver.dart' as _i32;
+import 'package:file_saver/file_saver.dart' as _i33;
 import 'package:flutter/material.dart' as _i19;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i28;
-import 'package:pdf/pdf.dart' as _i37;
+import 'package:pdf/pdf.dart' as _i38;
 import 'package:stacked/stacked.dart' as _i2;
 import 'package:stacked_services/src/dialog/dialog_service.dart' as _i20;
 import 'package:stacked_services/src/models/overlay_request.dart' as _i21;
@@ -1446,6 +1447,15 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
           as _i18.Future<void>);
 
   @override
+  _i18.Future<void> setRegion(_i29.RegionProfile? region) =>
+      (super.noSuchMethod(
+            Invocation.method(#setRegion, [region]),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
+          )
+          as _i18.Future<void>);
+
+  @override
   _i18.Future<void> selectAllFromVault({
     required List<String>? experienceIds,
     required Map<String, List<String>>? bulletIds,
@@ -1581,7 +1591,7 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
 
   @override
   _i18.Future<void> setSectionHidden(
-    _i29.CvSectionType? type, {
+    _i30.CvSectionType? type, {
     required bool? hidden,
   }) =>
       (super.noSuchMethod(
@@ -1732,13 +1742,13 @@ class MockDraftService extends _i1.Mock implements _i27.DraftService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockFileDownloadService extends _i1.Mock
-    implements _i30.FileDownloadService {
+    implements _i31.FileDownloadService {
   @override
   _i18.Future<void> saveFile({
     required String? nameWithoutExtension,
-    required _i31.Uint8List? bytes,
+    required _i32.Uint8List? bytes,
     required String? extension,
-    required _i32.MimeType? mimeType,
+    required _i33.MimeType? mimeType,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#saveFile, [], {
@@ -1757,7 +1767,7 @@ class MockFileDownloadService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTemplateRegistryService extends _i1.Mock
-    implements _i33.TemplateRegistryService {
+    implements _i34.TemplateRegistryService {
   @override
   _i14.CvTemplate get defaultTemplate =>
       (super.noSuchMethod(
@@ -1792,7 +1802,7 @@ class MockTemplateRegistryService extends _i1.Mock
 /// A class which mocks [FontService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFontService extends _i1.Mock implements _i34.FontService {
+class MockFontService extends _i1.Mock implements _i35.FontService {
   @override
   _i18.Future<_i15.CvFontSet> load() =>
       (super.noSuchMethod(
@@ -1819,14 +1829,14 @@ class MockFontService extends _i1.Mock implements _i34.FontService {
 /// A class which mocks [PdfExportService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPdfExportService extends _i1.Mock implements _i35.PdfExportService {
+class MockPdfExportService extends _i1.Mock implements _i36.PdfExportService {
   @override
   _i18.Future<void> export({
-    required _i36.ResolvedCv? cv,
+    required _i37.ResolvedCv? cv,
     required String? templateId,
     required String? fullName,
     required String? draftName,
-    _i37.PdfPageFormat? format = _i37.PdfPageFormat.a4,
+    _i38.PdfPageFormat? format = _i38.PdfPageFormat.a4,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#export, [], {
@@ -1842,10 +1852,10 @@ class MockPdfExportService extends _i1.Mock implements _i35.PdfExportService {
           as _i18.Future<void>);
 
   @override
-  _i18.Future<_i31.Uint8List> render({
-    required _i36.ResolvedCv? cv,
+  _i18.Future<_i32.Uint8List> render({
+    required _i37.ResolvedCv? cv,
     required String? templateId,
-    _i37.PdfPageFormat? format = _i37.PdfPageFormat.a4,
+    _i38.PdfPageFormat? format = _i38.PdfPageFormat.a4,
     bool? compress = true,
   }) =>
       (super.noSuchMethod(
@@ -1855,18 +1865,18 @@ class MockPdfExportService extends _i1.Mock implements _i35.PdfExportService {
               #format: format,
               #compress: compress,
             }),
-            returnValue: _i18.Future<_i31.Uint8List>.value(_i31.Uint8List(0)),
-            returnValueForMissingStub: _i18.Future<_i31.Uint8List>.value(
-              _i31.Uint8List(0),
+            returnValue: _i18.Future<_i32.Uint8List>.value(_i32.Uint8List(0)),
+            returnValueForMissingStub: _i18.Future<_i32.Uint8List>.value(
+              _i32.Uint8List(0),
             ),
           )
-          as _i18.Future<_i31.Uint8List>);
+          as _i18.Future<_i32.Uint8List>);
 }
 
 /// A class which mocks [SettingsService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsService extends _i1.Mock implements _i38.SettingsService {
+class MockSettingsService extends _i1.Mock implements _i39.SettingsService {
   @override
   _i3.LocalStorageService get storage =>
       (super.noSuchMethod(
@@ -2025,7 +2035,7 @@ class MockSettingsService extends _i1.Mock implements _i38.SettingsService {
 /// A class which mocks [BackupService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBackupService extends _i1.Mock implements _i39.BackupService {
+class MockBackupService extends _i1.Mock implements _i40.BackupService {
   @override
   _i18.Future<void> exportBackup() =>
       (super.noSuchMethod(
@@ -2036,17 +2046,17 @@ class MockBackupService extends _i1.Mock implements _i39.BackupService {
           as _i18.Future<void>);
 
   @override
-  _i18.Future<_i40.CvBackupBundle?> pickImportFile() =>
+  _i18.Future<_i41.CvBackupBundle?> pickImportFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickImportFile, []),
-            returnValue: _i18.Future<_i40.CvBackupBundle?>.value(),
+            returnValue: _i18.Future<_i41.CvBackupBundle?>.value(),
             returnValueForMissingStub:
-                _i18.Future<_i40.CvBackupBundle?>.value(),
+                _i18.Future<_i41.CvBackupBundle?>.value(),
           )
-          as _i18.Future<_i40.CvBackupBundle?>);
+          as _i18.Future<_i41.CvBackupBundle?>);
 
   @override
-  _i18.Future<void> applyImport(_i40.CvBackupBundle? bundle) =>
+  _i18.Future<void> applyImport(_i41.CvBackupBundle? bundle) =>
       (super.noSuchMethod(
             Invocation.method(#applyImport, [bundle]),
             returnValue: _i18.Future<void>.value(),
@@ -2058,13 +2068,13 @@ class MockBackupService extends _i1.Mock implements _i39.BackupService {
 /// A class which mocks [FileUploadService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFileUploadService extends _i1.Mock implements _i41.FileUploadService {
+class MockFileUploadService extends _i1.Mock implements _i42.FileUploadService {
   @override
-  _i18.Future<_i31.Uint8List?> pickJsonFile() =>
+  _i18.Future<_i32.Uint8List?> pickJsonFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickJsonFile, []),
-            returnValue: _i18.Future<_i31.Uint8List?>.value(),
-            returnValueForMissingStub: _i18.Future<_i31.Uint8List?>.value(),
+            returnValue: _i18.Future<_i32.Uint8List?>.value(),
+            returnValueForMissingStub: _i18.Future<_i32.Uint8List?>.value(),
           )
-          as _i18.Future<_i31.Uint8List?>);
+          as _i18.Future<_i32.Uint8List?>);
 }

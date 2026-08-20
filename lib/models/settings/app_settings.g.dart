@@ -25,4 +25,4 @@ Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
       'rememberApiKey': instance.rememberApiKey,
     };
 
-const _$RegionProfileEnumMap = {RegionProfile.uk: 'uk'};
+const _$RegionProfileEnumMap = {RegionProfile.uk: 'uk', RegionProfile.us: 'us'};
