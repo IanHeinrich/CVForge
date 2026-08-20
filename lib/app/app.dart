@@ -35,6 +35,10 @@ import 'package:cv_forge/services/file_upload_service.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_view.dart';
 
+import 'package:cv_forge/services/ats_analyzer_service.dart';
+
+import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_view.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -44,6 +48,7 @@ import 'package:cv_forge/features/settings/views/settings/settings_view.dart';
     CustomRoute(page: StudioView, path: '/studio'),
     CustomRoute(page: DraftsListView, path: '/drafts'),
     CustomRoute(page: SettingsView, path: '/settings'),
+    CustomRoute(page: AnalyzerView, path: '/analyzer'),
     // @stacked-route
 
     CustomRoute(page: UnknownView, path: '/404'),
@@ -64,6 +69,14 @@ import 'package:cv_forge/features/settings/views/settings/settings_view.dart';
     LazySingleton(classType: SettingsService),
     LazySingleton(classType: BackupService),
     LazySingleton(classType: FileUploadService),
+    // PdfExtractionService is deliberately absent here — its real
+    // implementation, PdfExtractionServiceWeb, imports package:web, which
+    // does not compile under the Dart VM. Registering it through this
+    // list would pull that import into the centrally-generated
+    // app.locator.dart, which nearly every test file imports, and break
+    // the whole VM-run test suite. See PdfExtractionService's doc comment
+    // and main.dart's manual registration.
+    LazySingleton(classType: AtsAnalyzerService),
     // @stacked-service
   ],
   bottomsheets: [

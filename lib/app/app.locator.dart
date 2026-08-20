@@ -11,6 +11,7 @@ import 'package:stacked_services/src/dialog/dialog_service.dart';
 import 'package:stacked_services/src/navigation/router_service.dart';
 import 'package:stacked_shared/stacked_shared.dart';
 
+import '../services/ats_analyzer_service.dart';
 import '../services/backup_service.dart';
 import '../services/draft_service.dart';
 import '../services/file_download_service.dart';
@@ -49,6 +50,7 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => SettingsService());
   locator.registerLazySingleton(() => BackupService());
   locator.registerLazySingleton(() => FileUploadService());
+  locator.registerLazySingleton(() => AtsAnalyzerService());
   if (stackedRouter == null) {
     throw Exception(
       'Stacked is building to use the Router (Navigator 2.0) navigation but no stackedRouter is supplied. Pass the stackedRouter to the setupLocator function in main.dart',

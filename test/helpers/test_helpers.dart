@@ -11,6 +11,8 @@ import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
+import 'package:cv_forge/services/pdf_extraction_service.dart';
+import 'package:cv_forge/services/ats_analyzer_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -32,6 +34,8 @@ import 'test_helpers.mocks.dart';
     MockSpec<SettingsService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<BackupService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<FileUploadService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<PdfExtractionService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<AtsAnalyzerService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -48,6 +52,8 @@ void registerServices() {
   getAndRegisterSettingsService();
   getAndRegisterBackupService();
   getAndRegisterFileUploadService();
+  getAndRegisterPdfExtractionService();
+  getAndRegisterAtsAnalyzerService();
   // @stacked-mock-register
 }
 
@@ -132,6 +138,20 @@ MockFileUploadService getAndRegisterFileUploadService() {
   _removeRegistrationIfExists<FileUploadService>();
   final service = MockFileUploadService();
   locator.registerSingleton<FileUploadService>(service);
+  return service;
+}
+
+MockPdfExtractionService getAndRegisterPdfExtractionService() {
+  _removeRegistrationIfExists<PdfExtractionService>();
+  final service = MockPdfExtractionService();
+  locator.registerSingleton<PdfExtractionService>(service);
+  return service;
+}
+
+MockAtsAnalyzerService getAndRegisterAtsAnalyzerService() {
+  _removeRegistrationIfExists<AtsAnalyzerService>();
+  final service = MockAtsAnalyzerService();
+  locator.registerSingleton<AtsAnalyzerService>(service);
   return service;
 }
 // @stacked-mock-create

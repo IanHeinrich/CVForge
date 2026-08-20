@@ -6,6 +6,8 @@ import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/pdf_extraction_service.dart';
+import 'package:cv_forge/services/pdf_extraction_service_web.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/ui/common/app_strings.dart';
 import 'package:cv_forge/ui/common/app_theme.dart';
@@ -16,6 +18,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setPathUrlStrategy();
   await setupLocator(stackedRouter: stackedRouter);
+  // Registered here, not through app.dart's @StackedApp dependencies list
+  // like every other service — see PdfExtractionService's doc comment for
+  // why importing package:web there would break the whole VM-run test
+  // suite. main.dart is never imported by a test, so this is the only
+  // place package:web can safely enter the compilation graph.
+  locator.registerLazySingleton<PdfExtractionService>(
+    PdfExtractionServiceWeb.new,
+  );
   setupDialogUi();
   runApp(const MainApp());
 }
