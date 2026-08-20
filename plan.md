@@ -280,7 +280,7 @@ One PR each. Bumps only where a deploy is worth eyeballing in a real browser —
 
 **Status (2026-08-19): P1.0–P1.5 merged to `main` (PR #6–#10). P1.6 is open as [PR #11](https://github.com/IanHeinrich/cv-forge/pull/11), CI green, not yet merged.** P1.5 also picked up, beyond its original spec: per-bullet inclusion in Studio (collapsible bullet lists, per-entry select-all, bullet labels shown), a fix for a runaway relayout loop in `CvPageSurface`, whole-page-rounded pagination in the preview, and `ats_minimal` template accuracy fixes (ink color, no Professional-summary heading, "Experience" not "Work history") against the reference PDF. **P1.6's own scope is done; see its "Actually shipped" note below for the post-export polish round, the manual acceptance checklist, and everything that grew beyond the original spec (the live-preview architecture change is the big one — see decision 3's reversal note above). Once PR #11 merges, P1.7 is next, not yet started.**
 
-> **Status (2026-08-20):** the above is stale as of P1.6 merging — kept verbatim rather than rewritten, matching this doc's existing drift-note convention. Actual state: **P1.0 through P2.3.2 are all shipped** (PR #3–#14; see each sub-phase's "✅ shipped" marker and shipped-note above for what actually landed vs. the original spec). One more PR landed with no corresponding sub-phase in this doc — **[PR #15](https://github.com/IanHeinrich/cv-forge/pull/15), "Code review cleanup"**: dead code, DRY, docs, and correctness fixes found in a review pass, not tied to a feature. Repo version is still `1.1.0` (P2.1's bump); nothing since has warranted another. **Phase 3 — Theming system & UI polish** (PR #16–#23) is also done; see its own section below, after the Phase 2 sketch. Three items flagged during Phase 2/Phase 3 as deliberately deferred (the chip selection color, `/studio` deep-linking, and export error classification) were picked up together afterward — see [PR #25](https://github.com/IanHeinrich/cv-forge/pull/25) ("Follow-up fixes" below, after Phase 3).
+> **Status (2026-08-20):** the above is stale as of P1.6 merging — kept verbatim rather than rewritten, matching this doc's existing drift-note convention. Actual state: **P1.0 through P2.3.2 are all shipped** (PR #3–#14; see each sub-phase's "✅ shipped" marker and shipped-note above for what actually landed vs. the original spec). One more PR landed with no corresponding sub-phase in this doc — **[PR #15](https://github.com/IanHeinrich/cv-forge/pull/15), "Code review cleanup"**: dead code, DRY, docs, and correctness fixes found in a review pass, not tied to a feature. Repo version is still `1.1.0` (P2.1's bump); nothing since has warranted another. **Phase 3 — Theming system & UI polish** (PR #16–#23) is also done; see its own section below, after the Phase 2 sketch. Three items flagged during Phase 2/Phase 3 as deliberately deferred (the chip selection color, `/studio` deep-linking, and export error classification) were picked up together afterward — see [PR #25](https://github.com/IanHeinrich/cv-forge/pull/25) ("Follow-up fixes" below, after Phase 3). **Nothing spec'd in this doc is unbuilt as of PR #25.** The next work is **Phase 4 — Portability, presets, templates, and the Copilot**, specified after "Follow-up fixes" below: the four features Phase 1's Context listed as "designed for but not built". It is a plan only — no sub-phase of it has started.
 
 ---
 
@@ -677,6 +677,290 @@ Three previously-flagged, deliberately-deferred items, picked up together in one
 **Export error copy classified by failure stage** (P1.7's G7). `PdfExportService.render`/`export` now wrap each of their three failure-prone stages — font/asset load, `pw.Document` build+save, and the browser save — in a `PdfExportException(PdfExportStage, cause)`, and `StudioViewModel.exportErrorMessage` switches on the stage for the `_ExportFab` error chip's copy, replacing the one generic message. Caught one real bug while wiring the render stage: the original `return document.save();` inside the render `try` block returned the un-awaited `Future` — a failure inside it would propagate *after* the enclosing `try/catch` had already exited, silently skipping the classification entirely (`unawaited_return_in_try_block` from `flutter analyze` is what caught it, not inspection). Fixed by `await`-ing before returning.
 
 Also found and fixed while touching `FontService`, not originally in scope: `FontService.load()` had the exact same `_readyFuture ??=`-clobber bug P1.7's G2 fixed elsewhere in this codebase — a failed font load (e.g. an asset 404 under a bad `--base-href`) was cached forever, so the new "couldn't load fonts, try again" copy would have been a lie on retry. Fixed the same way G2 was: the reset lives in `load()` itself via `.catchError()`, not inside `_loadFonts()`.
+
+---
+
+## Phase 4 — Portability, presets, templates, and the Copilot (planned 2026-08-20)
+
+The four features Phase 1's Context named as "designed *for* but not built" — BYOK LLM Copilot, more templates, regional presets, JSON backup — specified properly for the first time. **Nothing in this section is built yet**; every sub-phase below is a spec, not a shipped note, and should grow an "Actually shipped" annotation the way P1.5/P1.6 did once it lands.
+
+The Phase-1 "Phase 2 corners avoided" table claimed most of this was nearly free because the seams exist. That claim is *half* right, and the same way P2's sketch had to correct the "Multi-draft: free" row: the seams are real, but each one is a signature, not a feature.
+
+| Feature | Seam that genuinely exists | What is actually missing |
+|---|---|---|
+| JSON export/import | Every aggregate is already a JSON string under a named key, with in-model `schemaVersion` and a migrate-or-quarantine read path. `StorageBoxes`' own doc comment says it was named for this. | A bundle envelope spanning *all* the keys, a file-picking dependency (there's a `FileDownloadService`, no counterpart for reading), replace-vs-merge semantics, and a UI surface to put it on. |
+| Regional presets | `RegionProfile` enum + `CvComposer._formatDateRange`'s single-case `switch`; `PdfPageFormat` is a parameter on `CvTemplate.buildDocument` and `PdfExportService.render`. | Region isn't persisted anywhere, and `StudioViewModel.pageFormat` hardcodes `PdfPageFormat.a4`, so the format parameter is a seam nothing can currently push a different value through. |
+| More templates | `CvTemplate` + `TemplateRegistryService` + `ResolvedSection` union + per-template `CvDesignTokens`. `DraftService.setTemplate` already exists. | `FontService` hardcodes Roboto's four TTFs and `CvTemplate` can't declare a family, so every template is a sans-serif Roboto template. And `setTemplate` has **zero production call sites** — today it is exactly the "no production API that only tests call" violation `CLAUDE.md` names; a picker is what redeems it, and a picker needs a second template to be worth showing. |
+| BYOK Copilot | `bulletOverrides`/`tailoredSummary`/`headlineOverride`/`educationDetailsOverrides` + the composer's override-aware read path — the model can tailor a draft without ever touching the Vault. `StorageBoxes.settings` is opened but never read. | Everything else: an HTTP client, a key, a provider, a response contract, a place to put the job description, and an honest answer to the fact that this feature sends the user's career history off-device. |
+
+### Decisions locked
+
+| # | Decision | Rationale |
+|---|---|---|
+| 1 | **Sequence: settings surface → backup → region → Copilot → templates.** | Backup lands before anything that bulk-mutates a draft (the Copilot does), so there is an escape hatch before the risky feature exists rather than after. Templates go last because their *identity* is still undecided (see 4.6) and nothing else depends on them. |
+| 2 | **A real `/settings` route, not a menu tucked into Drafts.** | Three separate features need a home for a persisted preference — export/import, the default region, and the API key. A fourth nav destination is cheaper than three ad-hoc affordances, and it gives `StorageBoxes.settings` its first reader. |
+| 3 | **Import is replace-the-world, never merge.** | Merging two Vaults means reconciling ids that were generated on two machines with no shared clock — a whole conflict-resolution model for a feature whose actual use is "restore my backup" and "move to a new browser". Replace is one confirm dialog and no new failure modes. |
+| 4 | **An import auto-exports the current state first, and offers it as a download before overwriting.** | Import is the one destructive operation in the app. The confirm dialog is easy to click through; a file already in your downloads folder is what actually saves you. Same "no silent data loss" rule that quarantines corrupt payloads instead of dropping them. |
+| 5 | **Region is a field on `CvDraft`, not an app-wide setting.** | A draft is per-application, and applying to a US and a UK employer from one Vault is a real workflow. Same shape as `templateId`, which is already per-draft for the same reason. An app-wide *default for new drafts* lives in settings; the draft's own value is what renders. |
+| 6 | **Region never rewrites the user's prose.** | It sets page format, date format, and label vocabulary. It does not normalise `organised` → `organized`. Silently exporting words the user didn't type — with the Vault still showing the originals — is the same class of defect as `unawaited()` on a persistence call: invisible until it has already happened. A reviewable spelling pass is a legitimate *later* feature; it is not part of a region preset. |
+| 7 | **Every call is direct from the browser, no proxy, ever.** | A proxy would mean a backend, which is the one thing this product doesn't have. This is also a hard filter on which providers CVForge can ever support: one that refuses browser-origin requests is not addable here, no matter how good it is. |
+| 7a | **One provider *implementation* (Anthropic) in Phase 4, behind a seam sized for the next one.** | Building two providers before either has a user is speculative; building the first one with its request shape, auth header, schema dialect, and error mapping welded into `LlmService` guarantees the second is a rewrite. The seam is a `LlmProvider` interface plus a registry — the same shape `TemplateRegistryService` already uses for templates — and it costs almost nothing to put in on day one. See 4.4. |
+| 8 | **The key is session-only by default, with an opt-in "remember on this device".** | Persisted means plaintext IndexedDB, readable by any XSS on the origin — the Phase-1 sketch already committed to being honest about this rather than claiming secure storage. Opt-in makes the tradeoff the user's, and the warning ships either way. |
+| 9 | **The Copilot's output is a strict JSON schema, and every id in it is an `enum` of ids that actually exist.** | Structured outputs (`output_config.format`) constrain the *shape*; enumerating the real ids constrains the *content*, making a hallucinated experience id structurally impossible rather than something we validate after the fact. Free-text rewrites are still free text — see decision 10. |
+| 10 | **The Copilot applies its pass directly to the draft, and every change it makes is individually revertible plus undoable as a whole.** | The asked-for flow is "new draft → paste the job ad → it's done", not a twelve-item accept/reject queue. That's the right call *because* the review surface already exists: a Copilot rewrite lands in `bulletOverrides` exactly where a manual one does, so `TailorableField`'s existing per-field revert-to-Vault control and "N tailored" count are already the diff view. A single draft-level "Undo Copilot pass" covers the rest. |
+| 11 | **The hallucination warning is permanent UI, not a one-time dialog.** | The failure mode is a plausible, well-written bullet claiming something the user never did, applied automatically, on the document that gets sent to employers. A dismissed-once modal doesn't survive the moment it matters. |
+| 12 | **The Copilot request never contains contact details.** Name, email, phone, location, and profile links are stripped from the payload; the model sees career *content* and ids only. | They contribute nothing to selecting or rewriting a bullet, and they're the most sensitive thing in the Vault. It also makes the pre-send disclosure short enough to be read and true enough to stand. |
+| 13 | **Settings are absent from the backup bundle, and API keys live in their own storage rows — one per provider — rather than inside the settings model.** | Two independent structural guarantees that a secret can't reach a file, instead of one `forExport()` call that has to stay correct forever. Settings are device-scoped anyway. **Keyed per provider from the start**: a user with both an Anthropic and a Google key shouldn't have to retype one to use the other, and retrofitting `apiKey` → `apiKeyFor(providerId)` after a key is persisted means a storage migration for one function signature's worth of foresight. |
+| 14 | **`schemaVersion` on `CvVault`/`CvDraft` stays at 1 for every additive field in this phase.** | Precedent: `bulletOverrides`, `headlineOverride`, `referencesOverride`, `educationDetailsOverrides` all landed as new optional/defaulted fields without a bump, and `requireSchemaVersion` treats an unrecognised version as corruption. The *bundle* envelope gets its own independent version (4.2) — that one does need to be strict, since it crosses machines and app versions. |
+
+### Sub-phase sequence
+
+| # | Name | Bump | Depends on |
+|---|---|---|---|
+| 4.1 | Settings surface + `SettingsService` | — | Phase 3 |
+| 4.2 | JSON export / import (full backup + restore) | **1.2.0** | 4.1 |
+| 4.3 | Regional presets (per-draft) | **1.3.0** | 4.1 |
+| 4.4 | Copilot plumbing: `LlmService`, key entry, model choice | — | 4.1 |
+| 4.5 | Copilot: the tailoring pass | **2.0.0** | 4.2, 4.4 |
+| 4.6 | Second template + family-aware `FontService` + picker | **2.1.0** | 4.3 |
+
+One PR each, same as every phase before it. 4.5 takes the major bump: it's the first time this app talks to a network at all, and the README's privacy stance changes with it.
+
+### 4.1 — Settings surface + `SettingsService`
+
+```bash
+stacked create service settings
+stacked create view settings -c stacked_configs/settings.json
+```
+
+New feature slice `lib/features/settings/`, new `stacked_configs/settings.json` (copy of root `stacked.json` with the view/widget/test paths repointed, per the feature-folder recipe above). `AppChrome` gains a third `NavigationRail` destination — and this time it *is* a peer of Vault and CVs, unlike Studio (see P2.3.1); pin it to the rail's bottom via `trailing` rather than adding it to the main destination list, since it's a utility surface, not a workspace.
+
+`SettingsService` mixes in `PersistedStoreMixin<AppSettings>` against `StorageBoxes.settings` — the same debounced-write, surfaced-`persistError`, idempotent-`ready()` shape `VaultService`/`DraftService` already use, so there's one persistence pattern in this codebase rather than two. `AppSettings` is a `@freezed` model: `schemaVersion`, `defaultRegion`, `copilotProviderId`, `copilotModelId`, `rememberApiKey`. Provider and model are **two fields, not one string** — a model id is only meaningful relative to its provider, and collapsing them means parsing a compound key later.
+
+**API keys are deliberately NOT fields on `AppSettings`.** Each lives under its own storage row in the same box (`StorageKeys.apiKeyFor(providerId)` — one per provider, see decision 13), read and written directly rather than as part of the settings blob. Two reasons, both structural rather than stylistic: forgetting the key becomes a `storage.delete` of one row instead of a rewrite of a model that still has a `String?` slot for it, and no future code path that serialises `AppSettings` — logging it, exporting it, putting it in an error report — can carry the secret along by accident. See 4.2 and 4.4.
+
+Ships with the region default (4.3's dependency) and the export/import buttons (4.2's) as its actual content — a settings page with nothing on it isn't a shippable PR on its own, so 4.1 is really "the surface plus whichever of 4.2/4.3 merges first". Sequence them in whichever order, but 4.1 doesn't merge alone.
+
+**`SettingsViewModel` follows P1.7-G1's rule:** `implements Initialisable`, loads its own service in `initialise()` via a keyed `runBusyFuture`, and renders `StorageUnavailableCard` on failure. Deep-linking to `/settings` and refreshing there must work exactly like `/vault` does.
+
+**This PR regenerates every golden, and that is not optional.** All three golden tests (`vault_view_empty`, `vault_view_populated`, `drafts_list_view_empty`) pump their View directly, and every View wraps itself in `AppChrome` — so a third nav rail destination changes all three baselines. Dispatch `update-goldens.yml` on the Linux runner and commit the PNGs *in this PR*, not after. This repo has already shipped an icon change twice without doing it (P2.3.1, then P2.3.2 compounding on top), and both times the note ended with "not done as part of this pass".
+
+### 4.2 — JSON export / import → **bump 1.2.0**
+
+**The bundle.** One file, one envelope, everything in it:
+
+```jsonc
+{
+  "app": "cv-forge",
+  "bundleVersion": 1,        // independent of the per-model schemaVersions inside
+  "exportedAt": "2026-08-20T14:31:00.000Z",
+  "appVersion": "1.2.0",     // provenance only, never branched on
+  "vault": { /* CvVault.toJson() */ },
+  "drafts": [ /* CvDraft.toJson() each */ ],
+  "activeDraftId": "…"
+}
+```
+
+Filename `cvforge_backup_<yyyy-mm-dd>.json`, through the existing `FileDownloadService` (which already handles the `.pdf.pdf` class of filename bug — pass `extension: 'json'`, `MimeType.json`, no extension in the name).
+
+**Settings are not in the bundle at all** — not stripped from it, absent from it. A backup is career data; settings are device-scoped (which model this machine uses, whether this machine remembers a key, this machine's default region), and restoring them onto a different browser is at best meaningless and at worst destructive. Leaving them out also means the API key can never reach a backup file *by construction* rather than by remembering to strip it — and a backup is exactly the artifact that ends up in cloud storage, an email attachment, or a support ticket. The alternative (export settings, null the key on the way out) was considered and rejected: it makes safety depend on one `forExport()` call being correct forever.
+
+**Quarantined payloads are left where they are.** Import doesn't clear the `*_corrupt_<timestamp>` keys — preserving an unparseable payload rather than discarding it is the whole point of quarantining it, and "the user just restored a backup" is not evidence that the thing that failed to parse last month is now worthless. They're inert and unenumerated.
+
+**Reading a file** needs a dependency this project doesn't have. Prefer **`file_selector`** (1.1.0, Nov 2025 — `flutter/packages`, i.e. flutter.dev-owned and federated, with `file_selector_web` as the official web implementation) over the more popular community **`file_picker`** (12.0.0, Aug 2026 — more actively released, single-maintainer). Same reasoning as Phase 1's `hive_ce` decision, inverted: there, the official-looking option was the abandoned one and release activity was the deciding evidence; here both are alive, so ownership breaks the tie on a platform-interop boundary. Check both again at implementation time rather than trusting these numbers — that's the P2.3.1 icon-package lesson (verify against the real package, not a README or a stale note). Wrapped in a `FileUploadService` mirroring `FileDownloadService`, so the ViewModel never sees the package and the test suite mocks one narrow interface.
+
+**Import flow**, in order, with no step skippable:
+1. Pick file → parse → validate envelope (`app`, `bundleVersion`, presence of `vault`).
+2. **Reject a `bundleVersion` newer than this build understands**, with copy that says so plainly ("this backup was made by a newer version of CVForge") rather than a parse error. This is the one place strict version checking earns its keep — unlike the in-app `schemaVersion`, a bundle genuinely crosses app versions.
+3. Validate every inner model by round-tripping it through `fromJson` **before writing anything**. A bundle that fails halfway must leave storage untouched; parse-all-then-write-all is what guarantees that.
+4. Auto-export the current state and hand it to the user as a download (decision 4).
+5. Confirm dialog naming exactly what's about to be replaced ("This will replace your Vault and all 4 CVs with the 6 CVs in this file").
+6. Write vault, every draft, and the index; force `VaultService`/`DraftService` to reload rather than trusting in-memory state.
+
+**Also worth exporting: a single draft.** A per-CV "Export as JSON" on the Drafts list, producing a bundle with `vault: null` and one draft, importable as "add this CV to my existing Vault" — the one *non*-destructive import, and the only merge-shaped operation in the phase (it appends a draft with a fresh id; it never reconciles Vault ids). Ships in this PR if it fits, otherwise a follow-up — it's genuinely optional, the full bundle is the feature.
+
+**Tests:** round-trip the backup service through mocked storage — export a known state, import the bytes back, assert every draft, override map, and the active-draft pointer survive. Explicit cases for: a truncated/invalid JSON file, a future `bundleVersion`, and a bundle whose `vault` parses but whose third draft doesn't (must write nothing at all). No "the key isn't in the export" test is needed, because there is no code path that could put it there — which is the point of leaving settings out entirely.
+
+### 4.3 — Regional presets → **bump 1.3.0**
+
+`RegionProfile` grows from `{ uk }` to `{ uk, us }` — and stays an **enum**, not a freezed struct. The enum name is what gets persisted and JSON round-tripped; the values it maps to are a `const` lookup table (`RegionPreset`) that can change between app versions without invalidating a single stored draft.
+
+```dart
+// lib/models/render/region_profile.dart
+enum RegionProfile { uk, us }
+
+class RegionPreset {   // const table, keyed by RegionProfile
+  final String displayName;      // "United Kingdom", "United States"
+  final PdfPageFormatToken page; // a4 | letter — token, not PdfPageFormat: this file must not import `pdf`
+}
+```
+
+**Two fields, and that's on purpose.** The obvious richer preset — `documentNoun` ("CV" vs "Resume"), `phoneLabel` ("Mobile" vs "Cell"), a `dateStyle` token — was written out and then cut, because **nothing in this app would read any of it**. The PDF's contact line is unlabelled by construction (`location | phone | email | links`, joined by pipes in `ats_minimal_pdf_renderer.dart`), so there is no phone label to regionalise. The app's own UI says "CV" everywhere as a deliberate P2.3.1 decision, not an unexamined default. And date formatting doesn't need a token at all: `CvComposer._formatDateRange` **already takes `RegionProfile` and already switches on it** — the switch *is* the seam, so a `dateStyle` field would be a second, redundant one. Adding all three would have been three fields no production code reads, which is the same `CLAUDE.md` rule (`setTemplate` is currently violating it) applied before the violation exists rather than after.
+
+`page` is a token, not a `PdfPageFormat`: `lib/models/` must never import `pdf` (the same rule `cv_design_tokens.dart` states for itself), so the enum→`PdfPageFormat` mapping lives with the other pdf adapters and `StudioViewModel.pageFormat` resolves through it. **That hardcoded `PdfPageFormat.a4` getter is the actual code change** — the rest of the format plumbing is already parameterised end to end.
+
+`CvDraft` gains `@Default(RegionProfile.uk) RegionProfile region` (no schema bump, decision 14). `DraftService.setRegion` mirrors `setTemplate` — and unlike `setTemplate`, it gets its call site in the same PR: a region selector in `StudioConfigPanel`, next to the template picker's eventual home. New drafts take `AppSettings.defaultRegion`.
+
+`CvComposer.compose`'s `region:` parameter finally does something for a second value. Whether `_formatDateRange` actually diverges is a real question to answer with evidence, not an assumption: `Mon YYYY` is ATS-safe and widely used on both sides of the Atlantic, and inventing a US convention we can't defend is worse than shipping one date format. **The substantive difference is page size**, and that alone justifies the feature — someone applying to a US employer wants Letter. If the `us` case ends up formatting dates identically to `uk`, leave the branch out and let the shared path handle both. **`Present` stays capitalized and un-localised regardless** — it's the ATS-recognized keyword token, per its existing comment, not a piece of regional vocabulary.
+
+**Considered and rejected: region-driven section defaults.** US resumes conventionally omit hobbies/interests, so a `us` preset could pre-hide that section on new drafts. Rejected for the same reason as spelling normalisation (decision 6): the user put those items in their Vault and selected them, and a preset quietly removing content from the exported document is a change they didn't make and won't see. A hint in the UI would be legitimate; a silent default isn't.
+
+**Verification note:** the whole point is a different `PdfPageFormat`, so the manual check is exporting the same draft under both presets and confirming the Letter version is 8.5×11in with the margins still in the right place — the design tokens are in points and don't scale with the page, which is correct (margins shouldn't grow because the page did) but should be *looked at* once rather than assumed.
+
+**Whichever of 4.3 / 4.5 / 4.6 lands first owns a `StudioConfigPanel` grouping pass.** Each of them adds a control to that panel — region selector, Copilot card, template picker — and the panel is already carrying section checkboxes, three override cards, and the whole selector list. Three more bolt-ons at the top of one `ListView` is how it becomes unnavigable. The grouping that falls out of what's there: **Document** (template, region), **Tailoring** (the Copilot card, the three override cards), **Content** (sections + item selection). One pass, in the first PR that touches it, not a fourth cleanup sub-phase afterwards.
+
+### 4.4 — Copilot plumbing: `LlmService`, key, model
+
+```bash
+stacked create service llm
+```
+
+No UI-visible feature of its own — it merges with 4.5, or ships behind the Settings page as "enter your key, test the connection". Split out here because the failure modes are entirely different from 4.5's, and debugging "why is my API key rejected" is a much smaller problem when it isn't tangled with "why did it select the wrong bullets".
+
+**The provider seam, in one paragraph.** `LlmService` owns *policy* — the key, the retry stance, the timeout, error surfacing — and knows nothing about any vendor's wire format. A `LlmProvider` implementation owns *dialect*: building the request, sending it, and returning a parsed `Map<String, dynamic>` plus a `LlmUsage`. `LlmProviderRegistry` is a `const` list with a `byId` that falls back gracefully, copied wholesale from `TemplateRegistryService` — same problem, same shape, no reflection so unregistered providers tree-shake out. Anthropic is the only entry in Phase 4.
+
+```dart
+abstract interface class LlmProvider {
+  String get id;                       // 'anthropic' — persisted, so never rename
+  String get displayName;
+  List<LlmModelOption> get models;     // id, label, input/output $ per MTok
+  Uri get keySignupUrl;                // where a user goes to get a key
+
+  Future<LlmJsonResponse> completeJson({
+    required String apiKey,
+    required String modelId,
+    required String systemPrompt,
+    required String userContent,
+    required JsonSchema schema,        // provider-agnostic; the adapter emits its dialect
+  });
+
+  Future<void> validateKey(String apiKey);
+}
+```
+
+**Four things vary between providers, and all four are inside that interface** — this is the whole reason the seam pays for itself rather than being ceremony:
+
+| Varies | Anthropic | What a second provider does differently |
+|---|---|---|
+| Auth | `x-api-key` header | Google sends `x-goog-api-key`; OpenAI sends `Authorization: Bearer`. Not a base-URL swap. |
+| Browser access | `anthropic-dangerous-direct-browser-access: true` | Every provider has its own answer, and **"no" is a valid one** — see decision 7. Each adapter proves this itself. |
+| Structured output | `output_config.format` + JSON Schema | Google uses `responseMimeType: 'application/json'` + `responseSchema` (an OpenAPI subset); OpenAI uses `response_format: {type: 'json_schema', strict: true}`. Same *idea*, three dialects and three sets of restrictions. |
+| Response shape + failure vocabulary | JSON in a text content block; `stop_reason: "refusal"` | Google returns `candidates[].content.parts[].text` with `finishReason`; OpenAI returns `choices[].message.content`. Each adapter maps into the shared `LlmFailure` cases rather than leaking its own. |
+
+**The schema is authored provider-agnostically and translated per adapter**, not written in Anthropic's dialect and patched later. In practice that means staying inside the intersection: object/array/string/number/boolean, `required`, `additionalProperties: false`, and **string `enum`** — which every candidate supports, so 4.5's enum-of-real-ids anti-hallucination trick survives translation intact. Avoid anything past that intersection even where Anthropic allows it.
+
+**Not in scope, deliberately:** streaming, tool use, multi-turn, and per-provider prompt tuning. The interface above has exactly one method because the Copilot makes exactly one kind of call. Widening it is the second provider's problem, informed by a real second provider — not a guess made now.
+
+**Transport: raw HTTP via `package:http`.** Flutter/Dart has no official SDK for any of these, so the Anthropic adapter is `POST https://api.anthropic.com/v1/messages` by hand. Headers:
+
+| Header | Value |
+|---|---|
+| `x-api-key` | the user's key |
+| `anthropic-version` | `2023-06-01` |
+| `content-type` | `application/json` |
+| `anthropic-dangerous-direct-browser-access` | `true` |
+
+That last header is what makes the API answer a browser's CORS preflight — the same thing the TypeScript SDK sends behind `dangerouslyAllowBrowser`. **Verify it end-to-end from a real browser tab as the first thing in this sub-phase, before building anything on top of it**: if direct browser access doesn't work, the entire feature needs a backend and Phase 4 stops here. **This check is per provider, forever** — it's the first thing any future adapter has to earn, and the reason `LlmProvider` is a seam rather than a config table. This is the P1.6 `rootBundle`-under-`--base-href` lesson repeated — prove the platform assumption early, in the environment that actually runs it, not at the end.
+
+**Validating a key costs nothing.** `LlmProvider.validateKey` exists precisely so each adapter can pick its own cheapest proof; Anthropic's calls **`GET /v1/models`**, not a hello-world message — it authenticates the key, proves CORS works, and returns the live model list, all without spending a token of the user's money. Burning real inference on a connection test is a bad look on a feature the user pays for directly.
+
+**Model choice** is a Settings dropdown driven by `LlmProviderRegistry` — provider first, then that provider's `models`. With one provider registered, render the provider row only when there's more than one to choose from, so Phase 4's UI stays a single dropdown without the widget needing to change when a second arrives. Default **`claude-opus-5`**, with `claude-sonnet-5` and `claude-haiku-4-5` as cheaper options and per-model input/output rates shown, and display actual spend after each run from the response's `usage` block — a BYOK feature bills the user directly, so the cost has to be visible, not inferred. Rates are a `const` table in the app; label it with the date it was checked, since it will drift.
+
+**Request defaults:** `thinking: {type: "adaptive"}`, `max_tokens: 16000`, non-streaming with a generous client timeout. Non-streaming because the response is a single JSON object that's useless until complete — there's nothing to progressively render. If real-world latency turns out to trip HTTP timeouts, switching to streaming and accumulating is the fix, and it changes only this service.
+
+**Error classification follows `PdfExportService`'s precedent exactly** — a `LlmException(LlmFailure, cause)` with cases for `noKey`, `unauthorized` (401), `rateLimited` (429), `overloaded` (5xx), `network`/CORS, `timeout`, `refusal` (a 200 with `stop_reason: "refusal"`, which is not an error at the HTTP layer and will otherwise fall through as a malformed response), and `malformedResponse`. P1.7's G7 established that one generic message for every failure is a real defect; don't rebuild it here.
+
+**Do not auto-retry a 429.** The SDKs retry rate limits by default and that's right for a server; here the user is watching a spinner and paying per attempt, so a rate limit is a thing to *report* ("your API account is rate limited, try again in a moment"), not to silently multiply. Same for 5xx: one clear failure beats three invisible ones.
+
+**Key handling:** held in memory on `SettingsService`, keyed by provider id; written to `StorageKeys.apiKeyFor(providerId)` (its own row, not part of the `AppSettings` blob — see 4.1) only when `rememberApiKey` is on. Turning the toggle off deletes that row immediately, not on the next write. The key is masked in the UI after entry, and is never logged, never put in an exception message, and — by construction, since settings aren't exported at all — never in a backup bundle.
+
+**Tests:** `LlmService` against a mocked `http.Client` — one test per `LlmFailure` case, plus a happy path asserting the request body carries the schema and the right model id. No test ever hits the real API.
+
+### 4.5 — Copilot: the tailoring pass → **bump 2.0.0**
+
+The feature: on a draft, press **Tailor with AI**, paste the job description, and get back a draft with the relevant experiences, bullets, and skills selected and the prose rewritten for that role.
+
+**The job description becomes a first-class draft field.** `CvDraft` gains `String? targetJobDescription` — distinct from `notes` (which is the user's own application tracking and is never rendered or sent). Making it a persisted field, not a modal's transient text, is what lets the pass be re-run, refined, and re-run again against the same ad, and it's the input a future keyword-gap or cover-letter feature reads too.
+
+**What actually gets sent, and what deliberately doesn't.** The pass needs the job description plus the Vault's *content*: headline, summary, experiences (role, company, dates, bullets), projects, skills, education, hobbies — each carrying the id the response has to refer back to. It does **not** need `ContactBasics`' identifying fields: full name, email, phone, location, and profile links are stripped before the request is built. They contribute nothing to selecting or rewriting a bullet, they're the most sensitive thing in the Vault, and leaving them out makes the pre-send confirm's claim smaller and completely true. Strip them at the point the payload is built, not by hoping every call site remembers — one `CopilotVaultPayload.from(vault)` with no PII fields on it at all.
+
+**Size is a non-issue; don't build for it.** The current models carry a 1M-token context window and a full career Vault is a few thousand tokens. No chunking, no summarisation, no "send only the selected items" optimisation — send the whole Vault content in one request and keep the code that does it boring.
+
+**The request.** System prompt states the rules: select from what exists, never invent an employer, a date, a qualification, or a metric; rewrite only for emphasis and phrasing; preserve every factual claim in the source bullet. **Write the prompt for the state the draft is actually in:** P1.6's `isFreshDraft` auto-selects everything from the Vault on a new draft, so the realistic flow ("create a CV, press Tailor") hands the model a draft with *everything* already included. Its selection job is therefore mostly **de**selection — cutting what the ad doesn't call for — not building a set up from empty. A prompt written for the empty case will systematically under-select.
+
+**The response is a strict JSON schema** via `output_config: {format: {type: "json_schema", schema: …}}` (no beta header). Two constraints the schema must respect, both learned from the docs rather than discovered at runtime:
+
+- **`additionalProperties` may only be `false`**, so a map keyed by arbitrary bullet ids is *not expressible*. Every id-keyed thing has to be an array of `{id, text}` objects, which the app then folds into `bulletOverrides`' map shape. Design the schema for that from the start.
+- **`enum` on a string is supported**, so every id field is an enum of the ids actually present in this Vault. A hallucinated experience id becomes structurally impossible rather than something to validate away afterwards. String enums are also common to every provider dialect (4.4), so this stays true when a second one is added — the trick is portable, which is partly why it's worth building the whole response around.
+
+Shape:
+
+```jsonc
+{
+  "headline": "string | null",
+  "summary": "string | null",
+  "experiences": [{ "id": "<enum of vault experience ids>",
+                    "bulletIds": ["<enum of that experience's bullet ids>"],
+                    "rewrites": [{ "id": "<enum>", "text": "string" }] }],
+  "projects":    [{ "id": "<enum>", "bulletIds": ["<enum>"], "rewrites": [...] }],
+  "skillIds":    ["<enum>"],
+  "educationIds":["<enum>"],
+  "hobbyIds":    ["<enum>"],
+  "hiddenSections": ["<enum of CvSectionType names>"],
+  "rationale": "string",
+  "keywordGaps": ["string"]
+}
+```
+
+`keywordGaps` — requirements in the ad that nothing in the Vault covers — is the honest counterweight to the rest of the response: it's the model reporting what it *couldn't* find, and it's the thing that tells the user to go add something real to their Vault rather than trusting a rewrite to have covered it.
+
+**Where the UI lives.** Two pieces, because the interaction and the state have different lifetimes:
+- A **persistent card in `StudioConfigPanel`** — the job description (collapsed to a preview once set, reusing `StudioFieldOverrideCard`'s established pencil-to-edit pattern rather than inventing a third editing affordance), the "Tailor with AI" action, when the last pass ran, and the "Undo AI changes" action while an undo snapshot exists.
+- A **dialog** for the run itself (`stacked create dialog copilot_run -c stacked_configs/studio.json`, following `EditDraftDialog`'s precedent): paste-or-confirm the job description, see exactly what will be sent and to whom, run, watch progress, read the rationale and `keywordGaps` on completion.
+
+**Applying the result:** one `DraftService.applyCopilotResult(...)` that writes the whole pass as a single draft update and a single persisted write — not N calls through the existing per-item setters. P2.1's "Select all only selected one bullet" bug is exactly what a loop of read-modify-write setters produces here, at ten times the scale.
+
+**The wait is the UX risk nobody plans for.** A full pass on `claude-opus-5` with adaptive thinking is a single opaque request that can run well past what a spinner covers comfortably, and there is no partial output worth rendering (the response is one JSON object, useless until complete). Three knobs, in order of preference: tune `output_config.effort` down from its `high` default if quality holds at `medium`; show elapsed time and a cancel control rather than an indeterminate spinner; and if it still feels dead, switch the request to streaming purely to surface `thinking: {display: "summarized"}` blocks as progress narration — a change confined to `LlmService`. Decide this against a real measured request in 4.4, not in advance.
+
+**Undo, at two levels:**
+- *Per field* — free, and already built. A Copilot rewrite lands in `bulletOverrides`/`tailoredSummary`/`headlineOverride`, the same place a manual override lands, so `TailorableField`'s existing revert-to-Vault control and "N tailored" counts already work on it unmodified. This is the diff review; there is no second review UI.
+- *Whole pass* — the pre-pass `CvDraft` JSON is written to `copilot_undo_<draftId>` in the drafts box before the new one is saved (a distinct prefix, not `draft_`, so nothing enumerating drafts ever sees it), and an "Undo AI changes" action restores it. Superseded by the next pass; cleared when the draft is deleted.
+
+**The hallucination warning is permanent UI** (decision 11): a persistent line in the Copilot panel while a pass is applied — *"AI-written. Check every rewritten bullet against what you actually did."* — not a modal that gets dismissed once and never seen again on the run that actually invents something. The pre-send confirm separately names what leaves the browser, accurately: the job description plus the Vault's career content — **not** name, email, phone, location, or links, which are stripped (decision 12) — sent to Anthropic, on the user's own key, from this browser with no CVForge server in the path.
+
+**Privacy stance, updated honestly.** README currently says nothing leaves your browser, flatly. That stops being true the moment this ships and has to be rewritten, not quietly qualified: nothing leaves the browser *unless you turn on the Copilot and supply your own key*, and when you do, your CV content goes from your browser directly to Anthropic — never through a CVForge server, because there isn't one. The Copilot is **off until a key is entered**; a user who never opens Settings has the same zero-network app they have today. Same treatment for the in-app copy and the settings page.
+
+**Tests:** `StudioViewModel`/copilot ViewModel against a mocked `LlmService` — a fixture response applies to the expected selections and overrides; a response containing an id not in the Vault is dropped rather than crashing (belt-and-braces behind the enum constraint, matching the codebase-wide "dangling ids are normal" rule); each `LlmFailure` surfaces its own message; undo restores the pre-pass draft exactly. **A golden test is not the right tool here** and shouldn't be added — the output is model-dependent by definition.
+
+### 4.6 — Second template + family-aware `FontService` + picker → **bump 2.1.0**
+
+**Which templates ship is deliberately still open** — see the open questions below. What's *not* open is the structural work, which is the same regardless of what gets built:
+
+- **`CvTemplate` declares its font family**; `FontService` caches a `CvFontSet` **per family** instead of one hardcoded Roboto set (`Map<String, Future<CvFontSet>>`, keyed by family, each entry keeping the `catchError`-reset that P1.7-G2's pattern requires — the bug fixed in PR #25 must not be reintroduced once there are N cached futures instead of one). Any new family means four more TTFs plus its licence file in `assets/fonts/`, and a glyph-coverage check against the Unicode regression set (smart quotes, en/em dash, ellipsis, €, £, •) *before* adopting it — P1.6 already learned that Roboto's coverage doesn't transfer by assumption.
+- **A template picker in `StudioConfigPanel`**, wired to the long-orphaned `DraftService.setTemplate`. Live preview re-renders on change for free, since the preview *is* the exported PDF.
+- **Picker presentation:** a labelled list using each template's existing `displayName`/`description` first. Thumbnails are the obvious want, but static PNGs drift from the renderers silently — if thumbnails happen, render them from the real template at small scale via the existing raster path, so they cannot lie.
+- **A per-template byte-marker test** matching `pdf_export_service_test.dart`'s: `%PDF-`, `/Identity-H`, `/ToUnicode`, plus the Unicode regression case. Those markers *are* the ATS-extractability guarantee, and they're per-template, not per-app.
+- **Single-column only.** A two-column/sidebar layout is the most requested-looking CV format and the one this product exists to argue against — multi-column is the classic ATS parse failure. If one is ever built, it needs its own decision and its own honest warning in the picker, not a quiet addition to the list.
+
+### Open questions, carried into implementation
+
+1. **Which templates** (4.6). Deferred deliberately. The two candidates on the table are a traditional serif single-column (Liberation Serif — evaluated in P1.0, licence and glyph coverage already researched, TTFs not currently in `assets/fonts/`) and a density variant of `ats_minimal` tuned to fit a long history on one page (Roboto, so no font work). They're not mutually exclusive and they cost very different amounts; pick at the start of 4.6.
+2. **Does the Copilot get a "refine" turn?** The spec above is one-shot: paste, apply, undo, re-run. A follow-up instruction ("keep it to one page", "emphasise the leadership work") is a conversation, which means keeping message history — a materially bigger feature. Re-running the whole pass with an amended job description gets most of the value for none of that cost, so start there and see whether it's actually insufficient.
+3. **Which provider goes second, and when.** Google (Gemini) and OpenAI are the obvious candidates; both are structured-output-capable and both need their browser-origin story checked before anything else. Nothing about the Phase 4 seam presumes either. The honest trigger for building one is a user who has that key and not an Anthropic one — not a desire for the list to look longer.
+4. **Per-CV JSON export** (4.2) — ships with the bundle if it fits, otherwise separately.
+5. **Where the deployed build's Copilot key entry warns about shared machines.** The threat model differs between a personal laptop and a library computer, and the app can't tell which it's on.
+
+### Risks (Phase 4)
+
+| | Risk | Mitigation |
+|---|---|---|
+| P1 | **Direct browser access to the API doesn't work as expected**, and the Copilot needs a backend this product refuses to have. | Prove it with a real request from a real browser tab as step one of 4.4, before any UI exists. Everything else in the phase is independent of it. The check is permanent and per provider — a provider that won't answer a browser origin can't be added here at all, whatever else it offers. |
+| P2 | **A confident hallucination reaches a real employer.** | The model can't invent ids (enum-constrained schema); it can invent prose. Permanent warning copy, per-field revert already built, whole-pass undo, and `keywordGaps` explicitly surfacing what the Vault doesn't cover instead of papering over it. |
+| P3 | **Import destroys real data.** | Parse-everything-before-writing-anything, an auto-exported backup handed over first, and a confirm dialog that names the actual counts. |
+| P4 | **The API key leaks** — into a log line, an exception message, or a shared browser profile. | It can't reach a backup file at all: settings aren't exported, and the key isn't part of the settings model in the first place (decision 13). Beyond that: never logged, never attached to an exception, session-only unless explicitly persisted, and the stored row deleted the moment the toggle goes off. |
+| P5 | **The privacy claim quietly becomes false.** | README, settings copy, and the pre-send confirm all get rewritten in the same PR that ships the network call — treated as part of the feature, not documentation to catch up on later. |
+| P6 | **The Copilot's wait is long, opaque, and cancel-less**, and reads as a hang on the app's flagship feature. | Measure a real pass in 4.4 before designing the UI around it; tune `output_config.effort`; show elapsed time and a cancel rather than an indeterminate spinner; stream thinking summaries as a last resort. |
+| P7 | **Per-family font caching reintroduces the `_readyFuture` clobber bug** that P1.7-G2 and PR #25 each fixed once. | The `catchError`-based reset pattern is documented in `PersistedStoreMixin.ready`'s doc comment; the map-of-futures version needs the same treatment per entry, and a test that stubs a failing load and retries it — the test shape that caught it both previous times. |
 
 ## Verification
 
