@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'tokens/app_motion.dart';
+import 'tokens/app_radius.dart';
+import 'tokens/app_spacing.dart';
+import 'tokens/app_typography.dart';
 
 /// The app's own editor-chrome theme — NOT the CV document's typography.
 /// The document is styled entirely by `CvDesignTokens` (`lib/templates/
@@ -25,5 +29,6 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: kcBackgroundColor,
     canvasColor: kcBackgroundColor,
     dividerColor: kcMediumGrey,
+    extensions: const [appSpacing, appRadius, appTypography, appMotion],
   );
 }
