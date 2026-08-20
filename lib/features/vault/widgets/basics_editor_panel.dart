@@ -1,7 +1,7 @@
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -43,34 +43,34 @@ class BasicsEditorPanel extends StatelessWidget {
           initialValue: basics.fullName,
           onChanged: (v) => onChanged(basics.copyWith(fullName: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Headline',
           hint: 'e.g. Senior Software Engineer',
           initialValue: basics.headline,
           onChanged: (v) => onChanged(basics.copyWith(headline: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Email',
           initialValue: basics.email,
           keyboardType: TextInputType.emailAddress,
           onChanged: (v) => onChanged(basics.copyWith(email: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Phone',
           initialValue: basics.phone,
           keyboardType: TextInputType.phone,
           onChanged: (v) => onChanged(basics.copyWith(phone: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Location',
           initialValue: basics.location,
           onChanged: (v) => onChanged(basics.copyWith(location: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Professional summary',
           initialValue: basics.summary ?? '',
@@ -78,11 +78,11 @@ class BasicsEditorPanel extends StatelessWidget {
           onChanged: (v) =>
               onChanged(basics.copyWith(summary: v.isEmpty ? null : v)),
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         VaultSectionHeading(title: 'Links', onAdd: onAddLink),
         for (final link in basics.links)
           Padding(
-            padding: const EdgeInsets.only(bottom: kdPaddingTight),
+            padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -94,7 +94,7 @@ class BasicsEditorPanel extends StatelessWidget {
                     onChanged: (v) => onLinkChanged(link.copyWith(label: v)),
                   ),
                 ),
-                horizontalSpaceSmall,
+                const HGap.small(),
                 Expanded(
                   flex: 2,
                   child: AppTextField(
@@ -114,7 +114,7 @@ class BasicsEditorPanel extends StatelessWidget {
               ],
             ),
           ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         AppTextField(
           label: 'References',
           hint: 'e.g. "Available on request."',

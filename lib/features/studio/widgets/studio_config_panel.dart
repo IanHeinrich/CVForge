@@ -1,6 +1,6 @@
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
@@ -23,17 +23,17 @@ class StudioConfigPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(kdPaddingPage),
+      padding: EdgeInsets.all(context.appSpacing.paddingPage),
       children: [
         if (viewModel.hasPersistError) ...[
           PersistErrorBanner(
             message: "Your last selection change couldn't be saved.",
             onRetry: viewModel.retryPersist,
           ),
-          verticalSpaceMedium,
+          const VGap.medium(),
         ],
         const StudioPanelHeading('Sections'),
-        verticalSpaceTiny,
+        const VGap.tiny(),
         for (final type in CvSectionType.values)
           if (viewModel.sectionHasData(type))
             CheckboxListTile(
@@ -49,7 +49,7 @@ class StudioConfigPanel extends StatelessWidget {
                 style: const TextStyle(color: kcWhite),
               ),
             ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         // Headline and Summary sit near the top of the page, so they sit
         // near the top of the panel too. References prints last — its
         // card sits last as well, after every selector list below.

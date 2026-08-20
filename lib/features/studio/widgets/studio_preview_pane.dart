@@ -5,7 +5,8 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_radius.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/material.dart';
@@ -157,8 +158,8 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
           ),
         ),
         Positioned(
-          right: kdPaddingPage,
-          bottom: kdPaddingPage,
+          right: context.appSpacing.paddingPage,
+          bottom: context.appSpacing.paddingPage,
           child: _ExportFab(viewModel: viewModel),
         ),
       ],
@@ -182,14 +183,14 @@ class _ExportFab extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: kcDarkGreyColor,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(context.appRadius.medium),
             ),
             child: const Text(
               "Couldn't export the PDF — try again.",
               style: TextStyle(color: kcErrorColor, fontSize: 12),
             ),
           ),
-          verticalSpaceSmall,
+          const VGap.small(),
         ],
         FloatingActionButton.extended(
           onPressed: viewModel.isExporting ? null : viewModel.exportPdf,

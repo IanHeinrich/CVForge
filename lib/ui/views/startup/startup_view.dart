@@ -51,7 +51,7 @@ class _StartupLoading extends StatelessWidget {
             color: kcWhite,
           ),
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         const SizedBox(
           width: 20,
           height: 20,

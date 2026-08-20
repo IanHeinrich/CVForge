@@ -5,7 +5,7 @@ import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
@@ -28,21 +28,21 @@ class VaultCardList extends StatelessWidget {
     final vault = viewModel.vault;
 
     return ListView(
-      padding: const EdgeInsets.all(kdPaddingPage),
+      padding: EdgeInsets.all(context.appSpacing.paddingPage),
       children: [
         if (viewModel.hasPersistError) ...[
           PersistErrorBanner(
             message: "Your last change couldn't be saved.",
             onRetry: viewModel.retryPersist,
           ),
-          verticalSpaceMedium,
+          const VGap.medium(),
         ],
         _BasicsCard(
           basics: vault.basics,
           selected: viewModel.openTarget == VaultEditorTarget.basics,
           onTap: viewModel.openBasicsEditor,
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         VaultListSection<Experience>(
           title: 'Work history',
           addLabel: 'Add experience',
@@ -59,7 +59,7 @@ class VaultCardList extends StatelessWidget {
           onAdd: viewModel.addExperience,
           onDelete: viewModel.deleteExperience,
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         VaultListSection<Project>(
           title: 'Projects',
           addLabel: 'Add project',
@@ -76,13 +76,13 @@ class VaultCardList extends StatelessWidget {
           onAdd: viewModel.addProject,
           onDelete: viewModel.deleteProject,
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         _SkillsCard(
           categories: vault.skillCategories,
           selected: viewModel.openTarget == VaultEditorTarget.skills,
           onTap: viewModel.openSkillsEditor,
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         VaultListSection<Education>(
           title: 'Education',
           addLabel: 'Add education',
@@ -101,7 +101,7 @@ class VaultCardList extends StatelessWidget {
           onAdd: viewModel.addEducation,
           onDelete: viewModel.deleteEducation,
         ),
-        verticalSpaceMedium,
+        const VGap.medium(),
         _HobbiesCard(
           hobbies: vault.hobbies,
           selected: viewModel.openTarget == VaultEditorTarget.hobbies,

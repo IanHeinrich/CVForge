@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_radius.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -100,20 +101,20 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
         : (hasVaultValue ? widget.vaultValue! : widget.emptyVaultMessage);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: kdPaddingDefault),
-      padding: const EdgeInsets.all(kdPaddingCompact),
+      margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
+      padding: EdgeInsets.all(context.appSpacing.paddingCompact),
       decoration: BoxDecoration(
         color: kcDarkGreyColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(context.appRadius.medium),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           StudioPanelHeading(widget.label),
-          verticalSpaceTiny,
+          const VGap.tiny(),
           if (widget.hidden ?? false) ...[
             _HiddenNotice(onShow: widget.onShow!),
-            verticalSpaceTiny,
+            const VGap.tiny(),
           ],
           Row(
             children: [

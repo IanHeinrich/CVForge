@@ -3,7 +3,8 @@ import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_radius.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -51,20 +52,20 @@ class SkillsEditorPanel extends StatelessWidget {
           addLabel: 'Add category',
         ),
         if (categories.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(bottom: kdPaddingTight),
-            child: Text(
+          Padding(
+            padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
+            child: const Text(
               'No skill categories yet.',
               style: TextStyle(color: kcLightGrey),
             ),
           ),
         for (final category in categories)
           Container(
-            margin: const EdgeInsets.only(bottom: kdPaddingDefault),
-            padding: const EdgeInsets.all(kdPaddingCompact),
+            margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
+            padding: EdgeInsets.all(context.appSpacing.paddingCompact),
             decoration: BoxDecoration(
               color: kcBackgroundColor,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(context.appRadius.medium),
               border: Border.all(color: kcMediumGrey),
             ),
             child: Column(
@@ -93,7 +94,9 @@ class SkillsEditorPanel extends StatelessWidget {
                 ),
                 for (final skill in category.skills)
                   Padding(
-                    padding: const EdgeInsets.only(top: kdPaddingTight),
+                    padding: EdgeInsets.only(
+                      top: context.appSpacing.paddingTight,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -130,7 +133,7 @@ class SkillsEditorPanel extends StatelessWidget {
                       ],
                     ),
                   ),
-                verticalSpaceTiny,
+                const VGap.tiny(),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
@@ -206,9 +209,9 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
         if (_expanded)
           for (final experience in experiencesWithBullets)
             Padding(
-              padding: const EdgeInsets.only(
-                top: kdPaddingTight,
-                left: kdPaddingTight,
+              padding: EdgeInsets.only(
+                top: context.appSpacing.paddingTight,
+                left: context.appSpacing.paddingTight,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +224,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  verticalSpaceTiny,
+                  const VGap.tiny(),
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,

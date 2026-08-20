@@ -1,7 +1,7 @@
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -49,9 +49,11 @@ class BulletListEditor extends StatelessWidget {
       children: [
         VaultSectionHeading(title: 'Bullets', onAdd: onAdd),
         if (bullets.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: kdPaddingTight),
-            child: Text(
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: context.appSpacing.paddingTight,
+            ),
+            child: const Text(
               'No bullets yet.',
               style: TextStyle(color: kcLightGrey),
             ),
@@ -71,7 +73,7 @@ class BulletListEditor extends StatelessWidget {
             final bullet = bullets[index];
             return Padding(
               key: ValueKey(bullet.id),
-              padding: const EdgeInsets.only(bottom: kdPaddingTight),
+              padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -93,7 +95,7 @@ class BulletListEditor extends StatelessWidget {
                             bullet.copyWith(label: v.isEmpty ? null : v),
                           ),
                         ),
-                        verticalSpaceTiny,
+                        const VGap.tiny(),
                         AppTextField(
                           label: 'Text',
                           initialValue: bullet.text,
@@ -102,7 +104,7 @@ class BulletListEditor extends StatelessWidget {
                         ),
                         if (skillLabelsByBulletId[bullet.id] case final labels?
                             when labels.isNotEmpty) ...[
-                          verticalSpaceTiny,
+                          const VGap.tiny(),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(

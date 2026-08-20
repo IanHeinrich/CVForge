@@ -1,5 +1,5 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -90,7 +90,7 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
     if (widget.items.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: kdPaddingDefault),
+      padding: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -104,7 +104,7 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                 ),
             ],
           ),
-          verticalSpaceTiny,
+          const VGap.tiny(),
           for (final item in widget.items) ...[
             CheckboxListTile(
               key: ValueKey('item_${item.id}'),
@@ -137,9 +137,9 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
             if (item.selected && item.tailorable != null)
               Padding(
                 key: ValueKey('tailor_${item.id}'),
-                padding: const EdgeInsets.only(
-                  left: kdPaddingDefault,
-                  bottom: kdPaddingTight,
+                padding: EdgeInsets.only(
+                  left: context.appSpacing.paddingDefault,
+                  bottom: context.appSpacing.paddingTight,
                 ),
                 child: _TailorableFieldRow(
                   field: item.tailorable!,
@@ -182,7 +182,7 @@ class _BulletSublist extends StatelessWidget {
         : '$selectedCount/${item.bullets.length} bullets';
 
     return Padding(
-      padding: const EdgeInsets.only(left: kdPaddingDefault),
+      padding: EdgeInsets.only(left: context.appSpacing.paddingDefault),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -264,7 +264,9 @@ class _BulletRow extends StatelessWidget {
             value: bullet.selected,
             onChanged: (_) => bullet.onToggle(),
             dense: true,
-            contentPadding: const EdgeInsets.only(right: kdPaddingTight),
+            contentPadding: EdgeInsets.only(
+              right: context.appSpacing.paddingTight,
+            ),
             controlAffinity: ListTileControlAffinity.leading,
             activeColor: kcPrimaryColor,
             title: Text(
@@ -284,10 +286,10 @@ class _BulletRow extends StatelessWidget {
           ),
           if (tailorable != null && editing)
             Padding(
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 left: kdCheckboxTitleInset,
-                right: kdPaddingTight,
-                bottom: kdPaddingTight,
+                right: context.appSpacing.paddingTight,
+                bottom: context.appSpacing.paddingTight,
               ),
               child: InlineTextOverrideEditor(
                 field: tailorable,
@@ -320,7 +322,9 @@ class _TailorableFieldRow extends StatelessWidget {
     return TailoringHighlight(
       active: editing,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kdPaddingTight),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.appSpacing.paddingTight,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

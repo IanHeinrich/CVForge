@@ -1,6 +1,6 @@
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -32,13 +32,16 @@ class HobbiesEditorPanel extends StatelessWidget {
       children: [
         VaultSectionHeading(title: 'Items', onAdd: onAdd),
         if (hobbies.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(bottom: kdPaddingTight),
-            child: Text('Nothing yet.', style: TextStyle(color: kcLightGrey)),
+          Padding(
+            padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
+            child: const Text(
+              'Nothing yet.',
+              style: TextStyle(color: kcLightGrey),
+            ),
           ),
         for (final hobby in hobbies)
           Padding(
-            padding: const EdgeInsets.only(bottom: kdPaddingTight),
+            padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
             child: Row(
               children: [
                 Expanded(

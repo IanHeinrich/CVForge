@@ -1,4 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_motion.dart';
+import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -97,13 +99,13 @@ class TailoringHighlight extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
+      duration: context.appMotion.fast,
       margin: const EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
         color: active
             ? kcPrimaryColor.withValues(alpha: 0.08)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(context.appRadius.small),
         border: Border.all(
           color: active
               ? kcPrimaryColor.withValues(alpha: 0.45)

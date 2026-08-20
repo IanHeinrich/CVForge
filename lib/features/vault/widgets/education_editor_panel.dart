@@ -31,20 +31,20 @@ class EducationEditorPanel extends StatelessWidget {
           initialValue: education.qualification,
           onChanged: (v) => onChanged(education.copyWith(qualification: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Institution',
           initialValue: education.institution,
           onChanged: (v) => onChanged(education.copyWith(institution: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Location (optional)',
           initialValue: education.location ?? '',
           onChanged: (v) =>
               onChanged(education.copyWith(location: v.isEmpty ? null : v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Year (optional)',
           initialValue: education.year?.toString() ?? '',
@@ -54,7 +54,7 @@ class EducationEditorPanel extends StatelessWidget {
             onChanged(education.copyWith(year: v.isEmpty ? null : year));
           },
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Grade (optional)',
           hint: 'e.g. First Class Honours',
@@ -62,7 +62,7 @@ class EducationEditorPanel extends StatelessWidget {
           onChanged: (v) =>
               onChanged(education.copyWith(grade: v.isEmpty ? null : v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Details (optional)',
           initialValue: education.details ?? '',

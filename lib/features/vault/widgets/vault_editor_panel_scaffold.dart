@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/app_constants.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -23,23 +24,16 @@ class VaultEditorPanelScaffold extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            kdPaddingPanel,
-            kdPaddingDefault,
+          padding: EdgeInsets.fromLTRB(
+            context.appSpacing.paddingPanel,
+            context.appSpacing.paddingDefault,
             12,
-            kdPaddingDefault,
+            context.appSpacing.paddingDefault,
           ),
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: kcWhite,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                child: Text(title, style: context.appTypography.titleMedium),
               ),
               IconButton(
                 icon: const Icon(RemixIcons.close_line, color: kcLightGrey),
@@ -52,7 +46,7 @@ class VaultEditorPanelScaffold extends StatelessWidget {
         const Divider(height: 1, color: kcMediumGrey),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(kdPaddingPanel),
+            padding: EdgeInsets.all(context.appSpacing.paddingPanel),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: children,

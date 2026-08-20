@@ -56,20 +56,20 @@ class ExperienceEditorPanel extends StatelessWidget {
           initialValue: experience.role,
           onChanged: (v) => onChanged(experience.copyWith(role: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Company',
           initialValue: experience.company,
           onChanged: (v) => onChanged(experience.copyWith(company: v)),
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         AppTextField(
           label: 'Location',
           initialValue: experience.location,
           onChanged: (v) => onChanged(experience.copyWith(location: v)),
         ),
         ..._buildGroupPicker(),
-        verticalSpaceMedium,
+        const VGap.medium(),
         Row(
           children: [
             Expanded(
@@ -89,7 +89,7 @@ class ExperienceEditorPanel extends StatelessWidget {
                 },
               ),
             ),
-            horizontalSpaceSmall,
+            const HGap.small(),
             Expanded(
               child: AppTextField(
                 label: 'Start year',
@@ -109,7 +109,7 @@ class ExperienceEditorPanel extends StatelessWidget {
             ),
           ],
         ),
-        verticalSpaceSmall,
+        const VGap.small(),
         CheckboxListTile(
           value: experience.isCurrent,
           onChanged: (checked) => onChanged(
@@ -127,7 +127,7 @@ class ExperienceEditorPanel extends StatelessWidget {
           controlAffinity: ListTileControlAffinity.leading,
         ),
         if (!experience.isCurrent) ...[
-          verticalSpaceSmall,
+          const VGap.small(),
           Row(
             children: [
               Expanded(
@@ -145,7 +145,7 @@ class ExperienceEditorPanel extends StatelessWidget {
                   },
                 ),
               ),
-              horizontalSpaceSmall,
+              const HGap.small(),
               Expanded(
                 child: AppTextField(
                   label: 'End year',
@@ -164,7 +164,7 @@ class ExperienceEditorPanel extends StatelessWidget {
             ],
           ),
         ],
-        verticalSpaceMedium,
+        const VGap.medium(),
         BulletListEditor(
           bullets: experience.bullets,
           skillCategories: skillCategories,
@@ -191,12 +191,12 @@ class ExperienceEditorPanel extends StatelessWidget {
     if (candidates.isEmpty) return const [];
 
     return [
-      verticalSpaceMedium,
+      const VGap.medium(),
       const Text(
         'Promotion — group with',
         style: TextStyle(color: kcLightGrey, fontSize: 13),
       ),
-      verticalSpaceTiny,
+      const VGap.tiny(),
       Wrap(
         spacing: 8,
         runSpacing: 8,
