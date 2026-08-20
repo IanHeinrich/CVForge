@@ -23,7 +23,17 @@ import 'package:stacked_services/stacked_services.dart';
 /// a utility surface rather than a workspace. That's why it's excluded from
 /// `destinations` further down even though it participates fully in
 /// [_visualSection]/highlighting.
-enum AppSection { vault, drafts, studio, settings }
+///
+/// [analyzer] is declared right after [drafts] (before [studio]) rather
+/// than appended at the end — `_navigateTo`'s `onDestinationSelected` maps
+/// a rail tap straight to `AppSection.values[index]`, so every section
+/// with a real indexed destination must keep its enum position in lockstep
+/// with its position in `destinations` below. [studio] and [settings] can
+/// sit anywhere else because both are special-cased out of that indexing
+/// ([studio] has no destination at all; [settings] always resolves to a
+/// `null` index), but inserting a new *real* destination after either of
+/// them would silently desync every following index.
+enum AppSection { vault, drafts, analyzer, studio, settings }
 
 /// The shared shell every top-level View wraps itself in: a left nav rail
 /// (Vault / CVs) over the dark [kcBackgroundColor] backdrop, with [child]
@@ -115,6 +125,11 @@ class AppChrome extends StatelessWidget {
                 selectedIcon: Icon(RemixIcons.file_text_fill),
                 label: Text('CVs'),
               ),
+              NavigationRailDestination(
+                icon: Icon(RemixIcons.file_search_line),
+                selectedIcon: Icon(RemixIcons.file_search_fill),
+                label: Text('ATS Check'),
+              ),
             ],
             trailing: Expanded(
               child: Align(
@@ -154,6 +169,8 @@ class AppChrome extends StatelessWidget {
         router.replaceWith(VaultViewRoute());
       case AppSection.drafts:
         router.replaceWith(DraftsListViewRoute());
+      case AppSection.analyzer:
+        router.replaceWith(AnalyzerViewRoute());
       case AppSection.studio:
         break; // Unreachable — not a rail destination, see the class doc.
       case AppSection.settings:

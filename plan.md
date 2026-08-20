@@ -1008,3 +1008,171 @@ stacked generate && dart format . && flutter analyze && flutter test
 - `lib/models/render/cv_composer.dart` — the only place Vault+Draft are joined
 - `CLAUDE.md` — update in P1.7; updated again in Phase 3.4 for the token-layer convention
 - `.github/workflows/` — add permanent `update-goldens.yml` in P1.3
+
+## Phase 5 — ATS format analyzer (2026-08-20)
+
+A user-requested feature outside the original roadmap: upload a PDF resume
+and surface format problems an ATS text extractor would choke on — no
+extractable text layer, a multi-column layout that a position-sorting
+parser would interleave, garbled/unmapped characters, missing canonical
+section headings, unrecoverable contact info. Spiked first, since the
+premise (does `pdf.js`'s reading order approximate a real ATS parser's,
+and can extracted-text coordinates be trusted) was cheap to falsify and
+expensive to build around if wrong.
+
+### Decisions locked
+
+1. **Spike before committing to the full spec** (X-Ray overlay, Bézier
+   flow lines, upload entry point, own nav section) — evidence-gated via
+   documented exit criteria, not a fixed schedule.
+2. **`pdf.js` 5.7.284 is already vendored and loaded** (`web/pdfjs/`, via
+   the patched `printing` package) — no new dependency, no CDN. Reused
+   directly rather than re-vendored.
+3. **`PdfExtractionService` (the `dart:js_interop` marshalling layer) is
+   split into an abstract interface + a `*Web` implementation, registered
+   manually in `main.dart` instead of through `@StackedApp`'s
+   `dependencies:` list.** `package:web` does not compile under the Dart
+   VM at all — not "untested there," a genuine compile failure — and
+   every other service's registration bakes its concrete class straight
+   into the centrally-generated `app.locator.dart`, which nearly every
+   test file imports. Discovered by hitting it: the first `flutter test`
+   run after adding the service broke 19 unrelated test files project-
+   wide. `AtsAnalyzerService` (pure Dart, the actual check logic) has no
+   such problem and is registered normally.
+4. **Two of the four originally-proposed checks were cut**: typographic-
+   hierarchy and orphaned-date checks are resume-design critiques, not
+   ATS-parsing-failure signals, and shipping them at the same confidence
+   as a real parsing failure would erode trust in the findings that do
+   matter.
+5. **The X-Ray bounding-box overlay and Bézier reading-order flow lines
+   are deferred, not shipped in this phase** — see "What's deferred"
+   below.
+
+### 5.1 — Spike → GREEN, with two scope corrections
+
+Full findings: throwaway probe + corpus lived in the session scratchpad
+(never the repo — corpus PDFs are treated as potentially sensitive), not
+checked in. Headline results, condensed:
+
+- `pdf.js`'s `getTextContent()` item order is real content-stream order
+  (no internal sorting) and matches a second, independent extractor
+  (`pdftotext`) on every corpus file, including a synthetic two-column
+  file — the load-bearing assumption for the whole spatial-check family
+  held.
+- Item granularity is run-level (not glyph/word/line), producer-
+  dependent, and well within a UI-tractable range.
+- `page.commonObjs` (bold/italic/embedded-font) only populates after
+  `page.getOperatorList()` has run for that page — confirmed necessary
+  against the real bundle.
+- **Column crush needed reframing, not abandoning**: a two-column layout
+  does *not* interleave in either extractor's default order (both group
+  by column, since most layout engines draw one column's content stream
+  fully before the next) — but two runs sharing a baseline at disjoint
+  x-ranges is directly detectable in the coordinate data. The check
+  simulates a *position-sorting* parser (e.g. PDFBox with
+  `setSortByPosition(true)`) via `AtsAnalyzerService`'s own y/x
+  clustering over the extracted coordinates, not a claim about `pdf.js`'s
+  own order.
+- **A non-embedded-font PUA bullet can extract as a silently vanished
+  glyph** (a nonzero advance width, zero surviving characters) rather
+  than a visible PUA/replacement codepoint — worse than the original
+  design assumed. `AtsAnalyzerService._checkGarbledText` adds a
+  width-without-characters ("phantom glyph") heuristic alongside the
+  codepoint-class histogram; documented as catching only an isolated
+  short run, not a dropped glyph merged into a longer sentence run (the
+  shape the spike's own real capture happened to produce).
+
+### 5.2 — Core pipeline: models, extraction, analysis, UI → **bump 1.4.0**
+
+- **Models** (`lib/models/ats/`) — `AtsTextNode`/`AtsTextMatrix` (the raw
+  `pdf.js` transform, not a derived axis-aligned box — a rotated run has
+  no meaningful width/height, so `fontSize`/`rotationRadians`/baseline
+  are getters on the matrix instead), `AtsFontInfo`, `AtsLinkAnnotation`,
+  `AtsDocumentInfo`, `AtsExtractedDocument` (the wire shape between the
+  two services below), `AtsFinding`/`AtsFindingCategory`/
+  `AtsFindingSeverity`, `AtsAnalysisResult`. None import `flutter` or
+  `pdf`, per the `lib/models/` rule; none are persisted, so none carry
+  `fromJson`/`toJson`/`schemaVersion` (the `ResolvedCv` precedent).
+- **`PdfExtractionService`** (`lib/services/pdf_extraction_service.dart`,
+  abstract) + **`PdfExtractionServiceWeb`**
+  (`pdf_extraction_service_web.dart`, the real `dart:js_interop`
+  implementation) — see Decision 3. Marshals `pdf.js` output into an
+  `AtsExtractedDocument`, deliberately free of analysis logic. A fresh
+  `Uint8List` copy is passed to `getDocument()` on every call, since it
+  transfers (detaches) the underlying buffer and the same source bytes
+  may be raster'd elsewhere. Coexists with `printing`'s own `pdf.js`
+  init via `importModule`'s import-map memoization — whichever runs
+  first "wins."
+- **`pdfjs_bindings.dart`** — the `@JS('pdfjsLib')` binding file, modeled
+  on but never importing `third_party/printing/lib/src/pdfjs.dart` (that
+  package is vendored, patched, and slated for deletion). Extended with
+  `getTextContent`/`getMetadata`/`getAnnotations`/`getStructTree`/
+  `getOperatorList`/`commonObjs`, none of which `printing`'s own binding
+  needs.
+- **`AtsAnalyzerService`** (`lib/services/ats_analyzer_service.dart`) —
+  pure Dart, the reduced v1 check set: no-text-layer (document- and
+  per-page-level), column-crush, garbled-text (replacement chars +
+  embedded PUA + phantom glyphs + non-embedded-font corroboration),
+  missing-headings, contact-info (regex over extracted text *and*
+  `mailto:`/`tel:` Link annotations — the latter confirmed in the spike
+  to be materially more reliable). Fully VM-testable; its tests use node
+  fixtures built from real `pdf.js` output captured during the spike,
+  not invented numbers.
+- **`FileUploadService.pickPdfFile()`** — the existing `pickJsonFile()`
+  was generalized to share one `_pickFile(XTypeGroup)` helper rather than
+  duplicating the picker logic.
+- **`lib/features/analyzer/`** — `AnalyzerView`/`AnalyzerViewModel`
+  (`BaseViewModel`, not `ReactiveViewModel`/`Initialisable`: there is no
+  persisted state to load, only a user-triggered pick-and-analyze flow),
+  `AnalyzerUploadPrompt`/`AnalyzerResultsPanel`/`AtsFindingCard`. One
+  layout for every breakpoint (no `.desktop`/`.mobile` split) — nothing
+  here actually varies by screen size, unlike Vault/Studio.
+- **Nav integration** — `AppSection.analyzer` inserted into the enum
+  right after `drafts` (before `studio`), a third `NavigationRailDestination`
+  ("ATS Check", `file_search_line`/`_fill`), route `/analyzer`. See
+  `app_chrome.dart`'s updated doc comment for why the *position* in the
+  enum matters (every section with a real indexed destination must keep
+  its enum position in lockstep with `destinations`' order).
+
+**What's deferred, and why:** the X-Ray bounding-box overlay
+(`CustomPainter` + `InteractiveViewer`, reconciling extracted-text
+coordinates against a `Printing.raster()` backdrop) and the Bézier
+reading-order flow lines from the original 3-part design. This would be
+the first `CustomPainter` in the codebase, the coordinate reconciliation
+between page-space (PDF points, y-up) and raster-pixel-space (DPI-scaled,
+y-down) was flagged in planning as the single biggest correctness trap
+for exactly this feature, and shipping it half-verified under time
+pressure was judged worse than shipping the findings list alone and
+following up. The findings-list feature (this phase) already delivers the
+core value; the overlay is additive polish, not load-bearing.
+
+**Known follow-ups, not blockers:**
+- **Golden baselines are now stale** — adding a third nav-rail destination
+  changed `AppChrome`'s layout, invalidating all 5 existing golden PNGs
+  (`vault_view_*`, `drafts_list_view_*`, `settings_view_*`). Confirmed via
+  `flutter test --tags=golden` (all 5 fail, as expected). Per the
+  established process, these must be regenerated via `update-goldens.yml`
+  on `ubuntu-latest`, not locally — do this before merging.
+- **Corpus/producer diversity gap** — the spike corpus was one real
+  cv-forge-generated PDF plus five synthetic `package:pdf`-generated
+  fixtures; no genuine Word/Google Docs/Canva/LaTeX/Apple Pages/scanned/
+  LinkedIn-export sample was available in the environment. The mechanism
+  is verified; cross-producer calibration of thresholds (the
+  `_columnGapThreshold` constant especially) is not. Collect real-world
+  samples opportunistically and revisit.
+- **No golden test added for `AnalyzerView`** — deferred alongside the
+  baseline regeneration above, to land both in the same reviewable PR
+  rather than adding a 6th stale baseline to an already-stale set.
+
+### Verification
+
+`stacked generate && dart format . && flutter analyze && flutter test
+--exclude-tags=golden` — all clean (0 analyze issues, 142 tests passing).
+Manually verified against the real running app (`flutter run -d
+web-server`): every new interop file compiles and loads via the real dev
+server with no console errors; `window.dartPdfJsBaseUrl` resolution,
+`importModule`, and the full `pdf.js` call sequence
+(`getDocument`/`getTextContent`/`getOperatorList`/`commonObjs`/
+`getStructTree`/`getAnnotations`) were exercised against a real corpus PDF
+through the app's own already-loaded module instance, reproducing the
+same results captured during the spike.
