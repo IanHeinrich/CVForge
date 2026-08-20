@@ -65,8 +65,6 @@ class AppDialogScaffold extends StatelessWidget {
     );
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      backgroundColor: kcDarkGreyColor,
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: maxWidth == null

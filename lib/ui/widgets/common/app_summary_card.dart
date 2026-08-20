@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_constants.dart';
 import 'package:cv_forge/ui/common/app_text_styles.dart';
+import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -44,13 +45,13 @@ class AppSummaryCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: kdPaddingTight),
       color: selected ? kcPrimaryColorDark : kcDarkGreyColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(context.appRadius.medium),
         side: selected
             ? const BorderSide(color: kcPrimaryColor)
             : BorderSide.none,
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(context.appRadius.medium),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(
