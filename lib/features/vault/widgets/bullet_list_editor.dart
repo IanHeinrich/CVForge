@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -79,9 +80,15 @@ class BulletListEditor extends StatelessWidget {
                 children: [
                   ReorderableDragStartListener(
                     index: index,
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 14, right: 4),
-                      child: Icon(RemixIcons.draggable, color: kcMediumGrey),
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: 14,
+                        right: context.appSpacing.paddingHairline,
+                      ),
+                      child: const Icon(
+                        RemixIcons.draggable,
+                        color: kcMediumGrey,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -109,9 +116,8 @@ class BulletListEditor extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'Skills: ${labels.join(', ')}',
-                              style: const TextStyle(
+                              style: context.appTypography.caption.copyWith(
                                 color: kcLightGrey,
-                                fontSize: 12,
                               ),
                             ),
                           ),

@@ -1,6 +1,8 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -148,7 +150,9 @@ class InlineTextOverrideEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 4),
+      padding: EdgeInsets.symmetric(
+        vertical: context.appSpacing.paddingHairline,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -175,11 +179,11 @@ class InlineTextOverrideEditor extends StatelessWidget {
               autofocus: true,
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(top: 4),
+          Padding(
+            padding: EdgeInsets.only(top: context.appSpacing.paddingHairline),
             child: Text(
               'Only affects this CV.',
-              style: TextStyle(color: kcLightGrey, fontSize: 12),
+              style: context.appTypography.caption.copyWith(color: kcLightGrey),
             ),
           ),
         ],

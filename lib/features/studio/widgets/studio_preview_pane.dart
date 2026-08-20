@@ -7,6 +7,7 @@ import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/material.dart';
@@ -185,9 +186,11 @@ class _ExportFab extends StatelessWidget {
               color: kcDarkGreyColor,
               borderRadius: BorderRadius.circular(context.appRadius.medium),
             ),
-            child: const Text(
+            child: Text(
               "Couldn't export the PDF — try again.",
-              style: TextStyle(color: kcErrorColor, fontSize: 12),
+              style: context.appTypography.caption.copyWith(
+                color: kcErrorColor,
+              ),
             ),
           ),
           const VGap.small(),

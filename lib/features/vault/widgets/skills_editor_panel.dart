@@ -5,6 +5,7 @@ import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -202,7 +203,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
                   ? 'Link to bullets'
                   : 'Linked to $linkedCount '
                         'bullet${linkedCount == 1 ? '' : 's'}',
-              style: const TextStyle(fontSize: 12),
+              style: context.appTypography.caption,
             ),
           ),
         ),
@@ -218,9 +219,8 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
                 children: [
                   Text(
                     experience.role.isEmpty ? 'Untitled role' : experience.role,
-                    style: const TextStyle(
+                    style: context.appTypography.caption.copyWith(
                       color: kcLightGrey,
-                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -233,7 +233,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
                         FilterChip(
                           label: Text(
                             _chipLabel(bullet),
-                            style: const TextStyle(fontSize: 12),
+                            style: context.appTypography.caption,
                           ),
                           visualDensity: VisualDensity.compact,
                           selected: widget.skill.linkedBulletIds.contains(
