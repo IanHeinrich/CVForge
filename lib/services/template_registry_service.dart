@@ -1,13 +1,13 @@
-import 'package:cv_forge/templates/ats_minimal/ats_minimal_template.dart';
+import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:cv_forge/templates/cv_template.dart';
-import 'package:cv_forge/templates/structured_serif/structured_serif_template.dart';
+import 'package:cv_forge/templates/classic_centered/classic_centered_template.dart';
 
 /// Template lookup, backed by a plain const list — no reflection, so
 /// unused templates tree-shake out of a release build.
 class TemplateRegistryService {
   static const List<CvTemplate> _templates = [
-    AtsMinimalTemplate(),
-    StructuredSerifTemplate(),
+    CompactTemplate(),
+    ClassicCenteredTemplate(),
   ];
 
   CvTemplate get defaultTemplate => _templates.first;

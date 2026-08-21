@@ -6,7 +6,7 @@ import 'package:cv_forge/templates/design/cv_font_set.dart';
 /// Loads the Roboto TTFs declared under `assets/fonts/` into [pw.Font]
 /// objects, caching the result so an export never reloads them.
 ///
-/// `ats_minimal` uses Roboto, not the Liberation Serif this project first
+/// `compact` uses Roboto, not the Liberation Serif this project first
 /// evaluated for glyph coverage — Roboto covers the same Latin-1 + smart
 /// quotes + en/em dash + €/£ set, verified by the Unicode regression case
 /// in `pdf_export_service_test.dart`.

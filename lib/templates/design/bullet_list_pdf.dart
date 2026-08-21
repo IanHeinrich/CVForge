@@ -1,4 +1,4 @@
-/// Shared `pw`-only bullet-list rendering, factored out of `ats_minimal`'s
+/// Shared `pw`-only bullet-list rendering, factored out of `compact`'s
 /// renderer so a second template doesn't have to re-derive the bullet
 /// glyph's ink-center scaling math independently — divergence there would
 /// be a silent, hard-to-notice pixel drift between templates rather than a

@@ -26,10 +26,10 @@ void main() {
       expect(service.byId(knownId).id, knownId);
     });
 
-    test('byId resolves structured_serif, not just the default template', () {
+    test('byId resolves classic_centered, not just the default template', () {
       final service = TemplateRegistryService();
 
-      expect(service.byId('structured_serif').id, 'structured_serif');
+      expect(service.byId('classic_centered').id, 'classic_centered');
     });
 
     test('available lists every registered template, each with a distinct '
@@ -37,7 +37,7 @@ void main() {
       final service = TemplateRegistryService();
 
       final ids = service.available.map((t) => t.id).toList();
-      expect(ids, containsAll(['ats_minimal', 'structured_serif']));
+      expect(ids, containsAll(['compact', 'classic_centered']));
       for (final template in service.available) {
         expect(
           template.sectionOrder.toSet(),

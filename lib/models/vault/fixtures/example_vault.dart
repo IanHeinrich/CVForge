@@ -14,7 +14,7 @@ import 'package:cv_forge/models/vault/year_month.dart';
 /// A wholly fictional persona, structured to mirror the shape of a real
 /// reference CV used during design (labelled AND unlabelled work bullets,
 /// two skill categories, two projects, two education entries, hobbies, a
-/// references note) so it exercises every branch of the `ats_minimal`
+/// references note) so it exercises every branch of the `compact`
 /// template.
 ///
 /// Used by the "Load example CV" button and as the deterministic fixture

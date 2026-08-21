@@ -349,7 +349,7 @@ void main() {
             'schemaVersion': 1,
             'id': 'current',
             'name': 'My Old CV',
-            'templateId': 'ats_minimal',
+            'templateId': 'compact',
             'experienceIds': ['x'],
             'updatedAt': DateTime(2026, 1, 1).toIso8601String(),
           });

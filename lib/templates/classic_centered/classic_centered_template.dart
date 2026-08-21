@@ -8,21 +8,21 @@ import 'package:cv_forge/templates/cv_template.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
-import 'structured_serif_pdf_renderer.dart';
-import 'structured_serif_tokens.dart';
+import 'classic_centered_pdf_renderer.dart';
+import 'classic_centered_tokens.dart';
 
 /// A centered-heading, two-row-entry single-column layout, cloned from a
 /// reference CV that puts Skills near the bottom rather than up top. See
-/// `structured_serif_tokens.dart` for the visual vocabulary and
-/// `structured_serif_pdf_renderer.dart` for the render tree.
-class StructuredSerifTemplate implements CvTemplate {
-  const StructuredSerifTemplate();
+/// `classic_centered_tokens.dart` for the visual vocabulary and
+/// `classic_centered_pdf_renderer.dart` for the render tree.
+class ClassicCenteredTemplate implements CvTemplate {
+  const ClassicCenteredTemplate();
 
   @override
-  String get id => 'structured_serif';
+  String get id => 'classic_centered';
 
   @override
-  String get displayName => 'Structured Serif';
+  String get displayName => 'Classic Centered';
 
   @override
   String get description =>
@@ -30,10 +30,10 @@ class StructuredSerifTemplate implements CvTemplate {
       'entry header and a justified summary paragraph.';
 
   @override
-  CvDesignTokens get tokens => structuredSerifTokens;
+  CvDesignTokens get tokens => classicCenteredTokens;
 
   /// Matches the reference CV's own order — Skills sits near the bottom,
-  /// just before Publications, not near the top the way `ats_minimal`
+  /// just before Publications, not near the top the way `compact`
   /// puts it. Projects/Hobbies/References aren't in the reference at all;
   /// they're placed adjacent to their nearest natural neighbour so a draft
   /// that happens to use them still prints somewhere sensible, with
@@ -69,7 +69,7 @@ class StructuredSerifTemplate implements CvTemplate {
       pw.MultiPage(
         pageFormat: format,
         margin: tokens.pageMargins,
-        build: (context) => buildStructuredSerifPdfContent(cv, tokens, fonts),
+        build: (context) => buildClassicCenteredPdfContent(cv, tokens, fonts),
       ),
     );
     return doc;

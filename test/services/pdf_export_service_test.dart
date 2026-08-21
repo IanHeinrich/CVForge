@@ -120,7 +120,7 @@ void main() {
 
         final bytes = await service.render(
           cv: _fixtureCv(),
-          templateId: 'ats_minimal',
+          templateId: 'compact',
         );
 
         expect(bytes, isNotEmpty);
@@ -135,7 +135,7 @@ void main() {
 
       final bytes = await service.render(
         cv: _fixtureCv(),
-        templateId: 'ats_minimal',
+        templateId: 'compact',
         compress: false,
       );
 
@@ -155,7 +155,7 @@ void main() {
 
       final bytes = await service.render(
         cv: _fixtureCv(bulletText: 'Delivered “results” — on budget… for €2m.'),
-        templateId: 'ats_minimal',
+        templateId: 'compact',
       );
 
       expect(bytes, isNotEmpty);
@@ -170,7 +170,7 @@ void main() {
 
         await service.export(
           cv: _fixtureCv(),
-          templateId: 'ats_minimal',
+          templateId: 'compact',
           fullName: 'Jordan Ellery',
           draftName: 'My CV',
         );
@@ -189,16 +189,16 @@ void main() {
       },
     );
 
-    group('structured_serif -', () {
+    group('classic_centered -', () {
       test('with compress:false, the PDF embeds a CID font via Identity-H '
           'with a ToUnicode CMap — the same ATS-extractability guarantee '
-          'ats_minimal is held to, verified per-template rather than '
+          'compact is held to, verified per-template rather than '
           'assumed to carry over', () async {
         final service = PdfExportService();
 
         final bytes = await service.render(
           cv: _fixtureCv(),
-          templateId: 'structured_serif',
+          templateId: 'classic_centered',
           compress: false,
         );
 
@@ -215,7 +215,7 @@ void main() {
           cv: _fixtureCv(
             bulletText: 'Delivered “results” — on budget… for €2m.',
           ),
-          templateId: 'structured_serif',
+          templateId: 'classic_centered',
         );
 
         expect(bytes, isNotEmpty);

@@ -94,7 +94,7 @@ void main() {
       schemaVersion: 1,
       id: 'current',
       name: 'My CV',
-      templateId: 'ats_minimal',
+      templateId: 'compact',
       experienceIds: experienceIds,
       bulletIds: bulletIds,
       projectIds: projectIds,

@@ -6,7 +6,7 @@ import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
-import 'package:cv_forge/templates/ats_minimal/ats_minimal_template.dart';
+import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:cv_forge/ui/common/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,7 +35,7 @@ void main() {
       (locator<TemplateRegistryService>() as MockTemplateRegistryService).byId(
         any,
       ),
-    ).thenReturn(const AtsMinimalTemplate());
+    ).thenReturn(const CompactTemplate());
   });
   tearDown(() => locator.reset());
 
@@ -71,7 +71,7 @@ void main() {
     when(draftService.drafts).thenReturn([
       CvDraft.empty(
         id: 'draft-1',
-        templateId: 'ats_minimal',
+        templateId: 'compact',
         name: 'Acme — Backend Engineer',
       ).copyWith(
         notes: 'Tailored for the Acme application',
@@ -79,7 +79,7 @@ void main() {
       ),
       CvDraft.empty(
         id: 'draft-2',
-        templateId: 'ats_minimal',
+        templateId: 'compact',
         name: 'Globex — Platform Team',
       ).copyWith(updatedAt: DateTime(2026, 2, 18)),
     ]);

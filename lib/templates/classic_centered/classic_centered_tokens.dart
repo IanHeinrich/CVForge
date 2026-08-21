@@ -7,7 +7,7 @@ const _mutedInk = 0xFF555555;
 /// reference CV that favours whitespace over rules: no line under a
 /// section title, a bold/italic two-row entry header (entity + date on
 /// row one, role/qualification + location on row two) instead of
-/// `ats_minimal`'s single combined row, and a fully justified summary
+/// `compact`'s single combined row, and a fully justified summary
 /// paragraph. [CvDesignTokens.ruleThickness]/[CvDesignTokens.ruleColorArgb]
 /// are still populated (the class requires them) but this template's own
 /// renderer never draws a rule with them.
@@ -18,7 +18,7 @@ const _mutedInk = 0xFF555555;
 /// new ones, since the two-row header only needs "a bold style" and "an
 /// italic style", which those two tokens already are once
 /// [CvTypeToken.italic] is set on [company].
-const CvDesignTokens structuredSerifTokens = CvDesignTokens(
+const CvDesignTokens classicCenteredTokens = CvDesignTokens(
   marginTop: 40,
   marginRight: 40,
   marginBottom: 40,

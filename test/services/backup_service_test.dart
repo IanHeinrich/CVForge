@@ -198,7 +198,7 @@ void main() {
 
     test('A bundle whose vault parses but whose third draft does not throws '
         'before any write — parse-all-before-write-all', () async {
-      final goodDraft = CvDraft.empty(id: 'd1', templateId: 'ats_minimal');
+      final goodDraft = CvDraft.empty(id: 'd1', templateId: 'compact');
       final badDraftJson = {
         'schemaVersion': 1,
         // Missing required fields (id/templateId/updatedAt) — fromJson

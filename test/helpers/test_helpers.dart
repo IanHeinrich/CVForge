@@ -14,8 +14,8 @@ import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
-import 'package:cv_forge/templates/ats_minimal/ats_minimal_template.dart';
-import 'package:cv_forge/templates/structured_serif/structured_serif_template.dart';
+import 'package:cv_forge/templates/compact/compact_template.dart';
+import 'package:cv_forge/templates/classic_centered/classic_centered_template.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -111,7 +111,7 @@ MockFileDownloadService getAndRegisterFileDownloadService() {
 MockTemplateRegistryService getAndRegisterTemplateRegistryService() {
   _removeRegistrationIfExists<TemplateRegistryService>();
   final service = MockTemplateRegistryService();
-  const templates = [AtsMinimalTemplate(), StructuredSerifTemplate()];
+  const templates = [CompactTemplate(), ClassicCenteredTemplate()];
   when(service.defaultTemplate).thenReturn(templates.first);
   when(service.available).thenReturn(templates);
   when(service.byId(any)).thenAnswer(

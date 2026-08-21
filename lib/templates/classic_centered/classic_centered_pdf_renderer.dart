@@ -1,4 +1,3 @@
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import 'package:cv_forge/models/render/resolved_cv.dart';
@@ -8,23 +7,18 @@ import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
 
-/// `pw`-only rendering of [ResolvedCv] in the `ats_minimal` style — the
-/// sole render tree for this template; Studio's live preview rasterizes
-/// this same output via `printing.PdfPreview` rather than a second,
-/// hand-built Flutter tree, so there's nothing else for this to drift
-/// against.
+/// `pw`-only rendering of [ResolvedCv] in the `classic_centered` style —
+/// the sole render tree for this template; Studio's live preview
+/// rasterizes this same output via `printing.PdfPreview`. Distinguishing
+/// features vs. `compact`: centered, rule-less section headings; a
+/// justified summary paragraph; and a bold/italic two-row entry header
+/// (entity + date on row one, role/qualification + location on row two)
+/// instead of one combined row.
 ///
-/// Takes [tokens] as a parameter, rather than reaching for
-/// `atsMinimalTokens` directly, so this render tree is genuinely reusable
-/// by a future template rather than hard-wired to one token set —
-/// `AtsMinimalTemplate.buildDocument` is the only caller today, and it
-/// supplies its own [CvTemplate.tokens].
-///
-/// Returns a FLAT top-level widget list, one entry per header/heading/item
-/// rather than one enclosing `pw.Column` — feeding `pw.MultiPage.build` a
-/// single nested `pw.Column` silently defeats its page-splitting (see
-/// `CvTemplate.buildDocument`'s doc comment).
-List<pw.Widget> buildAtsMinimalPdfContent(
+/// Returns a FLAT top-level widget list — see `CvTemplate.buildDocument`'s
+/// doc comment for why a single wrapping `pw.Column` would silently defeat
+/// `pw.MultiPage`'s page splitting.
+List<pw.Widget> buildClassicCenteredPdfContent(
   ResolvedCv cv,
   CvDesignTokens tokens,
   CvFontSet fonts,
@@ -32,8 +26,6 @@ List<pw.Widget> buildAtsMinimalPdfContent(
   final widgets = <pw.Widget>[_header(cv.header, tokens, fonts)];
   for (final section in cv.sections) {
     widgets.add(pw.SizedBox(height: tokens.sectionGap));
-    // The summary sits directly under the header with no heading of its
-    // own — the one section type with no title rule above it.
     if (section is! ResolvedSummarySection) {
       widgets.add(_sectionHeading(section.title, tokens, fonts));
     }
@@ -65,13 +57,9 @@ pw.Widget _header(
   ];
 
   return pw.Column(
-    // Stretch, not the Column default of center — a pw.Text otherwise
-    // shrink-wraps its own box to its content width before centering that
-    // box, and (per the `pdf` package's internal text-overflow
-    // bookkeeping) that shrink-wrap is inconsistent between a short line
-    // and a long one, centering some lines but not others. Stretching
-    // gives every line the full row width up front, so textAlign:center
-    // has a consistent box to center within.
+    // Stretch, not the Column default of center — see
+    // `compact_pdf_renderer.dart`'s `_header` doc comment for why a
+    // shrink-wrapped pw.Text centers inconsistently otherwise.
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
       pw.Text(
@@ -84,7 +72,7 @@ pw.Widget _header(
         pw.Text(
           header.headline,
           textAlign: pw.TextAlign.center,
-          style: tokens.company.toPdfStyle(fonts),
+          style: tokens.role.toPdfStyle(fonts),
         ),
       ],
       if (contactParts.isNotEmpty) ...[
@@ -93,11 +81,10 @@ pw.Widget _header(
           alignment: pw.WrapAlignment.center,
           children: [
             for (var i = 0; i < contactParts.length; i++) ...[
-              // A fresh pw.Text per separator, not one shared instance —
-              // pw widgets store their computed layout box on themselves,
-              // so reusing one instance at multiple tree positions
-              // corrupts whichever position lays out second.
-              if (i > 0) pw.Text(' | ', style: contactStyle),
+              // A fresh pw.Text per separator — see the matching comment
+              // in `compact_pdf_renderer.dart` for why one shared
+              // instance can't be reused at multiple tree positions.
+              if (i > 0) pw.Text(' – ', style: contactStyle),
               contactParts[i],
             ],
           ],
@@ -107,14 +94,13 @@ pw.Widget _header(
   );
 }
 
-/// A PDF hyperlink destination needs an explicit scheme. Vault links are
-/// entered casually (e.g. "linkedin.com/in/jordanellery"), so add one
-/// rather than requiring the user to type "https://" themselves.
 String _withScheme(String url) =>
     url.startsWith('http://') || url.startsWith('https://')
     ? url
     : 'https://$url';
 
+/// Centered, bold, no rule — the reference this template clones leans on
+/// whitespace rather than a line to separate sections.
 pw.Widget _sectionHeading(
   String title,
   CvDesignTokens tokens,
@@ -123,20 +109,16 @@ pw.Widget _sectionHeading(
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
-      pw.Text(title, style: tokens.sectionHeading.toPdfStyle(fonts)),
-      pw.SizedBox(height: tokens.sectionRuleGap),
-      pw.Container(
-        height: tokens.ruleThickness,
-        color: PdfColor.fromInt(tokens.ruleColorArgb),
+      pw.Text(
+        title,
+        textAlign: pw.TextAlign.center,
+        style: tokens.sectionHeading.toPdfStyle(fonts),
       ),
       pw.SizedBox(height: tokens.sectionRuleGap),
     ],
   );
 }
 
-/// One top-level widget per item within [section]'s body, so `MultiPage`
-/// can split between e.g. two experience entries, not just between whole
-/// sections.
 List<pw.Widget> _sectionBody(
   ResolvedSection section,
   CvDesignTokens tokens,
@@ -168,37 +150,177 @@ List<pw.Widget> _sectionBody(
   ],
 };
 
+/// Fully justified — the reference's summary paragraph reads flush on
+/// both margins, not ragged-right like `compact`'s.
 pw.Widget _bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
-    pw.Text(text, style: tokens.body.toPdfStyle(fonts));
+    pw.Text(
+      text,
+      textAlign: pw.TextAlign.justify,
+      style: tokens.body.toPdfStyle(fonts),
+    );
 
-/// A left label + right value on one row — the "role, dates" and
-/// "institution, year" rows every section but Skills uses. `pw.Expanded`
-/// inside `pw.Row` (rather than a manual width split) is what keeps long
-/// role/company text from pushing the date range off the page edge.
-/// [rightUrl], when given, makes the right-hand value (e.g. a project
-/// link) a clickable hyperlink rather than plain text.
-pw.Widget _labelledRow(
-  pw.InlineSpan left,
+/// One row of the two-row entry header: [left] styled bold/italic per
+/// [leftStyle], [right] in the plain `meta` style, right-aligned.
+/// `pw.Expanded` keeps a long left value from pushing [right] off the
+/// page edge.
+pw.Widget _headerRow(
+  String left,
   String? right,
+  CvTypeToken leftStyle,
   CvDesignTokens tokens,
-  CvFontSet fonts, {
-  String? rightUrl,
-}) {
-  final rightWidget = right == null || right.isEmpty
-      ? null
-      : pw.Text(right, style: tokens.meta.toPdfStyle(fonts));
-
+  CvFontSet fonts,
+) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
-      pw.Expanded(
-        child: pw.RichText(text: pw.TextSpan(children: [left])),
-      ),
-      if (rightWidget != null)
-        rightUrl == null
-            ? rightWidget
-            : pw.UrlLink(destination: rightUrl, child: rightWidget),
+      pw.Expanded(child: pw.Text(left, style: leftStyle.toPdfStyle(fonts))),
+      if (right != null && right.isNotEmpty)
+        pw.Text(right, style: tokens.meta.toPdfStyle(fonts)),
     ],
+  );
+}
+
+pw.Widget _companyGroup(
+  ResolvedCompanyGroup group,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  return pw.Padding(
+    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
+    child: group.positions.length == 1
+        ? _singlePosition(group.positions.single, group, tokens, fonts)
+        : _promotionGroup(group, tokens, fonts),
+  );
+}
+
+pw.Widget _singlePosition(
+  ResolvedPosition position,
+  ResolvedCompanyGroup group,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+    children: [
+      _headerRow(group.company, position.dateRange, tokens.role, tokens, fonts),
+      _headerRow(position.role, group.location, tokens.company, tokens, fonts),
+      buildBulletList(position.bullets, tokens, fonts),
+    ],
+  );
+}
+
+/// A promotion: the company/location header shows once, then each role
+/// with its own date range and bullets nested beneath.
+pw.Widget _promotionGroup(
+  ResolvedCompanyGroup group,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+    children: [
+      _headerRow(group.company, group.location, tokens.role, tokens, fonts),
+      for (final position in group.positions)
+        pw.Padding(
+          padding: pw.EdgeInsets.only(top: tokens.bulletGap),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+            children: [
+              _headerRow(
+                position.role,
+                position.dateRange,
+                tokens.company,
+                tokens,
+                fonts,
+              ),
+              buildBulletList(position.bullets, tokens, fonts),
+            ],
+          ),
+        ),
+    ],
+  );
+}
+
+pw.Widget _project(
+  ResolvedProject project,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  final link = project.link;
+  return pw.Padding(
+    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+      children: [
+        pw.Text(project.title, style: tokens.role.toPdfStyle(fonts)),
+        if (link != null && link.isNotEmpty)
+          pw.UrlLink(
+            destination: _withScheme(link),
+            child: pw.Text(link, style: tokens.meta.toPdfStyle(fonts)),
+          ),
+        buildBulletList(project.bullets, tokens, fonts),
+      ],
+    ),
+  );
+}
+
+pw.Widget _education(
+  ResolvedQualification edu,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  final detail = [
+    edu.grade,
+    edu.details,
+  ].where((s) => s != null && s.trim().isNotEmpty).join(', ');
+  final qualificationLine = detail.isEmpty
+      ? edu.qualification
+      : '${edu.qualification}, $detail';
+
+  return pw.Padding(
+    padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+      children: [
+        _headerRow(edu.institution, edu.location, tokens.role, tokens, fonts),
+        _headerRow(
+          qualificationLine,
+          edu.yearLabel,
+          tokens.company,
+          tokens,
+          fonts,
+        ),
+      ],
+    ),
+  );
+}
+
+/// [Publication.link] renders as its own line, deliberately never spliced
+/// into [citation] — a long DOI/URL sits on a line of its own rather than
+/// competing with a long title/citation for right-aligned space the way
+/// `compact`'s single-row project link does.
+pw.Widget _publication(
+  ResolvedPublication publication,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) {
+  final citation = publication.citation;
+  final link = publication.link;
+  return pw.Padding(
+    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+      children: [
+        pw.Text(publication.title, style: tokens.role.toPdfStyle(fonts)),
+        if (citation != null && citation.trim().isNotEmpty)
+          pw.Text(citation, style: tokens.meta.toPdfStyle(fonts)),
+        if (link != null && link.trim().isNotEmpty)
+          pw.UrlLink(
+            destination: _withScheme(link),
+            child: pw.Text(link, style: tokens.meta.toPdfStyle(fonts)),
+          ),
+      ],
+    ),
   );
 }
 
@@ -227,175 +349,4 @@ List<pw.Widget> _skillGroups(
         ),
       ),
   ];
-}
-
-pw.Widget _companyGroup(
-  ResolvedCompanyGroup group,
-  CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
-    child: group.positions.length == 1
-        ? _singlePosition(group.positions.single, group, tokens, fonts)
-        : _promotionGroup(group, tokens, fonts),
-  );
-}
-
-pw.Widget _singlePosition(
-  ResolvedPosition position,
-  ResolvedCompanyGroup group,
-  CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  return pw.Column(
-    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-    children: [
-      _labelledRow(
-        pw.TextSpan(
-          children: [
-            pw.TextSpan(
-              text: '${position.role}, ',
-              style: tokens.role.toPdfStyle(fonts),
-            ),
-            pw.TextSpan(
-              text: '${group.company} – ${group.location}',
-              style: tokens.company.toPdfStyle(fonts),
-            ),
-          ],
-        ),
-        position.dateRange,
-        tokens,
-        fonts,
-      ),
-      buildBulletList(position.bullets, tokens, fonts),
-    ],
-  );
-}
-
-/// A promotion: the company is shown once, then each role with its own
-/// date range and bullets nested beneath.
-pw.Widget _promotionGroup(
-  ResolvedCompanyGroup group,
-  CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  return pw.Column(
-    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-    children: [
-      pw.Text(
-        '${group.company} – ${group.location}',
-        style: tokens.role.toPdfStyle(fonts),
-      ),
-      for (final position in group.positions)
-        pw.Padding(
-          padding: pw.EdgeInsets.only(
-            top: tokens.bulletGap,
-            left: tokens.bulletIndent,
-          ),
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-            children: [
-              _labelledRow(
-                pw.TextSpan(
-                  text: position.role,
-                  style: tokens.company.toPdfStyle(fonts),
-                ),
-                position.dateRange,
-                tokens,
-                fonts,
-              ),
-              buildBulletList(position.bullets, tokens, fonts),
-            ],
-          ),
-        ),
-    ],
-  );
-}
-
-pw.Widget _project(
-  ResolvedProject project,
-  CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-      children: [
-        _labelledRow(
-          pw.TextSpan(
-            text: project.title,
-            style: tokens.role.toPdfStyle(fonts),
-          ),
-          project.link,
-          tokens,
-          fonts,
-          rightUrl: project.link == null ? null : _withScheme(project.link!),
-        ),
-        buildBulletList(project.bullets, tokens, fonts),
-      ],
-    ),
-  );
-}
-
-pw.Widget _publication(
-  ResolvedPublication publication,
-  CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  final citation = publication.citation;
-  final link = publication.link;
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-      children: [
-        pw.Text(publication.title, style: tokens.role.toPdfStyle(fonts)),
-        if (citation != null && citation.trim().isNotEmpty)
-          pw.Text(citation, style: tokens.meta.toPdfStyle(fonts)),
-        if (link != null && link.trim().isNotEmpty)
-          pw.UrlLink(
-            destination: _withScheme(link),
-            child: pw.Text(link, style: tokens.meta.toPdfStyle(fonts)),
-          ),
-      ],
-    ),
-  );
-}
-
-/// Grade/details fold into the same line as the institution–qualification
-/// text, comma-separated — the reference template keeps one education
-/// entry to one line, with no second row underneath.
-pw.Widget _education(
-  ResolvedQualification edu,
-  CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  final detail = [
-    edu.grade,
-    edu.details,
-  ].where((s) => s != null && s.trim().isNotEmpty).join(', ');
-  final suffix = detail.isEmpty ? '' : ', $detail';
-
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
-    child: _labelledRow(
-      pw.TextSpan(
-        children: [
-          pw.TextSpan(
-            text: edu.institution,
-            style: tokens.role.toPdfStyle(fonts),
-          ),
-          pw.TextSpan(
-            text: ' – ${edu.qualification}$suffix',
-            style: tokens.company.toPdfStyle(fonts),
-          ),
-        ],
-      ),
-      edu.yearLabel,
-      tokens,
-      fonts,
-    ),
-  );
 }

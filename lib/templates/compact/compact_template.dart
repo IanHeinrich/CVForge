@@ -8,22 +8,22 @@ import 'package:cv_forge/templates/cv_template.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
-import 'ats_minimal_pdf_renderer.dart';
-import 'ats_minimal_tokens.dart';
+import 'compact_pdf_renderer.dart';
+import 'compact_tokens.dart';
 
 /// A clean, single-column, ATS-friendly layout modelled on the
-/// r/EngineeringResumes community template. See `ats_minimal_tokens.dart`
-/// for the visual vocabulary and `ats_minimal_pdf_renderer.dart` for the
+/// r/EngineeringResumes community template. See `compact_tokens.dart`
+/// for the visual vocabulary and `compact_pdf_renderer.dart` for the
 /// render tree — Studio's live preview and the exported PDF are both this
 /// same tree, rasterized by `printing.PdfPreview` for the former.
-class AtsMinimalTemplate implements CvTemplate {
-  const AtsMinimalTemplate();
+class CompactTemplate implements CvTemplate {
+  const CompactTemplate();
 
   @override
-  String get id => 'ats_minimal';
+  String get id => 'compact';
 
   @override
-  String get displayName => 'ATS Minimal';
+  String get displayName => 'Compact';
 
   @override
   String get description =>
@@ -31,7 +31,7 @@ class AtsMinimalTemplate implements CvTemplate {
       'ATS parsers without friction.';
 
   @override
-  CvDesignTokens get tokens => atsMinimalTokens;
+  CvDesignTokens get tokens => compactTokens;
 
   @override
   List<CvSectionType> get sectionOrder => CvSectionType.values;
@@ -55,7 +55,7 @@ class AtsMinimalTemplate implements CvTemplate {
       pw.MultiPage(
         pageFormat: format,
         margin: tokens.pageMargins,
-        build: (context) => buildAtsMinimalPdfContent(cv, tokens, fonts),
+        build: (context) => buildCompactPdfContent(cv, tokens, fonts),
       ),
     );
     return doc;

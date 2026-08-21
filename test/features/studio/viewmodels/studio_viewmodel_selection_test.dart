@@ -80,7 +80,7 @@ void main() {
       String? headlineOverride,
       String? referencesOverride,
       Map<String, String> educationDetailsOverrides = const {},
-      String templateId = 'ats_minimal',
+      String templateId = 'compact',
     }) => CvDraft(
       schemaVersion: 1,
       id: 'current',
@@ -169,10 +169,10 @@ void main() {
         ),
       );
 
-      final atsMinimalOrder = StudioViewModel().resolvedCv.sections
+      final compactOrder = StudioViewModel().resolvedCv.sections
           .map((s) => s.runtimeType)
           .toList();
-      expect(atsMinimalOrder, [
+      expect(compactOrder, [
         ResolvedExperienceSection,
         ResolvedEducationSection,
       ]);
@@ -184,14 +184,14 @@ void main() {
             experience.id: ['b1', 'b2'],
           },
           educationIds: [education.id],
-          templateId: 'structured_serif',
+          templateId: 'classic_centered',
         ),
       );
 
-      final structuredSerifOrder = StudioViewModel().resolvedCv.sections
+      final classicCenteredOrder = StudioViewModel().resolvedCv.sections
           .map((s) => s.runtimeType)
           .toList();
-      expect(structuredSerifOrder, [
+      expect(classicCenteredOrder, [
         ResolvedEducationSection,
         ResolvedExperienceSection,
       ]);
