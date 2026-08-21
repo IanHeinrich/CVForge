@@ -134,7 +134,21 @@ void main() {
     });
 
     group('copilot connection (4.4) -', () {
-      test('selectCopilotModel persists both provider and model ids', () async {
+      test('selectCopilotModel persists just the model id, leaving the '
+          'current provider selection alone', () async {
+        when(
+          settingsService.setCopilotModel(any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.selectCopilotModel('claude-sonnet-5');
+
+        verify(settingsService.setCopilotModel('claude-sonnet-5')).called(1);
+        verifyNever(settingsService.setCopilotProvider(any));
+      });
+
+      test('selectCopilotProvider persists the provider and resets the '
+          'model to that provider\'s first option', () async {
         when(
           settingsService.setCopilotProvider(any),
         ).thenAnswer((_) => Future<void>.value());
@@ -143,10 +157,30 @@ void main() {
         ).thenAnswer((_) => Future<void>.value());
 
         final model = SettingsViewModel();
-        await model.selectCopilotModel('claude-sonnet-5');
+        await model.selectCopilotProvider('gemini');
 
-        verify(settingsService.setCopilotProvider('anthropic')).called(1);
-        verify(settingsService.setCopilotModel('claude-sonnet-5')).called(1);
+        verify(settingsService.setCopilotProvider('gemini')).called(1);
+        verify(
+          settingsService.setCopilotModel('gemini-3.5-flash-lite'),
+        ).called(1);
+      });
+
+      test('showCopilotProviderSelector is true once more than one '
+          'provider is registered', () {
+        final model = SettingsViewModel();
+
+        expect(model.showCopilotProviderSelector, isTrue);
+        expect(model.copilotProviders.map((p) => p.id), [
+          'anthropic',
+          'gemini',
+        ]);
+      });
+
+      test('selectedCopilotProvider falls back to the default provider '
+          'when nothing is stored', () {
+        final model = SettingsViewModel();
+
+        expect(model.selectedCopilotProvider.id, 'anthropic');
       });
 
       test('setRememberApiKey(false) clears the stored key', () async {

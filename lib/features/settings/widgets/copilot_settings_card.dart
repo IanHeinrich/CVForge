@@ -8,9 +8,10 @@ import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 
-/// Copilot connection setup — enter a key, pick a model, test the
-/// connection. Same block-card frame as [BackupSettingsCard]; the
-/// surrounding scroll and page padding belong to `SettingsView`.
+/// Copilot connection setup — pick a provider (once more than one is
+/// registered), enter a key, pick a model, test the connection. Same
+/// block-card frame as [BackupSettingsCard]; the surrounding scroll and
+/// page padding belong to `SettingsView`.
 class CopilotSettingsCard extends StatefulWidget {
   const CopilotSettingsCard({super.key, required this.viewModel});
 
@@ -44,18 +45,42 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           Text('Copilot', style: context.appTypography.titleMedium),
           const VGap.tiny(),
           Text(
-            'Bring your own Anthropic API key to enable AI-assisted '
-            'tailoring. Your key never leaves this device except to call '
-            "Anthropic's API directly — there is no CVForge server.",
+            'Bring your own API key to enable AI-assisted tailoring. Your '
+            'key never leaves this device except to call the provider\'s '
+            'API directly — there is no CVForge server.',
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
+          if (viewModel.showCopilotProviderSelector) ...[
+            DropdownButton<String>(
+              value: viewModel.selectedCopilotProvider.id,
+              isExpanded: true,
+              items: [
+                for (final provider in viewModel.copilotProviders)
+                  DropdownMenuItem(
+                    value: provider.id,
+                    child: Text(provider.displayName),
+                  ),
+              ],
+              onChanged: (providerId) {
+                if (providerId == null) return;
+                // A key typed for the previous provider is meaningless for
+                // the new one — clear it rather than leave a stale value
+                // sitting in the field.
+                _apiKeyController.clear();
+                viewModel.selectCopilotProvider(providerId);
+              },
+            ),
+            const VGap.small(),
+          ],
           TextField(
             controller: _apiKeyController,
             obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Anthropic API key',
-              hintText: 'sk-ant-...',
+            decoration: InputDecoration(
+              labelText:
+                  '${viewModel.selectedCopilotProvider.displayName} '
+                  'API key',
+              hintText: 'Paste your API key',
             ),
           ),
           const VGap.small(),
