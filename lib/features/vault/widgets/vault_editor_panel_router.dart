@@ -130,10 +130,19 @@ class VaultEditorPanelRouter extends StatelessWidget {
           (p) => p.id,
         );
         if (publication == null) return const SizedBox.shrink();
+        final publicationId = publication.id;
         return PublicationEditorPanel(
           publication: publication,
+          skillCategories: viewModel.vault.skillCategories,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updatePublication,
+          onAddBullet: () => viewModel.addPublicationBullet(publicationId),
+          onBulletChanged: (bullet) =>
+              viewModel.updatePublicationBullet(publicationId, bullet),
+          onBulletDeleted: (bulletId) =>
+              viewModel.deletePublicationBullet(publicationId, bulletId),
+          onBulletsReordered: (ids) =>
+              viewModel.reorderPublicationBullets(publicationId, ids),
         );
     }
   }

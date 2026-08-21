@@ -1,7 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
-import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -27,9 +26,10 @@ import 'tailoring_controls.dart';
 /// [TailorableField] wrapping this widget's own primitives) — so Escape,
 /// the "Only affects this CV." footer, and the collapse behaviour can't
 /// drift between the two call sites. Only the frame differs: this adds a
-/// titled block card with an empty-Vault message and a hidden-section
-/// notice, since a page-level field has no parent row to hang off, unlike
-/// a bullet's own checkbox row.
+/// titled block card with an empty-Vault message, since a page-level field
+/// has no parent row to hang off, unlike a bullet's own checkbox row.
+/// Section visibility (show/hide) lives solely in Studio's "Sections"
+/// list now, not here — see `StudioConfigPanel`.
 ///
 /// [_editing] is local presentation state, always starting collapsed
 /// regardless of [hasOverride] (mirroring bullets — tailoring a field
@@ -47,12 +47,7 @@ class StudioFieldOverrideCard extends StatefulWidget {
     required this.onChanged,
     required this.onRevert,
     required this.emptyVaultMessage,
-    this.hidden,
-    this.onShow,
-  }) : assert(
-         (hidden == null) == (onShow == null),
-         'hidden and onShow must both be provided, or both omitted',
-       );
+  });
 
   /// Heading text, e.g. "Professional summary".
   final String label;
@@ -76,12 +71,6 @@ class StudioFieldOverrideCard extends StatefulWidget {
   /// Shown collapsed when there's no override and [vaultValue] is empty,
   /// e.g. "No headline in your Vault yet."
   final String emptyVaultMessage;
-
-  /// Whether this field's section is currently hidden from the CV — null
-  /// means this field has no corresponding section (e.g. headline is part
-  /// of the header, which always prints), so no hidden/show row renders.
-  final bool? hidden;
-  final VoidCallback? onShow;
 
   @override
   State<StudioFieldOverrideCard> createState() =>
@@ -113,10 +102,6 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
         children: [
           StudioPanelHeading(widget.label),
           const VGap.tiny(),
-          if (widget.hidden ?? false) ...[
-            _HiddenNotice(onShow: widget.onShow!),
-            const VGap.tiny(),
-          ],
           Row(
             children: [
               Expanded(
@@ -160,27 +145,6 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
             ),
         ],
       ),
-    );
-  }
-}
-
-class _HiddenNotice extends StatelessWidget {
-  const _HiddenNotice({required this.onShow});
-
-  final VoidCallback onShow;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            'Hidden in this CV',
-            style: context.appTypography.caption.copyWith(color: kcErrorColor),
-          ),
-        ),
-        TextButton(onPressed: onShow, child: const Text('Show')),
-      ],
     );
   }
 }

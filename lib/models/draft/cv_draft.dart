@@ -50,7 +50,31 @@ abstract class CvDraft with _$CvDraft {
     @Default(<String>[]) List<String> educationIds,
     @Default(<String>[]) List<String> hobbyIds,
     @Default(<String>[]) List<String> publicationIds,
+
+    /// Same shape and rationale as [bulletIds]/[projectBulletIds], one
+    /// entity type over for [Publication] bullets.
+    @Default(<String, List<String>>{})
+    Map<String, List<String>> publicationBulletIds,
     @Default(<CvSectionType>{}) Set<CvSectionType> hiddenSections,
+
+    /// This draft's own print order — reorderable per-draft in Studio
+    /// (drag handles in the "Sections" list). Distinct from
+    /// `CvTemplate.sectionOrder`, which is only a seed suggestion
+    /// consulted once, when a brand-new draft is constructed (see
+    /// `DraftService.createDraft`) — switching a draft's template
+    /// afterwards never touches this field. Read [effectiveSectionOrder],
+    /// not this field directly, anywhere the order is consumed.
+    @Default(<CvSectionType>[
+      CvSectionType.summary,
+      CvSectionType.skills,
+      CvSectionType.experience,
+      CvSectionType.projects,
+      CvSectionType.education,
+      CvSectionType.hobbies,
+      CvSectionType.references,
+      CvSectionType.publications,
+    ])
+    List<CvSectionType> sectionOrder,
 
     /// A draft-only rewrite of the Vault's professional summary — null
     /// means "inherit the Vault's", never "omit" (the Summary section
@@ -114,4 +138,18 @@ abstract class CvDraft with _$CvDraft {
     region: region,
     updatedAt: DateTime.now(),
   );
+}
+
+extension CvDraftSectionOrder on CvDraft {
+  /// [sectionOrder] with any [CvSectionType] case missing from it appended
+  /// at the end, in enum-declaration order — guards against a future new
+  /// section type shipping after this draft was last saved, so it isn't
+  /// silently dropped from the printed CV forever. Always read this,
+  /// never [sectionOrder] directly, anywhere order is consumed for
+  /// rendering or for the picker UI.
+  List<CvSectionType> get effectiveSectionOrder => [
+    ...sectionOrder,
+    for (final type in CvSectionType.values)
+      if (!sectionOrder.contains(type)) type,
+  ];
 }

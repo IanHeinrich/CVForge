@@ -162,6 +162,112 @@ void main() {
       expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
     });
 
+    test('an entry with far more bullets than fit on one page paginates '
+        'across as many pages as it needs, rather than failing the '
+        'export — each bullet is its own top-level pw.MultiPage widget, '
+        'not grouped into a nested pw.Column, which is what makes genuine '
+        'cross-page splitting between bullets possible at all', () async {
+      final service = PdfExportService();
+
+      final manyBullets = ResolvedCv(
+        header: const ResolvedHeader(
+          fullName: 'Jordan Ellery',
+          headline: 'Senior Software Engineer',
+          email: 'jordan.ellery@example.com',
+          phone: '+44 7700 900123',
+          location: 'Manchester',
+          links: [],
+        ),
+        sections: [
+          ResolvedSection.experience(
+            title: 'Experience',
+            groups: [
+              ResolvedCompanyGroup(
+                company: 'Acme',
+                location: 'London',
+                positions: [
+                  ResolvedPosition(
+                    role: 'Engineer',
+                    dateRange: '01/2020 - current',
+                    bullets: [
+                      for (var i = 0; i < 200; i++)
+                        ResolvedBullet(text: 'Delivered result number $i.'),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final bytes = await service.render(
+        cv: manyBullets,
+        templateId: 'compact',
+      );
+
+      expect(bytes, isNotEmpty);
+      expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+    });
+
+    test('a single bullet whose own text is too long to fit on any one '
+        'page — even a fresh one — fails the export with a clean '
+        'PdfExportException rather than an uncaught crash. Neither the '
+        'pagination guard nor PdfExportService.render\'s fallback retry '
+        'can rescue this: a bullet is built from a pw.Row, which is '
+        'inherently non-spanning regardless of pw.Inseparable, so a '
+        'single bullet taller than a page is a genuine content limit, not '
+        'a bug either mechanism is meant to paper over', () async {
+      final service = PdfExportService();
+
+      final oneEnormousBullet = ResolvedCv(
+        header: const ResolvedHeader(
+          fullName: 'Jordan Ellery',
+          headline: 'Senior Software Engineer',
+          email: 'jordan.ellery@example.com',
+          phone: '+44 7700 900123',
+          location: 'Manchester',
+          links: [],
+        ),
+        sections: [
+          ResolvedSection.experience(
+            title: 'Experience',
+            groups: [
+              ResolvedCompanyGroup(
+                company: 'Acme',
+                location: 'London',
+                positions: [
+                  ResolvedPosition(
+                    role: 'Engineer',
+                    dateRange: '01/2020 - current',
+                    // 1500 words wraps to far more lines than fit on a
+                    // full A4 page even on its own, confirmed empirically
+                    // against the real renderer, not just estimated.
+                    bullets: [
+                      ResolvedBullet(
+                        text: List.generate(1500, (i) => 'word$i').join(' '),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await expectLater(
+        service.render(cv: oneEnormousBullet, templateId: 'compact'),
+        throwsA(
+          isA<PdfExportException>().having(
+            (e) => e.stage,
+            'stage',
+            PdfExportStage.render,
+          ),
+        ),
+      );
+    });
+
     test(
       'export slugifies name+draft into the saver filename with no '
       'extension in the name — an extension there would yield cv.pdf.pdf',

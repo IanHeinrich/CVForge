@@ -17,9 +17,9 @@ part 'copilot_result.freezed.dart';
 /// [vault]'s own ids unconditionally — belt-and-braces on a provider that
 /// enforces the schema, the *only* enforcement on one that doesn't. An
 /// unknown id, a wrong type, or a bullet attached to the wrong
-/// experience/project is dropped silently, the same "dangling ids are
-/// normal, not an error" rule [CvDraft] already applies everywhere else —
-/// never a crash, never a thrown exception.
+/// experience/project/publication is dropped silently, the same "dangling
+/// ids are normal, not an error" rule [CvDraft] already applies everywhere
+/// else — never a crash, never a thrown exception.
 @freezed
 abstract class CopilotResult with _$CopilotResult {
   const factory CopilotResult({
@@ -32,6 +32,8 @@ abstract class CopilotResult with _$CopilotResult {
     required Map<String, List<String>> bulletIds,
     required List<String> projectIds,
     required Map<String, List<String>> projectBulletIds,
+    required List<String> publicationIds,
+    required Map<String, List<String>> publicationBulletIds,
 
     /// bulletId -> rewritten text, flattened across experiences and
     /// projects — legal because bullet ids are globally unique (the same
@@ -41,7 +43,6 @@ abstract class CopilotResult with _$CopilotResult {
     required List<String> skillIds,
     required List<String> educationIds,
     required List<String> hobbyIds,
-    required List<String> publicationIds,
     required Set<CvSectionType> hiddenSections,
     required String rationale,
     required List<String> keywordGaps,
@@ -57,11 +58,11 @@ abstract class CopilotResult with _$CopilotResult {
     };
     final educationIds = {for (final e in vault.education) e.id};
     final hobbyIds = {for (final h in vault.hobbies) h.id};
-    final publicationIds = {for (final p in vault.publications) p.id};
     final sectionNames = {for (final s in CvSectionType.values) s.name};
 
     final resultBulletIds = <String, List<String>>{};
     final resultProjectBulletIds = <String, List<String>>{};
+    final resultPublicationBulletIds = <String, List<String>>{};
     final bulletOverrides = <String, String>{};
 
     final experiencesRaw = json['experiences'];
@@ -94,6 +95,21 @@ abstract class CopilotResult with _$CopilotResult {
       }
     }
 
+    final publicationsRaw = json['publications'];
+    if (publicationsRaw is Map) {
+      for (final p in vault.publications) {
+        final entry = publicationsRaw[p.id];
+        if (entry is! Map) continue;
+        _applyEntry(
+          entry,
+          entryId: p.id,
+          validBulletIds: {for (final b in p.bullets) b.id},
+          bulletIdsOut: resultPublicationBulletIds,
+          bulletOverridesOut: bulletOverrides,
+        );
+      }
+    }
+
     return CopilotResult(
       headline: _asString(json['headline']),
       summary: _asString(json['summary']),
@@ -107,11 +123,15 @@ abstract class CopilotResult with _$CopilotResult {
           if (resultProjectBulletIds.containsKey(p.id)) p.id,
       ],
       projectBulletIds: resultProjectBulletIds,
+      publicationIds: [
+        for (final p in vault.publications)
+          if (resultPublicationBulletIds.containsKey(p.id)) p.id,
+      ],
+      publicationBulletIds: resultPublicationBulletIds,
       bulletOverrides: bulletOverrides,
       skillIds: _filteredIds(json['skillIds'], skillIds),
       educationIds: _filteredIds(json['educationIds'], educationIds),
       hobbyIds: _filteredIds(json['hobbyIds'], hobbyIds),
-      publicationIds: _filteredIds(json['publicationIds'], publicationIds),
       hiddenSections: {
         for (final name in _filteredIds(json['hiddenSections'], sectionNames))
           CvSectionType.values.byName(name),

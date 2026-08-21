@@ -42,6 +42,7 @@ class CompactTemplate implements CvTemplate {
     PdfPageFormat format,
     CvFontSet fonts, {
     bool compress = true,
+    bool preventOrphansAndSplits = true,
   }) {
     final doc = pw.Document(
       compress: compress,
@@ -55,7 +56,12 @@ class CompactTemplate implements CvTemplate {
       pw.MultiPage(
         pageFormat: format,
         margin: tokens.pageMargins,
-        build: (context) => buildCompactPdfContent(cv, tokens, fonts),
+        build: (context) => buildCompactPdfContent(
+          cv,
+          tokens,
+          fonts,
+          preventOrphansAndSplits: preventOrphansAndSplits,
+        ),
       ),
     );
     return doc;

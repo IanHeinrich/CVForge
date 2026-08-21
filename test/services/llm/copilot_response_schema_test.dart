@@ -98,7 +98,7 @@ void main() {
           'skillIds',
           'educationIds',
           'hobbyIds',
-          'publicationIds',
+          'publications',
           'hiddenSections',
           'rationale',
           'keywordGaps',

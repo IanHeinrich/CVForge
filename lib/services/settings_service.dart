@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
@@ -48,6 +49,24 @@ class SettingsService
   Future<void> setRememberApiKey(bool value) async {
     await ready();
     _settings.value = _settings.value.copyWith(rememberApiKey: value);
+    scheduleWrite(_settings.value);
+  }
+
+  /// Sets the remembered default section order and hidden-sections state
+  /// together, in one write rather than two separate calls — see
+  /// `AppSettings.defaultSectionOrder`/`defaultHiddenSections` and
+  /// `DraftService.createDraft`'s doc comment. The pair is always saved
+  /// (and reset) together from the same Studio action, so there's no
+  /// legitimate call site that would ever want to update just one.
+  Future<void> setDefaultSectionSettings({
+    required List<CvSectionType> order,
+    required Set<CvSectionType> hiddenSections,
+  }) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(
+      defaultSectionOrder: order,
+      defaultHiddenSections: hiddenSections,
+    );
     scheduleWrite(_settings.value);
   }
 

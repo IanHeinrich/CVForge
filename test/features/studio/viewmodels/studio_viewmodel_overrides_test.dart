@@ -98,6 +98,7 @@ void main() {
     setUp(() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
+      getAndRegisterSettingsService();
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
       // Not read by any test in this file, but still needed: StudioViewModel's

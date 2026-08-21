@@ -82,6 +82,14 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     _setVault((_) => buildExampleVault());
   }
 
+  /// Resets the Vault back to [CvVault.empty] — the same starting point as
+  /// a first-ever launch, so the empty-state choice ("Load example CV" or
+  /// build from scratch) is available again afterwards.
+  Future<void> clearVault() async {
+    await ready();
+    _setVault((_) => CvVault.empty());
+  }
+
   // --- basics ---
 
   Future<void> updateBasics(ContactBasics basics) async {
@@ -637,6 +645,78 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     _setVault(
       (v) => v.copyWith(
         publications: v.publications.removeById(publicationId, (p) => p.id),
+      ),
+    );
+  }
+
+  // --- publication bullets ---
+
+  Future<CvBullet> addPublicationBullet(
+    String publicationId, {
+    String? label,
+    required String text,
+  }) async {
+    await ready();
+    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
+    _updatePublication(
+      publicationId,
+      (p) => p.copyWith(bullets: [...p.bullets, bullet]),
+    );
+    return bullet;
+  }
+
+  Future<void> updatePublicationBullet(
+    String publicationId,
+    CvBullet bullet,
+  ) async {
+    await ready();
+    _updatePublication(
+      publicationId,
+      (p) => p.copyWith(
+        bullets: p.bullets.replaceById(bullet.id, bullet, (b) => b.id),
+      ),
+    );
+  }
+
+  Future<void> deletePublicationBullet(
+    String publicationId,
+    String bulletId,
+  ) async {
+    await ready();
+    _updatePublication(
+      publicationId,
+      (p) => p.copyWith(bullets: p.bullets.removeById(bulletId, (b) => b.id)),
+    );
+  }
+
+  Future<void> reorderPublicationBullets(
+    String publicationId,
+    List<String> orderedBulletIds,
+  ) async {
+    await ready();
+    _updatePublication(
+      publicationId,
+      (p) => p.copyWith(
+        bullets: [
+          for (final id in orderedBulletIds)
+            ...p.bullets.where((b) => b.id == id).take(1),
+        ],
+      ),
+    );
+  }
+
+  /// Applies [update] to the single publication matching [publicationId].
+  /// Mirrors [_updateProject] — same shape, one entity type over.
+  void _updatePublication(
+    String publicationId,
+    Publication Function(Publication current) update,
+  ) {
+    _setVault(
+      (v) => v.copyWith(
+        publications: [
+          for (final p in v.publications)
+            if (p.id == publicationId) update(p) else p,
+        ],
       ),
     );
   }

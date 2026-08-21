@@ -18,7 +18,11 @@ mixin _$Publication {
  String get id; String get title;/// Author/venue/year detail, e.g. "Trujillo, L. (2021). AUC
 /// Interpretationes, 11(2), 194–206." Free text, optional — a
 /// publication with just a title is still valid.
- String? get citation; String? get link;
+ String? get citation; String? get link;/// Same role as [Project.bullets] — supporting detail a candidate
+/// might want to surface under a publication (e.g. "Cited by 40+
+/// subsequent papers", "Led the fieldwork component"), selected and
+/// reordered per-draft exactly like project bullets are.
+ List<CvBullet> get bullets;
 /// Create a copy of Publication
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +35,16 @@ $PublicationCopyWith<Publication> get copyWith => _$PublicationCopyWithImpl<Publ
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Publication&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Publication&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link)&&const DeepCollectionEquality().equals(other.bullets, bullets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,citation,link);
+int get hashCode => Object.hash(runtimeType,id,title,citation,link,const DeepCollectionEquality().hash(bullets));
 
 @override
 String toString() {
-  return 'Publication(id: $id, title: $title, citation: $citation, link: $link)';
+  return 'Publication(id: $id, title: $title, citation: $citation, link: $link, bullets: $bullets)';
 }
 
 
@@ -51,7 +55,7 @@ abstract mixin class $PublicationCopyWith<$Res>  {
   factory $PublicationCopyWith(Publication value, $Res Function(Publication) _then) = _$PublicationCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, String? citation, String? link
+ String id, String title, String? citation, String? link, List<CvBullet> bullets
 });
 
 
@@ -68,13 +72,14 @@ class _$PublicationCopyWithImpl<$Res>
 
 /// Create a copy of Publication
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? citation = freezed,Object? link = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? citation = freezed,Object? link = freezed,Object? bullets = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,citation: freezed == citation ? _self.citation : citation // ignore: cast_nullable_to_non_nullable
 as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<CvBullet>,
   ));
 }
 
@@ -159,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? citation,  String? link)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? citation,  String? link,  List<CvBullet> bullets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Publication() when $default != null:
-return $default(_that.id,_that.title,_that.citation,_that.link);case _:
+return $default(_that.id,_that.title,_that.citation,_that.link,_that.bullets);case _:
   return orElse();
 
 }
@@ -180,10 +185,10 @@ return $default(_that.id,_that.title,_that.citation,_that.link);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? citation,  String? link)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? citation,  String? link,  List<CvBullet> bullets)  $default,) {final _that = this;
 switch (_that) {
 case _Publication():
-return $default(_that.id,_that.title,_that.citation,_that.link);case _:
+return $default(_that.id,_that.title,_that.citation,_that.link,_that.bullets);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +205,10 @@ return $default(_that.id,_that.title,_that.citation,_that.link);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? citation,  String? link)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? citation,  String? link,  List<CvBullet> bullets)?  $default,) {final _that = this;
 switch (_that) {
 case _Publication() when $default != null:
-return $default(_that.id,_that.title,_that.citation,_that.link);case _:
+return $default(_that.id,_that.title,_that.citation,_that.link,_that.bullets);case _:
   return null;
 
 }
@@ -215,7 +220,7 @@ return $default(_that.id,_that.title,_that.citation,_that.link);case _:
 @JsonSerializable()
 
 class _Publication implements Publication {
-  const _Publication({required this.id, required this.title, this.citation, this.link});
+  const _Publication({required this.id, required this.title, this.citation, this.link, final  List<CvBullet> bullets = const <CvBullet>[]}): _bullets = bullets;
   factory _Publication.fromJson(Map<String, dynamic> json) => _$PublicationFromJson(json);
 
 @override final  String id;
@@ -225,6 +230,21 @@ class _Publication implements Publication {
 /// publication with just a title is still valid.
 @override final  String? citation;
 @override final  String? link;
+/// Same role as [Project.bullets] — supporting detail a candidate
+/// might want to surface under a publication (e.g. "Cited by 40+
+/// subsequent papers", "Led the fieldwork component"), selected and
+/// reordered per-draft exactly like project bullets are.
+ final  List<CvBullet> _bullets;
+/// Same role as [Project.bullets] — supporting detail a candidate
+/// might want to surface under a publication (e.g. "Cited by 40+
+/// subsequent papers", "Led the fieldwork component"), selected and
+/// reordered per-draft exactly like project bullets are.
+@override@JsonKey() List<CvBullet> get bullets {
+  if (_bullets is EqualUnmodifiableListView) return _bullets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bullets);
+}
+
 
 /// Create a copy of Publication
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +259,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Publication&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Publication&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link)&&const DeepCollectionEquality().equals(other._bullets, _bullets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,citation,link);
+int get hashCode => Object.hash(runtimeType,id,title,citation,link,const DeepCollectionEquality().hash(_bullets));
 
 @override
 String toString() {
-  return 'Publication(id: $id, title: $title, citation: $citation, link: $link)';
+  return 'Publication(id: $id, title: $title, citation: $citation, link: $link, bullets: $bullets)';
 }
 
 
@@ -259,7 +279,7 @@ abstract mixin class _$PublicationCopyWith<$Res> implements $PublicationCopyWith
   factory _$PublicationCopyWith(_Publication value, $Res Function(_Publication) _then) = __$PublicationCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, String? citation, String? link
+ String id, String title, String? citation, String? link, List<CvBullet> bullets
 });
 
 
@@ -276,13 +296,14 @@ class __$PublicationCopyWithImpl<$Res>
 
 /// Create a copy of Publication
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? citation = freezed,Object? link = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? citation = freezed,Object? link = freezed,Object? bullets = null,}) {
   return _then(_Publication(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,citation: freezed == citation ? _self.citation : citation // ignore: cast_nullable_to_non_nullable
 as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self._bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<CvBullet>,
   ));
 }
 

@@ -72,12 +72,31 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// registered template id rather than a stale literal, so
   /// `TemplateRegistryService.byId`'s unknown-id fallback is never the only
   /// thing standing between this draft and a phantom template.
-  CvDraft _emptyDraft({RegionProfile region = RegionProfile.uk}) =>
-      CvDraft.empty(
-        id: _uuid.v4(),
-        templateId: _templateRegistry.defaultTemplate.id,
-        region: region,
-      );
+  CvDraft _emptyDraft({RegionProfile region = RegionProfile.uk}) {
+    final templateId = _templateRegistry.defaultTemplate.id;
+    return CvDraft.empty(
+      id: _uuid.v4(),
+      templateId: templateId,
+      region: region,
+    ).copyWith(
+      sectionOrder: _seedSectionOrder(templateId),
+      hiddenSections: _seedHiddenSections(),
+    );
+  }
+
+  /// The section order a brand-new draft using [templateId] should start
+  /// with: the user's remembered default if they've saved one (see
+  /// `AppSettings.defaultSectionOrder`), else that template's own
+  /// suggested order (`CvTemplate.sectionOrder`).
+  List<CvSectionType> _seedSectionOrder(String templateId) =>
+      _settings.settings.defaultSectionOrder ??
+      _templateRegistry.byId(templateId).sectionOrder;
+
+  /// Same seed-only rationale as [_seedSectionOrder], one field over — the
+  /// user's remembered default hidden-sections state (see
+  /// `AppSettings.defaultHiddenSections`), else nothing hidden.
+  Set<CvSectionType> _seedHiddenSections() =>
+      _settings.settings.defaultHiddenSections ?? const <CvSectionType>{};
 
   /// Ids of drafts that have never had a manual selection made — i.e. a
   /// draft the user just created (or the very first draft a first-time
@@ -226,12 +245,18 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     await ready();
     await _settings.ready();
     final id = _uuid.v4();
-    final created = CvDraft.empty(
-      id: id,
-      name: name,
-      templateId: templateId ?? draft.templateId,
-      region: _settings.settings.defaultRegion,
-    ).copyWith(notes: notes);
+    final resolvedTemplateId = templateId ?? draft.templateId;
+    final created =
+        CvDraft.empty(
+          id: id,
+          name: name,
+          templateId: resolvedTemplateId,
+          region: _settings.settings.defaultRegion,
+        ).copyWith(
+          notes: notes,
+          sectionOrder: _seedSectionOrder(resolvedTemplateId),
+          hiddenSections: _seedHiddenSections(),
+        );
     _drafts.value = _sortedByRecency([..._drafts.value, created]);
     _activeDraftId.value = id;
     _freshDraftIds.add(id);
@@ -383,6 +408,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     required List<String> educationIds,
     required List<String> hobbyIds,
     required List<String> publicationIds,
+    required Map<String, List<String>> publicationBulletIds,
   }) async {
     await ready();
     if (!isFreshDraft) return;
@@ -396,6 +422,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         educationIds: educationIds,
         hobbyIds: hobbyIds,
         publicationIds: publicationIds,
+        publicationBulletIds: publicationBulletIds,
       ),
     );
   }
@@ -513,19 +540,39 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         copyWith: (d, ids) => d.copyWith(hobbyIds: ids),
       );
 
+  /// Same shape as [setExperienceIncluded]/[setProjectIncluded], one
+  /// entity type over — a [Publication] instead of a [Project].
   Future<void> setPublicationIncluded(
     String publicationId, {
     required bool included,
-  }) => _setIdIncluded(
+    List<String> bulletIds = const [],
+  }) => _setIncludedWithBullets(
     publicationId,
     included: included,
+    bulletIds: bulletIds,
     idsOf: (d) => d.publicationIds,
-    copyWith: (d, ids) => d.copyWith(publicationIds: ids),
+    bulletIdsOf: (d) => d.publicationBulletIds,
+    copyWith: (d, ids, map) =>
+        d.copyWith(publicationIds: ids, publicationBulletIds: map),
   );
 
-  /// Shared by [setSkillIncluded], [setEducationIncluded],
-  /// [setHobbyIncluded], and [setPublicationIncluded] — each just toggles
-  /// [id] in a different one of
+  Future<void> setBulletsForPublication(
+    String publicationId,
+    List<String> bulletIds,
+  ) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        publicationBulletIds: {
+          ...d.publicationBulletIds,
+          publicationId: bulletIds,
+        },
+      ),
+    );
+  }
+
+  /// Shared by [setSkillIncluded], [setEducationIncluded], and
+  /// [setHobbyIncluded] — each just toggles [id] in a different one of
   /// [CvDraft]'s flat id lists.
   Future<void> _setIdIncluded(
     String id, {
@@ -559,6 +606,30 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       }
       return d.copyWith(hiddenSections: hiddenSections);
     });
+  }
+
+  Future<void> setSectionOrder(List<CvSectionType> order) async {
+    await ready();
+    _setDraft((d) => d.copyWith(sectionOrder: order));
+  }
+
+  /// Resets the active draft's section order AND hidden-sections state
+  /// back to the user's default — their remembered default (see
+  /// [AppSettings.defaultSectionOrder]/[AppSettings.defaultHiddenSections])
+  /// if they've saved one, else the active draft's own template's
+  /// suggested order with nothing hidden. Same fallback rule as
+  /// [_seedSectionOrder]/[_seedHiddenSections], just applied to an
+  /// existing draft instead of a brand-new one, and both fields reset
+  /// together in one write so they can't end up half-reset.
+  Future<void> resetSectionSettings() async {
+    await ready();
+    await _settings.ready();
+    _setDraft(
+      (d) => d.copyWith(
+        sectionOrder: _seedSectionOrder(d.templateId),
+        hiddenSections: _seedHiddenSections(),
+      ),
+    );
   }
 
   Future<void> setTargetJobDescription(String? jobDescription) async {
@@ -606,6 +677,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       educationIds: result.educationIds,
       hobbyIds: result.hobbyIds,
       publicationIds: result.publicationIds,
+      publicationBulletIds: result.publicationBulletIds,
       hiddenSections: result.hiddenSections,
       updatedAt: DateTime.now(),
     );

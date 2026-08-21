@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'cv_bullet.dart';
+
 part 'publication.freezed.dart';
 part 'publication.g.dart';
 
@@ -18,6 +20,12 @@ abstract class Publication with _$Publication {
     /// publication with just a title is still valid.
     String? citation,
     String? link,
+
+    /// Same role as [Project.bullets] — supporting detail a candidate
+    /// might want to surface under a publication (e.g. "Cited by 40+
+    /// subsequent papers", "Led the fieldwork component"), selected and
+    /// reordered per-draft exactly like project bullets are.
+    @Default(<CvBullet>[]) List<CvBullet> bullets,
   }) = _Publication;
 
   factory Publication.fromJson(Map<String, dynamic> json) =>

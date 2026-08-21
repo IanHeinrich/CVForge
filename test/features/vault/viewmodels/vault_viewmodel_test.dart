@@ -189,5 +189,64 @@ void main() {
         expect(model.showEmptyState, isFalse);
       },
     );
+
+    test('clearVault prompts for confirmation and, once confirmed, closes '
+        'the open editor and resets the empty state so it reappears — the '
+        'same choice ("Load example CV" or build from scratch) as a first '
+        'launch', () async {
+      when(vaultService.vault).thenReturn(
+        CvVault.empty().copyWith(
+          experiences: [
+            Experience(
+              id: 'exp-1',
+              role: 'Engineer',
+              company: 'Acme',
+              location: 'London',
+              start: const YearMonth(year: 2020, month: 1),
+            ),
+          ],
+        ),
+      );
+      when(
+        dialogService.showCustomDialog(
+          variant: anyNamed('variant'),
+          title: anyNamed('title'),
+          description: anyNamed('description'),
+          mainButtonTitle: anyNamed('mainButtonTitle'),
+          secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+        ),
+      ).thenAnswer((_) async => DialogResponse(confirmed: true));
+      when(vaultService.clearVault()).thenAnswer((_) => Future<void>.value());
+
+      final model = VaultViewModel();
+      model.openExperienceEditor('exp-1');
+      expect(model.isEditorOpen, isTrue);
+      expect(model.showEmptyState, isFalse);
+
+      await model.clearVault();
+
+      verify(vaultService.clearVault()).called(1);
+      expect(model.isEditorOpen, isFalse);
+
+      when(vaultService.vault).thenReturn(CvVault.empty());
+      expect(model.showEmptyState, isTrue);
+    });
+
+    test('cancelling the clearVault confirmation clears nothing', () async {
+      when(
+        dialogService.showCustomDialog(
+          variant: anyNamed('variant'),
+          title: anyNamed('title'),
+          description: anyNamed('description'),
+          mainButtonTitle: anyNamed('mainButtonTitle'),
+          secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+        ),
+      ).thenAnswer((_) async => DialogResponse(confirmed: false));
+
+      final model = VaultViewModel();
+      await model.clearVault();
+
+      verifyNever(vaultService.clearVault());
+    });
   });
 }

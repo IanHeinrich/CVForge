@@ -30,6 +30,7 @@ void main() {
     setUp(() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
+      getAndRegisterSettingsService();
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
       getAndRegisterRouterService();

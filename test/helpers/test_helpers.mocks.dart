@@ -691,6 +691,15 @@ class MockVaultService extends _i1.Mock implements _i30.VaultService {
           as _i24.Future<void>);
 
   @override
+  _i24.Future<void> clearVault() =>
+      (super.noSuchMethod(
+            Invocation.method(#clearVault, []),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
   _i24.Future<void> updateBasics(_i31.ContactBasics? basics) =>
       (super.noSuchMethod(
             Invocation.method(#updateBasics, [basics]),
@@ -1323,6 +1332,86 @@ class MockVaultService extends _i1.Mock implements _i30.VaultService {
           as _i24.Future<void>);
 
   @override
+  _i24.Future<_i7.CvBullet> addPublicationBullet(
+    String? publicationId, {
+    String? label,
+    required String? text,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #addPublicationBullet,
+              [publicationId],
+              {#label: label, #text: text},
+            ),
+            returnValue: _i24.Future<_i7.CvBullet>.value(
+              _FakeCvBullet_8(
+                this,
+                Invocation.method(
+                  #addPublicationBullet,
+                  [publicationId],
+                  {#label: label, #text: text},
+                ),
+              ),
+            ),
+            returnValueForMissingStub: _i24.Future<_i7.CvBullet>.value(
+              _FakeCvBullet_8(
+                this,
+                Invocation.method(
+                  #addPublicationBullet,
+                  [publicationId],
+                  {#label: label, #text: text},
+                ),
+              ),
+            ),
+          )
+          as _i24.Future<_i7.CvBullet>);
+
+  @override
+  _i24.Future<void> updatePublicationBullet(
+    String? publicationId,
+    _i7.CvBullet? bullet,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updatePublicationBullet, [
+              publicationId,
+              bullet,
+            ]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> deletePublicationBullet(
+    String? publicationId,
+    String? bulletId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deletePublicationBullet, [
+              publicationId,
+              bulletId,
+            ]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> reorderPublicationBullets(
+    String? publicationId,
+    List<String>? orderedBulletIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#reorderPublicationBullets, [
+              publicationId,
+              orderedBulletIds,
+            ]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
   _i24.Future<void> flushPendingWrites() =>
       (super.noSuchMethod(
             Invocation.method(#flushPendingWrites, []),
@@ -1638,6 +1727,7 @@ class MockDraftService extends _i1.Mock implements _i33.DraftService {
     required List<String>? educationIds,
     required List<String>? hobbyIds,
     required List<String>? publicationIds,
+    required Map<String, List<String>>? publicationBulletIds,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#selectAllFromVault, [], {
@@ -1649,6 +1739,7 @@ class MockDraftService extends _i1.Mock implements _i33.DraftService {
               #educationIds: educationIds,
               #hobbyIds: hobbyIds,
               #publicationIds: publicationIds,
+              #publicationBulletIds: publicationBulletIds,
             }),
             returnValue: _i24.Future<void>.value(),
             returnValueForMissingStub: _i24.Future<void>.value(),
@@ -1768,13 +1859,29 @@ class MockDraftService extends _i1.Mock implements _i33.DraftService {
   _i24.Future<void> setPublicationIncluded(
     String? publicationId, {
     required bool? included,
+    List<String>? bulletIds = const [],
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #setPublicationIncluded,
               [publicationId],
-              {#included: included},
+              {#included: included, #bulletIds: bulletIds},
             ),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> setBulletsForPublication(
+    String? publicationId,
+    List<String>? bulletIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#setBulletsForPublication, [
+              publicationId,
+              bulletIds,
+            ]),
             returnValue: _i24.Future<void>.value(),
             returnValueForMissingStub: _i24.Future<void>.value(),
           )
@@ -1787,6 +1894,24 @@ class MockDraftService extends _i1.Mock implements _i33.DraftService {
   }) =>
       (super.noSuchMethod(
             Invocation.method(#setSectionHidden, [type], {#hidden: hidden}),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> setSectionOrder(List<_i36.CvSectionType>? order) =>
+      (super.noSuchMethod(
+            Invocation.method(#setSectionOrder, [order]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> resetSectionSettings() =>
+      (super.noSuchMethod(
+            Invocation.method(#resetSectionSettings, []),
             returnValue: _i24.Future<void>.value(),
             returnValueForMissingStub: _i24.Future<void>.value(),
           )
@@ -2204,6 +2329,21 @@ class MockSettingsService extends _i1.Mock implements _i45.SettingsService {
   _i24.Future<void> setRememberApiKey(bool? value) =>
       (super.noSuchMethod(
             Invocation.method(#setRememberApiKey, [value]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> setDefaultSectionSettings({
+    required List<_i36.CvSectionType>? order,
+    required Set<_i36.CvSectionType>? hiddenSections,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#setDefaultSectionSettings, [], {
+              #order: order,
+              #hiddenSections: hiddenSections,
+            }),
             returnValue: _i24.Future<void>.value(),
             returnValueForMissingStub: _i24.Future<void>.value(),
           )

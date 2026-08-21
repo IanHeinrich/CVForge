@@ -6,6 +6,7 @@ import 'package:cv_forge/templates/design/bullet_list_pdf.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
+import 'package:cv_forge/templates/design/section_pagination_pdf.dart';
 
 /// `pw`-only rendering of [ResolvedCv] in the `classic_centered` style —
 /// the sole render tree for this template; Studio's live preview
@@ -17,17 +18,29 @@ import 'package:cv_forge/templates/design/cv_font_set.dart';
 ///
 /// Returns a FLAT top-level widget list — see `CvTemplate.buildDocument`'s
 /// doc comment for why a single wrapping `pw.Column` would silently defeat
-/// `pw.MultiPage`'s page splitting.
+/// `pw.MultiPage`'s page splitting. See [assembleSectionWidgets]'s doc
+/// comment for [preventOrphansAndSplits].
 List<pw.Widget> buildClassicCenteredPdfContent(
   ResolvedCv cv,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
+  CvFontSet fonts, {
+  bool preventOrphansAndSplits = true,
+}) {
   final widgets = <pw.Widget>[_header(cv.header, tokens, fonts)];
   for (final section in cv.sections) {
     widgets.add(pw.SizedBox(height: tokens.sectionGap));
-    widgets.add(_sectionHeading(_displayTitle(section), tokens, fonts));
-    widgets.addAll(_sectionBody(section, tokens, fonts));
+    widgets.addAll(
+      assembleSectionWidgets(
+        heading: _sectionHeading(_displayTitle(section), tokens, fonts),
+        body: _sectionBody(
+          section,
+          tokens,
+          fonts,
+          preventOrphansAndSplits: preventOrphansAndSplits,
+        ),
+        preventOrphansAndSplits: preventOrphansAndSplits,
+      ),
+    );
   }
   return widgets;
 }
@@ -126,11 +139,18 @@ pw.Widget _sectionHeading(
   );
 }
 
+/// One top-level widget per item within [section]'s body — down to
+/// individual bullets within an entry, not just one widget per entry — so
+/// `pw.MultiPage` can place a page break between any two of them. See
+/// [assembleSectionWidgets]'s doc comment for why that granularity is
+/// what makes genuine cross-page splitting between bullets possible at
+/// all, and for [preventOrphansAndSplits].
 List<pw.Widget> _sectionBody(
   ResolvedSection section,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) => switch (section) {
+  CvFontSet fonts, {
+  required bool preventOrphansAndSplits,
+}) => switch (section) {
   ResolvedSummarySection(text: final text) => [_bodyText(text, tokens, fonts)],
   ResolvedSkillsSection(groups: final groups) => _skillGroups(
     groups,
@@ -138,13 +158,31 @@ List<pw.Widget> _sectionBody(
     fonts,
   ),
   ResolvedExperienceSection(groups: final groups) => [
-    for (final group in groups) _companyGroup(group, tokens, fonts),
+    for (final group in groups)
+      ..._companyGroup(
+        group,
+        tokens,
+        fonts,
+        preventOrphansAndSplits: preventOrphansAndSplits,
+      ),
   ],
   ResolvedProjectsSection(items: final items) => [
-    for (final project in items) _project(project, tokens, fonts),
+    for (final project in items)
+      ..._project(
+        project,
+        tokens,
+        fonts,
+        preventOrphansAndSplits: preventOrphansAndSplits,
+      ),
   ],
   ResolvedEducationSection(items: final items) => [
-    for (final edu in items) _education(edu, tokens, fonts),
+    for (final edu in items)
+      ..._education(
+        edu,
+        tokens,
+        fonts,
+        preventOrphansAndSplits: preventOrphansAndSplits,
+      ),
   ],
   ResolvedHobbiesSection(items: final items) => [
     _bodyText(items.join(', '), tokens, fonts),
@@ -153,7 +191,13 @@ List<pw.Widget> _sectionBody(
     _bodyText(text, tokens, fonts),
   ],
   ResolvedPublicationsSection(items: final items) => [
-    for (final publication in items) _publication(publication, tokens, fonts),
+    for (final publication in items)
+      ..._publication(
+        publication,
+        tokens,
+        fonts,
+        preventOrphansAndSplits: preventOrphansAndSplits,
+      ),
   ],
 };
 
@@ -187,100 +231,136 @@ pw.Widget _headerRow(
   );
 }
 
-pw.Widget _companyGroup(
+/// One company group flattened to top-level widgets, with [tokens.itemGap]
+/// trailing space appended after the group's last piece rather than
+/// wrapped around the whole group as padding — since the group is no
+/// longer a single widget, there's no single container left to pad.
+List<pw.Widget> _companyGroup(
   ResolvedCompanyGroup group,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
-    child: group.positions.length == 1
-        ? _singlePosition(group.positions.single, group, tokens, fonts)
-        : _promotionGroup(group, tokens, fonts),
-  );
+  CvFontSet fonts, {
+  required bool preventOrphansAndSplits,
+}) {
+  final items = group.positions.length == 1
+      ? _singlePosition(
+          group.positions.single,
+          group,
+          tokens,
+          fonts,
+          preventOrphansAndSplits: preventOrphansAndSplits,
+        )
+      : _promotionGroup(
+          group,
+          tokens,
+          fonts,
+          preventOrphansAndSplits: preventOrphansAndSplits,
+        );
+  return [...items, pw.SizedBox(height: tokens.itemGap)];
 }
 
-pw.Widget _singlePosition(
+List<pw.Widget> _singlePosition(
   ResolvedPosition position,
   ResolvedCompanyGroup group,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  return pw.Column(
+  CvFontSet fonts, {
+  required bool preventOrphansAndSplits,
+}) {
+  final header = pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
       _headerRow(group.company, position.dateRange, tokens.role, tokens, fonts),
       _headerRow(position.role, group.location, tokens.company, tokens, fonts),
-      buildBulletList(position.bullets, tokens, fonts),
     ],
+  );
+  return assembleSectionWidgets(
+    heading: header,
+    body: [for (final b in position.bullets) buildBulletRow(b, tokens, fonts)],
+    gap: tokens.bulletGap,
+    preventOrphansAndSplits: preventOrphansAndSplits,
   );
 }
 
-/// A promotion: the company/location header shows once, then each role
-/// with its own date range and bullets nested beneath.
-pw.Widget _promotionGroup(
+/// A promotion: the company/location header shows once, then each role —
+/// its own header glued to its own first bullet, same as any other
+/// entry — with its date range and bullets nested beneath.
+List<pw.Widget> _promotionGroup(
   ResolvedCompanyGroup group,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  return pw.Column(
+  CvFontSet fonts, {
+  required bool preventOrphansAndSplits,
+}) {
+  final companyHeading = _headerRow(
+    group.company,
+    group.location,
+    tokens.role,
+    tokens,
+    fonts,
+  );
+  final positionItems = <pw.Widget>[
+    for (final position in group.positions)
+      ...assembleSectionWidgets(
+        heading: pw.Padding(
+          padding: pw.EdgeInsets.only(top: tokens.bulletGap),
+          child: _headerRow(
+            position.role,
+            position.dateRange,
+            tokens.company,
+            tokens,
+            fonts,
+          ),
+        ),
+        body: [
+          for (final b in position.bullets) buildBulletRow(b, tokens, fonts),
+        ],
+        gap: tokens.bulletGap,
+        preventOrphansAndSplits: preventOrphansAndSplits,
+      ),
+  ];
+  return assembleSectionWidgets(
+    heading: companyHeading,
+    body: positionItems,
+    preventOrphansAndSplits: preventOrphansAndSplits,
+  );
+}
+
+List<pw.Widget> _project(
+  ResolvedProject project,
+  CvDesignTokens tokens,
+  CvFontSet fonts, {
+  required bool preventOrphansAndSplits,
+}) {
+  final link = project.link;
+  final header = pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
-      _headerRow(group.company, group.location, tokens.role, tokens, fonts),
-      for (final position in group.positions)
-        pw.Padding(
-          padding: pw.EdgeInsets.only(top: tokens.bulletGap),
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-            children: [
-              _headerRow(
-                position.role,
-                position.dateRange,
-                tokens.company,
-                tokens,
-                fonts,
-              ),
-              buildBulletList(position.bullets, tokens, fonts),
-            ],
+      pw.Text(project.title, style: tokens.role.toPdfStyle(fonts)),
+      if (link != null && link.isNotEmpty)
+        pw.UrlLink(
+          destination: _withScheme(link),
+          // Italic — matches [company]'s italic second-row treatment
+          // elsewhere in this template, for visual consistency.
+          child: pw.Text(
+            link,
+            style: tokens.meta.copyWith(italic: true).toPdfStyle(fonts),
           ),
         ),
     ],
   );
-}
-
-pw.Widget _project(
-  ResolvedProject project,
-  CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
-  final link = project.link;
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-      children: [
-        pw.Text(project.title, style: tokens.role.toPdfStyle(fonts)),
-        if (link != null && link.isNotEmpty)
-          pw.UrlLink(
-            destination: _withScheme(link),
-            // Italic — matches [company]'s italic second-row treatment
-            // elsewhere in this template, for visual consistency.
-            child: pw.Text(
-              link,
-              style: tokens.meta.copyWith(italic: true).toPdfStyle(fonts),
-            ),
-          ),
-        buildBulletList(project.bullets, tokens, fonts),
-      ],
-    ),
+  final items = assembleSectionWidgets(
+    heading: header,
+    body: [for (final b in project.bullets) buildBulletRow(b, tokens, fonts)],
+    gap: tokens.bulletGap,
+    preventOrphansAndSplits: preventOrphansAndSplits,
   );
+  return [...items, pw.SizedBox(height: tokens.itemGap)];
 }
 
-pw.Widget _education(
+List<pw.Widget> _education(
   ResolvedQualification edu,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
+  CvFontSet fonts, {
+  required bool preventOrphansAndSplits,
+}) {
   final detail = [
     edu.grade,
     edu.details,
@@ -289,34 +369,40 @@ pw.Widget _education(
       ? edu.qualification
       : '${edu.qualification}, $detail';
 
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-      children: [
-        _headerRow(edu.institution, edu.location, tokens.role, tokens, fonts),
-        _headerRow(
-          qualificationLine,
-          edu.yearLabel,
-          tokens.company,
-          tokens,
-          fonts,
-        ),
-        buildBulletList(edu.bullets, tokens, fonts),
-      ],
-    ),
+  final header = pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+    children: [
+      _headerRow(edu.institution, edu.location, tokens.role, tokens, fonts),
+      _headerRow(
+        qualificationLine,
+        edu.yearLabel,
+        tokens.company,
+        tokens,
+        fonts,
+      ),
+    ],
   );
+  final items = assembleSectionWidgets(
+    heading: header,
+    body: [for (final b in edu.bullets) buildBulletRow(b, tokens, fonts)],
+    gap: tokens.bulletGap,
+    preventOrphansAndSplits: preventOrphansAndSplits,
+  );
+  return [...items, pw.SizedBox(height: tokens.bulletGap)];
 }
 
 /// Title, citation, and link all fold onto a single comma-separated line,
 /// none of them bold — the reference this template clones treats a
 /// publication as one plain-body-style entry, unlike `compact`'s
-/// bold-title, own-line-per-field layout.
-pw.Widget _publication(
+/// bold-title, own-line-per-field layout. Bullets, when present, render
+/// underneath that line, same as every other bulleted entry in this
+/// template.
+List<pw.Widget> _publication(
   ResolvedPublication publication,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
+  CvFontSet fonts, {
+  required bool preventOrphansAndSplits,
+}) {
   final citation = publication.citation;
   final link = publication.link;
   final bodyStyle = tokens.body.toPdfStyle(fonts);
@@ -332,20 +418,26 @@ pw.Widget _publication(
       ),
   ];
 
-  return pw.Padding(
-    padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
-    child: pw.Wrap(
-      children: [
-        for (var i = 0; i < parts.length; i++) ...[
-          // A fresh pw.Text per separator — see `_header`'s matching
-          // comment for why one shared instance can't be reused at
-          // multiple tree positions.
-          if (i > 0) pw.Text(', ', style: bodyStyle),
-          parts[i],
-        ],
+  final header = pw.Wrap(
+    children: [
+      for (var i = 0; i < parts.length; i++) ...[
+        // A fresh pw.Text per separator — see `_header`'s matching
+        // comment for why one shared instance can't be reused at
+        // multiple tree positions.
+        if (i > 0) pw.Text(', ', style: bodyStyle),
+        parts[i],
       ],
-    ),
+    ],
   );
+  final items = assembleSectionWidgets(
+    heading: header,
+    body: [
+      for (final b in publication.bullets) buildBulletRow(b, tokens, fonts),
+    ],
+    gap: tokens.bulletGap,
+    preventOrphansAndSplits: preventOrphansAndSplits,
+  );
+  return [...items, pw.SizedBox(height: tokens.itemGap)];
 }
 
 List<pw.Widget> _skillGroups(

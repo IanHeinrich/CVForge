@@ -90,7 +90,26 @@ class PdfExportService {
       // is itself async, and an unawaited return would let a failure
       // inside it propagate past this catch instead of getting tagged
       // with PdfExportStage.render.
-      return await document.save();
+      try {
+        return await document.save();
+      } on PdfException {
+        // A pagination-guard block — a heading glued to its first bullet,
+        // or (rare, and not actually rescued by the retry below — see
+        // assembleSectionWidgets' doc comment) one single bullet whose own
+        // text is too long — was taller than a single page. Retry once
+        // without the guard rather than failing the export outright: for
+        // everything short of that single-bullet case, the CV still
+        // renders correctly, just without orphan/split protection for
+        // this one oversized block.
+        final fallback = template.buildDocument(
+          cv,
+          format,
+          fonts,
+          compress: compress,
+          preventOrphansAndSplits: false,
+        );
+        return await fallback.save();
+      }
     } catch (e) {
       throw PdfExportException(PdfExportStage.render, e);
     }

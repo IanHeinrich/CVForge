@@ -17,14 +17,17 @@ abstract interface class CvTemplate {
   String get description;
   CvDesignTokens get tokens;
 
-  /// Print order for this template — a permutation of every
-  /// [CvSectionType], not a subset: `CvComposer.compose` iterates exactly
-  /// this list, so a case missing from it would silently drop that
-  /// section's content even when the user has it selected. Declared per
-  /// template rather than as one global constant because different
-  /// reference CVs genuinely order sections differently (e.g. skills near
-  /// the top vs. near the bottom) — content joining still happens in
-  /// exactly one place (`CvComposer`), only the order is configurable.
+  /// This template's suggested section order — a permutation of every
+  /// [CvSectionType], not a subset (a case missing from it would silently
+  /// drop that section wherever it's used as a seed). Only consulted once,
+  /// as the starting order for a brand-new draft (see
+  /// `DraftService.createDraft`); an existing draft's print order is its
+  /// own `CvDraft.effectiveSectionOrder`, user-reorderable in Studio, and
+  /// never re-derived from this getter — switching a draft's template
+  /// never reorders its sections. Declared per template rather than as
+  /// one global constant because different reference CVs genuinely
+  /// suggest sections in a different order (e.g. skills near the top vs.
+  /// near the bottom).
   List<CvSectionType> get sectionOrder;
 
   /// The complete exportable document. [compress] defaults to `true`;
@@ -32,10 +35,18 @@ abstract interface class CvTemplate {
   /// greppable. MUST hand `pw.MultiPage.build` a FLAT `List<pw.Widget>` —
   /// wrapping the body in a single `pw.Column` silently defeats page
   /// splitting.
+  ///
+  /// [preventOrphansAndSplits] (default `true`) glues each heading (a
+  /// section's, an entry's, a promotion group's) to its first item, and
+  /// wraps every bullet individually, in `pw.Inseparable` — see
+  /// `assembleSectionWidgets`'s doc comment. Pass `false` only as
+  /// `PdfExportService.render`'s fallback after that throws
+  /// `PdfException` for a glued block too tall to fit on any one page.
   pw.Document buildDocument(
     ResolvedCv cv,
     PdfPageFormat format,
     CvFontSet fonts, {
     bool compress = true,
+    bool preventOrphansAndSplits = true,
   });
 }

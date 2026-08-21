@@ -53,11 +53,31 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
           ?.map((e) => e as String)
           .toList() ??
       const <String>[],
+  publicationBulletIds:
+      (json['publicationBulletIds'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+      ) ??
+      const <String, List<String>>{},
   hiddenSections:
       (json['hiddenSections'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
           .toSet() ??
       const <CvSectionType>{},
+  sectionOrder:
+      (json['sectionOrder'] as List<dynamic>?)
+          ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
+          .toList() ??
+      const <CvSectionType>[
+        CvSectionType.summary,
+        CvSectionType.skills,
+        CvSectionType.experience,
+        CvSectionType.projects,
+        CvSectionType.education,
+        CvSectionType.hobbies,
+        CvSectionType.references,
+        CvSectionType.publications,
+      ],
   tailoredSummary: json['tailoredSummary'] as String?,
   bulletOverrides:
       (json['bulletOverrides'] as Map<String, dynamic>?)?.map(
@@ -90,7 +110,11 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'educationIds': instance.educationIds,
   'hobbyIds': instance.hobbyIds,
   'publicationIds': instance.publicationIds,
+  'publicationBulletIds': instance.publicationBulletIds,
   'hiddenSections': instance.hiddenSections
+      .map((e) => _$CvSectionTypeEnumMap[e]!)
+      .toList(),
+  'sectionOrder': instance.sectionOrder
       .map((e) => _$CvSectionTypeEnumMap[e]!)
       .toList(),
   'tailoredSummary': instance.tailoredSummary,

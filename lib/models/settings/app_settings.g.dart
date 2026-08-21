@@ -14,6 +14,12 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
   copilotProviderId: json['copilotProviderId'] as String?,
   copilotModelId: json['copilotModelId'] as String?,
   rememberApiKey: json['rememberApiKey'] as bool? ?? false,
+  defaultSectionOrder: (json['defaultSectionOrder'] as List<dynamic>?)
+      ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
+      .toList(),
+  defaultHiddenSections: (json['defaultHiddenSections'] as List<dynamic>?)
+      ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
+      .toSet(),
 );
 
 Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
@@ -23,6 +29,23 @@ Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
       'copilotProviderId': instance.copilotProviderId,
       'copilotModelId': instance.copilotModelId,
       'rememberApiKey': instance.rememberApiKey,
+      'defaultSectionOrder': instance.defaultSectionOrder
+          ?.map((e) => _$CvSectionTypeEnumMap[e]!)
+          .toList(),
+      'defaultHiddenSections': instance.defaultHiddenSections
+          ?.map((e) => _$CvSectionTypeEnumMap[e]!)
+          .toList(),
     };
 
 const _$RegionProfileEnumMap = {RegionProfile.uk: 'uk', RegionProfile.us: 'us'};
+
+const _$CvSectionTypeEnumMap = {
+  CvSectionType.summary: 'summary',
+  CvSectionType.skills: 'skills',
+  CvSectionType.experience: 'experience',
+  CvSectionType.projects: 'projects',
+  CvSectionType.education: 'education',
+  CvSectionType.hobbies: 'hobbies',
+  CvSectionType.references: 'references',
+  CvSectionType.publications: 'publications',
+};

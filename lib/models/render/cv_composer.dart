@@ -40,8 +40,9 @@ abstract final class CvComposer {
 
     final sections = <ResolvedSection>[];
 
-    // [sectionOrder] (the calling template's) IS the canonical print
-    // order — iterate it rather than hand-ordering the section builds.
+    // [sectionOrder] (the draft's own effective order) IS the canonical
+    // print order — iterate it rather than hand-ordering the section
+    // builds.
     for (final type in sectionOrder) {
       if (draft.hiddenSections.contains(type)) continue;
 
@@ -145,9 +146,10 @@ abstract final class CvComposer {
     return effective.year * 12 + effective.month;
   }
 
-  /// Shared by [_buildExperience] and [_buildProjects] — both just filter
-  /// and order a [CvBullet] list by a selected-id list, applying any
-  /// [CvDraft.bulletOverrides] on the way.
+  /// Shared by [_buildExperience], [_buildProjects], and
+  /// [_buildPublications] — each just filters and orders a [CvBullet] list
+  /// by a selected-id list, applying any [CvDraft.bulletOverrides] on the
+  /// way.
   static List<ResolvedBullet> _resolveBullets(
     List<CvBullet> bullets,
     List<String> selectedBulletIds,
@@ -257,6 +259,11 @@ abstract final class CvComposer {
             title: publication.title,
             citation: publication.citation,
             link: publication.link,
+            bullets: _resolveBullets(
+              publication.bullets,
+              draft.publicationBulletIds[id] ?? const <String>[],
+              draft.bulletOverrides,
+            ),
           ),
     ];
 

@@ -1,7 +1,10 @@
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/publication.dart';
+import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
+import 'bullet_list_editor.dart';
 import 'vault_editor_panel_scaffold.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
@@ -9,13 +12,23 @@ class PublicationEditorPanel extends StatelessWidget {
   const PublicationEditorPanel({
     super.key,
     required this.publication,
+    required this.skillCategories,
     required this.onClose,
     required this.onChanged,
+    required this.onAddBullet,
+    required this.onBulletChanged,
+    required this.onBulletDeleted,
+    required this.onBulletsReordered,
   });
 
   final Publication publication;
+  final List<SkillCategory> skillCategories;
   final VoidCallback onClose;
   final ValueChanged<Publication> onChanged;
+  final VoidCallback onAddBullet;
+  final ValueChanged<CvBullet> onBulletChanged;
+  final ValueChanged<String> onBulletDeleted;
+  final ValueChanged<List<String>> onBulletsReordered;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +59,15 @@ class PublicationEditorPanel extends StatelessWidget {
           initialValue: publication.link ?? '',
           onChanged: (v) =>
               onChanged(publication.copyWith(link: v.isEmpty ? null : v)),
+        ),
+        const VGap.medium(),
+        BulletListEditor(
+          bullets: publication.bullets,
+          skillCategories: skillCategories,
+          onAdd: onAddBullet,
+          onChanged: onBulletChanged,
+          onDelete: onBulletDeleted,
+          onReorder: onBulletsReordered,
         ),
       ],
     );
