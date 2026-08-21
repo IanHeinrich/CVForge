@@ -343,5 +343,262 @@ void main() {
         ),
       );
     });
+
+    group('Gemini -', () {
+      test('completeJson happy path sends the confirmed request shape and '
+          'parses the confirmed response shape', () async {
+        // Field names and casing below match a real generateContent
+        // response captured in plan.md's 4.4b note, not an assumption.
+        final adapter = _FakeAdapter(
+          (_) async => _jsonResponse({
+            'candidates': [
+              {
+                'content': {
+                  'parts': [
+                    {'text': '{"headline":"Backend Engineer"}'},
+                  ],
+                  'role': 'model',
+                },
+                'finishReason': 'STOP',
+              },
+            ],
+            'usageMetadata': {
+              'promptTokenCount': 12,
+              'candidatesTokenCount': 21,
+            },
+          }, 200),
+        );
+        final dio = Dio()..httpClientAdapter = adapter;
+        final service = LlmService(client: dio);
+
+        final response = await service.completeJson(
+          providerId: 'gemini',
+          modelId: 'gemini-3.5-flash-lite',
+          apiKey: 'gemini-test-key',
+          systemPrompt: 'be helpful',
+          userContent: 'tailor this',
+          schema: _fixtureSchema,
+        );
+
+        expect(response.data, {'headline': 'Backend Engineer'});
+        expect(response.usage.inputTokens, 12);
+        expect(response.usage.outputTokens, 21);
+
+        final options = adapter.lastOptions!;
+        expect(
+          options.path,
+          'https://generativelanguage.googleapis.com/v1beta/models/'
+          'gemini-3.5-flash-lite:generateContent',
+        );
+        expect(options.headers['x-goog-api-key'], 'gemini-test-key');
+        // No Anthropic-style browser-access header exists or is needed
+        // for Gemini — confirmed via a real cross-origin fetch() in
+        // plan.md's 4.4b.
+        expect(
+          options.headers.containsKey(
+            'anthropic-dangerous-direct-browser-access',
+          ),
+          isFalse,
+        );
+
+        final body = adapter.lastBody!;
+        expect(body['contents'], [
+          {
+            'parts': [
+              {'text': 'tailor this'},
+            ],
+          },
+        ]);
+        expect(body['systemInstruction'], {
+          'parts': [
+            {'text': 'be helpful'},
+          ],
+        });
+        expect(body['generationConfig'], {
+          'responseMimeType': 'application/json',
+          'responseSchema': {
+            'type': 'OBJECT',
+            'properties': {
+              'headline': {'type': 'STRING'},
+            },
+            'required': ['headline'],
+          },
+        });
+      });
+
+      test('a finishReason other than STOP maps to LlmFailure.refusal '
+          '(only STOP has been observed as a success case)', () async {
+        final adapter = _FakeAdapter(
+          (_) async => _jsonResponse({
+            'candidates': [
+              {
+                'content': {'parts': []},
+                'finishReason': 'SAFETY',
+              },
+            ],
+          }, 200),
+        );
+        final dio = Dio()..httpClientAdapter = adapter;
+        final service = LlmService(client: dio);
+
+        await expectLater(
+          () => service.completeJson(
+            providerId: 'gemini',
+            modelId: 'gemini-3.5-flash-lite',
+            apiKey: 'gemini-test-key',
+            systemPrompt: 's',
+            userContent: 'u',
+            schema: _fixtureSchema,
+          ),
+          throwsA(
+            isA<LlmException>().having(
+              (e) => e.failure,
+              'failure',
+              LlmFailure.refusal,
+            ),
+          ),
+        );
+      });
+
+      test('an invalid-key error body maps to unauthorized despite HTTP 400 — '
+          'confirmed real behaviour: Gemini returns 400/INVALID_ARGUMENT for '
+          'a bad key, not 401/403', () async {
+        final adapter = _FakeAdapter((options) async {
+          throw DioException(
+            requestOptions: options,
+            type: DioExceptionType.badResponse,
+            response: Response(
+              requestOptions: options,
+              statusCode: 400,
+              data: {
+                'error': {
+                  'code': 400,
+                  'message': 'API key not valid. Please pass a valid API key.',
+                  'status': 'INVALID_ARGUMENT',
+                  'details': [
+                    {
+                      '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
+                      'reason': 'API_KEY_INVALID',
+                    },
+                  ],
+                },
+              },
+            ),
+          );
+        });
+        final dio = Dio()..httpClientAdapter = adapter;
+        final service = LlmService(client: dio);
+
+        await expectLater(
+          () => service.completeJson(
+            providerId: 'gemini',
+            modelId: 'gemini-3.5-flash-lite',
+            apiKey: 'bad-key',
+            systemPrompt: 's',
+            userContent: 'u',
+            schema: _fixtureSchema,
+          ),
+          throwsA(
+            isA<LlmException>().having(
+              (e) => e.failure,
+              'failure',
+              LlmFailure.unauthorized,
+            ),
+          ),
+        );
+      });
+
+      test('a 400 with an unrelated INVALID_ARGUMENT reason maps to '
+          'invalidRequest, not unauthorized — only the confirmed '
+          'API_KEY_INVALID reason is special-cased', () async {
+        final adapter = _FakeAdapter((options) async {
+          throw DioException(
+            requestOptions: options,
+            type: DioExceptionType.badResponse,
+            response: Response(
+              requestOptions: options,
+              statusCode: 400,
+              data: {
+                'error': {
+                  'code': 400,
+                  'message': 'Invalid JSON payload received.',
+                  'status': 'INVALID_ARGUMENT',
+                },
+              },
+            ),
+          );
+        });
+        final dio = Dio()..httpClientAdapter = adapter;
+        final service = LlmService(client: dio);
+
+        await expectLater(
+          () => service.completeJson(
+            providerId: 'gemini',
+            modelId: 'gemini-3.5-flash-lite',
+            apiKey: 'gemini-test-key',
+            systemPrompt: 's',
+            userContent: 'u',
+            schema: _fixtureSchema,
+          ),
+          throwsA(
+            isA<LlmException>().having(
+              (e) => e.failure,
+              'failure',
+              LlmFailure.invalidRequest,
+            ),
+          ),
+        );
+      });
+
+      test('a 429 maps to rateLimited', () async {
+        final adapter = _FakeAdapter((options) async {
+          throw DioException(
+            requestOptions: options,
+            type: DioExceptionType.badResponse,
+            response: Response(requestOptions: options, statusCode: 429),
+          );
+        });
+        final dio = Dio()..httpClientAdapter = adapter;
+        final service = LlmService(client: dio);
+
+        await expectLater(
+          () => service.completeJson(
+            providerId: 'gemini',
+            modelId: 'gemini-3.5-flash-lite',
+            apiKey: 'gemini-test-key',
+            systemPrompt: 's',
+            userContent: 'u',
+            schema: _fixtureSchema,
+          ),
+          throwsA(
+            isA<LlmException>().having(
+              (e) => e.failure,
+              'failure',
+              LlmFailure.rateLimited,
+            ),
+          ),
+        );
+      });
+
+      test('testConnection calls GET /v1beta/models', () async {
+        final adapter = _FakeAdapter(
+          (_) async => _jsonResponse({'models': []}, 200),
+        );
+        final dio = Dio()..httpClientAdapter = adapter;
+        final service = LlmService(client: dio);
+
+        await service.testConnection('gemini', 'gemini-test-key');
+
+        expect(
+          adapter.lastOptions!.path,
+          'https://generativelanguage.googleapis.com/v1beta/models',
+        );
+        expect(adapter.lastOptions!.method, 'GET');
+        expect(
+          adapter.lastOptions!.headers['x-goog-api-key'],
+          'gemini-test-key',
+        );
+      });
+    });
   });
 }

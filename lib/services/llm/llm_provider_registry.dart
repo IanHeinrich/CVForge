@@ -1,4 +1,5 @@
 import 'package:cv_forge/services/llm/anthropic_provider.dart';
+import 'package:cv_forge/services/llm/gemini_provider.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
 
 /// Provider lookup, backed by a plain const list — no reflection, so an
@@ -7,7 +8,10 @@ import 'package:cv_forge/services/llm/llm_provider.dart';
 /// N known implementations by a persisted id, fail soft on an unknown
 /// one), same solution.
 class LlmProviderRegistry {
-  static const List<LlmProvider> _providers = [AnthropicProvider()];
+  static const List<LlmProvider> _providers = [
+    AnthropicProvider(),
+    GeminiProvider(),
+  ];
 
   LlmProvider get defaultProvider => _providers.first;
 

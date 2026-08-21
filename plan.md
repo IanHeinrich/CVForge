@@ -288,6 +288,8 @@ One PR each. Bumps only where a deploy is worth eyeballing in a real browser —
 
 > **Status (2026-08-21, later the same day):** **4.4 (Copilot plumbing) shipped** — `LlmService`/`LlmProvider`/`AnthropicProvider`/`LlmProviderRegistry`, `SettingsService`'s first mutators plus per-provider API-key storage, and a `CopilotSettingsCard` on the Settings page (key entry, model choice, test-connection). See 4.4's own "Actually shipped" note for the implementation-time deviations (`LlmException`'s file location, the registry not being locator-registered, `LlmService`'s injectable `Dio`) and — importantly — that the live browser-CORS proof the doc calls "blocking, before any code" could not actually be run in this session (no API key, no way to drive an authenticated browser request) and is still outstanding before this is relied on in production or 4.5 begins. Verified via `flutter analyze` (0 issues), the full test suite (196 tests, including goldens), and a visual check of the regenerated `settings_view_default` golden. **4.5 (the tailoring pass) is next and is the only unbuilt sub-phase of Phase 4 remaining** — start there only after Step 0's live check has actually run.
 
+> **Status (2026-08-21, evening):** Step 0 has since actually run — both providers pass browser-CORS from a real browser, with a negative control proving Anthropic's header is load-bearing. **4.4b (Gemini provider) shipped** on top of that: `GeminiProvider`, wired into `LlmProviderRegistry`, `SettingsViewModel` reworked so nothing hardcodes a single provider anymore, and a real provider dropdown in `CopilotSettingsCard`. Every wire-shape detail in the adapter (type casing, string `enum` support, response/usage shape, the error-body-based auth-failure mapping) was confirmed against real `generateContent` requests, not recalled — including a genuine surprise: the model this section's shortlist named (`gemini-2.5-flash-lite`) was already retired for new keys, caught only by actually calling it. See 4.4b's "Actually shipped" note for the full list, and its one open item: whether Gemini's `responseSchema` recognises `additionalProperties` at all, currently omitted rather than guessed. Verified via `flutter analyze` (0 issues) and 203 tests including goldens. **Phase 4's only remaining unbuilt piece is 4.5 (the tailoring pass)** — resolve the `additionalProperties` question first, since it decides how strong the anti-hallucination guarantee actually is for the provider being added.
+
 ---
 
 ## Sub-phase detail
@@ -1071,7 +1073,7 @@ new card changes that View's rendered height, regenerate the baseline via
 >   `ui/widgets/common/button_spinner/`; `setApiKey` now awaits `ready()`
 >   like its three sibling mutators.
 
-### 4.4b — Gemini provider + 4.4 review fixes
+### 4.4b — Gemini provider + 4.4 review fixes ✅ shipped
 
 The review fixes above, plus the second provider. **Anthropic stays** — this
 adds Gemini alongside it rather than replacing it, which is what the
@@ -1162,6 +1164,50 @@ memory, per the Opus-pricing lesson above:**
 
 With two providers registered, the Settings provider selector (currently
 suppressed while `available.length == 1`) becomes live for the first time.
+
+> **Actually shipped (2026-08-21).** `GeminiProvider` built against the
+> real request/response captured above, plus two more empirical checks
+> made during implementation rather than assumed:
+> - **`gemini-2.5-flash-lite` — the id this section's model shortlist
+>   named — turned out to already be retired for new API keys**, confirmed
+>   by a real 404 redirecting to `gemini-3.5-flash-lite`. This is the
+>   sharpest version yet of the lesson underlying all of 4.4b: a model list
+>   pulled once from `ListModels` (or copied from a pricing page) is not
+>   the same as a model that's actually been exercised against
+>   `generateContent`. `GeminiProvider.models` now offers only
+>   `gemini-3.5-flash-lite`, and only because it was the one id a real
+>   request actually succeeded against. Its pricing is carried forward
+>   from 2.5 Flash-Lite's confirmed rate as a provisional stand-in — the
+>   3.5 generation's own rate hasn't been checked — flagged in the code
+>   comment beside it, not silently assumed correct.
+> - **Gemini's error envelope needed reading, not just its status code.**
+>   An invalid key returns HTTP `400` with `error.status:
+>   "INVALID_ARGUMENT"` and `error.details[].reason: "API_KEY_INVALID"` —
+>   confirmed by a real request — not `401`/`403`. Status-code-only mapping
+>   (Anthropic's approach, which works because Anthropic actually returns
+>   `401`) would have silently misclassified every Gemini auth failure as
+>   `invalidRequest`. `GeminiProvider._mapDioException` reads the response
+>   body's `error.details[].reason` for this one confirmed case before
+>   falling back to status-code mapping for everything else.
+> - **`additionalProperties` on Gemini's `responseSchema` — unresolved as
+>   of this note.** The walker currently omits the field entirely rather
+>   than emitting `false` unconditionally the way `AnthropicProvider` does,
+>   on the documented (not this-session-confirmed) understanding that
+>   Gemini's schema is a strict OpenAPI subset without that key. The code
+>   comment beside `GeminiProvider._walkSchema` says so explicitly and
+>   names the three possible outcomes once tested (rejected / accepted-and-
+>   enforced / accepted-and-ignored) and what each means for 4.5's
+>   anti-hallucination guarantee. **Whoever picks up 4.5 should resolve
+>   this first** — it's the one piece of the Gemini dialect this session
+>   didn't get to close out.
+> - The Settings UI now shows a real provider dropdown (`Anthropic` /
+>   `Google Gemini`) above the model dropdown, `SettingsViewModel` no
+>   longer hardcodes `defaultProvider` anywhere (every Copilot getter/
+>   method now reads through `selectedCopilotProvider`, sourced from
+>   `AppSettings.copilotProviderId`), and switching providers clears the
+>   typed-but-unsubmitted key field and resets the stored model to the new
+>   provider's first option — a model id from the old provider left
+>   sitting in settings would otherwise point at nothing meaningful.
 
 **Verification:** `stacked generate && dart format . && flutter analyze &&
 flutter test --exclude-tags=golden`; Step 0 no longer blocks (done above)

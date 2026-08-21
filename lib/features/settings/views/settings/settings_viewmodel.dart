@@ -5,6 +5,7 @@ import 'package:cv_forge/models/llm/llm_model_option.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
+import 'package:cv_forge/services/llm/llm_provider.dart';
 import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 import 'package:cv_forge/services/llm_service.dart';
 import 'package:cv_forge/services/settings_service.dart';
@@ -102,40 +103,64 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
 
   static const _testConnectionBusyKey = 'settings_test_copilot_connection';
 
-  /// With one provider registered, the model dropdown is this card's whole
-  /// surface — a provider selector only earns its place once there is more
-  /// than one to choose between.
-  List<LlmModelOption> get copilotModels =>
-      _llmProviders.defaultProvider.models;
+  /// Every registered provider, for the provider selector. Only shown by
+  /// the UI once there's more than one to choose between — see
+  /// [showCopilotProviderSelector].
+  List<LlmProvider> get copilotProviders => _llmProviders.available;
+
+  bool get showCopilotProviderSelector => _llmProviders.available.length > 1;
+
+  /// Falls back to [LlmProviderRegistry.defaultProvider] when nothing is
+  /// stored, or a stored id no longer resolves (a provider removed between
+  /// releases) — mirrors [LlmProviderRegistry.byId]'s own never-throw
+  /// contract, since a settings read must never crash a build.
+  LlmProvider get selectedCopilotProvider =>
+      _llmProviders.byId(_settingsService.settings.copilotProviderId ?? '');
+
+  /// Switches the active provider and resets the stored model to that
+  /// provider's first option — a model id from the *previous* provider
+  /// would otherwise sit in `AppSettings.copilotModelId` pointing at
+  /// nothing meaningful for the new one. [selectedCopilotModel]'s own
+  /// fallback would paper over a stale id at read time regardless, but
+  /// leaving `copilotModelId` actually correct is worth the extra write.
+  Future<void> selectCopilotProvider(String providerId) async {
+    await _settingsService.setCopilotProvider(providerId);
+    await _settingsService.setCopilotModel(
+      _llmProviders.byId(providerId).models.first.id,
+    );
+  }
+
+  List<LlmModelOption> get copilotModels => selectedCopilotProvider.models;
 
   String get selectedCopilotModelId => selectedCopilotModel.id;
 
   /// Falls back to the provider's first model when nothing is stored, or
-  /// when a stored id no longer exists (a model retired between releases)
-  /// — the dropdown must always have a value present in its own item list
-  /// or it throws at build time.
+  /// when a stored id no longer exists (a model retired between releases,
+  /// or simply belonging to a different provider than the one currently
+  /// selected) — the dropdown must always have a value present in its own
+  /// item list or it throws at build time.
   LlmModelOption get selectedCopilotModel {
     final storedId = _settingsService.settings.copilotModelId;
-    final models = _llmProviders.defaultProvider.models;
+    final models = selectedCopilotProvider.models;
     return models.firstWhere(
       (m) => m.id == storedId,
       orElse: () => models.first,
     );
   }
 
-  Future<void> selectCopilotModel(String modelId) async {
-    await _settingsService.setCopilotProvider(_llmProviders.defaultProvider.id);
-    await _settingsService.setCopilotModel(modelId);
-  }
+  Future<void> selectCopilotModel(String modelId) =>
+      _settingsService.setCopilotModel(modelId);
 
   bool get rememberApiKey => _settingsService.settings.rememberApiKey;
 
   /// Turning the toggle off deletes the stored key immediately (decision
-  /// 8) rather than waiting for the next write.
+  /// 8) rather than waiting for the next write. Only the *current*
+  /// provider's key — switching providers and clearing this toggle for
+  /// one does not touch a key already remembered for the other.
   Future<void> setRememberApiKey(bool value) async {
     await _settingsService.setRememberApiKey(value);
     if (!value) {
-      await _settingsService.clearApiKey(_llmProviders.defaultProvider.id);
+      await _settingsService.clearApiKey(selectedCopilotProvider.id);
     }
   }
 
@@ -145,10 +170,13 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   bool get connectionTestSucceeded => _connectionTestSucceeded;
 
   /// Mirrors `importErrorMessage`'s per-failure-case copy (P1.7-G7: one
-  /// generic message for every failure is a real defect).
+  /// generic message for every failure is a real defect). Interpolates
+  /// the selected provider's name rather than hardcoding one, now that
+  /// there's more than one.
   String? get connectionTestErrorMessage {
     final error = this.error(_testConnectionBusyKey);
     if (error is! LlmException) return null;
+    final providerName = selectedCopilotProvider.displayName;
     return switch (error.failure) {
       LlmFailure.noKey => 'Enter an API key first.',
       LlmFailure.unauthorized =>
@@ -156,13 +184,15 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
       LlmFailure.rateLimited =>
         'Your API account is rate limited — try again in a moment.',
       LlmFailure.overloaded =>
-        "Anthropic's API is temporarily unavailable — try again shortly.",
-      LlmFailure.network => "Couldn't reach Anthropic — check your connection.",
+        "$providerName's API is temporarily unavailable — try again "
+            'shortly.',
+      LlmFailure.network =>
+        "Couldn't reach $providerName — check your connection.",
       LlmFailure.timeout => 'The request timed out — try again.',
       LlmFailure.refusal => 'The connection check was refused.',
       LlmFailure.invalidRequest =>
-        "Anthropic rejected the request. That's a bug in CVForge, not your "
-            'key.',
+        "$providerName rejected the request. That's a bug in CVForge, not "
+            'your key.',
       LlmFailure.malformedResponse => 'Got an unexpected response — try again.',
     };
   }
@@ -181,7 +211,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   // a failure inside the `Future` it's given, not one thrown while that
   // argument is still being evaluated.
   Future<void> _testConnection(String apiKey) async =>
-      _llmService.testConnection(_llmProviders.defaultProvider.id, apiKey);
+      _llmService.testConnection(selectedCopilotProvider.id, apiKey);
 
   /// Only stores [apiKey] (in memory always, on disk if
   /// [rememberApiKey] is on — see `SettingsService.setApiKey`) once the
@@ -194,10 +224,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     );
     if (!hasErrorForKey(_testConnectionBusyKey)) {
       _connectionTestSucceeded = true;
-      await _settingsService.setApiKey(
-        _llmProviders.defaultProvider.id,
-        apiKey,
-      );
+      await _settingsService.setApiKey(selectedCopilotProvider.id, apiKey);
     }
     rebuildUi();
   }
