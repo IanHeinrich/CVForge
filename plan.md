@@ -713,7 +713,7 @@ The Phase-1 "Phase 2 corners avoided" table claimed most of this was nearly free
 | 7a | **One provider *implementation* (Anthropic) in Phase 4, behind a seam sized for the next one.** | Building two providers before either has a user is speculative; building the first one with its request shape, auth header, schema dialect, and error mapping welded into `LlmService` guarantees the second is a rewrite. The seam is a `LlmProvider` interface plus a registry — the same shape `TemplateRegistryService` already uses for templates — and it costs almost nothing to put in on day one. See 4.4. |
 | 8 | **The key is session-only by default, with an opt-in "remember on this device".** | Persisted means plaintext IndexedDB, readable by any XSS on the origin — the Phase-1 sketch already committed to being honest about this rather than claiming secure storage. Opt-in makes the tradeoff the user's, and the warning ships either way. |
 | 9 | **The Copilot's output is a strict JSON schema, and every id in it is an `enum` of ids that actually exist.** | Structured outputs (`output_config.format`) constrain the *shape*; enumerating the real ids constrains the *content*, making a hallucinated experience id structurally impossible rather than something we validate after the fact. Free-text rewrites are still free text — see decision 10. |
-| 10 | **The Copilot applies its pass directly to the draft, and every change it makes is individually revertible plus undoable as a whole.** | The asked-for flow is "new draft → paste the job ad → it's done", not a twelve-item accept/reject queue. That's the right call *because* the review surface already exists: a Copilot rewrite lands in `bulletOverrides` exactly where a manual one does, so `TailorableField`'s existing per-field revert-to-Vault control and "N tailored" count are already the diff view. A single draft-level "Undo Copilot pass" covers the rest. |
+| 10 | **The Copilot applies its pass directly to the draft, and every change it makes is individually revertible plus undoable as a whole.** | The asked-for flow is "new draft → paste the job ad → it's done", not a twelve-item accept/reject queue. That's the right call *because* the review surface already exists: a Copilot rewrite lands in `bulletOverrides` exactly where a manual one does, so `TailorableField`'s existing per-field revert-to-Vault control and "N tailored" count are already the diff view. A single draft-level "Undo Copilot pass" covers the rest. **Flagged for revisit — see "Two-pass Copilot" below.** |
 | 11 | **The hallucination warning is permanent UI, not a one-time dialog.** | The failure mode is a plausible, well-written bullet claiming something the user never did, applied automatically, on the document that gets sent to employers. A dismissed-once modal doesn't survive the moment it matters. |
 | 12 | **The Copilot request never contains contact details.** Name, email, phone, location, and profile links are stripped from the payload; the model sees career *content* and ids only. | They contribute nothing to selecting or rewriting a bullet, and they're the most sensitive thing in the Vault. It also makes the pre-send disclosure short enough to be read and true enough to stand. |
 | 13 | **Settings are absent from the backup bundle, and API keys live in their own storage rows — one per provider — rather than inside the settings model.** | Two independent structural guarantees that a secret can't reach a file, instead of one `forExport()` call that has to stay correct forever. Settings are device-scoped anyway. **Keyed per provider from the start**: a user with both an Anthropic and a Google key shouldn't have to retype one to use the other, and retrofitting `apiKey` → `apiKeyFor(providerId)` after a key is persisted means a storage migration for one function signature's worth of foresight. |
@@ -1047,6 +1047,75 @@ new card changes that View's rendered height, regenerate the baseline via
 >   policy blocks. Sandbox OS is Linux, matching the `ubuntu-latest` CI
 >   runner this doc requires baselines be generated on.
 
+> **Code-review follow-up (2026-08-21), shipped as 4.4b below.** A review
+> pass over the merged 4.4 code found defects worth recording, because two
+> of them are lessons rather than typos:
+> - **The hardcoded Opus 5 rate was wrong (`15/75`; actual `5/25`) and the
+>   comment beside it claimed a check that never happened.** Root cause is
+>   structural, not clerical: `plan.md` required per-model rates be *shown*
+>   in Settings, that was never built, and an unrendered constant can be
+>   wrong indefinitely because nothing displays it. Fixed by rendering the
+>   rate under the model dropdown — which is the only reason to keep a
+>   hardcoded price table at all. **Rule going in: never write a pricing or
+>   model-id constant from memory, and never stamp a "checked" date on one
+>   without having checked.**
+> - **Any 4xx that wasn't 401/429 was classified `network`**, so a
+>   malformed request rendered "check your connection". 4.5 sends a large
+>   generated schema and is exactly where 400s will appear. Added
+>   `LlmFailure.invalidRequest`; 403 now joins 401 as `unauthorized`.
+> - **`LlmFailure.timeout` was unreachable** — `Dio` applies no timeouts by
+>   default and none were configured, despite the spec calling for "a
+>   generous client timeout" and `dio` having been chosen partly for them.
+> - **`LlmService`'s empty-key guards threw synchronously** from
+>   non-`async` methods, escaping any caller's `runBusyFuture`. Same bug
+>   class already documented on `VaultViewModel._load`; it recurs because
+>   the failing shape looks correct.
+> - **A stored `copilotModelId` no longer in the model list would crash
+>   `DropdownButton`** at build time. Now falls back to the first model.
+> - Dead API surface removed (`showCopilotProviderSelector`,
+>   `keySignupUrl` — the latter needs `url_launcher` to be worth having,
+>   which isn't a dependency); `_ButtonSpinner` deduplicated into
+>   `ui/widgets/common/button_spinner/`; `setApiKey` now awaits `ready()`
+>   like its three sibling mutators.
+
+### 4.4b — Gemini provider + 4.4 review fixes
+
+The review fixes above, plus the second provider. **Anthropic stays** — this
+adds Gemini alongside it rather than replacing it, which is what the
+`LlmProvider` seam was built for and what decision 13's per-provider key
+storage already assumed.
+
+Gemini is a genuinely good first exercise of the seam, because it differs
+from Anthropic in all four ways the "four things vary" table predicts —
+including one the current code would get wrong: **`JsonSchema`'s walker
+emits `additionalProperties: false` on every object, which Anthropic
+requires and Gemini's OpenAPI-subset `responseSchema` rejects.** That the
+walker lives in the adapter rather than the shared model is what makes this
+a per-adapter detail instead of a rewrite; it is the clearest evidence so
+far that the seam earns its keep.
+
+**Verify before writing the adapter — do not fill these in from memory.**
+This is the direct lesson from the Opus-pricing defect above:
+- Current Gemini model ids and their per-MTok rates.
+- The exact `generationConfig.responseSchema` dialect: type-name casing
+  (`STRING` vs `string`), whether `enum` on a string is supported (the
+  anti-hallucination trick depends on it), and how required/optional
+  properties are expressed.
+- Response and usage shape (`candidates[].content.parts[].text`,
+  `finishReason`, `usageMetadata`) and how a safety block surfaces — the
+  Gemini equivalent of `stop_reason: "refusal"`.
+- **Step 0, per provider, forever:** that `generativelanguage.googleapis.com`
+  answers a browser-origin request with an API key. Anthropic's own Step 0
+  is *also* still unrun — neither provider is proven end-to-end yet.
+
+⚠️ These could not be checked in the session that wrote this note:
+`ai.google.dev` is blocked by the agent sandbox's egress policy. Whoever
+implements this needs either unrestricted network access or the values
+supplied by hand.
+
+With two providers registered, the Settings provider selector (currently
+suppressed while `available.length == 1`) becomes live for the first time.
+
 **Verification:** `stacked generate && dart format . && flutter analyze &&
 flutter test --exclude-tags=golden`, plus the blocking Step 0 browser-CORS
 check before any production code is written, and a manual pass once built:
@@ -1070,27 +1139,37 @@ The feature: on a draft, press **Tailor with AI**, paste the job description, an
 
 **The response is a strict JSON schema** via `output_config: {format: {type: "json_schema", schema: …}}` (no beta header). Two constraints the schema must respect, both learned from the docs rather than discovered at runtime:
 
-- **`additionalProperties` may only be `false`**, so a map keyed by arbitrary bullet ids is *not expressible*. Every id-keyed thing has to be an array of `{id, text}` objects, which the app then folds into `bulletOverrides`' map shape. Design the schema for that from the start.
+- **`additionalProperties` may only be `false`**, so a map keyed by *arbitrary* bullet ids is not expressible. **But keys known at schema-build time are** — and every id is, because the schema is generated per request from this Vault. So an id-keyed object *is* available and is the better shape; see the corrected response shape below.
 - **`enum` on a string is supported**, so every id field is an enum of the ids actually present in this Vault. A hallucinated experience id becomes structurally impossible rather than something to validate away afterwards. String enums are also common to every provider dialect (4.4), so this stays true when a second one is added — the trick is portable, which is partly why it's worth building the whole response around.
 
-Shape:
+Shape — **corrected 2026-08-21; the earlier array-of-objects version had a bug**, see the note below it:
 
 ```jsonc
 {
   "headline": "string | null",
   "summary": "string | null",
-  "experiences": [{ "id": "<enum of vault experience ids>",
-                    "bulletIds": ["<enum of that experience's bullet ids>"],
-                    "rewrites": [{ "id": "<enum>", "text": "string" }] }],
-  "projects":    [{ "id": "<enum>", "bulletIds": ["<enum>"], "rewrites": [...] }],
+  // One fixed property per experience id. Legal despite
+  // additionalProperties:false because we generate this schema from this
+  // Vault, so every key is known when the schema is built.
+  "experiences": {
+    "<vault experience id>": {
+      "bulletIds": ["<enum of THIS experience's bullet ids>"],
+      "rewrites":  [{ "id": "<enum of THIS experience's bullet ids>",
+                      "text": "string" }]
+    }
+  },
+  "projects":    { /* same shape, keyed by project id */ },
   "skillIds":    ["<enum>"],
   "educationIds":["<enum>"],
   "hobbyIds":    ["<enum>"],
+  "publicationIds": ["<enum>"],
   "hiddenSections": ["<enum of CvSectionType names>"],
   "rationale": "string",
   "keywordGaps": ["string"]
 }
 ```
+
+> **Why this changed.** The original shape asked for `bulletIds` to be "an enum of *that* experience's bullet ids" inside an array of `{id, bulletIds}` objects. **JSON Schema cannot express that** — an array item's `items.enum` can't be conditioned on a sibling `id` field. Implemented literally it degrades to one global enum of every bullet id in the Vault, which lets the model attach experience B's bullet to experience A: exactly the class of error the enum trick exists to make structurally impossible. Keying the object by experience id restores the per-experience constraint, because each property gets its own independently-scoped enum. Cost: a slightly larger schema, and `required` should list nothing (an omitted experience simply isn't selected) while `additionalProperties` stays `false`. Note the shape also gained `publicationIds`, which the original predates (Publications became a first-class section in PR #35).
 
 `keywordGaps` — requirements in the ad that nothing in the Vault covers — is the honest counterweight to the rest of the response: it's the model reporting what it *couldn't* find, and it's the thing that tells the user to go add something real to their Vault rather than trusting a rewrite to have covered it.
 
@@ -1175,6 +1254,47 @@ Shape:
 > `update-goldens.yml`, because that workflow's artifact lands on Azure Blob
 > Storage and the session's egress policy blocked it — noted since the doc
 > otherwise treats the Linux-CI-runner route as non-optional (P1.3, 4.1).
+
+### Two-pass Copilot — a revisit of decision 10 (proposed 2026-08-21, not scheduled)
+
+**Not for 4.5's first cut; recorded so the option isn't lost.** Split the
+Copilot into two passes with different risk profiles rather than one pass
+that does both jobs:
+
+1. **Pass 1 — selection.** Choose experiences, bullets, skills, sections;
+   produce the core CV. Applies directly, exactly as decision 10 describes.
+2. **Pass 2 — wording.** Propose rewrites *for the user to review and
+   accept*, one at a time, rather than applying them and relying on the
+   user to notice and revert.
+
+**Why it's attractive.** The two jobs have opposite risk profiles, and
+decision 10 currently treats them identically. Selection is
+enum-constrained, so it *cannot* fabricate — the worst case is a poorly
+curated CV, which is obvious on sight and trivially reversible. Rewriting
+is where a plausible, well-written, invented claim reaches an employer
+(Risk P2), and it is exactly the case where auto-apply is weakest: a
+fabricated bullet reads *better* than the honest one, so "revert if you
+disagree" asks the user to catch the failure mode hardest to catch.
+Accept-per-rewrite inverts the default from opt-out to opt-in for the only
+step that can state something untrue.
+
+**What decision 10 got right, and would still hold.** Its objection to a
+"twelve-item accept/reject queue" was about the *selection* pass, where a
+queue would be pure friction over a safe, reversible operation — and that
+reasoning survives intact under this split. Its second argument (the
+review surface already exists via `TailorableField`) is weaker than it
+looks for rewrites specifically: a per-field revert control shows *that* a
+field was tailored, not what the original said next to it, so it isn't
+really a diff view.
+
+**Costs to weigh before committing.** A second pass is a second billed
+request on the user's own key (and 4.5's Risk P6 — the wait — doubles);
+the accept/reject UI is genuinely new surface rather than reuse; and the
+"paste the ad and it's done" flow the plan's Context sells becomes two
+steps. A cheaper middle option worth pricing first: keep one request, but
+land rewrites in a *pending* state that the Studio surfaces as
+accept/dismiss per bullet, instead of writing them straight into
+`bulletOverrides`. That gets the opt-in default without a second API call.
 
 ### Open questions, carried into implementation
 

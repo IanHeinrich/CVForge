@@ -102,17 +102,26 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
 
   static const _testConnectionBusyKey = 'settings_test_copilot_connection';
 
-  /// One provider in Phase 4 (decision 7a) — the model dropdown is this
-  /// card's whole surface; a provider selector only earns its place once
-  /// [LlmProviderRegistry.available] has more than one entry.
+  /// With one provider registered, the model dropdown is this card's whole
+  /// surface — a provider selector only earns its place once there is more
+  /// than one to choose between.
   List<LlmModelOption> get copilotModels =>
       _llmProviders.defaultProvider.models;
 
-  bool get showCopilotProviderSelector => _llmProviders.available.length > 1;
+  String get selectedCopilotModelId => selectedCopilotModel.id;
 
-  String get selectedCopilotModelId =>
-      _settingsService.settings.copilotModelId ??
-      _llmProviders.defaultProvider.models.first.id;
+  /// Falls back to the provider's first model when nothing is stored, or
+  /// when a stored id no longer exists (a model retired between releases)
+  /// — the dropdown must always have a value present in its own item list
+  /// or it throws at build time.
+  LlmModelOption get selectedCopilotModel {
+    final storedId = _settingsService.settings.copilotModelId;
+    final models = _llmProviders.defaultProvider.models;
+    return models.firstWhere(
+      (m) => m.id == storedId,
+      orElse: () => models.first,
+    );
+  }
 
   Future<void> selectCopilotModel(String modelId) async {
     await _settingsService.setCopilotProvider(_llmProviders.defaultProvider.id);
@@ -151,9 +160,20 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
       LlmFailure.network => "Couldn't reach Anthropic — check your connection.",
       LlmFailure.timeout => 'The request timed out — try again.',
       LlmFailure.refusal => 'The connection check was refused.',
+      LlmFailure.invalidRequest =>
+        "Anthropic rejected the request. That's a bug in CVForge, not your "
+            'key.',
       LlmFailure.malformedResponse => 'Got an unexpected response — try again.',
     };
   }
+
+  /// Rendered next to the model dropdown so a BYOK user sees what a run
+  /// costs before starting one — the reason the rate table exists at all
+  /// (an unrendered price can be wrong indefinitely without anyone
+  /// noticing).
+  String priceLabelFor(LlmModelOption model) =>
+      '\$${model.inputPricePerMTok.toStringAsFixed(2)} in / '
+      '\$${model.outputPricePerMTok.toStringAsFixed(2)} out per M tokens';
 
   // A real `async` wrapper, not `_llmService.testConnection(...)` returned
   // directly — see `VaultViewModel._load`'s doc comment for exactly why a

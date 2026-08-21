@@ -24,12 +24,8 @@ abstract interface class LlmProvider {
 
   String get displayName;
 
-  /// id/label/pricing only, for a Settings dropdown — see [LlmModelOption]
-  /// for the "label pricing with the date it was checked" caveat.
+  /// id/label/pricing, for a Settings dropdown.
   List<LlmModelOption> get models;
-
-  /// Where a user without a key yet goes to get one.
-  Uri get keySignupUrl;
 
   /// Sends [systemPrompt] + [userContent] to [modelId] via [client],
   /// constrained to answer in the shape [schema] describes, and returns

@@ -9,15 +9,10 @@ import 'package:cv_forge/models/llm/llm_usage.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
 
-/// The `anthropic-dangerous-direct-browser-access` header is what makes
-/// the Messages API answer a browser's CORS preflight at all — the same
-/// thing the TypeScript SDK sends behind `dangerouslyAllowBrowser`. This
-/// is a real, documented, supported way to call the API directly from a
-/// browser tab (see plan.md's 4.4 Step 0) — but it was verified here
-/// against the public API docs, not against a live request with a real
-/// key from an actual browser, since neither was available in this
-/// session. Treat that live check as still outstanding until someone
-/// with a key runs it once from the deployed app.
+/// Anthropic's Messages API, called directly from the browser — the
+/// `anthropic-dangerous-direct-browser-access` header is what makes it
+/// answer a browser's CORS preflight, the same thing the TypeScript SDK
+/// sends behind `dangerouslyAllowBrowser`.
 class AnthropicProvider implements LlmProvider {
   const AnthropicProvider();
 
@@ -30,15 +25,18 @@ class AnthropicProvider implements LlmProvider {
   @override
   String get displayName => 'Anthropic';
 
-  // Rates checked 2026-08-21, per-million-token, USD. Anthropic's own
-  // pricing page is the source of truth if these ever need re-checking.
+  /// USD per million tokens, from Anthropic's published rates as of
+  /// 2026-08-21. These are rendered in Settings rather than only stored,
+  /// so a stale number is visible rather than silently wrong — which is
+  /// the only reason to keep a hardcoded price table at all. Re-check
+  /// against Anthropic's pricing page when adding or changing a model.
   @override
   List<LlmModelOption> get models => const [
     LlmModelOption(
       id: 'claude-opus-5',
       label: 'Claude Opus 5',
-      inputPricePerMTok: 15,
-      outputPricePerMTok: 75,
+      inputPricePerMTok: 5,
+      outputPricePerMTok: 25,
     ),
     LlmModelOption(
       id: 'claude-sonnet-5',
@@ -53,10 +51,6 @@ class AnthropicProvider implements LlmProvider {
       outputPricePerMTok: 5,
     ),
   ];
-
-  @override
-  Uri get keySignupUrl =>
-      Uri.parse('https://console.anthropic.com/settings/keys');
 
   Map<String, String> _headers(String apiKey) => {
     'x-api-key': apiKey,
@@ -117,7 +111,7 @@ class AnthropicProvider implements LlmProvider {
 
     final Map<String, dynamic> data;
     try {
-      data = _decodeJsonObject(textBlock['text'] as String);
+      data = jsonDecode(textBlock['text'] as String) as Map<String, dynamic>;
     } catch (e) {
       throw LlmException(LlmFailure.malformedResponse, e);
     }
@@ -150,22 +144,24 @@ class AnthropicProvider implements LlmProvider {
 
   LlmException _mapDioException(DioException e) {
     final status = e.response?.statusCode;
-    if (status == 401) return LlmException(LlmFailure.unauthorized, e);
-    if (status == 429) return LlmException(LlmFailure.rateLimited, e);
-    if (status != null && status >= 500) {
-      return LlmException(LlmFailure.overloaded, e);
+    if (status != null) {
+      // 403 sits with 401: both mean "this key may not do this", which is
+      // the same thing for a user to act on. Every other 4xx is a request
+      // this client built wrongly — reporting that as a network failure
+      // ("check your connection") sends the user to debug the wrong thing.
+      if (status == 401 || status == 403) {
+        return LlmException(LlmFailure.unauthorized, e);
+      }
+      if (status == 429) return LlmException(LlmFailure.rateLimited, e);
+      if (status >= 500) return LlmException(LlmFailure.overloaded, e);
+      if (status >= 400) return LlmException(LlmFailure.invalidRequest, e);
     }
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return LlmException(LlmFailure.timeout, e);
-      case DioExceptionType.connectionError:
-      case DioExceptionType.badCertificate:
-        return LlmException(LlmFailure.network, e);
-      default:
-        return LlmException(LlmFailure.network, e);
-    }
+    return switch (e.type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.sendTimeout ||
+      DioExceptionType.receiveTimeout => LlmException(LlmFailure.timeout, e),
+      _ => LlmException(LlmFailure.network, e),
+    };
   }
 
   /// Walks the provider-agnostic [JsonSchema] into Anthropic's
@@ -188,12 +184,4 @@ class AnthropicProvider implements LlmProvider {
     JsonSchemaNumber() => {'type': 'number'},
     JsonSchemaBoolean() => {'type': 'boolean'},
   };
-
-  Map<String, dynamic> _decodeJsonObject(String text) {
-    final decoded = (jsonDecode(text));
-    if (decoded is! Map<String, dynamic>) {
-      throw const FormatException('Expected a JSON object');
-    }
-    return decoded;
-  }
 }

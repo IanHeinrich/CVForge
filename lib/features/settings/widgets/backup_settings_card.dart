@@ -3,6 +3,7 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
@@ -46,7 +47,7 @@ class BackupSettingsCard extends StatelessWidget {
                     ? null
                     : viewModel.exportBackup,
                 child: viewModel.isExporting
-                    ? const _ButtonSpinner()
+                    ? const ButtonSpinner()
                     : const Text('Export backup'),
               ),
               const HGap.small(),
@@ -55,7 +56,7 @@ class BackupSettingsCard extends StatelessWidget {
                     ? null
                     : viewModel.importBackup,
                 child: viewModel.isImporting
-                    ? const _ButtonSpinner()
+                    ? const ButtonSpinner()
                     : const Text('Import backup'),
               ),
             ],
@@ -71,19 +72,6 @@ class BackupSettingsCard extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _ButtonSpinner extends StatelessWidget {
-  const _ButtonSpinner();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 16,
-      height: 16,
-      child: CircularProgressIndicator(strokeWidth: 2, color: kcWhite),
     );
   }
 }
