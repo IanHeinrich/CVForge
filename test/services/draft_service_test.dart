@@ -237,6 +237,84 @@ void main() {
       await service.flushPendingWrites();
     });
 
+    test('setSectionOrder persists a new section order', () async {
+      final service = DraftService();
+      await service.load();
+
+      const order = [
+        CvSectionType.education,
+        CvSectionType.experience,
+        CvSectionType.summary,
+        CvSectionType.skills,
+        CvSectionType.projects,
+        CvSectionType.hobbies,
+        CvSectionType.references,
+        CvSectionType.publications,
+      ];
+      await service.setSectionOrder(order);
+      expect(service.draft.sectionOrder, order);
+
+      await service.flushPendingWrites();
+    });
+
+    test('resetSectionOrder falls back to the active template\'s order '
+        'when no default has been saved', () async {
+      final service = DraftService();
+      await service.load();
+      final registry = TemplateRegistryService();
+
+      await service.setSectionOrder(const [
+        CvSectionType.publications,
+        CvSectionType.references,
+        CvSectionType.hobbies,
+        CvSectionType.education,
+        CvSectionType.projects,
+        CvSectionType.skills,
+        CvSectionType.experience,
+        CvSectionType.summary,
+      ]);
+
+      await service.resetSectionOrder();
+      expect(
+        service.draft.sectionOrder,
+        registry.byId(service.draft.templateId).sectionOrder,
+      );
+    });
+
+    test('resetSectionOrder prefers the user\'s remembered default over '
+        'the template\'s own order', () async {
+      const remembered = [
+        CvSectionType.education,
+        CvSectionType.experience,
+        CvSectionType.summary,
+        CvSectionType.skills,
+        CvSectionType.projects,
+        CvSectionType.hobbies,
+        CvSectionType.references,
+        CvSectionType.publications,
+      ];
+      when(settings.settings).thenReturn(
+        AppSettings.empty().copyWith(defaultSectionOrder: remembered),
+      );
+
+      final service = DraftService();
+      await service.load();
+
+      await service.setSectionOrder(const [
+        CvSectionType.publications,
+        CvSectionType.references,
+        CvSectionType.hobbies,
+        CvSectionType.education,
+        CvSectionType.projects,
+        CvSectionType.skills,
+        CvSectionType.experience,
+        CvSectionType.summary,
+      ]);
+
+      await service.resetSectionOrder();
+      expect(service.draft.sectionOrder, remembered);
+    });
+
     test('Selections survive a reload from storage', () async {
       final first = DraftService();
       await first.load();
@@ -295,6 +373,82 @@ void main() {
       final newId = await service.createDraft(name: 'US application');
       expect(service.activeDraftId, newId);
       expect(service.draft.region, RegionProfile.us);
+    });
+
+    test('createDraft seeds sectionOrder from SettingsService\'s '
+        'defaultSectionOrder when one has been saved', () async {
+      const remembered = [
+        CvSectionType.education,
+        CvSectionType.experience,
+        CvSectionType.summary,
+        CvSectionType.skills,
+        CvSectionType.projects,
+        CvSectionType.hobbies,
+        CvSectionType.references,
+        CvSectionType.publications,
+      ];
+      when(settings.settings).thenReturn(
+        AppSettings.empty().copyWith(defaultSectionOrder: remembered),
+      );
+
+      final service = DraftService();
+      await service.load();
+
+      await service.createDraft(name: 'Tailored application');
+      expect(service.draft.sectionOrder, remembered);
+    });
+
+    test('createDraft falls back to the resolved template\'s own '
+        'sectionOrder when no default has been saved', () async {
+      final service = DraftService();
+      await service.load();
+      final registry = TemplateRegistryService();
+
+      final newId = await service.createDraft(
+        name: 'Classic application',
+        templateId: 'classic_centered',
+      );
+      expect(service.activeDraftId, newId);
+      expect(
+        service.draft.sectionOrder,
+        registry.byId('classic_centered').sectionOrder,
+      );
+    });
+
+    test('An old-shaped draft JSON with no sectionOrder key still loads, '
+        'defaulting to the canonical order', () async {
+      final legacyJson = {
+        'schemaVersion': 1,
+        'id': 'legacy-draft',
+        'name': 'Legacy CV',
+        'templateId': 'compact',
+        'region': 'uk',
+        'notes': '',
+        'experienceIds': <String>[],
+        'bulletIds': <String, dynamic>{},
+        'projectIds': <String>[],
+        'projectBulletIds': <String, dynamic>{},
+        'skillIds': <String>[],
+        'educationIds': <String>[],
+        'hobbyIds': <String>[],
+        'publicationIds': <String>[],
+        'hiddenSections': <String>[],
+        'bulletOverrides': <String, dynamic>{},
+        'educationDetailsOverrides': <String, dynamic>{},
+        'updatedAt': DateTime(2026).toIso8601String(),
+      };
+      memory['${StorageBoxes.drafts}/${StorageKeys.draftIndex}'] = jsonEncode({
+        'schemaVersion': 1,
+        'draftIds': ['legacy-draft'],
+        'activeDraftId': 'legacy-draft',
+      });
+      memory['${StorageBoxes.drafts}/${StorageKeys.draftEntry('legacy-draft')}'] =
+          jsonEncode(legacyJson);
+
+      final service = DraftService();
+      await service.load();
+
+      expect(service.draft.sectionOrder, CvSectionType.values);
     });
 
     test('setHeadlineOverride sets and clears the override', () async {
@@ -411,11 +565,12 @@ void main() {
         },
         projectIds: [],
         projectBulletIds: {},
+        publicationIds: [],
+        publicationBulletIds: {},
         bulletOverrides: {'bullet-1': 'Rewritten bullet.'},
         skillIds: ['skill-1'],
         educationIds: [],
         hobbyIds: [],
-        publicationIds: [],
         hiddenSections: {CvSectionType.hobbies},
         rationale: 'Kept the relevant backend experience.',
         keywordGaps: ['Kubernetes'],

@@ -5,6 +5,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'copilot_config_card.dart';
@@ -73,21 +74,70 @@ class StudioConfigPanel extends StatelessWidget {
         const VGap.medium(),
         const StudioPanelHeading('Sections'),
         const VGap.tiny(),
-        for (final type in CvSectionType.values)
-          if (viewModel.sectionHasData(type))
-            CheckboxListTile(
-              key: ValueKey('section_${type.name}'),
-              value: !viewModel.isSectionHidden(type),
-              onChanged: (_) => viewModel.toggleSectionHidden(type),
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              activeColor: kcPrimaryColor,
-              title: Text(
-                type.displayLabel,
-                style: const TextStyle(color: kcWhite),
-              ),
+        Builder(
+          builder: (context) {
+            final visible = viewModel.sectionOrder
+                .where(viewModel.sectionHasData)
+                .toList();
+            return ReorderableListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              buildDefaultDragHandles: false,
+              itemCount: visible.length,
+              onReorderItem: (oldIndex, newIndex) =>
+                  viewModel.reorderSections(oldIndex, newIndex),
+              itemBuilder: (context, index) {
+                final type = visible[index];
+                return Row(
+                  key: ValueKey('section_${type.name}'),
+                  children: [
+                    Expanded(
+                      child: CheckboxListTile(
+                        value: !viewModel.isSectionHidden(type),
+                        onChanged: (_) => viewModel.toggleSectionHidden(type),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        activeColor: kcPrimaryColor,
+                        title: Text(
+                          type.displayLabel,
+                          style: const TextStyle(color: kcWhite),
+                        ),
+                      ),
+                    ),
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Icon(RemixIcons.draggable, color: kcMediumGrey),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+        const VGap.tiny(),
+        Wrap(
+          spacing: 8,
+          children: [
+            TextButton(
+              onPressed: viewModel.resetSectionOrder,
+              child: const Text('Reset order'),
             ),
+            TextButton(
+              onPressed: () async {
+                await viewModel.saveSectionOrderAsDefault();
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Saved as your default order')),
+                );
+              },
+              child: const Text('Save as my default order'),
+            ),
+          ],
+        ),
         const VGap.medium(),
         // Headline and Summary sit near the top of the page, so they sit
         // near the top of the panel too. References prints last — its
@@ -111,8 +161,6 @@ class StudioConfigPanel extends StatelessWidget {
           onChanged: viewModel.setTailoredSummary,
           onRevert: viewModel.revertSummaryToVault,
           emptyVaultMessage: 'No summary in your Vault yet.',
-          hidden: viewModel.isSectionHidden(CvSectionType.summary),
-          onShow: () => viewModel.toggleSectionHidden(CvSectionType.summary),
         ),
         VaultItemSelectorList(
           title: 'Work history',
@@ -271,6 +319,35 @@ class StudioConfigPanel extends StatelessWidget {
                 subtitle: publication.citation,
                 selected: viewModel.isPublicationIncluded(publication.id),
                 onToggle: () => viewModel.togglePublication(publication),
+                onAddAllBullets: () =>
+                    viewModel.addAllPublicationBullets(publication),
+                bullets: [
+                  for (final bullet in publication.bullets)
+                    SelectorItem(
+                      id: bullet.id,
+                      title: _bulletTitle(
+                        bullet.label,
+                        viewModel.bulletText(bullet),
+                      ),
+                      selected: viewModel.isPublicationBulletIncluded(
+                        publication.id,
+                        bullet.id,
+                      ),
+                      onToggle: () => viewModel.togglePublicationBullet(
+                        publication,
+                        bullet,
+                      ),
+                      tailorable: TailorableField(
+                        hasOverride: viewModel.hasBulletOverride(bullet.id),
+                        effectiveText: viewModel.bulletText(bullet),
+                        fieldLabel: bullet.label,
+                        onChanged: (value) =>
+                            viewModel.setBulletOverride(bullet, value),
+                        onRevert: () =>
+                            viewModel.revertBulletOverride(bullet.id),
+                      ),
+                    ),
+                ],
               ),
           ],
         ),
@@ -283,8 +360,6 @@ class StudioConfigPanel extends StatelessWidget {
           onChanged: viewModel.setReferencesOverride,
           onRevert: viewModel.revertReferencesToVault,
           emptyVaultMessage: 'No references note in your Vault yet.',
-          hidden: viewModel.isSectionHidden(CvSectionType.references),
-          onShow: () => viewModel.toggleSectionHidden(CvSectionType.references),
         ),
       ],
     );

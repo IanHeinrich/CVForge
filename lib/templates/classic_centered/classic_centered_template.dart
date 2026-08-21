@@ -56,6 +56,7 @@ class ClassicCenteredTemplate implements CvTemplate {
     PdfPageFormat format,
     CvFontSet fonts, {
     bool compress = true,
+    bool preventOrphansAndSplits = true,
   }) {
     final doc = pw.Document(
       compress: compress,
@@ -69,7 +70,12 @@ class ClassicCenteredTemplate implements CvTemplate {
       pw.MultiPage(
         pageFormat: format,
         margin: tokens.pageMargins,
-        build: (context) => buildClassicCenteredPdfContent(cv, tokens, fonts),
+        build: (context) => buildClassicCenteredPdfContent(
+          cv,
+          tokens,
+          fonts,
+          preventOrphansAndSplits: preventOrphansAndSplits,
+        ),
       ),
     );
     return doc;

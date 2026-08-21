@@ -41,55 +41,54 @@ pw.Widget buildBulletGlyph(CvDesignTokens tokens, CvFontSet fonts) {
   );
 }
 
-pw.Widget buildBulletList(
-  List<ResolvedBullet> bullets,
+/// One bullet's row — glyph, optional bold label, text. Pre-indented by
+/// [CvDesignTokens.bulletIndent] and pre-gapped below by
+/// [CvDesignTokens.bulletGap] on itself (not on a wrapping container), so
+/// a list of these composes correctly as separate top-level `pw.MultiPage`
+/// widgets, which `assembleSectionWidgets` requires for genuine
+/// cross-page splitting between bullets — see that function's doc
+/// comment for why a nested `pw.Column` of many bullets can't safely span
+/// pages on its own.
+///
+/// A Row with a start-aligned cross axis, not an inline TextSpan —
+/// mixed-size spans in one RichText share a baseline, so once
+/// bulletGlyph's size diverges from bullet's, the glyph reads as floating
+/// above/below the text rather than centered on it. `start`, not
+/// `center`: for a bullet that wraps to multiple lines, the glyph should
+/// sit against the FIRST line, not centered against the whole
+/// multi-line block.
+pw.Widget buildBulletRow(
+  ResolvedBullet bullet,
   CvDesignTokens tokens,
   CvFontSet fonts,
 ) {
-  if (bullets.isEmpty) return pw.SizedBox.shrink();
   return pw.Padding(
     padding: pw.EdgeInsets.only(
-      top: tokens.bulletGap,
       left: tokens.bulletIndent,
+      bottom: tokens.bulletGap,
     ),
-    child: pw.Column(
+    child: pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        for (final bullet in bullets)
-          pw.Padding(
-            padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
-            // A Row with a start-aligned cross axis, not an inline
-            // TextSpan — mixed-size spans in one RichText share a
-            // baseline, so once bulletGlyph's size diverges from bullet's,
-            // the glyph reads as floating above/below the text rather than
-            // centered on it. `start`, not `center`: for a bullet that
-            // wraps to multiple lines, the glyph should sit against the
-            // FIRST line, not centered against the whole multi-line block.
-            child: pw.Row(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
+        buildBulletGlyph(tokens, fonts),
+        pw.SizedBox(width: _bulletGlyphGap),
+        pw.Expanded(
+          child: pw.RichText(
+            text: pw.TextSpan(
               children: [
-                buildBulletGlyph(tokens, fonts),
-                pw.SizedBox(width: _bulletGlyphGap),
-                pw.Expanded(
-                  child: pw.RichText(
-                    text: pw.TextSpan(
-                      children: [
-                        if (bullet.label != null)
-                          pw.TextSpan(
-                            text: '${bullet.label}: ',
-                            style: tokens.bulletLabel.toPdfStyle(fonts),
-                          ),
-                        pw.TextSpan(
-                          text: bullet.text,
-                          style: tokens.bullet.toPdfStyle(fonts),
-                        ),
-                      ],
-                    ),
+                if (bullet.label != null)
+                  pw.TextSpan(
+                    text: '${bullet.label}: ',
+                    style: tokens.bulletLabel.toPdfStyle(fonts),
                   ),
+                pw.TextSpan(
+                  text: bullet.text,
+                  style: tokens.bullet.toPdfStyle(fonts),
                 ),
               ],
             ),
           ),
+        ),
       ],
     ),
   );

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 
 part 'app_settings.freezed.dart';
@@ -22,6 +23,14 @@ abstract class AppSettings with _$AppSettings {
     String? copilotProviderId,
     String? copilotModelId,
     @Default(false) bool rememberApiKey,
+
+    /// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
+    /// draft with, set via the "Save as my default order" action in
+    /// Studio. Null means no default has ever been saved — a new draft
+    /// then falls back to its chosen template's own
+    /// `CvTemplate.sectionOrder`. Never re-resolved against an existing
+    /// draft; it only ever seeds a draft at creation time.
+    List<CvSectionType>? defaultSectionOrder,
   }) = _AppSettings;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) =>

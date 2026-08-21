@@ -102,6 +102,7 @@ abstract class ResolvedPublication with _$ResolvedPublication {
     required String title,
     String? citation,
     String? link,
+    @Default(<ResolvedBullet>[]) List<ResolvedBullet> bullets,
   }) = _ResolvedPublication;
 }
 

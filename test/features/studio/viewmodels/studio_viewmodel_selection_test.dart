@@ -10,6 +10,7 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +23,7 @@ void main() {
   group('StudioViewModel Tests - selection -', () {
     late MockVaultService vaultService;
     late MockDraftService draftService;
+    late MockSettingsService settingsService;
 
     final experience = Experience(
       id: 'exp-1',
@@ -48,10 +50,19 @@ void main() {
         CvBullet(id: 'pb2', text: 'Built another thing'),
       ],
     );
+    final publication = Publication(
+      id: 'pub-1',
+      title: 'A Study of Things',
+      bullets: const [
+        CvBullet(id: 'ub1', text: 'Cited by 40+ subsequent papers'),
+        CvBullet(id: 'ub2', text: 'Led the fieldwork component'),
+      ],
+    );
     CvVault vaultWith({
       List<Experience> experiences = const [],
       List<Education> education = const [],
       List<Project> projects = const [],
+      List<Publication> publications = const [],
       List<SkillCategory> skillCategories = const [],
       List<HobbyItem> hobbies = const [],
       ContactBasics? basics,
@@ -62,6 +73,7 @@ void main() {
       experiences: experiences,
       education: education,
       projects: projects,
+      publications: publications,
       skillCategories: skillCategories,
       hobbies: hobbies,
       referencesNote: referencesNote,
@@ -74,6 +86,8 @@ void main() {
       List<String> projectIds = const [],
       Map<String, List<String>> projectBulletIds = const {},
       List<String> educationIds = const [],
+      List<String> publicationIds = const [],
+      Map<String, List<String>> publicationBulletIds = const {},
       Set<CvSectionType> hiddenSections = const {},
       Map<String, String> bulletOverrides = const {},
       String? tailoredSummary,
@@ -81,6 +95,7 @@ void main() {
       String? referencesOverride,
       Map<String, String> educationDetailsOverrides = const {},
       String templateId = 'compact',
+      List<CvSectionType>? sectionOrder,
     }) => CvDraft(
       schemaVersion: 1,
       id: 'current',
@@ -91,18 +106,22 @@ void main() {
       projectIds: projectIds,
       projectBulletIds: projectBulletIds,
       educationIds: educationIds,
+      publicationIds: publicationIds,
+      publicationBulletIds: publicationBulletIds,
       hiddenSections: hiddenSections,
       bulletOverrides: bulletOverrides,
       tailoredSummary: tailoredSummary,
       headlineOverride: headlineOverride,
       referencesOverride: referencesOverride,
       educationDetailsOverrides: educationDetailsOverrides,
+      sectionOrder: sectionOrder ?? CvSectionType.values,
       updatedAt: DateTime.now(),
     );
 
     setUp(() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
+      settingsService = getAndRegisterSettingsService();
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
       // Not read by any test in this file, but still needed: StudioViewModel's
@@ -153,9 +172,8 @@ void main() {
       expect(experienceSection.groups.single.positions.single.role, 'Engineer');
     });
 
-    test('resolvedCv follows the active template\'s own sectionOrder, not '
-        'one global order — switching template reorders sections with no '
-        'draft-side change', () {
+    test('resolvedCv follows the draft\'s own sectionOrder, not the active '
+        'template\'s — switching template never reorders it', () {
       when(vaultService.vault).thenReturn(
         vaultWith(experiences: [experience], education: [education]),
       );
@@ -166,6 +184,17 @@ void main() {
             experience.id: ['b1', 'b2'],
           },
           educationIds: [education.id],
+          sectionOrder: const [
+            CvSectionType.education,
+            CvSectionType.experience,
+            CvSectionType.skills,
+            CvSectionType.projects,
+            CvSectionType.summary,
+            CvSectionType.hobbies,
+            CvSectionType.references,
+            CvSectionType.publications,
+          ],
+          templateId: 'compact',
         ),
       );
 
@@ -173,8 +202,8 @@ void main() {
           .map((s) => s.runtimeType)
           .toList();
       expect(compactOrder, [
-        ResolvedExperienceSection,
         ResolvedEducationSection,
+        ResolvedExperienceSection,
       ]);
 
       when(draftService.draft).thenReturn(
@@ -184,6 +213,16 @@ void main() {
             experience.id: ['b1', 'b2'],
           },
           educationIds: [education.id],
+          sectionOrder: const [
+            CvSectionType.education,
+            CvSectionType.experience,
+            CvSectionType.skills,
+            CvSectionType.projects,
+            CvSectionType.summary,
+            CvSectionType.hobbies,
+            CvSectionType.references,
+            CvSectionType.publications,
+          ],
           templateId: 'classic_centered',
         ),
       );
@@ -356,6 +395,147 @@ void main() {
       await model.addAllProjectBullets(project);
 
       expect(draft.projectBulletIds[project.id], ['pb1', 'pb2']);
+    });
+
+    test('togglePublicationBullet removes just that bullet, preserving the '
+        "publication's own bullet order", () async {
+      when(
+        vaultService.vault,
+      ).thenReturn(vaultWith(publications: [publication]));
+      when(draftService.draft).thenReturn(
+        draftWith(
+          publicationIds: [publication.id],
+          publicationBulletIds: {
+            publication.id: ['ub1', 'ub2'],
+          },
+        ),
+      );
+      when(
+        draftService.setBulletsForPublication(any, any),
+      ).thenAnswer((_) => Future<void>.value());
+
+      final model = StudioViewModel();
+      await model.togglePublicationBullet(publication, publication.bullets[0]);
+
+      verify(
+        draftService.setBulletsForPublication(publication.id, ['ub2']),
+      ).called(1);
+    });
+
+    test('addAllPublicationBullets selects every unselected bullet without '
+        'dropping earlier selections', () async {
+      when(
+        vaultService.vault,
+      ).thenReturn(vaultWith(publications: [publication]));
+      var draft = draftWith(
+        publicationIds: [publication.id],
+        publicationBulletIds: {publication.id: <String>[]},
+      );
+      when(draftService.draft).thenAnswer((_) => draft);
+      when(draftService.setBulletsForPublication(any, any)).thenAnswer((
+        invocation,
+      ) async {
+        final ids = invocation.positionalArguments[1] as List<String>;
+        draft = draft.copyWith(
+          publicationBulletIds: {
+            ...draft.publicationBulletIds,
+            publication.id: ids,
+          },
+        );
+      });
+
+      final model = StudioViewModel();
+      await model.addAllPublicationBullets(publication);
+
+      expect(draft.publicationBulletIds[publication.id], ['ub1', 'ub2']);
+    });
+
+    group('section order -', () {
+      test(
+        'reorderSections moves within the visible (sectionHasData) '
+        'subsequence, appending no-data sections unchanged at the end',
+        () async {
+          when(vaultService.vault).thenReturn(
+            vaultWith(experiences: [experience], education: [education]),
+          );
+          when(draftService.draft).thenReturn(
+            draftWith(
+              experienceIds: [experience.id],
+              educationIds: [education.id],
+            ),
+          );
+          when(
+            draftService.setSectionOrder(any),
+          ).thenAnswer((_) => Future<void>.value());
+
+          final model = StudioViewModel();
+          await model.reorderSections(0, 1);
+
+          verify(
+            draftService.setSectionOrder([
+              CvSectionType.education,
+              CvSectionType.experience,
+              CvSectionType.summary,
+              CvSectionType.skills,
+              CvSectionType.projects,
+              CvSectionType.hobbies,
+              CvSectionType.references,
+              CvSectionType.publications,
+            ]),
+          ).called(1);
+        },
+      );
+
+      test('saveSectionOrderAsDefault copies the draft\'s effective section '
+          'order into SettingsService', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(
+          draftWith(
+            sectionOrder: const [
+              CvSectionType.education,
+              CvSectionType.experience,
+              CvSectionType.skills,
+              CvSectionType.projects,
+              CvSectionType.summary,
+              CvSectionType.hobbies,
+              CvSectionType.references,
+              CvSectionType.publications,
+            ],
+          ),
+        );
+        when(
+          settingsService.setDefaultSectionOrder(any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        await model.saveSectionOrderAsDefault();
+
+        verify(
+          settingsService.setDefaultSectionOrder([
+            CvSectionType.education,
+            CvSectionType.experience,
+            CvSectionType.skills,
+            CvSectionType.projects,
+            CvSectionType.summary,
+            CvSectionType.hobbies,
+            CvSectionType.references,
+            CvSectionType.publications,
+          ]),
+        ).called(1);
+      });
+
+      test('resetSectionOrder delegates to DraftService', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        when(
+          draftService.resetSectionOrder(),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        await model.resetSectionOrder();
+
+        verify(draftService.resetSectionOrder()).called(1);
+      });
     });
   });
 }

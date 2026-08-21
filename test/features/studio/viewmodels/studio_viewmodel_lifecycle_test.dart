@@ -115,6 +115,7 @@ void main() {
     setUp(() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
+      getAndRegisterSettingsService();
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
       routerService = getAndRegisterRouterService();
@@ -179,6 +180,7 @@ void main() {
             educationIds: anyNamed('educationIds'),
             hobbyIds: anyNamed('hobbyIds'),
             publicationIds: anyNamed('publicationIds'),
+            publicationBulletIds: anyNamed('publicationBulletIds'),
           ),
         ).thenAnswer((_) => Future<void>.value());
 
@@ -198,6 +200,7 @@ void main() {
             educationIds: [],
             hobbyIds: [hobby.id],
             publicationIds: [],
+            publicationBulletIds: {},
           ),
         ).called(1);
       });
@@ -224,6 +227,7 @@ void main() {
             educationIds: anyNamed('educationIds'),
             hobbyIds: anyNamed('hobbyIds'),
             publicationIds: anyNamed('publicationIds'),
+            publicationBulletIds: anyNamed('publicationBulletIds'),
           ),
         );
       });

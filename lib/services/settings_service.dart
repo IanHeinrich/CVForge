@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
@@ -48,6 +49,15 @@ class SettingsService
   Future<void> setRememberApiKey(bool value) async {
     await ready();
     _settings.value = _settings.value.copyWith(rememberApiKey: value);
+    scheduleWrite(_settings.value);
+  }
+
+  /// Sets (or, with `null`, clears) the remembered default section order
+  /// used to seed a brand-new draft — see `AppSettings.defaultSectionOrder`
+  /// and `DraftService.createDraft`'s doc comment.
+  Future<void> setDefaultSectionOrder(List<CvSectionType>? order) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(defaultSectionOrder: order);
     scheduleWrite(_settings.value);
   }
 

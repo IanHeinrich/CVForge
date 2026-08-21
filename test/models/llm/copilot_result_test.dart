@@ -56,7 +56,13 @@ CvVault _fixtureVault() => CvVault(
     Education(id: 'edu-1', qualification: 'BSc', institution: 'Uni'),
   ],
   hobbies: const [HobbyItem(id: 'hobby-1', text: 'Climbing')],
-  publications: const [Publication(id: 'pub-1', title: 'A paper')],
+  publications: const [
+    Publication(
+      id: 'pub-1',
+      title: 'A paper',
+      bullets: [CvBullet(id: 'ubullet-a1', text: 'Cited widely')],
+    ),
+  ],
 );
 
 void main() {
@@ -83,10 +89,15 @@ void main() {
             'rewrites': <Map<String, dynamic>>[],
           },
         },
+        'publications': {
+          'pub-1': {
+            'bulletIds': ['ubullet-a1'],
+            'rewrites': <Map<String, dynamic>>[],
+          },
+        },
         'skillIds': ['skill-1'],
         'educationIds': ['edu-1'],
         'hobbyIds': ['hobby-1'],
-        'publicationIds': ['pub-1'],
         'hiddenSections': ['hobbies'],
         'rationale': 'Kept the relevant bits.',
         'keywordGaps': ['Kubernetes'],
@@ -103,10 +114,13 @@ void main() {
       expect(result.projectBulletIds, {
         'proj-a': ['pbullet-a1'],
       });
+      expect(result.publicationIds, ['pub-1']);
+      expect(result.publicationBulletIds, {
+        'pub-1': ['ubullet-a1'],
+      });
       expect(result.skillIds, ['skill-1']);
       expect(result.educationIds, ['edu-1']);
       expect(result.hobbyIds, ['hobby-1']);
-      expect(result.publicationIds, ['pub-1']);
       expect(result.hiddenSections, {CvSectionType.hobbies});
       expect(result.rationale, 'Kept the relevant bits.');
       expect(result.keywordGaps, ['Kubernetes']);
@@ -121,10 +135,10 @@ void main() {
           },
         },
         'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
         'skillIds': <String>[],
         'educationIds': <String>[],
         'hobbyIds': <String>[],
-        'publicationIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
         'keywordGaps': <String>[],
@@ -148,10 +162,10 @@ void main() {
           },
         },
         'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
         'skillIds': <String>[],
         'educationIds': <String>[],
         'hobbyIds': <String>[],
-        'publicationIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
         'keywordGaps': <String>[],
@@ -161,14 +175,41 @@ void main() {
       expect(result.bulletOverrides.containsKey('bullet-b1'), isFalse);
     });
 
-    test('unknown skill/education/hobby/publication ids are dropped', () {
+    test('a bullet id belonging to a different entity is dropped from a '
+        'publication too, not just experiences/projects', () {
       final result = CopilotResult.fromLlmResponse({
         'experiences': <String, dynamic>{},
         'projects': <String, dynamic>{},
+        'publications': {
+          'pub-1': {
+            // bullet-a1 belongs to an experience, not this publication.
+            'bulletIds': ['ubullet-a1', 'bullet-a1'],
+            'rewrites': [
+              {'id': 'bullet-a1', 'text': 'Should not apply'},
+            ],
+          },
+        },
+        'skillIds': <String>[],
+        'educationIds': <String>[],
+        'hobbyIds': <String>[],
+        'hiddenSections': <String>[],
+        'rationale': '',
+        'keywordGaps': <String>[],
+      }, vault);
+
+      expect(result.publicationIds, ['pub-1']);
+      expect(result.publicationBulletIds['pub-1'], ['ubullet-a1']);
+      expect(result.bulletOverrides.containsKey('bullet-a1'), isFalse);
+    });
+
+    test('unknown skill/education/hobby ids are dropped', () {
+      final result = CopilotResult.fromLlmResponse({
+        'experiences': <String, dynamic>{},
+        'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
         'skillIds': ['skill-1', 'skill-hallucinated'],
         'educationIds': ['edu-hallucinated'],
         'hobbyIds': ['hobby-hallucinated'],
-        'publicationIds': ['pub-hallucinated'],
         'hiddenSections': <String>[],
         'rationale': '',
         'keywordGaps': <String>[],
@@ -177,17 +218,39 @@ void main() {
       expect(result.skillIds, ['skill-1']);
       expect(result.educationIds, isEmpty);
       expect(result.hobbyIds, isEmpty);
+    });
+
+    test('a publications entry keyed by an id not in the Vault is ignored, '
+        'not a crash', () {
+      final result = CopilotResult.fromLlmResponse({
+        'experiences': <String, dynamic>{},
+        'projects': <String, dynamic>{},
+        'publications': {
+          'pub-hallucinated': {
+            'bulletIds': ['ubullet-a1'],
+            'rewrites': <Map<String, dynamic>>[],
+          },
+        },
+        'skillIds': <String>[],
+        'educationIds': <String>[],
+        'hobbyIds': <String>[],
+        'hiddenSections': <String>[],
+        'rationale': '',
+        'keywordGaps': <String>[],
+      }, vault);
+
       expect(result.publicationIds, isEmpty);
+      expect(result.publicationBulletIds, isEmpty);
     });
 
     test('an invalid hiddenSections name is dropped rather than throwing', () {
       final result = CopilotResult.fromLlmResponse({
         'experiences': <String, dynamic>{},
         'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
         'skillIds': <String>[],
         'educationIds': <String>[],
         'hobbyIds': <String>[],
-        'publicationIds': <String>[],
         'hiddenSections': ['hobbies', 'not_a_real_section'],
         'rationale': '',
         'keywordGaps': <String>[],
@@ -201,10 +264,10 @@ void main() {
         'headline': 42, // not a string
         'experiences': 'not a map',
         'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
         'skillIds': 'not a list',
         'educationIds': <String>[],
         'hobbyIds': <String>[],
-        'publicationIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': 7,
         'keywordGaps': [1, 'a real gap', null],
@@ -225,10 +288,10 @@ void main() {
           'exp-a': {'bulletIds': <String>[], 'rewrites': <String>[]},
         },
         'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
         'skillIds': <String>[],
         'educationIds': <String>[],
         'hobbyIds': <String>[],
-        'publicationIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
         'keywordGaps': <String>[],

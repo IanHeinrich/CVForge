@@ -49,10 +49,12 @@ JsonSchema buildCopilotResponseSchema(CvVault vault) {
       'hobbyIds': JsonSchema.array(
         items: JsonSchema.stringEnum([for (final h in vault.hobbies) h.id]),
       ),
-      'publicationIds': JsonSchema.array(
-        items: JsonSchema.stringEnum([
-          for (final p in vault.publications) p.id,
-        ]),
+      'publications': JsonSchema.object(
+        properties: {
+          for (final p in vault.publications)
+            p.id: _entryBulletsSchema(p.bullets.map((b) => b.id).toList()),
+        },
+        required: const [],
       ),
       'hiddenSections': JsonSchema.array(
         items: JsonSchema.stringEnum([
@@ -68,7 +70,7 @@ JsonSchema buildCopilotResponseSchema(CvVault vault) {
       'skillIds',
       'educationIds',
       'hobbyIds',
-      'publicationIds',
+      'publications',
       'hiddenSections',
       'rationale',
       'keywordGaps',

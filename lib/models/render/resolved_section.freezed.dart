@@ -2158,7 +2158,7 @@ as List<String>,
 /// @nodoc
 mixin _$ResolvedPublication {
 
- String get title; String? get citation; String? get link;
+ String get title; String? get citation; String? get link; List<ResolvedBullet> get bullets;
 /// Create a copy of ResolvedPublication
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2169,16 +2169,16 @@ $ResolvedPublicationCopyWith<ResolvedPublication> get copyWith => _$ResolvedPubl
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedPublication&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedPublication&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link)&&const DeepCollectionEquality().equals(other.bullets, bullets));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,title,citation,link);
+int get hashCode => Object.hash(runtimeType,title,citation,link,const DeepCollectionEquality().hash(bullets));
 
 @override
 String toString() {
-  return 'ResolvedPublication(title: $title, citation: $citation, link: $link)';
+  return 'ResolvedPublication(title: $title, citation: $citation, link: $link, bullets: $bullets)';
 }
 
 
@@ -2189,7 +2189,7 @@ abstract mixin class $ResolvedPublicationCopyWith<$Res>  {
   factory $ResolvedPublicationCopyWith(ResolvedPublication value, $Res Function(ResolvedPublication) _then) = _$ResolvedPublicationCopyWithImpl;
 @useResult
 $Res call({
- String title, String? citation, String? link
+ String title, String? citation, String? link, List<ResolvedBullet> bullets
 });
 
 
@@ -2206,12 +2206,13 @@ class _$ResolvedPublicationCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedPublication
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? citation = freezed,Object? link = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? citation = freezed,Object? link = freezed,Object? bullets = null,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,citation: freezed == citation ? _self.citation : citation // ignore: cast_nullable_to_non_nullable
 as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<ResolvedBullet>,
   ));
 }
 
@@ -2296,10 +2297,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? citation,  String? link)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? citation,  String? link,  List<ResolvedBullet> bullets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ResolvedPublication() when $default != null:
-return $default(_that.title,_that.citation,_that.link);case _:
+return $default(_that.title,_that.citation,_that.link,_that.bullets);case _:
   return orElse();
 
 }
@@ -2317,10 +2318,10 @@ return $default(_that.title,_that.citation,_that.link);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? citation,  String? link)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? citation,  String? link,  List<ResolvedBullet> bullets)  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedPublication():
-return $default(_that.title,_that.citation,_that.link);case _:
+return $default(_that.title,_that.citation,_that.link,_that.bullets);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2337,10 +2338,10 @@ return $default(_that.title,_that.citation,_that.link);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? citation,  String? link)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? citation,  String? link,  List<ResolvedBullet> bullets)?  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedPublication() when $default != null:
-return $default(_that.title,_that.citation,_that.link);case _:
+return $default(_that.title,_that.citation,_that.link,_that.bullets);case _:
   return null;
 
 }
@@ -2352,12 +2353,19 @@ return $default(_that.title,_that.citation,_that.link);case _:
 
 
 class _ResolvedPublication implements ResolvedPublication {
-  const _ResolvedPublication({required this.title, this.citation, this.link});
+  const _ResolvedPublication({required this.title, this.citation, this.link, final  List<ResolvedBullet> bullets = const <ResolvedBullet>[]}): _bullets = bullets;
   
 
 @override final  String title;
 @override final  String? citation;
 @override final  String? link;
+ final  List<ResolvedBullet> _bullets;
+@override@JsonKey() List<ResolvedBullet> get bullets {
+  if (_bullets is EqualUnmodifiableListView) return _bullets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bullets);
+}
+
 
 /// Create a copy of ResolvedPublication
 /// with the given fields replaced by the non-null parameter values.
@@ -2369,16 +2377,16 @@ _$ResolvedPublicationCopyWith<_ResolvedPublication> get copyWith => __$ResolvedP
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedPublication&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedPublication&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link)&&const DeepCollectionEquality().equals(other._bullets, _bullets));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,title,citation,link);
+int get hashCode => Object.hash(runtimeType,title,citation,link,const DeepCollectionEquality().hash(_bullets));
 
 @override
 String toString() {
-  return 'ResolvedPublication(title: $title, citation: $citation, link: $link)';
+  return 'ResolvedPublication(title: $title, citation: $citation, link: $link, bullets: $bullets)';
 }
 
 
@@ -2389,7 +2397,7 @@ abstract mixin class _$ResolvedPublicationCopyWith<$Res> implements $ResolvedPub
   factory _$ResolvedPublicationCopyWith(_ResolvedPublication value, $Res Function(_ResolvedPublication) _then) = __$ResolvedPublicationCopyWithImpl;
 @override @useResult
 $Res call({
- String title, String? citation, String? link
+ String title, String? citation, String? link, List<ResolvedBullet> bullets
 });
 
 
@@ -2406,12 +2414,13 @@ class __$ResolvedPublicationCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedPublication
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? citation = freezed,Object? link = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? citation = freezed,Object? link = freezed,Object? bullets = null,}) {
   return _then(_ResolvedPublication(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,citation: freezed == citation ? _self.citation : citation // ignore: cast_nullable_to_non_nullable
 as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self._bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<ResolvedBullet>,
   ));
 }
 

@@ -46,9 +46,28 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
   /// The CV content [PdfPreview] was last actually told to render.
   ResolvedCv? _renderedCv;
 
+  /// The template id [PdfPreview] was last actually told to render with —
+  /// tracked alongside [_renderedCv] because switching templates alone can
+  /// leave [ResolvedCv] byte-identical (content and section order both live
+  /// on the draft, not the template) while still needing a repaint, since
+  /// the template governs the PDF's visual design, not just its content.
+  String? _renderedTemplateId;
+
+  /// The page format [PdfPreview] was last actually told to render with —
+  /// same rationale as [_renderedTemplateId]: switching region changes
+  /// [StudioViewModel.pageFormat] (A4 vs Letter) without touching
+  /// [ResolvedCv] at all, since region only affects page size and (not yet
+  /// implemented) date formatting, neither of which [ResolvedCv] encodes.
+  /// [PdfPageFormat.a4]/[PdfPageFormat.letter] are the same canonical
+  /// `const` instance every time, so reference equality here is exact, not
+  /// approximate.
+  PdfPageFormat? _renderedPageFormat;
+
   /// The debounce-settled value ready to render — only updated once
   /// [_debounceTimer] fires, not on every intermediate change.
   ResolvedCv? _settledCv;
+  String? _settledTemplateId;
+  PdfPageFormat? _settledPageFormat;
 
   Timer? _debounceTimer;
 
@@ -72,6 +91,8 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
   Future<Uint8List> _buildPdf(PdfPageFormat format) {
     final viewModel = widget.viewModel;
     _renderedCv = viewModel.resolvedCv;
+    _renderedTemplateId = viewModel.template.id;
+    _renderedPageFormat = viewModel.pageFormat;
     return locator<PdfExportService>().render(
       cv: viewModel.resolvedCv,
       templateId: viewModel.template.id,
@@ -131,19 +152,35 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
     // last-settled value is what makes this correct here — it just means
     // build is doing comparison-and-schedule work a purer build wouldn't.
     final currentCv = viewModel.resolvedCv;
-    if (currentCv != _settledCv) {
+    final currentTemplateId = viewModel.template.id;
+    final currentPageFormat = viewModel.pageFormat;
+    if (currentCv != _settledCv ||
+        currentTemplateId != _settledTemplateId ||
+        currentPageFormat != _settledPageFormat) {
       if (_settledCv == null) {
         // First content this pane has ever seen — render immediately,
         // nothing to debounce against yet.
         _settledCv = currentCv;
+        _settledTemplateId = currentTemplateId;
+        _settledPageFormat = currentPageFormat;
       } else {
         _debounceTimer?.cancel();
         _debounceTimer = Timer(_debounce, () {
-          if (mounted) setState(() => _settledCv = currentCv);
+          if (mounted) {
+            setState(() {
+              _settledCv = currentCv;
+              _settledTemplateId = currentTemplateId;
+              _settledPageFormat = currentPageFormat;
+            });
+          }
         });
       }
     }
-    final shouldRepaint = _settledCv != null && _settledCv != _renderedCv;
+    final shouldRepaint =
+        _settledCv != null &&
+        (_settledCv != _renderedCv ||
+            _settledTemplateId != _renderedTemplateId ||
+            _settledPageFormat != _renderedPageFormat);
 
     return Stack(
       children: [

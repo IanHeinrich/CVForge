@@ -128,6 +128,27 @@ Two non-feature layers sit alongside these:
   `pw.Column`** — a `pw.Column` root can't be split across pages, so
   everything silently overflows onto page 1 and reads like a package
   limitation rather than the actual cause.
+  **A `pw.Column` nested *inside* another `pw.Column` doesn't reliably
+  split further when the outer one spans, either** — confirmed against
+  `package:pdf` 3.13.0's actual source, not assumed: `Flex.layout` hands
+  every child an unbounded max-height regardless of remaining page space,
+  and `Flex.hasMoreWidgets` is unconditionally `true`, so a single
+  oversized nested child gets measured at its full natural size and
+  either throws (`PdfException`) or drives `pw.MultiPage` past its
+  20-page safety cap (`PdfTooBigPageException`) — empirically reproduced,
+  not theoretical. **Bullets can only genuinely split across a page break
+  when each one is its own top-level `pw.MultiPage` widget**, never
+  grouped into a nested "remaining bullets" `pw.Column`, however tempting
+  that looks. `lib/templates/design/section_pagination_pdf.dart`'s
+  `assembleSectionWidgets` is the one place this is implemented — reused
+  recursively (section→entries, entry→bullets, company→positions) via
+  `pw.Inseparable` to glue a heading to just its first item so a page
+  break can never strand a title without any of its body, while still
+  letting later items split freely. A future template's renderer must
+  route every heading+items group through this helper rather than
+  building its own nested `pw.Column`, or it will silently reintroduce
+  both the stranded-title and mid-entry-split bugs this exists to
+  prevent.
 
 ### How to scaffold into a feature slice
 

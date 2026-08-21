@@ -1,7 +1,9 @@
-/// Semantic CV sections. Declaration order IS the canonical print order —
-/// templates render whatever ordered list of resolved sections they're
-/// handed, so a future user-reorderable-sections feature only has to touch
-/// the draft model and composer, never every template.
+/// Semantic CV sections. Declaration order is only the fallback print
+/// order — the canonical order for an existing CV is
+/// `CvDraft.effectiveSectionOrder`, user-reorderable per-draft in Studio.
+/// Templates still just render whatever ordered list of resolved sections
+/// they're handed, so this enum and `CvComposer` are the only places that
+/// needed to change to support that.
 enum CvSectionType {
   summary,
   skills,

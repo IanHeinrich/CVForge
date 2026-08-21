@@ -87,6 +87,14 @@ class CopilotVaultPayload {
             'id': p.id,
             'title': p.title,
             if (p.citation != null) 'citation': p.citation,
+            'bullets': [
+              for (final b in p.bullets)
+                {
+                  'id': b.id,
+                  if (b.label != null) 'label': b.label,
+                  'text': b.text,
+                },
+            ],
           },
       ],
     });

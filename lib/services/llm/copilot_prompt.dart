@@ -27,8 +27,9 @@ for THIS job:
 - Cut what isn't relevant, even if it's impressive — an unrelated hobby, a
   skill the role doesn't touch, an experience with nothing worth surfacing
   for this ad. A shorter, targeted CV beats a complete one.
-- Within a kept experience, select only the bullets that support this
-  application. Do not keep a bullet just because it exists.
+- Within a kept experience, project, or publication, select only the
+  bullets that support this application. Do not keep a bullet just
+  because it exists.
 - If, after selecting, a section would be empty or provide no signal, add
   its CvSectionType name to hiddenSections.
 

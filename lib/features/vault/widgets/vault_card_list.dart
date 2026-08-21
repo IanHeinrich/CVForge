@@ -38,6 +38,22 @@ class VaultCardList extends StatelessWidget {
           ),
           const VGap.medium(),
         ],
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: viewModel.clearVault,
+            icon: const Icon(
+              RemixIcons.delete_bin_line,
+              size: 16,
+              color: kcErrorColor,
+            ),
+            label: const Text(
+              'Clear Vault',
+              style: TextStyle(color: kcErrorColor),
+            ),
+          ),
+        ),
+        const VGap.medium(),
         _BasicsCard(
           basics: vault.basics,
           selected: viewModel.openTarget == VaultEditorTarget.basics,

@@ -19,6 +19,7 @@ import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/templates/cv_template.dart';
@@ -51,6 +52,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   final _vaultService = locator<VaultService>();
   final _draftService = locator<DraftService>();
+  final _settingsService = locator<SettingsService>();
   final _templateRegistry = locator<TemplateRegistryService>();
   final _pdfExportService = locator<PdfExportService>();
   final _routerService = locator<RouterService>();
@@ -111,6 +113,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       educationIds: [for (final e in vault.education) e.id],
       hobbyIds: [for (final h in vault.hobbies) h.id],
       publicationIds: [for (final p in vault.publications) p.id],
+      publicationBulletIds: {
+        for (final p in vault.publications)
+          p.id: [for (final b in p.bullets) b.id],
+      },
     );
   }
 
@@ -144,7 +150,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     _vault,
     _draft,
     region: _draft.region,
-    sectionOrder: template.sectionOrder,
+    sectionOrder: _draft.effectiveSectionOrder,
   );
 
   /// [CvVault.isEmpty] (no source data anywhere) is checked ahead of an
@@ -218,6 +224,9 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     await addAllEducation();
     await addAllHobbies();
     await addAllPublications();
+    for (final publication in publications) {
+      await addAllPublicationBullets(publication);
+    }
     for (final type in CvSectionType.values) {
       if (isSectionHidden(type)) await toggleSectionHidden(type);
     }
@@ -348,6 +357,38 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> toggleSectionHidden(CvSectionType type) =>
       _draftService.setSectionHidden(type, hidden: !isSectionHidden(type));
 
+  /// This draft's full section order (all [CvSectionType] cases, whether
+  /// [sectionHasData] or not) — the "Sections" picker filters this down to
+  /// the ones with data for display and dragging, per [reorderSections]'s
+  /// doc comment.
+  List<CvSectionType> get sectionOrder => _draft.effectiveSectionOrder;
+
+  /// [oldIndex]/[newIndex] are positions within the *visible*
+  /// ([sectionHasData]) subsequence, matching what the "Sections" list
+  /// actually shows and drags — a no-data section has no meaningful
+  /// position, so each reorder simply appends every no-data section,
+  /// unchanged, after the reordered visible ones. `CvComposer` already
+  /// skips a no-data section regardless of where it sits in the order, so
+  /// nothing is lost; if such a section later gains data it reappears at
+  /// the end of the visible list rather than at its old slot.
+  Future<void> reorderSections(int oldIndex, int newIndex) async {
+    final visible = sectionOrder.where(sectionHasData).toList();
+    final invisible = sectionOrder.where((t) => !sectionHasData(t)).toList();
+    final moved = visible.removeAt(oldIndex);
+    visible.insert(newIndex, moved);
+    await _draftService.setSectionOrder([...visible, ...invisible]);
+  }
+
+  /// Copies this draft's current [sectionOrder] into
+  /// [AppSettings.defaultSectionOrder] so the next brand-new draft starts
+  /// with it — a one-shot copy, never a standing link back to this draft.
+  Future<void> saveSectionOrderAsDefault() =>
+      _settingsService.setDefaultSectionOrder(sectionOrder);
+
+  /// Resets this draft's order back to the user's saved default (or, if
+  /// they've never saved one, the active template's own suggested order).
+  Future<void> resetSectionOrder() => _draftService.resetSectionOrder();
+
   // --- experiences ---
 
   late final _experienceSelection = _Selection<Experience>(
@@ -449,9 +490,9 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   // --- bullet text overrides ---
   //
-  // Shared by experience and project bullets alike — bullet ids are
-  // globally unique (see `Skill.linkedBulletIds`'s doc comment), so an
-  // override lookup needs only the bullet, never which entity it belongs
+  // Shared by experience, project, and publication bullets alike — bullet
+  // ids are globally unique (see `Skill.linkedBulletIds`'s doc comment), so
+  // an override lookup needs only the bullet, never which entity it belongs
   // to.
 
   String bulletText(CvBullet bullet) =>
@@ -555,7 +596,11 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     idOf: (p) => p.id,
     selectedIds: () => _draft.publicationIds,
     setIncluded: (p, {required included}) =>
-        _draftService.setPublicationIncluded(p.id, included: included),
+        _draftService.setPublicationIncluded(
+          p.id,
+          included: included,
+          bulletIds: p.bullets.map((b) => b.id).toList(),
+        ),
   );
 
   List<Publication> get publications => _vault.publications;
@@ -569,6 +614,35 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       _publicationSelection.unselected;
 
   Future<void> addAllPublications() => _publicationSelection.addAll();
+
+  bool isPublicationBulletIncluded(String publicationId, String bulletId) =>
+      (_draft.publicationBulletIds[publicationId] ?? const []).contains(
+        bulletId,
+      );
+
+  /// Same shape as [toggleProjectBullet], one entity type over.
+  Future<void> togglePublicationBullet(
+    Publication publication,
+    CvBullet bullet,
+  ) {
+    final selected = {
+      ...(_draft.publicationBulletIds[publication.id] ?? const []),
+    };
+    if (!selected.remove(bullet.id)) selected.add(bullet.id);
+    return _draftService.setBulletsForPublication(
+      publication.id,
+      publication.bullets.map((b) => b.id).where(selected.contains).toList(),
+    );
+  }
+
+  /// Same shape as [addAllProjectBullets], one entity type over.
+  Future<void> addAllPublicationBullets(Publication publication) async {
+    for (final bullet in publication.bullets) {
+      if (!isPublicationBulletIncluded(publication.id, bullet.id)) {
+        await togglePublicationBullet(publication, bullet);
+      }
+    }
+  }
 
   // --- export ---
 

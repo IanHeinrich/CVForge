@@ -91,6 +91,25 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     rebuildUi();
   }
 
+  /// Wipes every Vault entry after confirmation, closes any open editor
+  /// (its target no longer exists), and un-dismisses the empty state so
+  /// the "Load example CV" / build-from-scratch choice reappears — the
+  /// same starting point as a first-ever launch.
+  Future<void> clearVault() async {
+    final confirmed = await _confirmDelete(
+      title: 'Clear your entire Vault?',
+      description:
+          'This removes every experience, project, skill, education '
+          "entry, hobby, and publication. This can't be undone.",
+      confirmLabel: 'Clear',
+    );
+    if (!confirmed) return;
+    await _vaultService.clearVault();
+    closeEditor();
+    _emptyStateDismissed = false;
+    rebuildUi();
+  }
+
   // --- editor panel open/close ---
 
   VaultEditorTarget _openTarget = VaultEditorTarget.none;
@@ -301,22 +320,38 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> deletePublication(String id) async {
     final confirmed = await _confirmDelete(
       title: 'Delete this publication?',
-      description: "This can't be undone.",
+      description:
+          "This removes it and all of its bullets. This can't be undone.",
     );
     if (!confirmed) return;
     await _vaultService.deletePublication(id);
     if (_openId == id) closeEditor();
   }
 
+  Future<void> addPublicationBullet(String publicationId) =>
+      _vaultService.addPublicationBullet(publicationId, text: '');
+
+  Future<void> updatePublicationBullet(String publicationId, CvBullet bullet) =>
+      _vaultService.updatePublicationBullet(publicationId, bullet);
+
+  Future<void> deletePublicationBullet(String publicationId, String bulletId) =>
+      _vaultService.deletePublicationBullet(publicationId, bulletId);
+
+  Future<void> reorderPublicationBullets(
+    String publicationId,
+    List<String> orderedIds,
+  ) => _vaultService.reorderPublicationBullets(publicationId, orderedIds);
+
   Future<bool> _confirmDelete({
     required String title,
     required String description,
+    String confirmLabel = 'Delete',
   }) async {
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
       title: title,
       description: description,
-      mainButtonTitle: 'Delete',
+      mainButtonTitle: confirmLabel,
       secondaryButtonTitle: 'Cancel',
     );
     return response?.confirmed ?? false;
