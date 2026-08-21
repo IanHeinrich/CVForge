@@ -1273,6 +1273,26 @@ for THIS job:
 
 Being too inclusive is the default failure mode. When in doubt, cut.
 
+## Calibrate to how much you were given
+
+The instruction above assumes a well-stocked Vault, where cutting still
+leaves a substantial CV behind. That assumption breaks for a candidate
+with limited documented experience — if you cut with the same aggression
+regardless of how much you started with, a thin Vault comes out the other
+side looking sparse or empty, which is a worse outcome than including
+something only tangentially relevant.
+
+Before cutting a bullet, project, or whole experience, look at what the
+CV would contain overall if you did. If the total is already small, keep
+tangentially-relevant-but-real items rather than pruning to only the
+handful that map perfectly onto the job description — a real person
+writing this CV by hand, with limited material to draw from, would
+include them too. Reserve aggressive cutting for cases where the Vault
+actually has enough directly-relevant content that trimming the rest
+doesn't leave the CV thin. This does not relax the rule against
+inventing anything — it only changes when a genuinely tangential-but-true
+item should stay in rather than be cut.
+
 ## Rewriting: be conservative
 
 You may rewrite the TEXT of a selected bullet, and nothing else about it.
@@ -1314,6 +1334,8 @@ of stretching a bullet to imply it.
 ```
 
 This is the first draft of the actual prompt text — 4.5's implementation should treat it as a starting point to iterate against real model output, not a frozen spec. The two structural rules it encodes (aggressive deselection, conservative rewriting with "leave it unrewritten if unsure") are the ones that matter and shouldn't drift even if the wording around them changes.
+
+> **Revised (2026-08-21, after real usage feedback):** added the "Calibrate to how much you were given" section above. Real runs against a thin Vault (a candidate without "loads of points") showed the original "when in doubt, cut" instruction being followed too literally — it stripped tangentially relevant content that a person writing their own CV by hand would keep, leaving the result sparse rather than merely focused. The fix is prompt-level, not a code-enforced floor: the model already sees the whole Vault and can judge "is this thin" for itself; a hardcoded numeric minimum (N bullets, X% of the Vault kept) would just trade one blunt heuristic for another, and it's not obvious what number would actually be right. If prompt calibration alone proves insufficient after more real usage, a code-side floor is the fallback, not the first move.
 
 **The response is a strict JSON schema** via `output_config: {format: {type: "json_schema", schema: …}}` (no beta header). Two constraints the schema must respect, both learned from the docs rather than discovered at runtime:
 
