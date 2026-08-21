@@ -74,5 +74,109 @@ void main() {
         jsonDecode(jsonEncode(reloaded.settings.toJson())),
       );
     });
+
+    group('Copilot mutators (4.4) -', () {
+      test('setCopilotProvider/setCopilotModel update settings', () async {
+        when(storage.read(any, any)).thenAnswer((_) async => null);
+
+        final service = SettingsService();
+        await service.load();
+
+        await service.setCopilotProvider('anthropic');
+        await service.setCopilotModel('claude-opus-5');
+
+        expect(service.settings.copilotProviderId, 'anthropic');
+        expect(service.settings.copilotModelId, 'claude-opus-5');
+      });
+
+      test('setRememberApiKey updates settings', () async {
+        when(storage.read(any, any)).thenAnswer((_) async => null);
+
+        final service = SettingsService();
+        await service.load();
+        expect(service.settings.rememberApiKey, isFalse);
+
+        await service.setRememberApiKey(true);
+        expect(service.settings.rememberApiKey, isTrue);
+      });
+
+      test(
+        'setApiKey with rememberApiKey false keeps the key in memory only',
+        () async {
+          when(storage.read(any, any)).thenAnswer((_) async => null);
+
+          final service = SettingsService();
+          await service.load();
+
+          await service.setApiKey('anthropic', 'sk-ant-test');
+
+          verifyNever(storage.write(any, any, any));
+          expect(await service.apiKeyFor('anthropic'), 'sk-ant-test');
+        },
+      );
+
+      test(
+        'setApiKey with rememberApiKey true also persists the key',
+        () async {
+          when(storage.read(any, any)).thenAnswer((_) async => null);
+          when(
+            storage.write(any, any, any),
+          ).thenAnswer((_) => Future<void>.value());
+
+          final service = SettingsService();
+          await service.load();
+          await service.setRememberApiKey(true);
+
+          await service.setApiKey('anthropic', 'sk-ant-test');
+
+          verify(
+            storage.write(
+              StorageBoxes.settings,
+              StorageKeys.apiKeyFor('anthropic'),
+              'sk-ant-test',
+            ),
+          ).called(1);
+        },
+      );
+
+      test('clearApiKey deletes the stored row immediately', () async {
+        when(storage.read(any, any)).thenAnswer((_) async => null);
+        when(
+          storage.write(any, any, any),
+        ).thenAnswer((_) => Future<void>.value());
+        when(storage.delete(any, any)).thenAnswer((_) => Future<void>.value());
+
+        final service = SettingsService();
+        await service.load();
+        await service.setRememberApiKey(true);
+        await service.setApiKey('anthropic', 'sk-ant-test');
+
+        await service.clearApiKey('anthropic');
+
+        verify(
+          storage.delete(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyFor('anthropic'),
+          ),
+        ).called(1);
+        expect(await service.apiKeyFor('anthropic'), isNull);
+      });
+
+      test('apiKeyFor lazily reloads a remembered key from storage on first '
+          'access, simulating a page reload', () async {
+        when(storage.read(any, any)).thenAnswer((invocation) async {
+          final key = invocation.positionalArguments[1] as String;
+          if (key == StorageKeys.apiKeyFor('anthropic')) {
+            return 'sk-ant-remembered';
+          }
+          return null;
+        });
+
+        final freshService = SettingsService();
+        await freshService.load();
+
+        expect(await freshService.apiKeyFor('anthropic'), 'sk-ant-remembered');
+      });
+    });
   });
 }

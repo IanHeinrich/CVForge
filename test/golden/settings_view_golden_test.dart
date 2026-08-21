@@ -3,6 +3,7 @@ library;
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_view.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/ui/common/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +19,10 @@ void main() {
     // registerServices() — see `drafts_list_view_golden_test.dart`'s setUp
     // for why the broad helper, not a narrower one, is used here too.
     registerServices();
-    when(
-      (locator<SettingsService>() as MockSettingsService).load(),
-    ).thenAnswer((_) => Future<void>.value());
+    final settingsService = locator<SettingsService>() as MockSettingsService;
+    when(settingsService.load()).thenAnswer((_) => Future<void>.value());
+    // CopilotSettingsCard (4.4) reads `settings` on every build.
+    when(settingsService.settings).thenReturn(AppSettings.empty());
   });
   tearDown(() => locator.reset());
 

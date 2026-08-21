@@ -286,6 +286,8 @@ One PR each. Bumps only where a deploy is worth eyeballing in a real browser —
 
 > **Status (2026-08-21):** a lot landed without a doc update in between — this entry reconciles PR #28–#35 in one pass. **4.3 (regional presets) shipped** as [PR #28](https://github.com/IanHeinrich/cv-forge/pull/28). **Phase 5 — ATS format analyzer**, a user-requested feature outside the original roadmap (its own section below, after Phase 4), shipped its core pipeline as [PR #29](https://github.com/IanHeinrich/cv-forge/pull/29), a false-positive fix in the garbled-text check as [PR #30](https://github.com/IanHeinrich/cv-forge/pull/30), and — reversing Phase 5's own "deferred, not shipped in this phase" note — the X-Ray bounding-box overlay with evidence-linked findings and camera pan/zoom as [PR #31](https://github.com/IanHeinrich/cv-forge/pull/31) (version bump in [#32](https://github.com/IanHeinrich/cv-forge/pull/32)). [PR #34](https://github.com/IanHeinrich/cv-forge/pull/34) fixed a stale Pages `--base-href` after the GitHub repo was renamed `cv-forge` → `CVForge`. **4.6 (second template + picker) also shipped**, as [PR #35](https://github.com/IanHeinrich/cv-forge/pull/35) — ahead of 4.4/4.5, out of decision 1's locked order (harmless: nothing about the picker depended on the Copilot shipping first) — plus a first-class Publications section and per-template section ordering that weren't in the original spec. See each sub-phase's own "✅ shipped"/"Actually shipped" note for detail. Repo version is now `1.4.2`. **The only unbuilt piece of Phase 4 — and the only unbuilt thing in this entire doc — is the Copilot: 4.4 (plumbing) then 4.5 (the tailoring pass).** 4.4 now has a full implementation spec (below); 4.5 is still the shorter form it's always been, unblocked once 4.4 lands.
 
+> **Status (2026-08-21, later the same day):** **4.4 (Copilot plumbing) shipped** — `LlmService`/`LlmProvider`/`AnthropicProvider`/`LlmProviderRegistry`, `SettingsService`'s first mutators plus per-provider API-key storage, and a `CopilotSettingsCard` on the Settings page (key entry, model choice, test-connection). See 4.4's own "Actually shipped" note for the implementation-time deviations (`LlmException`'s file location, the registry not being locator-registered, `LlmService`'s injectable `Dio`) and — importantly — that the live browser-CORS proof the doc calls "blocking, before any code" could not actually be run in this session (no API key, no way to drive an authenticated browser request) and is still outstanding before this is relied on in production or 4.5 begins. Verified via `flutter analyze` (0 issues), the full test suite (196 tests, including goldens), and a visual check of the regenerated `settings_view_default` golden. **4.5 (the tailoring pass) is next and is the only unbuilt sub-phase of Phase 4 remaining** — start there only after Step 0's live check has actually run.
+
 ---
 
 ## Sub-phase detail
@@ -822,7 +824,7 @@ class RegionPreset {   // const table, keyed by RegionProfile
 
 **Whichever of 4.3 / 4.5 / 4.6 lands first owns a `StudioConfigPanel` grouping pass.** Each of them adds a control to that panel — region selector, Copilot card, template picker — and the panel is already carrying section checkboxes, three override cards, and the whole selector list. Three more bolt-ons at the top of one `ListView` is how it becomes unnavigable. The grouping that falls out of what's there: **Document** (template, region), **Tailoring** (the Copilot card, the three override cards), **Content** (sections + item selection). One pass, in the first PR that touches it, not a fourth cleanup sub-phase afterwards.
 
-### 4.4 — Copilot plumbing: `LlmService`, key, model
+### 4.4 — Copilot plumbing: `LlmService`, key, model ✅ shipped
 
 **Step 0, blocking, before any code:** send one real `POST
 https://api.anthropic.com/v1/messages` request from an actual browser tab
@@ -996,6 +998,54 @@ first access after a fresh service instance (simulating a page reload).
 View, only a new widget inside the existing `settings_view` golden; if the
 new card changes that View's rendered height, regenerate the baseline via
 `update-goldens.yml` on the Linux runner per the doc's standing rule.
+
+> **Actually shipped:** matches the spec above with a few implementation-
+> time deviations, all forced by details the plan hadn't hit yet:
+> - **`LlmFailure`/`LlmException` moved to `lib/services/llm/llm_exception.dart`**,
+>   not `llm_service.dart` as originally planned to mirror
+>   `PdfExportException`'s placement. `llm_service.dart` importing
+>   `llm_provider_registry.dart` which imports `anthropic_provider.dart`
+>   which would import back into `llm_service.dart` for this type is a real
+>   import cycle, not a hypothetical one — `PdfExportService` never hit this
+>   because it has no separate provider layer. `LlmException`'s own doc
+>   comment records why.
+> - **`LlmProviderRegistry` is not locator-registered** — a plain field on
+>   `LlmService`/`SettingsViewModel`, not a `stacked create service`. It's
+>   stateless and deterministic like `CvComposer`, and nothing needed it
+>   mockable independently; `TemplateRegistryService`'s *shape* (const list,
+>   `byId` with a never-throwing fallback) was still copied exactly.
+> - **`LlmService`'s `Dio` is constructor-injectable** (`LlmService({Dio?
+>   client})`, defaulting to a real `Dio()`), since it owns the client
+>   directly rather than receiving one per call — the plumbing-level
+>   equivalent of the doc's own "mocked `Dio` transport" test requirement.
+>   `test/services/llm_service_test.dart` uses a ~40-line hand-rolled
+>   `HttpClientAdapter` fake (`Dio`'s own extension point) rather than
+>   pulling in a mocking package for one test file.
+> - **Step 0 (proving Anthropic's direct-browser-access header actually
+>   works) could not be completed in this session** — no API key and no
+>   way to drive a real authenticated browser request against
+>   `api.anthropic.com` were available. The header and request shape match
+>   Anthropic's own published docs and the TypeScript SDK's
+>   `dangerouslyAllowBrowser` behavior, and `AnthropicProvider`'s doc
+>   comment says so explicitly, but **the live check the doc calls
+>   "blocking, before any code" is still outstanding** — do it before
+>   relying on this in production, and before starting 4.5. Everything
+>   built here (models, service, mocked-transport tests, the Settings UI)
+>   is independent of whether that check passes.
+> - **`SettingsViewModel.selectCopilotModel` always writes both
+>   `copilotProviderId` and `copilotModelId` together** (not left as two
+>   independent setters), since Phase 4 has exactly one provider and there
+>   was no UI moment where they'd legitimately be set separately yet.
+> - `BackupSettingsCard` lost its own `SingleChildScrollView`/page-padding
+>   wrapper (moved up to `SettingsView`, now wrapping both cards in one
+>   `Column`) so two cards can share one scroll region — an unplanned but
+>   necessary consequence of Settings going from one card to two.
+> - `settings_view_default.png` regenerated locally on this Linux sandbox
+>   (not via `update-goldens.yml`) — the same deviation and reasoning PR
+>   #35 already recorded for `drafts_list_view_default.png`: the workflow's
+>   artifact lands on Azure Blob Storage, which this session's egress
+>   policy blocks. Sandbox OS is Linux, matching the `ubuntu-latest` CI
+>   runner this doc requires baselines be generated on.
 
 **Verification:** `stacked generate && dart format . && flutter analyze &&
 flutter test --exclude-tags=golden`, plus the blocking Step 0 browser-CORS
