@@ -1021,17 +1021,10 @@ new card changes that View's rendered height, regenerate the baseline via
 >   `test/services/llm_service_test.dart` uses a ~40-line hand-rolled
 >   `HttpClientAdapter` fake (`Dio`'s own extension point) rather than
 >   pulling in a mocking package for one test file.
-> - **Step 0 (proving Anthropic's direct-browser-access header actually
->   works) could not be completed in this session** — no API key and no
->   way to drive a real authenticated browser request against
->   `api.anthropic.com` were available. The header and request shape match
->   Anthropic's own published docs and the TypeScript SDK's
->   `dangerouslyAllowBrowser` behavior, and `AnthropicProvider`'s doc
->   comment says so explicitly, but **the live check the doc calls
->   "blocking, before any code" is still outstanding** — do it before
->   relying on this in production, and before starting 4.5. Everything
->   built here (models, service, mocked-transport tests, the Settings UI)
->   is independent of whether that check passes.
+> - **Step 0 could not be run in the session that built 4.4** (no API key,
+>   no way to drive an authenticated browser request) — **but it has since
+>   been run for real, from a real browser, and passed.** See 4.4b's
+>   "Actually verified" note for the result and how to reproduce it.
 > - **`SettingsViewModel.selectCopilotModel` always writes both
 >   `copilotProviderId` and `copilotModelId` together** (not left as two
 >   independent setters), since Phase 4 has exactly one provider and there
@@ -1094,9 +1087,50 @@ walker lives in the adapter rather than the shared model is what makes this
 a per-adapter detail instead of a rewrite; it is the clearest evidence so
 far that the seam earns its keep.
 
-**Verify before writing the adapter — do not fill these in from memory.**
-This is the direct lesson from the Opus-pricing defect above:
-- Current Gemini model ids and their per-MTok rates.
+> **Actually verified (2026-08-21).** Step 0 has now genuinely run — real
+> browser (`fetch`, not `curl`), real deliberately-invalid keys (a CORS
+> proof needs no real one — a 401/400 *reaching JavaScript at all* is the
+> passing result), origin `https://www.google.com` (arbitrary, not even
+> this app's own — meaning neither API is origin-allowlisted, it's general
+> CORS support):
+> - `POST api.anthropic.com/v1/messages` **with**
+>   `anthropic-dangerous-direct-browser-access: true` → CORS passed, HTTP
+>   401 reached JS.
+> - Same request **without** that header → CORS **blocked** (`Access to
+>   fetch ... has been blocked by CORS policy`). This is the negative
+>   control that matters: it proves the header is load-bearing, not
+>   decorative — a probe that only ran the first case couldn't distinguish
+>   "the header worked" from "Anthropic allows browsers regardless."
+> - `POST generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
+>   with just `x-goog-api-key` (no special browser-access header exists or
+>   is needed) → CORS passed, HTTP 400 reached JS.
+>
+> **Both providers clear Step 0.** Neither has had a real successful
+> generation yet (both probes used invalid keys on purpose) — that's a
+> smaller, non-blocking follow-up once real keys are in hand, not a gate
+> on writing the adapter.
+>
+> **Gemini's real model catalog was also pulled** (`GET
+> generativelanguage.googleapis.com/v1beta/models` with a real key,
+> outside this session — `ai.google.dev`/`cloud.google.com` are blocked
+> here, see below). It's large and includes plenty of preview/experimental
+> entries (image, video, audio, embedding, robotics models) that aren't
+> relevant here. The stable, non-preview text-generation models — the ones
+> worth offering, mirroring `AnthropicProvider`'s three-tier flagship/mid/
+> cheap shape — are **`gemini-2.5-pro`**, **`gemini-2.5-flash`**, and
+> **`gemini-2.5-flash-lite`**. (The catalog also has `gemini-pro-latest`/
+> `gemini-flash-latest`-style rolling aliases; pin to the dated ids above
+> for the same reproducibility reason `AnthropicProvider` doesn't use a
+> `-latest` alias either.)
+
+**Still to verify before writing the adapter — do not fill these in from
+memory, per the Opus-pricing lesson above:**
+- **Per-MTok pricing for `gemini-2.5-pro`/`-flash`/`-flash-lite`.** Not
+  found in this session — `ai.google.dev` is egress-blocked here, and
+  `cloud.google.com/vertex-ai/generative-ai/pricing` is reachable but its
+  pricing table doesn't survive `WebFetch`'s content truncation on that
+  page. Needs a human to read the numbers off Google's pricing page
+  directly, or a session without this sandbox's restrictions.
 - The exact `generationConfig.responseSchema` dialect: type-name casing
   (`STRING` vs `string`), whether `enum` on a string is supported (the
   anti-hallucination trick depends on it), and how required/optional
@@ -1104,24 +1138,16 @@ This is the direct lesson from the Opus-pricing defect above:
 - Response and usage shape (`candidates[].content.parts[].text`,
   `finishReason`, `usageMetadata`) and how a safety block surfaces — the
   Gemini equivalent of `stop_reason: "refusal"`.
-- **Step 0, per provider, forever:** that `generativelanguage.googleapis.com`
-  answers a browser-origin request with an API key. Anthropic's own Step 0
-  is *also* still unrun — neither provider is proven end-to-end yet.
-
-⚠️ These could not be checked in the session that wrote this note:
-`ai.google.dev` is blocked by the agent sandbox's egress policy. Whoever
-implements this needs either unrestricted network access or the values
-supplied by hand.
 
 With two providers registered, the Settings provider selector (currently
 suppressed while `available.length == 1`) becomes live for the first time.
 
 **Verification:** `stacked generate && dart format . && flutter analyze &&
-flutter test --exclude-tags=golden`, plus the blocking Step 0 browser-CORS
-check before any production code is written, and a manual pass once built:
-enter a real Anthropic key on the deployed/dev-server Settings page, click
-"Test connection", confirm success; enter a deliberately invalid key,
-confirm the `unauthorized` copy renders (not a generic error); toggle
+flutter test --exclude-tags=golden`; Step 0 no longer blocks (done above)
+but a real-key manual pass is still worth doing once the adapter exists:
+enter a real key on the deployed/dev-server Settings page for each
+provider, click "Test connection", confirm success; enter a deliberately
+invalid key, confirm the right per-`LlmFailure` copy renders; toggle
 "remember on this device" on, reload the page, confirm the key survives
 without re-entry; toggle it off, reload, confirm it's gone.
 
