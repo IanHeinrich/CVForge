@@ -26,7 +26,6 @@ AtsTextNode _node({
   str: str,
   transform: AtsTextMatrix(a: fontSize, b: 0, c: 0, d: fontSize, e: x, f: y),
   width: width,
-  height: fontSize,
   fontName: fontName,
 );
 
@@ -140,6 +139,22 @@ void main() {
             ),
           ),
         );
+
+        final finding = result.findings.singleWhere(
+          (f) => f.category == AtsFindingCategory.columnCrush,
+        );
+        expect(finding.evidenceShape, AtsEvidenceShape.span);
+        // "Skills" (index 0) and "Experience" (index 2) are the crushed
+        // pair — "Dart and Flutter" (index 1) sits on a different line
+        // entirely and must not be pulled in as evidence.
+        expect(
+          finding.evidence,
+          containsAll([
+            const AtsFindingEvidence(pageIndex: 0, nodeIndex: 0),
+            const AtsFindingEvidence(pageIndex: 0, nodeIndex: 2),
+          ]),
+        );
+        expect(finding.evidence, hasLength(2));
       },
     );
 
@@ -213,6 +228,16 @@ void main() {
           ),
         ),
       );
+
+      final finding = result.findings.singleWhere(
+        (f) =>
+            f.category == AtsFindingCategory.garbledText &&
+            f.severity == AtsFindingSeverity.critical,
+      );
+      expect(finding.evidenceShape, AtsEvidenceShape.scattered);
+      expect(finding.evidence, [
+        const AtsFindingEvidence(pageIndex: 0, nodeIndex: 0),
+      ]);
     });
 
     test('a leading PUA glyph (a bullet, the shape a leading bullet glyph '
@@ -258,6 +283,16 @@ void main() {
           ),
         ),
       );
+
+      final finding = result.findings.singleWhere(
+        (f) =>
+            f.category == AtsFindingCategory.garbledText &&
+            f.severity == AtsFindingSeverity.warning,
+      );
+      expect(finding.evidenceShape, AtsEvidenceShape.scattered);
+      expect(finding.evidence, [
+        const AtsFindingEvidence(pageIndex: 0, nodeIndex: 0),
+      ]);
     });
 
     test('a short run whose width implies characters the extracted string '
@@ -285,6 +320,16 @@ void main() {
           ),
         ),
       );
+
+      final finding = result.findings.singleWhere(
+        (f) =>
+            f.category == AtsFindingCategory.garbledText &&
+            f.severity == AtsFindingSeverity.info,
+      );
+      expect(finding.evidenceShape, AtsEvidenceShape.scattered);
+      expect(finding.evidence, [
+        const AtsFindingEvidence(pageIndex: 0, nodeIndex: 0),
+      ]);
     });
 
     test('a wide PURE-whitespace run is never flagged as a phantom glyph — '
@@ -324,16 +369,7 @@ void main() {
               width: 255.1,
             ),
           ],
-          fonts: const {
-            'g_d0_f1': AtsFontInfo(
-              name: 'Helvetica',
-              bold: false,
-              italic: false,
-              missingFile: true,
-              isType3Font: false,
-              isInvalidPDFjsFont: false,
-            ),
-          },
+          fonts: const {'g_d0_f1': AtsFontInfo(missingFile: true)},
         ),
       );
 

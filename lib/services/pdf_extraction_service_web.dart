@@ -2,6 +2,7 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
+import 'package:pdf/pdf.dart';
 import 'package:web/web.dart' as web;
 
 import 'package:cv_forge/models/ats/ats_document_info.dart';
@@ -105,9 +106,7 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
               f: transform[5].toDartDouble,
             ),
             width: item.width ?? 0,
-            height: item.height ?? 0,
             fontName: item.fontName ?? '',
-            hasEol: item.hasEOL ?? false,
           ),
         );
       }
@@ -146,12 +145,9 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
           if (!page.commonObjs.has(fontName)) continue;
           final f = page.commonObjs.get(fontName);
           fonts[fontName] = AtsFontInfo(
-            name: f.name ?? fontName,
-            bold: f.bold ?? false,
-            italic: f.italic ?? false,
             missingFile: f.missingFile ?? false,
-            isType3Font: f.isType3Font ?? false,
-            isInvalidPDFjsFont: f.isInvalidPDFjsFont ?? false,
+            ascent: f.ascent,
+            descent: f.descent,
           );
         }
       } catch (_) {
@@ -171,6 +167,39 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
       nodes: nodes,
       fonts: fonts,
       links: links,
+    );
+  }
+
+  @override
+  Future<AtsTextMatrix> getPageViewportTransform(
+    Uint8List bytes, {
+    required int pageIndex,
+    required double dpi,
+  }) async {
+    await _ensureLoaded();
+
+    // Same buffer-copy discipline as extract() — getDocument() detaches
+    // whatever it's handed.
+    final copy = Uint8List.fromList(bytes);
+    final doc = await pdfjs
+        .getDocument(pdfjs.PdfJsGetDocumentSettings(data: copy.toJS))
+        .promise
+        .toDart;
+    final page = await doc.getPage(pageIndex + 1).toDart;
+    // dpi / 72 (PdfPageFormat.inch) — the same scale `Printing.raster()`
+    // computes internally (see `printing_web.dart`'s own `raster()`), so
+    // this is guaranteed to agree with whatever it actually rasterized.
+    final viewport = page.getViewport(
+      pdfjs.PdfJsViewportSettings(scale: dpi / PdfPageFormat.inch),
+    );
+    final t = viewport.transform.toDart;
+    return AtsTextMatrix(
+      a: t[0].toDartDouble,
+      b: t[1].toDartDouble,
+      c: t[2].toDartDouble,
+      d: t[3].toDartDouble,
+      e: t[4].toDartDouble,
+      f: t[5].toDartDouble,
     );
   }
 

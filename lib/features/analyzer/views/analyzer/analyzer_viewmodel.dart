@@ -1,7 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:stacked/stacked.dart';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/ats/ats_analysis_result.dart';
+import 'package:cv_forge/models/ats/ats_extracted_document.dart';
+import 'package:cv_forge/models/ats/ats_font_info.dart';
+import 'package:cv_forge/models/ats/ats_text_node.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
@@ -25,6 +30,25 @@ class AnalyzerViewModel extends BaseViewModel {
   AtsAnalysisResult? get result => _result;
   bool get hasResult => _result != null;
 
+  /// Retained alongside [_result] so the Machine Ingestion panel and the
+  /// X-Ray overlay can show what the extractor actually saw — `_result`
+  /// only carries findings, not the nodes that produced them.
+  AtsExtractedDocument? _extracted;
+
+  /// Every text run `pdf.js` reported, in extraction order — empty until
+  /// an analysis has completed.
+  List<AtsTextNode> get extractedNodes => _extracted?.nodes ?? const [];
+
+  /// Keyed by [AtsTextNode.fontName] — the X-Ray overlay's ink-box
+  /// derivation reads `.ascent`/`.descent` off of this for a given node.
+  Map<String, AtsFontInfo> get extractedFonts => _extracted?.fonts ?? const {};
+
+  /// Retained alongside [_extracted] for the same reason: the X-Ray
+  /// overlay rasters the original bytes as its backdrop, which nothing
+  /// before this kept around after `extract()` returned.
+  Uint8List? _pdfBytes;
+  Uint8List? get pdfBytes => _pdfBytes;
+
   bool get isAnalyzing => busy(_analyzeBusyKey);
   bool get hasAnalyzeError => hasErrorForKey(_analyzeBusyKey);
 
@@ -38,8 +62,9 @@ class AnalyzerViewModel extends BaseViewModel {
     final bytes = await _fileUpload.pickPdfFile();
     if (bytes == null) return; // user cancelled — not an error
     final extracted = await _extraction.extract(bytes);
+    _pdfBytes = bytes;
+    _extracted = extracted;
     _result = _analyzer.analyze(extracted);
-    notifyListeners();
   }
 
   /// Back to the upload prompt — clears the previous result without
@@ -47,6 +72,8 @@ class AnalyzerViewModel extends BaseViewModel {
   /// key's error the moment it runs again.
   void reset() {
     _result = null;
+    _extracted = null;
+    _pdfBytes = null;
     notifyListeners();
   }
 

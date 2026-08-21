@@ -6,10 +6,10 @@ import 'package:cv_forge/models/ats/ats_text_node.dart';
 /// Analyzes an already-extracted PDF for the format problems that make an
 /// ATS text extractor misread a resume. Pure Dart, no dependencies — the
 /// counterpart to `PdfExtractionService`'s browser-only marshalling, and
-/// fully testable on the Flutter VM against the spike's fixtures.
+/// fully testable on the Flutter VM.
 ///
-/// Ships the reduced v1 check set the ATS-analyzer spike settled on — see
-/// [AtsFindingCategory]'s doc comment for what was cut and why.
+/// Ships the reduced v1 check set — see [AtsFindingCategory]'s doc comment
+/// for what was cut and why.
 class AtsAnalyzerService {
   AtsAnalysisResult analyze(AtsExtractedDocument document) {
     final findings = <AtsFinding>[
@@ -29,8 +29,6 @@ class AtsAnalyzerService {
       findings: findings,
     );
   }
-
-  // --- no text layer -------------------------------------------------
 
   List<AtsFinding> _checkNoTextLayer(AtsExtractedDocument document) {
     if (document.nodes.isEmpty) {
@@ -67,38 +65,38 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- column crush ----------------------------------------------------
-
   /// Simulates a position-sorting text extractor (e.g. PDFBox with
   /// `setSortByPosition(true)`) by clustering runs sharing a baseline and
   /// checking for a wide horizontal gap between two runs on it — the
   /// signature a multi-column layout leaves when re-read left-to-right
   /// regardless of which block a run actually belongs to. This is *not*
-  /// a claim about `pdf.js`'s own reading order, which the spike confirmed
-  /// already tracks the content stream faithfully — see the spike
-  /// findings note.
+  /// a claim about `pdf.js`'s own reading order, which tracks the content
+  /// stream faithfully.
   List<AtsFinding> _checkColumnCrush(AtsExtractedDocument document) {
     final findings = <AtsFinding>[];
-    final byPage = <int, List<AtsTextNode>>{};
-    for (final node in document.nodes) {
-      byPage.putIfAbsent(node.pageIndex, () => []).add(node);
+    final byPage = <int, List<(int, AtsTextNode)>>{};
+    for (var idx = 0; idx < document.nodes.length; idx++) {
+      final node = document.nodes[idx];
+      byPage.putIfAbsent(node.pageIndex, () => []).add((idx, node));
     }
 
     for (final entry in byPage.entries) {
-      final nodes = [
-        ...entry.value,
-      ]..sort((a, b) => b.transform.baselineY.compareTo(a.transform.baselineY));
+      final nodes = [...entry.value]
+        ..sort(
+          (a, b) =>
+              b.$2.transform.baselineY.compareTo(a.$2.transform.baselineY),
+        );
 
       var i = 0;
       while (i < nodes.length) {
-        final lineY = nodes[i].transform.baselineY;
-        final fontSize = nodes[i].transform.fontSize;
+        final lineY = nodes[i].$2.transform.baselineY;
+        final fontSize = nodes[i].$2.transform.fontSize;
         final tolerance = fontSize > 0 ? fontSize * 0.3 : 3.0;
 
-        final line = <AtsTextNode>[];
+        final line = <(int, AtsTextNode)>[];
         var j = i;
         while (j < nodes.length &&
-            (nodes[j].transform.baselineY - lineY).abs() <= tolerance) {
+            (nodes[j].$2.transform.baselineY - lineY).abs() <= tolerance) {
           line.add(nodes[j]);
           j++;
         }
@@ -106,12 +104,13 @@ class AtsAnalyzerService {
 
         if (line.length < 2) continue;
         line.sort(
-          (a, b) => a.transform.baselineX.compareTo(b.transform.baselineX),
+          (a, b) =>
+              a.$2.transform.baselineX.compareTo(b.$2.transform.baselineX),
         );
 
         for (var k = 0; k < line.length - 1; k++) {
-          final left = line[k];
-          final right = line[k + 1];
+          final (leftIndex, left) = line[k];
+          final (rightIndex, right) = line[k + 1];
           final gap =
               right.transform.baselineX -
               (left.transform.baselineX + left.width);
@@ -129,6 +128,17 @@ class AtsAnalyzerService {
                     'one run, e.g. "${_truncate(left.str)}'
                     '${_truncate(right.str)}".',
                 pageIndex: entry.key,
+                evidence: [
+                  AtsFindingEvidence(
+                    pageIndex: entry.key,
+                    nodeIndex: leftIndex,
+                  ),
+                  AtsFindingEvidence(
+                    pageIndex: entry.key,
+                    nodeIndex: rightIndex,
+                  ),
+                ],
+                evidenceShape: AtsEvidenceShape.span,
               ),
             );
             break; // one finding per crushed line is enough signal
@@ -139,25 +149,42 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- garbled / phantom / PUA text ------------------------------------
-
   List<AtsFinding> _checkGarbledText(AtsExtractedDocument document) {
     final findings = <AtsFinding>[];
     var replacementCount = 0;
     var embeddedPuaCount = 0;
     var phantomGlyphCount = 0;
+    final replacementEvidence = <AtsFindingEvidence>[];
+    final embeddedPuaEvidence = <AtsFindingEvidence>[];
+    final phantomGlyphEvidence = <AtsFindingEvidence>[];
 
-    for (final node in document.nodes) {
+    for (var idx = 0; idx < document.nodes.length; idx++) {
+      final node = document.nodes[idx];
       final str = node.str;
-      replacementCount += _countCodepoints(str, _isReplacementChar);
+      final nodeReplacementCount = _countCodeUnits(str, _isReplacementChar);
+      replacementCount += nodeReplacementCount;
+      if (nodeReplacementCount > 0) {
+        replacementEvidence.add(
+          AtsFindingEvidence(pageIndex: node.pageIndex, nodeIndex: idx),
+        );
+      }
 
       // A PUA glyph as the first character of a run reads as a bullet,
       // not garbled text — the spike's own synthetic bullet case, where
       // pdf.js chunked a leading bullet glyph into the same run as the
       // text that follows it. A PUA glyph anywhere else in the run is
       // the garbled case.
-      for (var idx = 1; idx < str.length; idx++) {
-        if (_isPua(str.codeUnitAt(idx))) embeddedPuaCount++;
+      var nodeHasEmbeddedPua = false;
+      for (var i = 1; i < str.length; i++) {
+        if (_isPua(str.codeUnitAt(i))) {
+          embeddedPuaCount++;
+          nodeHasEmbeddedPua = true;
+        }
+      }
+      if (nodeHasEmbeddedPua) {
+        embeddedPuaEvidence.add(
+          AtsFindingEvidence(pageIndex: node.pageIndex, nodeIndex: idx),
+        );
       }
 
       // "Phantom glyph": an advance width spent with implausibly few
@@ -175,7 +202,12 @@ class AtsAnalyzerService {
       final trimmed = str.trim();
       if (fontSize > 0 && trimmed.isNotEmpty && trimmed.length <= 3) {
         final avgCharWidth = node.width / str.length;
-        if (avgCharWidth > fontSize * 1.3) phantomGlyphCount++;
+        if (avgCharWidth > fontSize * 1.3) {
+          phantomGlyphCount++;
+          phantomGlyphEvidence.add(
+            AtsFindingEvidence(pageIndex: node.pageIndex, nodeIndex: idx),
+          );
+        }
       }
     }
 
@@ -189,6 +221,7 @@ class AtsAnalyzerService {
               'Found $replacementCount character(s) that failed to decode '
               'to readable text — the font used likely has a missing or '
               'broken character map. An ATS will see this text as garbage.',
+          evidence: replacementEvidence,
         ),
       );
     }
@@ -203,6 +236,7 @@ class AtsAnalyzerService {
               'code range embedded within words — a common sign of an '
               'icon or symbol font (e.g. Wingdings) rather than real text, '
               'which most ATS parsers will render as blanks or gibberish.',
+          evidence: embeddedPuaEvidence,
         ),
       );
     }
@@ -216,6 +250,7 @@ class AtsAnalyzerService {
               'Found $phantomGlyphCount short run(s) where more space was '
               'used than the extracted characters account for — a sign a '
               'symbol (often a bullet) silently failed to extract at all.',
+          evidence: phantomGlyphEvidence,
         ),
       );
     }
@@ -242,8 +277,6 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- missing canonical headings --------------------------------------
-
   List<AtsFinding> _checkMissingHeadings(AtsExtractedDocument document) {
     final text = document.nodes.map((n) => n.str).join(' ').toLowerCase();
     final findings = <AtsFinding>[];
@@ -264,7 +297,7 @@ class AtsAnalyzerService {
           AtsFinding(
             category: AtsFindingCategory.missingHeadings,
             severity: AtsFindingSeverity.info,
-            title: 'No "${section.label}" heading found',
+            title: 'No ${section.label} section detected',
             message:
                 'Couldn\'t find a heading for ${section.label} anywhere in '
                 'the document. Some ATS software structures a resume by '
@@ -277,8 +310,6 @@ class AtsAnalyzerService {
     }
     return findings;
   }
-
-  // --- contact info -----------------------------------------------------
 
   static final _emailPattern = RegExp(r'[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}');
   static final _phonePattern = RegExp(r'(\+?\d[\d\s().-]{7,}\d)');
@@ -320,15 +351,19 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- helpers -----------------------------------------------------------
-
+  /// PDF points. A gap this wide reads as two separate columns rather
+  /// than intra-line word spacing — comfortably past a normal inter-word
+  /// gap (a few points at typical body sizes) but inside a realistic
+  /// column gutter. Absolute, not scaled by font size like the same-line
+  /// tolerance above: a column gutter's width is a page-layout decision,
+  /// not a text-size one.
   static const _columnGapThreshold = 60.0;
 
   bool _isPua(int codeUnit) => codeUnit >= 0xE000 && codeUnit <= 0xF8FF;
 
   bool _isReplacementChar(int codeUnit) => codeUnit == 0xFFFD;
 
-  int _countCodepoints(String str, bool Function(int) predicate) {
+  int _countCodeUnits(String str, bool Function(int) predicate) {
     var count = 0;
     for (var i = 0; i < str.length; i++) {
       if (predicate(str.codeUnitAt(i))) count++;

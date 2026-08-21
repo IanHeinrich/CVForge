@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
+import 'package:cv_forge/models/ats/ats_text_node.dart';
 
 /// Which stage of [PdfExtractionService.extract] failed — mirrors
 /// [PdfExportStage]'s precedent so the UI can show different recovery copy
@@ -56,4 +57,18 @@ class PdfExtractionException implements Exception {
 /// normally.
 abstract class PdfExtractionService {
   Future<AtsExtractedDocument> extract(Uint8List bytes);
+
+  /// The page-space → pixel-space transform for one page at [dpi] — call
+  /// with the same [dpi] passed to `Printing.raster(bytes, [pageIndex],
+  /// dpi)` so the two agree on scale. A separate call from [extract]
+  /// deliberately: this is a per-page-you're-about-to-render cost, not a
+  /// once-per-document one, and re-derives the transform via `pdf.js`'s
+  /// own `getViewport()` rather than rescaling a cached value, since a
+  /// cached page-space matrix combined with an assumed rescale factor is
+  /// one more place a sign or scale error could hide.
+  Future<AtsTextMatrix> getPageViewportTransform(
+    Uint8List bytes, {
+    required int pageIndex,
+    required double dpi,
+  });
 }

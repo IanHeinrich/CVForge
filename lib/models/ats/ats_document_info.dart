@@ -17,12 +17,6 @@ abstract class AtsDocumentInfo with _$AtsDocumentInfo {
     String? creator,
     String? language,
 
-    /// An XFA form has no `getTextContent()` geometry at all — a
-    /// completely different, geometry-free code path (confirmed against
-    /// the vendored bundle). `AtsAnalyzerService` must treat this as
-    /// "cannot analyze", not silently produce zero findings.
-    @Default(false) bool isPureXfa,
-
     /// Whether `page.getStructTree()` returned non-null for at least one
     /// page — a tagged/accessible PDF. `null` across the entire spike
     /// corpus (no genuinely tagged sample was available), so no check

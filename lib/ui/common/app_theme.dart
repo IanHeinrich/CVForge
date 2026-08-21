@@ -83,5 +83,10 @@ ThemeData buildAppTheme() {
       selectedColor: kcPrimaryColor,
       checkmarkColor: kcWhite,
     ),
+    tabBarTheme: const TabBarThemeData(
+      labelColor: kcPrimaryColor,
+      unselectedLabelColor: kcLightGrey,
+      indicatorColor: kcPrimaryColor,
+    ),
   );
 }

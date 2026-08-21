@@ -14,11 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AtsDocumentInfo {
 
- int get pageCount; String? get producer; String? get creator; String? get language;/// An XFA form has no `getTextContent()` geometry at all — a
-/// completely different, geometry-free code path (confirmed against
-/// the vendored bundle). `AtsAnalyzerService` must treat this as
-/// "cannot analyze", not silently produce zero findings.
- bool get isPureXfa;/// Whether `page.getStructTree()` returned non-null for at least one
+ int get pageCount; String? get producer; String? get creator; String? get language;/// Whether `page.getStructTree()` returned non-null for at least one
 /// page — a tagged/accessible PDF. `null` across the entire spike
 /// corpus (no genuinely tagged sample was available), so no check
 /// depends on this in v1; kept for a later calibration pass.
@@ -33,16 +29,16 @@ $AtsDocumentInfoCopyWith<AtsDocumentInfo> get copyWith => _$AtsDocumentInfoCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AtsDocumentInfo&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.producer, producer) || other.producer == producer)&&(identical(other.creator, creator) || other.creator == creator)&&(identical(other.language, language) || other.language == language)&&(identical(other.isPureXfa, isPureXfa) || other.isPureXfa == isPureXfa)&&(identical(other.hasStructTree, hasStructTree) || other.hasStructTree == hasStructTree));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AtsDocumentInfo&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.producer, producer) || other.producer == producer)&&(identical(other.creator, creator) || other.creator == creator)&&(identical(other.language, language) || other.language == language)&&(identical(other.hasStructTree, hasStructTree) || other.hasStructTree == hasStructTree));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pageCount,producer,creator,language,isPureXfa,hasStructTree);
+int get hashCode => Object.hash(runtimeType,pageCount,producer,creator,language,hasStructTree);
 
 @override
 String toString() {
-  return 'AtsDocumentInfo(pageCount: $pageCount, producer: $producer, creator: $creator, language: $language, isPureXfa: $isPureXfa, hasStructTree: $hasStructTree)';
+  return 'AtsDocumentInfo(pageCount: $pageCount, producer: $producer, creator: $creator, language: $language, hasStructTree: $hasStructTree)';
 }
 
 
@@ -53,7 +49,7 @@ abstract mixin class $AtsDocumentInfoCopyWith<$Res>  {
   factory $AtsDocumentInfoCopyWith(AtsDocumentInfo value, $Res Function(AtsDocumentInfo) _then) = _$AtsDocumentInfoCopyWithImpl;
 @useResult
 $Res call({
- int pageCount, String? producer, String? creator, String? language, bool isPureXfa, bool hasStructTree
+ int pageCount, String? producer, String? creator, String? language, bool hasStructTree
 });
 
 
@@ -70,14 +66,13 @@ class _$AtsDocumentInfoCopyWithImpl<$Res>
 
 /// Create a copy of AtsDocumentInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? pageCount = null,Object? producer = freezed,Object? creator = freezed,Object? language = freezed,Object? isPureXfa = null,Object? hasStructTree = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? pageCount = null,Object? producer = freezed,Object? creator = freezed,Object? language = freezed,Object? hasStructTree = null,}) {
   return _then(_self.copyWith(
 pageCount: null == pageCount ? _self.pageCount : pageCount // ignore: cast_nullable_to_non_nullable
 as int,producer: freezed == producer ? _self.producer : producer // ignore: cast_nullable_to_non_nullable
 as String?,creator: freezed == creator ? _self.creator : creator // ignore: cast_nullable_to_non_nullable
 as String?,language: freezed == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
-as String?,isPureXfa: null == isPureXfa ? _self.isPureXfa : isPureXfa // ignore: cast_nullable_to_non_nullable
-as bool,hasStructTree: null == hasStructTree ? _self.hasStructTree : hasStructTree // ignore: cast_nullable_to_non_nullable
+as String?,hasStructTree: null == hasStructTree ? _self.hasStructTree : hasStructTree // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -163,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int pageCount,  String? producer,  String? creator,  String? language,  bool isPureXfa,  bool hasStructTree)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int pageCount,  String? producer,  String? creator,  String? language,  bool hasStructTree)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AtsDocumentInfo() when $default != null:
-return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_that.isPureXfa,_that.hasStructTree);case _:
+return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_that.hasStructTree);case _:
   return orElse();
 
 }
@@ -184,10 +179,10 @@ return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int pageCount,  String? producer,  String? creator,  String? language,  bool isPureXfa,  bool hasStructTree)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int pageCount,  String? producer,  String? creator,  String? language,  bool hasStructTree)  $default,) {final _that = this;
 switch (_that) {
 case _AtsDocumentInfo():
-return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_that.isPureXfa,_that.hasStructTree);case _:
+return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_that.hasStructTree);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +199,10 @@ return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int pageCount,  String? producer,  String? creator,  String? language,  bool isPureXfa,  bool hasStructTree)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int pageCount,  String? producer,  String? creator,  String? language,  bool hasStructTree)?  $default,) {final _that = this;
 switch (_that) {
 case _AtsDocumentInfo() when $default != null:
-return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_that.isPureXfa,_that.hasStructTree);case _:
+return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_that.hasStructTree);case _:
   return null;
 
 }
@@ -219,18 +214,13 @@ return $default(_that.pageCount,_that.producer,_that.creator,_that.language,_tha
 
 
 class _AtsDocumentInfo implements AtsDocumentInfo {
-  const _AtsDocumentInfo({required this.pageCount, this.producer, this.creator, this.language, this.isPureXfa = false, this.hasStructTree = false});
+  const _AtsDocumentInfo({required this.pageCount, this.producer, this.creator, this.language, this.hasStructTree = false});
   
 
 @override final  int pageCount;
 @override final  String? producer;
 @override final  String? creator;
 @override final  String? language;
-/// An XFA form has no `getTextContent()` geometry at all — a
-/// completely different, geometry-free code path (confirmed against
-/// the vendored bundle). `AtsAnalyzerService` must treat this as
-/// "cannot analyze", not silently produce zero findings.
-@override@JsonKey() final  bool isPureXfa;
 /// Whether `page.getStructTree()` returned non-null for at least one
 /// page — a tagged/accessible PDF. `null` across the entire spike
 /// corpus (no genuinely tagged sample was available), so no check
@@ -247,16 +237,16 @@ _$AtsDocumentInfoCopyWith<_AtsDocumentInfo> get copyWith => __$AtsDocumentInfoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AtsDocumentInfo&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.producer, producer) || other.producer == producer)&&(identical(other.creator, creator) || other.creator == creator)&&(identical(other.language, language) || other.language == language)&&(identical(other.isPureXfa, isPureXfa) || other.isPureXfa == isPureXfa)&&(identical(other.hasStructTree, hasStructTree) || other.hasStructTree == hasStructTree));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AtsDocumentInfo&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.producer, producer) || other.producer == producer)&&(identical(other.creator, creator) || other.creator == creator)&&(identical(other.language, language) || other.language == language)&&(identical(other.hasStructTree, hasStructTree) || other.hasStructTree == hasStructTree));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pageCount,producer,creator,language,isPureXfa,hasStructTree);
+int get hashCode => Object.hash(runtimeType,pageCount,producer,creator,language,hasStructTree);
 
 @override
 String toString() {
-  return 'AtsDocumentInfo(pageCount: $pageCount, producer: $producer, creator: $creator, language: $language, isPureXfa: $isPureXfa, hasStructTree: $hasStructTree)';
+  return 'AtsDocumentInfo(pageCount: $pageCount, producer: $producer, creator: $creator, language: $language, hasStructTree: $hasStructTree)';
 }
 
 
@@ -267,7 +257,7 @@ abstract mixin class _$AtsDocumentInfoCopyWith<$Res> implements $AtsDocumentInfo
   factory _$AtsDocumentInfoCopyWith(_AtsDocumentInfo value, $Res Function(_AtsDocumentInfo) _then) = __$AtsDocumentInfoCopyWithImpl;
 @override @useResult
 $Res call({
- int pageCount, String? producer, String? creator, String? language, bool isPureXfa, bool hasStructTree
+ int pageCount, String? producer, String? creator, String? language, bool hasStructTree
 });
 
 
@@ -284,14 +274,13 @@ class __$AtsDocumentInfoCopyWithImpl<$Res>
 
 /// Create a copy of AtsDocumentInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? pageCount = null,Object? producer = freezed,Object? creator = freezed,Object? language = freezed,Object? isPureXfa = null,Object? hasStructTree = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? pageCount = null,Object? producer = freezed,Object? creator = freezed,Object? language = freezed,Object? hasStructTree = null,}) {
   return _then(_AtsDocumentInfo(
 pageCount: null == pageCount ? _self.pageCount : pageCount // ignore: cast_nullable_to_non_nullable
 as int,producer: freezed == producer ? _self.producer : producer // ignore: cast_nullable_to_non_nullable
 as String?,creator: freezed == creator ? _self.creator : creator // ignore: cast_nullable_to_non_nullable
 as String?,language: freezed == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
-as String?,isPureXfa: null == isPureXfa ? _self.isPureXfa : isPureXfa // ignore: cast_nullable_to_non_nullable
-as bool,hasStructTree: null == hasStructTree ? _self.hasStructTree : hasStructTree // ignore: cast_nullable_to_non_nullable
+as String?,hasStructTree: null == hasStructTree ? _self.hasStructTree : hasStructTree // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
