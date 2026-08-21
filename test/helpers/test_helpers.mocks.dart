@@ -1909,9 +1909,9 @@ class MockDraftService extends _i1.Mock implements _i33.DraftService {
           as _i24.Future<void>);
 
   @override
-  _i24.Future<void> resetSectionOrder() =>
+  _i24.Future<void> resetSectionSettings() =>
       (super.noSuchMethod(
-            Invocation.method(#resetSectionOrder, []),
+            Invocation.method(#resetSectionSettings, []),
             returnValue: _i24.Future<void>.value(),
             returnValueForMissingStub: _i24.Future<void>.value(),
           )
@@ -2335,9 +2335,15 @@ class MockSettingsService extends _i1.Mock implements _i45.SettingsService {
           as _i24.Future<void>);
 
   @override
-  _i24.Future<void> setDefaultSectionOrder(List<_i36.CvSectionType>? order) =>
+  _i24.Future<void> setDefaultSectionSettings({
+    required List<_i36.CvSectionType>? order,
+    required Set<_i36.CvSectionType>? hiddenSections,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#setDefaultSectionOrder, [order]),
+            Invocation.method(#setDefaultSectionSettings, [], {
+              #order: order,
+              #hiddenSections: hiddenSections,
+            }),
             returnValue: _i24.Future<void>.value(),
             returnValueForMissingStub: _i24.Future<void>.value(),
           )

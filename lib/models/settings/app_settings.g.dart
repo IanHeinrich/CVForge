@@ -17,6 +17,9 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
   defaultSectionOrder: (json['defaultSectionOrder'] as List<dynamic>?)
       ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
       .toList(),
+  defaultHiddenSections: (json['defaultHiddenSections'] as List<dynamic>?)
+      ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
+      .toSet(),
 );
 
 Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
@@ -27,6 +30,9 @@ Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
       'copilotModelId': instance.copilotModelId,
       'rememberApiKey': instance.rememberApiKey,
       'defaultSectionOrder': instance.defaultSectionOrder
+          ?.map((e) => _$CvSectionTypeEnumMap[e]!)
+          .toList(),
+      'defaultHiddenSections': instance.defaultHiddenSections
           ?.map((e) => _$CvSectionTypeEnumMap[e]!)
           .toList(),
     };

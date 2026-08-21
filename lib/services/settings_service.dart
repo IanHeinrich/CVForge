@@ -52,12 +52,21 @@ class SettingsService
     scheduleWrite(_settings.value);
   }
 
-  /// Sets (or, with `null`, clears) the remembered default section order
-  /// used to seed a brand-new draft — see `AppSettings.defaultSectionOrder`
-  /// and `DraftService.createDraft`'s doc comment.
-  Future<void> setDefaultSectionOrder(List<CvSectionType>? order) async {
+  /// Sets the remembered default section order and hidden-sections state
+  /// together, in one write rather than two separate calls — see
+  /// `AppSettings.defaultSectionOrder`/`defaultHiddenSections` and
+  /// `DraftService.createDraft`'s doc comment. The pair is always saved
+  /// (and reset) together from the same Studio action, so there's no
+  /// legitimate call site that would ever want to update just one.
+  Future<void> setDefaultSectionSettings({
+    required List<CvSectionType> order,
+    required Set<CvSectionType> hiddenSections,
+  }) async {
     await ready();
-    _settings.value = _settings.value.copyWith(defaultSectionOrder: order);
+    _settings.value = _settings.value.copyWith(
+      defaultSectionOrder: order,
+      defaultHiddenSections: hiddenSections,
+    );
     scheduleWrite(_settings.value);
   }
 

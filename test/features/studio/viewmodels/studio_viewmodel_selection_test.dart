@@ -486,8 +486,9 @@ void main() {
         },
       );
 
-      test('saveSectionOrderAsDefault copies the draft\'s effective section '
-          'order into SettingsService', () async {
+      test('saveSectionSettingsAsDefault copies the draft\'s effective '
+          'section order AND hidden-sections state into SettingsService, '
+          'together', () async {
         when(vaultService.vault).thenReturn(CvVault.empty());
         when(draftService.draft).thenReturn(
           draftWith(
@@ -501,40 +502,47 @@ void main() {
               CvSectionType.references,
               CvSectionType.publications,
             ],
+            hiddenSections: {CvSectionType.hobbies},
           ),
         );
         when(
-          settingsService.setDefaultSectionOrder(any),
+          settingsService.setDefaultSectionSettings(
+            order: anyNamed('order'),
+            hiddenSections: anyNamed('hiddenSections'),
+          ),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = StudioViewModel();
-        await model.saveSectionOrderAsDefault();
+        await model.saveSectionSettingsAsDefault();
 
         verify(
-          settingsService.setDefaultSectionOrder([
-            CvSectionType.education,
-            CvSectionType.experience,
-            CvSectionType.skills,
-            CvSectionType.projects,
-            CvSectionType.summary,
-            CvSectionType.hobbies,
-            CvSectionType.references,
-            CvSectionType.publications,
-          ]),
+          settingsService.setDefaultSectionSettings(
+            order: [
+              CvSectionType.education,
+              CvSectionType.experience,
+              CvSectionType.skills,
+              CvSectionType.projects,
+              CvSectionType.summary,
+              CvSectionType.hobbies,
+              CvSectionType.references,
+              CvSectionType.publications,
+            ],
+            hiddenSections: {CvSectionType.hobbies},
+          ),
         ).called(1);
       });
 
-      test('resetSectionOrder delegates to DraftService', () async {
+      test('resetSectionSettings delegates to DraftService', () async {
         when(vaultService.vault).thenReturn(CvVault.empty());
         when(draftService.draft).thenReturn(draftWith());
         when(
-          draftService.resetSectionOrder(),
+          draftService.resetSectionSettings(),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = StudioViewModel();
-        await model.resetSectionOrder();
+        await model.resetSectionSettings();
 
-        verify(draftService.resetSectionOrder()).called(1);
+        verify(draftService.resetSectionSettings()).called(1);
       });
     });
   });

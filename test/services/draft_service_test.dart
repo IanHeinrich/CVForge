@@ -257,8 +257,8 @@ void main() {
       await service.flushPendingWrites();
     });
 
-    test('resetSectionOrder falls back to the active template\'s order '
-        'when no default has been saved', () async {
+    test('resetSectionSettings falls back to the active template\'s order '
+        'and nothing hidden when no default has been saved', () async {
       final service = DraftService();
       await service.load();
       final registry = TemplateRegistryService();
@@ -273,16 +273,19 @@ void main() {
         CvSectionType.experience,
         CvSectionType.summary,
       ]);
+      await service.setSectionHidden(CvSectionType.hobbies, hidden: true);
 
-      await service.resetSectionOrder();
+      await service.resetSectionSettings();
       expect(
         service.draft.sectionOrder,
         registry.byId(service.draft.templateId).sectionOrder,
       );
+      expect(service.draft.hiddenSections, isEmpty);
     });
 
-    test('resetSectionOrder prefers the user\'s remembered default over '
-        'the template\'s own order', () async {
+    test('resetSectionSettings prefers the user\'s remembered default '
+        'order and hidden sections over the template\'s own order and '
+        'nothing hidden — reset together, not independently', () async {
       const remembered = [
         CvSectionType.education,
         CvSectionType.experience,
@@ -294,7 +297,10 @@ void main() {
         CvSectionType.publications,
       ];
       when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(defaultSectionOrder: remembered),
+        AppSettings.empty().copyWith(
+          defaultSectionOrder: remembered,
+          defaultHiddenSections: {CvSectionType.references},
+        ),
       );
 
       final service = DraftService();
@@ -310,9 +316,11 @@ void main() {
         CvSectionType.experience,
         CvSectionType.summary,
       ]);
+      await service.setSectionHidden(CvSectionType.hobbies, hidden: true);
 
-      await service.resetSectionOrder();
+      await service.resetSectionSettings();
       expect(service.draft.sectionOrder, remembered);
+      expect(service.draft.hiddenSections, {CvSectionType.references});
     });
 
     test('Selections survive a reload from storage', () async {
@@ -375,8 +383,9 @@ void main() {
       expect(service.draft.region, RegionProfile.us);
     });
 
-    test('createDraft seeds sectionOrder from SettingsService\'s '
-        'defaultSectionOrder when one has been saved', () async {
+    test('createDraft seeds sectionOrder AND hiddenSections from '
+        'SettingsService\'s defaultSectionOrder/defaultHiddenSections when '
+        'they\'ve been saved', () async {
       const remembered = [
         CvSectionType.education,
         CvSectionType.experience,
@@ -388,7 +397,10 @@ void main() {
         CvSectionType.publications,
       ];
       when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(defaultSectionOrder: remembered),
+        AppSettings.empty().copyWith(
+          defaultSectionOrder: remembered,
+          defaultHiddenSections: {CvSectionType.hobbies},
+        ),
       );
 
       final service = DraftService();
@@ -396,6 +408,7 @@ void main() {
 
       await service.createDraft(name: 'Tailored application');
       expect(service.draft.sectionOrder, remembered);
+      expect(service.draft.hiddenSections, {CvSectionType.hobbies});
     });
 
     test('createDraft falls back to the resolved template\'s own '
@@ -413,6 +426,7 @@ void main() {
         service.draft.sectionOrder,
         registry.byId('classic_centered').sectionOrder,
       );
+      expect(service.draft.hiddenSections, isEmpty);
     });
 
     test('An old-shaped draft JSON with no sectionOrder key still loads, '

@@ -123,18 +123,22 @@ class StudioConfigPanel extends StatelessWidget {
           spacing: 8,
           children: [
             TextButton(
-              onPressed: viewModel.resetSectionOrder,
-              child: const Text('Reset order'),
+              onPressed: viewModel.resetSectionSettings,
+              child: const Text('Reset to my default'),
             ),
             TextButton(
               onPressed: () async {
-                await viewModel.saveSectionOrderAsDefault();
+                await viewModel.saveSectionSettingsAsDefault();
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Saved as your default order')),
+                  const SnackBar(
+                    content: Text(
+                      'Saved this order and section selection as your default',
+                    ),
+                  ),
                 );
               },
-              child: const Text('Save as my default order'),
+              child: const Text('Save as my default'),
             ),
           ],
         ),

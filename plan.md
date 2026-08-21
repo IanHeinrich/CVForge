@@ -1845,3 +1845,138 @@ server with no console errors; `window.dartPdfJsBaseUrl` resolution,
 `getStructTree`/`getAnnotations`) were exercised against a real corpus PDF
 through the app's own already-loaded module instance, reproducing the
 same results captured during the spike.
+
+---
+
+## Phase 6 — Section management, Publication bullets, PDF pagination guards (2026-08-21)
+
+Built directly through a live working session (Studio feature requests
+plus a live-CV feasibility question that turned into an implementation),
+not pre-planned in this document — appended after the fact for the same
+reason every other phase is recorded here: a durable account of what
+shipped and why.
+
+### 6.1 — Reorderable sections → **bump 2.1.0** ✅ shipped
+
+`CvDraft` gained `sectionOrder: List<CvSectionType>` (an explicit
+per-draft field, defaulting to declaration order) plus an
+`effectiveSectionOrder` getter that appends any `CvSectionType` case
+missing from the stored list — a defensive guard against a future new
+section type shipping after a draft was last saved. `CvTemplate.sectionOrder`
+is now only a *seed suggestion* for a brand-new draft
+(`DraftService._seedSectionOrder`), never re-read for an existing draft —
+switching a draft's template never reorders its sections.
+
+Decision (asked directly, not assumed): per-CV order with an explicit
+"save as my default" action, not a live global default with per-CV
+overrides. A live global needs a resolution rule for whether editing it
+retroactively changes existing CVs — the only sane answer is "no, it just
+seeds new ones," which collapses to the same thing as storing order on
+the draft and using a settings value purely as a seed, minus the
+ambiguity. `AppSettings` already had this exact seed-not-live-fallback
+shape (`defaultRegion`).
+
+Studio's "Sections" list became a `ReorderableListView` (drag handles,
+`bullet_list_editor.dart`'s existing pattern) combining reorder with the
+existing visibility checkbox — replacing two separate, duplicated
+show/hide controls (the flat list, and a second toggle on the
+Summary/References override cards) with one source of truth.
+
+**Two real regressions found by testing the shipped feature, both fixed
+same-session:** `StudioPreviewPane`'s repaint gate compared only
+`ResolvedCv` content equality, so switching template or region — neither
+of which touches `ResolvedCv` now that order lives on the draft, not the
+template — silently stopped triggering a repaint. Fixed by also tracking
+`viewModel.template.id` and `viewModel.pageFormat` (A4 vs Letter) in the
+settled/rendered comparison.
+
+### 6.2 — Publication bullets ✅ shipped
+
+Full parity with `Project`: `Publication.bullets`, `CvDraft.publicationBulletIds`,
+`VaultService` bullet CRUD, `VaultViewModel`/`vault_editor_panel_router.dart`
+wiring, `PublicationEditorPanel`'s `BulletListEditor`, Studio's
+`isPublicationBulletIncluded`/`togglePublicationBullet`/
+`addAllPublicationBullets`, both PDF templates' bullet rendering — and,
+per explicit confirmation rather than assumption, full Copilot pipeline
+parity too: the LLM response schema's flat `publicationIds` array became
+an id-keyed `publications` object (`bulletIds` + `rewrites`, exactly
+`projects`' shape), `CopilotVaultPayload` sends each publication's
+bullets, and `CopilotResult.fromLlmResponse` parses/validates them the
+same way as project bullets.
+
+### 6.3 — Example CV rewrite + Clear Vault ✅ shipped
+
+`buildExampleVault()` rewritten as a fully fictional persona modeled on
+the app author's real career shape (domain, skill stack, seniority arc)
+but with every employer, exact metric, and client engagement invented —
+raised proactively before writing it, since the fixture's own prior doc
+comment already flagged "this repo is public, permanent git history" as
+the reason it must stay fictional, and a name-only swap of the real CV
+supplied for reference would have stayed trivially re-identifiable via
+distinctive real employer/project names. One deliberate exception, per
+explicit instruction: the Projects section links the author's own real,
+public portfolio repos (this project among them), with descriptions
+pulled from each repo's actual README — real and attributed by choice,
+not fictionalized.
+
+Added a confirmed "Clear Vault" action (`VaultService.clearVault`,
+`VaultViewModel.clearVault` reusing the existing `confirmDelete` dialog
+with a `confirmLabel` override) that resets to `CvVault.empty()` and
+un-dismisses the empty state, so "Load example CV" / build-from-scratch
+is offered again exactly as on first launch.
+
+Follow-up mid-session: "Save as my default" was extended to also
+remember which sections are hidden, not just their order —
+`AppSettings.defaultHiddenSections` alongside `defaultSectionOrder`, both
+set/reset together in one call (`SettingsService.setDefaultSectionSettings`,
+`DraftService.resetSectionSettings`) so the pair can never drift apart or
+end up half-reset.
+
+### 6.4 — PDF pagination guards (orphan/split prevention) → **bump 2.1.0** ✅ shipped
+
+Requested as a feasibility question first, then implemented once
+confirmed. Two rules: a section/entry heading is never left stranded
+without at least its first item below it, and a single bullet's text
+never splits mid-sentence across a page break — while still allowing a
+section or entry's remaining items to spread freely across as many pages
+as needed.
+
+**The feasibility investigation found the real mechanism is narrower than
+it first looked**, confirmed empirically against the actual `package:pdf`
+3.13.0 source and real rendered output, not just documentation:
+`pw.Inseparable` (`canSpan: false`) is the correct primitive for gluing a
+heading to its first item, but a `pw.Column` *nested inside* another
+`pw.Column` does **not** reliably split across pages when the outer one
+spans — `Flex.layout` hands every child an unbounded max-height
+regardless of remaining page space, and `Flex.hasMoreWidgets` is
+unconditionally `true`, so a single oversized nested child either
+overflows silently or drives `pw.MultiPage` past its own 20-page safety
+cap (`PdfTooBigPageException` — reproduced directly, not inferred). The
+only way bullets genuinely split between each other across a page break
+is for each bullet to be its own top-level `pw.MultiPage` widget, never
+grouped into a nested "remaining bullets" `pw.Column`.
+
+Implemented as `lib/templates/design/section_pagination_pdf.dart`'s
+`assembleSectionWidgets`, reused recursively at every heading+items level
+in both templates (section→entries, entry→bullets, promotion
+group→positions→bullets) — the same helper, not a duplicated rule per
+template. `PdfExportService.render` catches the one remaining legitimate
+failure (`PdfException` for a single bullet whose own text is too long to
+fit on any page — confirmed a genuine, unavoidable content limit in
+either mode, not a bug) and retries once with the guard off, surfacing a
+clean `PdfExportException` rather than an uncaught crash if even that
+fails. A note was added to `CLAUDE.md` (not just this file) so a future
+template renderer routes through `assembleSectionWidgets` instead of
+silently reintroducing the nested-Column bug.
+
+### Verification
+
+`stacked generate && dart format . && flutter analyze && flutter test
+--exclude-tags=golden` — all clean (0 analyze issues, 250 tests passing,
+up from 239 at the start of the session). Golden baselines regenerated on
+`ubuntu-latest` via `update-goldens.yml`: only `vault_view_populated`
+changed (the example-CV rewrite), the other four came back byte-identical
+and were left untouched. Manually verified against the running app for
+every sub-phase above: section drag-reorder, save/reset default (order +
+hidden sections), template switch, region switch, publication bullets in
+Vault/Studio/both PDF exports, and the Clear Vault confirm-and-reset flow.

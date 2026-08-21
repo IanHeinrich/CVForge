@@ -25,12 +25,23 @@ abstract class AppSettings with _$AppSettings {
     @Default(false) bool rememberApiKey,
 
     /// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-    /// draft with, set via the "Save as my default order" action in
-    /// Studio. Null means no default has ever been saved — a new draft
-    /// then falls back to its chosen template's own
-    /// `CvTemplate.sectionOrder`. Never re-resolved against an existing
-    /// draft; it only ever seeds a draft at creation time.
+    /// draft with, set via the "Save as my default" action in Studio.
+    /// Null means no default has ever been saved — a new draft then falls
+    /// back to its chosen template's own `CvTemplate.sectionOrder`. Never
+    /// re-resolved against an existing draft; it only ever seeds a draft
+    /// at creation time. Saved and reset together with
+    /// [defaultHiddenSections] by the same Studio action, so the two
+    /// fields never drift apart from each other, but kept as two fields
+    /// rather than one combined value — same shape as `CvDraft.sectionOrder`
+    /// / `CvDraft.hiddenSections` being separate fields there too.
     List<CvSectionType>? defaultSectionOrder,
+
+    /// Same seed-only rationale as [defaultSectionOrder], one field over
+    /// for `CvDraft.hiddenSections` — which sections a brand-new draft
+    /// starts with hidden. Null means no default has been saved, so a new
+    /// draft starts with nothing hidden (`CvDraft.hiddenSections`'s own
+    /// default).
+    Set<CvSectionType>? defaultHiddenSections,
   }) = _AppSettings;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) =>

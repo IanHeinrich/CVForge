@@ -379,15 +379,20 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     await _draftService.setSectionOrder([...visible, ...invisible]);
   }
 
-  /// Copies this draft's current [sectionOrder] into
-  /// [AppSettings.defaultSectionOrder] so the next brand-new draft starts
-  /// with it — a one-shot copy, never a standing link back to this draft.
-  Future<void> saveSectionOrderAsDefault() =>
-      _settingsService.setDefaultSectionOrder(sectionOrder);
+  /// Copies this draft's current [sectionOrder] and hidden-sections state
+  /// into [AppSettings.defaultSectionOrder]/[AppSettings.defaultHiddenSections]
+  /// so the next brand-new draft starts with both — a one-shot copy, never
+  /// a standing link back to this draft.
+  Future<void> saveSectionSettingsAsDefault() =>
+      _settingsService.setDefaultSectionSettings(
+        order: sectionOrder,
+        hiddenSections: _draft.hiddenSections,
+      );
 
-  /// Resets this draft's order back to the user's saved default (or, if
-  /// they've never saved one, the active template's own suggested order).
-  Future<void> resetSectionOrder() => _draftService.resetSectionOrder();
+  /// Resets this draft's order and hidden-sections state back to the
+  /// user's saved default (or, if they've never saved one, the active
+  /// template's own suggested order with nothing hidden).
+  Future<void> resetSectionSettings() => _draftService.resetSectionSettings();
 
   // --- experiences ---
 

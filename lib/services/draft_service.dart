@@ -78,7 +78,10 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       id: _uuid.v4(),
       templateId: templateId,
       region: region,
-    ).copyWith(sectionOrder: _seedSectionOrder(templateId));
+    ).copyWith(
+      sectionOrder: _seedSectionOrder(templateId),
+      hiddenSections: _seedHiddenSections(),
+    );
   }
 
   /// The section order a brand-new draft using [templateId] should start
@@ -88,6 +91,12 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   List<CvSectionType> _seedSectionOrder(String templateId) =>
       _settings.settings.defaultSectionOrder ??
       _templateRegistry.byId(templateId).sectionOrder;
+
+  /// Same seed-only rationale as [_seedSectionOrder], one field over — the
+  /// user's remembered default hidden-sections state (see
+  /// `AppSettings.defaultHiddenSections`), else nothing hidden.
+  Set<CvSectionType> _seedHiddenSections() =>
+      _settings.settings.defaultHiddenSections ?? const <CvSectionType>{};
 
   /// Ids of drafts that have never had a manual selection made — i.e. a
   /// draft the user just created (or the very first draft a first-time
@@ -246,6 +255,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         ).copyWith(
           notes: notes,
           sectionOrder: _seedSectionOrder(resolvedTemplateId),
+          hiddenSections: _seedHiddenSections(),
         );
     _drafts.value = _sortedByRecency([..._drafts.value, created]);
     _activeDraftId.value = id;
@@ -603,15 +613,23 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     _setDraft((d) => d.copyWith(sectionOrder: order));
   }
 
-  /// Resets the active draft's section order back to the user's default —
-  /// their remembered default (see [AppSettings.defaultSectionOrder]) if
-  /// they've saved one, else the active draft's own template's suggested
-  /// order. Same fallback rule as [_seedSectionOrder], just applied to an
-  /// existing draft instead of a brand-new one.
-  Future<void> resetSectionOrder() async {
+  /// Resets the active draft's section order AND hidden-sections state
+  /// back to the user's default — their remembered default (see
+  /// [AppSettings.defaultSectionOrder]/[AppSettings.defaultHiddenSections])
+  /// if they've saved one, else the active draft's own template's
+  /// suggested order with nothing hidden. Same fallback rule as
+  /// [_seedSectionOrder]/[_seedHiddenSections], just applied to an
+  /// existing draft instead of a brand-new one, and both fields reset
+  /// together in one write so they can't end up half-reset.
+  Future<void> resetSectionSettings() async {
     await ready();
     await _settings.ready();
-    _setDraft((d) => d.copyWith(sectionOrder: _seedSectionOrder(d.templateId)));
+    _setDraft(
+      (d) => d.copyWith(
+        sectionOrder: _seedSectionOrder(d.templateId),
+        hiddenSections: _seedHiddenSections(),
+      ),
+    );
   }
 
   Future<void> setTargetJobDescription(String? jobDescription) async {
