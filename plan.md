@@ -1123,14 +1123,35 @@ far that the seam earns its keep.
 > for the same reproducibility reason `AnthropicProvider` doesn't use a
 > `-latest` alias either.)
 
+> **Pricing supplied by hand (2026-08-21)** — read off Google's pricing
+> page directly, since neither Anthropic's nor Google's Models API returns
+> cost data (Anthropic's `GET /v1/models` response has `id`/`display_name`/
+> `created_at`/`max_input_tokens`/`max_tokens`/`capabilities`, no price
+> field; same absence on Gemini). That's structural, not an oversight —
+> it's exactly why an unrendered hardcoded rate can go stale silently, per
+> the Opus-pricing lesson, and why 4.4 renders the number rather than only
+> storing it.
+>
+> | Model | Input $/MTok | Output $/MTok |
+> |---|---|---|
+> | `gemini-2.5-pro` | **1.25** | **10.00** |
+> | `gemini-2.5-flash` | 0.30 | 2.50 |
+> | `gemini-2.5-flash-lite` | 0.10 | 0.40 |
+>
+> **`gemini-2.5-pro`'s real pricing is two-tier** — 1.25/10.00 up to 200k
+> context tokens, 2.50/15.00 above it — which `LlmModelOption` can't
+> represent (one flat in/out rate per model, matching Anthropic's actual
+> shape). Use the base tier above; a full Vault-plus-job-ad payload is
+> nowhere near 200k tokens (plan.md's own 4.5 sizing note: "a full career
+> Vault is a few thousand tokens"), so the tier boundary is not a live risk
+> here, but the simplification is real and worth a one-line code comment
+> pointing at this note if `LlmModelOption` is ever asked to handle a
+> provider where it isn't safe to ignore. Batch API (50% off) and
+> non-text-token rates (audio, context caching) don't apply to this
+> integration and aren't modeled.
+
 **Still to verify before writing the adapter — do not fill these in from
 memory, per the Opus-pricing lesson above:**
-- **Per-MTok pricing for `gemini-2.5-pro`/`-flash`/`-flash-lite`.** Not
-  found in this session — `ai.google.dev` is egress-blocked here, and
-  `cloud.google.com/vertex-ai/generative-ai/pricing` is reachable but its
-  pricing table doesn't survive `WebFetch`'s content truncation on that
-  page. Needs a human to read the numbers off Google's pricing page
-  directly, or a session without this sandbox's restrictions.
 - The exact `generationConfig.responseSchema` dialect: type-name casing
   (`STRING` vs `string`), whether `enum` on a string is supported (the
   anti-hallucination trick depends on it), and how required/optional
