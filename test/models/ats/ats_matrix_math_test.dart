@@ -164,4 +164,24 @@ void main() {
     expect(unrotated.rotationRadians, closeTo(0, 1e-9));
     expect(rotated90.rotationRadians, closeTo(math.pi / 2, 1e-9));
   });
+
+  group('atsUnionRect', () {
+    test('a single rect unions to itself', () {
+      const rect = (left: 1.0, top: 2.0, right: 3.0, bottom: 4.0);
+
+      expect(atsUnionRect([rect]), rect);
+    });
+
+    test('unions the outer extent of disjoint rects, not their overlap', () {
+      const a = (left: 0.0, top: 0.0, right: 10.0, bottom: 10.0);
+      const b = (left: 50.0, top: -5.0, right: 60.0, bottom: 2.0);
+
+      final union = atsUnionRect([a, b]);
+
+      expect(union.left, 0);
+      expect(union.top, -5);
+      expect(union.right, 60);
+      expect(union.bottom, 10);
+    });
+  });
 }

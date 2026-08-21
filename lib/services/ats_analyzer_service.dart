@@ -79,26 +79,29 @@ class AtsAnalyzerService {
   /// findings note.
   List<AtsFinding> _checkColumnCrush(AtsExtractedDocument document) {
     final findings = <AtsFinding>[];
-    final byPage = <int, List<AtsTextNode>>{};
-    for (final node in document.nodes) {
-      byPage.putIfAbsent(node.pageIndex, () => []).add(node);
+    final byPage = <int, List<(int, AtsTextNode)>>{};
+    for (var idx = 0; idx < document.nodes.length; idx++) {
+      final node = document.nodes[idx];
+      byPage.putIfAbsent(node.pageIndex, () => []).add((idx, node));
     }
 
     for (final entry in byPage.entries) {
-      final nodes = [
-        ...entry.value,
-      ]..sort((a, b) => b.transform.baselineY.compareTo(a.transform.baselineY));
+      final nodes = [...entry.value]
+        ..sort(
+          (a, b) =>
+              b.$2.transform.baselineY.compareTo(a.$2.transform.baselineY),
+        );
 
       var i = 0;
       while (i < nodes.length) {
-        final lineY = nodes[i].transform.baselineY;
-        final fontSize = nodes[i].transform.fontSize;
+        final lineY = nodes[i].$2.transform.baselineY;
+        final fontSize = nodes[i].$2.transform.fontSize;
         final tolerance = fontSize > 0 ? fontSize * 0.3 : 3.0;
 
-        final line = <AtsTextNode>[];
+        final line = <(int, AtsTextNode)>[];
         var j = i;
         while (j < nodes.length &&
-            (nodes[j].transform.baselineY - lineY).abs() <= tolerance) {
+            (nodes[j].$2.transform.baselineY - lineY).abs() <= tolerance) {
           line.add(nodes[j]);
           j++;
         }
@@ -106,12 +109,13 @@ class AtsAnalyzerService {
 
         if (line.length < 2) continue;
         line.sort(
-          (a, b) => a.transform.baselineX.compareTo(b.transform.baselineX),
+          (a, b) =>
+              a.$2.transform.baselineX.compareTo(b.$2.transform.baselineX),
         );
 
         for (var k = 0; k < line.length - 1; k++) {
-          final left = line[k];
-          final right = line[k + 1];
+          final (leftIndex, left) = line[k];
+          final (rightIndex, right) = line[k + 1];
           final gap =
               right.transform.baselineX -
               (left.transform.baselineX + left.width);
@@ -129,6 +133,17 @@ class AtsAnalyzerService {
                     'one run, e.g. "${_truncate(left.str)}'
                     '${_truncate(right.str)}".',
                 pageIndex: entry.key,
+                evidence: [
+                  AtsFindingEvidence(
+                    pageIndex: entry.key,
+                    nodeIndex: leftIndex,
+                  ),
+                  AtsFindingEvidence(
+                    pageIndex: entry.key,
+                    nodeIndex: rightIndex,
+                  ),
+                ],
+                evidenceShape: AtsEvidenceShape.span,
               ),
             );
             break; // one finding per crushed line is enough signal
@@ -146,18 +161,37 @@ class AtsAnalyzerService {
     var replacementCount = 0;
     var embeddedPuaCount = 0;
     var phantomGlyphCount = 0;
+    final replacementEvidence = <AtsFindingEvidence>[];
+    final embeddedPuaEvidence = <AtsFindingEvidence>[];
+    final phantomGlyphEvidence = <AtsFindingEvidence>[];
 
-    for (final node in document.nodes) {
+    for (var idx = 0; idx < document.nodes.length; idx++) {
+      final node = document.nodes[idx];
       final str = node.str;
-      replacementCount += _countCodepoints(str, _isReplacementChar);
+      final nodeReplacementCount = _countCodepoints(str, _isReplacementChar);
+      replacementCount += nodeReplacementCount;
+      if (nodeReplacementCount > 0) {
+        replacementEvidence.add(
+          AtsFindingEvidence(pageIndex: node.pageIndex, nodeIndex: idx),
+        );
+      }
 
       // A PUA glyph as the first character of a run reads as a bullet,
       // not garbled text — the spike's own synthetic bullet case, where
       // pdf.js chunked a leading bullet glyph into the same run as the
       // text that follows it. A PUA glyph anywhere else in the run is
       // the garbled case.
-      for (var idx = 1; idx < str.length; idx++) {
-        if (_isPua(str.codeUnitAt(idx))) embeddedPuaCount++;
+      var nodeHasEmbeddedPua = false;
+      for (var i = 1; i < str.length; i++) {
+        if (_isPua(str.codeUnitAt(i))) {
+          embeddedPuaCount++;
+          nodeHasEmbeddedPua = true;
+        }
+      }
+      if (nodeHasEmbeddedPua) {
+        embeddedPuaEvidence.add(
+          AtsFindingEvidence(pageIndex: node.pageIndex, nodeIndex: idx),
+        );
       }
 
       // "Phantom glyph": an advance width spent with implausibly few
@@ -175,7 +209,12 @@ class AtsAnalyzerService {
       final trimmed = str.trim();
       if (fontSize > 0 && trimmed.isNotEmpty && trimmed.length <= 3) {
         final avgCharWidth = node.width / str.length;
-        if (avgCharWidth > fontSize * 1.3) phantomGlyphCount++;
+        if (avgCharWidth > fontSize * 1.3) {
+          phantomGlyphCount++;
+          phantomGlyphEvidence.add(
+            AtsFindingEvidence(pageIndex: node.pageIndex, nodeIndex: idx),
+          );
+        }
       }
     }
 
@@ -189,6 +228,7 @@ class AtsAnalyzerService {
               'Found $replacementCount character(s) that failed to decode '
               'to readable text — the font used likely has a missing or '
               'broken character map. An ATS will see this text as garbage.',
+          evidence: replacementEvidence,
         ),
       );
     }
@@ -203,6 +243,7 @@ class AtsAnalyzerService {
               'code range embedded within words — a common sign of an '
               'icon or symbol font (e.g. Wingdings) rather than real text, '
               'which most ATS parsers will render as blanks or gibberish.',
+          evidence: embeddedPuaEvidence,
         ),
       );
     }
@@ -216,6 +257,7 @@ class AtsAnalyzerService {
               'Found $phantomGlyphCount short run(s) where more space was '
               'used than the extracted characters account for — a sign a '
               'symbol (often a bullet) silently failed to extract at all.',
+          evidence: phantomGlyphEvidence,
         ),
       );
     }

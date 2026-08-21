@@ -43,6 +43,35 @@ enum AtsFindingCategory {
 /// confidence than the others.
 enum AtsFindingSeverity { critical, warning, info }
 
+/// One evidence node for a finding — an index into
+/// `AtsExtractedDocument.nodes`, plus [pageIndex] denormalised alongside
+/// it. [pageIndex] is technically derivable from the node itself, but the
+/// X-Ray rail groups evidence by page on every rebuild, and re-deriving it
+/// from a full-document node list on every group-by would be needless
+/// work; `AtsAnalyzerService` always has both the index and the node in
+/// hand when it builds one of these, so the two values can't drift.
+@freezed
+abstract class AtsFindingEvidence with _$AtsFindingEvidence {
+  const factory AtsFindingEvidence({
+    required int pageIndex,
+    required int nodeIndex,
+  }) = _AtsFindingEvidence;
+}
+
+/// How a finding's [AtsFinding.evidence] nodes relate to each other —
+/// drives the X-Ray overlay's rendering and camera framing, not just a
+/// cosmetic tag:
+///
+/// - [scattered]: each node is an independent instance of the same
+///   problem (e.g. [AtsFindingCategory.garbledText] — a dozen unrelated
+///   runs with a PUA glyph each). No relationship is drawn between them.
+/// - [span]: the nodes are endpoints and the space *between* them is the
+///   finding (e.g. [AtsFindingCategory.columnCrush] — the gap is what a
+///   position-sorting extractor will misread). The overlay draws a
+///   connector across the gap and frames the union, not each node in
+///   isolation.
+enum AtsEvidenceShape { scattered, span }
+
 /// One issue surfaced by `AtsAnalyzerService`. Never persisted — produced
 /// fresh on every analysis run.
 @freezed
@@ -57,5 +86,12 @@ abstract class AtsFinding with _$AtsFinding {
     /// noTextLayer] across every page); set when a finding is anchored to
     /// one page.
     int? pageIndex,
+
+    /// The text run(s) that produced this finding, for the X-Ray overlay
+    /// to draw evidence boxes on. Empty for a finding with no natural node
+    /// evidence ([AtsFindingCategory.noTextLayer], [missingHeadings],
+    /// [contactInfo]) — see `docs/ats-xray-overlay-handover.md` §7.
+    @Default(<AtsFindingEvidence>[]) List<AtsFindingEvidence> evidence,
+    @Default(AtsEvidenceShape.scattered) AtsEvidenceShape evidenceShape,
   }) = _AtsFinding;
 }

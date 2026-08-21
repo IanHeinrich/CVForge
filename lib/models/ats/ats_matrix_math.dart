@@ -9,6 +9,22 @@ import 'ats_text_node.dart';
 /// [AtsTextMatrix]'s doc comment.
 typedef AtsPixelRect = ({double left, double top, double right, double bottom});
 
+/// The smallest [AtsPixelRect] enclosing every rect in [rects] — the X-Ray
+/// overlay's camera-framing primitive (frame a finding's evidence) and its
+/// `span`-shape hull (frame the gap between a `columnCrush` pair). Throws
+/// on an empty iterable — callers already know whether they have evidence
+/// to frame before reaching for this.
+AtsPixelRect atsUnionRect(Iterable<AtsPixelRect> rects) {
+  return rects.reduce(
+    (a, b) => (
+      left: math.min(a.left, b.left),
+      top: math.min(a.top, b.top),
+      right: math.max(a.right, b.right),
+      bottom: math.max(a.bottom, b.bottom),
+    ),
+  );
+}
+
 /// Composes `item`'s own text-rendering matrix with the page's [viewport]
 /// transform — "apply the item's own transform, then the viewport
 /// transform" (`result = item ∘ viewport`), the standard PDF
