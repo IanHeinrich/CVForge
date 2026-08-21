@@ -41,6 +41,11 @@ sealed class ResolvedSection with _$ResolvedSection {
     required String title,
     required String text,
   }) = ResolvedReferencesSection;
+
+  const factory ResolvedSection.publications({
+    required String title,
+    required List<ResolvedPublication> items,
+  }) = ResolvedPublicationsSection;
 }
 
 /// One company heading. Holds one [ResolvedPosition] for a normal entry,
@@ -89,6 +94,15 @@ abstract class ResolvedSkillGroup with _$ResolvedSkillGroup {
     required String category,
     @Default(<String>[]) List<String> skills,
   }) = _ResolvedSkillGroup;
+}
+
+@freezed
+abstract class ResolvedPublication with _$ResolvedPublication {
+  const factory ResolvedPublication({
+    required String title,
+    String? citation,
+    String? link,
+  }) = _ResolvedPublication;
 }
 
 @freezed

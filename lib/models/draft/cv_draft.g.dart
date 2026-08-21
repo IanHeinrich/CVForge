@@ -48,6 +48,11 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
   hobbyIds:
       (json['hobbyIds'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const <String>[],
+  publicationIds:
+      (json['publicationIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const <String>[],
   hiddenSections:
       (json['hiddenSections'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
@@ -83,6 +88,7 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'skillIds': instance.skillIds,
   'educationIds': instance.educationIds,
   'hobbyIds': instance.hobbyIds,
+  'publicationIds': instance.publicationIds,
   'hiddenSections': instance.hiddenSections
       .map((e) => _$CvSectionTypeEnumMap[e]!)
       .toList(),
@@ -104,4 +110,5 @@ const _$CvSectionTypeEnumMap = {
   CvSectionType.education: 'education',
   CvSectionType.hobbies: 'hobbies',
   CvSectionType.references: 'references',
+  CvSectionType.publications: 'publications',
 };

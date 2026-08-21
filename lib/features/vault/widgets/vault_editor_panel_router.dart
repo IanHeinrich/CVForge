@@ -7,6 +7,7 @@ import 'education_editor_panel.dart';
 import 'experience_editor_panel.dart';
 import 'hobbies_editor_panel.dart';
 import 'project_editor_panel.dart';
+import 'publication_editor_panel.dart';
 import 'skills_editor_panel.dart';
 
 /// Resolves [VaultViewModel.openTarget]/[openId] to the correct editor
@@ -112,6 +113,18 @@ class VaultEditorPanelRouter extends StatelessWidget {
           onAdd: () => viewModel.addHobby(''),
           onChanged: viewModel.updateHobby,
           onDelete: viewModel.deleteHobby,
+        );
+
+      case VaultEditorTarget.publication:
+        final publication = viewModel.vault.publications.findById(
+          viewModel.openId,
+          (p) => p.id,
+        );
+        if (publication == null) return const SizedBox.shrink();
+        return PublicationEditorPanel(
+          publication: publication,
+          onClose: viewModel.closeEditor,
+          onChanged: viewModel.updatePublication,
         );
     }
   }

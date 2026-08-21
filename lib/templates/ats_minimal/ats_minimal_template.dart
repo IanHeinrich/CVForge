@@ -1,6 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/templates/cv_template.dart';
@@ -31,6 +32,9 @@ class AtsMinimalTemplate implements CvTemplate {
 
   @override
   CvDesignTokens get tokens => atsMinimalTokens;
+
+  @override
+  List<CvSectionType> get sectionOrder => CvSectionType.values;
 
   @override
   pw.Document buildDocument(

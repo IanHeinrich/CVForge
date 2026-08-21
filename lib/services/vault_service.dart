@@ -11,6 +11,7 @@ import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
@@ -523,6 +524,48 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     await persistNow(_vault.value);
     _vault.value = vault;
     await persistImmediately(vault);
+  }
+
+  // --- publications ---
+
+  Future<Publication> addPublication({
+    required String title,
+    String? citation,
+    String? link,
+  }) async {
+    await ready();
+    final publication = Publication(
+      id: _uuid.v4(),
+      title: title,
+      citation: citation,
+      link: link,
+    );
+    _setVault(
+      (v) => v.copyWith(publications: [...v.publications, publication]),
+    );
+    return publication;
+  }
+
+  Future<void> updatePublication(Publication publication) async {
+    await ready();
+    _setVault(
+      (v) => v.copyWith(
+        publications: v.publications.replaceById(
+          publication.id,
+          publication,
+          (p) => p.id,
+        ),
+      ),
+    );
+  }
+
+  Future<void> deletePublication(String publicationId) async {
+    await ready();
+    _setVault(
+      (v) => v.copyWith(
+        publications: v.publications.removeById(publicationId, (p) => p.id),
+      ),
+    );
   }
 
   // --- persistence plumbing ---

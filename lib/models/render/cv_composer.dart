@@ -24,6 +24,7 @@ abstract final class CvComposer {
     CvVault vault,
     CvDraft draft, {
     required RegionProfile region,
+    required List<CvSectionType> sectionOrder,
   }) {
     final header = ResolvedHeader(
       fullName: vault.basics.fullName,
@@ -39,9 +40,9 @@ abstract final class CvComposer {
 
     final sections = <ResolvedSection>[];
 
-    // Declaration order of CvSectionType.values IS the canonical print
+    // [sectionOrder] (the calling template's) IS the canonical print
     // order — iterate it rather than hand-ordering the section builds.
-    for (final type in CvSectionType.values) {
+    for (final type in sectionOrder) {
       if (draft.hiddenSections.contains(type)) continue;
 
       final section = switch (type) {
@@ -52,6 +53,7 @@ abstract final class CvComposer {
         CvSectionType.education => _buildEducation(vault, draft),
         CvSectionType.hobbies => _buildHobbies(vault, draft),
         CvSectionType.references => _buildReferences(vault, draft),
+        CvSectionType.publications => _buildPublications(vault, draft),
       };
 
       if (section != null) sections.add(section);
@@ -237,6 +239,22 @@ abstract final class CvComposer {
     final text = draft.referencesOverride ?? vault.referencesNote;
     if (text == null || text.trim().isEmpty) return null;
     return ResolvedSection.references(title: 'References', text: text);
+  }
+
+  static ResolvedSection? _buildPublications(CvVault vault, CvDraft draft) {
+    final byId = {for (final p in vault.publications) p.id: p};
+    final items = <ResolvedPublication>[
+      for (final id in draft.publicationIds)
+        if (byId[id] case final publication?)
+          ResolvedPublication(
+            title: publication.title,
+            citation: publication.citation,
+            link: publication.link,
+          ),
+    ];
+
+    if (items.isEmpty) return null;
+    return ResolvedSection.publications(title: 'Publications', items: items);
   }
 
   static String _formatDateRange(Experience experience, RegionProfile region) {

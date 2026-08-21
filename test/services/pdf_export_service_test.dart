@@ -62,6 +62,16 @@ ResolvedCv _fixtureCv({String bulletText = 'Delivered a standard result.'}) =>
             ),
           ],
         ),
+        const ResolvedSection.publications(
+          title: 'Publications',
+          items: [
+            ResolvedPublication(
+              title: 'A Study of Things',
+              citation: 'Ellery, J. (2024). Journal of Examples, 1(1), 1–2.',
+              link: 'doi.org/10.1234/example',
+            ),
+          ],
+        ),
       ],
     );
 
@@ -178,5 +188,39 @@ void main() {
         expect(captured.single, isNot(contains('.pdf')));
       },
     );
+
+    group('structured_serif -', () {
+      test('with compress:false, the PDF embeds a CID font via Identity-H '
+          'with a ToUnicode CMap — the same ATS-extractability guarantee '
+          'ats_minimal is held to, verified per-template rather than '
+          'assumed to carry over', () async {
+        final service = PdfExportService();
+
+        final bytes = await service.render(
+          cv: _fixtureCv(),
+          templateId: 'structured_serif',
+          compress: false,
+        );
+
+        final content = latin1.decode(bytes);
+        expect(content, contains('/Identity-H'));
+        expect(content, contains('/ToUnicode'));
+      });
+
+      test('a bullet with smart quotes, an em-dash, an ellipsis, and a euro '
+          'sign renders without throwing', () async {
+        final service = PdfExportService();
+
+        final bytes = await service.render(
+          cv: _fixtureCv(
+            bulletText: 'Delivered “results” — on budget… for €2m.',
+          ),
+          templateId: 'structured_serif',
+        );
+
+        expect(bytes, isNotEmpty);
+        expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+      });
+    });
   });
 }

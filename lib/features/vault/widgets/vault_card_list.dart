@@ -3,6 +3,7 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -106,6 +107,23 @@ class VaultCardList extends StatelessWidget {
           hobbies: vault.hobbies,
           selected: viewModel.openTarget == VaultEditorTarget.hobbies,
           onTap: viewModel.openHobbiesEditor,
+        ),
+        const VGap.medium(),
+        VaultListSection<Publication>(
+          title: 'Publications',
+          addLabel: 'Add publication',
+          emptyMessage: 'No publications yet.',
+          icon: RemixIcons.article_line,
+          items: vault.publications,
+          idOf: (p) => p.id,
+          titleOf: (p) => p.title.isEmpty ? 'Untitled publication' : p.title,
+          subtitleOf: (p) => p.citation,
+          openId: viewModel.openTarget == VaultEditorTarget.publication
+              ? viewModel.openId
+              : null,
+          onOpen: viewModel.openPublicationEditor,
+          onAdd: viewModel.addPublication,
+          onDelete: viewModel.deletePublication,
         ),
       ],
     );
