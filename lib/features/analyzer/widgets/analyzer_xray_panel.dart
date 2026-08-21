@@ -240,6 +240,26 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     });
   }
 
+  void _deselectFinding() {
+    setState(() {
+      _selectedFinding = null;
+      _stepIndex = 0;
+    });
+  }
+
+  /// The rail's own tap handler — selecting an already-selected finding
+  /// again means "stop selecting", not "re-select the same thing". Box
+  /// taps on the raster have their own toggle logic in [_handleTap]
+  /// (cycling through multiple findings on one node first, only
+  /// deselecting once there's nothing left to cycle to).
+  void _toggleFinding(AtsFinding finding) {
+    if (_selectedFinding == finding) {
+      _deselectFinding();
+    } else {
+      _selectFinding(finding);
+    }
+  }
+
   void _step(int newStepIndex) {
     final finding = _selectedFinding;
     if (finding == null || finding.evidence.isEmpty) return;
@@ -297,11 +317,18 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
 
     final current = _selectedFinding;
     if (current != null && matches.contains(current)) {
-      // Same box clicked again with more than one finding covering it —
-      // cycle rather than re-select the same (already highest-severity)
-      // match every time.
-      final next = matches[(matches.indexOf(current) + 1) % matches.length];
-      _selectFinding(next);
+      if (matches.length == 1) {
+        // The only finding on this node is already selected — clicking it
+        // again means "stop selecting", not "cycle back to the same
+        // thing".
+        _deselectFinding();
+      } else {
+        // More than one finding covers this node — cycle to the next
+        // rather than re-selecting the same (already highest-severity)
+        // match every time.
+        final next = matches[(matches.indexOf(current) + 1) % matches.length];
+        _selectFinding(next);
+      }
     } else {
       _selectFinding(matches.first); // result.findings is severity-sorted
     }
@@ -496,13 +523,19 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     }
 
     if (target == null) return;
-    final resolved = target;
-    // Deferred: mutating the transformation controller during build
-    // notifies InteractiveViewer's listener, which calls setState —
-    // illegal during a build.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _animateCameraTo(resolved);
-    });
+    // Called directly, not deferred via `addPostFrameCallback` the way the
+    // plain fit-transform below does — that path assigns
+    // `_transformationController.value` straight away, which synchronously
+    // notifies `InteractiveViewer`'s own listener and is illegal mid-build.
+    // `_animateCameraTo` doesn't do that: it only starts a
+    // `AnimationController.forward()`, which schedules its first tick for
+    // the *next* frame rather than notifying anything synchronously — safe
+    // to call from here. Deferring it anyway (as this used to) meant the
+    // selection's box styling changed on this frame while the camera
+    // stayed frozen at the old position for one extra frame before the pan
+    // even started — a visible snap-then-catch-up that read as a flicker
+    // on every selection.
+    _animateCameraTo(target);
   }
 
   // --- build ---------------------------------------------------------------
@@ -548,7 +581,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
             findings: result.findings,
             selected: _selectedFinding,
             stepIndex: _stepIndex,
-            onSelect: _selectFinding,
+            onSelect: _toggleFinding,
             onStep: _step,
           ),
         ),
@@ -584,7 +617,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
                   findings: result.findings,
                   selected: _selectedFinding,
                   stepIndex: _stepIndex,
-                  onSelect: _selectFinding,
+                  onSelect: _toggleFinding,
                   onStep: _step,
                 ),
                 _buildPageView(context, result, data),

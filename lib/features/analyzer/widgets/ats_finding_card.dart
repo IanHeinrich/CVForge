@@ -12,12 +12,13 @@ import 'package:cv_forge/models/ats/ats_finding.dart';
 /// `StudioFieldOverrideCard` use — dark container, [context.appRadius.
 /// medium] — rather than inventing a new card shape for this feature.
 ///
-/// Severity is shown by icon shape, not a dedicated colour scale: only
-/// [AtsFindingSeverity.critical] gets [kcErrorColor] (matching
-/// `PersistErrorBanner`'s existing critical-error language); warning and
-/// info both read as neutral chrome text, differentiated by icon alone.
+/// The icon colour matches `AtsXrayPainter`'s own severity→colour mapping
+/// exactly ([kcErrorColor]/[kcWarningColor]/[kcLightGrey] for critical/
+/// warning/info) — this card doubles as the X-Ray rail entry, so the same
+/// finding's icon here and its evidence box on the page should read as
+/// the same colour, not two different severity languages for one thing.
 /// `kcPrimaryColor` is reserved for chrome selection state, so it isn't
-/// repurposed here as a second "warning" tone — [selected] uses it anyway,
+/// repurposed here as a fourth severity tone — [selected] uses it anyway,
 /// deliberately: this is the one place in the analyzer feature where
 /// "chrome selection state" and "this card is selected" are the same
 /// thing.
@@ -60,9 +61,11 @@ class AtsFindingCard extends StatelessWidget {
       AtsFindingSeverity.warning => RemixIcons.alert_fill,
       AtsFindingSeverity.info => RemixIcons.information_fill,
     };
-    final iconColor = finding.severity == AtsFindingSeverity.critical
-        ? kcErrorColor
-        : kcLightGrey;
+    final iconColor = switch (finding.severity) {
+      AtsFindingSeverity.critical => kcErrorColor,
+      AtsFindingSeverity.warning => kcWarningColor,
+      AtsFindingSeverity.info => kcLightGrey,
+    };
     final radius = BorderRadius.circular(context.appRadius.medium);
 
     return Material(

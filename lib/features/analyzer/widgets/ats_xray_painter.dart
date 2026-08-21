@@ -120,12 +120,12 @@ class AtsXrayPainter extends CustomPainter {
   static final _startRingPaint = Paint()
     ..color = kcPrimaryColorDark
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 3;
+    ..strokeWidth = 4;
 
   static final _startRingHaloPaint = Paint()
     ..color = kcWhite.withValues(alpha: 0.95)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 6;
+    ..strokeWidth = 8;
 
   static final _endMarkerPaint = Paint()
     ..color = kcPrimaryColorDark
@@ -134,7 +134,7 @@ class AtsXrayPainter extends CustomPainter {
   static final _endMarkerHaloPaint = Paint()
     ..color = kcWhite.withValues(alpha: 0.95)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 3.5;
+    ..strokeWidth = 5;
 
   static final _dotPaint = Paint()
     ..color = kcPrimaryColorDark
@@ -192,7 +192,7 @@ class AtsXrayPainter extends CustomPainter {
   /// direction is legible without having to trace the whole path back to
   /// the start.
   void _drawArrowhead(Canvas canvas, Offset from, Offset tip) {
-    const size = 11.0;
+    const size = 18.0;
     final direction = tip - from;
     final length = direction.distance;
     if (length == 0) return;
@@ -300,8 +300,8 @@ class AtsXrayPainter extends CustomPainter {
     // hollow ring for "this is where reading order begins", an arrowhead
     // for "this is where it ends and which way it was going".
     final start = centers.first;
-    canvas.drawCircle(start, 7, _startRingHaloPaint);
-    canvas.drawCircle(start, 7, _startRingPaint);
+    canvas.drawCircle(start, 11, _startRingHaloPaint);
+    canvas.drawCircle(start, 11, _startRingPaint);
     _drawArrowhead(canvas, centers[centers.length - 2], centers.last);
   }
 
