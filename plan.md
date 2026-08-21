@@ -284,6 +284,8 @@ One PR each. Bumps only where a deploy is worth eyeballing in a real browser —
 
 > **Status (2026-08-20, later the same day):** Phase 4 is no longer just a plan. **4.1 (Settings surface) and 4.2 (JSON export/import) shipped together** as [PR #27](https://github.com/IanHeinrich/cv-forge/pull/27) — see each sub-phase's "✅ shipped" marker and the "Actually shipped" note after 4.2 for what landed vs. spec. Repo version is now `1.2.0`. Remaining Phase 4 work, in decision 1's locked order: **4.3 (regional presets) next**, then 4.4/4.5 (Copilot plumbing + the tailoring pass), then 4.6 (second template). None of 4.3–4.6 has started.
 
+> **Status (2026-08-21):** a lot landed without a doc update in between — this entry reconciles PR #28–#35 in one pass. **4.3 (regional presets) shipped** as [PR #28](https://github.com/IanHeinrich/cv-forge/pull/28). **Phase 5 — ATS format analyzer**, a user-requested feature outside the original roadmap (its own section below, after Phase 4), shipped its core pipeline as [PR #29](https://github.com/IanHeinrich/cv-forge/pull/29), a false-positive fix in the garbled-text check as [PR #30](https://github.com/IanHeinrich/cv-forge/pull/30), and — reversing Phase 5's own "deferred, not shipped in this phase" note — the X-Ray bounding-box overlay with evidence-linked findings and camera pan/zoom as [PR #31](https://github.com/IanHeinrich/cv-forge/pull/31) (version bump in [#32](https://github.com/IanHeinrich/cv-forge/pull/32)). [PR #34](https://github.com/IanHeinrich/cv-forge/pull/34) fixed a stale Pages `--base-href` after the GitHub repo was renamed `cv-forge` → `CVForge`. **4.6 (second template + picker) also shipped**, as [PR #35](https://github.com/IanHeinrich/cv-forge/pull/35) — ahead of 4.4/4.5, out of decision 1's locked order (harmless: nothing about the picker depended on the Copilot shipping first) — plus a first-class Publications section and per-template section ordering that weren't in the original spec. See each sub-phase's own "✅ shipped"/"Actually shipped" note for detail. Repo version is now `1.4.2`. **The only unbuilt piece of Phase 4 — and the only unbuilt thing in this entire doc — is the Copilot: 4.4 (plumbing) then 4.5 (the tailoring pass).** 4.4 now has a full implementation spec (below); 4.5 is still the shorter form it's always been, unblocked once 4.4 lands.
+
 ---
 
 ## Sub-phase detail
@@ -822,11 +824,25 @@ class RegionPreset {   // const table, keyed by RegionProfile
 
 ### 4.4 — Copilot plumbing: `LlmService`, key, model
 
+**Step 0, blocking, before any code:** send one real `POST
+https://api.anthropic.com/v1/messages` request from an actual browser tab
+(`flutter run -d web-server`, or a bare `fetch()` in the browser devtools
+console) with `anthropic-dangerous-direct-browser-access: true` and a real
+key. This is the doc's own P1 risk ("verify it end-to-end from a real
+browser tab as the first thing in this sub-phase") — if CORS rejects it,
+this sub-phase and 4.5 both stop here, full stop, and the plan needs to go
+back to the user rather than continuing on a false assumption. Nothing
+below this line should be built before that request succeeds.
+
 ```bash
 stacked create service llm
 ```
 
-No UI-visible feature of its own — it merges with 4.5, or ships behind the Settings page as "enter your key, test the connection". Split out here because the failure modes are entirely different from 4.5's, and debugging "why is my API key rejected" is a much smaller problem when it isn't tangled with "why did it select the wrong bullets".
+Registers into `app.locator.dart` and `test/helpers/test_helpers.dart`
+automatically via the CLI's `// @stacked-*` markers — same mechanism every
+other service in this project already uses, nothing to hand-wire.
+
+No UI-visible feature of its own — it merges with 4.5, or ships behind the Settings page as "enter your key, test the connection". Split out here because the failure modes are entirely different from 4.5's, and debugging "why is my API key rejected" is a much smaller problem when it isn't tangled with "why did it select the wrong bullets". **This sub-phase's actual deliverable is that Settings page surface** — a working "enter your key, pick a model, test the connection" flow — not just the service in isolation.
 
 **The provider seam, in one paragraph.** `LlmService` owns *policy* — the key, the retry stance, the timeout, error surfacing — and knows nothing about any vendor's wire format. A `LlmProvider` implementation owns *dialect*: building the request, sending it, and returning a parsed `Map<String, dynamic>` plus a `LlmUsage`. `LlmProviderRegistry` is a `const` list with a `byId` that falls back gracefully, copied wholesale from `TemplateRegistryService` — same problem, same shape, no reflection so unregistered providers tree-shake out. Anthropic is the only entry in Phase 4.
 
@@ -862,7 +878,7 @@ abstract interface class LlmProvider {
 
 **Not in scope, deliberately:** streaming, tool use, multi-turn, and per-provider prompt tuning. The interface above has exactly one method because the Copilot makes exactly one kind of call. Widening it is the second provider's problem, informed by a real second provider — not a guess made now.
 
-**Transport: raw HTTP via `package:http`.** Flutter/Dart has no official SDK for any of these, so the Anthropic adapter is `POST https://api.anthropic.com/v1/messages` by hand. Headers:
+**Transport: raw HTTP via `dio`.** Flutter/Dart has no official SDK for any of these, so the Anthropic adapter is `POST https://api.anthropic.com/v1/messages` by hand. `dio` (new dependency — confirmed no HTTP client package exists in this project yet) over `package:http`: interceptors plus built-in timeout/cancellation-token support cover 4.5's cancel-a-long-running-pass need (Risk P6) without hand-rolling it. `LlmService` owns a single shared `Dio` instance and passes it into each stateless `const` provider call, the same way `TemplateRegistryService` hands a template no per-call state of its own. Headers:
 
 | Header | Value |
 |---|---|
@@ -885,7 +901,110 @@ That last header is what makes the API answer a browser's CORS preflight — the
 
 **Key handling:** held in memory on `SettingsService`, keyed by provider id; written to `StorageKeys.apiKeyFor(providerId)` (its own row, not part of the `AppSettings` blob — see 4.1) only when `rememberApiKey` is on. Turning the toggle off deletes that row immediately, not on the next write. The key is masked in the UI after entry, and is never logged, never put in an exception message, and — by construction, since settings aren't exported at all — never in a backup bundle.
 
-**Tests:** `LlmService` against a mocked `http.Client` — one test per `LlmFailure` case, plus a happy path asserting the request body carries the schema and the right model id. No test ever hits the real API.
+**Confirmed `SettingsService` currently has zero mutators** — its own doc
+comment says so deliberately ("No mutators yet ... this PR's whole
+surface"). This sub-phase is what finally gives it some, in the exact
+mutator idiom `DraftService` already uses (`await ready(); _setDraft((d) =>
+d.copyWith(...));` → here, `await ready(); _settings.value = _settings
+.value.copyWith(...); scheduleWrite(_settings.value);`):
+
+- `setCopilotProvider(String? providerId)`, `setCopilotModel(String?
+  modelId)`, `setRememberApiKey(bool value)` — all three persist through
+  `AppSettings` exactly as already shaped; all three fields
+  (`copilotProviderId`, `copilotModelId`, `rememberApiKey`) already exist
+  on the model from 4.1, this sub-phase is their first writer.
+- API keys stay off `AppSettings` (decision 13, already correctly
+  anticipated in 4.1). Add to `SettingsService`: an in-memory
+  `Map<String, String> _sessionApiKeys` field (not reactive — a key never
+  needs to trigger a rebuild by itself); `String? apiKeyFor(String
+  providerId)` reading that map first, lazily populated from
+  `StorageKeys.apiKeyFor(providerId)` on first access for a remembered key;
+  `Future<void> setApiKey(String providerId, String key)` writing to the
+  memory map unconditionally and to storage only when
+  `settings.rememberApiKey` is true; `Future<void> clearApiKey(String
+  providerId)` removing from memory and deleting the storage row
+  immediately.
+- Add `static String apiKeyFor(String providerId) => 'api_key_$providerId';`
+  to `StorageKeys` (`lib/services/storage_keys.dart`), matching its
+  existing `draftEntry(String draftId)` method-key convention exactly.
+- Update `SettingsService`'s class doc comment once this lands — "no
+  mutators yet" stops being true.
+
+**File layout:**
+
+- `lib/models/llm/` — pure Dart, no `flutter`/`pdf` imports, no
+  persistence (the `lib/models/ats/` precedent: `@freezed`, no
+  `fromJson`/`toJson`/`schemaVersion` since nothing here is written to
+  storage). `llm_model_option.dart` (`id`, `label`,
+  `inputPricePerMTok`/`outputPricePerMTok`), `llm_usage.dart`
+  (`inputTokens`, `outputTokens` — feeds 4.5's per-run spend display),
+  `llm_json_response.dart` (`Map<String, dynamic> data` + `LlmUsage
+  usage` — what `completeJson` returns), `json_schema.dart` (a small
+  freezed union — `.object(...)`, `.array(...)`, `.string(...)`,
+  `.number()`, `.boolean()`, `.stringEnum(values)` — expressing exactly
+  the intersection scoped above, no more; 4.4 defines the type and the
+  Anthropic adapter's walker, 4.5 is what authors a real schema instance
+  against it). `LlmFailure`/`LlmException` are **not** under
+  `lib/models/` — they live in `lib/services/llm_service.dart` itself,
+  mirroring exactly where `PdfExportException`/`PdfExportStage` sit
+  relative to `PdfExportService`.
+- `lib/services/llm/llm_provider.dart` — the interface above, unchanged.
+  `lib/services/llm/anthropic_provider.dart` — `const`-constructible
+  `AnthropicProvider implements LlmProvider`, stateless (the shared `Dio`
+  is passed in per call, not held). `lib/services/llm/
+  llm_provider_registry.dart` — `class LlmProviderRegistry` copying
+  `TemplateRegistryService`'s exact shape (confirmed via
+  `lib/services/template_registry_service.dart`): `static const
+  List<LlmProvider> _providers = [AnthropicProvider()];`, `available`,
+  `byId` (falls back to `_providers.first`, never throws),
+  `defaultProvider`.
+- `lib/features/settings/widgets/copilot_settings_card.dart` — new sibling
+  to `backup_settings_card.dart`, reusing its exact card frame (confirmed:
+  `SingleChildScrollView` → padded `Container` with `kcDarkGreyColor`,
+  `context.appRadius.medium`, a `titleMedium` heading, `VGap`/`HGap`
+  spacing) rather than inventing new chrome. Contents: a masked API-key
+  `TextField`, a "remember on this device" toggle bound to
+  `setRememberApiKey`, a model dropdown from `LlmProviderRegistry
+  .defaultProvider.models` (provider selector itself hidden while
+  `available.length == 1`, per the doc), and a "Test connection" button.
+  Inline result text below it reuses `BackupSettingsCard`'s
+  `importErrorMessage` pattern (`kcErrorColor`, `bodySmall`) rather than a
+  dialog. `settings_view.dart`'s single-widget `content: () =>
+  BackupSettingsCard(...)` becomes a `Column` of both cards.
+  `SettingsViewModel` gains `isTestingConnection` state and
+  `testCopilotConnection()`, mapping any `LlmException` to
+  `LlmFailure`-specific copy — same "no single generic failure message"
+  rule the doc already cites from P1.7-G7 for `PdfExportService`.
+
+**Tests:** `LlmService` against a mocked `Dio` transport (a fake
+`HttpClientAdapter`, or a mockito-generated mock — pick whichever fits this
+repo's existing mockito-first convention at implementation time) — one test
+per `LlmFailure` case (401 → `unauthorized`, 429 → `rateLimited`, 500 →
+`overloaded`, a `DioExceptionType.connectionError` → `network`, a
+`DioExceptionType.connectionTimeout`/`receiveTimeout` → `timeout`, a 200
+with `stop_reason: "refusal"` → `refusal`, unparseable body →
+`malformedResponse`), plus a happy path asserting the request body carries
+the schema and the right model id. No test ever hits the real API.
+`test/services/settings_service_test.dart` (extend if 4.1 already has one,
+else create) additionally covers: `setApiKey` with `rememberApiKey: false`
+doesn't touch storage; with it `true`, it does; `clearApiKey` deletes the
+row immediately; `apiKeyFor` lazily reloads a remembered key from storage on
+first access after a fresh service instance (simulating a page reload).
+`test/services/llm_provider_registry_test.dart` mirrors
+`template_registry_service_test.dart`: an unknown id falls back to
+`defaultProvider` rather than throwing. No golden test is needed — no new
+View, only a new widget inside the existing `settings_view` golden; if the
+new card changes that View's rendered height, regenerate the baseline via
+`update-goldens.yml` on the Linux runner per the doc's standing rule.
+
+**Verification:** `stacked generate && dart format . && flutter analyze &&
+flutter test --exclude-tags=golden`, plus the blocking Step 0 browser-CORS
+check before any production code is written, and a manual pass once built:
+enter a real Anthropic key on the deployed/dev-server Settings page, click
+"Test connection", confirm success; enter a deliberately invalid key,
+confirm the `unauthorized` copy renders (not a generic error); toggle
+"remember on this device" on, reload the page, confirm the key survives
+without re-entry; toggle it off, reload, confirm it's gone.
 
 ### 4.5 — Copilot: the tailoring pass → **bump 2.0.0**
 
@@ -943,7 +1062,7 @@ Shape:
 
 **Tests:** `StudioViewModel`/copilot ViewModel against a mocked `LlmService` — a fixture response applies to the expected selections and overrides; a response containing an id not in the Vault is dropped rather than crashing (belt-and-braces behind the enum constraint, matching the codebase-wide "dangling ids are normal" rule); each `LlmFailure` surfaces its own message; undo restores the pre-pass draft exactly. **A golden test is not the right tool here** and shouldn't be added — the output is model-dependent by definition.
 
-### 4.6 — Second template + family-aware `FontService` + picker → **bump 2.1.0**
+### 4.6 — Second template + family-aware `FontService` + picker → **bump 2.1.0** ✅ shipped
 
 **Which templates ship is deliberately still open** — see the open questions below. What's *not* open is the structural work, which is the same regardless of what gets built:
 
@@ -953,9 +1072,63 @@ Shape:
 - **A per-template byte-marker test** matching `pdf_export_service_test.dart`'s: `%PDF-`, `/Identity-H`, `/ToUnicode`, plus the Unicode regression case. Those markers *are* the ATS-extractability guarantee, and they're per-template, not per-app.
 - **Single-column only.** A two-column/sidebar layout is the most requested-looking CV format and the one this product exists to argue against — multi-column is the classic ATS parse failure. If one is ever built, it needs its own decision and its own honest warning in the picker, not a quiet addition to the list.
 
+> **Actually shipped ([PR #35](https://github.com/IanHeinrich/cv-forge/pull/35)):**
+> landed ahead of 4.4/4.5 rather than after them — deviates from decision 1's
+> locked order (`settings → backup → region → Copilot → templates`), but
+> nothing about the picker or the second template actually depended on the
+> Copilot shipping first, so sequencing it earlier cost nothing.
+>
+> Open question 1 resolved in favor of the traditional-serif-styled
+> candidate, cloned from a reference CV: centered rule-less section
+> headings, a justified summary paragraph, and a bold/italic two-row entry
+> header (`compact` uses one combined row). It ships as `classic_centered`
+> (`displayName` "Classic Centered") — `ats_minimal` was also renamed, to
+> `compact` ("Compact") — both renamed by *visual style* rather than
+> font/ATS-claim, since every template in this product is ATS-friendly by
+> design and naming only one that implied the others weren't. **Both
+> templates render in Roboto** — `classic_centered` is not the Liberation
+> Serif font evaluated back in P1.0 (still unused: TTFs, licence file, and
+> glyph-coverage research all sitting idle). That means **the family-aware
+> `FontService` structural work above was not built** — `CvTemplate` has no
+> `fontFamily` getter, and `FontService` is still the single hardcoded
+> Roboto-only cache it was in P1.6. This is real, not deferred-and-noted
+> debt: the first template that actually needs a different family (Liberation
+> Serif or otherwise) will need to build the per-family `Map<String,
+> Future<CvFontSet>>` caching this section originally specced, including the
+> `catchError`-reset-per-entry requirement (Risk P7).
+>
+> What did ship as specced: the template picker in `StudioConfigPanel`,
+> finally giving `DraftService.setTemplate` its first production call site;
+> a per-template byte-marker test (`test/services/pdf_export_service_test.dart`,
+> `%PDF-`/`/Identity-H`/`/ToUnicode` asserted for both `compact` and
+> `classic_centered` independently); and single-column-only, no sidebar
+> layout.
+>
+> Beyond the original spec: a first-class **Publications** `CvSectionType`
+> (`Publication` model — `id`, `title`, optional `citation`/`link` kept as
+> separate fields so a long DOI never gets spliced into prose — Vault
+> CRUD/editor panel, draft selection, and a `ResolvedPublicationsSection`
+> case in both templates). This forced **`CvTemplate.sectionOrder`**, a new
+> per-template `List<CvSectionType>` — `classic_centered`'s reference CV
+> puts Skills near the bottom rather than near the top like `compact` does,
+> so print order is no longer one global `CvSectionType.values` order,
+> though `CvComposer` still does all the joining. Both are real additions to
+> the `CvTemplate` interface and the Vault model list documented earlier in
+> this doc (§"Domain models", §"`CvTemplate` Strategy interface") that
+> those sections don't mention. The bullet-glyph ink-center scaling math
+> (P1.6's `_bulletGlyphAlignmentY`) was also factored out of `compact` into
+> a shared `templates/design` helper so `classic_centered` didn't re-derive
+> it.
+>
+> One process deviation: the `drafts_list` golden (invalidated by the
+> template rename) was regenerated locally on Linux rather than via
+> `update-goldens.yml`, because that workflow's artifact lands on Azure Blob
+> Storage and the session's egress policy blocked it — noted since the doc
+> otherwise treats the Linux-CI-runner route as non-optional (P1.3, 4.1).
+
 ### Open questions, carried into implementation
 
-1. **Which templates** (4.6). Deferred deliberately. The two candidates on the table are a traditional serif single-column (Liberation Serif — evaluated in P1.0, licence and glyph coverage already researched, TTFs not currently in `assets/fonts/`) and a density variant of `ats_minimal` tuned to fit a long history on one page (Roboto, so no font work). They're not mutually exclusive and they cost very different amounts; pick at the start of 4.6.
+1. ~~**Which templates** (4.6). Deferred deliberately. The two candidates on the table are a traditional serif single-column (Liberation Serif — evaluated in P1.0, licence and glyph coverage already researched, TTFs not currently in `assets/fonts/`) and a density variant of `ats_minimal` tuned to fit a long history on one page (Roboto, so no font work). They're not mutually exclusive and they cost very different amounts; pick at the start of 4.6.~~ **Resolved in PR #35** — a traditionally-styled candidate shipped as `classic_centered`, but rendered in Roboto rather than Liberation Serif (see 4.6's "Actually shipped" note) — the serif/font-family question is still genuinely open for whichever template needs a different family next.
 2. **Does the Copilot get a "refine" turn?** The spec above is one-shot: paste, apply, undo, re-run. A follow-up instruction ("keep it to one page", "emphasise the leadership work") is a conversation, which means keeping message history — a materially bigger feature. Re-running the whole pass with an amended job description gets most of the value for none of that cost, so start there and see whether it's actually insufficient.
 3. **Which provider goes second, and when.** Google (Gemini) and OpenAI are the obvious candidates; both are structured-output-capable and both need their browser-origin story checked before anything else. Nothing about the Phase 4 seam presumes either. The honest trigger for building one is a user who has that key and not an Anthropic one — not a desire for the list to look longer.
 4. **Per-CV JSON export** (4.2) — ships with the bundle if it fits, otherwise separately.
@@ -1081,6 +1254,14 @@ checked in. Headline results, condensed:
   codepoint-class histogram; documented as catching only an isolated
   short run, not a dropped glyph merged into a longer sentence run (the
   shape the spike's own real capture happened to produce).
+  > **Actually shipped ([PR #30](https://github.com/IanHeinrich/cv-forge/pull/30)):**
+  > the original heuristic gated on `trimmed.length <= 3`, which let a
+  > *pure*-whitespace run (trimmed length 0) through as a false positive —
+  > cv-forge's own PDF export pads justified/right-aligned lines to width
+  > with exactly one wide single-space run, so every cv-forge-generated PDF
+  > with a right-aligned date range tripped this. Fixed by also requiring
+  > `trimmed.isNotEmpty`, since a pure-whitespace run never had a character
+  > to drop in the first place.
 
 ### 5.2 — Core pipeline: models, extraction, analysis, UI → **bump 1.4.0**
 
@@ -1145,6 +1326,51 @@ for exactly this feature, and shipping it half-verified under time
 pressure was judged worse than shipping the findings list alone and
 following up. The findings-list feature (this phase) already delivers the
 core value; the overlay is additive polish, not load-bearing.
+
+> **Actually shipped ([PR #31](https://github.com/IanHeinrich/cv-forge/pull/31)):**
+> the deferral above didn't stick — the overlay was built in a follow-up
+> session, tracked in flight via a handover doc
+> (`docs/ats-xray-overlay-handover.md`, deleted once the work landed) rather
+> than as a planned sub-phase. `AtsFinding` gained `evidence: List<AtsFindingEvidence>`
+> (`{pageIndex, nodeIndex}`, populated by `_checkColumnCrush`/`_checkGarbledText`)
+> and `AtsEvidenceShape` (`scattered` vs `span` — whether evidence nodes are
+> independent instances or the endpoints of a gap the overlay should connect
+> and frame as a union). Coordinate reconciliation uses `pdf.js`'s own
+> `getViewport()` transform (composed with the extracted text matrix in the
+> new `ats_matrix_math.dart`, unit-tested against hand-computed matrix
+> products) rather than hand-deriving rotation/CropBox math — the approach
+> the handover doc recommended over the originally-planned derivation.
+>
+> Mid-build, the design pivoted: instead of a separate Findings tab with a
+> "Show in X-Ray" jump action, findings are merged directly onto the X-Ray
+> page as severity-coloured evidence boxes. `AnalyzerResultsPanel` ended up
+> two tabs (X-Ray, Machine Ingestion), not three — `AnalyzerXrayRail` lists
+> findings beside the raster page instead of on their own tab, and
+> `AtsXrayPainter`/`XrayCameraController`/`XrayPageLoader` split the
+> painting, camera-animation, and page-loading concerns that grew too large
+> for one widget. Reading-order flow lines (also shipped, behind a toggle,
+> mutually exclusive with finding selection) moved up from "cosmetic, do
+> last" once it became clear a `columnCrush` box alone can't convey reading
+> order, only position.
+>
+> Three bugs worth knowing before touching this code again, all from the
+> same underlying cause: a `setState` scoped too broadly, rebuilding the
+> whole panel (rail + camera + `InteractiveViewer` subtree) on every hover
+> or drag event instead of just the one widget that needed it. Fixed each
+> time by narrowing to a `ValueNotifier` + `ValueListenableBuilder` around
+> just the affected value (hover peek text, then cursor state). Separately,
+> the camera controller was being recreated and disposed per animation call
+> without clearing the field pointing at it, so only the *first* finding
+> click ever animated the camera — fixed by reusing one persistent
+> controller for the widget's lifetime. And the flow lines/selection
+> highlight were originally drawn in low-alpha white sized for the app's
+> dark chrome, invisible against the light PDF-page backdrop they actually
+> render over — fixed with a halo-stroke technique (a wide pale pass under a
+> narrow dark pass) that stays legible over arbitrary page content.
+>
+> Known gaps carried forward from the handover doc: the per-node
+> garbled-text split and rotated/CropBox fixtures are still deferred and
+> unverified.
 
 **Known follow-ups, not blockers:**
 - **Golden baselines are now stale** — adding a third nav-rail destination
