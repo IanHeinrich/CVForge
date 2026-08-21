@@ -115,17 +115,16 @@ class AtsXrayPainter extends CustomPainter {
     ..strokeWidth = 4
     ..strokeCap = StrokeCap.round;
 
-  /// The reading-order chain's start — a hollow ring rather than a filled
-  /// dot, so it doesn't read as just another node marker.
-  static final _startRingPaint = Paint()
+  /// The reading-order chain's start — filled, and noticeably bigger than
+  /// the inter-node dots, so it doesn't read as just another one of them.
+  static final _startMarkerPaint = Paint()
     ..color = kcPrimaryColorDark
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = 4;
+    ..style = PaintingStyle.fill;
 
-  static final _startRingHaloPaint = Paint()
+  static final _startMarkerHaloPaint = Paint()
     ..color = kcWhite.withValues(alpha: 0.95)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 8;
+    ..strokeWidth = 3;
 
   static final _endMarkerPaint = Paint()
     ..color = kcPrimaryColorDark
@@ -297,11 +296,11 @@ class AtsXrayPainter extends CustomPainter {
       canvas.drawCircle(centers[i], 2.5, _dotPaint);
     }
     // Start and end need to look different from every dot in between — a
-    // hollow ring for "this is where reading order begins", an arrowhead
-    // for "this is where it ends and which way it was going".
+    // big filled marker for "this is where reading order begins", an
+    // arrowhead for "this is where it ends and which way it was going".
     final start = centers.first;
-    canvas.drawCircle(start, 11, _startRingHaloPaint);
-    canvas.drawCircle(start, 11, _startRingPaint);
+    canvas.drawCircle(start, 11, _startMarkerHaloPaint);
+    canvas.drawCircle(start, 11, _startMarkerPaint);
     _drawArrowhead(canvas, centers[centers.length - 2], centers.last);
   }
 

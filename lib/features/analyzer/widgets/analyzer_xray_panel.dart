@@ -67,7 +67,9 @@ class _XrayPageData {
 /// set by [_AnalyzerXrayPanelState._selectFinding]/`_step`, consumed once
 /// the target page's raster/rects have loaded (camera framing needs real
 /// rect data, which is only available after that async load resolves).
-sealed class _FrameRequest {}
+sealed class _FrameRequest {
+  const _FrameRequest();
+}
 
 class _FrameUnion extends _FrameRequest {
   _FrameUnion(this.finding);
@@ -77,6 +79,13 @@ class _FrameUnion extends _FrameRequest {
 class _FrameSingle extends _FrameRequest {
   _FrameSingle(this.nodeIndex);
   final int nodeIndex;
+}
+
+/// Back to the whole-page fit — requested on deselecting a finding, so the
+/// camera doesn't stay zoomed in on wherever the (now-cleared) selection
+/// used to be.
+class _FrameFit extends _FrameRequest {
+  const _FrameFit();
 }
 
 class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
@@ -244,6 +253,11 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     setState(() {
       _selectedFinding = null;
       _stepIndex = 0;
+      // Back to the whole page — otherwise the camera stays zoomed in on
+      // wherever the (now-cleared) selection used to be, with nothing
+      // left on screen to explain why.
+      _pendingFrame = const _FrameFit();
+      _fittedViewport = null;
     });
   }
 
@@ -500,6 +514,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// lands on ("what am I looking at?"); stepping through evidence frames
   /// one location tightly at a time ("show me each one") — two different
   /// questions, so two different framings rather than one compromise.
+  /// Deselecting ([_FrameFit]) goes back to the whole-page fit.
   void _resolvePendingFrame(_XrayPageData data, Size viewport) {
     final request = _pendingFrame;
     _pendingFrame = null;
@@ -520,6 +535,11 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
         if (rect != null) {
           target = _frameTransform(rect, viewport, padding: 90);
         }
+      case _FrameFit():
+        target = _fitTransform(
+          viewport,
+          Size(data.raster.width.toDouble(), data.raster.height.toDouble()),
+        );
     }
 
     if (target == null) return;
@@ -780,7 +800,19 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       builder: (context, cursor, child) =>
           MouseRegion(cursor: cursor, child: child),
       child: GestureDetector(
-        onDoubleTap: () => _animateCameraTo(_fitTransform(viewport, content)),
+        // Resets both the camera *and* the selection — leaving a finding
+        // selected while the camera jumps back to the whole page would
+        // show its highlight sitting wherever it happens to land, with
+        // nothing else on screen to explain why.
+        onDoubleTap: () {
+          if (_selectedFinding != null) {
+            setState(() {
+              _selectedFinding = null;
+              _stepIndex = 0;
+            });
+          }
+          _animateCameraTo(_fitTransform(viewport, content));
+        },
         onLongPressDown: kIsWeb
             ? (_) => _updateCursor(SystemMouseCursors.grabbing)
             : null,
