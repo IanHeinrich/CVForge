@@ -258,6 +258,12 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     setState(() {
       _showFlowLines = !_showFlowLines;
       if (_showFlowLines) {
+        // Mutually exclusive with a selection, the same way selecting a
+        // finding turns reading order back off in `_selectFinding` — a
+        // selected finding's highlight would be invisible while reading
+        // order is showing anyway (see `AtsXrayPainter._paintFlowLines`).
+        _selectedFinding = null;
+        _stepIndex = 0;
         // Reset to the whole-page fit — reading order is meant to be read
         // start to finish, which only makes sense from the same zoomed-out
         // view every time, not from wherever a prior selection happened to
