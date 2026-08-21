@@ -4,7 +4,7 @@ A client-side, privacy-first CV/resume builder for Flutter Web. No backend,
 no account, no server — everything you enter stays on your device and never
 leaves your browser.
 
-**Live app:** https://ianheinrich.github.io/cv-forge/
+**Live app:** https://ianheinrich.github.io/CVForge/
 
 ## What it does
 
