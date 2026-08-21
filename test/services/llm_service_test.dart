@@ -195,7 +195,14 @@ void main() {
 
     for (final failureCase in [
       (status: 401, expected: LlmFailure.unauthorized),
+      // 403 is an auth problem the user can act on, not a network one.
+      (status: 403, expected: LlmFailure.unauthorized),
       (status: 429, expected: LlmFailure.rateLimited),
+      // A 4xx that isn't auth/rate-limiting is a request this client built
+      // wrongly — reporting it as `network` would send the user off to
+      // check their connection over a bug on our side.
+      (status: 400, expected: LlmFailure.invalidRequest),
+      (status: 404, expected: LlmFailure.invalidRequest),
       (status: 500, expected: LlmFailure.overloaded),
       (status: 503, expected: LlmFailure.overloaded),
     ]) {

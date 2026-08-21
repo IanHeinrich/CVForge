@@ -13,6 +13,12 @@ enum LlmFailure {
   network,
   timeout,
   refusal,
+
+  /// The provider rejected the request we built (a 4xx that isn't auth or
+  /// rate limiting) — a bug on this side, not something the user can fix
+  /// by retrying. Distinct from [malformedResponse], which is the
+  /// provider's *reply* being unparseable.
+  invalidRequest,
   malformedResponse,
 }
 

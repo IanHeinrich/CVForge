@@ -3,14 +3,14 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 
 /// Copilot connection setup — enter a key, pick a model, test the
-/// connection. The rest of the Copilot (4.5) isn't built yet; this card's
-/// whole job is proving a key works and remembering the chosen model, per
-/// plan.md's 4.4. Same block-card frame as [BackupSettingsCard].
+/// connection. Same block-card frame as [BackupSettingsCard]; the
+/// surrounding scroll and page padding belong to `SettingsView`.
 class CopilotSettingsCard extends StatefulWidget {
   const CopilotSettingsCard({super.key, required this.viewModel});
 
@@ -82,13 +82,18 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
               if (modelId != null) viewModel.selectCopilotModel(modelId);
             },
           ),
+          const VGap.tiny(),
+          Text(
+            viewModel.priceLabelFor(viewModel.selectedCopilotModel),
+            style: context.appTypography.bodySmall,
+          ),
           const VGap.medium(),
           FilledButton(
             onPressed: viewModel.isTestingConnection
                 ? null
                 : () => viewModel.testCopilotConnection(_apiKeyController.text),
             child: viewModel.isTestingConnection
-                ? const _ButtonSpinner()
+                ? const ButtonSpinner()
                 : const Text('Test connection'),
           ),
           if (viewModel.connectionTestErrorMessage != null) ...[
@@ -105,19 +110,6 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _ButtonSpinner extends StatelessWidget {
-  const _ButtonSpinner();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 16,
-      height: 16,
-      child: CircularProgressIndicator(strokeWidth: 2, color: kcWhite),
     );
   }
 }

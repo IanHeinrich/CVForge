@@ -73,8 +73,12 @@ class SettingsService
 
   /// Always kept in memory for the rest of this session; additionally
   /// persisted only when [AppSettings.rememberApiKey] is on — see that
-  /// field's doc comment.
+  /// field's doc comment. Awaits [ready] first because that flag is read
+  /// from loaded settings: without it, a call landing before the initial
+  /// load sees a default-empty `rememberApiKey: false` and silently
+  /// declines to persist a key the user did ask to remember.
   Future<void> setApiKey(String providerId, String key) async {
+    await ready();
     _sessionApiKeys[providerId] = key;
     if (settings.rememberApiKey) {
       await _localStorage.write(
