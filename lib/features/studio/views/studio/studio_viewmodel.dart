@@ -1,6 +1,7 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
+import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
@@ -83,6 +84,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       await _draftService.openDraft(requestedDraftId!);
     }
     if (_draftService.isFreshDraft) await _selectAllFromVault();
+    await _refreshCopilotUndoState();
   }
 
   /// A never-before-persisted draft (a first-time user's seeded draft, or
@@ -219,6 +221,43 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     for (final type in CvSectionType.values) {
       if (isSectionHidden(type)) await toggleSectionHidden(type);
     }
+  }
+
+  // --- Copilot (4.5) ---
+
+  String get targetJobDescription => _draft.targetJobDescription ?? '';
+
+  bool get hasTargetJobDescription => targetJobDescription.trim().isNotEmpty;
+
+  Future<void> setTargetJobDescription(String value) =>
+      _draftService.setTargetJobDescription(_normalizeOverride(value, null));
+
+  Future<void> clearTargetJobDescription() =>
+      _draftService.setTargetJobDescription(null);
+
+  bool _hasCopilotUndo = false;
+  bool get hasCopilotUndo => _hasCopilotUndo;
+
+  Future<void> _refreshCopilotUndoState() async {
+    _hasCopilotUndo = await _draftService.hasCopilotUndoFor(_draft.id);
+    notifyListeners();
+  }
+
+  /// Opens [CopilotRunDialog], which drives the whole pass — confirm, run,
+  /// apply, show rationale/keywordGaps — on its own; this just refreshes
+  /// [hasCopilotUndo] afterwards, since a successful run inside the dialog
+  /// already called [DraftService.applyCopilotResult] before returning.
+  Future<void> tailorWithAi() async {
+    await _dialogService.showCustomDialog(
+      variant: DialogType.copilotRun,
+      data: CopilotRunDialogData(jobDescription: targetJobDescription),
+    );
+    await _refreshCopilotUndoState();
+  }
+
+  Future<void> undoCopilotChanges() async {
+    await _draftService.undoCopilotPass();
+    await _refreshCopilotUndoState();
   }
 
   // --- section visibility ---

@@ -7,6 +7,7 @@ import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
+import 'copilot_config_card.dart';
 import 'studio_field_override_card.dart';
 import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
@@ -33,6 +34,15 @@ class StudioConfigPanel extends StatelessWidget {
           ),
           const VGap.medium(),
         ],
+        CopilotConfigCard(
+          jobDescription: viewModel.targetJobDescription,
+          onChanged: viewModel.setTargetJobDescription,
+          onClear: viewModel.clearTargetJobDescription,
+          canRun: viewModel.hasTargetJobDescription,
+          onRun: viewModel.tailorWithAi,
+          hasUndo: viewModel.hasCopilotUndo,
+          onUndo: viewModel.undoCopilotChanges,
+        ),
         const StudioPanelHeading('Document'),
         const VGap.tiny(),
         Wrap(

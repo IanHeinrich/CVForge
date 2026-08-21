@@ -290,6 +290,8 @@ One PR each. Bumps only where a deploy is worth eyeballing in a real browser —
 
 > **Status (2026-08-21, evening):** Step 0 has since actually run — both providers pass browser-CORS from a real browser, with a negative control proving Anthropic's header is load-bearing. **4.4b (Gemini provider) shipped** on top of that: `GeminiProvider`, wired into `LlmProviderRegistry`, `SettingsViewModel` reworked so nothing hardcodes a single provider anymore, and a real provider dropdown in `CopilotSettingsCard`. Every wire-shape detail in the adapter (type casing, string `enum` support, response/usage shape, the error-body-based auth-failure mapping) was confirmed against real `generateContent` requests, not recalled — including a genuine surprise: the model this section's shortlist named (`gemini-2.5-flash-lite`) was already retired for new keys, caught only by actually calling it. See 4.4b's "Actually shipped" note for the full list, and its one open item: whether Gemini's `responseSchema` recognises `additionalProperties` at all, currently omitted rather than guessed. Verified via `flutter analyze` (0 issues) and 203 tests including goldens. **Phase 4's only remaining unbuilt piece is 4.5 (the tailoring pass)** — resolve the `additionalProperties` question first, since it decides how strong the anti-hallucination guarantee actually is for the provider being added.
 
+> **Status (2026-08-21, night):** `additionalProperties` resolved — Gemini rejects it outright (`400 INVALID_ARGUMENT`), meaning it has no schema-level object-key-closure mechanism at all, not merely a weaker one than Anthropic's. **4.5 (the tailoring pass) has since shipped**, in two PRs: [#44](https://github.com/IanHeinrich/CVForge/pull/44) (data layer — payload builder, per-request response schema, response validation, `CopilotService`, `DraftService` apply/undo, all outside-in tested against a mocked `LlmService`) and [#45](https://github.com/IanHeinrich/CVForge/pull/45) (the Studio surface — persistent job-description card, the run dialog, the permanent hallucination warning, and an honest rewrite of the README's privacy claim). See 4.5's own "Actually shipped" note for what deviated from spec (two PRs instead of one, a real defensive-typing bug the test suite itself caught, `CopilotConfigCard` built fresh rather than reusing `StudioFieldOverrideCard`) and what's explicitly not built yet (a last-run timestamp, true request cancellation, a real end-to-end Anthropic generation call). Repo version is now `2.0.0`. **Every sub-phase of Phase 4 is now shipped — nothing spec'd in this document is unbuilt.** The two-pass Copilot idea recorded further down remains deliberately unscheduled; open questions 2–5 are the only genuinely open items left.
+
 ---
 
 ## Sub-phase detail
@@ -1233,7 +1235,7 @@ invalid key, confirm the right per-`LlmFailure` copy renders; toggle
 "remember on this device" on, reload the page, confirm the key survives
 without re-entry; toggle it off, reload, confirm it's gone.
 
-### 4.5 — Copilot: the tailoring pass → **bump 2.0.0**
+### 4.5 — Copilot: the tailoring pass → **bump 2.0.0** ✅ shipped
 
 The feature: on a draft, press **Tailor with AI**, paste the job description, and get back a draft with the relevant experiences, bullets, and skills selected and the prose rewritten for that role.
 
@@ -1368,6 +1370,58 @@ Shape — **corrected 2026-08-21; the earlier array-of-objects version had a bug
 **Privacy stance, updated honestly.** README currently says nothing leaves your browser, flatly. That stops being true the moment this ships and has to be rewritten, not quietly qualified: nothing leaves the browser *unless you turn on the Copilot and supply your own key*, and when you do, your CV content goes from your browser directly to Anthropic — never through a CVForge server, because there isn't one. The Copilot is **off until a key is entered**; a user who never opens Settings has the same zero-network app they have today. Same treatment for the in-app copy and the settings page.
 
 **Tests:** `StudioViewModel`/copilot ViewModel against a mocked `LlmService` — a fixture response applies to the expected selections and overrides; a response containing an id not in the Vault is dropped rather than crashing (belt-and-braces behind the enum constraint, matching the codebase-wide "dangling ids are normal" rule); each `LlmFailure` surfaces its own message; undo restores the pre-pass draft exactly. **A golden test is not the right tool here** and shouldn't be added — the output is model-dependent by definition.
+
+> **Actually shipped ([PR #44](https://github.com/IanHeinrich/CVForge/pull/44) data layer, [PR #45](https://github.com/IanHeinrich/CVForge/pull/45) UI):** landed in two PRs rather than one — the data layer
+> (`CopilotVaultPayload`, `buildCopilotResponseSchema`, `CopilotResult
+> .fromLlmResponse`, `CopilotService`, `DraftService.applyCopilotResult`/
+> `undoCopilotPass`) first, fully outside-in tested against a mocked
+> `LlmService` with no UI to exercise yet, then the Studio surface on top.
+> Splitting it this way (rather than the doc's original single-PR framing)
+> cost nothing and kept each PR's diff reviewable.
+>
+> One real defensive-typing gap was caught by the test suite itself before
+> either PR shipped: `CopilotResult.fromLlmResponse`'s id-validation loops
+> used `raw as List?` casts that threw a `CastError` on a wrong-typed
+> field (a string where a list was expected) instead of treating it as
+> absent — the "never crash" guarantee this factory's own doc comment
+> promises didn't actually hold for that case. Fixed by routing every list
+> read through one `_asList` helper that checks `is List` rather than
+> casting blindly.
+>
+> The persistent Studio card does **not** reuse `StudioFieldOverrideCard`
+> as originally suggested — that card's `TailorIconButtons` hardcodes
+> "From your Vault"/"Revert to Vault" copy, which is simply false for the
+> job description field (it has no Vault source at all, it's draft-only
+> free text). `CopilotConfigCard` is built from the same lower-level
+> pieces (`TailorableField`, `InlineTextOverrideEditor`) instead, with a
+> plain pencil/clear pair. `AppDialogScaffold`'s `onConfirm`/`onCancel`
+> were widened from `VoidCallback` to `VoidCallback?` to let the
+> multi-phase run dialog disable a button while a request is in flight,
+> rather than inventing a second dialog chrome for that one case.
+>
+> The run dialog applies the result **inside its own confirm step** —
+> there is no separate "review, then apply" phase. This matches the
+> doc's own "there is no second review UI" line for undo, just extended to
+> the whole pass: `TailorableField`'s existing per-field revert controls
+> are the review surface, and the whole-pass undo snapshot is the
+> insurance policy, so a second staging step before applying would be a
+> third mechanism doing a job the other two already cover.
+>
+> **Not built in this pass, and worth being explicit about the gap:** the
+> persistent card doesn't show *when* the last pass ran (only *whether*
+> one is currently applied, via the undo button's presence) — the doc's
+> spec mentioned a timestamp, but adding one meant a new `CvDraft` field
+> beyond `targetJobDescription`, and `hasCopilotUndo` already answers the
+> question that actually matters ("is there something to review/undo").
+> True request cancellation (Risk P6's "cancel control") also isn't
+> built — the run dialog blocks both buttons while a request is in
+> flight rather than offering to abort it, since Dio cancellation tokens
+> plus a ViewModel that might be disposed mid-flight was judged more
+> complexity than a first cut needed. Anthropic's actual generation
+> (not just CORS/`validateKey`) still hasn't been exercised with a real
+> key in this session — both provider adapters are unit-tested against
+> mocked transports only; a real end-to-end run is the natural next
+> manual verification step once a key is available.
 
 ### 4.6 — Second template + family-aware `FontService` + picker → **bump 2.1.0** ✅ shipped
 

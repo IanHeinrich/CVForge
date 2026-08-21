@@ -22,8 +22,13 @@ class AppDialogScaffold extends StatelessWidget {
 
   final String title;
   final List<Widget> children;
-  final VoidCallback onCancel;
-  final VoidCallback onConfirm;
+
+  /// Null disables that button — used by a multi-phase dialog (e.g. the
+  /// Copilot run dialog) to block dismissal while a request is in flight,
+  /// the same disabled-via-null convention `FilledButton`/`TextButton`
+  /// already use.
+  final VoidCallback? onCancel;
+  final VoidCallback? onConfirm;
   final String confirmLabel;
   final String cancelLabel;
 
