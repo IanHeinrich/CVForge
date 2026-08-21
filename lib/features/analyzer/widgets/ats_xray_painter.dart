@@ -62,24 +62,54 @@ class AtsXrayPainter extends CustomPainter {
     ..style = PaintingStyle.stroke
     ..strokeWidth = 1;
 
-  static final _flowLinePaint = Paint()
-    ..color = kcWhite.withValues(alpha: 0.35)
+  /// The line/hull layer's readability problem is different from the
+  /// boxes': the backdrop here is the *rasterized PDF page itself* — a
+  /// real resume, almost always a white/light background — not the app's
+  /// own dark chrome. A single fixed colour (this was `kcWhite` at low
+  /// alpha originally) reads as invisible on the exact backgrounds this
+  /// feature spends most of its time on. A light-then-dark "halo" stroke
+  /// — a wide pale pass under a narrow dark one — stays legible regardless
+  /// of what's underneath, the same trick map/chart labels use to stay
+  /// readable over arbitrary imagery.
+  static final _lineHaloPaint = Paint()
+    ..color = kcWhite.withValues(alpha: 0.9)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 1;
+    ..strokeWidth = 4
+    ..strokeCap = StrokeCap.round;
+
+  static final _flowLinePaint = Paint()
+    ..color = kcPrimaryColorDark.withValues(alpha: 0.9)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1.5
+    ..strokeCap = StrokeCap.round;
 
   static final _hullPaint = Paint()
-    ..color = kcWhite.withValues(alpha: 0.6)
+    ..color = kcPrimaryColorDark.withValues(alpha: 0.9)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 1;
+    ..strokeWidth = 2;
 
-  Paint _evidencePaint(AtsFindingSeverity? severity, {required bool selected}) {
-    return Paint()
-      ..color = _severityColor(
-        severity,
-      ).withValues(alpha: selected ? 0.95 : 0.7)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = selected ? 3 : 2;
-  }
+  /// The selected box needs to be unmistakable at a glance, not just a
+  /// thicker version of the evidence stroke — a filled wash plus a bright
+  /// halo-outlined border, so it reads clearly even at a quick glance or
+  /// at low zoom.
+  Paint _selectedFillPaint(AtsFindingSeverity? severity) => Paint()
+    ..color = _severityColor(severity).withValues(alpha: 0.28)
+    ..style = PaintingStyle.fill;
+
+  Paint _selectedHaloPaint() => Paint()
+    ..color = kcWhite.withValues(alpha: 0.95)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 6;
+
+  Paint _selectedStrokePaint(AtsFindingSeverity? severity) => Paint()
+    ..color = _severityColor(severity)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 3;
+
+  Paint _evidencePaint(AtsFindingSeverity? severity) => Paint()
+    ..color = _severityColor(severity).withValues(alpha: 0.7)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 2;
 
   Color _severityColor(AtsFindingSeverity? severity) => switch (severity) {
     AtsFindingSeverity.critical => kcErrorColor,
@@ -92,6 +122,16 @@ class AtsXrayPainter extends CustomPainter {
       Rect.fromLTRB(r.left, r.top, r.right, r.bottom);
 
   Offset _centerOf(AtsPixelRect r) => _rectOf(r).center;
+
+  void _drawHaloLine(Canvas canvas, Offset from, Offset to) {
+    canvas.drawLine(from, to, _lineHaloPaint);
+    canvas.drawLine(from, to, _flowLinePaint);
+  }
+
+  void _drawHaloPath(Canvas canvas, Path path) {
+    canvas.drawPath(path, _lineHaloPaint);
+    canvas.drawPath(path, _flowLinePaint);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -111,31 +151,34 @@ class AtsXrayPainter extends CustomPainter {
         final path = Path()
           ..moveTo(from.dx, from.dy)
           ..cubicTo(to.dx, from.dy, from.dx, to.dy, to.dx, to.dy);
-        canvas.drawPath(path, _flowLinePaint);
+        _drawHaloPath(canvas, path);
       }
     }
 
     for (final box in boxes) {
-      if (box.style == AtsXrayBoxStyle.ambient) continue;
-      canvas.drawRect(
-        _rectOf(box.rect),
-        _evidencePaint(
-          box.severity,
-          selected: box.style == AtsXrayBoxStyle.selected,
-        ),
-      );
+      if (box.style == AtsXrayBoxStyle.evidence) {
+        canvas.drawRect(_rectOf(box.rect), _evidencePaint(box.severity));
+      } else if (box.style == AtsXrayBoxStyle.selected) {
+        final rect = _rectOf(box.rect);
+        canvas.drawRect(rect, _selectedFillPaint(box.severity));
+        canvas.drawRect(rect, _selectedHaloPaint());
+        canvas.drawRect(rect, _selectedStrokePaint(box.severity));
+      }
     }
 
     final selection = this.selection;
-    if (selection != null && selection.rects.isNotEmpty) {
+    if (selection != null &&
+        selection.rects.isNotEmpty &&
+        selection.shape == AtsEvidenceShape.span) {
       final union = _rectOf(atsUnionRect(selection.rects));
-      if (selection.shape == AtsEvidenceShape.span) {
-        canvas.drawRect(union.inflate(4), _hullPaint);
-        if (selection.rects.length >= 2) {
-          final from = _centerOf(selection.rects.first);
-          final to = _centerOf(selection.rects.last);
-          canvas.drawLine(from, to, _hullPaint);
-        }
+      canvas.drawRect(union.inflate(6), _lineHaloPaint);
+      canvas.drawRect(union.inflate(6), _hullPaint);
+      if (selection.rects.length >= 2) {
+        _drawHaloLine(
+          canvas,
+          _centerOf(selection.rects.first),
+          _centerOf(selection.rects.last),
+        );
       }
     }
   }

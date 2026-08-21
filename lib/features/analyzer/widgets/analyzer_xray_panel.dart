@@ -103,7 +103,22 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// transform; an ordinary rebuild doesn't yank the user's own pan/zoom
   /// back.
   Size? _fittedViewport;
-  AnimationController? _cameraAnimationController;
+
+  /// One controller reused for every camera move, not recreated per move.
+  /// The previous approach created a fresh `AnimationController` each
+  /// call and disposed it in `whenComplete` — but `whenComplete` doesn't
+  /// clear the field it disposed, so the *next* call's `?.dispose()` hit
+  /// an already-disposed controller, threw inside a post-frame callback,
+  /// and silently aborted before ever touching
+  /// `_transformationController`. That's why only the first click ever
+  /// panned: every later `_animateCameraTo` call was throwing before it
+  /// could animate anything.
+  late final AnimationController _cameraAnimationController =
+      AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 350),
+      );
+  void Function()? _cameraAnimationListener;
 
   /// Web-only grab/grabbing affordance, the same idea `printing`'s
   /// vendored zoom preview uses (`third_party/printing/lib/src/preview/
@@ -128,7 +143,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   @override
   void dispose() {
     _transformationController.dispose();
-    _cameraAnimationController?.dispose();
+    _cameraAnimationController.dispose();
     super.dispose();
   }
 
@@ -336,6 +351,32 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     return (rects: rects, shape: finding.evidenceShape);
   }
 
+  /// Cached so a hover-only rebuild (every mouse-move over the raster)
+  /// doesn't allocate a fresh `boxes`/`selection` on every frame. Neither
+  /// depends on hover — only on the page, the data it was loaded for, and
+  /// which finding is selected — so recomputing them on every hover event
+  /// was pure waste, and worse: a fresh `boxes` list instance every frame
+  /// defeats `AtsXrayPainter.shouldRepaint`'s identity check, forcing a
+  /// full repaint of every box on every mouse-move.
+  (int, AtsFinding?, _XrayPageData)? _paintDataKey;
+  ({List<AtsXrayBox> boxes, AtsXraySelection? selection})? _paintData;
+
+  ({List<AtsXrayBox> boxes, AtsXraySelection? selection}) _paintDataFor(
+    _XrayPageData data,
+    AtsAnalysisResult result,
+  ) {
+    final key = (_pageIndex, _selectedFinding, data);
+    final cached = _paintData;
+    if (cached != null && _paintDataKey == key) return cached;
+    final fresh = (
+      boxes: _buildBoxes(data, result),
+      selection: _buildSelection(data),
+    );
+    _paintDataKey = key;
+    _paintData = fresh;
+    return fresh;
+  }
+
   // --- camera --------------------------------------------------------------
 
   /// The whole page, scaled down to fit and centred — the sane opening
@@ -382,22 +423,29 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   }
 
   void _animateCameraTo(Matrix4 target) {
-    _cameraAnimationController?.dispose();
-    final controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 350),
-    );
-    final animation = Matrix4Tween(
-      begin: _transformationController.value,
-      end: target,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
+    // Interrupting an in-flight move: drop its listener before starting
+    // the next one, or the stale animation keeps writing over the new
+    // one's frames.
+    final previousListener = _cameraAnimationListener;
+    if (previousListener != null) {
+      _cameraAnimationController.removeListener(previousListener);
+    }
+    final animation =
+        Matrix4Tween(
+          begin: _transformationController.value,
+          end: target,
+        ).animate(
+          CurvedAnimation(
+            parent: _cameraAnimationController,
+            curve: Curves.easeInOut,
+          ),
+        );
     void listener() => _transformationController.value = animation.value;
-    animation.addListener(listener);
-    controller.forward().whenComplete(() {
-      animation.removeListener(listener);
-      controller.dispose();
-    });
-    _cameraAnimationController = controller;
+    _cameraAnimationListener = listener;
+    _cameraAnimationController.addListener(listener);
+    _cameraAnimationController
+      ..reset()
+      ..forward();
   }
 
   /// Selecting a finding frames the union of its evidence on the page it
@@ -573,19 +621,33 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
             ),
           ],
         ),
-        if (peek != null)
-          Padding(
-            padding: EdgeInsets.only(
-              left: context.appSpacing.paddingCompact,
-              bottom: context.appSpacing.gapSmall,
-            ),
+        // A fixed-height slot, always present — never conditionally
+        // inserted/removed. Hover changes this text on every mouse-move
+        // over the raster; if the row's presence toggled the `Expanded`
+        // page area's height along with it, the `LayoutBuilder` below
+        // would see a new viewport on every hover event, re-fit or
+        // re-frame the camera, shift the content under the cursor, and
+        // re-trigger hover on a *different* box — a feedback loop that
+        // reads as constant flickering. Reserving the height unconditionally
+        // means hovering never changes layout, only text content.
+        Padding(
+          padding: EdgeInsets.only(
+            left: context.appSpacing.paddingCompact,
+            bottom: context.appSpacing.gapSmall,
+          ),
+          child: SizedBox(
+            // A little taller than the bare font size — an exact-fontSize
+            // box clips descenders on some platforms' default line
+            // height; this only needs to be *stable*, not exact.
+            height: (context.appTypography.bodySmall.fontSize ?? 13) * 1.4,
             child: Text(
-              peek.title,
+              peek?.title ?? '',
               style: context.appTypography.bodySmall.copyWith(
                 color: kcLightGrey,
               ),
             ),
           ),
+        ),
         Expanded(
           child: data.orderedNodeIndices.isEmpty
               ? const AppEmptyState(
@@ -618,6 +680,10 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       data.raster.width.toDouble(),
       data.raster.height.toDouble(),
     );
+    // Computed once per relevant change (page/selection/data), not once
+    // per rebuild — see `_paintDataFor`'s doc comment for why a hover-
+    // only rebuild must not allocate a fresh instance here.
+    final paintData = _paintDataFor(data, result);
 
     if (viewport != _fittedViewport) {
       _fittedViewport = viewport;
@@ -686,9 +752,9 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
                     Positioned.fill(
                       child: CustomPaint(
                         painter: AtsXrayPainter(
-                          _buildBoxes(data, result),
+                          paintData.boxes,
                           showFlowLines: _showFlowLines,
-                          selection: _buildSelection(data),
+                          selection: paintData.selection,
                         ),
                       ),
                     ),
