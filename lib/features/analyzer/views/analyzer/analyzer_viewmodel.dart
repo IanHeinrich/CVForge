@@ -30,10 +30,10 @@ class AnalyzerViewModel extends BaseViewModel {
   AtsAnalysisResult? get result => _result;
   bool get hasResult => _result != null;
 
-  /// Retained alongside [_result] so the Machine Ingestion panel (and,
-  /// eventually, the X-Ray overlay) can show what the extractor actually
-  /// saw — `_result` only carries findings, not the nodes that produced
-  /// them. See `docs/ats-xray-overlay-handover.md` §2.
+  /// Retained alongside [_result] so the Machine Ingestion panel and the
+  /// X-Ray overlay can show what the extractor actually saw — `_result`
+  /// only carries findings, not the nodes that produced them. See `docs/
+  /// ats-xray-overlay-handover.md` §2.
   AtsExtractedDocument? _extracted;
 
   /// Every text run `pdf.js` reported, in extraction order — empty until

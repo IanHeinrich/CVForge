@@ -11,63 +11,89 @@ load-bearing from it is reproduced here.
 is live. `PR #30` fixed one false-positive in the garbled-text check
 (justified-line spacer runs). Nothing X-Ray-related has been started.
 
-> **Superseded in part — read "Next step" below before §6.** Steps 1–5 of
-> §6's build order are now built (commit `fe081c7`, branch
-> `docs/ats-xray-overlay-handover`, pushed, no PR). Step 6 is replaced by
-> a different design. §§1–5 and 7–9 still describe the code accurately.
+> **Superseded — the feature described below is now built.** Everything
+> in §§1–9 is history: it explains why the code looks the way it does,
+> but read "Current state" immediately below first for what actually
+> shipped and what's still open.
 
-## Next step (start here)
+## Current state (start here)
 
-**Built so far:** Machine Ingestion panel; the coordinate reconciliation
-(§5) end-to-end — `getViewport`/ascent/descent bindings,
-`getPageViewportTransform`, and `lib/models/ats/ats_matrix_math.dart`
-(`composeAtsTextMatrix` + `atsInkBoxRect`, unit-tested); box rendering
-through §6 steps 2→4, ending at `AtsXrayPainter`; and zoom/pan
-(`InteractiveViewer`). Verified against real embedded-font PDFs — boxes
-land tight on the ink, including right-aligned and multi-column runs.
+The design pivot flagged in the previous version of this section is
+done: findings and X-Ray are one merged view, not two tabs cross-
+referenced by a "Show in X-Ray" jump action. `AnalyzerResultsPanel` is
+down to two tabs (X-Ray / Machine Ingestion); `AnalyzerXrayPanel` is the
+X-Ray tab's whole content — raster + severity-styled boxes + flow lines
++ `AnalyzerXrayRail` (the findings list, doubling as the old standalone
+Findings tab) — split side-by-side on desktop, tabbed on mobile/tablet.
 
-**The design pivot:** don't build §6 step 6 as written (a findings tab
-with a "Show in X-Ray" action that jumps to a separate overlay tab).
-Instead **merge findings onto the X-Ray page as the feature's primary
-view** — one place showing both what's wrong and where, rather than two
-panes to cross-reference. `AnalyzerResultsPanel`'s current three tabs
-(Findings / Machine Ingestion / X-Ray) are the incremental build shape,
-not the target: the first and third collapse into one.
+**What's built:**
 
-Concretely, that needs:
+- **Evidence on `AtsFinding`** (§7) — `AtsFindingEvidence` (page + node
+  index) and `AtsEvidenceShape` (`scattered`/`span`), populated by
+  `_checkColumnCrush` (`span`, the left/right pair) and
+  `_checkGarbledText` (`scattered`, per sub-category). Purely additive —
+  `_checkGarbledText`'s per-node behavior change flagged below in §7 is
+  still deferred; only evidence was added, finding cardinality didn't
+  change.
+- **Severity-styled boxes** — `AtsXrayPainter` takes `List<AtsXrayBox>`
+  (rect + style + severity) instead of bare rects: a faint ambient pass
+  for every node, a severity-coloured pass for evidence, and a heavier
+  pass for the selected finding. Highest severity wins where a node is
+  evidence for more than one finding (falls out of iterating
+  `result.findings`, already severity-sorted).
+- **Flow lines** — moved up from "cosmetic, do last" to shipped alongside
+  boxes, behind a toggle. This directly answers the open question the
+  previous version of this section raised: a `columnCrush` box can't show
+  *order*, only *position*; the line between consecutive nodes is what
+  actually visualises the crush.
+- **The rail + camera** — `AnalyzerXrayRail` groups findings into
+  "located" (clickable) and "document-level" (evidence-empty, shown but
+  not tappable — `noTextLayer`/`missingHeadings`/`contactInfo`). Selecting
+  a finding frames the union of its evidence on whichever page it lands
+  on (animated, `Matrix4Tween`); a finding with more than one evidence
+  location gets `‹ i of N ›` step controls that frame each one tightly in
+  turn, walking pages as needed. Clicking a box on the page does the
+  reverse — selects the highest-severity finding covering it, cycling to
+  the next on a repeat click of the same box.
+- **Page navigation** — the earlier proof-of-concept hardcoded page 0;
+  `AnalyzerXrayPanel` now rasters/loads any page on demand
+  (`Map<int, Future<_XrayPageData>>` cache keyed by page), so a finding on
+  page 2+ is reachable.
+- **Hover** — a simplified version of the originally-discussed floating
+  tooltip: hovering a box shows the finding's title in a fixed status
+  line above the raster, not a cursor-following label. A real floating
+  tooltip would need to live outside the `InteractiveViewer`'s transformed
+  subtree to stay a constant screen size — doable, but judged not worth
+  the complexity for what a fixed line already delivers. Revisit if a
+  real user session shows the fixed line isn't enough.
 
-1. **Evidence on `AtsFinding`** — §7's `AtsFindingEvidence` shape still
-   stands. Populate `columnCrush` first; `_checkColumnCrush` already has
-   `left`/`right` in scope where it builds the finding. §7's warning
-   about `_checkGarbledText` needing a real behavior change (per-node
-   rather than document-aggregated findings) still applies — defer it.
-2. **Severity-styled boxes in `AtsXrayPainter`** — it currently takes a
-   flat `List<AtsPixelRect>` and strokes every box identically. Evidence
-   boxes need to paint differently (red/amber by severity) from the
-   faint every-node boxes, so the painter's input becomes styled boxes
-   rather than bare rects.
-3. **Document-level findings need a non-overlay home.** `noTextLayer`,
-   `missingHeadings`, and `contactInfo` have no coordinates by
-   definition — a banner above the raster, not a box on it.
-4. **A findings rail beside the page**, each entry clicking through to
-   scroll/zoom its evidence box. `_XrayPocViewState` already holds the
-   `TransformationController`, and `_fitTransform` is the worked example
-   of building the matrix to animate toward.
+**Known gaps, still open:**
 
-**Worth knowing before you touch the layout:** `InteractiveViewer`'s
-`constrained: false` in `analyzer_xray_panel.dart` is load-bearing, not
-incidental — the default (`true`) hands the child tight viewport
-constraints, which silently collapses the raster-sized `SizedBox` and
-puts the image, the painter's canvas, and the box coordinates in three
-different spaces. That cost real debugging time; the reasoning is in a
-comment at the call site, so don't "simplify" it away.
-
-**Open question raised in review, not yet answered:** the boxes look
-correct even on a page with seven `columnCrush` findings — because that
-check is about reading *order*, not position, and a box can't show
-order. Flow lines (§6 step 7) are the piece that actually visualises it.
-Worth deciding whether they move earlier now that they're the missing
-half of the story rather than a cosmetic extra.
+- **Page-level `/Rotate` and non-zero CropBox are still unverified** — §3
+  and §5 flagged these as the one thing `getViewport()` is *supposed* to
+  handle for free but was never tested against. Still true. Generating a
+  fixture needs a hand-edited PDF (`package:pdf` had no direct `/Rotate`
+  API as of the original spike) or a real-world sample — worth doing
+  before trusting a rotated real-world resume's boxes.
+- **`_checkGarbledText`'s per-node split** (§7's note) is still deferred —
+  evidence now exists for the aggregate findings, but three garbled runs
+  still produce one finding with three evidence entries, not three
+  findings.
+- **Flow-line density at scale** — the spike measured up to ~400 nodes on
+  a dense page; line-drawing hasn't specifically been load-tested at that
+  count. If it reads as noisy or costs a visible frame drop, the fix
+  flagged in §6 step 7 (only draw lines crossing a large x/y jump) is the
+  next thing to try, not a redesign.
+- **Live visual verification** — automated checks are green (`flutter
+  analyze`, full non-golden test suite), but this was not confirmed
+  against a real PDF in a real browser in the session that built it —
+  the dev-server preview's Browser pane wasn't compositing frames in that
+  session, on top of the pre-existing constraint that browser automation
+  can't drive the OS file-picker dialog either way (§9). Worth an actual
+  manual pass — upload a real two-column resume, confirm the crush
+  finding's flow line actually zigzags, click a box, step through
+  multi-location evidence — before treating this as fully proven end to
+  end.
 
 ## 1. What you're building
 

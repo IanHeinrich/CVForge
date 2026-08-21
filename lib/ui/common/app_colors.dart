@@ -8,3 +8,8 @@ const Color kcLightGrey = Color.fromARGB(255, 187, 187, 187);
 const Color kcWhite = Color(0xFFFFFFFF);
 const Color kcBackgroundColor = kcDarkGreyColor;
 const Color kcErrorColor = Color(0xFFE05252);
+
+/// The warning-severity colour for evidence boxes/rail badges —
+/// `kcErrorColor` already means critical elsewhere in the app, so warning
+/// needs its own tone rather than reusing it at lower opacity.
+const Color kcWarningColor = Color(0xFFE0A83B);
