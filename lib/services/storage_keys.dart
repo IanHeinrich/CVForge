@@ -35,4 +35,9 @@ abstract final class StorageKeys {
   /// The per-draft storage key. Prefixed so it can never collide with
   /// [draftIndex] or a quarantined-payload key.
   static String draftEntry(String draftId) => 'draft_$draftId';
+
+  /// A remembered Copilot API key's own row, one per provider — never a
+  /// field on [AppSettings] (see that model's doc comment). Kept in the
+  /// same [StorageBoxes.settings] box `SettingsService` already owns.
+  static String apiKeyFor(String providerId) => 'api_key_$providerId';
 }

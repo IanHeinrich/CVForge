@@ -39,6 +39,8 @@ import 'package:cv_forge/services/ats_analyzer_service.dart';
 
 import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_view.dart';
 
+import 'package:cv_forge/services/llm_service.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -77,6 +79,7 @@ import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_view.dart';
     // the whole VM-run test suite. See PdfExtractionService's doc comment
     // and main.dart's manual registration.
     LazySingleton(classType: AtsAnalyzerService),
+    LazySingleton(classType: LlmService),
     // @stacked-service
   ],
   bottomsheets: [

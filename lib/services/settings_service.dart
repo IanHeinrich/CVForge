@@ -9,9 +9,9 @@ import 'package:stacked/stacked.dart';
 import 'package:cv_forge/app/app.locator.dart';
 
 /// Owns device-scoped [AppSettings] — same single-aggregate,
-/// [PersistedStoreMixin] shape as `VaultService`. No mutators yet (see
-/// [AppSettings]'s own doc comment for why) — [load] and [settings] are
-/// this PR's whole surface.
+/// [PersistedStoreMixin] shape as `VaultService`, plus (from 4.4) a
+/// per-provider Copilot API key kept deliberately off the [AppSettings]
+/// model itself (see that model's doc comment for why).
 class SettingsService
     with ListenableServiceMixin, PersistedStoreMixin<AppSettings> {
   SettingsService() {
@@ -32,6 +32,69 @@ class SettingsService
   /// to call multiple times — every read/write path awaits the same
   /// underlying future via [ready].
   Future<void> load() => ready();
+
+  Future<void> setCopilotProvider(String? providerId) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(copilotProviderId: providerId);
+    scheduleWrite(_settings.value);
+  }
+
+  Future<void> setCopilotModel(String? modelId) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(copilotModelId: modelId);
+    scheduleWrite(_settings.value);
+  }
+
+  Future<void> setRememberApiKey(bool value) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(rememberApiKey: value);
+    scheduleWrite(_settings.value);
+  }
+
+  /// In-memory only — never reactive, since a key changing never needs to
+  /// trigger a rebuild by itself, and never part of [AppSettings] (decision
+  /// 13: a secret must not be reachable through any code path that
+  /// serialises settings, including a future backup export).
+  final Map<String, String> _sessionApiKeys = {};
+
+  /// Reads the in-memory key first; for a remembered key that hasn't been
+  /// loaded into memory yet this session (e.g. right after startup), falls
+  /// back to [StorageKeys.apiKeyFor] and caches the result.
+  Future<String?> apiKeyFor(String providerId) async {
+    final cached = _sessionApiKeys[providerId];
+    if (cached != null) return cached;
+    final stored = await _localStorage.read(
+      StorageBoxes.settings,
+      StorageKeys.apiKeyFor(providerId),
+    );
+    if (stored != null) _sessionApiKeys[providerId] = stored;
+    return stored;
+  }
+
+  /// Always kept in memory for the rest of this session; additionally
+  /// persisted only when [AppSettings.rememberApiKey] is on — see that
+  /// field's doc comment.
+  Future<void> setApiKey(String providerId, String key) async {
+    _sessionApiKeys[providerId] = key;
+    if (settings.rememberApiKey) {
+      await _localStorage.write(
+        StorageBoxes.settings,
+        StorageKeys.apiKeyFor(providerId),
+        key,
+      );
+    }
+  }
+
+  /// Removes [providerId]'s key from memory and deletes its storage row
+  /// immediately — not on the next write, per decision 8's "turning the
+  /// toggle off deletes it immediately" requirement.
+  Future<void> clearApiKey(String providerId) async {
+    _sessionApiKeys.remove(providerId);
+    await _localStorage.delete(
+      StorageBoxes.settings,
+      StorageKeys.apiKeyFor(providerId),
+    );
+  }
 
   @override
   Future<void> loadFromStorage() async {

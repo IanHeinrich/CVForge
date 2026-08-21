@@ -1,22 +1,31 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
+import 'package:cv_forge/models/llm/llm_model_option.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/llm/llm_exception.dart';
+import 'package:cv_forge/services/llm/llm_provider_registry.dart';
+import 'package:cv_forge/services/llm_service.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-/// Settings' whole content in this PR: backup export/import. Follows
-/// P1.7-G1's rule — `implements Initialisable`, loads via a keyed
-/// `runBusyFuture` (mirroring `DraftsListViewModel`, not Vault's unkeyed
-/// variant), renders `StorageUnavailableCard` on failure via
-/// `AppChrome.gated`.
+/// Settings' content: backup export/import (4.2) and Copilot connection
+/// setup (4.4). Follows P1.7-G1's rule — `implements Initialisable`, loads
+/// via a keyed `runBusyFuture` (mirroring `DraftsListViewModel`, not
+/// Vault's unkeyed variant), renders `StorageUnavailableCard` on failure
+/// via `AppChrome.gated`.
 class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   final _settingsService = locator<SettingsService>();
   final _backupService = locator<BackupService>();
   final _draftService = locator<DraftService>();
   final _dialogService = locator<DialogService>();
+  final _llmService = locator<LlmService>();
+
+  /// Not locator-registered — see `LlmService`'s own doc comment for why
+  /// (stateless, deterministic, nothing else needs one injected).
+  final _llmProviders = LlmProviderRegistry();
 
   @override
   List<ListenableServiceMixin> get listenableServices => [_settingsService];
@@ -87,5 +96,89 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     if (response?.confirmed != true) return;
 
     await runBusyFuture(_applyImport(bundle), busyObject: _importBusyKey);
+  }
+
+  // --- Copilot connection (4.4) -------------------------------------
+
+  static const _testConnectionBusyKey = 'settings_test_copilot_connection';
+
+  /// One provider in Phase 4 (decision 7a) — the model dropdown is this
+  /// card's whole surface; a provider selector only earns its place once
+  /// [LlmProviderRegistry.available] has more than one entry.
+  List<LlmModelOption> get copilotModels =>
+      _llmProviders.defaultProvider.models;
+
+  bool get showCopilotProviderSelector => _llmProviders.available.length > 1;
+
+  String get selectedCopilotModelId =>
+      _settingsService.settings.copilotModelId ??
+      _llmProviders.defaultProvider.models.first.id;
+
+  Future<void> selectCopilotModel(String modelId) async {
+    await _settingsService.setCopilotProvider(_llmProviders.defaultProvider.id);
+    await _settingsService.setCopilotModel(modelId);
+  }
+
+  bool get rememberApiKey => _settingsService.settings.rememberApiKey;
+
+  /// Turning the toggle off deletes the stored key immediately (decision
+  /// 8) rather than waiting for the next write.
+  Future<void> setRememberApiKey(bool value) async {
+    await _settingsService.setRememberApiKey(value);
+    if (!value) {
+      await _settingsService.clearApiKey(_llmProviders.defaultProvider.id);
+    }
+  }
+
+  bool get isTestingConnection => busy(_testConnectionBusyKey);
+
+  bool _connectionTestSucceeded = false;
+  bool get connectionTestSucceeded => _connectionTestSucceeded;
+
+  /// Mirrors `importErrorMessage`'s per-failure-case copy (P1.7-G7: one
+  /// generic message for every failure is a real defect).
+  String? get connectionTestErrorMessage {
+    final error = this.error(_testConnectionBusyKey);
+    if (error is! LlmException) return null;
+    return switch (error.failure) {
+      LlmFailure.noKey => 'Enter an API key first.',
+      LlmFailure.unauthorized =>
+        'That key was rejected — check it and try again.',
+      LlmFailure.rateLimited =>
+        'Your API account is rate limited — try again in a moment.',
+      LlmFailure.overloaded =>
+        "Anthropic's API is temporarily unavailable — try again shortly.",
+      LlmFailure.network => "Couldn't reach Anthropic — check your connection.",
+      LlmFailure.timeout => 'The request timed out — try again.',
+      LlmFailure.refusal => 'The connection check was refused.',
+      LlmFailure.malformedResponse => 'Got an unexpected response — try again.',
+    };
+  }
+
+  // A real `async` wrapper, not `_llmService.testConnection(...)` returned
+  // directly — see `VaultViewModel._load`'s doc comment for exactly why a
+  // synchronously-throwing call needs this: `runBusyFuture` can only catch
+  // a failure inside the `Future` it's given, not one thrown while that
+  // argument is still being evaluated.
+  Future<void> _testConnection(String apiKey) async =>
+      _llmService.testConnection(_llmProviders.defaultProvider.id, apiKey);
+
+  /// Only stores [apiKey] (in memory always, on disk if
+  /// [rememberApiKey] is on — see `SettingsService.setApiKey`) once the
+  /// connection actually validates it, so a rejected key never lingers.
+  Future<void> testCopilotConnection(String apiKey) async {
+    _connectionTestSucceeded = false;
+    await runBusyFuture(
+      _testConnection(apiKey),
+      busyObject: _testConnectionBusyKey,
+    );
+    if (!hasErrorForKey(_testConnectionBusyKey)) {
+      _connectionTestSucceeded = true;
+      await _settingsService.setApiKey(
+        _llmProviders.defaultProvider.id,
+        apiKey,
+      );
+    }
+    rebuildUi();
   }
 }

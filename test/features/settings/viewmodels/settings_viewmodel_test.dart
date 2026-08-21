@@ -1,7 +1,9 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/backup_service.dart';
+import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -15,6 +17,7 @@ void main() {
     late MockBackupService backupService;
     late MockDraftService draftService;
     late MockDialogService dialogService;
+    late MockLlmService llmService;
 
     final bundle = CvBackupBundle(
       app: 'cv-forge',
@@ -29,7 +32,9 @@ void main() {
       backupService = getAndRegisterBackupService();
       draftService = getAndRegisterDraftService();
       dialogService = getAndRegisterDialogService();
+      llmService = getAndRegisterLlmService();
       when(draftService.drafts).thenReturn([]);
+      when(settingsService.settings).thenReturn(AppSettings.empty());
     });
     tearDown(() => locator.reset());
 
@@ -125,6 +130,85 @@ void main() {
 
         expect(model.importErrorMessage, isNotNull);
         verifyNever(backupService.applyImport(any));
+      });
+    });
+
+    group('copilot connection (4.4) -', () {
+      test('selectCopilotModel persists both provider and model ids', () async {
+        when(
+          settingsService.setCopilotProvider(any),
+        ).thenAnswer((_) => Future<void>.value());
+        when(
+          settingsService.setCopilotModel(any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.selectCopilotModel('claude-sonnet-5');
+
+        verify(settingsService.setCopilotProvider('anthropic')).called(1);
+        verify(settingsService.setCopilotModel('claude-sonnet-5')).called(1);
+      });
+
+      test('setRememberApiKey(false) clears the stored key', () async {
+        when(
+          settingsService.setRememberApiKey(false),
+        ).thenAnswer((_) => Future<void>.value());
+        when(
+          settingsService.clearApiKey('anthropic'),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.setRememberApiKey(false);
+
+        verify(settingsService.setRememberApiKey(false)).called(1);
+        verify(settingsService.clearApiKey('anthropic')).called(1);
+      });
+
+      test('setRememberApiKey(true) does not clear the key', () async {
+        when(
+          settingsService.setRememberApiKey(true),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.setRememberApiKey(true);
+
+        verifyNever(settingsService.clearApiKey('anthropic'));
+      });
+
+      test(
+        'testCopilotConnection success stores the key and clears any error',
+        () async {
+          when(
+            llmService.testConnection('anthropic', 'sk-ant-test'),
+          ).thenAnswer((_) => Future<void>.value());
+          when(
+            settingsService.setApiKey('anthropic', 'sk-ant-test'),
+          ).thenAnswer((_) => Future<void>.value());
+
+          final model = SettingsViewModel();
+          await model.testCopilotConnection('sk-ant-test');
+
+          expect(model.connectionTestSucceeded, isTrue);
+          expect(model.connectionTestErrorMessage, isNull);
+          expect(model.isTestingConnection, isFalse);
+          verify(
+            settingsService.setApiKey('anthropic', 'sk-ant-test'),
+          ).called(1);
+        },
+      );
+
+      test('testCopilotConnection failure surfaces distinct copy per '
+          'LlmFailure and never stores the rejected key', () async {
+        when(
+          llmService.testConnection('anthropic', 'bad-key'),
+        ).thenThrow(const LlmException(LlmFailure.unauthorized));
+
+        final model = SettingsViewModel();
+        await model.testCopilotConnection('bad-key');
+
+        expect(model.connectionTestSucceeded, isFalse);
+        expect(model.connectionTestErrorMessage, isNotNull);
+        verifyNever(settingsService.setApiKey('anthropic', 'bad-key'));
       });
     });
   });
