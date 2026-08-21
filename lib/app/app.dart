@@ -43,6 +43,8 @@ import 'package:cv_forge/services/llm_service.dart';
 
 import 'package:cv_forge/services/copilot_service.dart';
 
+import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -91,6 +93,7 @@ import 'package:cv_forge/services/copilot_service.dart';
   dialogs: [
     StackedDialog(classType: ConfirmDeleteDialog),
     StackedDialog(classType: EditDraftDialog),
+    StackedDialog(classType: CopilotRunDialog),
     // @stacked-dialog
   ],
 )

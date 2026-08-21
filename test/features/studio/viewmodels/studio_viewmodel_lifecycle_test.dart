@@ -127,6 +127,10 @@ void main() {
         when(vaultService.vault).thenReturn(CvVault.empty());
         when(vaultService.load()).thenAnswer((_) => Future<void>.value());
         when(draftService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.draft).thenReturn(draftWith());
+        when(
+          draftService.hasCopilotUndoFor(any),
+        ).thenAnswer((_) async => false);
 
         final model = StudioViewModel();
         model.initialise();
