@@ -11,6 +11,64 @@ load-bearing from it is reproduced here.
 is live. `PR #30` fixed one false-positive in the garbled-text check
 (justified-line spacer runs). Nothing X-Ray-related has been started.
 
+> **Superseded in part — read "Next step" below before §6.** Steps 1–5 of
+> §6's build order are now built (commit `fe081c7`, branch
+> `docs/ats-xray-overlay-handover`, pushed, no PR). Step 6 is replaced by
+> a different design. §§1–5 and 7–9 still describe the code accurately.
+
+## Next step (start here)
+
+**Built so far:** Machine Ingestion panel; the coordinate reconciliation
+(§5) end-to-end — `getViewport`/ascent/descent bindings,
+`getPageViewportTransform`, and `lib/models/ats/ats_matrix_math.dart`
+(`composeAtsTextMatrix` + `atsInkBoxRect`, unit-tested); box rendering
+through §6 steps 2→4, ending at `AtsXrayPainter`; and zoom/pan
+(`InteractiveViewer`). Verified against real embedded-font PDFs — boxes
+land tight on the ink, including right-aligned and multi-column runs.
+
+**The design pivot:** don't build §6 step 6 as written (a findings tab
+with a "Show in X-Ray" action that jumps to a separate overlay tab).
+Instead **merge findings onto the X-Ray page as the feature's primary
+view** — one place showing both what's wrong and where, rather than two
+panes to cross-reference. `AnalyzerResultsPanel`'s current three tabs
+(Findings / Machine Ingestion / X-Ray) are the incremental build shape,
+not the target: the first and third collapse into one.
+
+Concretely, that needs:
+
+1. **Evidence on `AtsFinding`** — §7's `AtsFindingEvidence` shape still
+   stands. Populate `columnCrush` first; `_checkColumnCrush` already has
+   `left`/`right` in scope where it builds the finding. §7's warning
+   about `_checkGarbledText` needing a real behavior change (per-node
+   rather than document-aggregated findings) still applies — defer it.
+2. **Severity-styled boxes in `AtsXrayPainter`** — it currently takes a
+   flat `List<AtsPixelRect>` and strokes every box identically. Evidence
+   boxes need to paint differently (red/amber by severity) from the
+   faint every-node boxes, so the painter's input becomes styled boxes
+   rather than bare rects.
+3. **Document-level findings need a non-overlay home.** `noTextLayer`,
+   `missingHeadings`, and `contactInfo` have no coordinates by
+   definition — a banner above the raster, not a box on it.
+4. **A findings rail beside the page**, each entry clicking through to
+   scroll/zoom its evidence box. `_XrayPocViewState` already holds the
+   `TransformationController`, and `_fitTransform` is the worked example
+   of building the matrix to animate toward.
+
+**Worth knowing before you touch the layout:** `InteractiveViewer`'s
+`constrained: false` in `analyzer_xray_panel.dart` is load-bearing, not
+incidental — the default (`true`) hands the child tight viewport
+constraints, which silently collapses the raster-sized `SizedBox` and
+puts the image, the painter's canvas, and the box coordinates in three
+different spaces. That cost real debugging time; the reasoning is in a
+comment at the call site, so don't "simplify" it away.
+
+**Open question raised in review, not yet answered:** the boxes look
+correct even on a page with seven `columnCrush` findings — because that
+check is about reading *order*, not position, and a box can't show
+order. Flow lines (§6 step 7) are the piece that actually visualises it.
+Worth deciding whether they move earlier now that they're the missing
+half of the story rather than a cosmetic extra.
+
 ## 1. What you're building
 
 Two pieces from the original design, both cut from v1 deliberately (see
