@@ -435,7 +435,9 @@ void main() {
         expect(service.draft.bulletIds, {
           'exp-1': ['bullet-1'],
         });
-        expect(service.draft.bulletOverrides, {'bullet-1': 'Rewritten bullet.'});
+        expect(service.draft.bulletOverrides, {
+          'bullet-1': 'Rewritten bullet.',
+        });
         expect(service.draft.skillIds, ['skill-1']);
         expect(service.draft.hiddenSections, {CvSectionType.hobbies});
         expect(

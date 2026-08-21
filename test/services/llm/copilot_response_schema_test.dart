@@ -87,16 +87,32 @@ void main() {
         '— those two stay omittable so an absent key can mean "no '
         'override" without needing a null type the schema AST doesn\'t '
         'support', () {
-      final schema = buildCopilotResponseSchema(CvVault.empty()) as JsonSchemaObject;
+      final schema =
+          buildCopilotResponseSchema(CvVault.empty()) as JsonSchemaObject;
 
-      expect(schema.required, containsAll(['experiences', 'projects', 'skillIds', 'educationIds', 'hobbyIds', 'publicationIds', 'hiddenSections', 'rationale', 'keywordGaps']));
+      expect(
+        schema.required,
+        containsAll([
+          'experiences',
+          'projects',
+          'skillIds',
+          'educationIds',
+          'hobbyIds',
+          'publicationIds',
+          'hiddenSections',
+          'rationale',
+          'keywordGaps',
+        ]),
+      );
       expect(schema.required, isNot(contains('headline')));
       expect(schema.required, isNot(contains('summary')));
     });
 
     test('hiddenSections enumerates every CvSectionType name', () {
-      final schema = buildCopilotResponseSchema(CvVault.empty()) as JsonSchemaObject;
-      final hiddenSections = schema.properties['hiddenSections'] as JsonSchemaArray;
+      final schema =
+          buildCopilotResponseSchema(CvVault.empty()) as JsonSchemaObject;
+      final hiddenSections =
+          schema.properties['hiddenSections'] as JsonSchemaArray;
       final values = (hiddenSections.items as JsonSchemaStringEnum).values;
 
       expect(values, contains('experience'));
