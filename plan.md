@@ -1225,6 +1225,25 @@ suppressed while `available.length == 1`) becomes live for the first time.
 >   typed-but-unsubmitted key field and resets the stored model to the new
 >   provider's first option — a model id from the old provider left
 >   sitting in settings would otherwise point at nothing meaningful.
+>
+> **Update (2026-08-21, after 4.5 shipped): `gemini-3.5-flash` added,
+> and a real usage-accounting bug fixed alongside it.** Added because a
+> real-world comparison against Anthropic wasn't a fair one — Flash-*Lite*
+> is the cheapest possible Gemini tier, not a peer of Anthropic's default
+> models. Confirmed working the same way Flash-Lite was: a real
+> `generateContent` request, real `finishReason: "STOP"`, real
+> `modelVersion: "gemini-3.5-flash"`. That same real response exposed a
+> genuine bug: `GeminiProvider.completeJson` was reading `outputTokens`
+> from `candidatesTokenCount` alone, but a trivial "reply OK" prompt came
+> back with `candidatesTokenCount: 1` and a *separate* `thoughtsTokenCount:
+> 86`, additive into `totalTokenCount` (7 + 86 + 1 = 94) — a thinking-
+> capable model bills its reasoning as output tokens, and the old code
+> silently dropped 86 of every 87 real output tokens from the cost shown
+> in Settings. Fixed by summing both fields. `gemini-3.5-flash-lite`'s own
+> captured response never carried `thoughtsTokenCount` at all, so the
+> `?? 0` fallback is a confirmed real case, not a guess covering an
+> untested one. `gemini-3.5-flash`'s pricing is the same "carried forward
+> from the 2.5 tier, not yet re-checked for 3.5" caveat as Flash-Lite's.
 
 **Verification:** `stacked generate && dart format . && flutter analyze &&
 flutter test --exclude-tags=golden`; Step 0 no longer blocks (done above)

@@ -53,6 +53,21 @@ class GeminiProvider implements LlmProvider {
       inputPricePerMTok: 0.10,
       outputPricePerMTok: 0.40,
     ),
+    LlmModelOption(
+      id: 'gemini-3.5-flash',
+      label: 'Gemini 3.5 Flash',
+      // Confirmed working via a real `generateContent` request (a real
+      // `finishReason: "STOP"` response, `modelVersion:
+      // "gemini-3.5-flash"`) — added because comparing Anthropic's
+      // models against Flash-*Lite* specifically isn't a fair quality
+      // comparison between providers, it's a fair comparison between a
+      // full model and the cheapest possible tier of the other. Same
+      // provisional-pricing caveat as Flash-Lite above: carrying 2.5
+      // Flash's confirmed rate forward, not re-checked for the 3.5
+      // generation specifically.
+      inputPricePerMTok: 0.30,
+      outputPricePerMTok: 2.50,
+    ),
   ];
 
   Map<String, String> _headers(String apiKey) => {
@@ -148,7 +163,22 @@ class GeminiProvider implements LlmProvider {
       data: data,
       usage: LlmUsage(
         inputTokens: (usage['promptTokenCount'] as num?)?.toInt() ?? 0,
-        outputTokens: (usage['candidatesTokenCount'] as num?)?.toInt() ?? 0,
+        // `candidatesTokenCount` alone undercounts what's actually billed
+        // at the output rate — confirmed by a real `gemini-3.5-flash`
+        // response (a trivial one-word reply) that came back with
+        // `candidatesTokenCount: 1` and a separate `thoughtsTokenCount:
+        // 86`, additive into `totalTokenCount`. A thinking-capable model
+        // bills its reasoning tokens as output, so both fields have to be
+        // summed or the price shown in Settings is quietly wrong for any
+        // model that thinks by default — the exact "an unrendered price
+        // can be wrong indefinitely" failure mode plan.md's Opus-pricing
+        // lesson (4.4) already burned once. Absent entirely on a
+        // non-thinking response (confirmed for `gemini-3.5-flash-lite`'s
+        // own captured response), so `?? 0` is a real default, not a
+        // guess.
+        outputTokens:
+            ((usage['candidatesTokenCount'] as num?)?.toInt() ?? 0) +
+            ((usage['thoughtsTokenCount'] as num?)?.toInt() ?? 0),
       ),
     );
   }

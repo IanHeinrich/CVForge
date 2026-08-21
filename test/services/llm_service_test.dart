@@ -426,6 +426,50 @@ void main() {
         });
       });
 
+      test('outputTokens sums candidatesTokenCount AND thoughtsTokenCount — '
+          'a thinking-capable model bills reasoning tokens as output, and '
+          'candidatesTokenCount alone silently undercounts it', () async {
+        // A real gemini-3.5-flash response to a trivial "reply OK" prompt:
+        // candidatesTokenCount 1 (the actual reply) + thoughtsTokenCount
+        // 86 (reasoning) + promptTokenCount 7 = totalTokenCount 94,
+        // confirming the two are additive and both billed as output.
+        final adapter = _FakeAdapter(
+          (_) async => _jsonResponse({
+            'candidates': [
+              {
+                'content': {
+                  'parts': [
+                    {'text': '{"headline":"OK"}'},
+                  ],
+                  'role': 'model',
+                },
+                'finishReason': 'STOP',
+              },
+            ],
+            'usageMetadata': {
+              'promptTokenCount': 7,
+              'candidatesTokenCount': 1,
+              'totalTokenCount': 94,
+              'thoughtsTokenCount': 86,
+            },
+          }, 200),
+        );
+        final dio = Dio()..httpClientAdapter = adapter;
+        final service = LlmService(client: dio);
+
+        final response = await service.completeJson(
+          providerId: 'gemini',
+          modelId: 'gemini-3.5-flash',
+          apiKey: 'gemini-test-key',
+          systemPrompt: 'be helpful',
+          userContent: 'tailor this',
+          schema: _fixtureSchema,
+        );
+
+        expect(response.usage.inputTokens, 7);
+        expect(response.usage.outputTokens, 87); // 1 + 86
+      });
+
       test('a finishReason other than STOP maps to LlmFailure.refusal '
           '(only STOP has been observed as a success case)', () async {
         final adapter = _FakeAdapter(
