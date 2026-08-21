@@ -60,7 +60,7 @@ jobs:
         if: steps.version.outputs.bumped == 'true'
         run: |
           flutter pub get
-          flutter build web --release --base-href /cv-forge/
+          flutter build web --release --base-href /CVForge/
 
       - uses: actions/configure-pages@v5
         if: steps.version.outputs.bumped == 'true'
