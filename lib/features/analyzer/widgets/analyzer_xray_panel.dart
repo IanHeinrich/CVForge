@@ -1,7 +1,5 @@
-import 'dart:math' as math;
-
-import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -15,18 +13,18 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:cv_forge/models/ats/ats_analysis_result.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:cv_forge/models/ats/ats_matrix_math.dart';
-import 'package:cv_forge/services/pdf_extraction_service.dart';
 import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_viewmodel.dart';
+import 'analyzer_xray_camera_controller.dart';
+import 'analyzer_xray_page_loader.dart';
 import 'analyzer_xray_rail.dart';
 import 'ats_xray_painter.dart';
 
 /// The X-Ray overlay: a rasterized page backdrop with severity-styled
 /// evidence boxes, paired with [AnalyzerXrayRail] as the feature's primary
-/// view — see `docs/ats-xray-overlay-handover.md`'s "Next step" section
-/// for the design pivot this supersedes (findings and X-Ray were
-/// originally two tabs cross-referenced by a "Show in X-Ray" jump action;
-/// this merges them, since a findings list with no way to see *where*
-/// each problem is defeats the point of a visual overlay).
+/// view — findings and the page render together in one view rather than
+/// two tabs cross-referenced by a "Show in X-Ray" jump action, since a
+/// findings list with no way to see *where* each problem is defeats the
+/// point of a visual overlay.
 ///
 /// Desktop gets a side-by-side split (rail | page); mobile/tablet share a
 /// tabbed layout — the `StudioViewDesktop`/`.compact` precedent, but
@@ -34,7 +32,9 @@ import 'ats_xray_painter.dart';
 /// classes: the split shares camera/selection/page state and callbacks
 /// deeply enough that passing all of it across a widget boundary would be
 /// pure boilerplate for no reuse benefit (unlike Studio's panes, which
-/// are genuinely independent).
+/// are genuinely independent). Page loading ([XrayPageLoader]) and camera
+/// math/animation ([XrayCameraController]) are their own classes; this
+/// `State` owns selection, page-navigation, and hover/hit-testing.
 class AnalyzerXrayPanel extends StatefulWidget {
   const AnalyzerXrayPanel({super.key, required this.viewModel});
 
@@ -44,26 +44,7 @@ class AnalyzerXrayPanel extends StatefulWidget {
   State<AnalyzerXrayPanel> createState() => _AnalyzerXrayPanelState();
 }
 
-/// One rasterized page plus the ink-box rect for every node on it, keyed
-/// by its index into `AtsExtractedDocument.nodes` — the same index
-/// `AtsFindingEvidence.nodeIndex` uses, so a finding's evidence resolves
-/// straight into this map with no re-derivation.
-class _XrayPageData {
-  _XrayPageData({
-    required this.raster,
-    required this.rectByNodeIndex,
-    required this.orderedNodeIndices,
-  });
-
-  final PdfRaster raster;
-  final Map<int, AtsPixelRect> rectByNodeIndex;
-
-  /// Extraction order, restricted to this page — the ambient-box paint
-  /// order and the flow-lines connection order are the same thing.
-  final List<int> orderedNodeIndices;
-}
-
-/// What the next resolved [_XrayPageData] should frame the camera on —
+/// What the next resolved [XrayPageData] should frame the camera on —
 /// set by [_AnalyzerXrayPanelState._selectFinding]/`_step`, consumed once
 /// the target page's raster/rects have loaded (camera framing needs real
 /// rect data, which is only available after that async load resolves).
@@ -90,19 +71,29 @@ class _FrameFit extends _FrameRequest {
 
 class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     with SingleTickerProviderStateMixin {
-  /// Arbitrary but fixed — the raster and `getPageViewportTransform` must
-  /// agree on the exact same dpi, or the two spaces are no longer the
-  /// same scale (see `PdfExtractionService`'s doc comment).
-  static const _dpi = 150.0;
-
   static const _railWidth = 340.0;
 
-  final _pageCache = <int, Future<_XrayPageData>>{};
+  late final _pageLoader = XrayPageLoader(
+    pdfBytes: widget.viewModel.pdfBytes!,
+    nodes: widget.viewModel.extractedNodes,
+    fonts: widget.viewModel.extractedFonts,
+  );
+  late final _camera = XrayCameraController(
+    vsync: this,
+    duration: context.appMotion.camera,
+  );
+
   int _pageIndex = 0;
   AtsFinding? _selectedFinding;
   int _stepIndex = 0;
   bool _showFlowLines = false;
   _FrameRequest? _pendingFrame;
+
+  /// The viewport size the camera was last positioned for — a resize (or
+  /// a page/selection change, which resets this to `null`) re-derives the
+  /// transform; an ordinary rebuild doesn't yank the user's own pan/zoom
+  /// back.
+  Size? _fittedViewport;
 
   /// A [ValueNotifier], not a plain field behind `setState` — hover fires
   /// on every mouse-move across dense text, and the previous `setState`
@@ -113,30 +104,6 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// visible churn on every hover — this confines a hover update to just
   /// the peek text's own small `ValueListenableBuilder` instead.
   final _hoveredNodeIndex = ValueNotifier<int?>(null);
-
-  final _transformationController = TransformationController();
-
-  /// The viewport size the camera was last positioned for — a resize (or
-  /// a page/selection change, which resets this to `null`) re-derives the
-  /// transform; an ordinary rebuild doesn't yank the user's own pan/zoom
-  /// back.
-  Size? _fittedViewport;
-
-  /// One controller reused for every camera move, not recreated per move.
-  /// The previous approach created a fresh `AnimationController` each
-  /// call and disposed it in `whenComplete` — but `whenComplete` doesn't
-  /// clear the field it disposed, so the *next* call's `?.dispose()` hit
-  /// an already-disposed controller, threw inside a post-frame callback,
-  /// and silently aborted before ever touching
-  /// `_transformationController`. That's why only the first click ever
-  /// panned: every later `_animateCameraTo` call was throwing before it
-  /// could animate anything.
-  late final AnimationController _cameraAnimationController =
-      AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 350),
-      );
-  void Function()? _cameraAnimationListener;
 
   /// Web-only grab/grabbing affordance, the same idea `printing`'s
   /// vendored zoom preview uses (`third_party/printing/lib/src/preview/
@@ -157,74 +124,11 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   );
 
   @override
-  void didUpdateWidget(covariant AnalyzerXrayPanel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.viewModel.pdfBytes != widget.viewModel.pdfBytes) {
-      _pageCache.clear();
-      _pageIndex = 0;
-      _selectedFinding = null;
-      _stepIndex = 0;
-      _hoveredNodeIndex.value = null;
-      _pendingFrame = null;
-      _fittedViewport = null;
-    }
-  }
-
-  @override
   void dispose() {
-    _transformationController.dispose();
-    _cameraAnimationController.dispose();
+    _camera.dispose();
     _hoveredNodeIndex.dispose();
     _cursor.dispose();
     super.dispose();
-  }
-
-  // --- page loading ------------------------------------------------------
-
-  Future<_XrayPageData> _pageData(int pageIndex) =>
-      _pageCache.putIfAbsent(pageIndex, () => _loadPage(pageIndex));
-
-  Future<_XrayPageData> _loadPage(int pageIndex) async {
-    final bytes = widget.viewModel.pdfBytes!;
-    final nodes = widget.viewModel.extractedNodes;
-    final orderedNodeIndices = [
-      for (var i = 0; i < nodes.length; i++)
-        if (nodes[i].pageIndex == pageIndex) i,
-    ];
-
-    // A fresh copy for *each* call — both `Printing.raster()` and
-    // `getPageViewportTransform()` hand their bytes to `getDocument()`,
-    // which detaches the underlying buffer (see `PdfExtractionServiceWeb`'s
-    // doc comment). Reusing `bytes` directly across both calls would leave
-    // the second one holding a detached buffer.
-    final raster = await Printing.raster(
-      Uint8List.fromList(bytes),
-      pages: [pageIndex],
-      dpi: _dpi,
-    ).first;
-    final viewport = await locator<PdfExtractionService>()
-        .getPageViewportTransform(
-          Uint8List.fromList(bytes),
-          pageIndex: pageIndex,
-          dpi: _dpi,
-        );
-
-    final fonts = widget.viewModel.extractedFonts;
-    final rectByNodeIndex = <int, AtsPixelRect>{
-      for (final idx in orderedNodeIndices)
-        idx: atsInkBoxRect(
-          node: nodes[idx],
-          viewport: viewport,
-          ascent: fonts[nodes[idx].fontName]?.ascent,
-          descent: fonts[nodes[idx].fontName]?.descent,
-        ),
-    };
-
-    return _XrayPageData(
-      raster: raster,
-      rectByNodeIndex: rectByNodeIndex,
-      orderedNodeIndices: orderedNodeIndices,
-    );
   }
 
   // --- selection / navigation --------------------------------------------
@@ -315,7 +219,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// The smallest-area matching box under [position] — resume text runs
   /// rarely overlap, but preferring the smallest match keeps a click
   /// resolving to the more specific run on the rare case they do.
-  int? _hitTestNode(Offset position, _XrayPageData data) {
+  int? _hitTestNode(Offset position, XrayPageData data) {
     int? best;
     double? bestArea;
     for (final idx in data.orderedNodeIndices) {
@@ -346,7 +250,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
 
   void _handleTap(
     Offset position,
-    _XrayPageData data,
+    XrayPageData data,
     AtsAnalysisResult result,
   ) {
     final nodeIndex = _hitTestNode(position, data);
@@ -373,7 +277,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     }
   }
 
-  void _updateHover(Offset? position, _XrayPageData? data) {
+  void _updateHover(Offset? position, XrayPageData? data) {
     // ValueNotifier already no-ops when the new value equals the current
     // one, so this doesn't need its own equality guard.
     _hoveredNodeIndex.value = position != null && data != null
@@ -389,7 +293,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
 
   // --- boxes / painter input ----------------------------------------------
 
-  List<AtsXrayBox> _buildBoxes(_XrayPageData data, AtsAnalysisResult result) {
+  List<AtsXrayBox> _buildBoxes(XrayPageData data, AtsAnalysisResult result) {
     // result.findings is already severity-sorted (critical first), so the
     // first finding claiming a node wins — "highest severity wins" falls
     // out of iteration order rather than needing its own comparison.
@@ -427,13 +331,18 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     return boxes;
   }
 
-  AtsXraySelection? _buildSelection(_XrayPageData data) {
+  /// [finding]'s evidence rects that fall on [_pageIndex] — a finding may
+  /// have evidence spread across multiple pages, but only this page's
+  /// rects are drawable/frameable right now.
+  List<AtsPixelRect> _rectsOnPage(AtsFinding finding, XrayPageData data) => [
+    for (final ev in finding.evidence)
+      if (ev.pageIndex == _pageIndex) data.rectByNodeIndex[ev.nodeIndex],
+  ].whereType<AtsPixelRect>().toList();
+
+  AtsXraySelection? _buildSelection(XrayPageData data) {
     final finding = _selectedFinding;
     if (finding == null) return null;
-    final rects = [
-      for (final ev in finding.evidence)
-        if (ev.pageIndex == _pageIndex) data.rectByNodeIndex[ev.nodeIndex],
-    ].whereType<AtsPixelRect>().toList();
+    final rects = _rectsOnPage(finding, data);
     if (rects.isEmpty) return null;
     return (rects: rects, shape: finding.evidenceShape);
   }
@@ -445,11 +354,11 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// was pure waste, and worse: a fresh `boxes` list instance every frame
   /// defeats `AtsXrayPainter.shouldRepaint`'s identity check, forcing a
   /// full repaint of every box on every mouse-move.
-  (int, AtsFinding?, _XrayPageData)? _paintDataKey;
+  (int, AtsFinding?, XrayPageData)? _paintDataKey;
   ({List<AtsXrayBox> boxes, AtsXraySelection? selection})? _paintData;
 
   ({List<AtsXrayBox> boxes, AtsXraySelection? selection}) _paintDataFor(
-    _XrayPageData data,
+    XrayPageData data,
     AtsAnalysisResult result,
   ) {
     final key = (_pageIndex, _selectedFinding, data);
@@ -466,81 +375,14 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
 
   // --- camera --------------------------------------------------------------
 
-  /// The whole page, scaled down to fit and centred — the sane opening
-  /// view, and what double-tap returns to.
-  Matrix4 _fitTransform(Size viewport, Size content) {
-    if (viewport.isEmpty || content.isEmpty) return Matrix4.identity();
-    final scale = math.min(
-      viewport.width / content.width,
-      viewport.height / content.height,
-    );
-    // Column-major (`setEntry(row, col, _)`), so column 3 is translation
-    // and this composes as `x' = scale * x + dx` — scale first, then
-    // centre what's left over.
-    return Matrix4.identity()
-      ..setEntry(0, 0, scale)
-      ..setEntry(1, 1, scale)
-      ..setEntry(0, 3, (viewport.width - content.width * scale) / 2)
-      ..setEntry(1, 3, (viewport.height - content.height * scale) / 2);
-  }
-
-  /// Frames [rect] centred in [viewport] with [padding] pixels of margin,
-  /// clamped to the same zoom range as [InteractiveViewer.minScale]/
-  /// `maxScale` below.
-  Matrix4 _frameTransform(
-    AtsPixelRect rect,
-    Size viewport, {
-    double padding = 48,
-  }) {
-    final width = (rect.right - rect.left) + padding * 2;
-    final height = (rect.bottom - rect.top) + padding * 2;
-    if (viewport.isEmpty || width <= 0 || height <= 0) {
-      return _transformationController.value;
-    }
-    final scale = math
-        .min(viewport.width / width, viewport.height / height)
-        .clamp(0.1, 8.0);
-    final cx = (rect.left + rect.right) / 2;
-    final cy = (rect.top + rect.bottom) / 2;
-    return Matrix4.identity()
-      ..setEntry(0, 0, scale)
-      ..setEntry(1, 1, scale)
-      ..setEntry(0, 3, viewport.width / 2 - cx * scale)
-      ..setEntry(1, 3, viewport.height / 2 - cy * scale);
-  }
-
-  void _animateCameraTo(Matrix4 target) {
-    // Interrupting an in-flight move: drop its listener before starting
-    // the next one, or the stale animation keeps writing over the new
-    // one's frames.
-    final previousListener = _cameraAnimationListener;
-    if (previousListener != null) {
-      _cameraAnimationController.removeListener(previousListener);
-    }
-    final animation =
-        Matrix4Tween(
-          begin: _transformationController.value,
-          end: target,
-        ).animate(
-          CurvedAnimation(
-            parent: _cameraAnimationController,
-            curve: Curves.easeInOut,
-          ),
-        );
-    void listener() => _transformationController.value = animation.value;
-    _cameraAnimationListener = listener;
-    _cameraAnimationController.addListener(listener);
-    _cameraAnimationController
-      ..reset()
-      ..forward();
-  }
-
   /// Selecting a finding frames the union of its evidence on the page it
   /// lands on ("what am I looking at?"); stepping through evidence frames
   /// one location tightly at a time ("show me each one") — two different
   /// questions, so two different framings rather than one compromise.
-  /// Deselecting ([_FrameFit]) goes back to the whole-page fit.
-  void _resolvePendingFrame(_XrayPageData data, Size viewport) {
+  /// Deselecting ([_FrameFit]) goes back to the whole-page fit. See
+  /// [XrayCameraController.animateTo] for why this can call it directly,
+  /// mid-build, without deferring to a post-frame callback.
+  void _resolvePendingFrame(XrayPageData data, Size viewport) {
     final request = _pendingFrame;
     _pendingFrame = null;
     if (request == null || viewport.isEmpty) return;
@@ -548,39 +390,24 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     Matrix4? target;
     switch (request) {
       case _FrameUnion(:final finding):
-        final rects = [
-          for (final ev in finding.evidence)
-            if (ev.pageIndex == _pageIndex) data.rectByNodeIndex[ev.nodeIndex],
-        ].whereType<AtsPixelRect>().toList();
+        final rects = _rectsOnPage(finding, data);
         if (rects.isNotEmpty) {
-          target = _frameTransform(atsUnionRect(rects), viewport);
+          target = _camera.frameTransform(atsUnionRect(rects), viewport);
         }
       case _FrameSingle(:final nodeIndex):
         final rect = data.rectByNodeIndex[nodeIndex];
         if (rect != null) {
-          target = _frameTransform(rect, viewport, padding: 90);
+          target = _camera.frameTransform(rect, viewport, padding: 90);
         }
       case _FrameFit():
-        target = _fitTransform(
+        target = _camera.fitTransform(
           viewport,
           Size(data.raster.width.toDouble(), data.raster.height.toDouble()),
         );
     }
 
     if (target == null) return;
-    // Called directly, not deferred via `addPostFrameCallback` the way the
-    // plain fit-transform below does — that path assigns
-    // `_transformationController.value` straight away, which synchronously
-    // notifies `InteractiveViewer`'s own listener and is illegal mid-build.
-    // `_animateCameraTo` doesn't do that: it only starts a
-    // `AnimationController.forward()`, which schedules its first tick for
-    // the *next* frame rather than notifying anything synchronously — safe
-    // to call from here. Deferring it anyway (as this used to) meant the
-    // selection's box styling changed on this frame while the camera
-    // stayed frozen at the old position for one extra frame before the pan
-    // even started — a visible snap-then-catch-up that read as a flicker
-    // on every selection.
-    _animateCameraTo(target);
+    _camera.animateTo(target);
   }
 
   // --- build ---------------------------------------------------------------
@@ -596,8 +423,8 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       );
     }
 
-    return FutureBuilder<_XrayPageData>(
-      future: _pageData(_pageIndex),
+    return FutureBuilder<XrayPageData>(
+      future: _pageLoader.load(_pageIndex),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(child: CircularProgressIndicator());
@@ -612,24 +439,23 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     );
   }
 
+  Widget _rail(AtsAnalysisResult result) => AnalyzerXrayRail(
+    findings: result.findings,
+    selected: _selectedFinding,
+    stepIndex: _stepIndex,
+    onSelect: _toggleFinding,
+    onStep: _step,
+  );
+
   Widget _buildDesktop(
     BuildContext context,
     AtsAnalysisResult result,
-    _XrayPageData data,
+    XrayPageData data,
   ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
-          width: _railWidth,
-          child: AnalyzerXrayRail(
-            findings: result.findings,
-            selected: _selectedFinding,
-            stepIndex: _stepIndex,
-            onSelect: _toggleFinding,
-            onStep: _step,
-          ),
-        ),
+        SizedBox(width: _railWidth, child: _rail(result)),
         const VerticalDivider(width: 1, color: kcMediumGrey),
         Expanded(child: _buildPageView(context, result, data)),
       ],
@@ -639,16 +465,13 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   Widget _buildCompact(
     BuildContext context,
     AtsAnalysisResult result,
-    _XrayPageData data,
+    XrayPageData data,
   ) {
     return DefaultTabController(
       length: 2,
       child: Column(
         children: [
           const TabBar(
-            labelColor: kcPrimaryColor,
-            unselectedLabelColor: kcLightGrey,
-            indicatorColor: kcPrimaryColor,
             tabs: [
               Tab(text: 'Findings'),
               Tab(text: 'Page'),
@@ -657,16 +480,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
           const VGap.small(),
           Expanded(
             child: TabBarView(
-              children: [
-                AnalyzerXrayRail(
-                  findings: result.findings,
-                  selected: _selectedFinding,
-                  stepIndex: _stepIndex,
-                  onSelect: _toggleFinding,
-                  onStep: _step,
-                ),
-                _buildPageView(context, result, data),
-              ],
+              children: [_rail(result), _buildPageView(context, result, data)],
             ),
           ),
         ],
@@ -677,7 +491,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   Widget _buildPageView(
     BuildContext context,
     AtsAnalysisResult result,
-    _XrayPageData data,
+    XrayPageData data,
   ) {
     final pageCount = result.info.pageCount;
 
@@ -730,12 +544,8 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
         // means hovering never changes layout, only text content.
         //
         // Scoped to its own `ValueListenableBuilder` rather than reading
-        // `_hoveredNodeIndex` in this method directly — hover fires on
-        // every mouse-move across dense text, and this used to be a
-        // `setState` on the whole panel (rail, camera, the entire
-        // `InteractiveViewer` subtree) for every single one of those
-        // events, which was real, visible churn even once the layout
-        // feedback loop above was fixed.
+        // `_hoveredNodeIndex` in this method directly — see that field's
+        // doc comment for why.
         Padding(
           padding: EdgeInsets.only(
             left: context.appSpacing.paddingCompact,
@@ -787,7 +597,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
 
   Widget _buildInteractiveViewer(
     Size viewport,
-    _XrayPageData data,
+    XrayPageData data,
     AtsAnalysisResult result,
   ) {
     final content = Size(
@@ -804,9 +614,9 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       if (_pendingFrame != null) {
         _resolvePendingFrame(data, viewport);
       } else {
-        final target = _fitTransform(viewport, content);
+        final target = _camera.fitTransform(viewport, content);
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _transformationController.value = target;
+          if (mounted) _camera.transformationController.value = target;
         });
       }
     }
@@ -831,12 +641,10 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
         // nothing else on screen to explain why.
         onDoubleTap: () {
           if (_selectedFinding != null) {
-            setState(() {
-              _selectedFinding = null;
-              _stepIndex = 0;
-            });
+            _deselectFinding();
+          } else {
+            _camera.animateTo(_camera.fitTransform(viewport, content));
           }
-          _animateCameraTo(_fitTransform(viewport, content));
         },
         onLongPressDown: kIsWeb
             ? (_) => _updateCursor(SystemMouseCursors.grabbing)
@@ -845,7 +653,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
             ? () => _updateCursor(SystemMouseCursors.grab)
             : null,
         child: InteractiveViewer(
-          transformationController: _transformationController,
+          transformationController: _camera.transformationController,
           // The whole reason the boxes and the page can share one
           // coordinate space: left at its `true` default, InteractiveViewer
           // hands its child *tight viewport* constraints, so the SizedBox

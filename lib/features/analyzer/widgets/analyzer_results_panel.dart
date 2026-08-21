@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -10,10 +9,8 @@ import 'analyzer_xray_panel.dart';
 
 /// The finished-analysis state: a short summary line, then a tabbed split
 /// between the X-Ray overlay (findings + page, merged into one primary
-/// view — see `docs/ats-xray-overlay-handover.md`'s "Next step" section)
-/// and the Machine Ingestion panel (raw extracted text, a genuinely
-/// different lens on the same document). The standalone findings-only tab
-/// this used to have is gone: it's now `AnalyzerXrayPanel`'s rail.
+/// view) and the Machine Ingestion panel (raw extracted text, a
+/// genuinely different lens on the same document).
 class AnalyzerResultsPanel extends StatelessWidget {
   const AnalyzerResultsPanel({super.key, required this.viewModel});
 
@@ -48,9 +45,6 @@ class AnalyzerResultsPanel extends StatelessWidget {
             ),
             const VGap.medium(),
             const TabBar(
-              labelColor: kcPrimaryColor,
-              unselectedLabelColor: kcLightGrey,
-              indicatorColor: kcPrimaryColor,
               tabs: [
                 Tab(text: 'X-Ray'),
                 Tab(text: 'Machine Ingestion'),

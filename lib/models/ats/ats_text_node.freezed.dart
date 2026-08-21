@@ -20,13 +20,9 @@ mixin _$AtsTextNode {
 /// nonzero [width] with no corresponding characters in [str] — see
 /// `AtsAnalyzerService`'s phantom-glyph check, which exists because of
 /// exactly that finding.
- double get width;/// The rotation-invariant effective em size — `hypot(transform.c,
-/// transform.d)` on every real content run in the spike's corpus.
-/// `0` on synthetic empty/EOL marker runs (`str.isEmpty`); always
-/// filter those out before using this for a font-size-based check.
- double get height;/// `pdf.js`'s internal font id (e.g. `g_d0_f1`) — a key into
+ double get width;/// `pdf.js`'s internal font id (e.g. `g_d0_f1`) — a key into
 /// `AtsExtractedDocument.fonts`, not a user-facing name.
- String get fontName; bool get hasEol;
+ String get fontName;
 /// Create a copy of AtsTextNode
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -37,16 +33,16 @@ $AtsTextNodeCopyWith<AtsTextNode> get copyWith => _$AtsTextNodeCopyWithImpl<AtsT
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AtsTextNode&&(identical(other.pageIndex, pageIndex) || other.pageIndex == pageIndex)&&(identical(other.str, str) || other.str == str)&&(identical(other.transform, transform) || other.transform == transform)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.fontName, fontName) || other.fontName == fontName)&&(identical(other.hasEol, hasEol) || other.hasEol == hasEol));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AtsTextNode&&(identical(other.pageIndex, pageIndex) || other.pageIndex == pageIndex)&&(identical(other.str, str) || other.str == str)&&(identical(other.transform, transform) || other.transform == transform)&&(identical(other.width, width) || other.width == width)&&(identical(other.fontName, fontName) || other.fontName == fontName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pageIndex,str,transform,width,height,fontName,hasEol);
+int get hashCode => Object.hash(runtimeType,pageIndex,str,transform,width,fontName);
 
 @override
 String toString() {
-  return 'AtsTextNode(pageIndex: $pageIndex, str: $str, transform: $transform, width: $width, height: $height, fontName: $fontName, hasEol: $hasEol)';
+  return 'AtsTextNode(pageIndex: $pageIndex, str: $str, transform: $transform, width: $width, fontName: $fontName)';
 }
 
 
@@ -57,7 +53,7 @@ abstract mixin class $AtsTextNodeCopyWith<$Res>  {
   factory $AtsTextNodeCopyWith(AtsTextNode value, $Res Function(AtsTextNode) _then) = _$AtsTextNodeCopyWithImpl;
 @useResult
 $Res call({
- int pageIndex, String str, AtsTextMatrix transform, double width, double height, String fontName, bool hasEol
+ int pageIndex, String str, AtsTextMatrix transform, double width, String fontName
 });
 
 
@@ -74,16 +70,14 @@ class _$AtsTextNodeCopyWithImpl<$Res>
 
 /// Create a copy of AtsTextNode
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? pageIndex = null,Object? str = null,Object? transform = null,Object? width = null,Object? height = null,Object? fontName = null,Object? hasEol = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? pageIndex = null,Object? str = null,Object? transform = null,Object? width = null,Object? fontName = null,}) {
   return _then(_self.copyWith(
 pageIndex: null == pageIndex ? _self.pageIndex : pageIndex // ignore: cast_nullable_to_non_nullable
 as int,str: null == str ? _self.str : str // ignore: cast_nullable_to_non_nullable
 as String,transform: null == transform ? _self.transform : transform // ignore: cast_nullable_to_non_nullable
 as AtsTextMatrix,width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
-as double,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
 as double,fontName: null == fontName ? _self.fontName : fontName // ignore: cast_nullable_to_non_nullable
-as String,hasEol: null == hasEol ? _self.hasEol : hasEol // ignore: cast_nullable_to_non_nullable
-as bool,
+as String,
   ));
 }
 /// Create a copy of AtsTextNode
@@ -177,10 +171,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int pageIndex,  String str,  AtsTextMatrix transform,  double width,  double height,  String fontName,  bool hasEol)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int pageIndex,  String str,  AtsTextMatrix transform,  double width,  String fontName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AtsTextNode() when $default != null:
-return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.height,_that.fontName,_that.hasEol);case _:
+return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.fontName);case _:
   return orElse();
 
 }
@@ -198,10 +192,10 @@ return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.heig
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int pageIndex,  String str,  AtsTextMatrix transform,  double width,  double height,  String fontName,  bool hasEol)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int pageIndex,  String str,  AtsTextMatrix transform,  double width,  String fontName)  $default,) {final _that = this;
 switch (_that) {
 case _AtsTextNode():
-return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.height,_that.fontName,_that.hasEol);case _:
+return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.fontName);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -218,10 +212,10 @@ return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.heig
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int pageIndex,  String str,  AtsTextMatrix transform,  double width,  double height,  String fontName,  bool hasEol)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int pageIndex,  String str,  AtsTextMatrix transform,  double width,  String fontName)?  $default,) {final _that = this;
 switch (_that) {
 case _AtsTextNode() when $default != null:
-return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.height,_that.fontName,_that.hasEol);case _:
+return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.fontName);case _:
   return null;
 
 }
@@ -233,7 +227,7 @@ return $default(_that.pageIndex,_that.str,_that.transform,_that.width,_that.heig
 
 
 class _AtsTextNode implements AtsTextNode {
-  const _AtsTextNode({required this.pageIndex, required this.str, required this.transform, required this.width, required this.height, required this.fontName, this.hasEol = false});
+  const _AtsTextNode({required this.pageIndex, required this.str, required this.transform, required this.width, required this.fontName});
   
 
 @override final  int pageIndex;
@@ -246,15 +240,9 @@ class _AtsTextNode implements AtsTextNode {
 /// `AtsAnalyzerService`'s phantom-glyph check, which exists because of
 /// exactly that finding.
 @override final  double width;
-/// The rotation-invariant effective em size — `hypot(transform.c,
-/// transform.d)` on every real content run in the spike's corpus.
-/// `0` on synthetic empty/EOL marker runs (`str.isEmpty`); always
-/// filter those out before using this for a font-size-based check.
-@override final  double height;
 /// `pdf.js`'s internal font id (e.g. `g_d0_f1`) — a key into
 /// `AtsExtractedDocument.fonts`, not a user-facing name.
 @override final  String fontName;
-@override@JsonKey() final  bool hasEol;
 
 /// Create a copy of AtsTextNode
 /// with the given fields replaced by the non-null parameter values.
@@ -266,16 +254,16 @@ _$AtsTextNodeCopyWith<_AtsTextNode> get copyWith => __$AtsTextNodeCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AtsTextNode&&(identical(other.pageIndex, pageIndex) || other.pageIndex == pageIndex)&&(identical(other.str, str) || other.str == str)&&(identical(other.transform, transform) || other.transform == transform)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.fontName, fontName) || other.fontName == fontName)&&(identical(other.hasEol, hasEol) || other.hasEol == hasEol));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AtsTextNode&&(identical(other.pageIndex, pageIndex) || other.pageIndex == pageIndex)&&(identical(other.str, str) || other.str == str)&&(identical(other.transform, transform) || other.transform == transform)&&(identical(other.width, width) || other.width == width)&&(identical(other.fontName, fontName) || other.fontName == fontName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pageIndex,str,transform,width,height,fontName,hasEol);
+int get hashCode => Object.hash(runtimeType,pageIndex,str,transform,width,fontName);
 
 @override
 String toString() {
-  return 'AtsTextNode(pageIndex: $pageIndex, str: $str, transform: $transform, width: $width, height: $height, fontName: $fontName, hasEol: $hasEol)';
+  return 'AtsTextNode(pageIndex: $pageIndex, str: $str, transform: $transform, width: $width, fontName: $fontName)';
 }
 
 
@@ -286,7 +274,7 @@ abstract mixin class _$AtsTextNodeCopyWith<$Res> implements $AtsTextNodeCopyWith
   factory _$AtsTextNodeCopyWith(_AtsTextNode value, $Res Function(_AtsTextNode) _then) = __$AtsTextNodeCopyWithImpl;
 @override @useResult
 $Res call({
- int pageIndex, String str, AtsTextMatrix transform, double width, double height, String fontName, bool hasEol
+ int pageIndex, String str, AtsTextMatrix transform, double width, String fontName
 });
 
 
@@ -303,16 +291,14 @@ class __$AtsTextNodeCopyWithImpl<$Res>
 
 /// Create a copy of AtsTextNode
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? pageIndex = null,Object? str = null,Object? transform = null,Object? width = null,Object? height = null,Object? fontName = null,Object? hasEol = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? pageIndex = null,Object? str = null,Object? transform = null,Object? width = null,Object? fontName = null,}) {
   return _then(_AtsTextNode(
 pageIndex: null == pageIndex ? _self.pageIndex : pageIndex // ignore: cast_nullable_to_non_nullable
 as int,str: null == str ? _self.str : str // ignore: cast_nullable_to_non_nullable
 as String,transform: null == transform ? _self.transform : transform // ignore: cast_nullable_to_non_nullable
 as AtsTextMatrix,width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
-as double,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
 as double,fontName: null == fontName ? _self.fontName : fontName // ignore: cast_nullable_to_non_nullable
-as String,hasEol: null == hasEol ? _self.hasEol : hasEol // ignore: cast_nullable_to_non_nullable
-as bool,
+as String,
   ));
 }
 

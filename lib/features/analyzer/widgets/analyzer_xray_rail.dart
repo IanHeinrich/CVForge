@@ -8,11 +8,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'ats_finding_card.dart';
 
-/// The X-Ray overlay's primary findings list — supersedes the standalone
-/// "Findings" tab `AnalyzerResultsPanel` used to have (see `docs/
-/// ats-xray-overlay-handover.md`'s "Next step" section: findings and
-/// X-Ray collapse into one view rather than staying two tabs cross-
-/// referenced by a "Show in X-Ray" jump action).
+/// The X-Ray overlay's primary findings list.
 ///
 /// Two groups, not one flat list: [findings] with evidence are click-to-
 /// frame; document-level findings ([AtsFindingCategory.noTextLayer]
@@ -56,7 +52,7 @@ class AnalyzerXrayRail extends StatelessWidget {
           AtsFindingCard(
             finding: finding,
             selected: finding == selected,
-            stepIndex: finding == selected ? stepIndex : 0,
+            stepIndex: stepIndex,
             onTap: () => onSelect(finding),
             onStep: onStep,
           ),

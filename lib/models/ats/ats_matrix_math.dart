@@ -29,10 +29,9 @@ AtsPixelRect atsUnionRect(Iterable<AtsPixelRect> rects) {
 /// transform — "apply the item's own transform, then the viewport
 /// transform" (`result = item ∘ viewport`), the standard PDF
 /// matrix-composition formula (what `pdf.js`'s own `Util.transform`
-/// computes). See `docs/ats-xray-overlay-handover.md` §5.3 — this is the
-/// part of the coordinate reconciliation most likely to have a sign or
-/// order error, hence the dedicated unit test rather than trusting it
-/// inline in painter code.
+/// computes). This is the part of the coordinate reconciliation most
+/// likely to have a sign or order error, hence the dedicated unit test
+/// rather than trusting it inline in painter code.
 AtsTextMatrix composeAtsTextMatrix(AtsTextMatrix item, AtsTextMatrix viewport) {
   return AtsTextMatrix(
     a: item.a * viewport.a + item.b * viewport.c,
@@ -53,9 +52,9 @@ const _fallbackAscentEm = 0.75;
 const _fallbackDescentEm = -0.25;
 
 /// The pixel-space ink box for [node] once rasterized under [viewport] —
-/// see §5.4 of the handover doc: [AtsTextNode.width] is an *advance* box,
-/// not an *ink* box, so without ascent/descent every box would sit with
-/// its vertical center on the baseline rather than around the glyph ink.
+/// [AtsTextNode.width] is an *advance* box, not an *ink* box, so without
+/// ascent/descent every box would sit with its vertical center on the
+/// baseline rather than around the glyph ink.
 ///
 /// Deliberately computes the four corners in the run's own (possibly
 /// rotated) frame — using [AtsTextMatrix.rotationRadians]/[AtsTextMatrix.

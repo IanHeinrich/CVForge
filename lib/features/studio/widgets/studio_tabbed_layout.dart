@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -19,9 +18,6 @@ class StudioTabbedLayout extends StatelessWidget {
       child: Column(
         children: [
           const TabBar(
-            labelColor: kcPrimaryColor,
-            unselectedLabelColor: kcLightGrey,
-            indicatorColor: kcPrimaryColor,
             tabs: [
               Tab(text: 'Configure'),
               Tab(text: 'Preview'),

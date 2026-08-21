@@ -32,8 +32,7 @@ class AnalyzerViewModel extends BaseViewModel {
 
   /// Retained alongside [_result] so the Machine Ingestion panel and the
   /// X-Ray overlay can show what the extractor actually saw — `_result`
-  /// only carries findings, not the nodes that produced them. See `docs/
-  /// ats-xray-overlay-handover.md` §2.
+  /// only carries findings, not the nodes that produced them.
   AtsExtractedDocument? _extracted;
 
   /// Every text run `pdf.js` reported, in extraction order — empty until
@@ -44,10 +43,9 @@ class AnalyzerViewModel extends BaseViewModel {
   /// derivation reads `.ascent`/`.descent` off of this for a given node.
   Map<String, AtsFontInfo> get extractedFonts => _extracted?.fonts ?? const {};
 
-  /// Retained alongside [_extracted] for the same reason (§2 of the
-  /// handover doc): the X-Ray overlay rasters the original bytes as its
-  /// backdrop, which nothing before this kept around after `extract()`
-  /// returned.
+  /// Retained alongside [_extracted] for the same reason: the X-Ray
+  /// overlay rasters the original bytes as its backdrop, which nothing
+  /// before this kept around after `extract()` returned.
   Uint8List? _pdfBytes;
   Uint8List? get pdfBytes => _pdfBytes;
 
@@ -67,7 +65,6 @@ class AnalyzerViewModel extends BaseViewModel {
     _pdfBytes = bytes;
     _extracted = extracted;
     _result = _analyzer.analyze(extracted);
-    notifyListeners();
   }
 
   /// Back to the upload prompt — clears the previous result without

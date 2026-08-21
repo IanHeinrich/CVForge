@@ -63,9 +63,9 @@ abstract class PdfExtractionService {
   /// dpi)` so the two agree on scale. A separate call from [extract]
   /// deliberately: this is a per-page-you're-about-to-render cost, not a
   /// once-per-document one, and re-derives the transform via `pdf.js`'s
-  /// own `getViewport()` rather than rescaling a cached value — see
-  /// `docs/ats-xray-overlay-handover.md` §5.2 for why re-fetching is
-  /// preferred over caching-and-rescaling here.
+  /// own `getViewport()` rather than rescaling a cached value, since a
+  /// cached page-space matrix combined with an assumed rescale factor is
+  /// one more place a sign or scale error could hide.
   Future<AtsTextMatrix> getPageViewportTransform(
     Uint8List bytes, {
     required int pageIndex,

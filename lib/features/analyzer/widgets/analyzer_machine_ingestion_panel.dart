@@ -11,9 +11,8 @@ import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_viewmodel.dar
 
 /// Exactly what `PdfExtractionService` handed the analyzer — every
 /// [AtsTextNode.str], in `pdf.js`'s own extraction order, grouped by page.
-/// No coordinate math and no painter: this is the warm-up piece from
-/// `docs/ats-xray-overlay-handover.md` §6, cheap to ship ahead of the X-Ray
-/// overlay because it needs none of that overlay's geometry work.
+/// No coordinate math and no painter: a genuinely different lens on the
+/// same document from the X-Ray overlay.
 class AnalyzerMachineIngestionPanel extends StatelessWidget {
   const AnalyzerMachineIngestionPanel({super.key, required this.viewModel});
 
@@ -31,20 +30,18 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
       );
     }
 
-    final byPage = <int, List<AtsTextNode>>{};
-    for (final node in nodes) {
-      byPage.putIfAbsent(node.pageIndex, () => []).add(node);
-    }
-    final pageIndices = byPage.keys.toList()..sort();
-
-    // One flat item list (page header or node row) rather than a nested
-    // ListView-per-page — the spike measured up to ~400 nodes on a single
-    // dense page, so this stays a single lazily-built list rather than
-    // eagerly building every row up front.
-    final items = <_IngestionItem>[
-      for (final pageIndex in pageIndices) ...[
-        _IngestionItem.pageHeader(pageIndex),
-        for (final node in byPage[pageIndex]!) _IngestionItem.node(node),
+    // One flat item list (a page-index marker or a node) rather than a
+    // nested ListView-per-page — a dense page can carry hundreds of
+    // nodes, so this stays a single lazily-built list rather than
+    // eagerly building every row up front. `nodes` already arrives
+    // page-contiguous (the extraction loop is page-by-page), so a page
+    // boundary is just "the previous node's page differs" — no grouping
+    // map needed.
+    final items = <Object>[
+      for (var i = 0; i < nodes.length; i++) ...[
+        if (i == 0 || nodes[i].pageIndex != nodes[i - 1].pageIndex)
+          nodes[i].pageIndex,
+        nodes[i],
       ],
     ];
 
@@ -52,9 +49,8 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
       padding: EdgeInsets.all(context.appSpacing.paddingCompact),
       itemCount: items.length,
       itemBuilder: (context, index) {
-        final item = items[index];
-        return switch (item) {
-          _PageHeaderItem(:final pageIndex) => Padding(
+        return switch (items[index]) {
+          int pageIndex => Padding(
             padding: EdgeInsets.only(
               top: index == 0 ? 0 : context.appSpacing.gapMedium,
               bottom: context.appSpacing.gapSmall,
@@ -64,7 +60,7 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
               style: context.appTypography.titleSmall,
             ),
           ),
-          _NodeItem(:final node) => Container(
+          AtsTextNode node => Container(
             width: double.infinity,
             margin: EdgeInsets.only(bottom: context.appSpacing.gapTiny),
             padding: EdgeInsets.symmetric(
@@ -75,30 +71,11 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
               color: kcDarkGreyColor,
               borderRadius: BorderRadius.circular(context.appRadius.medium),
             ),
-            child: Text(
-              node.str.isEmpty ? '·' : node.str,
-              style: context.appTypography.bodySmall,
-            ),
+            child: Text(node.str, style: context.appTypography.bodySmall),
           ),
+          final item => throw StateError('Unexpected item type: $item'),
         };
       },
     );
   }
-}
-
-sealed class _IngestionItem {
-  const _IngestionItem();
-
-  const factory _IngestionItem.pageHeader(int pageIndex) = _PageHeaderItem;
-  const factory _IngestionItem.node(AtsTextNode node) = _NodeItem;
-}
-
-final class _PageHeaderItem extends _IngestionItem {
-  const _PageHeaderItem(this.pageIndex);
-  final int pageIndex;
-}
-
-final class _NodeItem extends _IngestionItem {
-  const _NodeItem(this.node);
-  final AtsTextNode node;
 }

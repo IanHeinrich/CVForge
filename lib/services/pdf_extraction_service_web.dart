@@ -106,9 +106,7 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
               f: transform[5].toDartDouble,
             ),
             width: item.width ?? 0,
-            height: item.height ?? 0,
             fontName: item.fontName ?? '',
-            hasEol: item.hasEOL ?? false,
           ),
         );
       }
@@ -147,12 +145,7 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
           if (!page.commonObjs.has(fontName)) continue;
           final f = page.commonObjs.get(fontName);
           fonts[fontName] = AtsFontInfo(
-            name: f.name ?? fontName,
-            bold: f.bold ?? false,
-            italic: f.italic ?? false,
             missingFile: f.missingFile ?? false,
-            isType3Font: f.isType3Font ?? false,
-            isInvalidPDFjsFont: f.isInvalidPDFjsFont ?? false,
             ascent: f.ascent,
             descent: f.descent,
           );

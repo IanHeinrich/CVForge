@@ -26,7 +26,6 @@ AtsTextNode _node({
   str: str,
   transform: AtsTextMatrix(a: fontSize, b: 0, c: 0, d: fontSize, e: x, f: y),
   width: width,
-  height: fontSize,
   fontName: fontName,
 );
 
@@ -370,16 +369,7 @@ void main() {
               width: 255.1,
             ),
           ],
-          fonts: const {
-            'g_d0_f1': AtsFontInfo(
-              name: 'Helvetica',
-              bold: false,
-              italic: false,
-              missingFile: true,
-              isType3Font: false,
-              isInvalidPDFjsFont: false,
-            ),
-          },
+          fonts: const {'g_d0_f1': AtsFontInfo(missingFile: true)},
         ),
       );
 

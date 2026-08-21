@@ -6,10 +6,10 @@ import 'package:cv_forge/models/ats/ats_text_node.dart';
 /// Analyzes an already-extracted PDF for the format problems that make an
 /// ATS text extractor misread a resume. Pure Dart, no dependencies — the
 /// counterpart to `PdfExtractionService`'s browser-only marshalling, and
-/// fully testable on the Flutter VM against the spike's fixtures.
+/// fully testable on the Flutter VM.
 ///
-/// Ships the reduced v1 check set the ATS-analyzer spike settled on — see
-/// [AtsFindingCategory]'s doc comment for what was cut and why.
+/// Ships the reduced v1 check set — see [AtsFindingCategory]'s doc comment
+/// for what was cut and why.
 class AtsAnalyzerService {
   AtsAnalysisResult analyze(AtsExtractedDocument document) {
     final findings = <AtsFinding>[
@@ -29,8 +29,6 @@ class AtsAnalyzerService {
       findings: findings,
     );
   }
-
-  // --- no text layer -------------------------------------------------
 
   List<AtsFinding> _checkNoTextLayer(AtsExtractedDocument document) {
     if (document.nodes.isEmpty) {
@@ -67,16 +65,13 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- column crush ----------------------------------------------------
-
   /// Simulates a position-sorting text extractor (e.g. PDFBox with
   /// `setSortByPosition(true)`) by clustering runs sharing a baseline and
   /// checking for a wide horizontal gap between two runs on it — the
   /// signature a multi-column layout leaves when re-read left-to-right
   /// regardless of which block a run actually belongs to. This is *not*
-  /// a claim about `pdf.js`'s own reading order, which the spike confirmed
-  /// already tracks the content stream faithfully — see the spike
-  /// findings note.
+  /// a claim about `pdf.js`'s own reading order, which tracks the content
+  /// stream faithfully.
   List<AtsFinding> _checkColumnCrush(AtsExtractedDocument document) {
     final findings = <AtsFinding>[];
     final byPage = <int, List<(int, AtsTextNode)>>{};
@@ -154,8 +149,6 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- garbled / phantom / PUA text ------------------------------------
-
   List<AtsFinding> _checkGarbledText(AtsExtractedDocument document) {
     final findings = <AtsFinding>[];
     var replacementCount = 0;
@@ -168,7 +161,7 @@ class AtsAnalyzerService {
     for (var idx = 0; idx < document.nodes.length; idx++) {
       final node = document.nodes[idx];
       final str = node.str;
-      final nodeReplacementCount = _countCodepoints(str, _isReplacementChar);
+      final nodeReplacementCount = _countCodeUnits(str, _isReplacementChar);
       replacementCount += nodeReplacementCount;
       if (nodeReplacementCount > 0) {
         replacementEvidence.add(
@@ -284,8 +277,6 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- missing canonical headings --------------------------------------
-
   List<AtsFinding> _checkMissingHeadings(AtsExtractedDocument document) {
     final text = document.nodes.map((n) => n.str).join(' ').toLowerCase();
     final findings = <AtsFinding>[];
@@ -306,7 +297,7 @@ class AtsAnalyzerService {
           AtsFinding(
             category: AtsFindingCategory.missingHeadings,
             severity: AtsFindingSeverity.info,
-            title: 'No "${section.label}" heading found',
+            title: 'No ${section.label} section detected',
             message:
                 'Couldn\'t find a heading for ${section.label} anywhere in '
                 'the document. Some ATS software structures a resume by '
@@ -319,8 +310,6 @@ class AtsAnalyzerService {
     }
     return findings;
   }
-
-  // --- contact info -----------------------------------------------------
 
   static final _emailPattern = RegExp(r'[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}');
   static final _phonePattern = RegExp(r'(\+?\d[\d\s().-]{7,}\d)');
@@ -362,15 +351,19 @@ class AtsAnalyzerService {
     return findings;
   }
 
-  // --- helpers -----------------------------------------------------------
-
+  /// PDF points. A gap this wide reads as two separate columns rather
+  /// than intra-line word spacing — comfortably past a normal inter-word
+  /// gap (a few points at typical body sizes) but inside a realistic
+  /// column gutter. Absolute, not scaled by font size like the same-line
+  /// tolerance above: a column gutter's width is a page-layout decision,
+  /// not a text-size one.
   static const _columnGapThreshold = 60.0;
 
   bool _isPua(int codeUnit) => codeUnit >= 0xE000 && codeUnit <= 0xF8FF;
 
   bool _isReplacementChar(int codeUnit) => codeUnit == 0xFFFD;
 
-  int _countCodepoints(String str, bool Function(int) predicate) {
+  int _countCodeUnits(String str, bool Function(int) predicate) {
     var count = 0;
     for (var i = 0; i < str.length; i++) {
       if (predicate(str.codeUnitAt(i))) count++;

@@ -14,20 +14,13 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AtsFontInfo {
 
-/// The real PDF base font name, e.g. `Helvetica-Bold` or a subset
-/// font's `ABCDEF+Calibri`. The `ABCDEF+` subset prefix is the
-/// strongest available correlate of a missing/wrong ToUnicode map —
-/// see `AtsAnalyzerService`'s garbled-text heuristic.
- String get name; bool get bold; bool get italic;/// `true` when the font isn't embedded and `pdf.js` substituted a
-/// fallback to render it — confirmed via the spike's synthetic
-/// Helvetica corpus (non-embedded, `missingFile: true`) vs cv-forge's
-/// own embedded Roboto (`missingFile: false`).
- bool get missingFile; bool get isType3Font; bool get isInvalidPDFjsFont;/// Fraction of em, PDF font-metric convention (ascent positive,
+/// `true` when the font isn't embedded and `pdf.js` substituted a
+/// fallback to render it.
+ bool get missingFile;/// Fraction of em, PDF font-metric convention (ascent positive,
 /// descent negative). `null` when `pdf.js` doesn't report it for this
 /// font — the X-Ray overlay's ink-box derivation falls back to
 /// typical defaults in that case rather than requiring these
-/// (`AtsMatrixMath.atsInkBoxRect`, see `docs/
-/// ats-xray-overlay-handover.md` §5.4).
+/// (`AtsMatrixMath.atsInkBoxRect`).
  double? get ascent; double? get descent;
 /// Create a copy of AtsFontInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -39,16 +32,16 @@ $AtsFontInfoCopyWith<AtsFontInfo> get copyWith => _$AtsFontInfoCopyWithImpl<AtsF
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AtsFontInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.bold, bold) || other.bold == bold)&&(identical(other.italic, italic) || other.italic == italic)&&(identical(other.missingFile, missingFile) || other.missingFile == missingFile)&&(identical(other.isType3Font, isType3Font) || other.isType3Font == isType3Font)&&(identical(other.isInvalidPDFjsFont, isInvalidPDFjsFont) || other.isInvalidPDFjsFont == isInvalidPDFjsFont)&&(identical(other.ascent, ascent) || other.ascent == ascent)&&(identical(other.descent, descent) || other.descent == descent));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AtsFontInfo&&(identical(other.missingFile, missingFile) || other.missingFile == missingFile)&&(identical(other.ascent, ascent) || other.ascent == ascent)&&(identical(other.descent, descent) || other.descent == descent));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,bold,italic,missingFile,isType3Font,isInvalidPDFjsFont,ascent,descent);
+int get hashCode => Object.hash(runtimeType,missingFile,ascent,descent);
 
 @override
 String toString() {
-  return 'AtsFontInfo(name: $name, bold: $bold, italic: $italic, missingFile: $missingFile, isType3Font: $isType3Font, isInvalidPDFjsFont: $isInvalidPDFjsFont, ascent: $ascent, descent: $descent)';
+  return 'AtsFontInfo(missingFile: $missingFile, ascent: $ascent, descent: $descent)';
 }
 
 
@@ -59,7 +52,7 @@ abstract mixin class $AtsFontInfoCopyWith<$Res>  {
   factory $AtsFontInfoCopyWith(AtsFontInfo value, $Res Function(AtsFontInfo) _then) = _$AtsFontInfoCopyWithImpl;
 @useResult
 $Res call({
- String name, bool bold, bool italic, bool missingFile, bool isType3Font, bool isInvalidPDFjsFont, double? ascent, double? descent
+ bool missingFile, double? ascent, double? descent
 });
 
 
@@ -76,14 +69,9 @@ class _$AtsFontInfoCopyWithImpl<$Res>
 
 /// Create a copy of AtsFontInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? bold = null,Object? italic = null,Object? missingFile = null,Object? isType3Font = null,Object? isInvalidPDFjsFont = null,Object? ascent = freezed,Object? descent = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? missingFile = null,Object? ascent = freezed,Object? descent = freezed,}) {
   return _then(_self.copyWith(
-name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,bold: null == bold ? _self.bold : bold // ignore: cast_nullable_to_non_nullable
-as bool,italic: null == italic ? _self.italic : italic // ignore: cast_nullable_to_non_nullable
-as bool,missingFile: null == missingFile ? _self.missingFile : missingFile // ignore: cast_nullable_to_non_nullable
-as bool,isType3Font: null == isType3Font ? _self.isType3Font : isType3Font // ignore: cast_nullable_to_non_nullable
-as bool,isInvalidPDFjsFont: null == isInvalidPDFjsFont ? _self.isInvalidPDFjsFont : isInvalidPDFjsFont // ignore: cast_nullable_to_non_nullable
+missingFile: null == missingFile ? _self.missingFile : missingFile // ignore: cast_nullable_to_non_nullable
 as bool,ascent: freezed == ascent ? _self.ascent : ascent // ignore: cast_nullable_to_non_nullable
 as double?,descent: freezed == descent ? _self.descent : descent // ignore: cast_nullable_to_non_nullable
 as double?,
@@ -171,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  bool bold,  bool italic,  bool missingFile,  bool isType3Font,  bool isInvalidPDFjsFont,  double? ascent,  double? descent)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool missingFile,  double? ascent,  double? descent)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AtsFontInfo() when $default != null:
-return $default(_that.name,_that.bold,_that.italic,_that.missingFile,_that.isType3Font,_that.isInvalidPDFjsFont,_that.ascent,_that.descent);case _:
+return $default(_that.missingFile,_that.ascent,_that.descent);case _:
   return orElse();
 
 }
@@ -192,10 +180,10 @@ return $default(_that.name,_that.bold,_that.italic,_that.missingFile,_that.isTyp
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  bool bold,  bool italic,  bool missingFile,  bool isType3Font,  bool isInvalidPDFjsFont,  double? ascent,  double? descent)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool missingFile,  double? ascent,  double? descent)  $default,) {final _that = this;
 switch (_that) {
 case _AtsFontInfo():
-return $default(_that.name,_that.bold,_that.italic,_that.missingFile,_that.isType3Font,_that.isInvalidPDFjsFont,_that.ascent,_that.descent);case _:
+return $default(_that.missingFile,_that.ascent,_that.descent);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +200,10 @@ return $default(_that.name,_that.bold,_that.italic,_that.missingFile,_that.isTyp
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  bool bold,  bool italic,  bool missingFile,  bool isType3Font,  bool isInvalidPDFjsFont,  double? ascent,  double? descent)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool missingFile,  double? ascent,  double? descent)?  $default,) {final _that = this;
 switch (_that) {
 case _AtsFontInfo() when $default != null:
-return $default(_that.name,_that.bold,_that.italic,_that.missingFile,_that.isType3Font,_that.isInvalidPDFjsFont,_that.ascent,_that.descent);case _:
+return $default(_that.missingFile,_that.ascent,_that.descent);case _:
   return null;
 
 }
@@ -227,29 +215,17 @@ return $default(_that.name,_that.bold,_that.italic,_that.missingFile,_that.isTyp
 
 
 class _AtsFontInfo implements AtsFontInfo {
-  const _AtsFontInfo({required this.name, required this.bold, required this.italic, required this.missingFile, required this.isType3Font, required this.isInvalidPDFjsFont, this.ascent, this.descent});
+  const _AtsFontInfo({required this.missingFile, this.ascent, this.descent});
   
 
-/// The real PDF base font name, e.g. `Helvetica-Bold` or a subset
-/// font's `ABCDEF+Calibri`. The `ABCDEF+` subset prefix is the
-/// strongest available correlate of a missing/wrong ToUnicode map —
-/// see `AtsAnalyzerService`'s garbled-text heuristic.
-@override final  String name;
-@override final  bool bold;
-@override final  bool italic;
 /// `true` when the font isn't embedded and `pdf.js` substituted a
-/// fallback to render it — confirmed via the spike's synthetic
-/// Helvetica corpus (non-embedded, `missingFile: true`) vs cv-forge's
-/// own embedded Roboto (`missingFile: false`).
+/// fallback to render it.
 @override final  bool missingFile;
-@override final  bool isType3Font;
-@override final  bool isInvalidPDFjsFont;
 /// Fraction of em, PDF font-metric convention (ascent positive,
 /// descent negative). `null` when `pdf.js` doesn't report it for this
 /// font — the X-Ray overlay's ink-box derivation falls back to
 /// typical defaults in that case rather than requiring these
-/// (`AtsMatrixMath.atsInkBoxRect`, see `docs/
-/// ats-xray-overlay-handover.md` §5.4).
+/// (`AtsMatrixMath.atsInkBoxRect`).
 @override final  double? ascent;
 @override final  double? descent;
 
@@ -263,16 +239,16 @@ _$AtsFontInfoCopyWith<_AtsFontInfo> get copyWith => __$AtsFontInfoCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AtsFontInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.bold, bold) || other.bold == bold)&&(identical(other.italic, italic) || other.italic == italic)&&(identical(other.missingFile, missingFile) || other.missingFile == missingFile)&&(identical(other.isType3Font, isType3Font) || other.isType3Font == isType3Font)&&(identical(other.isInvalidPDFjsFont, isInvalidPDFjsFont) || other.isInvalidPDFjsFont == isInvalidPDFjsFont)&&(identical(other.ascent, ascent) || other.ascent == ascent)&&(identical(other.descent, descent) || other.descent == descent));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AtsFontInfo&&(identical(other.missingFile, missingFile) || other.missingFile == missingFile)&&(identical(other.ascent, ascent) || other.ascent == ascent)&&(identical(other.descent, descent) || other.descent == descent));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,bold,italic,missingFile,isType3Font,isInvalidPDFjsFont,ascent,descent);
+int get hashCode => Object.hash(runtimeType,missingFile,ascent,descent);
 
 @override
 String toString() {
-  return 'AtsFontInfo(name: $name, bold: $bold, italic: $italic, missingFile: $missingFile, isType3Font: $isType3Font, isInvalidPDFjsFont: $isInvalidPDFjsFont, ascent: $ascent, descent: $descent)';
+  return 'AtsFontInfo(missingFile: $missingFile, ascent: $ascent, descent: $descent)';
 }
 
 
@@ -283,7 +259,7 @@ abstract mixin class _$AtsFontInfoCopyWith<$Res> implements $AtsFontInfoCopyWith
   factory _$AtsFontInfoCopyWith(_AtsFontInfo value, $Res Function(_AtsFontInfo) _then) = __$AtsFontInfoCopyWithImpl;
 @override @useResult
 $Res call({
- String name, bool bold, bool italic, bool missingFile, bool isType3Font, bool isInvalidPDFjsFont, double? ascent, double? descent
+ bool missingFile, double? ascent, double? descent
 });
 
 
@@ -300,14 +276,9 @@ class __$AtsFontInfoCopyWithImpl<$Res>
 
 /// Create a copy of AtsFontInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? bold = null,Object? italic = null,Object? missingFile = null,Object? isType3Font = null,Object? isInvalidPDFjsFont = null,Object? ascent = freezed,Object? descent = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? missingFile = null,Object? ascent = freezed,Object? descent = freezed,}) {
   return _then(_AtsFontInfo(
-name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,bold: null == bold ? _self.bold : bold // ignore: cast_nullable_to_non_nullable
-as bool,italic: null == italic ? _self.italic : italic // ignore: cast_nullable_to_non_nullable
-as bool,missingFile: null == missingFile ? _self.missingFile : missingFile // ignore: cast_nullable_to_non_nullable
-as bool,isType3Font: null == isType3Font ? _self.isType3Font : isType3Font // ignore: cast_nullable_to_non_nullable
-as bool,isInvalidPDFjsFont: null == isInvalidPDFjsFont ? _self.isInvalidPDFjsFont : isInvalidPDFjsFont // ignore: cast_nullable_to_non_nullable
+missingFile: null == missingFile ? _self.missingFile : missingFile // ignore: cast_nullable_to_non_nullable
 as bool,ascent: freezed == ascent ? _self.ascent : ascent // ignore: cast_nullable_to_non_nullable
 as double?,descent: freezed == descent ? _self.descent : descent // ignore: cast_nullable_to_non_nullable
 as double?,

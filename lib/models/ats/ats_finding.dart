@@ -90,7 +90,7 @@ abstract class AtsFinding with _$AtsFinding {
     /// The text run(s) that produced this finding, for the X-Ray overlay
     /// to draw evidence boxes on. Empty for a finding with no natural node
     /// evidence ([AtsFindingCategory.noTextLayer], [missingHeadings],
-    /// [contactInfo]) — see `docs/ats-xray-overlay-handover.md` §7.
+    /// [contactInfo]).
     @Default(<AtsFindingEvidence>[]) List<AtsFindingEvidence> evidence,
     @Default(AtsEvidenceShape.scattered) AtsEvidenceShape evidenceShape,
   }) = _AtsFinding;

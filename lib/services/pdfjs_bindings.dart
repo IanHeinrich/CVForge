@@ -103,8 +103,8 @@ extension type PdfJsPage._(JSObject _) implements JSObject {
 
   /// The page-space → target-space transform for a given render scale —
   /// lets `pdf.js` do the rotation/CropBox math instead of hand-deriving
-  /// it (see `docs/ats-xray-overlay-handover.md` §5). `printing`'s own
-  /// vendored `pdfjs.dart` binds an equivalent `getViewport`/`Settings`
+  /// it. `printing`'s own vendored `pdfjs.dart` binds an equivalent
+  /// `getViewport`/`Settings`
   /// pair purely to drive `render()`; this binds the same native method
   /// with a wider settings/result shape (`transform` in particular) since
   /// the X-Ray overlay needs the matrix itself, not just pixel
@@ -124,7 +124,7 @@ extension type PdfJsViewport._(JSObject _) implements JSObject {
   /// `[a, b, c, d, e, f]`, the same six-value affine convention as
   /// [PdfJsTextItem.transform] — already includes the y-flip needed for
   /// canvas rasterization (verify empirically before trusting the sign of
-  /// anything derived from it; see the handover doc §5.3).
+  /// anything derived from it).
   external JSArray<JSNumber> get transform;
   external double get width;
   external double get height;
@@ -149,8 +149,6 @@ extension type PdfJsTextItem._(JSObject _) implements JSObject {
   external String? get fontName;
   external JSArray<JSNumber>? get transform;
   external double? get width;
-  external double? get height;
-  external bool? get hasEOL;
 }
 
 @anonymous
@@ -170,12 +168,7 @@ extension type PdfJsObjCache._(JSObject _) implements JSObject {
 @anonymous
 @JS()
 extension type PdfJsFontObj._(JSObject _) implements JSObject {
-  external String? get name;
-  external bool? get bold;
-  external bool? get italic;
   external bool? get missingFile;
-  external bool? get isType3Font;
-  external bool? get isInvalidPDFjsFont;
 
   /// Fraction of em, PDF font-metric convention (ascent positive, descent
   /// negative) — not populated for every font `pdf.js` reports (e.g. some

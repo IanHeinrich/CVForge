@@ -74,7 +74,6 @@ void main() {
       str: 'Hello',
       transform: AtsTextMatrix(a: 10, b: 0, c: 0, d: 10, e: 56.69, f: 700),
       width: 50,
-      height: 10,
       fontName: 'g_d0_f1',
     );
     const identityViewport = AtsTextMatrix(a: 1, b: 0, c: 0, d: 1, e: 0, f: 0);
@@ -114,7 +113,6 @@ void main() {
         str: 'CONFIDENTIAL',
         transform: AtsTextMatrix(a: 0, b: 10, c: -10, d: 0, e: 20, f: 300),
         width: 80,
-        height: 10,
         fontName: 'g_d0_f1',
       );
 

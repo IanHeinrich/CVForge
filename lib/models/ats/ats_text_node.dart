@@ -35,16 +35,9 @@ abstract class AtsTextNode with _$AtsTextNode {
     /// exactly that finding.
     required double width,
 
-    /// The rotation-invariant effective em size — `hypot(transform.c,
-    /// transform.d)` on every real content run in the spike's corpus.
-    /// `0` on synthetic empty/EOL marker runs (`str.isEmpty`); always
-    /// filter those out before using this for a font-size-based check.
-    required double height,
-
     /// `pdf.js`'s internal font id (e.g. `g_d0_f1`) — a key into
     /// `AtsExtractedDocument.fonts`, not a user-facing name.
     required String fontName,
-    @Default(false) bool hasEol,
   }) = _AtsTextNode;
 }
 
@@ -75,8 +68,7 @@ abstract class AtsTextMatrix with _$AtsTextMatrix {
   /// Baseline y.
   double get baselineY => f;
 
-  /// The rotation-invariant effective font size. See [AtsTextNode.height]
-  /// for why this is derived here rather than trusted from the source.
+  /// The rotation-invariant effective font size.
   double get fontSize => math.sqrt(c * c + d * d);
 
   /// `0` for unrotated text; nonzero for a rotated run (e.g. a sidebar

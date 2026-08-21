@@ -7,16 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/models/ats/ats_finding.dart';
+import 'ats_finding_severity_style.dart';
 
 /// One [AtsFinding], in the same block-card frame `BackupSettingsCard`/
 /// `StudioFieldOverrideCard` use — dark container, [context.appRadius.
 /// medium] — rather than inventing a new card shape for this feature.
 ///
-/// The icon colour matches `AtsXrayPainter`'s own severity→colour mapping
-/// exactly ([kcErrorColor]/[kcWarningColor]/[kcLightGrey] for critical/
-/// warning/info) — this card doubles as the X-Ray rail entry, so the same
-/// finding's icon here and its evidence box on the page should read as
-/// the same colour, not two different severity languages for one thing.
 /// `kcPrimaryColor` is reserved for chrome selection state, so it isn't
 /// repurposed here as a fourth severity tone — [selected] uses it anyway,
 /// deliberately: this is the one place in the analyzer feature where
@@ -42,9 +38,8 @@ class AtsFindingCard extends StatelessWidget {
   final bool selected;
 
   /// `null` for a document-level finding with no evidence to jump to —
-  /// the card renders identically but isn't tappable, per `docs/
-  /// ats-xray-overlay-handover.md`'s rail design (a non-clickable group,
-  /// not hidden).
+  /// the card renders identically but isn't tappable (a non-clickable
+  /// group, not hidden).
   final VoidCallback? onTap;
 
   /// Which evidence location is currently framed, when [selected] and
@@ -56,16 +51,8 @@ class AtsFindingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = switch (finding.severity) {
-      AtsFindingSeverity.critical => RemixIcons.error_warning_fill,
-      AtsFindingSeverity.warning => RemixIcons.alert_fill,
-      AtsFindingSeverity.info => RemixIcons.information_fill,
-    };
-    final iconColor = switch (finding.severity) {
-      AtsFindingSeverity.critical => kcErrorColor,
-      AtsFindingSeverity.warning => kcWarningColor,
-      AtsFindingSeverity.info => kcLightGrey,
-    };
+    final icon = finding.severity.icon;
+    final iconColor = finding.severity.color;
     final radius = BorderRadius.circular(context.appRadius.medium);
 
     return Material(

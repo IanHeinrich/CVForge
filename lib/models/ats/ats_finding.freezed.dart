@@ -280,7 +280,7 @@ mixin _$AtsFinding {
  int? get pageIndex;/// The text run(s) that produced this finding, for the X-Ray overlay
 /// to draw evidence boxes on. Empty for a finding with no natural node
 /// evidence ([AtsFindingCategory.noTextLayer], [missingHeadings],
-/// [contactInfo]) — see `docs/ats-xray-overlay-handover.md` §7.
+/// [contactInfo]).
  List<AtsFindingEvidence> get evidence; AtsEvidenceShape get evidenceShape;
 /// Create a copy of AtsFinding
 /// with the given fields replaced by the non-null parameter values.
@@ -493,12 +493,12 @@ class _AtsFinding implements AtsFinding {
 /// The text run(s) that produced this finding, for the X-Ray overlay
 /// to draw evidence boxes on. Empty for a finding with no natural node
 /// evidence ([AtsFindingCategory.noTextLayer], [missingHeadings],
-/// [contactInfo]) — see `docs/ats-xray-overlay-handover.md` §7.
+/// [contactInfo]).
  final  List<AtsFindingEvidence> _evidence;
 /// The text run(s) that produced this finding, for the X-Ray overlay
 /// to draw evidence boxes on. Empty for a finding with no natural node
 /// evidence ([AtsFindingCategory.noTextLayer], [missingHeadings],
-/// [contactInfo]) — see `docs/ats-xray-overlay-handover.md` §7.
+/// [contactInfo]).
 @override@JsonKey() List<AtsFindingEvidence> get evidence {
   if (_evidence is EqualUnmodifiableListView) return _evidence;
   // ignore: implicit_dynamic_type
