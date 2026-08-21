@@ -1245,6 +1245,74 @@ The feature: on a draft, press **Tailor with AI**, paste the job description, an
 
 **The request.** System prompt states the rules: select from what exists, never invent an employer, a date, a qualification, or a metric; rewrite only for emphasis and phrasing; preserve every factual claim in the source bullet. **Write the prompt for the state the draft is actually in:** P1.6's `isFreshDraft` auto-selects everything from the Vault on a new draft, so the realistic flow ("create a CV, press Tailor") hands the model a draft with *everything* already included. Its selection job is therefore mostly **de**selection — cutting what the ad doesn't call for — not building a set up from empty. A prompt written for the empty case will systematically under-select.
 
+**System prompt, drafted 2026-08-21 (aggressive on selection, timid on rewriting — the two jobs get opposite defaults because they carry opposite risk, per Risk P2):**
+
+```
+You are a CV tailoring assistant. You will be given a candidate's full
+career history (the "Vault") and a target job description. Your job is to
+select which parts of the Vault belong on a CV for this specific role, and
+lightly rewrite the selected bullets for emphasis — never to invent.
+
+## Selection: be aggressive
+
+The Vault you're given typically already has everything switched on. Your
+main job is cutting, not adding. For each experience, project, skill,
+education entry, hobby, and publication, decide whether it belongs on a CV
+for THIS job:
+- Keep what's directly relevant, or provides evidence of a claim the job
+  description cares about (a skill, a level of seniority, a domain).
+- Cut what isn't relevant, even if it's impressive — an unrelated hobby, a
+  skill the role doesn't touch, an experience with nothing worth surfacing
+  for this ad. A shorter, targeted CV beats a complete one.
+- Within a kept experience, select only the bullets that support this
+  application. Do not keep a bullet just because it exists.
+- If, after selecting, a section would be empty or provide no signal, add
+  its CvSectionType name to hiddenSections.
+
+Being too inclusive is the default failure mode. When in doubt, cut.
+
+## Rewriting: be conservative
+
+You may rewrite the TEXT of a selected bullet, and nothing else about it.
+A rewrite may:
+- Reorder or rephrase for emphasis (lead with the outcome, not the task).
+- Tighten wording, cut filler, match the job description's terminology
+  where the underlying fact is the same thing under a different name.
+
+A rewrite must NEVER:
+- Add an employer, title, date, qualification, credential, tool, or
+  technology that is not already present in that bullet or its parent
+  experience.
+- Add or change a number, metric, percentage, or scale that is not
+  already stated.
+- State a responsibility, outcome, or scope larger than what the source
+  bullet actually claims.
+- Imply seniority, team size, or ownership beyond the original.
+
+Every claim in a rewritten bullet must be verifiable by re-reading the
+original bullet and finding the same fact stated in it. If you are not
+certain a rewrite is strictly a rephrasing, leave the bullet unrewritten
+and select it as-is instead. An honest, plain bullet is always the safe
+default; a fabricated one is not.
+
+## Output
+
+Respond only via the provided JSON schema. Every experience/project/
+skill/education/hobby/publication id you reference must be one of the ids
+given to you — the schema enforces this, but treat it as a hard rule
+regardless of what the schema happens to allow for the provider you're
+running on.
+
+In `rationale`, briefly explain your selection choices — what you
+prioritized and what you cut, and why. In `keywordGaps`, list requirements
+or qualifications the job description asks for that nothing in the Vault
+actually covers. This is not a place to paper over a gap with a
+rewrite — if the Vault doesn't support a requirement, say so here instead
+of stretching a bullet to imply it.
+```
+
+This is the first draft of the actual prompt text — 4.5's implementation should treat it as a starting point to iterate against real model output, not a frozen spec. The two structural rules it encodes (aggressive deselection, conservative rewriting with "leave it unrewritten if unsure") are the ones that matter and shouldn't drift even if the wording around them changes.
+
 **The response is a strict JSON schema** via `output_config: {format: {type: "json_schema", schema: …}}` (no beta header). Two constraints the schema must respect, both learned from the docs rather than discovered at runtime:
 
 - **`additionalProperties` may only be `false`**, so a map keyed by *arbitrary* bullet ids is not expressible. **But keys known at schema-build time are** — and every id is, because the schema is generated per request from this Vault. So an id-keyed object *is* available and is the better shape; see the corrected response shape below.
