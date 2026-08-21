@@ -244,8 +244,27 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       if (finding.evidence.isNotEmpty) {
         _pageIndex = finding.evidence.first.pageIndex;
       }
+      // Reading order suppresses every other drawn layer while it's on
+      // (see `AtsXrayPainter._paintFlowLines`) — a freshly-selected
+      // finding's highlight would be invisible until the user thought to
+      // turn it back off, so picking a finding exits reading-order mode.
+      _showFlowLines = false;
       _pendingFrame = _FrameUnion(finding);
       _fittedViewport = null;
+    });
+  }
+
+  void _toggleFlowLines() {
+    setState(() {
+      _showFlowLines = !_showFlowLines;
+      if (_showFlowLines) {
+        // Reset to the whole-page fit — reading order is meant to be read
+        // start to finish, which only makes sense from the same zoomed-out
+        // view every time, not from wherever a prior selection happened to
+        // leave the camera.
+        _pendingFrame = const _FrameFit();
+        _fittedViewport = null;
+      }
     });
   }
 
@@ -679,7 +698,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
             ),
             const Spacer(),
             TextButton.icon(
-              onPressed: () => setState(() => _showFlowLines = !_showFlowLines),
+              onPressed: _toggleFlowLines,
               icon: Icon(
                 RemixIcons.route_line,
                 size: 18,
