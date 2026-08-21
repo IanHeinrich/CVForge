@@ -87,10 +87,19 @@ class VaultEditorPanelRouter extends StatelessWidget {
           (e) => e.id,
         );
         if (education == null) return const SizedBox.shrink();
+        final educationId = education.id;
         return EducationEditorPanel(
           education: education,
+          skillCategories: viewModel.vault.skillCategories,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateEducation,
+          onAddBullet: () => viewModel.addEducationBullet(educationId),
+          onBulletChanged: (bullet) =>
+              viewModel.updateEducationBullet(educationId, bullet),
+          onBulletDeleted: (bulletId) =>
+              viewModel.deleteEducationBullet(educationId, bulletId),
+          onBulletsReordered: (ids) =>
+              viewModel.reorderEducationBullets(educationId, ids),
         );
 
       case VaultEditorTarget.skills:

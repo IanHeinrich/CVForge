@@ -14,6 +14,11 @@ _Education _$EducationFromJson(Map<String, dynamic> json) => _Education(
   year: (json['year'] as num?)?.toInt(),
   grade: json['grade'] as String?,
   details: json['details'] as String?,
+  bullets:
+      (json['bullets'] as List<dynamic>?)
+          ?.map((e) => CvBullet.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <CvBullet>[],
 );
 
 Map<String, dynamic> _$EducationToJson(_Education instance) =>
@@ -25,4 +30,5 @@ Map<String, dynamic> _$EducationToJson(_Education instance) =>
       'year': instance.year,
       'grade': instance.grade,
       'details': instance.details,
+      'bullets': instance.bullets.map((e) => e.toJson()).toList(),
     };

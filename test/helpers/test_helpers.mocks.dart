@@ -1156,6 +1156,80 @@ class MockVaultService extends _i1.Mock implements _i30.VaultService {
           as _i24.Future<void>);
 
   @override
+  _i24.Future<_i7.CvBullet> addEducationBullet(
+    String? educationId, {
+    String? label,
+    required String? text,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #addEducationBullet,
+              [educationId],
+              {#label: label, #text: text},
+            ),
+            returnValue: _i24.Future<_i7.CvBullet>.value(
+              _FakeCvBullet_8(
+                this,
+                Invocation.method(
+                  #addEducationBullet,
+                  [educationId],
+                  {#label: label, #text: text},
+                ),
+              ),
+            ),
+            returnValueForMissingStub: _i24.Future<_i7.CvBullet>.value(
+              _FakeCvBullet_8(
+                this,
+                Invocation.method(
+                  #addEducationBullet,
+                  [educationId],
+                  {#label: label, #text: text},
+                ),
+              ),
+            ),
+          )
+          as _i24.Future<_i7.CvBullet>);
+
+  @override
+  _i24.Future<void> updateEducationBullet(
+    String? educationId,
+    _i7.CvBullet? bullet,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateEducationBullet, [educationId, bullet]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> deleteEducationBullet(
+    String? educationId,
+    String? bulletId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteEducationBullet, [educationId, bulletId]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
+  _i24.Future<void> reorderEducationBullets(
+    String? educationId,
+    List<String>? orderedBulletIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#reorderEducationBullets, [
+              educationId,
+              orderedBulletIds,
+            ]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
   _i24.Future<_i12.HobbyItem> addHobby(String? text) =>
       (super.noSuchMethod(
             Invocation.method(#addHobby, [text]),

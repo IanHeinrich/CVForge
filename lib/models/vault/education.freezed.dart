@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Education {
 
- String get id; String get qualification; String get institution; String? get location; int? get year; String? get grade; String? get details;
+ String get id; String get qualification; String get institution; String? get location; int? get year; String? get grade; String? get details; List<CvBullet> get bullets;
 /// Create a copy of Education
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $EducationCopyWith<Education> get copyWith => _$EducationCopyWithImpl<Education>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Education&&(identical(other.id, id) || other.id == id)&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.year, year) || other.year == year)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Education&&(identical(other.id, id) || other.id == id)&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.year, year) || other.year == year)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details)&&const DeepCollectionEquality().equals(other.bullets, bullets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,qualification,institution,location,year,grade,details);
+int get hashCode => Object.hash(runtimeType,id,qualification,institution,location,year,grade,details,const DeepCollectionEquality().hash(bullets));
 
 @override
 String toString() {
-  return 'Education(id: $id, qualification: $qualification, institution: $institution, location: $location, year: $year, grade: $grade, details: $details)';
+  return 'Education(id: $id, qualification: $qualification, institution: $institution, location: $location, year: $year, grade: $grade, details: $details, bullets: $bullets)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $EducationCopyWith<$Res>  {
   factory $EducationCopyWith(Education value, $Res Function(Education) _then) = _$EducationCopyWithImpl;
 @useResult
 $Res call({
- String id, String qualification, String institution, String? location, int? year, String? grade, String? details
+ String id, String qualification, String institution, String? location, int? year, String? grade, String? details, List<CvBullet> bullets
 });
 
 
@@ -65,7 +65,7 @@ class _$EducationCopyWithImpl<$Res>
 
 /// Create a copy of Education
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? qualification = null,Object? institution = null,Object? location = freezed,Object? year = freezed,Object? grade = freezed,Object? details = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? qualification = null,Object? institution = null,Object? location = freezed,Object? year = freezed,Object? grade = freezed,Object? details = freezed,Object? bullets = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,qualification: null == qualification ? _self.qualification : qualification // ignore: cast_nullable_to_non_nullable
@@ -74,7 +74,8 @@ as String,location: freezed == location ? _self.location : location // ignore: c
 as String?,year: freezed == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int?,grade: freezed == grade ? _self.grade : grade // ignore: cast_nullable_to_non_nullable
 as String?,details: freezed == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<CvBullet>,
   ));
 }
 
@@ -159,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String qualification,  String institution,  String? location,  int? year,  String? grade,  String? details)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String qualification,  String institution,  String? location,  int? year,  String? grade,  String? details,  List<CvBullet> bullets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Education() when $default != null:
-return $default(_that.id,_that.qualification,_that.institution,_that.location,_that.year,_that.grade,_that.details);case _:
+return $default(_that.id,_that.qualification,_that.institution,_that.location,_that.year,_that.grade,_that.details,_that.bullets);case _:
   return orElse();
 
 }
@@ -180,10 +181,10 @@ return $default(_that.id,_that.qualification,_that.institution,_that.location,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String qualification,  String institution,  String? location,  int? year,  String? grade,  String? details)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String qualification,  String institution,  String? location,  int? year,  String? grade,  String? details,  List<CvBullet> bullets)  $default,) {final _that = this;
 switch (_that) {
 case _Education():
-return $default(_that.id,_that.qualification,_that.institution,_that.location,_that.year,_that.grade,_that.details);case _:
+return $default(_that.id,_that.qualification,_that.institution,_that.location,_that.year,_that.grade,_that.details,_that.bullets);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +201,10 @@ return $default(_that.id,_that.qualification,_that.institution,_that.location,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String qualification,  String institution,  String? location,  int? year,  String? grade,  String? details)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String qualification,  String institution,  String? location,  int? year,  String? grade,  String? details,  List<CvBullet> bullets)?  $default,) {final _that = this;
 switch (_that) {
 case _Education() when $default != null:
-return $default(_that.id,_that.qualification,_that.institution,_that.location,_that.year,_that.grade,_that.details);case _:
+return $default(_that.id,_that.qualification,_that.institution,_that.location,_that.year,_that.grade,_that.details,_that.bullets);case _:
   return null;
 
 }
@@ -215,7 +216,7 @@ return $default(_that.id,_that.qualification,_that.institution,_that.location,_t
 @JsonSerializable()
 
 class _Education implements Education {
-  const _Education({required this.id, required this.qualification, required this.institution, this.location, this.year, this.grade, this.details});
+  const _Education({required this.id, required this.qualification, required this.institution, this.location, this.year, this.grade, this.details, final  List<CvBullet> bullets = const <CvBullet>[]}): _bullets = bullets;
   factory _Education.fromJson(Map<String, dynamic> json) => _$EducationFromJson(json);
 
 @override final  String id;
@@ -225,6 +226,13 @@ class _Education implements Education {
 @override final  int? year;
 @override final  String? grade;
 @override final  String? details;
+ final  List<CvBullet> _bullets;
+@override@JsonKey() List<CvBullet> get bullets {
+  if (_bullets is EqualUnmodifiableListView) return _bullets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bullets);
+}
+
 
 /// Create a copy of Education
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Education&&(identical(other.id, id) || other.id == id)&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.year, year) || other.year == year)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Education&&(identical(other.id, id) || other.id == id)&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.year, year) || other.year == year)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details)&&const DeepCollectionEquality().equals(other._bullets, _bullets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,qualification,institution,location,year,grade,details);
+int get hashCode => Object.hash(runtimeType,id,qualification,institution,location,year,grade,details,const DeepCollectionEquality().hash(_bullets));
 
 @override
 String toString() {
-  return 'Education(id: $id, qualification: $qualification, institution: $institution, location: $location, year: $year, grade: $grade, details: $details)';
+  return 'Education(id: $id, qualification: $qualification, institution: $institution, location: $location, year: $year, grade: $grade, details: $details, bullets: $bullets)';
 }
 
 
@@ -259,7 +267,7 @@ abstract mixin class _$EducationCopyWith<$Res> implements $EducationCopyWith<$Re
   factory _$EducationCopyWith(_Education value, $Res Function(_Education) _then) = __$EducationCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String qualification, String institution, String? location, int? year, String? grade, String? details
+ String id, String qualification, String institution, String? location, int? year, String? grade, String? details, List<CvBullet> bullets
 });
 
 
@@ -276,7 +284,7 @@ class __$EducationCopyWithImpl<$Res>
 
 /// Create a copy of Education
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? qualification = null,Object? institution = null,Object? location = freezed,Object? year = freezed,Object? grade = freezed,Object? details = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? qualification = null,Object? institution = null,Object? location = freezed,Object? year = freezed,Object? grade = freezed,Object? details = freezed,Object? bullets = null,}) {
   return _then(_Education(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,qualification: null == qualification ? _self.qualification : qualification // ignore: cast_nullable_to_non_nullable
@@ -285,7 +293,8 @@ as String,location: freezed == location ? _self.location : location // ignore: c
 as String?,year: freezed == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int?,grade: freezed == grade ? _self.grade : grade // ignore: cast_nullable_to_non_nullable
 as String?,details: freezed == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self._bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<CvBullet>,
   ));
 }
 

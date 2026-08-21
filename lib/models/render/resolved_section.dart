@@ -117,5 +117,6 @@ abstract class ResolvedQualification with _$ResolvedQualification {
     String? yearLabel,
     String? grade,
     String? details,
+    @Default(<ResolvedBullet>[]) List<ResolvedBullet> bullets,
   }) = _ResolvedQualification;
 }

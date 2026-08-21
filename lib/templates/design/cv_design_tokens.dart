@@ -34,6 +34,22 @@ class CvTypeToken {
   final double lineSpacingPt;
   final double letterSpacingPt;
   final int? colorArgb;
+
+  CvTypeToken copyWith({
+    double? sizePt,
+    CvWeight? weight,
+    bool? italic,
+    double? lineSpacingPt,
+    double? letterSpacingPt,
+    int? colorArgb,
+  }) => CvTypeToken(
+    sizePt: sizePt ?? this.sizePt,
+    weight: weight ?? this.weight,
+    italic: italic ?? this.italic,
+    lineSpacingPt: lineSpacingPt ?? this.lineSpacingPt,
+    letterSpacingPt: letterSpacingPt ?? this.letterSpacingPt,
+    colorArgb: colorArgb ?? this.colorArgb,
+  );
 }
 
 class CvDesignTokens {

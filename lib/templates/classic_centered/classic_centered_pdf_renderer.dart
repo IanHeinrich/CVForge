@@ -26,13 +26,20 @@ List<pw.Widget> buildClassicCenteredPdfContent(
   final widgets = <pw.Widget>[_header(cv.header, tokens, fonts)];
   for (final section in cv.sections) {
     widgets.add(pw.SizedBox(height: tokens.sectionGap));
-    if (section is! ResolvedSummarySection) {
-      widgets.add(_sectionHeading(section.title, tokens, fonts));
-    }
+    widgets.add(_sectionHeading(_displayTitle(section), tokens, fonts));
     widgets.addAll(_sectionBody(section, tokens, fonts));
   }
   return widgets;
 }
+
+/// [section.title] as composed by `CvComposer`, with the one deviation
+/// this template makes from the shared title text: "Experience" reads as
+/// "Professional Experience" here, matching the reference CV this
+/// template clones, while `compact` keeps the shorter shared title.
+String _displayTitle(ResolvedSection section) => switch (section) {
+  ResolvedExperienceSection() => 'Professional Experience',
+  _ => section.title,
+};
 
 pw.Widget _header(
   ResolvedHeader header,
@@ -256,7 +263,12 @@ pw.Widget _project(
         if (link != null && link.isNotEmpty)
           pw.UrlLink(
             destination: _withScheme(link),
-            child: pw.Text(link, style: tokens.meta.toPdfStyle(fonts)),
+            // Italic — matches [company]'s italic second-row treatment
+            // elsewhere in this template, for visual consistency.
+            child: pw.Text(
+              link,
+              style: tokens.meta.copyWith(italic: true).toPdfStyle(fonts),
+            ),
           ),
         buildBulletList(project.bullets, tokens, fonts),
       ],
@@ -290,15 +302,16 @@ pw.Widget _education(
           tokens,
           fonts,
         ),
+        buildBulletList(edu.bullets, tokens, fonts),
       ],
     ),
   );
 }
 
-/// [Publication.link] renders as its own line, deliberately never spliced
-/// into [citation] — a long DOI/URL sits on a line of its own rather than
-/// competing with a long title/citation for right-aligned space the way
-/// `compact`'s single-row project link does.
+/// Title, citation, and link all fold onto a single comma-separated line,
+/// none of them bold — the reference this template clones treats a
+/// publication as one plain-body-style entry, unlike `compact`'s
+/// bold-title, own-line-per-field layout.
 pw.Widget _publication(
   ResolvedPublication publication,
   CvDesignTokens tokens,
@@ -306,19 +319,30 @@ pw.Widget _publication(
 ) {
   final citation = publication.citation;
   final link = publication.link;
+  final bodyStyle = tokens.body.toPdfStyle(fonts);
+
+  final parts = <pw.Widget>[
+    pw.Text(publication.title, style: bodyStyle),
+    if (citation != null && citation.trim().isNotEmpty)
+      pw.Text(citation, style: bodyStyle),
+    if (link != null && link.trim().isNotEmpty)
+      pw.UrlLink(
+        destination: _withScheme(link),
+        child: pw.Text(link, style: bodyStyle),
+      ),
+  ];
+
   return pw.Padding(
     padding: pw.EdgeInsets.only(bottom: tokens.itemGap),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+    child: pw.Wrap(
       children: [
-        pw.Text(publication.title, style: tokens.role.toPdfStyle(fonts)),
-        if (citation != null && citation.trim().isNotEmpty)
-          pw.Text(citation, style: tokens.meta.toPdfStyle(fonts)),
-        if (link != null && link.trim().isNotEmpty)
-          pw.UrlLink(
-            destination: _withScheme(link),
-            child: pw.Text(link, style: tokens.meta.toPdfStyle(fonts)),
-          ),
+        for (var i = 0; i < parts.length; i++) ...[
+          // A fresh pw.Text per separator — see `_header`'s matching
+          // comment for why one shared instance can't be reused at
+          // multiple tree positions.
+          if (i > 0) pw.Text(', ', style: bodyStyle),
+          parts[i],
+        ],
       ],
     ),
   );
