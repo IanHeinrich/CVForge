@@ -133,7 +133,19 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// vendored zoom preview uses (`third_party/printing/lib/src/preview/
   /// custom.dart`'s `_zoomPreview()`/`_updateCursor()`) — copied idea, not
   /// the vendored dependency itself (it's slated for deletion).
-  MouseCursor _cursor = kIsWeb ? SystemMouseCursors.grab : MouseCursor.defer;
+  ///
+  /// A [ValueNotifier], not a plain field behind `setState` — the same
+  /// mistake as [_hoveredNodeIndex] before it, just harder to spot: a
+  /// drag gesture repeatedly fires `onLongPressDown`/`onLongPressCancel`
+  /// as `InteractiveViewer`'s own pan recognizer and this cursor
+  /// recognizer settle who owns the gesture, so a plain `setState` here
+  /// rebuilt the entire panel — rail, camera, the whole
+  /// `InteractiveViewer` subtree — on every one of those arena events for
+  /// the length of the drag, which is exactly what read as flickering
+  /// while panning.
+  late final _cursor = ValueNotifier<MouseCursor>(
+    kIsWeb ? SystemMouseCursors.grab : MouseCursor.defer,
+  );
 
   @override
   void didUpdateWidget(covariant AnalyzerXrayPanel oldWidget) {
@@ -154,6 +166,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     _transformationController.dispose();
     _cameraAnimationController.dispose();
     _hoveredNodeIndex.dispose();
+    _cursor.dispose();
     super.dispose();
   }
 
@@ -691,7 +704,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   }
 
   void _updateCursor(MouseCursor cursor) {
-    if (cursor != _cursor) setState(() => _cursor = cursor);
+    _cursor.value = cursor;
   }
 
   Widget _buildInteractiveViewer(
@@ -720,8 +733,19 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       }
     }
 
-    return MouseRegion(
-      cursor: _cursor,
+    // The MouseRegion is the only thing that rebuilds when the cursor
+    // changes — `child` is built once per real layout change (page,
+    // selection, viewport resize) and reused as-is across every cursor
+    // update, per `ValueListenableBuilder`'s `child` parameter contract.
+    // Without this, a drag gesture's repeated onLongPressDown/
+    // onLongPressCancel arena churn would rebuild the entire
+    // InteractiveViewer subtree on every one of those events — the same
+    // mistake `_hoveredNodeIndex` made before it, just harder to spot
+    // because it only shows up while actively dragging.
+    return ValueListenableBuilder<MouseCursor>(
+      valueListenable: _cursor,
+      builder: (context, cursor, child) =>
+          MouseRegion(cursor: cursor, child: child),
       child: GestureDetector(
         onDoubleTap: () => _animateCameraTo(_fitTransform(viewport, content)),
         onLongPressDown: kIsWeb

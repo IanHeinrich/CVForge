@@ -45,6 +45,11 @@ class AtsXrayPainter extends CustomPainter {
   /// [selection]. Off by default: the spike measured up to ~400 nodes on a
   /// dense page, and lines for every one of them at once is noise unless
   /// a user has actually asked to see reading order.
+  ///
+  /// While on, this is the *only* thing drawn — no boxes, no selection
+  /// hull. Reading order was hard to follow with the box backdrop and the
+  /// line competing for attention; once a user has asked to see the flow,
+  /// it should be the only thing on the page.
   final bool showFlowLines;
 
   /// The selected finding's evidence, if any — drawn with a connector
@@ -64,67 +69,79 @@ class AtsXrayPainter extends CustomPainter {
     ..style = PaintingStyle.stroke
     ..strokeWidth = 1;
 
-  /// Dimmer than [_ambientPaint] — used instead of it while [showFlowLines]
-  /// is on, so the boxes recede and the flow line (drawn on top) is the
-  /// thing the eye follows, not one of several competing strokes.
-  static final _ambientDimPaint = Paint()
-    ..color = kcPrimaryColor.withValues(alpha: 0.18)
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = 1;
-
-  /// The line/hull layer's readability problem is different from the
-  /// boxes': the backdrop here is the *rasterized PDF page itself* — a
-  /// real resume, almost always a white/light background — not the app's
-  /// own dark chrome. A single fixed colour (this was `kcWhite` at low
-  /// alpha originally) reads as invisible on the exact backgrounds this
-  /// feature spends most of its time on. A light-then-dark "halo" stroke
-  /// — a wide pale pass under a narrow dark one — stays legible regardless
-  /// of what's underneath, the same trick map/chart labels use to stay
+  /// The line layer's readability problem is different from the boxes':
+  /// the backdrop here is the *rasterized PDF page itself* — a real
+  /// resume, almost always a white/light background — not the app's own
+  /// dark chrome. A single fixed colour (this was `kcWhite` at low alpha
+  /// originally) reads as invisible on the exact backgrounds this feature
+  /// spends most of its time on. A light-then-dark "halo" stroke — a wide
+  /// pale pass under a narrow dark one — stays legible regardless of
+  /// what's underneath, the same trick map/chart labels use to stay
   /// readable over arbitrary imagery.
+  ///
+  /// Bold on purpose — flow lines are the only thing drawn while
+  /// [showFlowLines] is on (nothing else competes for attention), and a
+  /// first pass at this width still read as "hard to follow".
   static final _lineHaloPaint = Paint()
-    ..color = kcWhite.withValues(alpha: 0.9)
+    ..color = kcWhite.withValues(alpha: 0.95)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 4
+    ..strokeWidth = 6.5
     ..strokeCap = StrokeCap.round;
 
   static final _flowLinePaint = Paint()
-    ..color = kcPrimaryColorDark.withValues(alpha: 0.9)
+    ..color = kcPrimaryColorDark
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 1.5
+    ..strokeWidth = 3
     ..strokeCap = StrokeCap.round;
+
+  /// The `span`-shape selection connector between two evidence boxes —
+  /// deliberately much fainter than the flow line above, and with no halo:
+  /// the boxes' own severity-coloured borders already make the pair
+  /// obvious, so this only needs to hint at "these two are linked", not
+  /// compete with the borders for attention.
+  Paint _selectionConnectorPaint(AtsFindingSeverity? severity) => Paint()
+    ..color = _severityColor(severity).withValues(alpha: 0.35)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1.5;
 
   static final _hullPaint = Paint()
     ..color = kcPrimaryColorDark.withValues(alpha: 0.9)
     ..style = PaintingStyle.stroke
     ..strokeWidth = 2;
 
+  static final _hullHaloPaint = Paint()
+    ..color = kcWhite.withValues(alpha: 0.9)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 4
+    ..strokeCap = StrokeCap.round;
+
   /// The reading-order chain's start — a hollow ring rather than a filled
   /// dot, so it doesn't read as just another node marker.
   static final _startRingPaint = Paint()
     ..color = kcPrimaryColorDark
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 2;
+    ..strokeWidth = 3;
 
   static final _startRingHaloPaint = Paint()
-    ..color = kcWhite.withValues(alpha: 0.9)
+    ..color = kcWhite.withValues(alpha: 0.95)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 4.5;
+    ..strokeWidth = 6;
 
   static final _endMarkerPaint = Paint()
     ..color = kcPrimaryColorDark
     ..style = PaintingStyle.fill;
 
   static final _endMarkerHaloPaint = Paint()
-    ..color = kcWhite.withValues(alpha: 0.9)
+    ..color = kcWhite.withValues(alpha: 0.95)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 2.5;
+    ..strokeWidth = 3.5;
 
   static final _dotPaint = Paint()
-    ..color = kcPrimaryColorDark.withValues(alpha: 0.9)
+    ..color = kcPrimaryColorDark
     ..style = PaintingStyle.fill;
 
   static final _dotHaloPaint = Paint()
-    ..color = kcWhite.withValues(alpha: 0.9)
+    ..color = kcWhite.withValues(alpha: 0.95)
     ..style = PaintingStyle.fill;
 
   /// The selected box needs to be unmistakable at a glance, not just a
@@ -165,19 +182,9 @@ class AtsXrayPainter extends CustomPainter {
 
   Offset _centerOf(AtsPixelRect r) => _rectOf(r).center;
 
-  void _drawHaloLine(Canvas canvas, Offset from, Offset to) {
-    canvas.drawLine(from, to, _lineHaloPaint);
-    canvas.drawLine(from, to, _flowLinePaint);
-  }
-
   void _drawHaloPath(Canvas canvas, Path path) {
     canvas.drawPath(path, _lineHaloPaint);
     canvas.drawPath(path, _flowLinePaint);
-  }
-
-  void _drawHaloRRect(Canvas canvas, RRect rrect) {
-    canvas.drawRRect(rrect, _lineHaloPaint);
-    canvas.drawRRect(rrect, _hullPaint);
   }
 
   /// A small filled triangle at [tip], pointing away from [from] — the
@@ -185,7 +192,7 @@ class AtsXrayPainter extends CustomPainter {
   /// direction is legible without having to trace the whole path back to
   /// the start.
   void _drawArrowhead(Canvas canvas, Offset from, Offset tip) {
-    const size = 7.0;
+    const size = 11.0;
     final direction = tip - from;
     final length = direction.distance;
     if (length == 0) return;
@@ -209,46 +216,15 @@ class AtsXrayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Ambient pass first so evidence/selected boxes paint on top of it,
-    // never the reverse. Dimmed while the flow line is showing, so the
-    // line — not the backdrop of boxes it has to be traced through — is
-    // the thing that reads clearly.
-    final ambientCenters = <Offset>[];
-    final ambientPaint = showFlowLines ? _ambientDimPaint : _ambientPaint;
-    for (final box in boxes) {
-      if (box.style != AtsXrayBoxStyle.ambient) continue;
-      canvas.drawRect(_rectOf(box.rect), ambientPaint);
-      ambientCenters.add(_centerOf(box.rect));
+    if (showFlowLines) {
+      _paintFlowLines(canvas);
+      return;
     }
 
-    if (showFlowLines && ambientCenters.length >= 2) {
-      for (var i = 0; i < ambientCenters.length - 1; i++) {
-        final from = ambientCenters[i];
-        final to = ambientCenters[i + 1];
-        final path = Path()
-          ..moveTo(from.dx, from.dy)
-          ..cubicTo(to.dx, from.dy, from.dx, to.dy, to.dx, to.dy);
-        _drawHaloPath(canvas, path);
+    for (final box in boxes) {
+      if (box.style == AtsXrayBoxStyle.ambient) {
+        canvas.drawRect(_rectOf(box.rect), _ambientPaint);
       }
-      // A dot at every intermediate node anchors the "connect the dots"
-      // reading — without these the line runs *through* each box's
-      // interior with nothing marking where one hop ends and the next
-      // begins, which is exactly what read as hard to follow.
-      for (var i = 1; i < ambientCenters.length - 1; i++) {
-        canvas.drawCircle(ambientCenters[i], 3.5, _dotHaloPaint);
-        canvas.drawCircle(ambientCenters[i], 2, _dotPaint);
-      }
-      // Start and end need to look different from every dot in between —
-      // a hollow ring for "this is where reading order begins", a small
-      // arrowhead for "this is where it ends and which way it was going".
-      final start = ambientCenters.first;
-      canvas.drawCircle(start, 5, _startRingHaloPaint);
-      canvas.drawCircle(start, 5, _startRingPaint);
-      _drawArrowhead(
-        canvas,
-        ambientCenters[ambientCenters.length - 2],
-        ambientCenters.last,
-      );
     }
 
     for (final box in boxes) {
@@ -267,18 +243,66 @@ class AtsXrayPainter extends CustomPainter {
         selection.rects.isNotEmpty &&
         selection.shape == AtsEvidenceShape.span) {
       final union = _rectOf(atsUnionRect(selection.rects));
-      _drawHaloRRect(
-        canvas,
-        RRect.fromRectAndRadius(union.inflate(6), _cornerRadius * 2),
+      final rrect = RRect.fromRectAndRadius(
+        union.inflate(6),
+        _cornerRadius * 2,
       );
+      canvas.drawRRect(rrect, _hullHaloPaint);
+      canvas.drawRRect(rrect, _hullPaint);
       if (selection.rects.length >= 2) {
-        _drawHaloLine(
-          canvas,
+        final severity = boxes
+            .firstWhere(
+              (b) => b.style == AtsXrayBoxStyle.selected,
+              orElse: () => (
+                rect: selection.rects.first,
+                style: AtsXrayBoxStyle.selected,
+                severity: null,
+              ),
+            )
+            .severity;
+        canvas.drawLine(
           _centerOf(selection.rects.first),
           _centerOf(selection.rects.last),
+          _selectionConnectorPaint(severity),
         );
       }
     }
+  }
+
+  /// Only the reading-order chain — no boxes, no selection hull. Reading
+  /// order was hard to follow when it had to compete visually with
+  /// everything else drawn on the page; once asked for, it's the only
+  /// thing shown.
+  void _paintFlowLines(Canvas canvas) {
+    final centers = [
+      for (final box in boxes)
+        if (box.style == AtsXrayBoxStyle.ambient) _centerOf(box.rect),
+    ];
+    if (centers.length < 2) return;
+
+    for (var i = 0; i < centers.length - 1; i++) {
+      final from = centers[i];
+      final to = centers[i + 1];
+      final path = Path()
+        ..moveTo(from.dx, from.dy)
+        ..cubicTo(to.dx, from.dy, from.dx, to.dy, to.dx, to.dy);
+      _drawHaloPath(canvas, path);
+    }
+    // A dot at every intermediate node anchors the "connect the dots"
+    // reading — without these the line runs *through* each box's
+    // interior with nothing marking where one hop ends and the next
+    // begins, which is exactly what read as hard to follow.
+    for (var i = 1; i < centers.length - 1; i++) {
+      canvas.drawCircle(centers[i], 4, _dotHaloPaint);
+      canvas.drawCircle(centers[i], 2.5, _dotPaint);
+    }
+    // Start and end need to look different from every dot in between — a
+    // hollow ring for "this is where reading order begins", an arrowhead
+    // for "this is where it ends and which way it was going".
+    final start = centers.first;
+    canvas.drawCircle(start, 7, _startRingHaloPaint);
+    canvas.drawCircle(start, 7, _startRingPaint);
+    _drawArrowhead(canvas, centers[centers.length - 2], centers.last);
   }
 
   /// Identity, not deep-equality, on [boxes]: the list is only ever
