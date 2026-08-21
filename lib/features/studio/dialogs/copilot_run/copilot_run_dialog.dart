@@ -71,7 +71,9 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
             'This sends the job description below and your CV content — '
             'not your name, email, phone, or links — to '
             '${viewModel.providerDisplayName}, using your own API key. '
-            'There is no CVForge server in between.',
+            'There is no CVForge server in between. This can take up to '
+            'a few minutes — the model reasons through your whole Vault '
+            'before responding.',
             style: context.appTypography.bodySmall,
           ),
           const VGap.small(),
@@ -92,10 +94,17 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
         ];
 
       case CopilotRunPhase.running:
-        return const [
-          Padding(
+        return [
+          const Padding(
             padding: EdgeInsets.symmetric(vertical: 24),
             child: Center(child: CircularProgressIndicator()),
+          ),
+          Center(
+            child: Text(
+              'This can take up to a few minutes. Please keep this dialog '
+              'open.',
+              style: context.appTypography.bodySmall,
+            ),
           ),
         ];
 

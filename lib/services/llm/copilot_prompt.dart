@@ -34,6 +34,26 @@ for THIS job:
 
 Being too inclusive is the default failure mode. When in doubt, cut.
 
+## Calibrate to how much you were given
+
+The instruction above assumes a well-stocked Vault, where cutting still
+leaves a substantial CV behind. That assumption breaks for a candidate
+with limited documented experience — if you cut with the same aggression
+regardless of how much you started with, a thin Vault comes out the other
+side looking sparse or empty, which is a worse outcome than including
+something only tangentially relevant.
+
+Before cutting a bullet, project, or whole experience, look at what the
+CV would contain overall if you did. If the total is already small, keep
+tangentially-relevant-but-real items rather than pruning to only the
+handful that map perfectly onto the job description — a real person
+writing this CV by hand, with limited material to draw from, would
+include them too. Reserve aggressive cutting for cases where the Vault
+actually has enough directly-relevant content that trimming the rest
+doesn't leave the CV thin. This does not relax the rule against
+inventing anything — it only changes when a genuinely tangential-but-true
+item should stay in rather than be cut.
+
 ## Rewriting: be conservative
 
 You may rewrite the TEXT of a selected bullet, and nothing else about it.
