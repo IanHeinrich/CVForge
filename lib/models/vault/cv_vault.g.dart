@@ -34,6 +34,11 @@ _CvVault _$CvVaultFromJson(Map<String, dynamic> json) => _CvVault(
           ?.map((e) => HobbyItem.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const <HobbyItem>[],
+  publications:
+      (json['publications'] as List<dynamic>?)
+          ?.map((e) => Publication.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <Publication>[],
   referencesNote: json['referencesNote'] as String?,
   updatedAt: DateTime.parse(json['updatedAt'] as String),
 );
@@ -46,6 +51,7 @@ Map<String, dynamic> _$CvVaultToJson(_CvVault instance) => <String, dynamic>{
   'projects': instance.projects.map((e) => e.toJson()).toList(),
   'education': instance.education.map((e) => e.toJson()).toList(),
   'hobbies': instance.hobbies.map((e) => e.toJson()).toList(),
+  'publications': instance.publications.map((e) => e.toJson()).toList(),
   'referencesNote': instance.referencesNote,
   'updatedAt': instance.updatedAt.toIso8601String(),
 };

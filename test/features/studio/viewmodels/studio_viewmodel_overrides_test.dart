@@ -79,7 +79,7 @@ void main() {
       schemaVersion: 1,
       id: 'current',
       name: 'My CV',
-      templateId: 'ats_minimal',
+      templateId: 'compact',
       region: region,
       experienceIds: experienceIds,
       bulletIds: bulletIds,

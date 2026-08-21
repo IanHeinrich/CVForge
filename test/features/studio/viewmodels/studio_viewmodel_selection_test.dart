@@ -80,11 +80,12 @@ void main() {
       String? headlineOverride,
       String? referencesOverride,
       Map<String, String> educationDetailsOverrides = const {},
+      String templateId = 'compact',
     }) => CvDraft(
       schemaVersion: 1,
       id: 'current',
       name: 'My CV',
-      templateId: 'ats_minimal',
+      templateId: templateId,
       experienceIds: experienceIds,
       bulletIds: bulletIds,
       projectIds: projectIds,
@@ -150,6 +151,50 @@ void main() {
       final experienceSection = section as ResolvedExperienceSection;
       expect(experienceSection.groups, hasLength(1));
       expect(experienceSection.groups.single.positions.single.role, 'Engineer');
+    });
+
+    test('resolvedCv follows the active template\'s own sectionOrder, not '
+        'one global order — switching template reorders sections with no '
+        'draft-side change', () {
+      when(vaultService.vault).thenReturn(
+        vaultWith(experiences: [experience], education: [education]),
+      );
+      when(draftService.draft).thenReturn(
+        draftWith(
+          experienceIds: [experience.id],
+          bulletIds: {
+            experience.id: ['b1', 'b2'],
+          },
+          educationIds: [education.id],
+        ),
+      );
+
+      final compactOrder = StudioViewModel().resolvedCv.sections
+          .map((s) => s.runtimeType)
+          .toList();
+      expect(compactOrder, [
+        ResolvedExperienceSection,
+        ResolvedEducationSection,
+      ]);
+
+      when(draftService.draft).thenReturn(
+        draftWith(
+          experienceIds: [experience.id],
+          bulletIds: {
+            experience.id: ['b1', 'b2'],
+          },
+          educationIds: [education.id],
+          templateId: 'classic_centered',
+        ),
+      );
+
+      final classicCenteredOrder = StudioViewModel().resolvedCv.sections
+          .map((s) => s.runtimeType)
+          .toList();
+      expect(classicCenteredOrder, [
+        ResolvedEducationSection,
+        ResolvedExperienceSection,
+      ]);
     });
 
     test('hiding a section removes it from the resolved model', () {

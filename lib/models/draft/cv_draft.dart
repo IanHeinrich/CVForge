@@ -49,6 +49,7 @@ abstract class CvDraft with _$CvDraft {
     @Default(<String>[]) List<String> skillIds,
     @Default(<String>[]) List<String> educationIds,
     @Default(<String>[]) List<String> hobbyIds,
+    @Default(<String>[]) List<String> publicationIds,
     @Default(<CvSectionType>{}) Set<CvSectionType> hiddenSections,
 
     /// A draft-only rewrite of the Vault's professional summary — null

@@ -86,7 +86,7 @@ extension ResolvedSectionPatterns on ResolvedSection {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolvedSummarySection value)?  summary,TResult Function( ResolvedExperienceSection value)?  experience,TResult Function( ResolvedProjectsSection value)?  projects,TResult Function( ResolvedSkillsSection value)?  skills,TResult Function( ResolvedEducationSection value)?  education,TResult Function( ResolvedHobbiesSection value)?  hobbies,TResult Function( ResolvedReferencesSection value)?  references,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolvedSummarySection value)?  summary,TResult Function( ResolvedExperienceSection value)?  experience,TResult Function( ResolvedProjectsSection value)?  projects,TResult Function( ResolvedSkillsSection value)?  skills,TResult Function( ResolvedEducationSection value)?  education,TResult Function( ResolvedHobbiesSection value)?  hobbies,TResult Function( ResolvedReferencesSection value)?  references,TResult Function( ResolvedPublicationsSection value)?  publications,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
@@ -96,7 +96,8 @@ return projects(_that);case ResolvedSkillsSection() when skills != null:
 return skills(_that);case ResolvedEducationSection() when education != null:
 return education(_that);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that);case ResolvedReferencesSection() when references != null:
-return references(_that);case _:
+return references(_that);case ResolvedPublicationsSection() when publications != null:
+return publications(_that);case _:
   return orElse();
 
 }
@@ -114,7 +115,7 @@ return references(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolvedSummarySection value)  summary,required TResult Function( ResolvedExperienceSection value)  experience,required TResult Function( ResolvedProjectsSection value)  projects,required TResult Function( ResolvedSkillsSection value)  skills,required TResult Function( ResolvedEducationSection value)  education,required TResult Function( ResolvedHobbiesSection value)  hobbies,required TResult Function( ResolvedReferencesSection value)  references,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolvedSummarySection value)  summary,required TResult Function( ResolvedExperienceSection value)  experience,required TResult Function( ResolvedProjectsSection value)  projects,required TResult Function( ResolvedSkillsSection value)  skills,required TResult Function( ResolvedEducationSection value)  education,required TResult Function( ResolvedHobbiesSection value)  hobbies,required TResult Function( ResolvedReferencesSection value)  references,required TResult Function( ResolvedPublicationsSection value)  publications,}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
@@ -124,7 +125,8 @@ return projects(_that);case ResolvedSkillsSection():
 return skills(_that);case ResolvedEducationSection():
 return education(_that);case ResolvedHobbiesSection():
 return hobbies(_that);case ResolvedReferencesSection():
-return references(_that);}
+return references(_that);case ResolvedPublicationsSection():
+return publications(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -138,7 +140,7 @@ return references(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolvedSummarySection value)?  summary,TResult? Function( ResolvedExperienceSection value)?  experience,TResult? Function( ResolvedProjectsSection value)?  projects,TResult? Function( ResolvedSkillsSection value)?  skills,TResult? Function( ResolvedEducationSection value)?  education,TResult? Function( ResolvedHobbiesSection value)?  hobbies,TResult? Function( ResolvedReferencesSection value)?  references,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolvedSummarySection value)?  summary,TResult? Function( ResolvedExperienceSection value)?  experience,TResult? Function( ResolvedProjectsSection value)?  projects,TResult? Function( ResolvedSkillsSection value)?  skills,TResult? Function( ResolvedEducationSection value)?  education,TResult? Function( ResolvedHobbiesSection value)?  hobbies,TResult? Function( ResolvedReferencesSection value)?  references,TResult? Function( ResolvedPublicationsSection value)?  publications,}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
@@ -148,7 +150,8 @@ return projects(_that);case ResolvedSkillsSection() when skills != null:
 return skills(_that);case ResolvedEducationSection() when education != null:
 return education(_that);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that);case ResolvedReferencesSection() when references != null:
-return references(_that);case _:
+return references(_that);case ResolvedPublicationsSection() when publications != null:
+return publications(_that);case _:
   return null;
 
 }
@@ -165,7 +168,7 @@ return references(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedProject> items)?  projects,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedProject> items)?  projects,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,TResult Function( String title,  List<ResolvedPublication> items)?  publications,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
@@ -174,7 +177,8 @@ return projects(_that.title,_that.items);case ResolvedSkillsSection() when skill
 return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
-return references(_that.title,_that.text);case _:
+return references(_that.title,_that.text);case ResolvedPublicationsSection() when publications != null:
+return publications(_that.title,_that.items);case _:
   return orElse();
 
 }
@@ -192,7 +196,7 @@ return references(_that.title,_that.text);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedProject> items)  projects,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedProject> items)  projects,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,required TResult Function( String title,  List<ResolvedPublication> items)  publications,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
 return summary(_that.title,_that.text);case ResolvedExperienceSection():
@@ -201,7 +205,8 @@ return projects(_that.title,_that.items);case ResolvedSkillsSection():
 return skills(_that.title,_that.groups);case ResolvedEducationSection():
 return education(_that.title,_that.items);case ResolvedHobbiesSection():
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection():
-return references(_that.title,_that.text);}
+return references(_that.title,_that.text);case ResolvedPublicationsSection():
+return publications(_that.title,_that.items);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -215,7 +220,7 @@ return references(_that.title,_that.text);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedProject> items)?  projects,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedProject> items)?  projects,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,TResult? Function( String title,  List<ResolvedPublication> items)?  publications,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
@@ -224,7 +229,8 @@ return projects(_that.title,_that.items);case ResolvedSkillsSection() when skill
 return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
-return references(_that.title,_that.text);case _:
+return references(_that.title,_that.text);case ResolvedPublicationsSection() when publications != null:
+return publications(_that.title,_that.items);case _:
   return null;
 
 }
@@ -732,6 +738,80 @@ class _$ResolvedReferencesSectionCopyWithImpl<$Res>
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ResolvedPublicationsSection implements ResolvedSection {
+  const ResolvedPublicationsSection({required this.title, required final  List<ResolvedPublication> items}): _items = items;
+  
+
+@override final  String title;
+ final  List<ResolvedPublication> _items;
+ List<ResolvedPublication> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_items);
+}
+
+
+/// Create a copy of ResolvedSection
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ResolvedPublicationsSectionCopyWith<ResolvedPublicationsSection> get copyWith => _$ResolvedPublicationsSectionCopyWithImpl<ResolvedPublicationsSection>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedPublicationsSection&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other._items, _items));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,const DeepCollectionEquality().hash(_items));
+
+@override
+String toString() {
+  return 'ResolvedSection.publications(title: $title, items: $items)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ResolvedPublicationsSectionCopyWith<$Res> implements $ResolvedSectionCopyWith<$Res> {
+  factory $ResolvedPublicationsSectionCopyWith(ResolvedPublicationsSection value, $Res Function(ResolvedPublicationsSection) _then) = _$ResolvedPublicationsSectionCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, List<ResolvedPublication> items
+});
+
+
+
+
+}
+/// @nodoc
+class _$ResolvedPublicationsSectionCopyWithImpl<$Res>
+    implements $ResolvedPublicationsSectionCopyWith<$Res> {
+  _$ResolvedPublicationsSectionCopyWithImpl(this._self, this._then);
+
+  final ResolvedPublicationsSection _self;
+  final $Res Function(ResolvedPublicationsSection) _then;
+
+/// Create a copy of ResolvedSection
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? items = null,}) {
+  return _then(ResolvedPublicationsSection(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<ResolvedPublication>,
   ));
 }
 
@@ -2069,6 +2149,269 @@ class __$ResolvedSkillGroupCopyWithImpl<$Res>
 category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,skills: null == skills ? _self._skills : skills // ignore: cast_nullable_to_non_nullable
 as List<String>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ResolvedPublication {
+
+ String get title; String? get citation; String? get link;
+/// Create a copy of ResolvedPublication
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ResolvedPublicationCopyWith<ResolvedPublication> get copyWith => _$ResolvedPublicationCopyWithImpl<ResolvedPublication>(this as ResolvedPublication, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedPublication&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,citation,link);
+
+@override
+String toString() {
+  return 'ResolvedPublication(title: $title, citation: $citation, link: $link)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ResolvedPublicationCopyWith<$Res>  {
+  factory $ResolvedPublicationCopyWith(ResolvedPublication value, $Res Function(ResolvedPublication) _then) = _$ResolvedPublicationCopyWithImpl;
+@useResult
+$Res call({
+ String title, String? citation, String? link
+});
+
+
+
+
+}
+/// @nodoc
+class _$ResolvedPublicationCopyWithImpl<$Res>
+    implements $ResolvedPublicationCopyWith<$Res> {
+  _$ResolvedPublicationCopyWithImpl(this._self, this._then);
+
+  final ResolvedPublication _self;
+  final $Res Function(ResolvedPublication) _then;
+
+/// Create a copy of ResolvedPublication
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? citation = freezed,Object? link = freezed,}) {
+  return _then(_self.copyWith(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,citation: freezed == citation ? _self.citation : citation // ignore: cast_nullable_to_non_nullable
+as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ResolvedPublication].
+extension ResolvedPublicationPatterns on ResolvedPublication {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ResolvedPublication value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ResolvedPublication() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ResolvedPublication value)  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedPublication():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ResolvedPublication value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedPublication() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? citation,  String? link)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ResolvedPublication() when $default != null:
+return $default(_that.title,_that.citation,_that.link);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? citation,  String? link)  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedPublication():
+return $default(_that.title,_that.citation,_that.link);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? citation,  String? link)?  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedPublication() when $default != null:
+return $default(_that.title,_that.citation,_that.link);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ResolvedPublication implements ResolvedPublication {
+  const _ResolvedPublication({required this.title, this.citation, this.link});
+  
+
+@override final  String title;
+@override final  String? citation;
+@override final  String? link;
+
+/// Create a copy of ResolvedPublication
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ResolvedPublicationCopyWith<_ResolvedPublication> get copyWith => __$ResolvedPublicationCopyWithImpl<_ResolvedPublication>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedPublication&&(identical(other.title, title) || other.title == title)&&(identical(other.citation, citation) || other.citation == citation)&&(identical(other.link, link) || other.link == link));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,citation,link);
+
+@override
+String toString() {
+  return 'ResolvedPublication(title: $title, citation: $citation, link: $link)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ResolvedPublicationCopyWith<$Res> implements $ResolvedPublicationCopyWith<$Res> {
+  factory _$ResolvedPublicationCopyWith(_ResolvedPublication value, $Res Function(_ResolvedPublication) _then) = __$ResolvedPublicationCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, String? citation, String? link
+});
+
+
+
+
+}
+/// @nodoc
+class __$ResolvedPublicationCopyWithImpl<$Res>
+    implements _$ResolvedPublicationCopyWith<$Res> {
+  __$ResolvedPublicationCopyWithImpl(this._self, this._then);
+
+  final _ResolvedPublication _self;
+  final $Res Function(_ResolvedPublication) _then;
+
+/// Create a copy of ResolvedPublication
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? citation = freezed,Object? link = freezed,}) {
+  return _then(_ResolvedPublication(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,citation: freezed == citation ? _self.citation : citation // ignore: cast_nullable_to_non_nullable
+as String?,link: freezed == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

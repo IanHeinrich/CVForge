@@ -39,6 +39,19 @@ class StudioConfigPanel extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
+            for (final template in viewModel.availableTemplates)
+              ChoiceChip(
+                label: Text(template.displayName),
+                selected: viewModel.template.id == template.id,
+                onSelected: (_) => viewModel.setTemplate(template.id),
+              ),
+          ],
+        ),
+        const VGap.tiny(),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
             for (final region in RegionProfile.values)
               ChoiceChip(
                 label: Text(region.preset.displayName),
@@ -231,6 +244,23 @@ class StudioConfigPanel extends StatelessWidget {
                 title: hobby.text,
                 selected: viewModel.isHobbyIncluded(hobby.id),
                 onToggle: () => viewModel.toggleHobby(hobby),
+              ),
+          ],
+        ),
+        VaultItemSelectorList(
+          title: 'Publications',
+          unselectedCount: viewModel.unselectedPublications.length,
+          onAddAll: viewModel.addAllPublications,
+          items: [
+            for (final publication in viewModel.publications)
+              SelectorItem(
+                id: publication.id,
+                title: publication.title.isEmpty
+                    ? 'Untitled publication'
+                    : publication.title,
+                subtitle: publication.citation,
+                selected: viewModel.isPublicationIncluded(publication.id),
+                onToggle: () => viewModel.togglePublication(publication),
               ),
           ],
         ),

@@ -6,6 +6,7 @@ import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
@@ -13,7 +14,7 @@ import 'package:cv_forge/models/vault/year_month.dart';
 /// A wholly fictional persona, structured to mirror the shape of a real
 /// reference CV used during design (labelled AND unlabelled work bullets,
 /// two skill categories, two projects, two education entries, hobbies, a
-/// references note) so it exercises every branch of the `ats_minimal`
+/// references note) so it exercises every branch of the `compact`
 /// template.
 ///
 /// Used by the "Load example CV" button and as the deterministic fixture
@@ -198,6 +199,17 @@ CvVault buildExampleVault() => CvVault(
   hobbies: const [
     HobbyItem(id: 'hobby-1', text: 'Amateur woodworking'),
     HobbyItem(id: 'hobby-2', text: 'Training for a first half marathon'),
+  ],
+  publications: const [
+    Publication(
+      id: 'pub-1',
+      title:
+          'Reconciling real-time ledgers: a practical approach to '
+          'eventual consistency at scale',
+      citation:
+          'Ellery, J. (2024). Northbridge Engineering Notes, 3(1), 12–19.',
+      link: 'doi.org/10.1234/example-ledger',
+    ),
   ],
   referencesNote: 'Available on request.',
 );

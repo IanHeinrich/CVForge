@@ -1,4 +1,5 @@
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
@@ -13,6 +14,8 @@ import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
+import 'package:cv_forge/templates/compact/compact_template.dart';
+import 'package:cv_forge/templates/classic_centered/classic_centered_template.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -99,9 +102,24 @@ MockFileDownloadService getAndRegisterFileDownloadService() {
   return service;
 }
 
+/// Stubs [TemplateRegistryService.byId]/[TemplateRegistryService.
+/// defaultTemplate]/[TemplateRegistryService.available] against the real
+/// templates, not a further-mocked `CvTemplate` — every field a test
+/// might read (`tokens`, `sectionOrder`, …) is then real data rather than
+/// something each call site has to stub individually. A test that cares
+/// about a specific template id can still override `byId` afterwards.
 MockTemplateRegistryService getAndRegisterTemplateRegistryService() {
   _removeRegistrationIfExists<TemplateRegistryService>();
   final service = MockTemplateRegistryService();
+  const templates = [CompactTemplate(), ClassicCenteredTemplate()];
+  when(service.defaultTemplate).thenReturn(templates.first);
+  when(service.available).thenReturn(templates);
+  when(service.byId(any)).thenAnswer(
+    (invocation) => templates.firstWhere(
+      (t) => t.id == invocation.positionalArguments.first,
+      orElse: () => templates.first,
+    ),
+  );
   locator.registerSingleton<TemplateRegistryService>(service);
   return service;
 }

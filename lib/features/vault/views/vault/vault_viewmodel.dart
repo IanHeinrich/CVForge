@@ -8,6 +8,7 @@ import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
@@ -27,6 +28,7 @@ enum VaultEditorTarget {
   education,
   skills,
   hobbies,
+  publication,
 }
 
 /// Most of this ViewModel's mutators are one-line forwards straight to
@@ -105,6 +107,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
       _open(VaultEditorTarget.experience, id);
   void openProjectEditor(String id) => _open(VaultEditorTarget.project, id);
   void openEducationEditor(String id) => _open(VaultEditorTarget.education, id);
+  void openPublicationEditor(String id) =>
+      _open(VaultEditorTarget.publication, id);
 
   void closeEditor() {
     _openTarget = VaultEditorTarget.none;
@@ -269,6 +273,26 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> updateHobby(HobbyItem hobby) => _vaultService.updateHobby(hobby);
 
   Future<void> deleteHobby(String id) => _vaultService.deleteHobby(id);
+
+  // --- publications ---
+
+  Future<void> addPublication() async {
+    final created = await _vaultService.addPublication(title: '');
+    openPublicationEditor(created.id);
+  }
+
+  Future<void> updatePublication(Publication publication) =>
+      _vaultService.updatePublication(publication);
+
+  Future<void> deletePublication(String id) async {
+    final confirmed = await _confirmDelete(
+      title: 'Delete this publication?',
+      description: "This can't be undone.",
+    );
+    if (!confirmed) return;
+    await _vaultService.deletePublication(id);
+    if (_openId == id) closeEditor();
+  }
 
   Future<bool> _confirmDelete({
     required String title,

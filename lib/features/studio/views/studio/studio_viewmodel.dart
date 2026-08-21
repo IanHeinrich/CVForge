@@ -13,6 +13,7 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -107,6 +108,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       ],
       educationIds: [for (final e in vault.education) e.id],
       hobbyIds: [for (final h in vault.hobbies) h.id],
+      publicationIds: [for (final p in vault.publications) p.id],
     );
   }
 
@@ -125,14 +127,23 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   CvTemplate get template => _templateRegistry.byId(_draft.templateId);
 
+  List<CvTemplate> get availableTemplates => _templateRegistry.available;
+
+  Future<void> setTemplate(String templateId) =>
+      _draftService.setTemplate(templateId);
+
   RegionProfile get region => _draft.region;
   Future<void> setRegion(RegionProfile region) =>
       _draftService.setRegion(region);
 
   PdfPageFormat get pageFormat => _draft.region.preset.page.toPdfPageFormat;
 
-  ResolvedCv get resolvedCv =>
-      CvComposer.compose(_vault, _draft, region: _draft.region);
+  ResolvedCv get resolvedCv => CvComposer.compose(
+    _vault,
+    _draft,
+    region: _draft.region,
+    sectionOrder: template.sectionOrder,
+  );
 
   /// [CvVault.isEmpty] (no source data anywhere) is checked ahead of an
   /// empty [resolvedCv] (data exists but nothing is included) — the two
@@ -153,7 +164,8 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       projects.length +
       _allSkills.length +
       education.length +
-      hobbies.length;
+      hobbies.length +
+      publications.length;
 
   Future<void> goToVault() => _routerService.replaceWith(VaultViewRoute());
 
@@ -203,6 +215,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     await addAllSkills();
     await addAllEducation();
     await addAllHobbies();
+    await addAllPublications();
     for (final type in CvSectionType.values) {
       if (isSectionHidden(type)) await toggleSectionHidden(type);
     }
@@ -230,6 +243,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     CvSectionType.education => education.isNotEmpty,
     CvSectionType.hobbies => hobbies.isNotEmpty,
     CvSectionType.references => hasReferences,
+    CvSectionType.publications => publications.isNotEmpty,
   };
 
   // --- text overrides ---
@@ -494,6 +508,28 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   List<HobbyItem> get unselectedHobbies => _hobbySelection.unselected;
 
   Future<void> addAllHobbies() => _hobbySelection.addAll();
+
+  // --- publications ---
+
+  late final _publicationSelection = _Selection<Publication>(
+    items: () => _vault.publications,
+    idOf: (p) => p.id,
+    selectedIds: () => _draft.publicationIds,
+    setIncluded: (p, {required included}) =>
+        _draftService.setPublicationIncluded(p.id, included: included),
+  );
+
+  List<Publication> get publications => _vault.publications;
+
+  bool isPublicationIncluded(String id) => _publicationSelection.isIncluded(id);
+
+  Future<void> togglePublication(Publication publication) =>
+      _publicationSelection.toggle(publication);
+
+  List<Publication> get unselectedPublications =>
+      _publicationSelection.unselected;
+
+  Future<void> addAllPublications() => _publicationSelection.addAll();
 
   // --- export ---
 

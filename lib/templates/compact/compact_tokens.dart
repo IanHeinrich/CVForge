@@ -11,7 +11,7 @@ const _mutedInk = 0xFF555555;
 /// explicitly to [_ink] rather than leaving it null — the printed ink
 /// should never silently depend on `package:pdf`'s own default text
 /// color rather than this template's own choice.
-const CvDesignTokens atsMinimalTokens = CvDesignTokens(
+const CvDesignTokens compactTokens = CvDesignTokens(
   marginTop: 40,
   marginRight: 40,
   marginBottom: 40,

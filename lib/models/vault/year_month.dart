@@ -19,7 +19,7 @@ abstract class YearMonth with _$YearMonth {
   /// "MM/YYYY", matching the original reference CV's date format.
   String toMmYyyy() => '${month.toString().padLeft(2, '0')}/$year';
 
-  /// "Mon YYYY" (e.g. "Aug 2022"), matching the `ats_minimal` reference
+  /// "Mon YYYY" (e.g. "Aug 2022"), matching the `compact` reference
   /// template's date format. "Sept" rather than "Sep" and "June"/"July"
   /// rather than "Jun"/"Jul" is a deliberate resume convention, not a
   /// typo — it's what the reference template itself uses.

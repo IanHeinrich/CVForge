@@ -3,7 +3,7 @@ import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
-import 'package:cv_forge/templates/ats_minimal/ats_minimal_template.dart';
+import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -27,7 +27,7 @@ void main() {
       id: id,
       name: name,
       notes: notes,
-      templateId: 'ats_minimal',
+      templateId: 'compact',
       updatedAt: DateTime(2026, 1, 1),
     );
 
@@ -63,12 +63,12 @@ void main() {
 
     test('templateName delegates to TemplateRegistryService', () {
       when(
-        templateRegistry.byId('ats_minimal'),
-      ).thenReturn(const AtsMinimalTemplate());
+        templateRegistry.byId('compact'),
+      ).thenReturn(const CompactTemplate());
 
       final model = DraftsListViewModel();
 
-      expect(model.templateName('ats_minimal'), 'ATS Minimal');
+      expect(model.templateName('compact'), 'Compact');
     });
 
     group('createDraft -', () {
@@ -91,7 +91,7 @@ void main() {
           );
           when(
             templateRegistry.defaultTemplate,
-          ).thenReturn(const AtsMinimalTemplate());
+          ).thenReturn(const CompactTemplate());
           when(
             draftService.createDraft(
               name: anyNamed('name'),
@@ -108,7 +108,7 @@ void main() {
             draftService.createDraft(
               name: 'New CV',
               notes: 'note',
-              templateId: 'ats_minimal',
+              templateId: 'compact',
             ),
           ).called(1);
           verify(routerService.replaceWith(argThat(isA<StudioViewRoute>())));

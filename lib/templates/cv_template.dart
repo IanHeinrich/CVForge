@@ -1,6 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'design/cv_design_tokens.dart';
 import 'design/cv_font_set.dart';
@@ -15,6 +16,16 @@ abstract interface class CvTemplate {
   String get displayName;
   String get description;
   CvDesignTokens get tokens;
+
+  /// Print order for this template — a permutation of every
+  /// [CvSectionType], not a subset: `CvComposer.compose` iterates exactly
+  /// this list, so a case missing from it would silently drop that
+  /// section's content even when the user has it selected. Declared per
+  /// template rather than as one global constant because different
+  /// reference CVs genuinely order sections differently (e.g. skills near
+  /// the top vs. near the bottom) — content joining still happens in
+  /// exactly one place (`CvComposer`), only the order is configurable.
+  List<CvSectionType> get sectionOrder;
 
   /// The complete exportable document. [compress] defaults to `true`;
   /// tests pass `false` so the resulting PDF's content streams stay

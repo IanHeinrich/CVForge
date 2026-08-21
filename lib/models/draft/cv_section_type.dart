@@ -10,6 +10,7 @@ enum CvSectionType {
   education,
   hobbies,
   references,
+  publications,
 }
 
 /// UI-facing label for Studio's section-visibility toggles. Deliberately
@@ -26,5 +27,6 @@ extension CvSectionTypeLabel on CvSectionType {
     CvSectionType.education => 'Education',
     CvSectionType.hobbies => 'Hobbies and interests',
     CvSectionType.references => 'References',
+    CvSectionType.publications => 'Publications',
   };
 }

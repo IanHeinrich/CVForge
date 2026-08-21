@@ -377,6 +377,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     required List<String> skillIds,
     required List<String> educationIds,
     required List<String> hobbyIds,
+    required List<String> publicationIds,
   }) async {
     await ready();
     if (!isFreshDraft) return;
@@ -389,6 +390,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         skillIds: skillIds,
         educationIds: educationIds,
         hobbyIds: hobbyIds,
+        publicationIds: publicationIds,
       ),
     );
   }
@@ -506,8 +508,19 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         copyWith: (d, ids) => d.copyWith(hobbyIds: ids),
       );
 
-  /// Shared by [setSkillIncluded], [setEducationIncluded], and
-  /// [setHobbyIncluded] — each just toggles [id] in a different one of
+  Future<void> setPublicationIncluded(
+    String publicationId, {
+    required bool included,
+  }) => _setIdIncluded(
+    publicationId,
+    included: included,
+    idsOf: (d) => d.publicationIds,
+    copyWith: (d, ids) => d.copyWith(publicationIds: ids),
+  );
+
+  /// Shared by [setSkillIncluded], [setEducationIncluded],
+  /// [setHobbyIncluded], and [setPublicationIncluded] — each just toggles
+  /// [id] in a different one of
   /// [CvDraft]'s flat id lists.
   Future<void> _setIdIncluded(
     String id, {

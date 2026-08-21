@@ -94,7 +94,7 @@ void main() {
       schemaVersion: 1,
       id: 'current',
       name: 'My CV',
-      templateId: 'ats_minimal',
+      templateId: 'compact',
       experienceIds: experienceIds,
       bulletIds: bulletIds,
       projectIds: projectIds,
@@ -174,6 +174,7 @@ void main() {
             skillIds: anyNamed('skillIds'),
             educationIds: anyNamed('educationIds'),
             hobbyIds: anyNamed('hobbyIds'),
+            publicationIds: anyNamed('publicationIds'),
           ),
         ).thenAnswer((_) => Future<void>.value());
 
@@ -192,6 +193,7 @@ void main() {
             skillIds: [],
             educationIds: [],
             hobbyIds: [hobby.id],
+            publicationIds: [],
           ),
         ).called(1);
       });
@@ -217,6 +219,7 @@ void main() {
             skillIds: anyNamed('skillIds'),
             educationIds: anyNamed('educationIds'),
             hobbyIds: anyNamed('hobbyIds'),
+            publicationIds: anyNamed('publicationIds'),
           ),
         );
       });
