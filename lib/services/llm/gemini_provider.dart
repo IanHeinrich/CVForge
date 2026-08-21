@@ -207,14 +207,15 @@ class GeminiProvider implements LlmProvider {
   /// names and string `enum` support via a real request (plan.md 4.4b).
   ///
   /// Deliberately omits `additionalProperties` on object nodes, unlike
-  /// [AnthropicProvider]'s unconditional `false` — Gemini's schema is
-  /// documented as a strict OpenAPI 3.0 subset that does not recognise the
-  /// field. **This is provisional pending the empirical check recorded in
-  /// plan.md's 4.4b**: if Gemini turns out to accept and enforce it, this
-  /// should emit it the same way Anthropic does; if it accepts but ignores
-  /// it, this comment and 4.5's schema design both need to account for
-  /// Gemini's structured output being a *weaker* extra-property guarantee
-  /// than Anthropic's, not just an omitted field.
+  /// [AnthropicProvider]'s unconditional `false` — **confirmed** (plan.md
+  /// 4.4b, not just documented) that Gemini's schema rejects the field
+  /// outright as unrecognized (`400 INVALID_ARGUMENT`, "Cannot find
+  /// field"). This is not a weaker version of Anthropic's guarantee, it's
+  /// an absent one: Gemini has no schema-level way to close an object to a
+  /// known key set at all. Any code that folds a Gemini response's object
+  /// keys into app state (4.5's per-experience/per-project id-keyed
+  /// objects, specifically) must validate those keys against the known id
+  /// set itself — the schema will not do it, for this provider only.
   Map<String, dynamic> _walkSchema(JsonSchema schema) => switch (schema) {
     JsonSchemaObject(:final properties, :final required) => {
       'type': 'OBJECT',

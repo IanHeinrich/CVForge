@@ -1189,17 +1189,32 @@ suppressed while `available.length == 1`) becomes live for the first time.
 >   `invalidRequest`. `GeminiProvider._mapDioException` reads the response
 >   body's `error.details[].reason` for this one confirmed case before
 >   falling back to status-code mapping for everything else.
-> - **`additionalProperties` on Gemini's `responseSchema` — unresolved as
->   of this note.** The walker currently omits the field entirely rather
->   than emitting `false` unconditionally the way `AnthropicProvider` does,
->   on the documented (not this-session-confirmed) understanding that
->   Gemini's schema is a strict OpenAPI subset without that key. The code
->   comment beside `GeminiProvider._walkSchema` says so explicitly and
->   names the three possible outcomes once tested (rejected / accepted-and-
->   enforced / accepted-and-ignored) and what each means for 4.5's
->   anti-hallucination guarantee. **Whoever picks up 4.5 should resolve
->   this first** — it's the one piece of the Gemini dialect this session
->   didn't get to close out.
+> - **`additionalProperties` on Gemini's `responseSchema` — resolved
+>   (2026-08-21, later still): rejected outright.** A real request with
+>   `"additionalProperties": false` on an object node returned HTTP 400,
+>   `"status": "INVALID_ARGUMENT"`, `"message": "Invalid JSON payload
+>   received. Unknown name \"additionalProperties\" at
+>   'generation_config.response_schema': Cannot find field."` — not a
+>   silent ignore, a hard rejection of the field as unrecognized.
+>   `GeminiProvider._walkSchema` omitting the key entirely (its existing
+>   behavior) is therefore correct and needed no code change.
+>
+>   **But this closes off the "accepted-and-enforced" outcome, which is
+>   the one 4.5's schema design actually needs.** Gemini's schema language
+>   has no mechanism at all for closing an object to a known key set —
+>   not a weaker version of Anthropic's guarantee, an absent one. This
+>   matters concretely for 4.5's corrected response shape below:
+>   `experiences`/`projects` are objects keyed by real Vault ids precisely
+>   so an out-of-range key is schema-impossible on Anthropic. On Gemini,
+>   nothing stops the model from adding an extra key under `experiences`
+>   that isn't one of the enumerated ids — the schema will accept it
+>   silently. **4.5 must validate response object keys against the known
+>   id set in application code before folding them into the draft, on
+>   every provider, not just as defense-in-depth for Anthropic** — for
+>   Gemini specifically it is the *only* enforcement that exists. This is
+>   also the concrete case for why decision 9's "structural impossibility"
+>   framing was always Anthropic-specific and needs restating as a
+>   per-provider property, not a property of the schema seam itself.
 > - The Settings UI now shows a real provider dropdown (`Anthropic` /
 >   `Google Gemini`) above the model dropdown, `SettingsViewModel` no
 >   longer hardcodes `defaultProvider` anywhere (every Copilot getter/
@@ -1263,6 +1278,8 @@ Shape — **corrected 2026-08-21; the earlier array-of-objects version had a bug
 ```
 
 > **Why this changed.** The original shape asked for `bulletIds` to be "an enum of *that* experience's bullet ids" inside an array of `{id, bulletIds}` objects. **JSON Schema cannot express that** — an array item's `items.enum` can't be conditioned on a sibling `id` field. Implemented literally it degrades to one global enum of every bullet id in the Vault, which lets the model attach experience B's bullet to experience A: exactly the class of error the enum trick exists to make structurally impossible. Keying the object by experience id restores the per-experience constraint, because each property gets its own independently-scoped enum. Cost: a slightly larger schema, and `required` should list nothing (an omitted experience simply isn't selected) while `additionalProperties` stays `false`. Note the shape also gained `publicationIds`, which the original predates (Publications became a first-class section in PR #35).
+>
+> **Provider caveat, confirmed in 4.4b: `additionalProperties: false` is Anthropic-only.** Gemini's schema dialect rejects the field outright (`400 INVALID_ARGUMENT`), so this shape's "closed to known ids" guarantee holds on Anthropic by construction and does not hold on Gemini at all — nothing stops a Gemini response from adding a key under `experiences`/`projects` that isn't a real id. The implementation must validate every returned object key against the known id set in application code before folding it into the draft, unconditionally (not just as Anthropic defense-in-depth) — for Gemini it's the only enforcement that exists. See `GeminiProvider._walkSchema`'s doc comment.
 
 `keywordGaps` — requirements in the ad that nothing in the Vault covers — is the honest counterweight to the rest of the response: it's the model reporting what it *couldn't* find, and it's the thing that tells the user to go add something real to their Vault rather than trusting a rewrite to have covered it.
 
