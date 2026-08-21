@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/llm/copilot_result.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -398,6 +399,108 @@ void main() {
         ),
         isTrue,
       );
+    });
+
+    group('applyCopilotResult / undoCopilotPass (4.5) -', () {
+      const result = CopilotResult(
+        headline: 'Backend Engineer',
+        summary: 'Tailored summary.',
+        experienceIds: ['exp-1'],
+        bulletIds: {
+          'exp-1': ['bullet-1'],
+        },
+        projectIds: [],
+        projectBulletIds: {},
+        bulletOverrides: {'bullet-1': 'Rewritten bullet.'},
+        skillIds: ['skill-1'],
+        educationIds: [],
+        hobbyIds: [],
+        publicationIds: [],
+        hiddenSections: {CvSectionType.hobbies},
+        rationale: 'Kept the relevant backend experience.',
+        keywordGaps: ['Kubernetes'],
+      );
+
+      test('applies every field in one write and snapshots the pre-pass '
+          'draft for undo', () async {
+        final service = DraftService();
+        await service.load();
+        final id = service.draft.id;
+
+        await service.applyCopilotResult(result);
+
+        expect(service.draft.headlineOverride, 'Backend Engineer');
+        expect(service.draft.tailoredSummary, 'Tailored summary.');
+        expect(service.draft.experienceIds, ['exp-1']);
+        expect(service.draft.bulletIds, {
+          'exp-1': ['bullet-1'],
+        });
+        expect(service.draft.bulletOverrides, {
+          'bullet-1': 'Rewritten bullet.',
+        });
+        expect(service.draft.skillIds, ['skill-1']);
+        expect(service.draft.hiddenSections, {CvSectionType.hobbies});
+        expect(
+          memory.containsKey(
+            '${StorageBoxes.drafts}/${StorageKeys.copilotUndoFor(id)}',
+          ),
+          isTrue,
+        );
+        expect(await service.hasCopilotUndoFor(id), isTrue);
+      });
+
+      test('a null headline/summary in the result leaves any existing '
+          'override alone rather than clearing it', () async {
+        final service = DraftService();
+        await service.load();
+        await service.setHeadlineOverride('Manually set headline');
+
+        await service.applyCopilotResult(
+          result.copyWith(headline: null, summary: null),
+        );
+
+        expect(service.draft.headlineOverride, 'Manually set headline');
+      });
+
+      test('undoCopilotPass restores the pre-pass draft exactly and clears '
+          'the snapshot', () async {
+        final service = DraftService();
+        await service.load();
+        final id = service.draft.id;
+        final before = service.draft;
+
+        await service.applyCopilotResult(result);
+        final restored = await service.undoCopilotPass();
+
+        expect(restored, isTrue);
+        expect(service.draft.headlineOverride, before.headlineOverride);
+        expect(service.draft.experienceIds, before.experienceIds);
+        expect(service.draft.bulletOverrides, before.bulletOverrides);
+        expect(await service.hasCopilotUndoFor(id), isFalse);
+      });
+
+      test('undoCopilotPass is a no-op when no pass has run', () async {
+        final service = DraftService();
+        await service.load();
+
+        expect(await service.undoCopilotPass(), isFalse);
+      });
+
+      test('deleting a draft clears its undo snapshot too', () async {
+        final service = DraftService();
+        await service.load();
+        final id = service.draft.id;
+        await service.applyCopilotResult(result);
+
+        await service.deleteDraft(id);
+
+        expect(
+          memory.containsKey(
+            '${StorageBoxes.drafts}/${StorageKeys.copilotUndoFor(id)}',
+          ),
+          isFalse,
+        );
+      });
     });
   });
 }

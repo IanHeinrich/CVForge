@@ -17,6 +17,7 @@ import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:cv_forge/templates/classic_centered/classic_centered_template.dart';
 import 'package:cv_forge/services/llm_service.dart';
+import 'package:cv_forge/services/copilot_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -41,6 +42,7 @@ import 'test_helpers.mocks.dart';
     MockSpec<PdfExtractionService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<AtsAnalyzerService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<LlmService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<CopilotService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -60,6 +62,7 @@ void registerServices() {
   getAndRegisterPdfExtractionService();
   getAndRegisterAtsAnalyzerService();
   getAndRegisterLlmService();
+  getAndRegisterCopilotService();
   // @stacked-mock-register
 }
 
@@ -180,6 +183,13 @@ MockLlmService getAndRegisterLlmService() {
   _removeRegistrationIfExists<LlmService>();
   final service = MockLlmService();
   locator.registerSingleton<LlmService>(service);
+  return service;
+}
+
+MockCopilotService getAndRegisterCopilotService() {
+  _removeRegistrationIfExists<CopilotService>();
+  final service = MockCopilotService();
+  locator.registerSingleton<CopilotService>(service);
   return service;
 }
 // @stacked-mock-create
