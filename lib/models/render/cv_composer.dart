@@ -214,6 +214,13 @@ abstract final class CvComposer {
             yearLabel: edu.year?.toString(),
             grade: edu.grade,
             details: draft.educationDetailsOverrides[edu.id] ?? edu.details,
+            bullets: [
+              for (final bullet in edu.bullets)
+                ResolvedBullet(
+                  label: bullet.label,
+                  text: draft.bulletOverrides[bullet.id] ?? bullet.text,
+                ),
+            ],
           ),
     ];
 

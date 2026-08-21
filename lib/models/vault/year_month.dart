@@ -19,10 +19,8 @@ abstract class YearMonth with _$YearMonth {
   /// "MM/YYYY", matching the original reference CV's date format.
   String toMmYyyy() => '${month.toString().padLeft(2, '0')}/$year';
 
-  /// "Mon YYYY" (e.g. "Aug 2022"), matching the `compact` reference
-  /// template's date format. "Sept" rather than "Sep" and "June"/"July"
-  /// rather than "Jun"/"Jul" is a deliberate resume convention, not a
-  /// typo — it's what the reference template itself uses.
+  /// "Mon YYYY" (e.g. "Aug 2022"), matching every template's date format —
+  /// a consistent 3-letter month abbreviation throughout.
   String toMonYyyy() => '${_monthNames[month - 1]} $year';
 }
 
@@ -32,10 +30,10 @@ const _monthNames = [
   'Mar',
   'Apr',
   'May',
-  'June',
-  'July',
+  'Jun',
+  'Jul',
   'Aug',
-  'Sept',
+  'Sep',
   'Oct',
   'Nov',
   'Dec',

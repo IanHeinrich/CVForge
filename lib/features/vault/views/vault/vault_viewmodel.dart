@@ -266,6 +266,20 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     if (_openId == id) closeEditor();
   }
 
+  Future<void> addEducationBullet(String educationId) =>
+      _vaultService.addEducationBullet(educationId, text: '');
+
+  Future<void> updateEducationBullet(String educationId, CvBullet bullet) =>
+      _vaultService.updateEducationBullet(educationId, bullet);
+
+  Future<void> deleteEducationBullet(String educationId, String bulletId) =>
+      _vaultService.deleteEducationBullet(educationId, bulletId);
+
+  Future<void> reorderEducationBullets(
+    String educationId,
+    List<String> orderedIds,
+  ) => _vaultService.reorderEducationBullets(educationId, orderedIds);
+
   // --- hobbies ---
 
   Future<void> addHobby(String text) => _vaultService.addHobby(text);

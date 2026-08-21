@@ -1,7 +1,10 @@
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/education.dart';
+import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
+import 'bullet_list_editor.dart';
 import 'vault_editor_panel_scaffold.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
@@ -9,13 +12,23 @@ class EducationEditorPanel extends StatelessWidget {
   const EducationEditorPanel({
     super.key,
     required this.education,
+    required this.skillCategories,
     required this.onClose,
     required this.onChanged,
+    required this.onAddBullet,
+    required this.onBulletChanged,
+    required this.onBulletDeleted,
+    required this.onBulletsReordered,
   });
 
   final Education education;
+  final List<SkillCategory> skillCategories;
   final VoidCallback onClose;
   final ValueChanged<Education> onChanged;
+  final VoidCallback onAddBullet;
+  final ValueChanged<CvBullet> onBulletChanged;
+  final ValueChanged<String> onBulletDeleted;
+  final ValueChanged<List<String>> onBulletsReordered;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +82,15 @@ class EducationEditorPanel extends StatelessWidget {
           maxLines: 3,
           onChanged: (v) =>
               onChanged(education.copyWith(details: v.isEmpty ? null : v)),
+        ),
+        const VGap.medium(),
+        BulletListEditor(
+          bullets: education.bullets,
+          skillCategories: skillCategories,
+          onAdd: onAddBullet,
+          onChanged: onBulletChanged,
+          onDelete: onBulletDeleted,
+          onReorder: onBulletsReordered,
         ),
       ],
     );

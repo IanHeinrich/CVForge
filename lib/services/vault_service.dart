@@ -488,6 +488,79 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     );
   }
 
+  // --- education bullets ---
+
+  Future<CvBullet> addEducationBullet(
+    String educationId, {
+    String? label,
+    required String text,
+  }) async {
+    await ready();
+    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
+    _updateEducation(
+      educationId,
+      (e) => e.copyWith(bullets: [...e.bullets, bullet]),
+    );
+    return bullet;
+  }
+
+  Future<void> updateEducationBullet(
+    String educationId,
+    CvBullet bullet,
+  ) async {
+    await ready();
+    _updateEducation(
+      educationId,
+      (e) => e.copyWith(
+        bullets: e.bullets.replaceById(bullet.id, bullet, (b) => b.id),
+      ),
+    );
+  }
+
+  Future<void> deleteEducationBullet(
+    String educationId,
+    String bulletId,
+  ) async {
+    await ready();
+    _updateEducation(
+      educationId,
+      (e) => e.copyWith(bullets: e.bullets.removeById(bulletId, (b) => b.id)),
+    );
+  }
+
+  Future<void> reorderEducationBullets(
+    String educationId,
+    List<String> orderedBulletIds,
+  ) async {
+    await ready();
+    _updateEducation(
+      educationId,
+      (e) => e.copyWith(
+        bullets: [
+          for (final id in orderedBulletIds)
+            ...e.bullets.where((b) => b.id == id).take(1),
+        ],
+      ),
+    );
+  }
+
+  /// Applies [update] to the single education entry matching [educationId].
+  /// Mirrors [_updateExperience]/[_updateProject] — same shape, one entity
+  /// type over.
+  void _updateEducation(
+    String educationId,
+    Education Function(Education current) update,
+  ) {
+    _setVault(
+      (v) => v.copyWith(
+        education: [
+          for (final e in v.education)
+            if (e.id == educationId) update(e) else e,
+        ],
+      ),
+    );
+  }
+
   // --- hobbies ---
 
   Future<HobbyItem> addHobby(String text) async {

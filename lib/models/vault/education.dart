@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'cv_bullet.dart';
+
 part 'education.freezed.dart';
 part 'education.g.dart';
 
@@ -15,6 +17,7 @@ abstract class Education with _$Education {
     int? year,
     String? grade,
     String? details,
+    @Default(<CvBullet>[]) List<CvBullet> bullets,
   }) = _Education;
 
   factory Education.fromJson(Map<String, dynamic> json) =>

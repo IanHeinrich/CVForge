@@ -2423,7 +2423,7 @@ mixin _$ResolvedQualification {
 
  String get qualification; String get institution; String? get location;/// Pre-formatted (e.g. "2021"), not a raw int — same reasoning as
 /// [ResolvedPosition.dateRange].
- String? get yearLabel; String? get grade; String? get details;
+ String? get yearLabel; String? get grade; String? get details; List<ResolvedBullet> get bullets;
 /// Create a copy of ResolvedQualification
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2434,16 +2434,16 @@ $ResolvedQualificationCopyWith<ResolvedQualification> get copyWith => _$Resolved
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedQualification&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.yearLabel, yearLabel) || other.yearLabel == yearLabel)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedQualification&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.yearLabel, yearLabel) || other.yearLabel == yearLabel)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details)&&const DeepCollectionEquality().equals(other.bullets, bullets));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,qualification,institution,location,yearLabel,grade,details);
+int get hashCode => Object.hash(runtimeType,qualification,institution,location,yearLabel,grade,details,const DeepCollectionEquality().hash(bullets));
 
 @override
 String toString() {
-  return 'ResolvedQualification(qualification: $qualification, institution: $institution, location: $location, yearLabel: $yearLabel, grade: $grade, details: $details)';
+  return 'ResolvedQualification(qualification: $qualification, institution: $institution, location: $location, yearLabel: $yearLabel, grade: $grade, details: $details, bullets: $bullets)';
 }
 
 
@@ -2454,7 +2454,7 @@ abstract mixin class $ResolvedQualificationCopyWith<$Res>  {
   factory $ResolvedQualificationCopyWith(ResolvedQualification value, $Res Function(ResolvedQualification) _then) = _$ResolvedQualificationCopyWithImpl;
 @useResult
 $Res call({
- String qualification, String institution, String? location, String? yearLabel, String? grade, String? details
+ String qualification, String institution, String? location, String? yearLabel, String? grade, String? details, List<ResolvedBullet> bullets
 });
 
 
@@ -2471,7 +2471,7 @@ class _$ResolvedQualificationCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedQualification
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? qualification = null,Object? institution = null,Object? location = freezed,Object? yearLabel = freezed,Object? grade = freezed,Object? details = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? qualification = null,Object? institution = null,Object? location = freezed,Object? yearLabel = freezed,Object? grade = freezed,Object? details = freezed,Object? bullets = null,}) {
   return _then(_self.copyWith(
 qualification: null == qualification ? _self.qualification : qualification // ignore: cast_nullable_to_non_nullable
 as String,institution: null == institution ? _self.institution : institution // ignore: cast_nullable_to_non_nullable
@@ -2479,7 +2479,8 @@ as String,location: freezed == location ? _self.location : location // ignore: c
 as String?,yearLabel: freezed == yearLabel ? _self.yearLabel : yearLabel // ignore: cast_nullable_to_non_nullable
 as String?,grade: freezed == grade ? _self.grade : grade // ignore: cast_nullable_to_non_nullable
 as String?,details: freezed == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self.bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<ResolvedBullet>,
   ));
 }
 
@@ -2564,10 +2565,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String qualification,  String institution,  String? location,  String? yearLabel,  String? grade,  String? details)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String qualification,  String institution,  String? location,  String? yearLabel,  String? grade,  String? details,  List<ResolvedBullet> bullets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ResolvedQualification() when $default != null:
-return $default(_that.qualification,_that.institution,_that.location,_that.yearLabel,_that.grade,_that.details);case _:
+return $default(_that.qualification,_that.institution,_that.location,_that.yearLabel,_that.grade,_that.details,_that.bullets);case _:
   return orElse();
 
 }
@@ -2585,10 +2586,10 @@ return $default(_that.qualification,_that.institution,_that.location,_that.yearL
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String qualification,  String institution,  String? location,  String? yearLabel,  String? grade,  String? details)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String qualification,  String institution,  String? location,  String? yearLabel,  String? grade,  String? details,  List<ResolvedBullet> bullets)  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedQualification():
-return $default(_that.qualification,_that.institution,_that.location,_that.yearLabel,_that.grade,_that.details);case _:
+return $default(_that.qualification,_that.institution,_that.location,_that.yearLabel,_that.grade,_that.details,_that.bullets);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2605,10 +2606,10 @@ return $default(_that.qualification,_that.institution,_that.location,_that.yearL
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String qualification,  String institution,  String? location,  String? yearLabel,  String? grade,  String? details)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String qualification,  String institution,  String? location,  String? yearLabel,  String? grade,  String? details,  List<ResolvedBullet> bullets)?  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedQualification() when $default != null:
-return $default(_that.qualification,_that.institution,_that.location,_that.yearLabel,_that.grade,_that.details);case _:
+return $default(_that.qualification,_that.institution,_that.location,_that.yearLabel,_that.grade,_that.details,_that.bullets);case _:
   return null;
 
 }
@@ -2620,7 +2621,7 @@ return $default(_that.qualification,_that.institution,_that.location,_that.yearL
 
 
 class _ResolvedQualification implements ResolvedQualification {
-  const _ResolvedQualification({required this.qualification, required this.institution, this.location, this.yearLabel, this.grade, this.details});
+  const _ResolvedQualification({required this.qualification, required this.institution, this.location, this.yearLabel, this.grade, this.details, final  List<ResolvedBullet> bullets = const <ResolvedBullet>[]}): _bullets = bullets;
   
 
 @override final  String qualification;
@@ -2631,6 +2632,13 @@ class _ResolvedQualification implements ResolvedQualification {
 @override final  String? yearLabel;
 @override final  String? grade;
 @override final  String? details;
+ final  List<ResolvedBullet> _bullets;
+@override@JsonKey() List<ResolvedBullet> get bullets {
+  if (_bullets is EqualUnmodifiableListView) return _bullets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bullets);
+}
+
 
 /// Create a copy of ResolvedQualification
 /// with the given fields replaced by the non-null parameter values.
@@ -2642,16 +2650,16 @@ _$ResolvedQualificationCopyWith<_ResolvedQualification> get copyWith => __$Resol
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedQualification&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.yearLabel, yearLabel) || other.yearLabel == yearLabel)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedQualification&&(identical(other.qualification, qualification) || other.qualification == qualification)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.location, location) || other.location == location)&&(identical(other.yearLabel, yearLabel) || other.yearLabel == yearLabel)&&(identical(other.grade, grade) || other.grade == grade)&&(identical(other.details, details) || other.details == details)&&const DeepCollectionEquality().equals(other._bullets, _bullets));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,qualification,institution,location,yearLabel,grade,details);
+int get hashCode => Object.hash(runtimeType,qualification,institution,location,yearLabel,grade,details,const DeepCollectionEquality().hash(_bullets));
 
 @override
 String toString() {
-  return 'ResolvedQualification(qualification: $qualification, institution: $institution, location: $location, yearLabel: $yearLabel, grade: $grade, details: $details)';
+  return 'ResolvedQualification(qualification: $qualification, institution: $institution, location: $location, yearLabel: $yearLabel, grade: $grade, details: $details, bullets: $bullets)';
 }
 
 
@@ -2662,7 +2670,7 @@ abstract mixin class _$ResolvedQualificationCopyWith<$Res> implements $ResolvedQ
   factory _$ResolvedQualificationCopyWith(_ResolvedQualification value, $Res Function(_ResolvedQualification) _then) = __$ResolvedQualificationCopyWithImpl;
 @override @useResult
 $Res call({
- String qualification, String institution, String? location, String? yearLabel, String? grade, String? details
+ String qualification, String institution, String? location, String? yearLabel, String? grade, String? details, List<ResolvedBullet> bullets
 });
 
 
@@ -2679,7 +2687,7 @@ class __$ResolvedQualificationCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedQualification
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? qualification = null,Object? institution = null,Object? location = freezed,Object? yearLabel = freezed,Object? grade = freezed,Object? details = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? qualification = null,Object? institution = null,Object? location = freezed,Object? yearLabel = freezed,Object? grade = freezed,Object? details = freezed,Object? bullets = null,}) {
   return _then(_ResolvedQualification(
 qualification: null == qualification ? _self.qualification : qualification // ignore: cast_nullable_to_non_nullable
 as String,institution: null == institution ? _self.institution : institution // ignore: cast_nullable_to_non_nullable
@@ -2687,7 +2695,8 @@ as String,location: freezed == location ? _self.location : location // ignore: c
 as String?,yearLabel: freezed == yearLabel ? _self.yearLabel : yearLabel // ignore: cast_nullable_to_non_nullable
 as String?,grade: freezed == grade ? _self.grade : grade // ignore: cast_nullable_to_non_nullable
 as String?,details: freezed == details ? _self.details : details // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,bullets: null == bullets ? _self._bullets : bullets // ignore: cast_nullable_to_non_nullable
+as List<ResolvedBullet>,
   ));
 }
 

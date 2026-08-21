@@ -365,8 +365,8 @@ pw.Widget _publication(
 }
 
 /// Grade/details fold into the same line as the institution–qualification
-/// text, comma-separated — the reference template keeps one education
-/// entry to one line, with no second row underneath.
+/// text, comma-separated — the reference template keeps that header to one
+/// line. Bullets, when present, render underneath the header row.
 pw.Widget _education(
   ResolvedQualification edu,
   CvDesignTokens tokens,
@@ -380,22 +380,28 @@ pw.Widget _education(
 
   return pw.Padding(
     padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
-    child: _labelledRow(
-      pw.TextSpan(
-        children: [
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+      children: [
+        _labelledRow(
           pw.TextSpan(
-            text: edu.institution,
-            style: tokens.role.toPdfStyle(fonts),
+            children: [
+              pw.TextSpan(
+                text: edu.institution,
+                style: tokens.role.toPdfStyle(fonts),
+              ),
+              pw.TextSpan(
+                text: ' – ${edu.qualification}$suffix',
+                style: tokens.company.toPdfStyle(fonts),
+              ),
+            ],
           ),
-          pw.TextSpan(
-            text: ' – ${edu.qualification}$suffix',
-            style: tokens.company.toPdfStyle(fonts),
-          ),
-        ],
-      ),
-      edu.yearLabel,
-      tokens,
-      fonts,
+          edu.yearLabel,
+          tokens,
+          fonts,
+        ),
+        buildBulletList(edu.bullets, tokens, fonts),
+      ],
     ),
   );
 }
