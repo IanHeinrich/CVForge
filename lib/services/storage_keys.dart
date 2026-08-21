@@ -40,4 +40,12 @@ abstract final class StorageKeys {
   /// field on [AppSettings] (see that model's doc comment). Kept in the
   /// same [StorageBoxes.settings] box `SettingsService` already owns.
   static String apiKeyFor(String providerId) => 'api_key_$providerId';
+
+  /// The pre-pass [CvDraft] snapshot a Copilot tailoring pass (4.5) writes
+  /// before applying its result — a distinct prefix from [draftEntry], not
+  /// a suffix on it, so nothing that enumerates drafts by scanning
+  /// `draft_*` keys ever sees it. Kept in [StorageBoxes.drafts] alongside
+  /// the draft it belongs to; superseded by the next pass, cleared when
+  /// the draft is deleted.
+  static String copilotUndoFor(String draftId) => 'copilot_undo_$draftId';
 }

@@ -80,6 +80,13 @@ abstract class CvDraft with _$CvDraft {
     /// over — only `details` is prose; qualification/institution/grade/
     /// year stay Vault-sourced, never overridable here.
     @Default(<String, String>{}) Map<String, String> educationDetailsOverrides,
+
+    /// The job ad this draft is being tailored for — a persisted field, not
+    /// a modal's transient text, so a Copilot pass (4.5) can be re-run and
+    /// refined against the same ad. Null means no ad has been entered yet;
+    /// distinct from [notes], which is the user's own application tracking
+    /// and is never rendered or sent anywhere.
+    String? targetJobDescription,
     required DateTime updatedAt,
   }) = _CvDraft;
 

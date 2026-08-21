@@ -4,6 +4,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
+import 'package:cv_forge/models/llm/copilot_result.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
@@ -306,6 +307,10 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
           : _drafts.value.first.id;
     }
     await _localStorage.delete(StorageBoxes.drafts, StorageKeys.draftEntry(id));
+    await _localStorage.delete(
+      StorageBoxes.drafts,
+      StorageKeys.copilotUndoFor(id),
+    );
     await _persistIndex();
   }
 
@@ -554,6 +559,117 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       }
       return d.copyWith(hiddenSections: hiddenSections);
     });
+  }
+
+  Future<void> setTargetJobDescription(String? jobDescription) async {
+    await ready();
+    _setDraft((d) => d.copyWith(targetJobDescription: jobDescription));
+  }
+
+  /// Applies a Copilot tailoring pass ([result]) as a single draft update
+  /// and a single persisted write — not N calls through the individual
+  /// setters above, which is exactly the shape that produced P2.1's
+  /// "Select all only selected one bullet" bug, at ten times the scale
+  /// here. Like [createDraft]/[updateDraftDetails], this is a deliberate,
+  /// infrequent action rather than continuous typing, so it persists
+  /// immediately instead of going through the debounce.
+  ///
+  /// Writes the pre-pass draft to a distinct storage key first (see
+  /// [StorageKeys.copilotUndoFor]) so [undoCopilotPass] can restore it —
+  /// superseded by the next pass, never accumulated. A returned id/text
+  /// null (`result.headline`/`result.summary`) means "the model chose not
+  /// to touch this", so the existing override is left alone rather than
+  /// cleared.
+  Future<void> applyCopilotResult(CopilotResult result) async {
+    await ready();
+    final id = _activeDraftId.value;
+    if (id == null) return;
+    final index = _drafts.value.indexWhere((d) => d.id == id);
+    if (index == -1) return;
+    final current = _drafts.value[index];
+
+    await _localStorage.write(
+      StorageBoxes.drafts,
+      StorageKeys.copilotUndoFor(id),
+      jsonEncode(current.toJson()),
+    );
+
+    final updated = current.copyWith(
+      headlineOverride: result.headline ?? current.headlineOverride,
+      tailoredSummary: result.summary ?? current.tailoredSummary,
+      experienceIds: result.experienceIds,
+      bulletIds: result.bulletIds,
+      projectIds: result.projectIds,
+      projectBulletIds: result.projectBulletIds,
+      bulletOverrides: {...current.bulletOverrides, ...result.bulletOverrides},
+      skillIds: result.skillIds,
+      educationIds: result.educationIds,
+      hobbyIds: result.hobbyIds,
+      publicationIds: result.publicationIds,
+      hiddenSections: result.hiddenSections,
+      updatedAt: DateTime.now(),
+    );
+    _freshDraftIds.remove(id);
+    _drafts.value = _sortedByRecency([
+      for (final d in _drafts.value)
+        if (d.id == id) updated else d,
+    ]);
+    await persistImmediately(updated);
+  }
+
+  /// Restores the active draft to how it was immediately before the most
+  /// recent [applyCopilotResult] call, and clears the snapshot — a second
+  /// call without an intervening pass is a no-op. Returns whether a
+  /// snapshot actually existed and was restored, so the caller knows
+  /// whether anything happened.
+  Future<bool> undoCopilotPass() async {
+    await ready();
+    final id = _activeDraftId.value;
+    if (id == null) return false;
+    final raw = await _localStorage.read(
+      StorageBoxes.drafts,
+      StorageKeys.copilotUndoFor(id),
+    );
+    if (raw == null) return false;
+
+    CvDraft restored;
+    try {
+      restored = CvDraft.fromJson(
+        jsonDecode(raw) as Map<String, dynamic>,
+      ).copyWith(updatedAt: DateTime.now());
+    } catch (_) {
+      await _localStorage.delete(
+        StorageBoxes.drafts,
+        StorageKeys.copilotUndoFor(id),
+      );
+      return false;
+    }
+
+    _drafts.value = _sortedByRecency([
+      for (final d in _drafts.value)
+        if (d.id == id) restored else d,
+    ]);
+    await persistImmediately(restored);
+    await _localStorage.delete(
+      StorageBoxes.drafts,
+      StorageKeys.copilotUndoFor(id),
+    );
+    return true;
+  }
+
+  /// Whether [draftId] has a pending Copilot undo snapshot — the Studio UI
+  /// reads this to decide whether to show "Undo AI changes" at all. Not
+  /// tracked as in-memory reactive state (unlike [isFreshDraft]): a
+  /// snapshot's existence is storage state that must survive a reload, so
+  /// it's checked directly rather than cached in a field that would just
+  /// be wrong until the next write.
+  Future<bool> hasCopilotUndoFor(String draftId) async {
+    await ready();
+    final raw = await _localStorage.read(
+      StorageBoxes.drafts,
+      StorageKeys.copilotUndoFor(draftId),
+    );
+    return raw != null;
   }
 
   Future<void> setTailoredSummary(String? summary) async {
