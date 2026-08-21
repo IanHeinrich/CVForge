@@ -52,6 +52,8 @@ class AtsXrayPainter extends CustomPainter {
   /// [AtsXraySelection].
   final AtsXraySelection? selection;
 
+  static const _cornerRadius = Radius.circular(3);
+
   /// Low-opacity, same reasoning as step 3's `Container` borders: with a
   /// few hundred overlapping/adjacent boxes on a dense page, a
   /// full-opacity stroke would turn the backdrop into solid purple rather
@@ -59,6 +61,14 @@ class AtsXrayPainter extends CustomPainter {
   /// misplaced box.
   static final _ambientPaint = Paint()
     ..color = kcPrimaryColor.withValues(alpha: 0.5)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1;
+
+  /// Dimmer than [_ambientPaint] — used instead of it while [showFlowLines]
+  /// is on, so the boxes recede and the flow line (drawn on top) is the
+  /// thing the eye follows, not one of several competing strokes.
+  static final _ambientDimPaint = Paint()
+    ..color = kcPrimaryColor.withValues(alpha: 0.18)
     ..style = PaintingStyle.stroke
     ..strokeWidth = 1;
 
@@ -87,6 +97,35 @@ class AtsXrayPainter extends CustomPainter {
     ..color = kcPrimaryColorDark.withValues(alpha: 0.9)
     ..style = PaintingStyle.stroke
     ..strokeWidth = 2;
+
+  /// The reading-order chain's start — a hollow ring rather than a filled
+  /// dot, so it doesn't read as just another node marker.
+  static final _startRingPaint = Paint()
+    ..color = kcPrimaryColorDark
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 2;
+
+  static final _startRingHaloPaint = Paint()
+    ..color = kcWhite.withValues(alpha: 0.9)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 4.5;
+
+  static final _endMarkerPaint = Paint()
+    ..color = kcPrimaryColorDark
+    ..style = PaintingStyle.fill;
+
+  static final _endMarkerHaloPaint = Paint()
+    ..color = kcWhite.withValues(alpha: 0.9)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 2.5;
+
+  static final _dotPaint = Paint()
+    ..color = kcPrimaryColorDark.withValues(alpha: 0.9)
+    ..style = PaintingStyle.fill;
+
+  static final _dotHaloPaint = Paint()
+    ..color = kcWhite.withValues(alpha: 0.9)
+    ..style = PaintingStyle.fill;
 
   /// The selected box needs to be unmistakable at a glance, not just a
   /// thicker version of the evidence stroke — a filled wash plus a bright
@@ -121,6 +160,9 @@ class AtsXrayPainter extends CustomPainter {
   Rect _rectOf(AtsPixelRect r) =>
       Rect.fromLTRB(r.left, r.top, r.right, r.bottom);
 
+  RRect _roundedRectOf(AtsPixelRect r) =>
+      RRect.fromRectAndRadius(_rectOf(r), _cornerRadius);
+
   Offset _centerOf(AtsPixelRect r) => _rectOf(r).center;
 
   void _drawHaloLine(Canvas canvas, Offset from, Offset to) {
@@ -133,18 +175,53 @@ class AtsXrayPainter extends CustomPainter {
     canvas.drawPath(path, _flowLinePaint);
   }
 
+  void _drawHaloRRect(Canvas canvas, RRect rrect) {
+    canvas.drawRRect(rrect, _lineHaloPaint);
+    canvas.drawRRect(rrect, _hullPaint);
+  }
+
+  /// A small filled triangle at [tip], pointing away from [from] — the
+  /// arrowhead that marks where the reading-order chain *ends*, so
+  /// direction is legible without having to trace the whole path back to
+  /// the start.
+  void _drawArrowhead(Canvas canvas, Offset from, Offset tip) {
+    const size = 7.0;
+    final direction = tip - from;
+    final length = direction.distance;
+    if (length == 0) return;
+    final unit = direction / length;
+    final normal = Offset(-unit.dy, unit.dx);
+    final base = tip - unit * size;
+    final path = Path()
+      ..moveTo(tip.dx, tip.dy)
+      ..lineTo(
+        base.dx + normal.dx * size * 0.55,
+        base.dy + normal.dy * size * 0.55,
+      )
+      ..lineTo(
+        base.dx - normal.dx * size * 0.55,
+        base.dy - normal.dy * size * 0.55,
+      )
+      ..close();
+    canvas.drawPath(path, _endMarkerHaloPaint);
+    canvas.drawPath(path, _endMarkerPaint);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     // Ambient pass first so evidence/selected boxes paint on top of it,
-    // never the reverse.
+    // never the reverse. Dimmed while the flow line is showing, so the
+    // line — not the backdrop of boxes it has to be traced through — is
+    // the thing that reads clearly.
     final ambientCenters = <Offset>[];
+    final ambientPaint = showFlowLines ? _ambientDimPaint : _ambientPaint;
     for (final box in boxes) {
       if (box.style != AtsXrayBoxStyle.ambient) continue;
-      canvas.drawRect(_rectOf(box.rect), _ambientPaint);
+      canvas.drawRect(_rectOf(box.rect), ambientPaint);
       ambientCenters.add(_centerOf(box.rect));
     }
 
-    if (showFlowLines) {
+    if (showFlowLines && ambientCenters.length >= 2) {
       for (var i = 0; i < ambientCenters.length - 1; i++) {
         final from = ambientCenters[i];
         final to = ambientCenters[i + 1];
@@ -153,16 +230,35 @@ class AtsXrayPainter extends CustomPainter {
           ..cubicTo(to.dx, from.dy, from.dx, to.dy, to.dx, to.dy);
         _drawHaloPath(canvas, path);
       }
+      // A dot at every intermediate node anchors the "connect the dots"
+      // reading — without these the line runs *through* each box's
+      // interior with nothing marking where one hop ends and the next
+      // begins, which is exactly what read as hard to follow.
+      for (var i = 1; i < ambientCenters.length - 1; i++) {
+        canvas.drawCircle(ambientCenters[i], 3.5, _dotHaloPaint);
+        canvas.drawCircle(ambientCenters[i], 2, _dotPaint);
+      }
+      // Start and end need to look different from every dot in between —
+      // a hollow ring for "this is where reading order begins", a small
+      // arrowhead for "this is where it ends and which way it was going".
+      final start = ambientCenters.first;
+      canvas.drawCircle(start, 5, _startRingHaloPaint);
+      canvas.drawCircle(start, 5, _startRingPaint);
+      _drawArrowhead(
+        canvas,
+        ambientCenters[ambientCenters.length - 2],
+        ambientCenters.last,
+      );
     }
 
     for (final box in boxes) {
       if (box.style == AtsXrayBoxStyle.evidence) {
         canvas.drawRect(_rectOf(box.rect), _evidencePaint(box.severity));
       } else if (box.style == AtsXrayBoxStyle.selected) {
-        final rect = _rectOf(box.rect);
-        canvas.drawRect(rect, _selectedFillPaint(box.severity));
-        canvas.drawRect(rect, _selectedHaloPaint());
-        canvas.drawRect(rect, _selectedStrokePaint(box.severity));
+        final rrect = _roundedRectOf(box.rect);
+        canvas.drawRRect(rrect, _selectedFillPaint(box.severity));
+        canvas.drawRRect(rrect, _selectedHaloPaint());
+        canvas.drawRRect(rrect, _selectedStrokePaint(box.severity));
       }
     }
 
@@ -171,8 +267,10 @@ class AtsXrayPainter extends CustomPainter {
         selection.rects.isNotEmpty &&
         selection.shape == AtsEvidenceShape.span) {
       final union = _rectOf(atsUnionRect(selection.rects));
-      canvas.drawRect(union.inflate(6), _lineHaloPaint);
-      canvas.drawRect(union.inflate(6), _hullPaint);
+      _drawHaloRRect(
+        canvas,
+        RRect.fromRectAndRadius(union.inflate(6), _cornerRadius * 2),
+      );
       if (selection.rects.length >= 2) {
         _drawHaloLine(
           canvas,

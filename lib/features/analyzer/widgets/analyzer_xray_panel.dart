@@ -93,8 +93,17 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   AtsFinding? _selectedFinding;
   int _stepIndex = 0;
   bool _showFlowLines = false;
-  int? _hoveredNodeIndex;
   _FrameRequest? _pendingFrame;
+
+  /// A [ValueNotifier], not a plain field behind `setState` — hover fires
+  /// on every mouse-move across dense text, and the previous `setState`
+  /// rebuilt the *entire* panel (rail, camera, the whole `InteractiveViewer`
+  /// subtree) on every one of those events. Fixing the peek line's height
+  /// and memoizing the painter's boxes stopped the pan/zoom feedback loop
+  /// that caused, but the full-panel rebuild itself was still real,
+  /// visible churn on every hover — this confines a hover update to just
+  /// the peek text's own small `ValueListenableBuilder` instead.
+  final _hoveredNodeIndex = ValueNotifier<int?>(null);
 
   final _transformationController = TransformationController();
 
@@ -134,7 +143,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       _pageIndex = 0;
       _selectedFinding = null;
       _stepIndex = 0;
-      _hoveredNodeIndex = null;
+      _hoveredNodeIndex.value = null;
       _pendingFrame = null;
       _fittedViewport = null;
     }
@@ -144,6 +153,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   void dispose() {
     _transformationController.dispose();
     _cameraAnimationController.dispose();
+    _hoveredNodeIndex.dispose();
     super.dispose();
   }
 
@@ -285,16 +295,14 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   }
 
   void _updateHover(Offset? position, _XrayPageData? data) {
-    final nodeIndex = position != null && data != null
+    // ValueNotifier already no-ops when the new value equals the current
+    // one, so this doesn't need its own equality guard.
+    _hoveredNodeIndex.value = position != null && data != null
         ? _hitTestNode(position, data)
         : null;
-    if (nodeIndex != _hoveredNodeIndex) {
-      setState(() => _hoveredNodeIndex = nodeIndex);
-    }
   }
 
-  AtsFinding? _hoveredFinding(AtsAnalysisResult result) {
-    final nodeIndex = _hoveredNodeIndex;
+  AtsFinding? _hoveredFindingFor(int? nodeIndex, AtsAnalysisResult result) {
     if (nodeIndex == null) return null;
     final matches = _findingsForNode(nodeIndex, result);
     return matches.isEmpty ? null : matches.first;
@@ -581,7 +589,6 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     _XrayPageData data,
   ) {
     final pageCount = result.info.pageCount;
-    final peek = _hoveredFinding(result) ?? _selectedFinding;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,6 +637,14 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
         // re-trigger hover on a *different* box — a feedback loop that
         // reads as constant flickering. Reserving the height unconditionally
         // means hovering never changes layout, only text content.
+        //
+        // Scoped to its own `ValueListenableBuilder` rather than reading
+        // `_hoveredNodeIndex` in this method directly — hover fires on
+        // every mouse-move across dense text, and this used to be a
+        // `setState` on the whole panel (rail, camera, the entire
+        // `InteractiveViewer` subtree) for every single one of those
+        // events, which was real, visible churn even once the layout
+        // feedback loop above was fixed.
         Padding(
           padding: EdgeInsets.only(
             left: context.appSpacing.paddingCompact,
@@ -640,11 +655,19 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
             // box clips descenders on some platforms' default line
             // height; this only needs to be *stable*, not exact.
             height: (context.appTypography.bodySmall.fontSize ?? 13) * 1.4,
-            child: Text(
-              peek?.title ?? '',
-              style: context.appTypography.bodySmall.copyWith(
-                color: kcLightGrey,
-              ),
+            child: ValueListenableBuilder<int?>(
+              valueListenable: _hoveredNodeIndex,
+              builder: (context, hoveredNodeIndex, _) {
+                final peek =
+                    _hoveredFindingFor(hoveredNodeIndex, result) ??
+                    _selectedFinding;
+                return Text(
+                  peek?.title ?? '',
+                  style: context.appTypography.bodySmall.copyWith(
+                    color: kcLightGrey,
+                  ),
+                );
+              },
             ),
           ),
         ),
