@@ -5,6 +5,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 
@@ -40,6 +41,11 @@ class BackupSettingsCard extends StatelessWidget {
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
+          _BackupStatusLine(
+            lastBackupAt: viewModel.lastBackupAt,
+            hasChangesSinceBackup: viewModel.hasChangesSinceBackup,
+          ),
+          const VGap.small(),
           Row(
             children: [
               FilledButton(
@@ -73,5 +79,68 @@ class BackupSettingsCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// The state 7.7 gives Backup — "a pair of verbs with no nouns" before
+/// this existed. Everything is derived from a plain `DateTime?` and a
+/// `bool`, not a widget of its own state, so it can never drift from what
+/// [SettingsViewModel.hasChangesSinceBackup] actually computed.
+class _BackupStatusLine extends StatelessWidget {
+  const _BackupStatusLine({
+    required this.lastBackupAt,
+    required this.hasChangesSinceBackup,
+  });
+
+  final DateTime? lastBackupAt;
+  final bool hasChangesSinceBackup;
+
+  @override
+  Widget build(BuildContext context) {
+    final last = lastBackupAt;
+    final IconData icon;
+    final Color color;
+    final String message;
+    if (last == null) {
+      icon = RemixIcons.time_line;
+      color = kcLightGrey;
+      message = 'Never backed up';
+    } else if (hasChangesSinceBackup) {
+      icon = RemixIcons.error_warning_line;
+      color = kcWarningColor;
+      message =
+          'Last backed up ${_formatRelative(last)} — you have '
+          'changes since then';
+    } else {
+      icon = RemixIcons.checkbox_circle_line;
+      color = kcSuccessColor;
+      message = 'Last backed up ${_formatRelative(last)}';
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const HGap.small(),
+        Expanded(
+          child: Text(
+            message,
+            style: context.appTypography.bodySmall.copyWith(color: color),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// "today" / "yesterday" / "N days ago", falling back to an absolute
+  /// date past a month — "47 days ago" stops being a useful unit for a
+  /// backup you may not think about for months at a time.
+  String _formatRelative(DateTime time) {
+    final days = DateTime.now().difference(time).inDays;
+    if (days <= 0) return 'today';
+    if (days == 1) return 'yesterday';
+    if (days < 30) return '$days days ago';
+    return 'on ${time.day.toString().padLeft(2, '0')}/'
+        '${time.month.toString().padLeft(2, '0')}/${time.year}';
   }
 }

@@ -42,6 +42,13 @@ abstract class AppSettings with _$AppSettings {
     /// draft starts with nothing hidden (`CvDraft.hiddenSections`'s own
     /// default).
     Set<CvSectionType>? defaultHiddenSections,
+
+    /// When `BackupService.exportBackup` last completed, set by
+    /// `SettingsViewModel.exportBackup` — null means never. Never included
+    /// in a backup bundle by construction (see this class's own doc
+    /// comment on why `CvBackupBundle` has no `AppSettings` field at all),
+    /// so there is no stale-timestamp-on-restore case to guard against.
+    DateTime? lastBackupAt,
   }) = _AppSettings;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) =>

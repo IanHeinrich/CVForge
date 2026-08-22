@@ -30,7 +30,12 @@ mixin _$AppSettings {
 /// starts with hidden. Null means no default has been saved, so a new
 /// draft starts with nothing hidden (`CvDraft.hiddenSections`'s own
 /// default).
- Set<CvSectionType>? get defaultHiddenSections;
+ Set<CvSectionType>? get defaultHiddenSections;/// When `BackupService.exportBackup` last completed, set by
+/// `SettingsViewModel.exportBackup` — null means never. Never included
+/// in a backup bundle by construction (see this class's own doc
+/// comment on why `CvBackupBundle` has no `AppSettings` field at all),
+/// so there is no stale-timestamp-on-restore case to guard against.
+ DateTime? get lastBackupAt;
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -43,16 +48,16 @@ $AppSettingsCopyWith<AppSettings> get copyWith => _$AppSettingsCopyWithImpl<AppS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.copilotProviderId, copilotProviderId) || other.copilotProviderId == copilotProviderId)&&(identical(other.copilotModelId, copilotModelId) || other.copilotModelId == copilotModelId)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&const DeepCollectionEquality().equals(other.defaultSectionOrder, defaultSectionOrder)&&const DeepCollectionEquality().equals(other.defaultHiddenSections, defaultHiddenSections));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.copilotProviderId, copilotProviderId) || other.copilotProviderId == copilotProviderId)&&(identical(other.copilotModelId, copilotModelId) || other.copilotModelId == copilotModelId)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&const DeepCollectionEquality().equals(other.defaultSectionOrder, defaultSectionOrder)&&const DeepCollectionEquality().equals(other.defaultHiddenSections, defaultHiddenSections)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,defaultRegion,copilotProviderId,copilotModelId,rememberApiKey,const DeepCollectionEquality().hash(defaultSectionOrder),const DeepCollectionEquality().hash(defaultHiddenSections));
+int get hashCode => Object.hash(runtimeType,schemaVersion,defaultRegion,copilotProviderId,copilotModelId,rememberApiKey,const DeepCollectionEquality().hash(defaultSectionOrder),const DeepCollectionEquality().hash(defaultHiddenSections),lastBackupAt);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, defaultRegion: $defaultRegion, copilotProviderId: $copilotProviderId, copilotModelId: $copilotModelId, rememberApiKey: $rememberApiKey, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections)';
+  return 'AppSettings(schemaVersion: $schemaVersion, defaultRegion: $defaultRegion, copilotProviderId: $copilotProviderId, copilotModelId: $copilotModelId, rememberApiKey: $rememberApiKey, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections, lastBackupAt: $lastBackupAt)';
 }
 
 
@@ -63,7 +68,7 @@ abstract mixin class $AppSettingsCopyWith<$Res>  {
   factory $AppSettingsCopyWith(AppSettings value, $Res Function(AppSettings) _then) = _$AppSettingsCopyWithImpl;
 @useResult
 $Res call({
- int schemaVersion, RegionProfile defaultRegion, String? copilotProviderId, String? copilotModelId, bool rememberApiKey, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections
+ int schemaVersion, RegionProfile defaultRegion, String? copilotProviderId, String? copilotModelId, bool rememberApiKey, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections, DateTime? lastBackupAt
 });
 
 
@@ -80,7 +85,7 @@ class _$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? defaultRegion = null,Object? copilotProviderId = freezed,Object? copilotModelId = freezed,Object? rememberApiKey = null,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? defaultRegion = null,Object? copilotProviderId = freezed,Object? copilotModelId = freezed,Object? rememberApiKey = null,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,Object? lastBackupAt = freezed,}) {
   return _then(_self.copyWith(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,defaultRegion: null == defaultRegion ? _self.defaultRegion : defaultRegion // ignore: cast_nullable_to_non_nullable
@@ -89,7 +94,8 @@ as String?,copilotModelId: freezed == copilotModelId ? _self.copilotModelId : co
 as String?,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
 as bool,defaultSectionOrder: freezed == defaultSectionOrder ? _self.defaultSectionOrder : defaultSectionOrder // ignore: cast_nullable_to_non_nullable
 as List<CvSectionType>?,defaultHiddenSections: freezed == defaultHiddenSections ? _self.defaultHiddenSections : defaultHiddenSections // ignore: cast_nullable_to_non_nullable
-as Set<CvSectionType>?,
+as Set<CvSectionType>?,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -174,10 +180,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  DateTime? lastBackupAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections);case _:
+return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.lastBackupAt);case _:
   return orElse();
 
 }
@@ -195,10 +201,10 @@ return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  DateTime? lastBackupAt)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings():
-return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections);case _:
+return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.lastBackupAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -215,10 +221,10 @@ return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  DateTime? lastBackupAt)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections);case _:
+return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.lastBackupAt);case _:
   return null;
 
 }
@@ -230,7 +236,7 @@ return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,
 @JsonSerializable()
 
 class _AppSettings implements AppSettings {
-  const _AppSettings({required this.schemaVersion, this.defaultRegion = RegionProfile.uk, this.copilotProviderId, this.copilotModelId, this.rememberApiKey = false, final  List<CvSectionType>? defaultSectionOrder, final  Set<CvSectionType>? defaultHiddenSections}): _defaultSectionOrder = defaultSectionOrder,_defaultHiddenSections = defaultHiddenSections;
+  const _AppSettings({required this.schemaVersion, this.defaultRegion = RegionProfile.uk, this.copilotProviderId, this.copilotModelId, this.rememberApiKey = false, final  List<CvSectionType>? defaultSectionOrder, final  Set<CvSectionType>? defaultHiddenSections, this.lastBackupAt}): _defaultSectionOrder = defaultSectionOrder,_defaultHiddenSections = defaultHiddenSections;
   factory _AppSettings.fromJson(Map<String, dynamic> json) => _$AppSettingsFromJson(json);
 
 @override final  int schemaVersion;
@@ -286,6 +292,12 @@ class _AppSettings implements AppSettings {
   return EqualUnmodifiableSetView(value);
 }
 
+/// When `BackupService.exportBackup` last completed, set by
+/// `SettingsViewModel.exportBackup` — null means never. Never included
+/// in a backup bundle by construction (see this class's own doc
+/// comment on why `CvBackupBundle` has no `AppSettings` field at all),
+/// so there is no stale-timestamp-on-restore case to guard against.
+@override final  DateTime? lastBackupAt;
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -300,16 +312,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.copilotProviderId, copilotProviderId) || other.copilotProviderId == copilotProviderId)&&(identical(other.copilotModelId, copilotModelId) || other.copilotModelId == copilotModelId)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&const DeepCollectionEquality().equals(other._defaultSectionOrder, _defaultSectionOrder)&&const DeepCollectionEquality().equals(other._defaultHiddenSections, _defaultHiddenSections));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.copilotProviderId, copilotProviderId) || other.copilotProviderId == copilotProviderId)&&(identical(other.copilotModelId, copilotModelId) || other.copilotModelId == copilotModelId)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&const DeepCollectionEquality().equals(other._defaultSectionOrder, _defaultSectionOrder)&&const DeepCollectionEquality().equals(other._defaultHiddenSections, _defaultHiddenSections)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,defaultRegion,copilotProviderId,copilotModelId,rememberApiKey,const DeepCollectionEquality().hash(_defaultSectionOrder),const DeepCollectionEquality().hash(_defaultHiddenSections));
+int get hashCode => Object.hash(runtimeType,schemaVersion,defaultRegion,copilotProviderId,copilotModelId,rememberApiKey,const DeepCollectionEquality().hash(_defaultSectionOrder),const DeepCollectionEquality().hash(_defaultHiddenSections),lastBackupAt);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, defaultRegion: $defaultRegion, copilotProviderId: $copilotProviderId, copilotModelId: $copilotModelId, rememberApiKey: $rememberApiKey, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections)';
+  return 'AppSettings(schemaVersion: $schemaVersion, defaultRegion: $defaultRegion, copilotProviderId: $copilotProviderId, copilotModelId: $copilotModelId, rememberApiKey: $rememberApiKey, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections, lastBackupAt: $lastBackupAt)';
 }
 
 
@@ -320,7 +332,7 @@ abstract mixin class _$AppSettingsCopyWith<$Res> implements $AppSettingsCopyWith
   factory _$AppSettingsCopyWith(_AppSettings value, $Res Function(_AppSettings) _then) = __$AppSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- int schemaVersion, RegionProfile defaultRegion, String? copilotProviderId, String? copilotModelId, bool rememberApiKey, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections
+ int schemaVersion, RegionProfile defaultRegion, String? copilotProviderId, String? copilotModelId, bool rememberApiKey, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections, DateTime? lastBackupAt
 });
 
 
@@ -337,7 +349,7 @@ class __$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? defaultRegion = null,Object? copilotProviderId = freezed,Object? copilotModelId = freezed,Object? rememberApiKey = null,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? defaultRegion = null,Object? copilotProviderId = freezed,Object? copilotModelId = freezed,Object? rememberApiKey = null,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,Object? lastBackupAt = freezed,}) {
   return _then(_AppSettings(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,defaultRegion: null == defaultRegion ? _self.defaultRegion : defaultRegion // ignore: cast_nullable_to_non_nullable
@@ -346,7 +358,8 @@ as String?,copilotModelId: freezed == copilotModelId ? _self.copilotModelId : co
 as String?,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
 as bool,defaultSectionOrder: freezed == defaultSectionOrder ? _self._defaultSectionOrder : defaultSectionOrder // ignore: cast_nullable_to_non_nullable
 as List<CvSectionType>?,defaultHiddenSections: freezed == defaultHiddenSections ? _self._defaultHiddenSections : defaultHiddenSections // ignore: cast_nullable_to_non_nullable
-as Set<CvSectionType>?,
+as Set<CvSectionType>?,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

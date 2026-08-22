@@ -46,6 +46,12 @@ class SettingsService
     scheduleWrite(_settings.value);
   }
 
+  Future<void> setLastBackupAt(DateTime value) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(lastBackupAt: value);
+    scheduleWrite(_settings.value);
+  }
+
   Future<void> setRememberApiKey(bool value) async {
     await ready();
     _settings.value = _settings.value.copyWith(rememberApiKey: value);

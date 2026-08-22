@@ -20,6 +20,9 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
   defaultHiddenSections: (json['defaultHiddenSections'] as List<dynamic>?)
       ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
       .toSet(),
+  lastBackupAt: json['lastBackupAt'] == null
+      ? null
+      : DateTime.parse(json['lastBackupAt'] as String),
 );
 
 Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
@@ -35,6 +38,7 @@ Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
       'defaultHiddenSections': instance.defaultHiddenSections
           ?.map((e) => _$CvSectionTypeEnumMap[e]!)
           .toList(),
+      'lastBackupAt': instance.lastBackupAt?.toIso8601String(),
     };
 
 const _$RegionProfileEnumMap = {RegionProfile.uk: 'uk', RegionProfile.us: 'us'};
