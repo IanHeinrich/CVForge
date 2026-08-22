@@ -45,6 +45,10 @@ import 'package:cv_forge/services/copilot_service.dart';
 
 import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog.dart';
 
+import 'package:cv_forge/services/template_thumbnail_service.dart';
+
+import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -85,6 +89,7 @@ import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog.
     LazySingleton(classType: AtsAnalyzerService),
     LazySingleton(classType: LlmService),
     LazySingleton(classType: CopilotService),
+    LazySingleton(classType: TemplateThumbnailService),
     // @stacked-service
   ],
   bottomsheets: [
@@ -94,6 +99,7 @@ import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog.
     StackedDialog(classType: ConfirmDeleteDialog),
     StackedDialog(classType: EditDraftDialog),
     StackedDialog(classType: CopilotRunDialog),
+    StackedDialog(classType: TemplateGalleryDialog),
     // @stacked-dialog
   ],
 )

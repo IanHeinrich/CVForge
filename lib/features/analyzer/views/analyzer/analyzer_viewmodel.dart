@@ -7,9 +7,11 @@ import 'package:cv_forge/models/ats/ats_analysis_result.dart';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_font_info.dart';
 import 'package:cv_forge/models/ats/ats_text_node.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
 
 /// Drives the "upload a PDF, see what an ATS would struggle with" flow.
 /// Unlike most top-level ViewModels in this app, there is no persisted
@@ -23,8 +25,16 @@ class AnalyzerViewModel extends BaseViewModel {
   final _fileUpload = locator<FileUploadService>();
   final _extraction = locator<PdfExtractionService>();
   final _analyzer = locator<AtsAnalyzerService>();
+  final _settingsService = locator<SettingsService>();
 
   static const _analyzeBusyKey = 'analyzer_analyze';
+
+  /// "CV" or "résumé" — [AppSettings.defaultRegion]'s own document noun
+  /// (7.5), read here rather than adding a region concept of this
+  /// feature's own: Analyzer has no draft, so the device-wide default is
+  /// the only region signal available to it.
+  String get documentNoun =>
+      _settingsService.settings.defaultRegion.preset.documentNoun;
 
   AtsAnalysisResult? _result;
   AtsAnalysisResult? get result => _result;

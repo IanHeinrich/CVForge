@@ -6,9 +6,12 @@ import 'package:cv_forge/models/ats/ats_analysis_result.dart';
 import 'package:cv_forge/models/ats/ats_document_info.dart';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -19,6 +22,7 @@ void main() {
   late MockFileUploadService fileUpload;
   late MockPdfExtractionService extraction;
   late MockAtsAnalyzerService analyzer;
+  late MockSettingsService settings;
   late AnalyzerViewModel viewModel;
 
   setUp(() {
@@ -26,9 +30,26 @@ void main() {
     fileUpload = locator<FileUploadService>() as MockFileUploadService;
     extraction = locator<PdfExtractionService>() as MockPdfExtractionService;
     analyzer = locator<AtsAnalyzerService>() as MockAtsAnalyzerService;
+    settings = locator<SettingsService>() as MockSettingsService;
+    when(settings.settings).thenReturn(AppSettings.empty());
     viewModel = AnalyzerViewModel();
   });
   tearDown(() => locator.reset());
+
+  group('AnalyzerViewModel Tests - documentNoun', () {
+    test('follows SettingsService.settings.defaultRegion (7.5) — no '
+        'region concept of its own, since Analyzer has no draft', () {
+      when(settings.settings).thenReturn(
+        AppSettings.empty().copyWith(defaultRegion: RegionProfile.uk),
+      );
+      expect(viewModel.documentNoun, 'CV');
+
+      when(settings.settings).thenReturn(
+        AppSettings.empty().copyWith(defaultRegion: RegionProfile.us),
+      );
+      expect(viewModel.documentNoun, 'résumé');
+    });
+  });
 
   group('AnalyzerViewModel Tests - pickAndAnalyze', () {
     test(

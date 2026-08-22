@@ -2,6 +2,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
@@ -98,11 +99,13 @@ void main() {
       Map<String, String> educationDetailsOverrides = const {},
       String templateId = 'compact',
       List<CvSectionType>? sectionOrder,
+      RegionProfile region = RegionProfile.uk,
     }) => CvDraft(
       schemaVersion: 1,
       id: 'current',
       name: 'My CV',
       templateId: templateId,
+      region: region,
       experienceIds: experienceIds,
       bulletIds: bulletIds,
       projectIds: projectIds,
@@ -173,6 +176,47 @@ void main() {
       final experienceSection = section as ResolvedExperienceSection;
       expect(experienceSection.groups, hasLength(1));
       expect(experienceSection.groups.single.positions.single.role, 'Engineer');
+    });
+
+    test('a UK draft and a US draft produce the same dateRange string — '
+        'RegionPreset.dateStyle is RegionDateStyle.monYyyy for both today, '
+        'but CvComposer switches on that seam rather than on RegionProfile '
+        'directly, so this covers it before a third style diverges', () {
+      when(vaultService.vault).thenReturn(vaultWith(experiences: [experience]));
+
+      when(draftService.draft).thenReturn(
+        draftWith(
+          experienceIds: [experience.id],
+          bulletIds: {
+            experience.id: ['b1', 'b2'],
+          },
+          region: RegionProfile.uk,
+        ),
+      );
+      final ukSection =
+          StudioViewModel().resolvedCv.sections.single
+              as ResolvedExperienceSection;
+      expect(
+        ukSection.groups.single.positions.single.dateRange,
+        'Jan 2020 - Present',
+      );
+
+      when(draftService.draft).thenReturn(
+        draftWith(
+          experienceIds: [experience.id],
+          bulletIds: {
+            experience.id: ['b1', 'b2'],
+          },
+          region: RegionProfile.us,
+        ),
+      );
+      final usSection =
+          StudioViewModel().resolvedCv.sections.single
+              as ResolvedExperienceSection;
+      expect(
+        usSection.groups.single.positions.single.dateRange,
+        'Jan 2020 - Present',
+      );
     });
 
     test('resolvedCv follows the draft\'s own sectionOrder, not the active '

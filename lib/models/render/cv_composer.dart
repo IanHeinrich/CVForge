@@ -272,11 +272,12 @@ abstract final class CvComposer {
   }
 
   static String _formatDateRange(Experience experience, RegionProfile region) {
-    // uk and us format identically today — "Mon YYYY" reads fine on both
-    // sides of the Atlantic — but region stays threaded through as the
-    // seam for whichever one needs to diverge first.
-    switch (region) {
-      case RegionProfile.uk || RegionProfile.us:
+    // uk and us both resolve to RegionDateStyle.monYyyy today — see
+    // RegionPreset's doc comment — but the switch is on that seam, not on
+    // RegionProfile directly, so a region with a different convention
+    // needs only a new case here, not a new call site.
+    switch (region.preset.dateStyle) {
+      case RegionDateStyle.monYyyy:
         final start = experience.start.toMonYyyy();
         // Capitalized — the ATS-recognized keyword token for an ongoing
         // role, matched by standard regex date parsers.

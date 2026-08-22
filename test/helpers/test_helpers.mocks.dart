@@ -44,6 +44,7 @@ import 'package:cv_forge/services/pdf_export_service.dart' as _i42;
 import 'package:cv_forge/services/pdf_extraction_service.dart' as _i49;
 import 'package:cv_forge/services/settings_service.dart' as _i45;
 import 'package:cv_forge/services/template_registry_service.dart' as _i40;
+import 'package:cv_forge/services/template_thumbnail_service.dart' as _i54;
 import 'package:cv_forge/services/vault_service.dart' as _i30;
 import 'package:cv_forge/templates/cv_template.dart' as _i15;
 import 'package:cv_forge/templates/design/cv_font_set.dart' as _i16;
@@ -2707,4 +2708,29 @@ class MockCopilotService extends _i1.Mock implements _i53.CopilotService {
             ),
           )
           as _i24.Future<_i22.CopilotResult>);
+}
+
+/// A class which mocks [TemplateThumbnailService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTemplateThumbnailService extends _i1.Mock
+    implements _i54.TemplateThumbnailService {
+  @override
+  _i24.Future<_i38.Uint8List> thumbnail({
+    required _i43.ResolvedCv? cv,
+    required String? templateId,
+    required _i44.PdfPageFormat? format,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#thumbnail, [], {
+              #cv: cv,
+              #templateId: templateId,
+              #format: format,
+            }),
+            returnValue: _i24.Future<_i38.Uint8List>.value(_i38.Uint8List(0)),
+            returnValueForMissingStub: _i24.Future<_i38.Uint8List>.value(
+              _i38.Uint8List(0),
+            ),
+          )
+          as _i24.Future<_i38.Uint8List>);
 }
