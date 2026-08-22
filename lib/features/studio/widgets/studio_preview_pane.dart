@@ -4,11 +4,6 @@ import 'dart:typed_data';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/tokens/app_radius.dart';
-import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
-import 'package:cv_forge/ui/common/tokens/app_typography.dart';
-import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -122,7 +117,7 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
       icon: RemixIcons.error_warning_line,
       title: "Couldn't render the preview",
       message:
-          'The export button below uses the same PDF generation and may '
+          'The Export PDF button above uses the same PDF generation and may '
           'still work — try it, or reload the page.',
     );
   }
@@ -222,37 +217,22 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
             ? printedWidth * 2 + _twoUpGutter
             : printedWidth;
 
-        return Stack(
-          children: [
-            ColoredBox(
-              color: Theme.of(context).colorScheme.surfaceContainerLowest,
-              child: PdfPreviewCustom(
-                build: _buildPdf,
-                shouldRepaint: shouldRepaint,
-                maxPageWidth: maxPageWidth,
-                onError: _buildPreviewError,
-                pagesBuilder: (context, pages) {
-                  _reportPageCount(pages.length);
-                  return _PreviewPages(
-                    pages: pages,
-                    twoUp: twoUp,
-                    pageWidth: printedWidth,
-                  );
-                },
-              ),
-            ),
-            if (viewModel.pageCount != null)
-              Positioned(
-                left: context.appSpacing.paddingPage,
-                top: context.appSpacing.paddingPage,
-                child: _PageCountBadge(count: viewModel.pageCount!),
-              ),
-            Positioned(
-              right: context.appSpacing.paddingPage,
-              bottom: context.appSpacing.paddingPage,
-              child: _ExportFab(viewModel: viewModel),
-            ),
-          ],
+        return ColoredBox(
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+          child: PdfPreviewCustom(
+            build: _buildPdf,
+            shouldRepaint: shouldRepaint,
+            maxPageWidth: maxPageWidth,
+            onError: _buildPreviewError,
+            pagesBuilder: (context, pages) {
+              _reportPageCount(pages.length);
+              return _PreviewPages(
+                pages: pages,
+                twoUp: twoUp,
+                pageWidth: printedWidth,
+              );
+            },
+          ),
         );
       },
     );
@@ -336,77 +316,6 @@ class _PreviewPageImage extends StatelessWidget {
         aspectRatio: pageData.aspectRatio,
         child: Image(image: pageData.image, fit: BoxFit.cover),
       ),
-    );
-  }
-}
-
-class _PageCountBadge extends StatelessWidget {
-  const _PageCountBadge({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(context.appRadius.medium),
-      ),
-      child: Text(
-        count == 1 ? '1 page' : '$count pages',
-        style: context.appTypography.caption,
-      ),
-    );
-  }
-}
-
-class _ExportFab extends StatelessWidget {
-  const _ExportFab({required this.viewModel});
-
-  final StudioViewModel viewModel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (viewModel.hasExportError) ...[
-          Container(
-            // The per-stage messages below run noticeably longer than the
-            // one generic message this replaced — capped so a long one
-            // wraps instead of overflowing past the preview pane's edge.
-            constraints: const BoxConstraints(maxWidth: 240),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(context.appRadius.medium),
-            ),
-            child: Text(
-              viewModel.exportErrorMessage,
-              style: context.appTypography.caption.copyWith(
-                color: kcErrorColor,
-              ),
-            ),
-          ),
-          const VGap.small(),
-        ],
-        FloatingActionButton.extended(
-          onPressed: viewModel.isExporting ? null : viewModel.exportPdf,
-          icon: viewModel.isExporting
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: kcWhite,
-                  ),
-                )
-              : const Icon(RemixIcons.download_line),
-          label: Text(viewModel.isExporting ? 'Exporting…' : 'Export PDF'),
-        ),
-      ],
     );
   }
 }

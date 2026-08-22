@@ -367,8 +367,29 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   bool isSectionHidden(CvSectionType type) =>
       _draft.hiddenSections.contains(type);
 
-  Future<void> toggleSectionHidden(CvSectionType type) =>
-      _draftService.setSectionHidden(type, hidden: !isSectionHidden(type));
+  /// Hiding the section currently open in the editor pane clears the
+  /// selection rather than leaving the editor showing a section the nav
+  /// no longer lists — [openSection] only ever points at something
+  /// [sectionHasData] and visible.
+  Future<void> toggleSectionHidden(CvSectionType type) async {
+    final hiding = !isSectionHidden(type);
+    await _draftService.setSectionHidden(type, hidden: hiding);
+    if (hiding && _openSection == type) selectSection(null);
+  }
+
+  /// Which section's items the editor pane is showing. Null on open —
+  /// deliberately, so the first thing seen is the section list rather
+  /// than an arbitrary section's contents. Not persisted: which section
+  /// was last being edited isn't part of the document, and restoring it
+  /// on load would fight that same "start at the list" decision.
+  CvSectionType? get openSection => _openSection;
+  CvSectionType? _openSection;
+
+  void selectSection(CvSectionType? type) {
+    if (_openSection == type) return;
+    _openSection = type;
+    notifyListeners();
+  }
 
   /// This draft's full section order (all [CvSectionType] cases, whether
   /// [sectionHasData] or not) — the "Sections" picker filters this down to

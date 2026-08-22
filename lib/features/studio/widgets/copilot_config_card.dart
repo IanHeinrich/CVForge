@@ -134,19 +134,22 @@ class _CopilotConfigCardState extends State<CopilotConfigCard> {
               minLines: 4,
             ),
           const VGap.small(),
-          Row(
+          // A `Wrap`, not a `Row` — this card now also lives in Studio's
+          // fixed ~220px nav column (7.4), too narrow for both buttons on
+          // one line at once.
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               FilledButton(
                 onPressed: widget.canRun ? widget.onRun : null,
                 child: const Text('Tailor with AI'),
               ),
-              if (widget.hasUndo) ...[
-                const HGap.small(),
+              if (widget.hasUndo)
                 TextButton(
                   onPressed: widget.onUndo,
                   child: const Text('Undo AI changes'),
                 ),
-              ],
             ],
           ),
           if (widget.hasUndo) ...[

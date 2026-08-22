@@ -507,5 +507,63 @@ void main() {
         ),
       );
     });
+
+    group('openSection / selectSection -', () {
+      test('defaults to null so the nav list shows first', () {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+
+        expect(model.openSection, isNull);
+      });
+
+      test('selectSection sets and clears the open section', () {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+
+        final model = StudioViewModel();
+        model.selectSection(CvSectionType.skills);
+        expect(model.openSection, CvSectionType.skills);
+
+        model.selectSection(null);
+        expect(model.openSection, isNull);
+      });
+
+      test('hiding the currently-open section clears the selection, so the '
+          'editor never shows a section the nav no longer lists', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        when(
+          draftService.setSectionHidden(any, hidden: anyNamed('hidden')),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        model.selectSection(CvSectionType.skills);
+
+        await model.toggleSectionHidden(CvSectionType.skills);
+
+        expect(model.openSection, isNull);
+        verify(
+          draftService.setSectionHidden(CvSectionType.skills, hidden: true),
+        ).called(1);
+      });
+
+      test('hiding a section other than the one open leaves the selection '
+          'untouched', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        when(
+          draftService.setSectionHidden(any, hidden: anyNamed('hidden')),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        model.selectSection(CvSectionType.skills);
+
+        await model.toggleSectionHidden(CvSectionType.experience);
+
+        expect(model.openSection, CvSectionType.skills);
+      });
+    });
   });
 }
