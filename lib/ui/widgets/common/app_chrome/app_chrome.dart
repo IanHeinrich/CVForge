@@ -5,7 +5,57 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/storage_unavailable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:stacked_services/stacked_services.dart';
+
+/// One rail/bottom-bar destination's icon pair + label — shared between
+/// [_RailChrome] (desktop/tablet) and [_MobileChrome] (mobile) so the two
+/// layouts can never drift on which icon or label represents a section.
+class _NavDestination {
+  const _NavDestination({
+    required this.section,
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+  });
+
+  final AppSection section;
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+}
+
+/// The three workspace sections with a real indexed rail destination —
+/// [AppSection.settings] is deliberately excluded here since the rail
+/// pins it to its own `trailing` slot; see [_NavDestination]'s call sites
+/// for where each layout adds it back.
+const _workspaceDestinations = [
+  _NavDestination(
+    section: AppSection.vault,
+    icon: RemixIcons.safe_line,
+    selectedIcon: RemixIcons.safe_fill,
+    label: 'Vault',
+  ),
+  _NavDestination(
+    section: AppSection.drafts,
+    icon: RemixIcons.file_text_line,
+    selectedIcon: RemixIcons.file_text_fill,
+    label: 'CVs',
+  ),
+  _NavDestination(
+    section: AppSection.analyzer,
+    icon: RemixIcons.file_search_line,
+    selectedIcon: RemixIcons.file_search_fill,
+    label: 'ATS Check',
+  ),
+];
+
+const _settingsDestination = _NavDestination(
+  section: AppSection.settings,
+  icon: RemixIcons.settings_line,
+  selectedIcon: RemixIcons.settings_fill,
+  label: 'Settings',
+);
 
 /// The top-level sections of the app. Declaration order matches the nav
 /// rail's main destination order.
@@ -92,6 +142,68 @@ class AppChrome extends StatelessWidget {
   AppSection get _visualSection =>
       currentSection == AppSection.studio ? AppSection.drafts : currentSection;
 
+  /// Below `responsive_builder`'s tablet cutoff, a permanently-docked side
+  /// rail (`NavigationRailLabelType.all` needs ~80–100 logical px) eats a
+  /// fifth to a quarter of a phone-width viewport before any real content
+  /// is shown — every top-level View's mobile layout was fighting that
+  /// stolen width on top of its own page/card padding, which is what made
+  /// Settings' side-by-side backup buttons and the template gallery's
+  /// fixed-width cards overflow. Mobile trades the rail for a bottom
+  /// `NavigationBar` instead, so [child] gets the full viewport width;
+  /// tablet/desktop are untouched.
+  @override
+  Widget build(BuildContext context) {
+    return ScreenTypeLayout.builder(
+      mobile: (_) => _MobileChrome(
+        section: _visualSection,
+        onSelect: _navigateTo,
+        child: child,
+      ),
+      tablet: (_) => _RailChrome(
+        section: _visualSection,
+        onSelect: _navigateTo,
+        child: child,
+      ),
+      desktop: (_) => _RailChrome(
+        section: _visualSection,
+        onSelect: _navigateTo,
+        child: child,
+      ),
+    );
+  }
+
+  void _navigateTo(AppSection section) {
+    if (section == _visualSection) return;
+    final router = locator<RouterService>();
+    switch (section) {
+      case AppSection.vault:
+        router.replaceWith(VaultViewRoute());
+      case AppSection.drafts:
+        router.replaceWith(DraftsListViewRoute());
+      case AppSection.analyzer:
+        router.replaceWith(AnalyzerViewRoute());
+      case AppSection.studio:
+        break; // Unreachable — not a rail destination, see the class doc.
+      case AppSection.settings:
+        router.replaceWith(SettingsViewRoute());
+    }
+  }
+}
+
+/// Tablet/desktop chrome: the original permanently-docked side rail, with
+/// `settings` pinned to its own `trailing` slot since it's a utility
+/// surface rather than a peer workspace tab (see [AppChrome]'s doc).
+class _RailChrome extends StatelessWidget {
+  const _RailChrome({
+    required this.section,
+    required this.onSelect,
+    required this.child,
+  });
+
+  final AppSection section;
+  final ValueChanged<AppSection> onSelect;
+  final Widget child;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,32 +230,25 @@ class AppChrome extends StatelessWidget {
             // (it's rendered via `trailing` instead), so it has no valid
             // index to report here — `null` is "no destination selected",
             // and the trailing settings button draws its own selected state.
-            selectedIndex: _visualSection == AppSection.settings
+            selectedIndex: section == AppSection.settings
                 ? null
-                : _visualSection.index,
+                : _workspaceDestinations.indexWhere(
+                    (d) => d.section == section,
+                  ),
             labelType: NavigationRailLabelType.all,
             selectedIconTheme: const IconThemeData(color: kcPrimaryColor),
             selectedLabelTextStyle: const TextStyle(color: kcPrimaryColor),
             unselectedIconTheme: const IconThemeData(color: kcLightGrey),
             unselectedLabelTextStyle: const TextStyle(color: kcLightGrey),
             onDestinationSelected: (index) =>
-                _navigateTo(AppSection.values[index]),
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(RemixIcons.safe_line),
-                selectedIcon: Icon(RemixIcons.safe_fill),
-                label: Text('Vault'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(RemixIcons.file_text_line),
-                selectedIcon: Icon(RemixIcons.file_text_fill),
-                label: Text('CVs'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(RemixIcons.file_search_line),
-                selectedIcon: Icon(RemixIcons.file_search_fill),
-                label: Text('ATS Check'),
-              ),
+                onSelect(_workspaceDestinations[index].section),
+            destinations: [
+              for (final d in _workspaceDestinations)
+                NavigationRailDestination(
+                  icon: Icon(d.icon),
+                  selectedIcon: Icon(d.selectedIcon),
+                  label: Text(d.label),
+                ),
             ],
             trailing: Expanded(
               child: Align(
@@ -153,16 +258,16 @@ class AppChrome extends StatelessWidget {
                     vertical: context.appSpacing.paddingDefault,
                   ),
                   child: IconButton(
-                    tooltip: 'Settings',
+                    tooltip: _settingsDestination.label,
                     icon: Icon(
-                      _visualSection == AppSection.settings
-                          ? RemixIcons.settings_fill
-                          : RemixIcons.settings_line,
-                      color: _visualSection == AppSection.settings
+                      section == AppSection.settings
+                          ? _settingsDestination.selectedIcon
+                          : _settingsDestination.icon,
+                      color: section == AppSection.settings
                           ? kcPrimaryColor
                           : kcLightGrey,
                     ),
-                    onPressed: () => _navigateTo(AppSection.settings),
+                    onPressed: () => onSelect(AppSection.settings),
                   ),
                 ),
               ),
@@ -174,21 +279,59 @@ class AppChrome extends StatelessWidget {
       ),
     );
   }
+}
 
-  void _navigateTo(AppSection section) {
-    if (section == _visualSection) return;
-    final router = locator<RouterService>();
-    switch (section) {
-      case AppSection.vault:
-        router.replaceWith(VaultViewRoute());
-      case AppSection.drafts:
-        router.replaceWith(DraftsListViewRoute());
-      case AppSection.analyzer:
-        router.replaceWith(AnalyzerViewRoute());
-      case AppSection.studio:
-        break; // Unreachable — not a rail destination, see the class doc.
-      case AppSection.settings:
-        router.replaceWith(SettingsViewRoute());
-    }
+/// Mobile chrome: no docked rail — [child] gets the full viewport width,
+/// with all four sections (including Settings, which the rail instead
+/// pins to a separate `trailing` slot — there's no equivalent slot on a
+/// bottom bar) reachable from a bottom `NavigationBar`.
+class _MobileChrome extends StatelessWidget {
+  const _MobileChrome({
+    required this.section,
+    required this.onSelect,
+    required this.child,
+  });
+
+  final AppSection section;
+  final ValueChanged<AppSection> onSelect;
+  final Widget child;
+
+  static const _destinations = [
+    ..._workspaceDestinations,
+    _settingsDestination,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: kcBorderColor)),
+        ),
+        child: NavigationBar(
+          selectedIndex: _destinations.indexWhere((d) => d.section == section),
+          onDestinationSelected: (index) =>
+              onSelect(_destinations[index].section),
+          indicatorColor: kcPrimaryColor.withValues(alpha: 0.18),
+          labelTextStyle: WidgetStateProperty.resolveWith(
+            (states) => TextStyle(
+              color: states.contains(WidgetState.selected)
+                  ? kcPrimaryColor
+                  : kcLightGrey,
+              fontSize: 12,
+            ),
+          ),
+          destinations: [
+            for (final d in _destinations)
+              NavigationDestination(
+                icon: Icon(d.icon, color: kcLightGrey),
+                selectedIcon: Icon(d.selectedIcon, color: kcPrimaryColor),
+                label: d.label,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
