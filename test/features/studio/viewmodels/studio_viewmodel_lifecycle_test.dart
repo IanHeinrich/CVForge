@@ -2,23 +2,14 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
-import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
-import 'package:cv_forge/models/vault/contact_basics.dart';
-import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
-import 'package:cv_forge/models/vault/education.dart';
-import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/hobby_item.dart';
-import 'package:cv_forge/models/vault/project.dart';
-import 'package:cv_forge/models/vault/skill.dart';
-import 'package:cv_forge/models/vault/skill_category.dart';
-import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
@@ -27,88 +18,11 @@ void main() {
     late MockVaultService vaultService;
     late MockDraftService draftService;
 
-    final experience = Experience(
-      id: 'exp-1',
-      role: 'Engineer',
-      company: 'Acme',
-      location: 'London',
-      start: const YearMonth(year: 2020, month: 1),
-      isCurrent: true,
-      bullets: const [
-        CvBullet(id: 'b1', text: 'Did a thing'),
-        CvBullet(id: 'b2', text: 'Did another thing'),
-      ],
-    );
-    final education = const Education(
-      id: 'edu-1',
-      qualification: 'BSc Computing',
-      institution: 'Leeds',
-    );
-    final project = Project(
-      id: 'proj-1',
-      title: 'CV Forge',
-      bullets: const [
-        CvBullet(id: 'pb1', text: 'Built a thing'),
-        CvBullet(id: 'pb2', text: 'Built another thing'),
-      ],
-    );
-    const skillCategory = SkillCategory(
-      id: 'cat-1',
-      name: 'Languages',
-      skills: [Skill(id: 'skill-1', label: 'Dart')],
-    );
-    const hobby = HobbyItem(id: 'hobby-1', text: 'Climbing');
-
-    CvVault vaultWith({
-      List<Experience> experiences = const [],
-      List<Education> education = const [],
-      List<Project> projects = const [],
-      List<SkillCategory> skillCategories = const [],
-      List<HobbyItem> hobbies = const [],
-      ContactBasics? basics,
-      String? referencesNote,
-    }) => CvVault(
-      schemaVersion: 1,
-      basics: basics ?? ContactBasics.empty(),
-      experiences: experiences,
-      education: education,
-      projects: projects,
-      skillCategories: skillCategories,
-      hobbies: hobbies,
-      referencesNote: referencesNote,
-      updatedAt: DateTime.now(),
-    );
-
-    CvDraft draftWith({
-      List<String> experienceIds = const [],
-      Map<String, List<String>> bulletIds = const {},
-      List<String> projectIds = const [],
-      Map<String, List<String>> projectBulletIds = const {},
-      List<String> educationIds = const [],
-      Set<CvSectionType> hiddenSections = const {},
-      Map<String, String> bulletOverrides = const {},
-      String? tailoredSummary,
-      String? headlineOverride,
-      String? referencesOverride,
-      Map<String, String> educationDetailsOverrides = const {},
-    }) => CvDraft(
-      schemaVersion: 1,
-      id: 'current',
-      name: 'My CV',
-      templateId: 'compact',
-      experienceIds: experienceIds,
-      bulletIds: bulletIds,
-      projectIds: projectIds,
-      projectBulletIds: projectBulletIds,
-      educationIds: educationIds,
-      hiddenSections: hiddenSections,
-      bulletOverrides: bulletOverrides,
-      tailoredSummary: tailoredSummary,
-      headlineOverride: headlineOverride,
-      referencesOverride: referencesOverride,
-      educationDetailsOverrides: educationDetailsOverrides,
-      updatedAt: DateTime.now(),
-    );
+    final experience = sampleExperience;
+    final education = sampleEducation;
+    final project = sampleProject;
+    const skillCategory = sampleSkillCategory;
+    const hobby = sampleHobby;
 
     late MockRouterService routerService;
     late MockDialogService dialogService;
