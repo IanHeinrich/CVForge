@@ -294,5 +294,24 @@ void main() {
         expect(model.showEmptyState, isFalse);
       },
     );
+
+    group('consumeInvalidUrlNotice -', () {
+      test('is false for a plain visit — the toast only fires when the '
+          'wildcard redirect actually sent someone here', () {
+        final model = VaultViewModel();
+
+        expect(model.consumeInvalidUrlNotice(), isFalse);
+      });
+
+      test('fires exactly once when constructed via the invalid-URL redirect '
+          '— a rebuild (e.g. once loading finishes) must not show the toast '
+          'again', () {
+        final model = VaultViewModel(cameFromInvalidUrl: true);
+
+        expect(model.consumeInvalidUrlNotice(), isTrue);
+        expect(model.consumeInvalidUrlNotice(), isFalse);
+        expect(model.consumeInvalidUrlNotice(), isFalse);
+      });
+    });
   });
 }
