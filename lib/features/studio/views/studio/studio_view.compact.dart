@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
-import 'package:cv_forge/features/studio/widgets/studio_draft_header.dart';
+import 'package:cv_forge/features/studio/widgets/studio_document_bar/studio_document_bar.dart';
 import 'package:cv_forge/features/studio/widgets/studio_tabbed_layout.dart';
 import 'studio_viewmodel.dart';
 
@@ -16,7 +16,7 @@ class StudioViewCompact extends ViewModelWidget<StudioViewModel> {
   Widget build(BuildContext context, StudioViewModel viewModel) {
     return Column(
       children: [
-        StudioDraftHeader(viewModel: viewModel),
+        StudioDocumentBar(viewModel: viewModel),
         Expanded(child: StudioTabbedLayout(viewModel: viewModel)),
       ],
     );

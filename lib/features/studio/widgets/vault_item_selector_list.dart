@@ -9,6 +9,13 @@ import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
 import 'tailoring_controls.dart';
 
+/// A bullet's row title: its label prefixed on, or just its text if it has
+/// none. Shared by every section editor that builds a bullet
+/// [SelectorItem] (experience, projects, publications) rather than each
+/// restating the same one-liner.
+String bulletTitle(String? label, String text) =>
+    label == null || label.isEmpty ? text : '$label: $text';
+
 /// One selectable row in a [VaultItemSelectorList] — also reused for the
 /// nested rows in [bullets], since a bullet is just a title plus a
 /// selected/onToggle pair like any other entry.
