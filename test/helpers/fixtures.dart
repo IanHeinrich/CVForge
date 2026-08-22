@@ -104,14 +104,14 @@ CvDraft draftWith({
 
 /// One experience with two bullets — the same `exp-1`/`b1`/`b2` shape
 /// every Studio selection/override test built by hand.
-final sampleExperience = Experience(
+const sampleExperience = Experience(
   id: 'exp-1',
   role: 'Engineer',
   company: 'Acme',
   location: 'London',
-  start: const YearMonth(year: 2020, month: 1),
+  start: YearMonth(year: 2020, month: 1),
   isCurrent: true,
-  bullets: const [
+  bullets: [
     CvBullet(id: 'b1', text: 'Did a thing'),
     CvBullet(id: 'b2', text: 'Did another thing'),
   ],
@@ -123,19 +123,19 @@ const sampleEducation = Education(
   institution: 'Leeds',
 );
 
-final sampleProject = Project(
+const sampleProject = Project(
   id: 'proj-1',
   title: 'CV Forge',
-  bullets: const [
+  bullets: [
     CvBullet(id: 'pb1', text: 'Built a thing'),
     CvBullet(id: 'pb2', text: 'Built another thing'),
   ],
 );
 
-final samplePublication = Publication(
+const samplePublication = Publication(
   id: 'pub-1',
   title: 'A Study of Things',
-  bullets: const [
+  bullets: [
     CvBullet(id: 'ub1', text: 'Cited by 40+ subsequent papers'),
     CvBullet(id: 'ub2', text: 'Led the fieldwork component'),
   ],

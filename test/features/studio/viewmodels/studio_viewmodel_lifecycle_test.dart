@@ -18,9 +18,9 @@ void main() {
     late MockVaultService vaultService;
     late MockDraftService draftService;
 
-    final experience = sampleExperience;
-    final education = sampleEducation;
-    final project = sampleProject;
+    const experience = sampleExperience;
+    const education = sampleEducation;
+    const project = sampleProject;
     const skillCategory = sampleSkillCategory;
     const hobby = sampleHobby;
 

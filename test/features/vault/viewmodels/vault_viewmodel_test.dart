@@ -196,7 +196,7 @@ void main() {
 
       test('updateEducationYear treats an empty field as valid, clearing '
           "the year — it's optional, unlike a start/end year", () async {
-        final education = const Education(
+        const education = Education(
           id: 'edu-1',
           qualification: 'BSc Computing',
           institution: 'Leeds',

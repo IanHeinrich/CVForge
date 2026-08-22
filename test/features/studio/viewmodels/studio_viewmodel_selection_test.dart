@@ -21,10 +21,10 @@ void main() {
     late MockDraftService draftService;
     late MockSettingsService settingsService;
 
-    final experience = sampleExperience;
-    final education = sampleEducation;
-    final project = sampleProject;
-    final publication = samplePublication;
+    const experience = sampleExperience;
+    const education = sampleEducation;
+    const project = sampleProject;
+    const publication = samplePublication;
 
     setUp(() {
       vaultService = getAndRegisterVaultService();

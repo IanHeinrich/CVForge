@@ -74,8 +74,8 @@ void main() {
     late MockVaultService vaultService;
     late MockDraftService draftService;
 
-    final experience = sampleExperience;
-    final education = sampleEducation;
+    const experience = sampleExperience;
+    const education = sampleEducation;
 
     setUp(() {
       vaultService = getAndRegisterVaultService();
