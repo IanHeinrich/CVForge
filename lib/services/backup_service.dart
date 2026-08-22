@@ -46,7 +46,7 @@ class BackupService {
   /// Provenance only, never branched on — a small hardcoded literal rather
   /// than a `package_info_plus` dependency, since nothing reads this back.
   /// Keep it in sync with `pubspec.yaml`'s `version:` at each bump.
-  static const _appVersion = '2.4.0';
+  static const _appVersion = '2.5.0';
 
   CvBackupBundle _buildBundle() => CvBackupBundle(
     app: 'cv-forge',

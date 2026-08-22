@@ -28,6 +28,24 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
   /// app rather than estimated from character counts.
   static const _navWidth = 300.0;
 
+  /// Editor:preview flex ratio at the normal desktop width — the editor
+  /// column (form fields, one at a time) needs comfortable width more than
+  /// the preview does, which caps itself at printed page width anyway (see
+  /// this class's own doc comment) and just centers in whatever's left.
+  static const _editorFlex = 3;
+  static const _previewFlex = 2;
+
+  /// Above this, there's more room than the editor column can actually
+  /// use — it's still just a stack of form fields — so the surplus goes to
+  /// the preview instead, letting it sit two-up (see
+  /// `StudioPreviewPane`'s own width-gated two-up logic) sooner rather
+  /// than staying single-page until the window is wider still. Measured
+  /// as editor+preview content width (post-nav, matching
+  /// `StudioView._desktopMinWidth`'s own convention), not raw window
+  /// width.
+  static const _widePreviewMinWidth = 1500.0;
+  static const _widePreviewFlex = 3;
+
   @override
   Widget build(BuildContext context, StudioViewModel viewModel) {
     return Column(
@@ -49,11 +67,31 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
               ),
               const VerticalDivider(width: 1),
               Expanded(
-                flex: 3,
-                child: StudioSectionEditorRouter(viewModel: viewModel),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final previewFlex =
+                        constraints.maxWidth >= _widePreviewMinWidth
+                        ? _widePreviewFlex
+                        : _previewFlex;
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          flex: _editorFlex,
+                          child: StudioSectionEditorRouter(
+                            viewModel: viewModel,
+                          ),
+                        ),
+                        const VerticalDivider(width: 1),
+                        Expanded(
+                          flex: previewFlex,
+                          child: StudioPreviewPane(viewModel: viewModel),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
-              const VerticalDivider(width: 1),
-              Expanded(flex: 2, child: StudioPreviewPane(viewModel: viewModel)),
             ],
           ),
         ),

@@ -1,5 +1,4 @@
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
-import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_chrome/app_chrome.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +43,6 @@ class SettingsView extends StackedView<SettingsViewModel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Settings', style: context.appTypography.titleLarge),
-                const VGap.medium(),
                 BackupSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
                 CopilotSettingsCard(viewModel: viewModel),

@@ -96,6 +96,22 @@ class AppChrome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
+        // Row's own default cross-axis alignment is center, which gives
+        // `Expanded(child: child)` below only a *loose* height constraint
+        // (0 up to the full body height, not forced to it). A content
+        // widget that shrink-wraps under loose constraints — notably
+        // `SingleChildScrollView`, unlike `ListView`'s always-fill-to-max
+        // viewport — then renders shorter than the page whenever its own
+        // content doesn't reach the bottom, and this Row centers that
+        // now-shorter box vertically: a settings page (or any other short
+        // page) read as vertically centered rather than pinned to the
+        // top, and a page-level FAB positioned relative to that shrunk
+        // box landed partway up the screen rather than at its true
+        // bottom. `stretch` forces every top-level View's own content to
+        // actually claim the full body height, regardless of how it's
+        // built internally — the fix belongs here once, not repeated in
+        // every View that happens to use a shrink-wrapping scroll view.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           NavigationRail(
             // `settings` sits outside the indexed `destinations` list below

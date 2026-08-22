@@ -2325,12 +2325,79 @@ others a local Windows run had flagged were font-rasterization noise,
 not real changes, confirmed by the CI-generated artifact coming back
 byte-identical to what was already committed.
 
+### Post-7.8 (round 2) — CVs grid, a page-height layout bug, Vault reflow ✅ shipped
+
+A second ad hoc feedback-driven pass, same rationale as the first
+post-7.8 round above.
+
+**CVs (Drafts) list** is now a thumbnail grid — the same
+wrapping-card shape as the template gallery, each card rendering the
+draft's own composed CV through `TemplateThumbnailService` rather than
+a plain text row — so picking a CV reads the same as picking a
+template. The shared `_Thumbnail` loading/error/ready state was pulled
+out of `TemplateGalleryDialog` into `PdfPageThumbnail`
+(`ui/widgets/common/`) so both grids use one implementation. Card
+metadata split onto two lines (template name, then "Updated
+dd/mm/yyyy HH:mm" on its own, never truncated) — combined on one
+`maxLines: 1` line, a longer template name previously pushed the
+update timestamp off the end entirely, hiding the one piece of
+metadata that actually helps tell drafts apart.
+
+**A page-height layout bug, fixed at its root in `AppChrome`**: its
+own `Row` (nav rail + divider + page content) never set
+`crossAxisAlignment: CrossAxisAlignment.stretch`, so every top-level
+View's content only ever got a *loose* height constraint. That's
+invisible for a page whose content already reaches the bottom of the
+viewport, but `SingleChildScrollView` (unlike `ListView`, which always
+fills to the max available height) shrink-wraps to its child's natural
+height under a loose constraint — so a page shorter than the viewport
+rendered at its own shrunk height and then got centered vertically by
+the Row around it. Settings read as vertically centered instead of
+pinned to the top; the CVs grid's "New CV" floating action button,
+positioned via `Positioned(bottom: ...)` against that shrunk `Stack`,
+landed partway up the screen instead of at the page's true bottom.
+Fixed once, in `AppChrome`'s own `Row`, rather than patched per View.
+Settings' own redundant "Settings" heading also removed — no other
+top-level View repeats its section name as an on-page title.
+
+**Vault**: opening an entry to edit used to hand the editor panel a
+*proportional* share of the row (`cardListFlex`/`editorPanelFlex`),
+which — on nothing wider than an ordinary laptop screen — routinely
+starved `VaultListSection`'s two-column grid below its own
+`_twoColumnMinWidth` the instant anything was opened, even though nothing
+about the window itself had gotten any narrower. `editorPanelWidth` is
+now a fixed target (640px desktop / 440px tablet, clamped to at most
+60% of the row) instead, so the list keeps most of its width regardless
+and only genuinely loses its second column on a window too narrow for
+both panes together. The list/editor split (width, alignment, the
+editor's own reveal) now eases over a new `context.appMotion.layout`
+token (280ms) instead of snapping in a single frame, which is what the
+column-count change above was actually fixing the *feel* of, not just
+the trigger condition. **Known gap, not yet working**: an attempt to
+auto-scroll a newly-selected card back into view when the column
+collapse pushes it below the fold (`VaultCardList`'s
+`_scrollSelectedIntoView`) does not currently fire — deferred rather
+than debugged further this round; the scaffolding (a reused
+`GlobalKey` threaded through `VaultListSection`/the singleton cards) is
+in place but the trigger needs investigation before it's trustworthy.
+
+Template tags: `ClassicCenteredTemplate` ("Traditional") gained
+`TemplateTag.atsSafe` alongside its existing `traditional`/`academic`
+pair — a single-column, whitespace-led layout with no tables or
+multi-column tricks, the same property that already earns `Compact`
+its own `atsSafe` tag.
+
+Verified via `flutter analyze` (0 issues) and `flutter test
+--exclude-tags=golden` (291/291). Live-browser-verified at multiple
+widths for every change except the Vault scroll-into-view gap noted
+above.
+
 ### Phase 7 status
 
-7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus the post-7.8 UI
-polish pass above. **7.6 (logo, favicon, splash, plus the
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus both post-7.8 UI
+polish passes above. **7.6 (logo, favicon, splash, plus the
 `manifest.json` bug) is the only sub-phase left** — deliberately
-deferred this round; it touches no Dart and is independent of
-everything else here. Repo version bumped to `2.4.0` (from `2.3.0`,
-which covered 7.4/7.5/7.7/7.8 — `BackupService._appVersion` bumped to
-match in the same pass, per that field's own doc comment).
+deferred across both rounds; it touches no Dart and is independent of
+everything else here. Repo version bumped to `2.5.0` (from `2.4.0`,
+which covered the first post-7.8 round — `BackupService._appVersion`
+bumped to match in the same pass, per that field's own doc comment).

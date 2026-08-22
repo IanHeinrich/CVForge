@@ -15,6 +15,7 @@ import '../../../helpers/test_helpers.mocks.dart';
 void main() {
   group('DraftsListViewModel Tests -', () {
     late MockDraftService draftService;
+    late MockVaultService vaultService;
     late MockTemplateRegistryService templateRegistry;
     late MockDialogService dialogService;
     late MockRouterService routerService;
@@ -35,13 +36,16 @@ void main() {
 
     setUp(() {
       draftService = getAndRegisterDraftService();
+      vaultService = getAndRegisterVaultService();
       templateRegistry = getAndRegisterTemplateRegistryService();
       dialogService = getAndRegisterDialogService();
       routerService = getAndRegisterRouterService();
+      getAndRegisterTemplateThumbnailService();
     });
     tearDown(() => locator.reset());
 
-    test('initialise loads DraftService', () async {
+    test('initialise loads VaultService then DraftService', () async {
+      when(vaultService.load()).thenAnswer((_) => Future<void>.value());
       when(draftService.load()).thenAnswer((_) => Future<void>.value());
       when(draftService.drafts).thenReturn([]);
 
@@ -49,6 +53,7 @@ void main() {
       model.initialise();
       await pumpEventQueue();
 
+      verify(vaultService.load()).called(1);
       verify(draftService.load()).called(1);
       expect(model.isLoading, isFalse);
       expect(model.hasLoadError, isFalse);

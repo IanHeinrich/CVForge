@@ -23,8 +23,7 @@ class VaultView extends StackedView<VaultViewModel> {
       onRetry: viewModel.initialise,
       content: () => ScreenTypeLayout.builder(
         mobile: (_) => const VaultViewMobile(),
-        tablet: (_) =>
-            const VaultViewDesktop(cardListFlex: 2, editorPanelFlex: 3),
+        tablet: (_) => const VaultViewDesktop(editorPanelWidth: 440),
         desktop: (_) => const VaultViewDesktop(),
       ),
     );

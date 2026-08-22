@@ -12,10 +12,15 @@ part of 'app_motion.dart';
 mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
   Duration get fast;
   Duration get camera;
+  Duration get layout;
 
   @override
-  AppMotion copyWith({Duration? fast, Duration? camera}) {
-    return AppMotion(fast: fast ?? this.fast, camera: camera ?? this.camera);
+  AppMotion copyWith({Duration? fast, Duration? camera, Duration? layout}) {
+    return AppMotion(
+      fast: fast ?? this.fast,
+      camera: camera ?? this.camera,
+      layout: layout ?? this.layout,
+    );
   }
 
   @override
@@ -24,6 +29,7 @@ mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
     return AppMotion(
       fast: t < 0.5 ? fast : other.fast,
       camera: t < 0.5 ? camera : other.camera,
+      layout: t < 0.5 ? layout : other.layout,
     );
   }
 
@@ -33,7 +39,8 @@ mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
         (other.runtimeType == runtimeType &&
             other is AppMotion &&
             const DeepCollectionEquality().equals(fast, other.fast) &&
-            const DeepCollectionEquality().equals(camera, other.camera));
+            const DeepCollectionEquality().equals(camera, other.camera) &&
+            const DeepCollectionEquality().equals(layout, other.layout));
   }
 
   @override
@@ -42,6 +49,7 @@ mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
       runtimeType.hashCode,
       const DeepCollectionEquality().hash(fast),
       const DeepCollectionEquality().hash(camera),
+      const DeepCollectionEquality().hash(layout),
     );
   }
 }
@@ -52,4 +60,8 @@ extension AppMotionBuildContextProps on BuildContext {
 
   /// The X-Ray overlay's camera pan/zoom (`XrayCameraController`).
   Duration get camera => appMotion.camera;
+
+  /// A panel/column reflow — `VaultViewDesktop`'s card-list/editor split
+  /// easing its width and alignment when the editor opens or closes.
+  Duration get layout => appMotion.layout;
 }
