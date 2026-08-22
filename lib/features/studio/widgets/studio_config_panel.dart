@@ -11,6 +11,7 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'copilot_config_card.dart';
 import 'studio_field_override_card.dart';
 import 'studio_panel_heading.dart';
+import 'studio_skill_selector/studio_skill_selector.dart';
 import 'tailorable_field.dart';
 import 'vault_item_selector_list.dart';
 
@@ -253,22 +254,7 @@ class StudioConfigPanel extends StatelessWidget {
               ),
           ],
         ),
-        VaultItemSelectorList(
-          title: 'Skills',
-          unselectedCount: viewModel.unselectedSkills.length,
-          onAddAll: viewModel.addAllSkills,
-          items: [
-            for (final category in viewModel.skillCategories)
-              for (final skill in category.skills)
-                SelectorItem(
-                  id: skill.id,
-                  title: skill.label,
-                  subtitle: category.name,
-                  selected: viewModel.isSkillIncluded(skill.id),
-                  onToggle: () => viewModel.toggleSkill(skill),
-                ),
-          ],
-        ),
+        StudioSkillSelector(viewModel: viewModel),
         VaultItemSelectorList(
           title: 'Education',
           unselectedCount: viewModel.unselectedEducation.length,

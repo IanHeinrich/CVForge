@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
@@ -38,7 +37,7 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
                     width: panelWidth,
                     child: StudioConfigPanel(viewModel: viewModel),
                   ),
-                  const VerticalDivider(width: 1, color: kcMediumGrey),
+                  const VerticalDivider(width: 1),
                   Expanded(child: StudioPreviewPane(viewModel: viewModel)),
                 ],
               );

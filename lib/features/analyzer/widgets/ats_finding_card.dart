@@ -56,7 +56,7 @@ class AtsFindingCard extends StatelessWidget {
     final radius = BorderRadius.circular(context.appRadius.medium);
 
     return Material(
-      color: kcDarkGreyColor,
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
       borderRadius: radius,
       child: InkWell(
         onTap: onTap,

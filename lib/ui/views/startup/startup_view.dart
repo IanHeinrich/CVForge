@@ -18,7 +18,6 @@ class StartupView extends StackedView<StartupViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-      backgroundColor: kcBackgroundColor,
       body: Center(
         child: viewModel.hasError
             ? StorageUnavailableCard(onRetry: viewModel.retry)

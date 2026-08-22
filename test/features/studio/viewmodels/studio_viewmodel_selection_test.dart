@@ -11,6 +11,7 @@ import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
+import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,6 +86,7 @@ void main() {
       Map<String, List<String>> bulletIds = const {},
       List<String> projectIds = const [],
       Map<String, List<String>> projectBulletIds = const {},
+      List<String> skillIds = const [],
       List<String> educationIds = const [],
       List<String> publicationIds = const [],
       Map<String, List<String>> publicationBulletIds = const {},
@@ -105,6 +107,7 @@ void main() {
       bulletIds: bulletIds,
       projectIds: projectIds,
       projectBulletIds: projectBulletIds,
+      skillIds: skillIds,
       educationIds: educationIds,
       publicationIds: publicationIds,
       publicationBulletIds: publicationBulletIds,
@@ -448,6 +451,127 @@ void main() {
       await model.addAllPublicationBullets(publication);
 
       expect(draft.publicationBulletIds[publication.id], ['ub1', 'ub2']);
+    });
+
+    group('skills -', () {
+      final skillCategoryA = SkillCategory(
+        id: 'cat-a',
+        name: 'Languages',
+        skills: const [
+          Skill(id: 's1', label: 'Dart', linkedBulletIds: ['b1']),
+          Skill(id: 's2', label: 'Python'),
+          Skill(id: 's3', label: 'Go'),
+        ],
+      );
+      final skillCategoryB = SkillCategory(
+        id: 'cat-b',
+        name: 'Cloud',
+        skills: const [Skill(id: 's4', label: 'AWS')],
+      );
+
+      void stubMutableSkillIds(
+        CvDraft Function() draftGetter,
+        void Function(CvDraft) setDraft,
+      ) {
+        when(
+          draftService.setSkillIncluded(any, included: anyNamed('included')),
+        ).thenAnswer((invocation) async {
+          final id = invocation.positionalArguments[0] as String;
+          final included = invocation.namedArguments[#included] as bool;
+          final ids = {...draftGetter().skillIds};
+          if (included) {
+            ids.add(id);
+          } else {
+            ids.remove(id);
+          }
+          setDraft(draftGetter().copyWith(skillIds: ids.toList()));
+        });
+      }
+
+      test('addAllSkillsInCategory selects only that category\'s skills and '
+          'leaves other categories untouched — the same sequential-await '
+          'assertion that catches a synchronous-loop regression, since a '
+          'category of three only ends up with all three ids if each '
+          'toggle is awaited before the next reads the draft', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(skillCategories: [skillCategoryA, skillCategoryB]),
+        );
+        var draft = draftWith(skillIds: const ['s4']);
+        when(draftService.draft).thenAnswer((_) => draft);
+        stubMutableSkillIds(() => draft, (d) => draft = d);
+
+        final model = StudioViewModel();
+        await model.addAllSkillsInCategory(skillCategoryA);
+
+        expect(draft.skillIds, containsAll(['s1', 's2', 's3', 's4']));
+        expect(draft.skillIds, hasLength(4));
+      });
+
+      test('removeAllSkillsInCategory is its inverse and does not disturb '
+          'manual selections elsewhere', () async {
+        when(vaultService.vault).thenReturn(
+          vaultWith(skillCategories: [skillCategoryA, skillCategoryB]),
+        );
+        var draft = draftWith(skillIds: const ['s1', 's2', 's3', 's4']);
+        when(draftService.draft).thenAnswer((_) => draft);
+        stubMutableSkillIds(() => draft, (d) => draft = d);
+
+        final model = StudioViewModel();
+        await model.removeAllSkillsInCategory(skillCategoryA);
+
+        expect(draft.skillIds, ['s4']);
+      });
+
+      test('selectEvidencedSkills selects a skill linked to an included '
+          'bullet, does not select one linked only to an excluded bullet, '
+          'and does not deselect a manually-selected unlinked skill', () async {
+        final evidenced = const Skill(
+          id: 's-evidenced',
+          label: 'Dart',
+          linkedBulletIds: ['b1'],
+        );
+        final manual = const Skill(id: 's-manual', label: 'Manual');
+        final excluded = const Skill(
+          id: 's-excluded',
+          label: 'Excluded',
+          linkedBulletIds: ['pb2'],
+        );
+        final category = SkillCategory(
+          id: 'cat',
+          name: 'Cat',
+          skills: [evidenced, manual, excluded],
+        );
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            experiences: [experience],
+            projects: [project],
+            skillCategories: [category],
+          ),
+        );
+        // `project` is deliberately NOT in `projectIds` — its
+        // `projectBulletIds` entry exists but must not count, proving the
+        // included-bullet set is restricted to entries that are
+        // themselves included.
+        var draft = draftWith(
+          experienceIds: [experience.id],
+          bulletIds: {
+            experience.id: ['b1'],
+          },
+          projectBulletIds: {
+            project.id: ['pb1', 'pb2'],
+          },
+          skillIds: const ['s-manual'],
+        );
+        when(draftService.draft).thenAnswer((_) => draft);
+        stubMutableSkillIds(() => draft, (d) => draft = d);
+
+        final model = StudioViewModel();
+        await model.selectEvidencedSkills();
+
+        expect(draft.skillIds, containsAll(['s-manual', 's-evidenced']));
+        expect(draft.skillIds, isNot(contains('s-excluded')));
+        expect(draft.skillIds, hasLength(2));
+      });
     });
 
     group('section order -', () {

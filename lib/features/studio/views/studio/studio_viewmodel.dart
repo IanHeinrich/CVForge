@@ -175,6 +175,19 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       hobbies.length +
       publications.length;
 
+  /// Page count of the most recent successful render, or `null` before the
+  /// first one. Set by `StudioPreviewPane`, which is the only place the
+  /// rasterised page list exists — nothing else in this ViewModel can
+  /// compute it without rasterising a second time.
+  int? get pageCount => _pageCount;
+  int? _pageCount;
+
+  void setPageCount(int value) {
+    if (_pageCount == value) return;
+    _pageCount = value;
+    notifyListeners();
+  }
+
   Future<void> goToVault() => _routerService.replaceWith(VaultViewRoute());
 
   Future<void> goToDrafts() =>
@@ -535,6 +548,60 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   List<Skill> get unselectedSkills => _skillSelection.unselected;
 
   Future<void> addAllSkills() => _skillSelection.addAll();
+
+  /// Same shape as [_Selection.addAll], restricted to one category — each
+  /// toggle must be awaited before the next starts, for the same reason
+  /// [addAllExperienceBullets] documents.
+  Future<void> addAllSkillsInCategory(SkillCategory category) async {
+    for (final skill in category.skills) {
+      if (!isSkillIncluded(skill.id)) await toggleSkill(skill);
+    }
+  }
+
+  /// Inverse of [addAllSkillsInCategory] — same sequential-await shape.
+  Future<void> removeAllSkillsInCategory(SkillCategory category) async {
+    for (final skill in category.skills) {
+      if (isSkillIncluded(skill.id)) await toggleSkill(skill);
+    }
+  }
+
+  /// Bullet ids currently included in this draft, across experiences,
+  /// projects and publications — restricted to entries that are themselves
+  /// included, since an excluded entry's bullet map entry doesn't mean the
+  /// bullets are shown. Backs [unselectedEvidencedSkills] and
+  /// [selectEvidencedSkills]; not exposed itself since nothing outside
+  /// those two needs it.
+  Set<String> get _includedBulletIds => {
+    for (final id in _draft.experienceIds) ...?_draft.bulletIds[id],
+    for (final id in _draft.projectIds) ...?_draft.projectBulletIds[id],
+    for (final id in _draft.publicationIds) ...?_draft.publicationBulletIds[id],
+  };
+
+  /// Skills [selectEvidencedSkills] would add — i.e. not yet selected, and
+  /// linked to at least one bullet currently included in this draft. A
+  /// separate getter from the action itself so the "Select N evidenced
+  /// skills" button can show the count before it fires.
+  List<Skill> get unselectedEvidencedSkills {
+    final included = _includedBulletIds;
+    return _allSkills
+        .where(
+          (s) =>
+              !isSkillIncluded(s.id) &&
+              s.linkedBulletIds.any(included.contains),
+        )
+        .toList();
+  }
+
+  /// Selects every skill linked to a bullet already included in this
+  /// draft — the CV's own evidence deciding which skills to claim, rather
+  /// than a manual pass through every category. Adds only: a skill already
+  /// selected (whether or not it's linked to anything) is never touched,
+  /// so this can never undo a manual selection.
+  Future<void> selectEvidencedSkills() async {
+    for (final skill in unselectedEvidencedSkills) {
+      await toggleSkill(skill);
+    }
+  }
 
   // --- education ---
 

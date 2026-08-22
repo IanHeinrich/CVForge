@@ -12,6 +12,7 @@ import 'package:remixicon/remixicon.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
+import 'package:cv_forge/ui/widgets/common/app_chip_group_selector/app_chip_group_selector.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class SkillsEditorPanel extends StatelessWidget {
@@ -65,9 +66,11 @@ class SkillsEditorPanel extends StatelessWidget {
             margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
             padding: EdgeInsets.all(context.appSpacing.paddingCompact),
             decoration: BoxDecoration(
-              color: kcBackgroundColor,
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(context.appRadius.medium),
-              border: Border.all(color: kcMediumGrey),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -208,58 +211,43 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
           ),
         ),
         if (_expanded)
-          for (final experience in experiencesWithBullets)
-            Padding(
-              padding: EdgeInsets.only(
-                top: context.appSpacing.paddingDefault,
-                left: context.appSpacing.paddingTight,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _experienceHeading(experience),
-                    style: context.appTypography.caption.copyWith(
-                      color: kcLightGrey,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const VGap.tiny(),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
+          Padding(
+            padding: EdgeInsets.only(
+              top: context.appSpacing.paddingDefault,
+              left: context.appSpacing.paddingTight,
+            ),
+            child: AppChipGroupSelector(
+              groups: [
+                for (final experience in experiencesWithBullets)
+                  AppChipGroup(
+                    label: _experienceHeading(experience),
+                    items: [
                       for (final bullet in experience.bullets)
-                        Tooltip(
-                          message: bullet.label ?? bullet.text,
-                          child: FilterChip(
-                            label: Text(
-                              _chipLabel(bullet),
-                              style: context.appTypography.caption,
-                            ),
-                            visualDensity: VisualDensity.compact,
-                            selected: widget.skill.linkedBulletIds.contains(
-                              bullet.id,
-                            ),
-                            onSelected: (selected) {
-                              final ids = [...widget.skill.linkedBulletIds];
-                              if (selected) {
-                                ids.add(bullet.id);
-                              } else {
-                                ids.remove(bullet.id);
-                              }
-                              widget.onUpdateSkill(
-                                widget.categoryId,
-                                widget.skill.copyWith(linkedBulletIds: ids),
-                              );
-                            },
+                        AppChipGroupItem(
+                          id: bullet.id,
+                          label: _chipLabel(bullet),
+                          selected: widget.skill.linkedBulletIds.contains(
+                            bullet.id,
                           ),
+                          tooltip: bullet.label ?? bullet.text,
+                          onToggle: (selected) {
+                            final ids = [...widget.skill.linkedBulletIds];
+                            if (selected) {
+                              ids.add(bullet.id);
+                            } else {
+                              ids.remove(bullet.id);
+                            }
+                            widget.onUpdateSkill(
+                              widget.categoryId,
+                              widget.skill.copyWith(linkedBulletIds: ids),
+                            );
+                          },
                         ),
                     ],
                   ),
-                ],
-              ),
+              ],
             ),
+          ),
       ],
     );
   }

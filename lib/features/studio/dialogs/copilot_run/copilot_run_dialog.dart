@@ -81,7 +81,7 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
             padding: EdgeInsets.all(context.appSpacing.paddingCompact),
             constraints: const BoxConstraints(maxHeight: 160),
             decoration: BoxDecoration(
-              color: kcDarkGreyColor,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(context.appRadius.medium),
             ),
             child: SingleChildScrollView(

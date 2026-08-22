@@ -65,7 +65,7 @@ class _CopilotConfigCardState extends State<CopilotConfigCard> {
       margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
       padding: EdgeInsets.all(context.appSpacing.paddingCompact),
       decoration: BoxDecoration(
-        color: kcDarkGreyColor,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(context.appRadius.medium),
       ),
       child: Column(

@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -68,7 +67,7 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
               vertical: context.appSpacing.paddingHairline,
             ),
             decoration: BoxDecoration(
-              color: kcDarkGreyColor,
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(context.appRadius.medium),
             ),
             child: Text(node.str, style: context.appTypography.bodySmall),

@@ -43,7 +43,7 @@ class VaultEditorPanelScaffold extends StatelessWidget {
             ],
           ),
         ),
-        const Divider(height: 1, color: kcMediumGrey),
+        const Divider(height: 1),
         Expanded(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(context.appSpacing.paddingPanel),

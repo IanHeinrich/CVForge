@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
@@ -13,7 +12,6 @@ class UnknownViewContent extends ViewModelWidget<UnknownViewModel> {
   @override
   Widget build(BuildContext context, UnknownViewModel viewModel) {
     return const Scaffold(
-      backgroundColor: kcBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
