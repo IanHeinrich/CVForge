@@ -2109,3 +2109,165 @@ two is still worth doing. Browser-verified 7.1 and 7.2 against the
 running app (elevation ramp, chip grouping in both Vault and Studio); 7.3
 per its own note above. Shipped as one PR covering all three sub-phases;
 CI (`Analyze & test`, `update-goldens`) green before merge.
+
+### 7.4 — Studio document bar and master–detail restructure → [PR #53](https://github.com/IanHeinrich/CVForge/pull/53) ✅ shipped
+
+Replaced the single 13-concern `studio_config_panel.dart` scroll with a
+document bar / section nav / section editor / preview four-zone layout
+on desktop, and a nav→editor drill-down under the existing Configure tab
+on compact. `StudioDocumentBar` absorbed `studio_draft_header.dart`
+(draft name/back/edit) plus the template/region pickers, page count
+(7.3), and Export — moved off the preview pane's floating button so it
+reads as document-level, not preview-level. `StudioSectionNav` is the
+existing reorderable section list, now also selecting which section the
+editor pane shows (checkbox = include/exclude, drag handle = order, row
+body = select). `StudioSectionEditorRouter` plus eight small editors
+under `lib/features/studio/widgets/sections/` replace the old panel's
+inline per-section blocks, one per `CvSectionType`, each independently
+scroll-position-keyed via `PageStorageKey`. `StudioViewModel` gained
+`openSection`/`selectSection`, with hiding the currently-open section
+clearing the selection so the editor can never show a section the nav no
+longer lists. Deleted `studio_config_panel.dart` and
+`studio_draft_header.dart`.
+
+**Actually shipped:** a genuine `RenderFlex` overflow in
+`CopilotConfigCard`'s button row, exposed only once the card moved into
+the new ~220px nav column, caught during the doc's own mandated browser
+pass rather than `flutter analyze`/tests — fixed by switching that `Row`
+to a `Wrap`. Per the doc's own reasoning, no golden test was added for
+`StudioView` — the preview pane rasterises a real PDF, so a golden here
+would be reliably flaky, not reliably correct. Verified via `flutter
+analyze` (0 issues), `flutter test --exclude-tags=golden` (257/257, +4
+for `openSection`/`selectSection`), and a Playwright pass at 1728/1100/
+tablet-800/mobile-500px confirming the three-column desktop layout,
+section switching, and the tablet/mobile drill-down with its back
+affordance — zero `RenderFlex` overflows after the `CopilotConfigCard`
+fix.
+
+### 7.5 — Template gallery and region data → [PR #54](https://github.com/IanHeinrich/CVForge/pull/54) ✅ shipped
+
+Sized each picker to how it actually grows, per the doc's own framing:
+templates (10–15 expected) got a thumbnail gallery dialog, regions (5–6,
+but too many for one row of chips once 7.4's document bar is a single
+row) got a plain `DropdownMenu`. New `TemplateThumbnailService` renders a
+template's first page for the user's *own* current CV via
+`PdfExportService.render` + `Printing.raster`, cached per
+`(templateId, ResolvedCv)` using `ResolvedCv`'s value equality so an edit
+invalidates automatically. `TemplateGalleryDialog` groups its grid under
+tag headings rather than filtering (15 templates in 3–4 scannable groups
+beats a filter control over 15 items); a failed or still-loading
+thumbnail degrades to a name-and-description card rather than breaking
+the grid. `CvTemplate` gained `tags` (`TemplateTag`: atsSafe/academic/
+twoColumn/compact/traditional/modern), added now while there are only
+two templates to retrofit. `RegionPreset` gained `documentNoun` (fixes
+ATS Check saying "resume" for a UK user — read via
+`AnalyzerViewModel.documentNoun` from `SettingsService.settings
+.defaultRegion`, since Analyzer has no draft of its own) and `dateStyle`
+(`CvComposer._formatDateRange`'s pre-existing seam, finally switched on
+instead of on `RegionProfile` directly — both regions still resolve to
+`RegionDateStyle.monYyyy` today, so this is wiring, not a behaviour
+change).
+
+Verified via `flutter analyze` (0 issues), `flutter test
+--exclude-tags=golden` (268/268, new coverage for the thumbnail cache's
+hit/miss/error-propagation contract, the gallery's tag-grouping and
+selection state, and a UK/US `resolvedCv` date-range test covering the
+`dateStyle` seam), and a Playwright pass confirming the gallery's
+grouping and current-template marker, a template switch reflected in the
+document bar, and the region dropdown updating UK → US. Thumbnails
+degrade to their error-card state in this sandboxed Chromium (no PDF
+rasterisation available — the same `Printing.raster`/pdf.js limitation
+7.3 and 7.4 already hit, not a regression), which is exactly the
+degrade-gracefully path the doc calls for.
+
+### 7.7 — Settings: backup state and form-control consistency → [PR #55](https://github.com/IanHeinrich/CVForge/pull/55) ✅ shipped
+
+The substantive change, per the doc's own framing: Backup went from a
+bare pair of buttons to real state. `AppSettings.lastBackupAt` (set by
+`SettingsViewModel.exportBackup` only on success) plus a
+`hasChangesSinceBackup` getter derived from `CvVault.updatedAt`/
+`CvDraft.updatedAt` — not a separate persisted dirty flag, since those
+timestamps already exist and a reactive comparison can't drift from them
+the way a flag maintained on every write path could. `BackupSettingsCard`
+now reads "Never backed up" / "Last backed up 3 days ago" / a
+warning-coloured "…you have changes since then". Everything else was
+tidying, still real: `AppTextField` gained `errorText` (no field
+anywhere could show a validation error before this — 7.8 is the bigger
+consumer); Copilot's provider/model `DropdownButton`s became labelled
+`DropdownButtonFormField`s matching the outlined API-key field's visual
+language; the key field capped at 360px; "Remember on this device" now
+names the storage and the risk; the connection result got a styled
+success/error banner (new `kcSuccessColor` token) that clears itself via
+`clearConnectionTestResult` whenever the provider, model, or key field
+changes; the price label now reads "Provider's own rate — not billed by
+CVForge". `SettingsView` gained a page header and a 720px content cap,
+left-aligned.
+
+**Not implemented:** the doc's "prompt after a first PDF export" idea —
+outside its own "What changes" file list (no Studio file is named
+there), so treated as context/rationale rather than a required change.
+Verified via `flutter analyze` (0 issues), `flutter test
+--exclude-tags=golden` (276/276), `settings_view_default.png`
+regenerated (expected — the page header alone moves it) and committed,
+and a Playwright pass confirming the header/cap/card-styling, the
+"Never backed up" state, and a full provider-switch round trip (model
+reset, price relabelled, key field cleared, styled result banner).
+
+### 7.8 — Vault date entry correctness fix, Clear Vault relocation → [PR #56](https://github.com/IanHeinrich/CVForge/pull/56) ✅ shipped
+
+The one workstream in this phase marked **patch, urgent** rather than
+cosmetic, and shipped as a correctness fix rather than polish per the
+doc's own decision 1. Free-text month entry (`AppTextField` +
+`int.tryParse`) silently discarded invalid or partial input while
+`AppTextField`'s debounce and resync-only-when-unfocused behaviour let
+the displayed field diverge from the model indefinitely, or let a
+transient invalid keystroke get committed if the user paused mid-edit.
+Fixed by replacing month entry with a closed-set
+`DropdownButtonFormField` (`ExperienceEditorPanel`'s start/end month) —
+a closed set has no invalid state to reject and no partial keystroke to
+write, so both failure modes are structurally impossible now, not just
+handled better. `YearMonth` gained a public `monthName(int)`, the single
+owner behind both `toMonYyyy()` and the new dropdowns. Year fields stay
+free text but now use 7.7's `errorText` for out-of-range (1900–2100) or
+non-numeric input instead of silently discarding it, validated on
+`VaultViewModel` (not the stateless panels) per CLAUDE.md's "logic in
+the ViewModel" rule. The doc's "Failure 3" — an entry with no end date
+silently adopting the *start's* year the moment only the end month got
+set — is fixed by seeding a null end date's year from the current year
+instead.
+
+Clear Vault moved from the Vault screen's first interactive element
+(above the user's own name, styled the same as "Add experience") into a
+"Danger zone" section on `BackupSettingsCard`, beside the export-first
+framing 7.7 just gave Backup. `SettingsViewModel` gained `clearVault()`;
+`VaultViewModel.clearVault()` was deleted — its UI-state resets (closing
+the open editor, un-dismissing the empty state) were only needed because
+the trigger lived on the same page, and moving away naturally
+reconstructs a fresh `VaultViewModel` now. The card list also picked up
+a 720px content-width cap (a row was a ~1,500px bar with its delete icon
+a screen-width from the label it deletes) and the Hobbies card's
+subtitle became a count, matching Skills, instead of a comma-joined list
+that degrades into a truncated fragment past about four hobbies.
+
+Verified via `flutter analyze` (0 issues), `flutter test
+--exclude-tags=golden` (282/282 — new year-field validation coverage
+for out-of-range/non-numeric rejection, valid-commit-and-clear-error,
+the Failure-3 end-year seed, and Education's empty-is-valid case),
+`vault_view_populated.png`/`settings_view_default.png` regenerated
+(expected) and committed, and a Playwright pass exercising the actual
+bug: typed an out-of-range year, confirmed a red error border with the
+message exposed via the field's accessible description and the model
+left unchanged; corrected it and confirmed the commit; changed the start
+month via the dropdown; closed and reopened the panel and confirmed both
+fields showed exactly what was saved — the round trip the pre-fix
+implementation failed.
+
+### Phase 7 status
+
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped. **7.6 (logo, favicon,
+splash, plus the `manifest.json` bug) is the only sub-phase left** —
+deliberately deferred this round; it touches no Dart and is independent
+of everything else here. Repo version bumped to `2.3.0` covering
+7.4/7.5/7.7/7.8 (`BackupService._appVersion` — see its own doc comment —
+was found drifted at `1.4.0`, stale since well before this phase, and
+corrected to match in the same pass).
