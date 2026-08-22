@@ -157,48 +157,48 @@ List<pw.Widget> _sectionBody(
     tokens,
     fonts,
   ),
-  ResolvedExperienceSection(groups: final groups) => [
+  ResolvedExperienceSection(groups: final groups) => interleaveWithGaps([
     for (final group in groups)
-      ..._companyGroup(
+      _companyGroup(
         group,
         tokens,
         fonts,
         preventOrphansAndSplits: preventOrphansAndSplits,
       ),
-  ],
-  ResolvedProjectsSection(items: final items) => [
+  ], tokens.itemGap),
+  ResolvedProjectsSection(items: final items) => interleaveWithGaps([
     for (final project in items)
-      ..._project(
+      _project(
         project,
         tokens,
         fonts,
         preventOrphansAndSplits: preventOrphansAndSplits,
       ),
-  ],
-  ResolvedEducationSection(items: final items) => [
+  ], tokens.itemGap),
+  ResolvedEducationSection(items: final items) => interleaveWithGaps([
     for (final edu in items)
-      ..._education(
+      _education(
         edu,
         tokens,
         fonts,
         preventOrphansAndSplits: preventOrphansAndSplits,
       ),
-  ],
+  ], tokens.bulletGap),
   ResolvedHobbiesSection(items: final items) => [
     _bodyText(items.join(', '), tokens, fonts),
   ],
   ResolvedReferencesSection(text: final text) => [
     _bodyText(text, tokens, fonts),
   ],
-  ResolvedPublicationsSection(items: final items) => [
+  ResolvedPublicationsSection(items: final items) => interleaveWithGaps([
     for (final publication in items)
-      ..._publication(
+      _publication(
         publication,
         tokens,
         fonts,
         preventOrphansAndSplits: preventOrphansAndSplits,
       ),
-  ],
+  ], tokens.itemGap),
 };
 
 /// Fully justified — the reference's summary paragraph reads flush on
@@ -231,10 +231,10 @@ pw.Widget _headerRow(
   );
 }
 
-/// One company group flattened to top-level widgets, with [tokens.itemGap]
-/// trailing space appended after the group's last piece rather than
-/// wrapped around the whole group as padding — since the group is no
-/// longer a single widget, there's no single container left to pad.
+/// One company group flattened to top-level widgets — no trailing gap
+/// here; [tokens.itemGap] is interleaved *between* groups by the caller
+/// (see `interleaveWithGaps`'s doc comment for why a trailing spacer as
+/// its own top-level widget can silently produce a blank page).
 List<pw.Widget> _companyGroup(
   ResolvedCompanyGroup group,
   CvDesignTokens tokens,
@@ -255,7 +255,7 @@ List<pw.Widget> _companyGroup(
           fonts,
           preventOrphansAndSplits: preventOrphansAndSplits,
         );
-  return [...items, pw.SizedBox(height: tokens.itemGap)];
+  return items;
 }
 
 List<pw.Widget> _singlePosition(
@@ -352,7 +352,7 @@ List<pw.Widget> _project(
     gap: tokens.bulletGap,
     preventOrphansAndSplits: preventOrphansAndSplits,
   );
-  return [...items, pw.SizedBox(height: tokens.itemGap)];
+  return items;
 }
 
 List<pw.Widget> _education(
@@ -388,7 +388,7 @@ List<pw.Widget> _education(
     gap: tokens.bulletGap,
     preventOrphansAndSplits: preventOrphansAndSplits,
   );
-  return [...items, pw.SizedBox(height: tokens.bulletGap)];
+  return items;
 }
 
 /// Title, citation, and link all fold onto a single comma-separated line,
@@ -437,7 +437,7 @@ List<pw.Widget> _publication(
     gap: tokens.bulletGap,
     preventOrphansAndSplits: preventOrphansAndSplits,
   );
-  return [...items, pw.SizedBox(height: tokens.itemGap)];
+  return items;
 }
 
 List<pw.Widget> _skillGroups(

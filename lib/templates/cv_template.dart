@@ -6,11 +6,14 @@ import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'design/cv_design_tokens.dart';
 import 'design/cv_font_set.dart';
 
-/// Coarse classification for the template gallery's grouping (7.5) — not
-/// a styling input, and no renderer reads this. A new value here is cheap
-/// while there are only two templates to update; keep the set small
-/// (four or five values) and require every template to declare at least
-/// one, or grouping degenerates into one group per template.
+/// Coarse classification surfaced as chips on a template gallery card —
+/// not a styling input, and no renderer reads this. Originally drove the
+/// gallery's grouping (7.5); dropped once two templates produced one card
+/// per group and a mostly-empty dialog (see
+/// `TemplateGalleryDialogModel`'s doc comment), so this is informational
+/// only now. A new value here is cheap while there are only two templates
+/// to update; keep the set small (four or five values) and require every
+/// template to declare at least one.
 enum TemplateTag { atsSafe, academic, twoColumn, compact, traditional, modern }
 
 extension TemplateTagLabel on TemplateTag {
@@ -36,8 +39,9 @@ abstract interface class CvTemplate {
   CvDesignTokens get tokens;
 
   /// Kept on the interface rather than in a separate registry-side map so
-  /// a template and its own description of itself can't drift. Every
-  /// template must declare at least one — see [TemplateTag]'s doc comment.
+  /// a template and its own description of itself can't drift. Rendered
+  /// as chips on the template gallery's card — see [TemplateTag]'s doc
+  /// comment. Every template must declare at least one.
   Set<TemplateTag> get tags;
 
   /// This template's suggested section order — a permutation of every

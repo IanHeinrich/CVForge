@@ -26,12 +26,20 @@ enum RegionDateStyle { monYyyy }
 class RegionPreset {
   const RegionPreset({
     required this.displayName,
+    required this.flag,
     required this.page,
     required this.documentNoun,
     required this.dateStyle,
   });
 
   final String displayName;
+
+  /// The region's flag as an emoji, for the region picker's card. A plain
+  /// string, not an asset — a regional-indicator pair needs no bundled
+  /// image, scales with the text around it, and costs nothing to add for
+  /// a new region.
+  final String flag;
+
   final PdfPageFormatToken page;
 
   /// "CV" or "Résumé" — what this region calls the document. Read by the
@@ -42,18 +50,36 @@ class RegionPreset {
   final RegionDateStyle dateStyle;
 }
 
+extension PdfPageFormatTokenLabel on PdfPageFormatToken {
+  /// Includes the physical dimensions, since "A4" versus "Letter" only
+  /// means something to a reader who already knows the difference — the
+  /// region picker exists partly to explain it.
+  String get displayLabel => switch (this) {
+    PdfPageFormatToken.a4 => 'A4 (210 × 297 mm)',
+    PdfPageFormatToken.letter => 'US Letter (8.5 × 11 in)',
+  };
+}
+
+extension RegionDateStyleLabel on RegionDateStyle {
+  String get displayLabel => switch (this) {
+    RegionDateStyle.monYyyy => 'Mon YYYY (e.g. Jun 2023)',
+  };
+}
+
 /// Persistence keys on [RegionProfile]'s own enum name, not on anything
 /// here — so these values can change between app versions without
 /// invalidating a stored draft.
 const Map<RegionProfile, RegionPreset> regionPresets = {
   RegionProfile.uk: RegionPreset(
     displayName: 'United Kingdom',
+    flag: '🇬🇧',
     page: PdfPageFormatToken.a4,
     documentNoun: 'CV',
     dateStyle: RegionDateStyle.monYyyy,
   ),
   RegionProfile.us: RegionPreset(
     displayName: 'United States',
+    flag: '🇺🇸',
     page: PdfPageFormatToken.letter,
     documentNoun: 'résumé',
     dateStyle: RegionDateStyle.monYyyy,

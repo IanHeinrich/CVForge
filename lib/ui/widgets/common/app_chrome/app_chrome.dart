@@ -12,7 +12,7 @@ import 'package:stacked_services/stacked_services.dart';
 ///
 /// [studio] is deliberately not a rail destination — the editor only ever
 /// makes sense once a CV has been chosen from [drafts], so it's reached by
-/// opening a card there (or via `StudioDraftHeader`'s back link once
+/// opening a card there (or via `StudioDocumentBar`'s back link once
 /// inside), never clicked into directly. It still exists as an enum value
 /// so `StudioView` has a [AppSection] to pass; [AppChrome] just renders it
 /// as [drafts] being the highlighted rail entry (see [_visualSection]).

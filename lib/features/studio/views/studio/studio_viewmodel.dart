@@ -3,6 +3,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
+import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
@@ -164,6 +165,21 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   RegionProfile get region => _draft.region;
   Future<void> setRegion(RegionProfile region) =>
       _draftService.setRegion(region);
+
+  /// Opens the region picker and applies whatever was confirmed — same
+  /// cancel/null-check shape as [openTemplateGallery], for the same
+  /// reason.
+  Future<void> openRegionGallery() async {
+    final response = await _dialogService
+        .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
+          variant: DialogType.regionGallery,
+          data: RegionGalleryDialogData(currentRegion: region),
+        );
+    final selected = response?.data;
+    if (response?.confirmed == true && selected != null) {
+      await setRegion(selected);
+    }
+  }
 
   PdfPageFormat get pageFormat => _draft.region.preset.page.toPdfPageFormat;
 
@@ -474,6 +490,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> addAllExperiences() => _experienceSelection.addAll();
 
+  List<Experience> get selectedExperiences => _experienceSelection.selected;
+
+  Future<void> removeAllExperiences() => _experienceSelection.removeAll();
+
   bool isExperienceBulletIncluded(String experienceId, String bulletId) =>
       (_draft.bulletIds[experienceId] ?? const []).contains(bulletId);
 
@@ -497,6 +517,16 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> addAllExperienceBullets(Experience experience) async {
     for (final bullet in experience.bullets) {
       if (!isExperienceBulletIncluded(experience.id, bullet.id)) {
+        await toggleExperienceBullet(experience, bullet);
+      }
+    }
+  }
+
+  /// The inverse of [addAllExperienceBullets], with the same
+  /// sequential-await requirement and for the same reason.
+  Future<void> removeAllExperienceBullets(Experience experience) async {
+    for (final bullet in experience.bullets) {
+      if (isExperienceBulletIncluded(experience.id, bullet.id)) {
         await toggleExperienceBullet(experience, bullet);
       }
     }
@@ -526,6 +556,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> addAllProjects() => _projectSelection.addAll();
 
+  List<Project> get selectedProjects => _projectSelection.selected;
+
+  Future<void> removeAllProjects() => _projectSelection.removeAll();
+
   bool isProjectBulletIncluded(String projectId, String bulletId) =>
       (_draft.projectBulletIds[projectId] ?? const []).contains(bulletId);
 
@@ -543,6 +577,16 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> addAllProjectBullets(Project project) async {
     for (final bullet in project.bullets) {
       if (!isProjectBulletIncluded(project.id, bullet.id)) {
+        await toggleProjectBullet(project, bullet);
+      }
+    }
+  }
+
+  /// The inverse of [addAllProjectBullets], with the same
+  /// sequential-await requirement and for the same reason.
+  Future<void> removeAllProjectBullets(Project project) async {
+    for (final bullet in project.bullets) {
+      if (isProjectBulletIncluded(project.id, bullet.id)) {
         await toggleProjectBullet(project, bullet);
       }
     }
@@ -666,6 +710,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> addAllEducation() => _educationSelection.addAll();
 
+  List<Education> get selectedEducation => _educationSelection.selected;
+
+  Future<void> removeAllEducation() => _educationSelection.removeAll();
+
   /// Same shape as [bulletText] — only [Education.details] is prose, so
   /// that's the only field an override map exists for.
   String educationDetailsText(Education entry) =>
@@ -703,6 +751,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> addAllHobbies() => _hobbySelection.addAll();
 
+  List<HobbyItem> get selectedHobbies => _hobbySelection.selected;
+
+  Future<void> removeAllHobbies() => _hobbySelection.removeAll();
+
   // --- publications ---
 
   late final _publicationSelection = _Selection<Publication>(
@@ -729,6 +781,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> addAllPublications() => _publicationSelection.addAll();
 
+  List<Publication> get selectedPublications => _publicationSelection.selected;
+
+  Future<void> removeAllPublications() => _publicationSelection.removeAll();
+
   bool isPublicationBulletIncluded(String publicationId, String bulletId) =>
       (_draft.publicationBulletIds[publicationId] ?? const []).contains(
         bulletId,
@@ -753,6 +809,16 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> addAllPublicationBullets(Publication publication) async {
     for (final bullet in publication.bullets) {
       if (!isPublicationBulletIncluded(publication.id, bullet.id)) {
+        await togglePublicationBullet(publication, bullet);
+      }
+    }
+  }
+
+  /// The inverse of [addAllPublicationBullets], with the same
+  /// sequential-await requirement and for the same reason.
+  Future<void> removeAllPublicationBullets(Publication publication) async {
+    for (final bullet in publication.bullets) {
+      if (isPublicationBulletIncluded(publication.id, bullet.id)) {
         await togglePublicationBullet(publication, bullet);
       }
     }
@@ -834,12 +900,23 @@ class _Selection<T> {
   List<T> get unselected =>
       items().where((item) => !isIncluded(idOf(item))).toList();
 
+  List<T> get selected =>
+      items().where((item) => isIncluded(idOf(item))).toList();
+
   /// Includes every currently-unselected item, one at a time — each
   /// [toggle] must be awaited before the next starts, since [isIncluded]
   /// reads [selectedIds] fresh on every call and a synchronous loop would
   /// have every toggle see the same pre-toggle selection.
   Future<void> addAll() async {
     for (final item in unselected) {
+      await toggle(item);
+    }
+  }
+
+  /// The inverse of [addAll], with the same sequential-await requirement
+  /// and for the same reason.
+  Future<void> removeAll() async {
+    for (final item in selected) {
       await toggle(item);
     }
   }

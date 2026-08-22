@@ -88,3 +88,30 @@ List<pw.Widget> assembleSectionWidgets({
     for (final entry in body.skip(1)) pw.Inseparable(child: entry),
   ];
 }
+
+/// Joins each entry's own flattened widget list with [gap] placed
+/// *between* entries only — never trailing after the last one.
+///
+/// A trailing gap looks harmless (it's a few points of `pw.SizedBox`) but
+/// is not: `pw.MultiPage` evaluates every top-level widget independently,
+/// including a bare spacer, and a widget that doesn't fit in whatever's
+/// left of the current page starts an entire new page to hold it — even
+/// when that widget is a gap and there is nothing else left to place.
+/// Reproduced directly: a section short enough to fill page one almost
+/// exactly to the bottom margin, with a per-entry trailing `SizedBox`
+/// (the pre-fix shape every one of `_companyGroup`/`_project`/
+/// `_education`/`_publication` used, in both templates) as the very last
+/// top-level widget in the document — that gap alone doesn't fit, so
+/// `pw.MultiPage` starts a second page containing nothing else, a wholly
+/// blank page. Interleaving instead of trailing means the last top-level
+/// widget in a section's body is always real content, never a spacer, so
+/// this failure mode can't happen regardless of how exactly the content
+/// fills the page.
+List<pw.Widget> interleaveWithGaps(List<List<pw.Widget>> entries, double gap) {
+  final result = <pw.Widget>[];
+  for (var i = 0; i < entries.length; i++) {
+    if (i > 0) result.add(pw.SizedBox(height: gap));
+    result.addAll(entries[i]);
+  }
+  return result;
+}

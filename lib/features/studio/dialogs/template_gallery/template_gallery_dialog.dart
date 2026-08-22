@@ -15,15 +15,16 @@ import 'package:cv_forge/templates/cv_template.dart';
 import 'template_gallery_dialog_data.dart';
 import 'template_gallery_dialog_model.dart';
 
-const _cardWidth = 200.0;
-const _thumbnailHeight = 140.0;
+/// Sized so the thumbnail is actually legible as a page — you're picking
+/// a visual design, so a stamp-sized render of it answers nothing.
+const _cardWidth = 300.0;
 
-/// A responsive grid of template cards, grouped under tag headings rather
-/// than filtered — see `docs/ux/7.5-template-region-scaling.md` decision
-/// 5. Each thumbnail is the user's own CV, rendered through the same
-/// [TemplateThumbnailService] pipeline the exported PDF uses, so a card
-/// can never show something switching to that template wouldn't actually
-/// produce.
+/// A flat, wrapping grid of template cards — not grouped or filtered, see
+/// [TemplateGalleryDialogModel]'s doc comment for why tag-grouping (7.5's
+/// original design) was dropped. Each thumbnail is the user's own CV,
+/// rendered through the same [TemplateThumbnailService] pipeline the
+/// exported PDF uses, so a card can never show something switching to
+/// that template wouldn't actually produce.
 class TemplateGalleryDialog extends StackedView<TemplateGalleryDialogModel> {
   final DialogRequest request;
   final Function(DialogResponse) completer;
@@ -57,35 +58,32 @@ class TemplateGalleryDialog extends StackedView<TemplateGalleryDialogModel> {
       ),
       children: [
         const VGap.medium(),
+        // width: double.maxFinite forces the grid to use the dialog's
+        // full available width so `Wrap` actually flows cards across
+        // several columns instead of shrink-wrapping to one card's
+        // width; maxHeight caps it once there are enough templates to
+        // need scrolling, but doesn't force that much height with only
+        // a couple — the fixed-height box this replaced left most of
+        // itself blank with two templates.
         SizedBox(
-          height: 480,
           width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final group in viewModel.tagGroups) ...[
-                  Text(
-                    group.key.displayLabel,
-                    style: context.appTypography.titleSmall,
-                  ),
-                  const VGap.small(),
-                  Wrap(
-                    spacing: context.appSpacing.gapSmall,
-                    runSpacing: context.appSpacing.gapSmall,
-                    children: [
-                      for (final template in group.value)
-                        _TemplateCard(
-                          template: template,
-                          selected: viewModel.selectedTemplateId == template.id,
-                          onTap: () => viewModel.selectTemplate(template.id),
-                          thumbnailFuture: viewModel.thumbnailFor(template.id),
-                        ),
-                    ],
-                  ),
-                  const VGap.medium(),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 620),
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: context.appSpacing.gapSmall,
+                runSpacing: context.appSpacing.gapSmall,
+                children: [
+                  for (final template in viewModel.templates)
+                    _TemplateCard(
+                      template: template,
+                      selected: viewModel.selectedTemplateId == template.id,
+                      onTap: () => viewModel.selectTemplate(template.id),
+                      thumbnailFuture: viewModel.thumbnailFor(template.id),
+                      pageAspectRatio: viewModel.pageAspectRatio,
+                    ),
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -104,6 +102,7 @@ class _TemplateCard extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.thumbnailFuture,
+    required this.pageAspectRatio,
   });
 
   final CvTemplate template;
@@ -111,9 +110,17 @@ class _TemplateCard extends StatelessWidget {
   final VoidCallback onTap;
   final Future<Uint8List> thumbnailFuture;
 
+  /// Width ÷ height of the page the thumbnail actually renders, so the
+  /// slot matches the image and the render fills it edge to edge. Fixing
+  /// this at A4 left a US Letter draft's shorter, wider page letterboxed
+  /// inside an A4-shaped box with a dark band above and below it.
+  final double pageAspectRatio;
+
   @override
   Widget build(BuildContext context) {
-    final remainingTags = template.tags.skip(1).toList();
+    // Every tag, not just the ones beyond a "primary" — there's no group
+    // heading conveying that anymore now the gallery is a flat grid.
+    final tags = template.tags.toList();
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(context.appRadius.medium),
@@ -139,9 +146,12 @@ class _TemplateCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(
                       context.appRadius.small,
                     ),
-                    child: SizedBox(
-                      height: _thumbnailHeight,
-                      width: double.infinity,
+                    // AspectRatio, not a fixed height — the slot takes
+                    // the page's own proportions so `BoxFit.cover` fills
+                    // it exactly, with no letterbox band in either
+                    // direction whichever page size the draft uses.
+                    child: AspectRatio(
+                      aspectRatio: pageAspectRatio,
                       child: _Thumbnail(future: thumbnailFuture),
                     ),
                   ),
@@ -173,13 +183,13 @@ class _TemplateCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (remainingTags.isNotEmpty) ...[
+              if (tags.isNotEmpty) ...[
                 const VGap.tiny(),
                 Wrap(
                   spacing: 4,
                   runSpacing: 4,
                   children: [
-                    for (final tag in remainingTags)
+                    for (final tag in tags)
                       Chip(
                         label: Text(tag.displayLabel),
                         labelStyle: context.appTypography.caption,
@@ -228,7 +238,11 @@ class _Thumbnail extends StatelessWidget {
               ),
             );
           }
-          return Image.memory(snapshot.data!, fit: BoxFit.contain);
+          // cover, not contain — the slot is already the page's own
+          // aspect ratio (see `_TemplateCard.pageAspectRatio`), so this
+          // fills it exactly and any rounding difference crops by a
+          // pixel rather than leaving a visible band.
+          return Image.memory(snapshot.data!, fit: BoxFit.cover);
         },
       ),
     );

@@ -21,8 +21,14 @@ class ClassicCenteredTemplate implements CvTemplate {
   @override
   String get id => 'classic_centered';
 
+  // "Classic Centered" described its own layout mechanics rather than
+  // selling the reader a reason to pick it — "Traditional" matches its
+  // own [tags] (traditional, academic) and reads fine standing alone in
+  // the gallery now that grouping under a tag heading doesn't supply
+  // that context for it. `id` is unchanged — it's the persisted
+  // per-draft template reference, not user-facing.
   @override
-  String get displayName => 'Classic Centered';
+  String get displayName => 'Traditional';
 
   @override
   String get description =>

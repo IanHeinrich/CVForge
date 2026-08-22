@@ -23,45 +23,61 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
 
   /// Caps a card row (icon, two short lines, a delete icon) at a
   /// comfortable width — uncapped it was a ~1,500px bar with the delete
-  /// icon a screen-width away from the label it deletes (7.8).
+  /// icon a screen-width away from the label it deletes (7.8). Used while
+  /// the editor panel is open and sits directly to the list's right.
   static const _cardListMaxWidth = 720.0;
+
+  /// The cap used instead when no editor is open, so the list is the
+  /// Row's only content. [_cardListMaxWidth] pinned top-left with nothing
+  /// beside it left the same-width list stranded against a wall of empty
+  /// black on a wide screen. Wide enough to clear `VaultCardList`'s own
+  /// two-column threshold with room to spare, so the freed space becomes
+  /// a second column of cards rather than a wider single one — the cap
+  /// exists to stop a card row stretching, and two columns respect that
+  /// while actually using the width.
+  static const _cardListMaxWidthAlone = 1200.0;
 
   @override
   Widget build(BuildContext context, VaultViewModel viewModel) {
-    return viewModel.showEmptyState
-        ? VaultEmptyState(
-            onStartFromScratch: viewModel.dismissEmptyState,
-            onLoadExample: viewModel.loadExampleVault,
-          )
-        : Row(
-            children: [
-              Expanded(
-                flex: cardListFlex,
-                // Align relaxes the Row's tight cross-axis width before
-                // ConstrainedBox caps it — see SettingsView's identical
-                // pattern for why the cap alone (against a tight incoming
-                // constraint) would otherwise have no effect.
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: _cardListMaxWidth,
-                    ),
-                    child: VaultCardList(viewModel: viewModel),
-                  ),
-                ),
+    if (viewModel.showEmptyState) {
+      return VaultEmptyState(
+        onStartFromScratch: viewModel.dismissEmptyState,
+        onLoadExample: viewModel.loadExampleVault,
+      );
+    }
+
+    final hasEditor = viewModel.isEditorOpen;
+    return Row(
+      children: [
+        Expanded(
+          flex: cardListFlex,
+          // Align relaxes the Row's tight cross-axis width before
+          // ConstrainedBox caps it — see SettingsView's identical
+          // pattern for why the cap alone (against a tight incoming
+          // constraint) would otherwise have no effect.
+          child: Align(
+            alignment: hasEditor ? Alignment.topLeft : Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: hasEditor
+                    ? _cardListMaxWidth
+                    : _cardListMaxWidthAlone,
               ),
-              if (viewModel.isEditorOpen) ...[
-                const VerticalDivider(width: 1),
-                Expanded(
-                  flex: editorPanelFlex,
-                  child: ColoredBox(
-                    color: Theme.of(context).colorScheme.surface,
-                    child: VaultEditorPanelRouter(viewModel: viewModel),
-                  ),
-                ),
-              ],
-            ],
-          );
+              child: VaultCardList(viewModel: viewModel),
+            ),
+          ),
+        ),
+        if (hasEditor) ...[
+          const VerticalDivider(width: 1),
+          Expanded(
+            flex: editorPanelFlex,
+            child: ColoredBox(
+              color: Theme.of(context).colorScheme.surface,
+              child: VaultEditorPanelRouter(viewModel: viewModel),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 }

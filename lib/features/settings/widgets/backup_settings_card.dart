@@ -10,11 +10,11 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 
 /// A card for backup export/import — one of Settings' cards, stacked by
-/// `SettingsView` alongside [CopilotSettingsCard]. Same block-card frame
-/// `StudioFieldOverrideCard` uses (dark container, [context.appRadius
-/// .medium]) so Settings reads as part of the same visual system rather
-/// than inventing its own. `SettingsView` owns the outer scroll/page
-/// padding — this card is just its own bordered block.
+/// `SettingsView` alongside [CopilotSettingsCard]. Dark container,
+/// [context.appRadius.medium] — the same block-card frame
+/// `AtsFindingCard` uses, so a second card-shaped feature doesn't invent
+/// its own. `SettingsView` owns the outer scroll/page padding — this
+/// card is just its own bordered block.
 class BackupSettingsCard extends StatelessWidget {
   const BackupSettingsCard({super.key, required this.viewModel});
 

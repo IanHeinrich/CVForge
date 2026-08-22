@@ -44,6 +44,20 @@ class VaultListSection<T> extends StatelessWidget {
   final VoidCallback onAdd;
   final ValueChanged<String> onDelete;
 
+  /// Below this the section's cards stack in one column; at or above it
+  /// they flow into two. A summary card is an icon, two short lines and a
+  /// delete button — well under half this — so past roughly this width a
+  /// single column is mostly empty card, and a section with a dozen
+  /// entries is a needlessly long scroll. Cards themselves stay capped:
+  /// two columns is what uses the width, not one wider column.
+  ///
+  /// Deliberately above the width the list column gets while the Vault's
+  /// editor panel is open (`VaultViewDesktop._cardListMaxWidth`, minus
+  /// its page padding), so opening an entry collapses back to one column
+  /// rather than squeezing two into half a screen — the wide, editor-
+  /// closed state is the one with space to spare.
+  static const _twoColumnMinWidth = 700.0;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -57,16 +71,77 @@ class VaultListSection<T> extends StatelessWidget {
               emptyMessage,
               style: const TextStyle(color: kcLightGrey),
             ),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cards = [for (final item in items) _card(item)];
+              if (constraints.maxWidth < _twoColumnMinWidth) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: cards,
+                );
+              }
+              return _CardColumns(
+                cards: cards,
+                gap: context.appSpacing.gapSmall,
+              );
+            },
           ),
-        for (final item in items)
-          AppSummaryCard(
-            title: titleOf(item),
-            subtitle: subtitleOf(item),
-            selected: idOf(item) == openId,
-            onTap: () => onOpen(idOf(item)),
-            onDelete: () => onDelete(idOf(item)),
-            leading: Icon(icon, color: kcLightGrey),
+      ],
+    );
+  }
+
+  Widget _card(T item) => AppSummaryCard(
+    title: titleOf(item),
+    subtitle: subtitleOf(item),
+    selected: idOf(item) == openId,
+    onTap: () => onOpen(idOf(item)),
+    onDelete: () => onDelete(idOf(item)),
+    leading: Icon(icon, color: kcLightGrey),
+  );
+}
+
+/// Deals [cards] alternately into two columns, so reading order runs
+/// left-to-right across each row — splitting the list in half instead
+/// would put the oldest job beside the newest. The two columns can end at
+/// slightly different heights when an odd number of cards or a wrapped
+/// subtitle makes them uneven; that's accepted, and is why these are two
+/// `Column`s rather than a `GridView` forcing a shared row height onto
+/// cards whose natural heights are independent.
+class _CardColumns extends StatelessWidget {
+  const _CardColumns({required this.cards, required this.gap});
+
+  final List<Widget> cards;
+  final double gap;
+
+  @override
+  Widget build(BuildContext context) {
+    final left = <Widget>[];
+    final right = <Widget>[];
+    for (var i = 0; i < cards.length; i++) {
+      (i.isEven ? left : right).add(cards[i]);
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // stretch, not Column's default center — without it each card
+        // shrink-wraps to its own content width rather than filling its
+        // column, leaving the two ragged against each other.
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: left,
           ),
+        ),
+        SizedBox(width: gap),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: right,
+          ),
+        ),
       ],
     );
   }

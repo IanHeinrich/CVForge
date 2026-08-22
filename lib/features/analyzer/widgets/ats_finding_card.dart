@@ -9,9 +9,9 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'ats_finding_severity_style.dart';
 
-/// One [AtsFinding], in the same block-card frame `BackupSettingsCard`/
-/// `StudioFieldOverrideCard` use — dark container, [context.appRadius.
-/// medium] — rather than inventing a new card shape for this feature.
+/// One [AtsFinding], in the same block-card frame `BackupSettingsCard`
+/// uses — dark container, [context.appRadius.medium] — rather than
+/// inventing a new card shape for this feature.
 ///
 /// `kcPrimaryColor` is reserved for chrome selection state, so it isn't
 /// repurposed here as a fourth severity tone — [selected] uses it anyway,

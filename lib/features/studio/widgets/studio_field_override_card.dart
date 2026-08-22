@@ -1,5 +1,4 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
-import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,7 @@ import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
 import 'tailoring_controls.dart';
 
-/// A block-card tailoring editor for a page-level, singular text field —
+/// A flat tailoring editor for a page-level, singular text field —
 /// collapsed (showing either the Vault's value or, once tailored, the
 /// override) until the user taps the pencil, so it's never ambiguous
 /// whether typing here edits the draft or the Vault itself. Shared by
@@ -26,10 +25,13 @@ import 'tailoring_controls.dart';
 /// [TailorableField] wrapping this widget's own primitives) — so Escape,
 /// the "Only affects this CV." footer, and the collapse behaviour can't
 /// drift between the two call sites. Only the frame differs: this adds a
-/// titled block card with an empty-Vault message, since a page-level field
-/// has no parent row to hang off, unlike a bullet's own checkbox row.
-/// Section visibility (show/hide) lives solely in Studio's "Sections"
-/// list now, not here — see `StudioConfigPanel`.
+/// heading and an empty-Vault message, since a page-level field has no
+/// parent row to hang off, unlike a bullet's own checkbox row — no card
+/// box around it, matching every other Studio section editor, since the
+/// section's own pane is already the boundary (a card *inside* an
+/// already-bounded pane read as an unexplained inconsistency, not a
+/// meaningful one). Section visibility (show/hide) lives solely in
+/// Studio's "Sections" list now, not here — see `StudioSectionNav`.
 ///
 /// [_editing] is local presentation state, always starting collapsed
 /// regardless of [hasOverride] (mirroring bullets — tailoring a field
@@ -90,13 +92,14 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
         ? widget.effectiveValue
         : (hasVaultValue ? widget.vaultValue! : widget.emptyVaultMessage);
 
-    return Container(
-      margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
-      padding: EdgeInsets.all(context.appSpacing.paddingCompact),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(context.appRadius.medium),
-      ),
+    // Flat — no card frame. This widget used to be the one card-shaped
+    // editor beside six flat `VaultItemSelectorList`s stacked in the same
+    // pane, which read as an unexplained inconsistency once 7.4 gave
+    // every section its own dedicated pane: a card *inside* an already-
+    // bounded pane is a redundant boundary, not a meaningful one, and the
+    // rest of Studio's editors don't have one.
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -352,6 +352,36 @@ void main() {
       expect(model.unselectedExperiences, [experience]);
     });
 
+    test('removeAllExperiences excludes every currently-included '
+        'experience, one at a time — same shared _Selection.removeAll '
+        'mechanism every other collection\'s removeAll delegates to, so '
+        'this test stands in for the identical one-line delegators on '
+        'projects/education/hobbies/publications', () async {
+      final second = experience.copyWith(id: 'exp-2');
+      when(
+        vaultService.vault,
+      ).thenReturn(vaultWith(experiences: [experience, second]));
+      var draft = draftWith(experienceIds: [experience.id, second.id]);
+      when(draftService.draft).thenAnswer((_) => draft);
+      when(
+        draftService.setExperienceIncluded(
+          any,
+          included: anyNamed('included'),
+          bulletIds: anyNamed('bulletIds'),
+        ),
+      ).thenAnswer((invocation) async {
+        final id = invocation.positionalArguments[0] as String;
+        draft = draft.copyWith(
+          experienceIds: draft.experienceIds.where((e) => e != id).toList(),
+        );
+      });
+
+      final model = StudioViewModel();
+      await model.removeAllExperiences();
+
+      expect(draft.experienceIds, isEmpty);
+    });
+
     test('toggleExperienceBullet removes just that bullet, preserving the '
         "experience's own bullet order", () async {
       when(vaultService.vault).thenReturn(vaultWith(experiences: [experience]));
@@ -421,6 +451,31 @@ void main() {
       expect(draft.bulletIds[experience.id], ['b1', 'b2']);
     });
 
+    test('removeAllExperienceBullets is addAllExperienceBullets\' inverse, '
+        'with the same sequential-await requirement', () async {
+      when(vaultService.vault).thenReturn(vaultWith(experiences: [experience]));
+      var draft = draftWith(
+        experienceIds: [experience.id],
+        bulletIds: {
+          experience.id: ['b1', 'b2'],
+        },
+      );
+      when(draftService.draft).thenAnswer((_) => draft);
+      when(draftService.setBulletsForExperience(any, any)).thenAnswer((
+        invocation,
+      ) async {
+        final ids = invocation.positionalArguments[1] as List<String>;
+        draft = draft.copyWith(
+          bulletIds: {...draft.bulletIds, experience.id: ids},
+        );
+      });
+
+      final model = StudioViewModel();
+      await model.removeAllExperienceBullets(experience);
+
+      expect(draft.bulletIds[experience.id], isEmpty);
+    });
+
     test('addAllProjectBullets selects every unselected bullet without '
         'dropping earlier selections', () async {
       when(vaultService.vault).thenReturn(vaultWith(projects: [project]));
@@ -442,6 +497,30 @@ void main() {
       await model.addAllProjectBullets(project);
 
       expect(draft.projectBulletIds[project.id], ['pb1', 'pb2']);
+    });
+
+    test('removeAllProjectBullets is addAllProjectBullets\' inverse', () async {
+      when(vaultService.vault).thenReturn(vaultWith(projects: [project]));
+      var draft = draftWith(
+        projectIds: [project.id],
+        projectBulletIds: {
+          project.id: ['pb1', 'pb2'],
+        },
+      );
+      when(draftService.draft).thenAnswer((_) => draft);
+      when(draftService.setBulletsForProject(any, any)).thenAnswer((
+        invocation,
+      ) async {
+        final ids = invocation.positionalArguments[1] as List<String>;
+        draft = draft.copyWith(
+          projectBulletIds: {...draft.projectBulletIds, project.id: ids},
+        );
+      });
+
+      final model = StudioViewModel();
+      await model.removeAllProjectBullets(project);
+
+      expect(draft.projectBulletIds[project.id], isEmpty);
     });
 
     test('togglePublicationBullet removes just that bullet, preserving the '
@@ -496,6 +575,38 @@ void main() {
 
       expect(draft.publicationBulletIds[publication.id], ['ub1', 'ub2']);
     });
+
+    test(
+      'removeAllPublicationBullets is addAllPublicationBullets\' inverse',
+      () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(publications: [publication]));
+        var draft = draftWith(
+          publicationIds: [publication.id],
+          publicationBulletIds: {
+            publication.id: ['ub1', 'ub2'],
+          },
+        );
+        when(draftService.draft).thenAnswer((_) => draft);
+        when(draftService.setBulletsForPublication(any, any)).thenAnswer((
+          invocation,
+        ) async {
+          final ids = invocation.positionalArguments[1] as List<String>;
+          draft = draft.copyWith(
+            publicationBulletIds: {
+              ...draft.publicationBulletIds,
+              publication.id: ids,
+            },
+          );
+        });
+
+        final model = StudioViewModel();
+        await model.removeAllPublicationBullets(publication);
+
+        expect(draft.publicationBulletIds[publication.id], isEmpty);
+      },
+    );
 
     group('skills -', () {
       final skillCategoryA = SkillCategory(

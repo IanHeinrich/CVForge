@@ -4,7 +4,6 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_model.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
-import 'package:cv_forge/templates/cv_template.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:pdf/pdf.dart';
@@ -61,22 +60,10 @@ void main() {
       expect(notified, isTrue);
     });
 
-    test('tagGroups files every template under its first declared tag, in '
-        "TemplateTag's own declaration order", () {
+    test('templates exposes every registered template, in registry order', () {
       final model = buildModel();
 
-      final groups = model.tagGroups;
-
-      // compact declares {atsSafe, compact}; classic_centered declares
-      // {traditional, academic} — atsSafe sorts before traditional in
-      // TemplateTag.values, so compact's group must come first regardless
-      // of registration order.
-      expect(groups.map((g) => g.key), [
-        TemplateTag.atsSafe,
-        TemplateTag.traditional,
-      ]);
-      expect(groups[0].value.map((t) => t.id), ['compact']);
-      expect(groups[1].value.map((t) => t.id), ['classic_centered']);
+      expect(model.templates.map((t) => t.id), ['compact', 'classic_centered']);
     });
 
     test('thumbnailFor caches: the underlying service is only asked once '

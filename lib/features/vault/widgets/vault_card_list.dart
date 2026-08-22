@@ -26,8 +26,6 @@ class VaultCardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vault = viewModel.vault;
-
     return ListView(
       padding: EdgeInsets.all(context.appSpacing.paddingPage),
       children: [
@@ -38,95 +36,101 @@ class VaultCardList extends StatelessWidget {
           ),
           const VGap.medium(),
         ],
-        _BasicsCard(
-          basics: vault.basics,
-          selected: viewModel.openTarget == VaultEditorTarget.basics,
-          onTap: viewModel.openBasicsEditor,
-        ),
-        const VGap.medium(),
-        VaultListSection<Experience>(
-          title: 'Work history',
-          addLabel: 'Add experience',
-          emptyMessage: 'No experience yet.',
-          icon: RemixIcons.briefcase_line,
-          items: vault.experiences,
-          idOf: (e) => e.id,
-          titleOf: (e) => e.role.isEmpty ? 'Untitled role' : e.role,
-          subtitleOf: (e) => e.company,
-          openId: viewModel.openTarget == VaultEditorTarget.experience
-              ? viewModel.openId
-              : null,
-          onOpen: viewModel.openExperienceEditor,
-          onAdd: viewModel.addExperience,
-          onDelete: viewModel.deleteExperience,
-        ),
-        const VGap.medium(),
-        VaultListSection<Project>(
-          title: 'Projects',
-          addLabel: 'Add project',
-          emptyMessage: 'No projects yet.',
-          icon: RemixIcons.rocket_line,
-          items: vault.projects,
-          idOf: (p) => p.id,
-          titleOf: (p) => p.title.isEmpty ? 'Untitled project' : p.title,
-          subtitleOf: (p) => p.link,
-          openId: viewModel.openTarget == VaultEditorTarget.project
-              ? viewModel.openId
-              : null,
-          onOpen: viewModel.openProjectEditor,
-          onAdd: viewModel.addProject,
-          onDelete: viewModel.deleteProject,
-        ),
-        const VGap.medium(),
-        _SkillsCard(
-          categories: vault.skillCategories,
-          selected: viewModel.openTarget == VaultEditorTarget.skills,
-          onTap: viewModel.openSkillsEditor,
-        ),
-        const VGap.medium(),
-        VaultListSection<Education>(
-          title: 'Education',
-          addLabel: 'Add education',
-          emptyMessage: 'No education yet.',
-          icon: RemixIcons.graduation_cap_line,
-          items: vault.education,
-          idOf: (e) => e.id,
-          titleOf: (e) => e.qualification.isEmpty
-              ? 'Untitled qualification'
-              : e.qualification,
-          subtitleOf: (e) => e.institution,
-          openId: viewModel.openTarget == VaultEditorTarget.education
-              ? viewModel.openId
-              : null,
-          onOpen: viewModel.openEducationEditor,
-          onAdd: viewModel.addEducation,
-          onDelete: viewModel.deleteEducation,
-        ),
-        const VGap.medium(),
-        _HobbiesCard(
-          hobbies: vault.hobbies,
-          selected: viewModel.openTarget == VaultEditorTarget.hobbies,
-          onTap: viewModel.openHobbiesEditor,
-        ),
-        const VGap.medium(),
-        VaultListSection<Publication>(
-          title: 'Publications',
-          addLabel: 'Add publication',
-          emptyMessage: 'No publications yet.',
-          icon: RemixIcons.article_line,
-          items: vault.publications,
-          idOf: (p) => p.id,
-          titleOf: (p) => p.title.isEmpty ? 'Untitled publication' : p.title,
-          subtitleOf: (p) => p.citation,
-          openId: viewModel.openTarget == VaultEditorTarget.publication
-              ? viewModel.openId
-              : null,
-          onOpen: viewModel.openPublicationEditor,
-          onAdd: viewModel.addPublication,
-          onDelete: viewModel.deletePublication,
-        ),
+        for (final section in _sections(context)) ...[
+          section,
+          const VGap.medium(),
+        ],
       ],
     );
+  }
+
+  /// Every section card in display order, without the spacing between
+  /// them — [build] adds that.
+  List<Widget> _sections(BuildContext context) {
+    final vault = viewModel.vault;
+    return [
+      _BasicsCard(
+        basics: vault.basics,
+        selected: viewModel.openTarget == VaultEditorTarget.basics,
+        onTap: viewModel.openBasicsEditor,
+      ),
+      VaultListSection<Experience>(
+        title: 'Work history',
+        addLabel: 'Add experience',
+        emptyMessage: 'No experience yet.',
+        icon: RemixIcons.briefcase_line,
+        items: vault.experiences,
+        idOf: (e) => e.id,
+        titleOf: (e) => e.role.isEmpty ? 'Untitled role' : e.role,
+        subtitleOf: (e) => e.company,
+        openId: viewModel.openTarget == VaultEditorTarget.experience
+            ? viewModel.openId
+            : null,
+        onOpen: viewModel.openExperienceEditor,
+        onAdd: viewModel.addExperience,
+        onDelete: viewModel.deleteExperience,
+      ),
+      VaultListSection<Project>(
+        title: 'Projects',
+        addLabel: 'Add project',
+        emptyMessage: 'No projects yet.',
+        icon: RemixIcons.rocket_line,
+        items: vault.projects,
+        idOf: (p) => p.id,
+        titleOf: (p) => p.title.isEmpty ? 'Untitled project' : p.title,
+        subtitleOf: (p) => p.link,
+        openId: viewModel.openTarget == VaultEditorTarget.project
+            ? viewModel.openId
+            : null,
+        onOpen: viewModel.openProjectEditor,
+        onAdd: viewModel.addProject,
+        onDelete: viewModel.deleteProject,
+      ),
+      _SkillsCard(
+        categories: vault.skillCategories,
+        selected: viewModel.openTarget == VaultEditorTarget.skills,
+        onTap: viewModel.openSkillsEditor,
+      ),
+      VaultListSection<Education>(
+        title: 'Education',
+        addLabel: 'Add education',
+        emptyMessage: 'No education yet.',
+        icon: RemixIcons.graduation_cap_line,
+        items: vault.education,
+        idOf: (e) => e.id,
+        titleOf: (e) => e.qualification.isEmpty
+            ? 'Untitled qualification'
+            : e.qualification,
+        subtitleOf: (e) => e.institution,
+        openId: viewModel.openTarget == VaultEditorTarget.education
+            ? viewModel.openId
+            : null,
+        onOpen: viewModel.openEducationEditor,
+        onAdd: viewModel.addEducation,
+        onDelete: viewModel.deleteEducation,
+      ),
+      _HobbiesCard(
+        hobbies: vault.hobbies,
+        selected: viewModel.openTarget == VaultEditorTarget.hobbies,
+        onTap: viewModel.openHobbiesEditor,
+      ),
+      VaultListSection<Publication>(
+        title: 'Publications',
+        addLabel: 'Add publication',
+        emptyMessage: 'No publications yet.',
+        icon: RemixIcons.article_line,
+        items: vault.publications,
+        idOf: (p) => p.id,
+        titleOf: (p) => p.title.isEmpty ? 'Untitled publication' : p.title,
+        subtitleOf: (p) => p.citation,
+        openId: viewModel.openTarget == VaultEditorTarget.publication
+            ? viewModel.openId
+            : null,
+        onOpen: viewModel.openPublicationEditor,
+        onAdd: viewModel.addPublication,
+        onDelete: viewModel.deletePublication,
+      ),
+    ];
   }
 }
 
