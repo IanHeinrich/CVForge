@@ -40,6 +40,7 @@ class ClassicCenteredTemplate implements CvTemplate {
 
   @override
   Set<TemplateTag> get tags => const {
+    TemplateTag.atsSafe,
     TemplateTag.traditional,
     TemplateTag.academic,
   };

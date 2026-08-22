@@ -8,7 +8,11 @@ part 'app_motion.tailor.dart';
 /// pre-guessing a fuller motion scale.
 @TailorMixin()
 class AppMotion extends ThemeExtension<AppMotion> with _$AppMotionTailorMixin {
-  const AppMotion({required this.fast, required this.camera});
+  const AppMotion({
+    required this.fast,
+    required this.camera,
+    required this.layout,
+  });
 
   @override
   final Duration fast;
@@ -16,9 +20,15 @@ class AppMotion extends ThemeExtension<AppMotion> with _$AppMotionTailorMixin {
   /// The X-Ray overlay's camera pan/zoom (`XrayCameraController`).
   @override
   final Duration camera;
+
+  /// A panel/column reflow — `VaultViewDesktop`'s card-list/editor split
+  /// easing its width and alignment when the editor opens or closes.
+  @override
+  final Duration layout;
 }
 
 const appMotion = AppMotion(
   fast: Duration(milliseconds: 120),
   camera: Duration(milliseconds: 350),
+  layout: Duration(milliseconds: 280),
 );

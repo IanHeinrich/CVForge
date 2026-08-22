@@ -6,6 +6,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
+import 'package:cv_forge/ui/widgets/common/pdf_page_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -152,7 +153,7 @@ class _TemplateCard extends StatelessWidget {
                     // direction whichever page size the draft uses.
                     child: AspectRatio(
                       aspectRatio: pageAspectRatio,
-                      child: _Thumbnail(future: thumbnailFuture),
+                      child: PdfPageThumbnail(future: thumbnailFuture),
                     ),
                   ),
                   if (selected)
@@ -202,48 +203,6 @@ class _TemplateCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// A thumbnail's loading/failed/ready states. The failed state matters —
-/// see `docs/ux/7.5-template-region-scaling.md`'s "What changes" section:
-/// a font-load failure under a deployed `--base-href` would fail every
-/// thumbnail at once, and the gallery should degrade to a name-and-
-/// description card rather than an error grid.
-class _Thumbnail extends StatelessWidget {
-  const _Thumbnail({required this.future});
-
-  final Future<Uint8List> future;
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceContainerLowest,
-      child: FutureBuilder<Uint8List>(
-        future: future,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Center(
-              child: Icon(RemixIcons.file_paper_2_line, color: kcMediumGrey),
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            );
-          }
-          // cover, not contain — the slot is already the page's own
-          // aspect ratio (see `_TemplateCard.pageAspectRatio`), so this
-          // fills it exactly and any rounding difference crops by a
-          // pixel rather than leaving a visible band.
-          return Image.memory(snapshot.data!, fit: BoxFit.cover);
-        },
       ),
     );
   }

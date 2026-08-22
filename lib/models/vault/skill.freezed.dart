@@ -21,8 +21,8 @@ mixin _$Skill {
 /// grounding at the job level would leave it guessing which of a job's
 /// several bullets a given skill applies to. Bullet ids are already
 /// globally unique (`Uuid` from `VaultService`), so a flat list here
-/// needs no experience id alongside it. Purely descriptive metadata in
-/// Phase 1 — the composer/template don't read it.
+/// needs no experience id alongside it. Purely descriptive metadata
+/// today — the composer/template don't read it.
  List<String> get linkedBulletIds;
 /// Create a copy of Skill
 /// with the given fields replaced by the non-null parameter values.
@@ -230,8 +230,8 @@ class _Skill implements Skill {
 /// grounding at the job level would leave it guessing which of a job's
 /// several bullets a given skill applies to. Bullet ids are already
 /// globally unique (`Uuid` from `VaultService`), so a flat list here
-/// needs no experience id alongside it. Purely descriptive metadata in
-/// Phase 1 — the composer/template don't read it.
+/// needs no experience id alongside it. Purely descriptive metadata
+/// today — the composer/template don't read it.
  final  List<String> _linkedBulletIds;
 /// [CvBullet] ids this skill was demonstrated in — bullet
 /// granularity, not experience granularity, because that's the unit a
@@ -239,8 +239,8 @@ class _Skill implements Skill {
 /// grounding at the job level would leave it guessing which of a job's
 /// several bullets a given skill applies to. Bullet ids are already
 /// globally unique (`Uuid` from `VaultService`), so a flat list here
-/// needs no experience id alongside it. Purely descriptive metadata in
-/// Phase 1 — the composer/template don't read it.
+/// needs no experience id alongside it. Purely descriptive metadata
+/// today — the composer/template don't read it.
 @override@JsonKey() List<String> get linkedBulletIds {
   if (_linkedBulletIds is EqualUnmodifiableListView) return _linkedBulletIds;
   // ignore: implicit_dynamic_type

@@ -24,6 +24,7 @@ class VaultListSection<T> extends StatelessWidget {
     required this.titleOf,
     required this.subtitleOf,
     required this.openId,
+    this.selectedItemKey,
     required this.onOpen,
     required this.onAdd,
     required this.onDelete,
@@ -41,6 +42,12 @@ class VaultListSection<T> extends StatelessWidget {
   /// The id of the item currently open in the editor panel, if any —
   /// drives which card renders selected.
   final String? openId;
+
+  /// Handed to whichever single card matches [openId], if any — see
+  /// `VaultCardList._selectedCardKey`'s doc comment for why: it's what
+  /// lets that card be scrolled back into view after opening it
+  /// reorganizes the grid around it.
+  final Key? selectedItemKey;
   final ValueChanged<String> onOpen;
   final VoidCallback onAdd;
   final ValueChanged<String> onDelete;
@@ -52,11 +59,11 @@ class VaultListSection<T> extends StatelessWidget {
   /// entries is a needlessly long scroll. Cards themselves stay capped:
   /// two columns is what uses the width, not one wider column.
   ///
-  /// Deliberately above the width the list column gets while the Vault's
-  /// editor panel is open (`VaultViewDesktop._cardListMaxWidth`, minus
-  /// its page padding), so opening an entry collapses back to one column
-  /// rather than squeezing two into half a screen — the wide, editor-
-  /// closed state is the one with space to spare.
+  /// Applied identically whether the Vault's editor panel is open or not —
+  /// `VaultViewDesktop`'s fixed (not proportional) `editorPanelWidth`
+  /// means the list keeps most of its width regardless, so this collapses
+  /// to one column only when the window is genuinely too narrow for two
+  /// comfortable columns, not merely because an entry was opened.
   static const _twoColumnMinWidth = 700.0;
 
   @override
@@ -88,6 +95,7 @@ class VaultListSection<T> extends StatelessWidget {
   }
 
   Widget _card(T item) => AppSummaryCard(
+    key: idOf(item) == openId ? selectedItemKey : null,
     title: titleOf(item),
     subtitle: subtitleOf(item),
     selected: idOf(item) == openId,

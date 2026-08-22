@@ -71,7 +71,13 @@ class _CopilotConfigCardState extends State<CopilotConfigCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const StudioPanelHeading('Tailor with AI'),
+          Row(
+            children: [
+              const StudioPanelHeading('Tailor with AI'),
+              const HGap.small(),
+              const _BetaBadge(),
+            ],
+          ),
           const VGap.tiny(),
           Text(
             'Bring your own API key in Settings, then paste a job ad here '
@@ -167,6 +173,34 @@ class _CopilotConfigCardState extends State<CopilotConfigCard> {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// A small stylised "BETA" tag next to the card's heading — Copilot
+/// tailoring is functional but not yet held to the same bar as the rest of
+/// the app, and this flags that inline rather than only in release notes
+/// nobody reads before hitting "Tailor with AI".
+class _BetaBadge extends StatelessWidget {
+  const _BetaBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: kcWarningColor.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(context.appRadius.small),
+        border: Border.all(color: kcWarningColor.withValues(alpha: 0.5)),
+      ),
+      child: Text(
+        'BETA',
+        style: context.appTypography.caption.copyWith(
+          color: kcWarningColor,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

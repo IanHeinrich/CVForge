@@ -6,6 +6,7 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
@@ -19,13 +20,60 @@ import 'vault_list_section.dart';
 /// The main scrolling list of collapsed entity summary cards. Shared by
 /// every breakpoint so desktop/tablet/mobile can't drift on which
 /// sections exist or their order.
-class VaultCardList extends StatelessWidget {
+///
+/// Stateful only for [_selectedCardKey]/[_lastOpenKey]: opening an entry
+/// on desktop/tablet can collapse `VaultListSection`'s two-column grid
+/// down to one (see `VaultViewDesktop.editorPanelWidth`'s doc comment),
+/// which pushes everything below the opened card further down the
+/// scrolling list — the card you just clicked (and its selected
+/// highlight) can end up scrolled out of view even though it's still
+/// the one open in the editor. Comparing [VaultViewModel.openTarget]/
+/// [openId] against the last value seen — directly in [build], the same
+/// "compare fresh state against what was last acted on" shape
+/// `StudioPreviewPane` uses for its own debounce — is what notices a
+/// *new* selection (as opposed to a rebuild for any other reason) and
+/// scrolls it back into view once the column-reflow transition has had
+/// time to settle.
+class VaultCardList extends StatefulWidget {
   const VaultCardList({super.key, required this.viewModel});
 
   final VaultViewModel viewModel;
 
   @override
+  State<VaultCardList> createState() => _VaultCardListState();
+}
+
+class _VaultCardListState extends State<VaultCardList> {
+  /// Reassigned to whichever card is currently selected (see
+  /// [_sections]) — safe as a single reused [GlobalKey] because at most
+  /// one card is ever selected at once.
+  final _selectedCardKey = GlobalKey();
+
+  /// `'$openTarget:$openId'` as of the last time a scroll was scheduled,
+  /// so a rebuild for any other reason (a field edit inside the open
+  /// entry, a persist-error banner appearing) doesn't re-trigger the
+  /// scroll — only an actual change of *which* entry is open does.
+  String? _lastOpenKey;
+
+  @override
   Widget build(BuildContext context) {
+    final viewModel = widget.viewModel;
+    final openTarget = viewModel.openTarget;
+    final openKey = openTarget == VaultEditorTarget.none
+        ? null
+        : '$openTarget:${viewModel.openId}';
+    if (openKey != null && openKey != _lastOpenKey) {
+      _lastOpenKey = openKey;
+      // `VaultViewDesktop`'s own width/column-reflow transition — wait
+      // for it to settle before measuring where the card ended up, or
+      // this measures a position the transition is about to move away
+      // from.
+      final revealDelay = context.appMotion.layout;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _scrollSelectedIntoView(revealDelay),
+      );
+    }
+
     return ListView(
       padding: EdgeInsets.all(context.appSpacing.paddingPage),
       children: [
@@ -44,14 +92,31 @@ class VaultCardList extends StatelessWidget {
     );
   }
 
+  Future<void> _scrollSelectedIntoView(Duration delay) async {
+    await Future.delayed(delay);
+    final targetContext = _selectedCardKey.currentContext;
+    if (targetContext == null || !targetContext.mounted) return;
+    await Scrollable.ensureVisible(
+      targetContext,
+      alignment: 0.5,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+    );
+  }
+
   /// Every section card in display order, without the spacing between
-  /// them — [build] adds that.
+  /// them — [build] adds that. [_selectedCardKey] is handed only to
+  /// whichever single card matches [VaultViewModel.openTarget]/[openId],
+  /// via each section's own `selected`/`selectedItemKey` plumbing.
   List<Widget> _sections(BuildContext context) {
+    final viewModel = widget.viewModel;
     final vault = viewModel.vault;
+    final target = viewModel.openTarget;
     return [
       _BasicsCard(
+        key: target == VaultEditorTarget.basics ? _selectedCardKey : null,
         basics: vault.basics,
-        selected: viewModel.openTarget == VaultEditorTarget.basics,
+        selected: target == VaultEditorTarget.basics,
         onTap: viewModel.openBasicsEditor,
       ),
       VaultListSection<Experience>(
@@ -63,8 +128,11 @@ class VaultCardList extends StatelessWidget {
         idOf: (e) => e.id,
         titleOf: (e) => e.role.isEmpty ? 'Untitled role' : e.role,
         subtitleOf: (e) => e.company,
-        openId: viewModel.openTarget == VaultEditorTarget.experience
+        openId: target == VaultEditorTarget.experience
             ? viewModel.openId
+            : null,
+        selectedItemKey: target == VaultEditorTarget.experience
+            ? _selectedCardKey
             : null,
         onOpen: viewModel.openExperienceEditor,
         onAdd: viewModel.addExperience,
@@ -79,16 +147,18 @@ class VaultCardList extends StatelessWidget {
         idOf: (p) => p.id,
         titleOf: (p) => p.title.isEmpty ? 'Untitled project' : p.title,
         subtitleOf: (p) => p.link,
-        openId: viewModel.openTarget == VaultEditorTarget.project
-            ? viewModel.openId
+        openId: target == VaultEditorTarget.project ? viewModel.openId : null,
+        selectedItemKey: target == VaultEditorTarget.project
+            ? _selectedCardKey
             : null,
         onOpen: viewModel.openProjectEditor,
         onAdd: viewModel.addProject,
         onDelete: viewModel.deleteProject,
       ),
       _SkillsCard(
+        key: target == VaultEditorTarget.skills ? _selectedCardKey : null,
         categories: vault.skillCategories,
-        selected: viewModel.openTarget == VaultEditorTarget.skills,
+        selected: target == VaultEditorTarget.skills,
         onTap: viewModel.openSkillsEditor,
       ),
       VaultListSection<Education>(
@@ -102,16 +172,18 @@ class VaultCardList extends StatelessWidget {
             ? 'Untitled qualification'
             : e.qualification,
         subtitleOf: (e) => e.institution,
-        openId: viewModel.openTarget == VaultEditorTarget.education
-            ? viewModel.openId
+        openId: target == VaultEditorTarget.education ? viewModel.openId : null,
+        selectedItemKey: target == VaultEditorTarget.education
+            ? _selectedCardKey
             : null,
         onOpen: viewModel.openEducationEditor,
         onAdd: viewModel.addEducation,
         onDelete: viewModel.deleteEducation,
       ),
       _HobbiesCard(
+        key: target == VaultEditorTarget.hobbies ? _selectedCardKey : null,
         hobbies: vault.hobbies,
-        selected: viewModel.openTarget == VaultEditorTarget.hobbies,
+        selected: target == VaultEditorTarget.hobbies,
         onTap: viewModel.openHobbiesEditor,
       ),
       VaultListSection<Publication>(
@@ -123,8 +195,11 @@ class VaultCardList extends StatelessWidget {
         idOf: (p) => p.id,
         titleOf: (p) => p.title.isEmpty ? 'Untitled publication' : p.title,
         subtitleOf: (p) => p.citation,
-        openId: viewModel.openTarget == VaultEditorTarget.publication
+        openId: target == VaultEditorTarget.publication
             ? viewModel.openId
+            : null,
+        selectedItemKey: target == VaultEditorTarget.publication
+            ? _selectedCardKey
             : null,
         onOpen: viewModel.openPublicationEditor,
         onAdd: viewModel.addPublication,
@@ -136,6 +211,7 @@ class VaultCardList extends StatelessWidget {
 
 class _BasicsCard extends StatelessWidget {
   const _BasicsCard({
+    super.key,
     required this.basics,
     required this.selected,
     required this.onTap,
@@ -164,6 +240,7 @@ class _BasicsCard extends StatelessWidget {
 
 class _SkillsCard extends StatelessWidget {
   const _SkillsCard({
+    super.key,
     required this.categories,
     required this.selected,
     required this.onTap,
@@ -194,6 +271,7 @@ class _SkillsCard extends StatelessWidget {
 
 class _HobbiesCard extends StatelessWidget {
   const _HobbiesCard({
+    super.key,
     required this.hobbies,
     required this.selected,
     required this.onTap,
