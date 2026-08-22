@@ -40,3 +40,11 @@ class HGap extends StatelessWidget {
   Widget build(BuildContext context) =>
       SizedBox(width: _size.resolve(context.appSpacing));
 }
+
+/// The "empty text field means no value, not an empty string" idiom
+/// repeated across every Vault editor panel's optional fields (location,
+/// grade, a project's link, …) — `orNullIfEmpty` replaces
+/// `v.isEmpty ? null : v` at each call site.
+extension NullableIfEmptyString on String {
+  String? get orNullIfEmpty => isEmpty ? null : this;
+}

@@ -1,11 +1,11 @@
 import 'package:cv_forge/models/vault/hobby_item.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:remixicon/remixicon.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
+import 'package:cv_forge/ui/widgets/common/app_delete_icon_button/app_delete_icon_button.dart';
+import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class HobbiesEditorPanel extends StatelessWidget {
@@ -31,14 +31,7 @@ class HobbiesEditorPanel extends StatelessWidget {
       onClose: onClose,
       children: [
         VaultSectionHeading(title: 'Items', onAdd: onAdd),
-        if (hobbies.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
-            child: const Text(
-              'Nothing yet.',
-              style: TextStyle(color: kcLightGrey),
-            ),
-          ),
+        if (hobbies.isEmpty) const AppInlineEmptyMessage('Nothing yet.'),
         for (final hobby in hobbies)
           Padding(
             padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
@@ -50,14 +43,7 @@ class HobbiesEditorPanel extends StatelessWidget {
                     onChanged: (v) => onChanged(hobby.copyWith(text: v)),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(
-                    RemixIcons.delete_bin_line,
-                    color: kcLightGrey,
-                  ),
-                  onPressed: () => onDelete(hobby.id),
-                  tooltip: 'Delete',
-                ),
+                AppDeleteIconButton(onPressed: () => onDelete(hobby.id)),
               ],
             ),
           ),

@@ -1,8 +1,10 @@
 import 'package:cv_forge/models/identified_list.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
 import 'basics_editor_panel.dart';
+import 'bullet_list_editor.dart';
 import 'education_editor_panel.dart';
 import 'experience_editor_panel.dart';
 import 'hobbies_editor_panel.dart';
@@ -17,6 +19,49 @@ class VaultEditorPanelRouter extends StatelessWidget {
   const VaultEditorPanelRouter({super.key, required this.viewModel});
 
   final VaultViewModel viewModel;
+
+  /// Builds the shared bullet-callbacks object for whichever entity
+  /// [owner] identifies, all routed through the matching
+  /// `VaultViewModel` pass-throughs — see `VaultService`'s bullet API for
+  /// why one [BulletOwner] parameter replaces four near-identical methods
+  /// per action.
+  BulletEditorCallbacks _bulletCallbacksFor(BulletOwner owner, String ownerId) {
+    switch (owner) {
+      case BulletOwner.experience:
+        return BulletEditorCallbacks(
+          onAdd: () => viewModel.addBullet(ownerId),
+          onChanged: (bullet) => viewModel.updateBullet(ownerId, bullet),
+          onDelete: (bulletId) => viewModel.deleteBullet(ownerId, bulletId),
+          onReorder: (ids) => viewModel.reorderBullets(ownerId, ids),
+        );
+      case BulletOwner.project:
+        return BulletEditorCallbacks(
+          onAdd: () => viewModel.addProjectBullet(ownerId),
+          onChanged: (bullet) => viewModel.updateProjectBullet(ownerId, bullet),
+          onDelete: (bulletId) =>
+              viewModel.deleteProjectBullet(ownerId, bulletId),
+          onReorder: (ids) => viewModel.reorderProjectBullets(ownerId, ids),
+        );
+      case BulletOwner.education:
+        return BulletEditorCallbacks(
+          onAdd: () => viewModel.addEducationBullet(ownerId),
+          onChanged: (bullet) =>
+              viewModel.updateEducationBullet(ownerId, bullet),
+          onDelete: (bulletId) =>
+              viewModel.deleteEducationBullet(ownerId, bulletId),
+          onReorder: (ids) => viewModel.reorderEducationBullets(ownerId, ids),
+        );
+      case BulletOwner.publication:
+        return BulletEditorCallbacks(
+          onAdd: () => viewModel.addPublicationBullet(ownerId),
+          onChanged: (bullet) =>
+              viewModel.updatePublicationBullet(ownerId, bullet),
+          onDelete: (bulletId) =>
+              viewModel.deletePublicationBullet(ownerId, bulletId),
+          onReorder: (ids) => viewModel.reorderPublicationBullets(ownerId, ids),
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +87,6 @@ class VaultEditorPanelRouter extends StatelessWidget {
           (e) => e.id,
         );
         if (experience == null) return const SizedBox.shrink();
-        final experienceId = experience.id;
         return ExperienceEditorPanel(
           experience: experience,
           allExperiences: viewModel.vault.experiences,
@@ -50,16 +94,13 @@ class VaultEditorPanelRouter extends StatelessWidget {
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateExperience,
           onGroupChanged: (withId) =>
-              viewModel.groupExperience(experienceId, withId),
-          onAddBullet: () => viewModel.addBullet(experienceId),
-          onBulletChanged: (bullet) =>
-              viewModel.updateBullet(experienceId, bullet),
-          onBulletDeleted: (bulletId) =>
-              viewModel.deleteBullet(experienceId, bulletId),
-          onBulletsReordered: (ids) =>
-              viewModel.reorderBullets(experienceId, ids),
-          startYearError: viewModel.experienceStartYearError(experienceId),
-          endYearError: viewModel.experienceEndYearError(experienceId),
+              viewModel.groupExperience(experience.id, withId),
+          bulletCallbacks: _bulletCallbacksFor(
+            BulletOwner.experience,
+            experience.id,
+          ),
+          startYearError: viewModel.experienceStartYearError(experience.id),
+          endYearError: viewModel.experienceEndYearError(experience.id),
           onStartYearChanged: (v) =>
               viewModel.updateExperienceStartYear(experience, v),
           onEndYearChanged: (v) =>
@@ -72,19 +113,12 @@ class VaultEditorPanelRouter extends StatelessWidget {
           (p) => p.id,
         );
         if (project == null) return const SizedBox.shrink();
-        final projectId = project.id;
         return ProjectEditorPanel(
           project: project,
           skillCategories: viewModel.vault.skillCategories,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateProject,
-          onAddBullet: () => viewModel.addProjectBullet(projectId),
-          onBulletChanged: (bullet) =>
-              viewModel.updateProjectBullet(projectId, bullet),
-          onBulletDeleted: (bulletId) =>
-              viewModel.deleteProjectBullet(projectId, bulletId),
-          onBulletsReordered: (ids) =>
-              viewModel.reorderProjectBullets(projectId, ids),
+          bulletCallbacks: _bulletCallbacksFor(BulletOwner.project, project.id),
         );
 
       case VaultEditorTarget.education:
@@ -93,20 +127,16 @@ class VaultEditorPanelRouter extends StatelessWidget {
           (e) => e.id,
         );
         if (education == null) return const SizedBox.shrink();
-        final educationId = education.id;
         return EducationEditorPanel(
           education: education,
           skillCategories: viewModel.vault.skillCategories,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateEducation,
-          onAddBullet: () => viewModel.addEducationBullet(educationId),
-          onBulletChanged: (bullet) =>
-              viewModel.updateEducationBullet(educationId, bullet),
-          onBulletDeleted: (bulletId) =>
-              viewModel.deleteEducationBullet(educationId, bulletId),
-          onBulletsReordered: (ids) =>
-              viewModel.reorderEducationBullets(educationId, ids),
-          yearError: viewModel.educationYearError(educationId),
+          bulletCallbacks: _bulletCallbacksFor(
+            BulletOwner.education,
+            education.id,
+          ),
+          yearError: viewModel.educationYearError(education.id),
           onYearChanged: (v) => viewModel.updateEducationYear(education, v),
         );
 
@@ -138,19 +168,15 @@ class VaultEditorPanelRouter extends StatelessWidget {
           (p) => p.id,
         );
         if (publication == null) return const SizedBox.shrink();
-        final publicationId = publication.id;
         return PublicationEditorPanel(
           publication: publication,
           skillCategories: viewModel.vault.skillCategories,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updatePublication,
-          onAddBullet: () => viewModel.addPublicationBullet(publicationId),
-          onBulletChanged: (bullet) =>
-              viewModel.updatePublicationBullet(publicationId, bullet),
-          onBulletDeleted: (bulletId) =>
-              viewModel.deletePublicationBullet(publicationId, bulletId),
-          onBulletsReordered: (ids) =>
-              viewModel.reorderPublicationBullets(publicationId, ids),
+          bulletCallbacks: _bulletCallbacksFor(
+            BulletOwner.publication,
+            publication.id,
+          ),
         );
     }
   }

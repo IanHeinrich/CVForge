@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,7 @@ class AppEmptyState extends StatelessWidget {
   /// leaves it unconstrained — every existing message here is already
   /// short enough that this has never mattered; set it for a longer one
   /// that would otherwise stretch to the full available width, the way
-  /// the Analyzer upload prompt's did before this was added (7.5).
+  /// the Analyzer upload prompt's did before this was added.
   final double? messageMaxWidth;
 
   @override
@@ -48,7 +49,7 @@ class AppEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: kcLightGrey),
+            Icon(icon, size: context.appIconSize.xLarge, color: kcLightGrey),
             const VGap.medium(),
             Text(
               title,

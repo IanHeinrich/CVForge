@@ -276,6 +276,16 @@ tests of private helpers or implementation details.
   is what verifies them for real on every PR. Run `flutter test
   --tags=golden` to check just these before pushing a deliberate UI change,
   or trigger `update-goldens.yml` to regenerate the baselines afterward.
+- **Carve-out: pure geometry/math helpers and paint-invalidation
+  invariants may be unit-tested directly** — e.g.
+  `test/models/ats/ats_matrix_math_test.dart` (matrix composition, box
+  rotation) and `test/features/analyzer/widgets/ats_xray_painter_test.dart`
+  (`shouldRepaint` identity checks). These have no ViewModel or Service
+  above them to test through, and routing them through
+  `AnalyzerViewModel` would exercise less of the actual logic while
+  costing more per test. The outside-in rule still holds for anything one
+  layer up from these — a ViewModel/Service method is never unit-tested
+  in isolation just because it happens to call one of these helpers.
 
 ## Code style
 

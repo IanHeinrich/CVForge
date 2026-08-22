@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +78,7 @@ class AppDialogScaffold extends StatelessWidget {
 
     return Dialog(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(context.appSpacing.paddingPage),
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth ?? _defaultMaxWidth),
           child: body,

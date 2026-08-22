@@ -4,11 +4,32 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_delete_icon_button/app_delete_icon_button.dart';
+import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'vault_section_heading.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
+
+/// A bullet's add/change/delete/reorder callbacks, bundled into one value
+/// so every entity's editor panel (experience, project, education,
+/// publication) passes a single prop through to [BulletListEditor] and
+/// `VaultEditorPanelRouter` builds it once per case rather than repeating
+/// the same four closures four times.
+class BulletEditorCallbacks {
+  const BulletEditorCallbacks({
+    required this.onAdd,
+    required this.onChanged,
+    required this.onDelete,
+    required this.onReorder,
+  });
+
+  final VoidCallback onAdd;
+  final ValueChanged<CvBullet> onChanged;
+  final ValueChanged<String> onDelete;
+  final ValueChanged<List<String>> onReorder;
+}
 
 /// The bullet list inside an experience's editor panel — labelled/
 /// unlabelled text, add, delete, and drag-to-reorder.
@@ -17,10 +38,7 @@ class BulletListEditor extends StatelessWidget {
     super.key,
     required this.bullets,
     required this.skillCategories,
-    required this.onAdd,
-    required this.onChanged,
-    required this.onDelete,
-    required this.onReorder,
+    required this.callbacks,
   });
 
   final List<CvBullet> bullets;
@@ -29,10 +47,7 @@ class BulletListEditor extends StatelessWidget {
   /// Skills panel (`_SkillBulletLinkPicker`), not from this one. Shown
   /// underneath each bullet so it's visible without switching panels.
   final List<SkillCategory> skillCategories;
-  final VoidCallback onAdd;
-  final ValueChanged<CvBullet> onChanged;
-  final ValueChanged<String> onDelete;
-  final ValueChanged<List<String>> onReorder;
+  final BulletEditorCallbacks callbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -48,17 +63,8 @@ class BulletListEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        VaultSectionHeading(title: 'Bullets', onAdd: onAdd),
-        if (bullets.isEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: context.appSpacing.paddingTight,
-            ),
-            child: const Text(
-              'No bullets yet.',
-              style: TextStyle(color: kcLightGrey),
-            ),
-          ),
+        VaultSectionHeading(title: 'Bullets', onAdd: callbacks.onAdd),
+        if (bullets.isEmpty) const AppInlineEmptyMessage('No bullets yet.'),
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -68,7 +74,7 @@ class BulletListEditor extends StatelessWidget {
             final ids = bullets.map((b) => b.id).toList();
             final id = ids.removeAt(oldIndex);
             ids.insert(newIndex, id);
-            onReorder(ids);
+            callbacks.onReorder(ids);
           },
           itemBuilder: (context, index) {
             final bullet = bullets[index];
@@ -100,8 +106,8 @@ class BulletListEditor extends StatelessWidget {
                           label: 'Label (optional)',
                           hint: 'e.g. Performance',
                           initialValue: bullet.label ?? '',
-                          onChanged: (v) => onChanged(
-                            bullet.copyWith(label: v.isEmpty ? null : v),
+                          onChanged: (v) => callbacks.onChanged(
+                            bullet.copyWith(label: v.orNullIfEmpty),
                           ),
                         ),
                         const VGap.tiny(),
@@ -109,7 +115,8 @@ class BulletListEditor extends StatelessWidget {
                           label: 'Text',
                           initialValue: bullet.text,
                           maxLines: 3,
-                          onChanged: (v) => onChanged(bullet.copyWith(text: v)),
+                          onChanged: (v) =>
+                              callbacks.onChanged(bullet.copyWith(text: v)),
                         ),
                         if (skillLabelsByBulletId[bullet.id] case final labels?
                             when labels.isNotEmpty) ...[
@@ -127,13 +134,9 @@ class BulletListEditor extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      RemixIcons.delete_bin_line,
-                      color: kcLightGrey,
-                    ),
-                    onPressed: () => onDelete(bullet.id),
+                  AppDeleteIconButton(
                     tooltip: 'Delete bullet',
+                    onPressed: () => callbacks.onDelete(bullet.id),
                   ),
                 ],
               ),

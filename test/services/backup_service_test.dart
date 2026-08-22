@@ -5,6 +5,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -93,6 +94,7 @@ void main() {
         start: const YearMonth(year: 2020, month: 1),
       );
       final bullet = await vaultService.addBullet(
+        BulletOwner.experience,
         experience.id,
         text: 'Did things',
       );

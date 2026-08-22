@@ -66,19 +66,15 @@ mixin PersistedStoreMixin<T> {
   Future<void> writeToStorage(T value);
 
   /// [loadFromStorage] failing (storage genuinely unavailable) must not
-  /// poison every subsequent call — the reset lives here, chained via
-  /// [Future.catchError], rather than inside [loadFromStorage] itself.
-  /// [Future] callbacks are always deferred to a later microtask, even on
-  /// an already-completed future, so this reset is guaranteed to run
-  /// *after* the `??=` below has assigned [loadFromStorage]'s result to
-  /// [_readyFuture]. A reset written inside [loadFromStorage]'s own
-  /// `catch` block instead does not have that guarantee: if the very
-  /// first awaited call throws synchronously — which a real storage
-  /// failure won't, but a test double can — [loadFromStorage]'s entire
-  /// body runs to completion (including that reset) before this `??=`
-  /// gets a chance to run at all, so the reset would fire first and then
-  /// immediately be clobbered by the assignment that was already in
-  /// flight.
+  /// poison every subsequent call. The reset is chained via
+  /// [Future.catchError] rather than written inside [loadFromStorage]'s
+  /// own `catch` block, because [Future] callbacks always run in a later
+  /// microtask — so this reset is guaranteed to fire after the `??=`
+  /// below has assigned to [_readyFuture]. A reset inside
+  /// [loadFromStorage] itself has no such guarantee: a call that throws
+  /// synchronously (never true of real storage, but true of some test
+  /// doubles) would run the reset before the `??=` assignment exists to
+  /// clobber, so the reset fires first and is immediately overwritten.
   Future<void> ready() => _readyFuture ??= loadFromStorage().catchError((
     Object error,
     StackTrace stackTrace,

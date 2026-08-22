@@ -2,6 +2,7 @@ import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
@@ -13,9 +14,9 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 /// The bar above Studio's three-column layout: a way back to
 /// [DraftsListView] and the draft name/edit affordance (absorbing what
 /// `studio_draft_header.dart` used to own), the template and region
-/// pickers (7.5), the page count (7.3), and Export — moved off the
-/// preview pane's floating button so it reads as document-level, not
-/// preview-level. See `docs/ux/7.4-studio-restructure.md` and
+/// pickers, the page count, and Export — moved off the preview pane's
+/// floating button so it reads as document-level, not preview-level. See
+/// `docs/ux/7.4-studio-restructure.md` and
 /// `docs/ux/7.5-template-region-scaling.md`.
 ///
 /// Three zones, grouped by what each control is about: identity (back,
@@ -147,7 +148,10 @@ class _SetupControls extends StatelessWidget {
       children: [
         _BarButton(
           onPressed: viewModel.openTemplateGallery,
-          icon: const Icon(RemixIcons.layout_grid_line, size: 16),
+          icon: Icon(
+            RemixIcons.layout_grid_line,
+            size: context.appIconSize.small,
+          ),
           label: viewModel.template.displayName,
         ),
         const HGap.tiny(),
@@ -161,7 +165,7 @@ class _SetupControls extends StatelessWidget {
           onPressed: viewModel.openRegionGallery,
           icon: Text(
             viewModel.region.preset.flag,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: context.appIconSize.small),
           ),
           label: viewModel.region.preset.displayName,
         ),
@@ -203,7 +207,10 @@ class _OutputControls extends StatelessWidget {
                       color: kcWhite,
                     ),
                   )
-                : const Icon(RemixIcons.download_line, size: 18),
+                : Icon(
+                    RemixIcons.download_line,
+                    size: context.appIconSize.medium,
+                  ),
             label: Text(viewModel.isExporting ? 'Exporting…' : 'Export PDF'),
           ),
         ),

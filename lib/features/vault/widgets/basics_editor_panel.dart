@@ -1,13 +1,12 @@
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
-import 'package:remixicon/remixicon.dart';
 
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
+import 'package:cv_forge/ui/widgets/common/app_delete_icon_button/app_delete_icon_button.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class BasicsEditorPanel extends StatelessWidget {
@@ -76,7 +75,7 @@ class BasicsEditorPanel extends StatelessWidget {
           initialValue: basics.summary ?? '',
           maxLines: 4,
           onChanged: (v) =>
-              onChanged(basics.copyWith(summary: v.isEmpty ? null : v)),
+              onChanged(basics.copyWith(summary: v.orNullIfEmpty)),
         ),
         const VGap.medium(),
         VaultSectionHeading(title: 'Links', onAdd: onAddLink),
@@ -103,13 +102,9 @@ class BasicsEditorPanel extends StatelessWidget {
                     onChanged: (v) => onLinkChanged(link.copyWith(url: v)),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(
-                    RemixIcons.delete_bin_line,
-                    color: kcLightGrey,
-                  ),
-                  onPressed: () => onLinkDeleted(link.id),
+                AppDeleteIconButton(
                   tooltip: 'Delete link',
+                  onPressed: () => onLinkDeleted(link.id),
                 ),
               ],
             ),
@@ -119,7 +114,7 @@ class BasicsEditorPanel extends StatelessWidget {
           label: 'References',
           hint: 'e.g. "Available on request."',
           initialValue: referencesNote ?? '',
-          onChanged: (v) => onReferencesChanged(v.isEmpty ? null : v),
+          onChanged: (v) => onReferencesChanged(v.orNullIfEmpty),
         ),
       ],
     );

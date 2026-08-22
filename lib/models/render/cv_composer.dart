@@ -79,8 +79,9 @@ abstract final class CvComposer {
     // Each group's internal position order comes from draft.experienceIds
     // (a promotion's roles are entered oldest-first, so that stays as-is),
     // but the GROUPS themselves are sorted reverse-chronological below —
-    // Phase 1 has no manual drag-reorder UI, so trusting toggle-on order
-    // for the group sequence would scramble the CV unpredictably. An
+    // there's no manual drag-reorder UI for group order, so trusting
+    // toggle-on order for the group sequence would scramble the CV
+    // unpredictably. An
     // experience with no companyGroupId is simply the only member of its
     // own group, which renders identically to a one-position group, so
     // there's no separate ungrouped code path.

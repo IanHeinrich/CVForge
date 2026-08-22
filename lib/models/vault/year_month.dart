@@ -26,8 +26,8 @@ abstract class YearMonth with _$YearMonth {
 
 /// [monthNumber]'s 3-letter abbreviation (1 = Jan … 12 = Dec) — the single
 /// owner behind both [YearMonth.toMonYyyy] and the month-picker
-/// `DropdownButtonFormField`s in the Vault editor panels (7.8), so a
-/// picker option and the printed date can never disagree on what a given
+/// `DropdownButtonFormField`s in the Vault editor panels, so a picker
+/// option and the printed date can never disagree on what a given
 /// month is called.
 String monthName(int monthNumber) => _monthNames[monthNumber - 1];
 

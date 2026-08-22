@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 import 'package:flutter/material.dart';
 
@@ -65,13 +66,7 @@ class VaultListSection<T> extends StatelessWidget {
       children: [
         VaultSectionHeading(title: title, onAdd: onAdd, addLabel: addLabel),
         if (items.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
-            child: Text(
-              emptyMessage,
-              style: const TextStyle(color: kcLightGrey),
-            ),
-          )
+          AppInlineEmptyMessage(emptyMessage)
         else
           LayoutBuilder(
             builder: (context, constraints) {

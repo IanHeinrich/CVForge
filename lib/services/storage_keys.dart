@@ -1,6 +1,6 @@
 /// Centralised box/key names for [LocalStorageService]. Kept in one place
-/// so a future JSON export/import feature (Phase 2) reads from exactly the
-/// same names services already write to.
+/// so a future JSON export/import feature reads from exactly the same
+/// names services already write to.
 abstract final class StorageBoxes {
   const StorageBoxes._();
 
@@ -41,7 +41,7 @@ abstract final class StorageKeys {
   /// same [StorageBoxes.settings] box `SettingsService` already owns.
   static String apiKeyFor(String providerId) => 'api_key_$providerId';
 
-  /// The pre-pass [CvDraft] snapshot a Copilot tailoring pass (4.5) writes
+  /// The pre-pass [CvDraft] snapshot a Copilot tailoring pass writes
   /// before applying its result — a distinct prefix from [draftEntry], not
   /// a suffix on it, so nothing that enumerates drafts by scanning
   /// `draft_*` keys ever sees it. Kept in [StorageBoxes.drafts] alongside

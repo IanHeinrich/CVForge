@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
-import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
-import 'package:cv_forge/features/studio/widgets/vault_item_selector_list.dart';
+import 'package:cv_forge/features/studio/widgets/sections/entity_bullet_section_editor.dart';
 
 /// The [CvSectionType.projects] editor.
 class ProjectsSectionEditor extends StatelessWidget {
@@ -11,50 +10,27 @@ class ProjectsSectionEditor extends StatelessWidget {
   final StudioViewModel viewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return VaultItemSelectorList(
-      title: 'Projects',
-      unselectedCount: viewModel.unselectedProjects.length,
-      selectedCount: viewModel.selectedProjects.length,
-      onAddAll: viewModel.addAllProjects,
-      onRemoveAll: viewModel.removeAllProjects,
-      items: [
-        for (final project in viewModel.projects)
-          SelectorItem(
-            id: project.id,
-            title: project.title.isEmpty ? 'Untitled project' : project.title,
-            subtitle: project.link,
-            selected: viewModel.isProjectIncluded(project.id),
-            onToggle: () => viewModel.toggleProject(project),
-            onAddAllBullets: () => viewModel.addAllProjectBullets(project),
-            onRemoveAllBullets: () =>
-                viewModel.removeAllProjectBullets(project),
-            bullets: [
-              for (final bullet in project.bullets)
-                SelectorItem(
-                  id: bullet.id,
-                  title: bulletTitle(
-                    bullet.label,
-                    viewModel.bulletText(bullet),
-                  ),
-                  selected: viewModel.isProjectBulletIncluded(
-                    project.id,
-                    bullet.id,
-                  ),
-                  onToggle: () =>
-                      viewModel.toggleProjectBullet(project, bullet),
-                  tailorable: TailorableField(
-                    hasOverride: viewModel.hasBulletOverride(bullet.id),
-                    effectiveText: viewModel.bulletText(bullet),
-                    fieldLabel: bullet.label,
-                    onChanged: (value) =>
-                        viewModel.setBulletOverride(bullet, value),
-                    onRevert: () => viewModel.revertBulletOverride(bullet.id),
-                  ),
-                ),
-            ],
-          ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => EntityBulletSectionEditor(
+    title: 'Projects',
+    items: viewModel.projects,
+    untitledLabel: 'Untitled project',
+    idOf: (p) => p.id,
+    titleOf: (p) => p.title,
+    subtitleOf: (p) => p.link,
+    bulletsOf: (p) => p.bullets,
+    unselectedCount: viewModel.unselectedProjects.length,
+    selectedCount: viewModel.selectedProjects.length,
+    onAddAll: viewModel.addAllProjects,
+    onRemoveAll: viewModel.removeAllProjects,
+    isIncluded: (p) => viewModel.isProjectIncluded(p.id),
+    onToggle: viewModel.toggleProject,
+    onAddAllBullets: viewModel.addAllProjectBullets,
+    onRemoveAllBullets: viewModel.removeAllProjectBullets,
+    isBulletIncluded: (p, b) => viewModel.isProjectBulletIncluded(p.id, b.id),
+    onToggleBullet: viewModel.toggleProjectBullet,
+    bulletText: viewModel.bulletText,
+    hasBulletOverride: viewModel.hasBulletOverride,
+    onSetBulletOverride: viewModel.setBulletOverride,
+    onRevertBulletOverride: viewModel.revertBulletOverride,
+  );
 }

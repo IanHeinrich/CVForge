@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import '../../../helpers/fixtures.dart' as fixtures;
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
@@ -18,16 +19,17 @@ void main() {
     late MockDialogService dialogService;
     late MockRouterService routerService;
 
+    /// This file's own defaults over the shared `draftWith` — a fixed,
+    /// non-"current" id/`updatedAt` so recency-sort assertions have a
+    /// stable, non-`DateTime.now()` baseline to compare against.
     CvDraft draftWith({
       String id = 'draft-1',
       String name = 'My CV',
       String notes = '',
-    }) => CvDraft(
-      schemaVersion: 1,
+    }) => fixtures.draftWith(
       id: id,
       name: name,
       notes: notes,
-      templateId: 'compact',
       updatedAt: DateTime(2026, 1, 1),
     );
 

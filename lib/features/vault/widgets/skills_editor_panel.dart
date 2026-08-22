@@ -5,6 +5,7 @@ import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ import 'package:remixicon/remixicon.dart';
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
 import 'package:cv_forge/ui/widgets/common/app_chip_group_selector/app_chip_group_selector.dart';
+import 'package:cv_forge/ui/widgets/common/app_delete_icon_button/app_delete_icon_button.dart';
+import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class SkillsEditorPanel extends StatelessWidget {
@@ -54,13 +57,7 @@ class SkillsEditorPanel extends StatelessWidget {
           addLabel: 'Add category',
         ),
         if (categories.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
-            child: const Text(
-              'No skill categories yet.',
-              style: TextStyle(color: kcLightGrey),
-            ),
-          ),
+          const AppInlineEmptyMessage('No skill categories yet.'),
         for (final category in categories)
           Container(
             margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
@@ -86,13 +83,9 @@ class SkillsEditorPanel extends StatelessWidget {
                             onUpdateCategory(category.copyWith(name: v)),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        RemixIcons.delete_bin_line,
-                        color: kcLightGrey,
-                      ),
-                      onPressed: () => onDeleteCategory(category.id),
+                    AppDeleteIconButton(
                       tooltip: 'Delete category',
+                      onPressed: () => onDeleteCategory(category.id),
                     ),
                   ],
                 ),
@@ -117,10 +110,10 @@ class SkillsEditorPanel extends StatelessWidget {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 RemixIcons.close_line,
                                 color: kcLightGrey,
-                                size: 18,
+                                size: context.appIconSize.medium,
                               ),
                               onPressed: () =>
                                   onDeleteSkill(category.id, skill.id),
@@ -142,7 +135,10 @@ class SkillsEditorPanel extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     onPressed: () => onAddSkill(category.id),
-                    icon: const Icon(RemixIcons.add_line, size: 16),
+                    icon: Icon(
+                      RemixIcons.add_line,
+                      size: context.appIconSize.small,
+                    ),
                     label: const Text('Add skill'),
                   ),
                 ),
@@ -199,7 +195,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
               _expanded
                   ? RemixIcons.arrow_up_s_line
                   : RemixIcons.arrow_down_s_line,
-              size: 16,
+              size: context.appIconSize.small,
             ),
             label: Text(
               linkedCount == 0

@@ -2,30 +2,19 @@ import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_data.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
-import 'package:cv_forge/models/draft/cv_draft.dart';
-import 'package:cv_forge/models/vault/contact_basics.dart';
-import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
 void main() {
-  group('StudioViewModel Tests - Copilot (4.5) -', () {
+  group('StudioViewModel Tests - Copilot -', () {
     late MockVaultService vaultService;
     late MockDraftService draftService;
     late MockDialogService dialogService;
-
-    CvDraft draftWith({String? targetJobDescription}) => CvDraft(
-      schemaVersion: 1,
-      id: 'current',
-      name: 'My CV',
-      templateId: 'compact',
-      targetJobDescription: targetJobDescription,
-      updatedAt: DateTime.now(),
-    );
 
     setUp(() {
       vaultService = getAndRegisterVaultService();
@@ -35,13 +24,7 @@ void main() {
       getAndRegisterPdfExportService();
       getAndRegisterRouterService();
       dialogService = getAndRegisterDialogService();
-      when(vaultService.vault).thenReturn(
-        CvVault(
-          schemaVersion: 1,
-          basics: ContactBasics.empty(),
-          updatedAt: DateTime.now(),
-        ),
-      );
+      when(vaultService.vault).thenReturn(vaultWith());
       when(draftService.draft).thenReturn(draftWith());
       when(draftService.hasCopilotUndoFor(any)).thenAnswer((_) async => false);
     });

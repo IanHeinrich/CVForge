@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
@@ -96,13 +97,10 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   Size? _fittedViewport;
 
   /// A [ValueNotifier], not a plain field behind `setState` — hover fires
-  /// on every mouse-move across dense text, and the previous `setState`
-  /// rebuilt the *entire* panel (rail, camera, the whole `InteractiveViewer`
-  /// subtree) on every one of those events. Fixing the peek line's height
-  /// and memoizing the painter's boxes stopped the pan/zoom feedback loop
-  /// that caused, but the full-panel rebuild itself was still real,
-  /// visible churn on every hover — this confines a hover update to just
-  /// the peek text's own small `ValueListenableBuilder` instead.
+  /// on every mouse-move across dense text, and rebuilding this whole
+  /// panel (rail, camera, the entire `InteractiveViewer` subtree) on each
+  /// one reads as constant flickering. This confines a hover update to
+  /// just the peek text's own small `ValueListenableBuilder`.
   final _hoveredNodeIndex = ValueNotifier<int?>(null);
 
   /// Web-only grab/grabbing affordance, the same idea `printing`'s
@@ -110,15 +108,11 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// custom.dart`'s `_zoomPreview()`/`_updateCursor()`) — copied idea, not
   /// the vendored dependency itself (it's slated for deletion).
   ///
-  /// A [ValueNotifier], not a plain field behind `setState` — the same
-  /// mistake as [_hoveredNodeIndex] before it, just harder to spot: a
-  /// drag gesture repeatedly fires `onLongPressDown`/`onLongPressCancel`
-  /// as `InteractiveViewer`'s own pan recognizer and this cursor
-  /// recognizer settle who owns the gesture, so a plain `setState` here
-  /// rebuilt the entire panel — rail, camera, the whole
-  /// `InteractiveViewer` subtree — on every one of those arena events for
-  /// the length of the drag, which is exactly what read as flickering
-  /// while panning.
+  /// A [ValueNotifier] for the same reason as [_hoveredNodeIndex]: a drag
+  /// gesture repeatedly fires `onLongPressDown`/`onLongPressCancel` while
+  /// `InteractiveViewer`'s pan recognizer and this one settle who owns
+  /// the gesture, and a `setState`-driven rebuild on every one of those
+  /// arena events is what read as flickering while panning.
   late final _cursor = ValueNotifier<MouseCursor>(
     kIsWeb ? SystemMouseCursors.grab : MouseCursor.defer,
   );
@@ -130,8 +124,6 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     _cursor.dispose();
     super.dispose();
   }
-
-  // --- selection / navigation --------------------------------------------
 
   void _goToPage(int pageIndex) {
     if (pageIndex == _pageIndex) return;
@@ -291,8 +283,6 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     return matches.isEmpty ? null : matches.first;
   }
 
-  // --- boxes / painter input ----------------------------------------------
-
   List<AtsXrayBox> _buildBoxes(XrayPageData data, AtsAnalysisResult result) {
     // result.findings is already severity-sorted (critical first), so the
     // first finding claiming a node wins — "highest severity wins" falls
@@ -373,8 +363,6 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     return fresh;
   }
 
-  // --- camera --------------------------------------------------------------
-
   /// Selecting a finding frames the union of its evidence on the page it
   /// lands on ("what am I looking at?"); stepping through evidence frames
   /// one location tightly at a time ("show me each one") — two different
@@ -409,8 +397,6 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     if (target == null) return;
     _camera.animateTo(target);
   }
-
-  // --- build ---------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -521,7 +507,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
               onPressed: _toggleFlowLines,
               icon: Icon(
                 RemixIcons.route_line,
-                size: 18,
+                size: context.appIconSize.medium,
                 color: _showFlowLines ? kcPrimaryColor : kcLightGrey,
               ),
               label: Text(
@@ -667,8 +653,8 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
           constrained: false,
           // Unbounded, because with `constrained: false` the default zero
           // margin pins a fit-scaled (smaller than viewport) page against
-          // the boundary logic and fights the centring in [_fitTransform]/
-          // [_frameTransform].
+          // the boundary logic and fights the centring in
+          // `XrayCameraController.fitTransform`/`frameTransform`.
           boundaryMargin: const EdgeInsets.all(double.infinity),
           minScale: 0.05,
           maxScale: 8,

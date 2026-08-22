@@ -8,8 +8,8 @@ import 'package:cv_forge/services/llm/copilot_prompt.dart';
 import 'package:cv_forge/services/llm/copilot_response_schema.dart';
 import 'package:cv_forge/services/llm_service.dart';
 
-/// Runs a Copilot tailoring pass (plan.md's 4.5): builds the PII-stripped
-/// request and the per-Vault response schema, calls [LlmService], and
+/// Runs a Copilot tailoring pass: builds the PII-stripped request and the
+/// per-Vault response schema, calls [LlmService], and
 /// validates the result against [vault] before handing it back.
 ///
 /// Which provider/model/key to use is deliberately not this service's

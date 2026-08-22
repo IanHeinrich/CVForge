@@ -10,6 +10,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
@@ -40,9 +41,7 @@ enum StudioPreviewState { vaultEmpty, nothingSelected, ready }
 /// and [DraftService] for what's currently selected, then hands both to
 /// [CvComposer] to produce the [resolvedCv] the preview renders — this is
 /// the ViewModel `CvComposer` gets its test coverage through, per the
-/// outside-in testing convention (a dedicated composer test would be a
-/// unit test of a pure function, which the project's conventions avoid
-/// unless asked for).
+/// outside-in testing convention.
 class StudioViewModel extends ReactiveViewModel implements Initialisable {
   StudioViewModel({this.requestedDraftId});
 
@@ -140,8 +139,8 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> setTemplate(String templateId) =>
       _draftService.setTemplate(templateId);
 
-  /// Opens the template gallery (7.5) and applies whatever was confirmed.
-  /// A cancelled dialog returns `confirmed: false` and this is a no-op —
+  /// Opens the template gallery and applies whatever was confirmed. A
+  /// cancelled dialog returns `confirmed: false` and this is a no-op —
   /// [TemplateGalleryDialog] never calls back with `confirmed: true` and a
   /// null template id, so the null-check here is just satisfying the
   /// nullable [DialogResponse.data] type, not a real "confirmed but no
@@ -282,14 +281,12 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     }
   }
 
-  // --- Copilot (4.5) ---
-
   String get targetJobDescription => _draft.targetJobDescription ?? '';
 
   bool get hasTargetJobDescription => targetJobDescription.trim().isNotEmpty;
 
-  Future<void> setTargetJobDescription(String value) =>
-      _draftService.setTargetJobDescription(_normalizeOverride(value, null));
+  Future<void> setTargetJobDescription(String value) => _draftService
+      .setTargetJobDescription(_TextOverride.normalize(value, null));
 
   Future<void> clearTargetJobDescription() =>
       _draftService.setTargetJobDescription(null);
@@ -319,8 +316,6 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     await _refreshCopilotUndoState();
   }
 
-  // --- section visibility ---
-
   bool get hasSummary =>
       (_draft.tailoredSummary ?? _vault.basics.summary)?.trim().isNotEmpty ??
       false;
@@ -344,62 +339,47 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     CvSectionType.publications => publications.isNotEmpty,
   };
 
-  // --- text overrides ---
-  //
-  // Every override setter below shares one rule: empty input, or input
-  // identical to the Vault's own value, collapses back to "no override"
-  // (null) rather than persisting a draft value that's merely a copy of
-  // the Vault's. Without this, opening an editor and blurring without
-  // actually changing anything would silently disconnect that field from
-  // future Vault edits — see `StudioFieldOverrideCard`'s doc comment for
-  // the UI-level reasoning this backs.
-
-  /// Shared by every override setter in this section.
-  String? _normalizeOverride(String value, String? source) {
-    final trimmed = value.trim();
-    return trimmed.isEmpty || trimmed == (source ?? '').trim() ? null : value;
-  }
-
-  // --- headline override ---
+  // Text overrides: every field below is "draft override, falling back to
+  // the Vault's own value" — [_TextOverride] carries the shared behaviour
+  // (blank or Vault-identical input collapses to "no override" rather
+  // than persisting a value that's merely a copy of the Vault's — see its
+  // doc comment for why) so each field here is just wiring, not its own
+  // copy of that rule.
 
   String get vaultHeadline => _vault.basics.headline;
-  String get headlineText => _draft.headlineOverride ?? _vault.basics.headline;
-  bool get hasHeadlineOverride => _draft.headlineOverride != null;
-
-  Future<void> setHeadlineOverride(String value) => _draftService
-      .setHeadlineOverride(_normalizeOverride(value, _vault.basics.headline));
-
-  Future<void> revertHeadlineToVault() =>
-      _draftService.setHeadlineOverride(null);
-
-  // --- tailored summary ---
+  late final _headlineOverride = _TextOverride(
+    vaultValue: () => _vault.basics.headline,
+    draftValue: () => _draft.headlineOverride,
+    setOverride: _draftService.setHeadlineOverride,
+  );
+  String get headlineText => _headlineOverride.text;
+  bool get hasHeadlineOverride => _headlineOverride.hasOverride;
+  Future<void> setHeadlineOverride(String value) =>
+      _headlineOverride.set(value);
+  Future<void> revertHeadlineToVault() => _headlineOverride.revert();
 
   String? get vaultSummary => _vault.basics.summary;
-
-  /// What the editor box shows: the draft's override if it has one, else
-  /// the Vault's text (which the box starts pre-filled with).
-  String get summaryText =>
-      _draft.tailoredSummary ?? _vault.basics.summary ?? '';
-
-  bool get hasTailoredSummary => _draft.tailoredSummary != null;
-
-  Future<void> setTailoredSummary(String value) => _draftService
-      .setTailoredSummary(_normalizeOverride(value, _vault.basics.summary));
-
-  Future<void> revertSummaryToVault() => _draftService.setTailoredSummary(null);
-
-  // --- references override ---
+  late final _summaryOverride = _TextOverride(
+    vaultValue: () => _vault.basics.summary,
+    draftValue: () => _draft.tailoredSummary,
+    setOverride: _draftService.setTailoredSummary,
+  );
+  String get summaryText => _summaryOverride.text;
+  bool get hasTailoredSummary => _summaryOverride.hasOverride;
+  Future<void> setTailoredSummary(String value) => _summaryOverride.set(value);
+  Future<void> revertSummaryToVault() => _summaryOverride.revert();
 
   String? get vaultReferencesNote => _vault.referencesNote;
-  String get referencesText =>
-      _draft.referencesOverride ?? _vault.referencesNote ?? '';
-  bool get hasReferencesOverride => _draft.referencesOverride != null;
-
-  Future<void> setReferencesOverride(String value) => _draftService
-      .setReferencesOverride(_normalizeOverride(value, _vault.referencesNote));
-
-  Future<void> revertReferencesToVault() =>
-      _draftService.setReferencesOverride(null);
+  late final _referencesOverride = _TextOverride(
+    vaultValue: () => _vault.referencesNote,
+    draftValue: () => _draft.referencesOverride,
+    setOverride: _draftService.setReferencesOverride,
+  );
+  String get referencesText => _referencesOverride.text;
+  bool get hasReferencesOverride => _referencesOverride.hasOverride;
+  Future<void> setReferencesOverride(String value) =>
+      _referencesOverride.set(value);
+  Future<void> revertReferencesToVault() => _referencesOverride.revert();
 
   bool isSectionHidden(CvSectionType type) =>
       _draft.hiddenSections.contains(type);
@@ -451,7 +431,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   /// Copies this draft's current [sectionOrder] and hidden-sections state
-  /// into [AppSettings.defaultSectionOrder]/[AppSettings.defaultHiddenSections]
+  /// into `AppSettings.defaultSectionOrder`/`AppSettings.defaultHiddenSections`
   /// so the next brand-new draft starts with both — a one-shot copy, never
   /// a standing link back to this draft.
   Future<void> saveSectionSettingsAsDefault() =>
@@ -464,8 +444,6 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   /// user's saved default (or, if they've never saved one, the active
   /// template's own suggested order with nothing hidden).
   Future<void> resetSectionSettings() => _draftService.resetSectionSettings();
-
-  // --- experiences ---
 
   late final _experienceSelection = _Selection<Experience>(
     items: () => _vault.experiences,
@@ -494,45 +472,23 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> removeAllExperiences() => _experienceSelection.removeAll();
 
+  late final _experienceBullets = _BulletSelection(
+    selectedIdsFor: (id) => _draft.bulletIds[id] ?? const [],
+    setBulletIds: (id, ids) =>
+        _draftService.setBulletIds(BulletOwner.experience, id, ids),
+  );
+
   bool isExperienceBulletIncluded(String experienceId, String bulletId) =>
-      (_draft.bulletIds[experienceId] ?? const []).contains(bulletId);
+      _experienceBullets.isIncluded(experienceId, bulletId);
 
-  /// Toggles one bullet within an already-included experience, keeping the
-  /// remaining selection in the experience's own bullet order rather than
-  /// the order bullets happened to be toggled in.
-  Future<void> toggleExperienceBullet(Experience experience, CvBullet bullet) {
-    final selected = {...(_draft.bulletIds[experience.id] ?? const [])};
-    if (!selected.remove(bullet.id)) selected.add(bullet.id);
-    return _draftService.setBulletsForExperience(
-      experience.id,
-      experience.bullets.map((b) => b.id).where(selected.contains).toList(),
-    );
-  }
+  Future<void> toggleExperienceBullet(Experience experience, CvBullet bullet) =>
+      _experienceBullets.toggle(experience.id, experience.bullets, bullet.id);
 
-  /// Selects every bullet of [experience] not already included. Must
-  /// `await` each [toggleExperienceBullet] before starting the next —
-  /// each call reads `_draft.bulletIds` fresh to compute its own updated
-  /// list, so firing them all without awaiting would have every call read
-  /// the same pre-toggle draft and only the last write survive.
-  Future<void> addAllExperienceBullets(Experience experience) async {
-    for (final bullet in experience.bullets) {
-      if (!isExperienceBulletIncluded(experience.id, bullet.id)) {
-        await toggleExperienceBullet(experience, bullet);
-      }
-    }
-  }
+  Future<void> addAllExperienceBullets(Experience experience) =>
+      _experienceBullets.addAll(experience.id, experience.bullets);
 
-  /// The inverse of [addAllExperienceBullets], with the same
-  /// sequential-await requirement and for the same reason.
-  Future<void> removeAllExperienceBullets(Experience experience) async {
-    for (final bullet in experience.bullets) {
-      if (isExperienceBulletIncluded(experience.id, bullet.id)) {
-        await toggleExperienceBullet(experience, bullet);
-      }
-    }
-  }
-
-  // --- projects ---
+  Future<void> removeAllExperienceBullets(Experience experience) =>
+      _experienceBullets.removeAll(experience.id, experience.bullets);
 
   late final _projectSelection = _Selection<Project>(
     items: () => _vault.projects,
@@ -560,58 +516,45 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> removeAllProjects() => _projectSelection.removeAll();
 
+  late final _projectBullets = _BulletSelection(
+    selectedIdsFor: (id) => _draft.projectBulletIds[id] ?? const [],
+    setBulletIds: (id, ids) =>
+        _draftService.setBulletIds(BulletOwner.project, id, ids),
+  );
+
   bool isProjectBulletIncluded(String projectId, String bulletId) =>
-      (_draft.projectBulletIds[projectId] ?? const []).contains(bulletId);
+      _projectBullets.isIncluded(projectId, bulletId);
 
-  /// Same shape as [toggleExperienceBullet], one entity type over.
-  Future<void> toggleProjectBullet(Project project, CvBullet bullet) {
-    final selected = {...(_draft.projectBulletIds[project.id] ?? const [])};
-    if (!selected.remove(bullet.id)) selected.add(bullet.id);
-    return _draftService.setBulletsForProject(
-      project.id,
-      project.bullets.map((b) => b.id).where(selected.contains).toList(),
-    );
-  }
+  Future<void> toggleProjectBullet(Project project, CvBullet bullet) =>
+      _projectBullets.toggle(project.id, project.bullets, bullet.id);
 
-  /// Same shape as [addAllExperienceBullets], one entity type over.
-  Future<void> addAllProjectBullets(Project project) async {
-    for (final bullet in project.bullets) {
-      if (!isProjectBulletIncluded(project.id, bullet.id)) {
-        await toggleProjectBullet(project, bullet);
-      }
-    }
-  }
+  Future<void> addAllProjectBullets(Project project) =>
+      _projectBullets.addAll(project.id, project.bullets);
 
-  /// The inverse of [addAllProjectBullets], with the same
-  /// sequential-await requirement and for the same reason.
-  Future<void> removeAllProjectBullets(Project project) async {
-    for (final bullet in project.bullets) {
-      if (isProjectBulletIncluded(project.id, bullet.id)) {
-        await toggleProjectBullet(project, bullet);
-      }
-    }
-  }
+  Future<void> removeAllProjectBullets(Project project) =>
+      _projectBullets.removeAll(project.id, project.bullets);
 
-  // --- bullet text overrides ---
-  //
-  // Shared by experience, project, and publication bullets alike — bullet
-  // ids are globally unique (see `Skill.linkedBulletIds`'s doc comment), so
-  // an override lookup needs only the bullet, never which entity it belongs
-  // to.
+  // Bullet text overrides are shared by experience, project, and
+  // publication bullets alike — bullet ids are globally unique (see
+  // `Skill.linkedBulletIds`'s doc comment), so an override lookup needs
+  // only the bullet, never which entity it belongs to.
 
-  String bulletText(CvBullet bullet) =>
-      _draft.bulletOverrides[bullet.id] ?? bullet.text;
+  _TextOverride _bulletOverride(CvBullet bullet) => _TextOverride(
+    vaultValue: () => bullet.text,
+    draftValue: () => _draft.bulletOverrides[bullet.id],
+    setOverride: (value) => _draftService.setBulletOverride(bullet.id, value),
+  );
+
+  String bulletText(CvBullet bullet) => _bulletOverride(bullet).text;
 
   bool hasBulletOverride(String bulletId) =>
       _draft.bulletOverrides.containsKey(bulletId);
 
-  Future<void> setBulletOverride(CvBullet bullet, String value) => _draftService
-      .setBulletOverride(bullet.id, _normalizeOverride(value, bullet.text));
+  Future<void> setBulletOverride(CvBullet bullet, String value) =>
+      _bulletOverride(bullet).set(value);
 
   Future<void> revertBulletOverride(String bulletId) =>
       _draftService.setBulletOverride(bulletId, null);
-
-  // --- skills ---
 
   late final _skillSelection = _Selection<Skill>(
     items: () => _allSkills,
@@ -689,8 +632,6 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     }
   }
 
-  // --- education ---
-
   late final _educationSelection = _Selection<Education>(
     items: () => _vault.education,
     idOf: (e) => e.id,
@@ -716,22 +657,24 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   /// Same shape as [bulletText] — only [Education.details] is prose, so
   /// that's the only field an override map exists for.
+  _TextOverride _educationDetailsOverride(Education entry) => _TextOverride(
+    vaultValue: () => entry.details,
+    draftValue: () => _draft.educationDetailsOverrides[entry.id],
+    setOverride: (value) =>
+        _draftService.setEducationDetailsOverride(entry.id, value),
+  );
+
   String educationDetailsText(Education entry) =>
-      _draft.educationDetailsOverrides[entry.id] ?? entry.details ?? '';
+      _educationDetailsOverride(entry).text;
 
   bool hasEducationDetailsOverride(String educationId) =>
       _draft.educationDetailsOverrides.containsKey(educationId);
 
   Future<void> setEducationDetailsOverride(Education entry, String value) =>
-      _draftService.setEducationDetailsOverride(
-        entry.id,
-        _normalizeOverride(value, entry.details),
-      );
+      _educationDetailsOverride(entry).set(value);
 
   Future<void> revertEducationDetailsOverride(String educationId) =>
       _draftService.setEducationDetailsOverride(educationId, null);
-
-  // --- hobbies ---
 
   late final _hobbySelection = _Selection<HobbyItem>(
     items: () => _vault.hobbies,
@@ -754,8 +697,6 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   List<HobbyItem> get selectedHobbies => _hobbySelection.selected;
 
   Future<void> removeAllHobbies() => _hobbySelection.removeAll();
-
-  // --- publications ---
 
   late final _publicationSelection = _Selection<Publication>(
     items: () => _vault.publications,
@@ -785,46 +726,29 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> removeAllPublications() => _publicationSelection.removeAll();
 
-  bool isPublicationBulletIncluded(String publicationId, String bulletId) =>
-      (_draft.publicationBulletIds[publicationId] ?? const []).contains(
-        bulletId,
-      );
+  late final _publicationBullets = _BulletSelection(
+    selectedIdsFor: (id) => _draft.publicationBulletIds[id] ?? const [],
+    setBulletIds: (id, ids) =>
+        _draftService.setBulletIds(BulletOwner.publication, id, ids),
+  );
 
-  /// Same shape as [toggleProjectBullet], one entity type over.
+  bool isPublicationBulletIncluded(String publicationId, String bulletId) =>
+      _publicationBullets.isIncluded(publicationId, bulletId);
+
   Future<void> togglePublicationBullet(
     Publication publication,
     CvBullet bullet,
-  ) {
-    final selected = {
-      ...(_draft.publicationBulletIds[publication.id] ?? const []),
-    };
-    if (!selected.remove(bullet.id)) selected.add(bullet.id);
-    return _draftService.setBulletsForPublication(
-      publication.id,
-      publication.bullets.map((b) => b.id).where(selected.contains).toList(),
-    );
-  }
+  ) => _publicationBullets.toggle(
+    publication.id,
+    publication.bullets,
+    bullet.id,
+  );
 
-  /// Same shape as [addAllProjectBullets], one entity type over.
-  Future<void> addAllPublicationBullets(Publication publication) async {
-    for (final bullet in publication.bullets) {
-      if (!isPublicationBulletIncluded(publication.id, bullet.id)) {
-        await togglePublicationBullet(publication, bullet);
-      }
-    }
-  }
+  Future<void> addAllPublicationBullets(Publication publication) =>
+      _publicationBullets.addAll(publication.id, publication.bullets);
 
-  /// The inverse of [addAllPublicationBullets], with the same
-  /// sequential-await requirement and for the same reason.
-  Future<void> removeAllPublicationBullets(Publication publication) async {
-    for (final bullet in publication.bullets) {
-      if (isPublicationBulletIncluded(publication.id, bullet.id)) {
-        await togglePublicationBullet(publication, bullet);
-      }
-    }
-  }
-
-  // --- export ---
+  Future<void> removeAllPublicationBullets(Publication publication) =>
+      _publicationBullets.removeAll(publication.id, publication.bullets);
 
   bool get isExporting => isBusy;
   bool get hasExportError => hasError;
@@ -919,5 +843,97 @@ class _Selection<T> {
     for (final item in selected) {
       await toggle(item);
     }
+  }
+}
+
+/// Backs the isXBulletIncluded/toggleXBullet/addAllXBullets/
+/// removeAllXBullets quartet for experience, project and publication
+/// bullets — the same "selected ids keyed by owner, toggled through
+/// `DraftService.setBulletIds`, preserving the owner's own bullet order"
+/// shape three times over, differing only in which of `CvDraft`'s three
+/// bullet-id maps backs it. [selectedIdsFor] is re-evaluated on every
+/// call for the same reason [_Selection.selectedIds] is.
+class _BulletSelection {
+  _BulletSelection({required this.selectedIdsFor, required this.setBulletIds});
+
+  final List<String> Function(String ownerId) selectedIdsFor;
+  final Future<void> Function(String ownerId, List<String> bulletIds)
+  setBulletIds;
+
+  bool isIncluded(String ownerId, String bulletId) =>
+      selectedIdsFor(ownerId).contains(bulletId);
+
+  /// Toggles [bulletId] within [ownerId]'s selection, writing back
+  /// [allBullets] filtered to the (post-toggle) selected set — preserving
+  /// the owner's own bullet order rather than the order bullets happened
+  /// to be toggled in.
+  Future<void> toggle(
+    String ownerId,
+    List<CvBullet> allBullets,
+    String bulletId,
+  ) {
+    final selected = {...selectedIdsFor(ownerId)};
+    if (!selected.remove(bulletId)) selected.add(bulletId);
+    return setBulletIds(
+      ownerId,
+      allBullets.map((b) => b.id).where(selected.contains).toList(),
+    );
+  }
+
+  /// Selects every bullet of [allBullets] not already included. Must
+  /// await each [toggle] before starting the next — each call reads the
+  /// owner's current selection fresh to compute its own updated list, so
+  /// firing them all without awaiting would have every call read the same
+  /// pre-toggle selection and only the last write survive.
+  Future<void> addAll(String ownerId, List<CvBullet> allBullets) async {
+    for (final bullet in allBullets) {
+      if (!isIncluded(ownerId, bullet.id)) {
+        await toggle(ownerId, allBullets, bullet.id);
+      }
+    }
+  }
+
+  /// The inverse of [addAll], with the same sequential-await requirement
+  /// and for the same reason.
+  Future<void> removeAll(String ownerId, List<CvBullet> allBullets) async {
+    for (final bullet in allBullets) {
+      if (isIncluded(ownerId, bullet.id)) {
+        await toggle(ownerId, allBullets, bullet.id);
+      }
+    }
+  }
+}
+
+/// A single draft-overridable text field, falling back to the Vault's own
+/// value when there's no override — shared by headline, tailored summary,
+/// references, a bullet's text, and an education entry's details, which
+/// otherwise differ only in which draft field and Vault field they read.
+///
+/// Blank input, or input identical to the Vault's own value, collapses
+/// back to "no override" (`null`) rather than persisting a draft value
+/// that's merely a copy of the Vault's — without this, opening an editor
+/// and blurring without actually changing anything would silently
+/// disconnect that field from future Vault edits.
+class _TextOverride {
+  _TextOverride({
+    required this.vaultValue,
+    required this.draftValue,
+    required this.setOverride,
+  });
+
+  final String? Function() vaultValue;
+  final String? Function() draftValue;
+  final Future<void> Function(String? value) setOverride;
+
+  bool get hasOverride => draftValue() != null;
+  String get text => draftValue() ?? vaultValue() ?? '';
+
+  Future<void> set(String value) => setOverride(normalize(value, vaultValue()));
+
+  Future<void> revert() => setOverride(null);
+
+  static String? normalize(String value, String? source) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty || trimmed == (source ?? '').trim() ? null : value;
   }
 }

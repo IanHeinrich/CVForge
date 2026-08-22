@@ -49,7 +49,7 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
       itemCount: items.length,
       itemBuilder: (context, index) {
         return switch (items[index]) {
-          int pageIndex => Padding(
+          final int pageIndex => Padding(
             padding: EdgeInsets.only(
               top: index == 0 ? 0 : context.appSpacing.gapMedium,
               bottom: context.appSpacing.gapSmall,
@@ -59,7 +59,7 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
               style: context.appTypography.titleSmall,
             ),
           ),
-          AtsTextNode node => Container(
+          final AtsTextNode node => Container(
             width: double.infinity,
             margin: EdgeInsets.only(bottom: context.appSpacing.gapTiny),
             padding: EdgeInsets.symmetric(

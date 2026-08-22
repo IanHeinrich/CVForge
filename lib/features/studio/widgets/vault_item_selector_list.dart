@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -224,7 +225,7 @@ class _BulletSublist extends StatelessWidget {
                     expanded
                         ? RemixIcons.arrow_up_s_line
                         : RemixIcons.arrow_down_s_line,
-                    size: 16,
+                    size: context.appIconSize.small,
                   ),
                   label: Text(countLabel, style: context.appTypography.caption),
                 ),

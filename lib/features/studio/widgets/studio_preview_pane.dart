@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -47,7 +48,7 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
   /// data), but debouncing still matters once fields become editable by
   /// typing directly (a planned addition) — regenerating and re-rasterizing
   /// on every keystroke would be wasteful. Same duration class as
-  /// `DraftService._scheduleWrite`'s persistence debounce.
+  /// `PersistedStoreMixin.scheduleWrite`'s persistence debounce.
   static const _debounce = Duration(milliseconds: 250);
 
   /// The CV content [PdfPreview] was last actually told to render.
@@ -307,7 +308,7 @@ class _PreviewPageImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: EdgeInsets.symmetric(vertical: context.appSpacing.paddingTight),
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [BoxShadow(offset: Offset(0, 3), blurRadius: 5)],

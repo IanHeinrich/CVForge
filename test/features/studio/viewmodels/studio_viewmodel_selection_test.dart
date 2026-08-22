@@ -2,22 +2,16 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
-import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
-import 'package:cv_forge/models/vault/cv_bullet.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
-import 'package:cv_forge/models/vault/education.dart';
-import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/hobby_item.dart';
-import 'package:cv_forge/models/vault/project.dart';
-import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
-import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
@@ -27,102 +21,10 @@ void main() {
     late MockDraftService draftService;
     late MockSettingsService settingsService;
 
-    final experience = Experience(
-      id: 'exp-1',
-      role: 'Engineer',
-      company: 'Acme',
-      location: 'London',
-      start: const YearMonth(year: 2020, month: 1),
-      isCurrent: true,
-      bullets: const [
-        CvBullet(id: 'b1', text: 'Did a thing'),
-        CvBullet(id: 'b2', text: 'Did another thing'),
-      ],
-    );
-    final education = const Education(
-      id: 'edu-1',
-      qualification: 'BSc Computing',
-      institution: 'Leeds',
-    );
-    final project = Project(
-      id: 'proj-1',
-      title: 'CV Forge',
-      bullets: const [
-        CvBullet(id: 'pb1', text: 'Built a thing'),
-        CvBullet(id: 'pb2', text: 'Built another thing'),
-      ],
-    );
-    final publication = Publication(
-      id: 'pub-1',
-      title: 'A Study of Things',
-      bullets: const [
-        CvBullet(id: 'ub1', text: 'Cited by 40+ subsequent papers'),
-        CvBullet(id: 'ub2', text: 'Led the fieldwork component'),
-      ],
-    );
-    CvVault vaultWith({
-      List<Experience> experiences = const [],
-      List<Education> education = const [],
-      List<Project> projects = const [],
-      List<Publication> publications = const [],
-      List<SkillCategory> skillCategories = const [],
-      List<HobbyItem> hobbies = const [],
-      ContactBasics? basics,
-      String? referencesNote,
-    }) => CvVault(
-      schemaVersion: 1,
-      basics: basics ?? ContactBasics.empty(),
-      experiences: experiences,
-      education: education,
-      projects: projects,
-      publications: publications,
-      skillCategories: skillCategories,
-      hobbies: hobbies,
-      referencesNote: referencesNote,
-      updatedAt: DateTime.now(),
-    );
-
-    CvDraft draftWith({
-      List<String> experienceIds = const [],
-      Map<String, List<String>> bulletIds = const {},
-      List<String> projectIds = const [],
-      Map<String, List<String>> projectBulletIds = const {},
-      List<String> skillIds = const [],
-      List<String> educationIds = const [],
-      List<String> publicationIds = const [],
-      Map<String, List<String>> publicationBulletIds = const {},
-      Set<CvSectionType> hiddenSections = const {},
-      Map<String, String> bulletOverrides = const {},
-      String? tailoredSummary,
-      String? headlineOverride,
-      String? referencesOverride,
-      Map<String, String> educationDetailsOverrides = const {},
-      String templateId = 'compact',
-      List<CvSectionType>? sectionOrder,
-      RegionProfile region = RegionProfile.uk,
-    }) => CvDraft(
-      schemaVersion: 1,
-      id: 'current',
-      name: 'My CV',
-      templateId: templateId,
-      region: region,
-      experienceIds: experienceIds,
-      bulletIds: bulletIds,
-      projectIds: projectIds,
-      projectBulletIds: projectBulletIds,
-      skillIds: skillIds,
-      educationIds: educationIds,
-      publicationIds: publicationIds,
-      publicationBulletIds: publicationBulletIds,
-      hiddenSections: hiddenSections,
-      bulletOverrides: bulletOverrides,
-      tailoredSummary: tailoredSummary,
-      headlineOverride: headlineOverride,
-      referencesOverride: referencesOverride,
-      educationDetailsOverrides: educationDetailsOverrides,
-      sectionOrder: sectionOrder ?? CvSectionType.values,
-      updatedAt: DateTime.now(),
-    );
+    const experience = sampleExperience;
+    const education = sampleEducation;
+    const project = sampleProject;
+    const publication = samplePublication;
 
     setUp(() {
       vaultService = getAndRegisterVaultService();
@@ -352,11 +254,12 @@ void main() {
       expect(model.unselectedExperiences, [experience]);
     });
 
+    // Stands in for the identical one-line removeAllX delegators on
+    // projects/education/hobbies/publications — all of them share
+    // _Selection.removeAll, so one test of the mechanism covers every
+    // collection.
     test('removeAllExperiences excludes every currently-included '
-        'experience, one at a time — same shared _Selection.removeAll '
-        'mechanism every other collection\'s removeAll delegates to, so '
-        'this test stands in for the identical one-line delegators on '
-        'projects/education/hobbies/publications', () async {
+        'experience, one at a time', () async {
       final second = experience.copyWith(id: 'exp-2');
       when(
         vaultService.vault,
@@ -394,14 +297,16 @@ void main() {
         ),
       );
       when(
-        draftService.setBulletsForExperience(any, any),
+        draftService.setBulletIds(BulletOwner.experience, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.toggleExperienceBullet(experience, experience.bullets[0]);
 
       verify(
-        draftService.setBulletsForExperience(experience.id, ['b2']),
+        draftService.setBulletIds(BulletOwner.experience, experience.id, [
+          'b2',
+        ]),
       ).called(1);
     });
 
@@ -417,29 +322,32 @@ void main() {
         ),
       );
       when(
-        draftService.setBulletsForProject(any, any),
+        draftService.setBulletIds(BulletOwner.project, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.toggleProjectBullet(project, project.bullets[0]);
 
-      verify(draftService.setBulletsForProject(project.id, ['pb2'])).called(1);
+      verify(
+        draftService.setBulletIds(BulletOwner.project, project.id, ['pb2']),
+      ).called(1);
     });
 
+    // Each toggle must be awaited before the next reads the draft, or
+    // they all race against the same stale state and only the last one
+    // lands — this is the sequential-await regression this test catches.
     test('addAllExperienceBullets selects every unselected bullet without '
-        'dropping earlier selections — each toggle must be awaited before '
-        'the next reads the draft, or they all race against the same stale '
-        'state and only the last one lands', () async {
+        'dropping earlier selections', () async {
       when(vaultService.vault).thenReturn(vaultWith(experiences: [experience]));
       var draft = draftWith(
         experienceIds: [experience.id],
         bulletIds: {experience.id: <String>[]},
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForExperience(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
+      when(
+        draftService.setBulletIds(BulletOwner.experience, any, any),
+      ).thenAnswer((invocation) async {
+        final ids = invocation.positionalArguments[2] as List<String>;
         draft = draft.copyWith(
           bulletIds: {...draft.bulletIds, experience.id: ids},
         );
@@ -461,10 +369,10 @@ void main() {
         },
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForExperience(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
+      when(
+        draftService.setBulletIds(BulletOwner.experience, any, any),
+      ).thenAnswer((invocation) async {
+        final ids = invocation.positionalArguments[2] as List<String>;
         draft = draft.copyWith(
           bulletIds: {...draft.bulletIds, experience.id: ids},
         );
@@ -484,14 +392,14 @@ void main() {
         projectBulletIds: {project.id: <String>[]},
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForProject(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
-        draft = draft.copyWith(
-          projectBulletIds: {...draft.projectBulletIds, project.id: ids},
-        );
-      });
+      when(draftService.setBulletIds(BulletOwner.project, any, any)).thenAnswer(
+        (invocation) async {
+          final ids = invocation.positionalArguments[2] as List<String>;
+          draft = draft.copyWith(
+            projectBulletIds: {...draft.projectBulletIds, project.id: ids},
+          );
+        },
+      );
 
       final model = StudioViewModel();
       await model.addAllProjectBullets(project);
@@ -508,14 +416,14 @@ void main() {
         },
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForProject(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
-        draft = draft.copyWith(
-          projectBulletIds: {...draft.projectBulletIds, project.id: ids},
-        );
-      });
+      when(draftService.setBulletIds(BulletOwner.project, any, any)).thenAnswer(
+        (invocation) async {
+          final ids = invocation.positionalArguments[2] as List<String>;
+          draft = draft.copyWith(
+            projectBulletIds: {...draft.projectBulletIds, project.id: ids},
+          );
+        },
+      );
 
       final model = StudioViewModel();
       await model.removeAllProjectBullets(project);
@@ -537,14 +445,16 @@ void main() {
         ),
       );
       when(
-        draftService.setBulletsForPublication(any, any),
+        draftService.setBulletIds(BulletOwner.publication, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.togglePublicationBullet(publication, publication.bullets[0]);
 
       verify(
-        draftService.setBulletsForPublication(publication.id, ['ub2']),
+        draftService.setBulletIds(BulletOwner.publication, publication.id, [
+          'ub2',
+        ]),
       ).called(1);
     });
 
@@ -558,10 +468,10 @@ void main() {
         publicationBulletIds: {publication.id: <String>[]},
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForPublication(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
+      when(
+        draftService.setBulletIds(BulletOwner.publication, any, any),
+      ).thenAnswer((invocation) async {
+        final ids = invocation.positionalArguments[2] as List<String>;
         draft = draft.copyWith(
           publicationBulletIds: {
             ...draft.publicationBulletIds,
@@ -589,10 +499,10 @@ void main() {
           },
         );
         when(draftService.draft).thenAnswer((_) => draft);
-        when(draftService.setBulletsForPublication(any, any)).thenAnswer((
-          invocation,
-        ) async {
-          final ids = invocation.positionalArguments[1] as List<String>;
+        when(
+          draftService.setBulletIds(BulletOwner.publication, any, any),
+        ).thenAnswer((invocation) async {
+          final ids = invocation.positionalArguments[2] as List<String>;
           draft = draft.copyWith(
             publicationBulletIds: {
               ...draft.publicationBulletIds,
@@ -643,11 +553,11 @@ void main() {
         });
       }
 
+      // Same sequential-await requirement as addAllExperienceBullets: a
+      // category of three only ends up with all three ids if each toggle
+      // is awaited before the next reads the draft.
       test('addAllSkillsInCategory selects only that category\'s skills and '
-          'leaves other categories untouched — the same sequential-await '
-          'assertion that catches a synchronous-loop regression, since a '
-          'category of three only ends up with all three ids if each '
-          'toggle is awaited before the next reads the draft', () async {
+          'leaves other categories untouched', () async {
         when(vaultService.vault).thenReturn(
           vaultWith(skillCategories: [skillCategoryA, skillCategoryB]),
         );
@@ -680,18 +590,18 @@ void main() {
       test('selectEvidencedSkills selects a skill linked to an included '
           'bullet, does not select one linked only to an excluded bullet, '
           'and does not deselect a manually-selected unlinked skill', () async {
-        final evidenced = const Skill(
+        const evidenced = Skill(
           id: 's-evidenced',
           label: 'Dart',
           linkedBulletIds: ['b1'],
         );
-        final manual = const Skill(id: 's-manual', label: 'Manual');
-        final excluded = const Skill(
+        const manual = Skill(id: 's-manual', label: 'Manual');
+        const excluded = Skill(
           id: 's-excluded',
           label: 'Excluded',
           linkedBulletIds: ['pb2'],
         );
-        final category = SkillCategory(
+        const category = SkillCategory(
           id: 'cat',
           name: 'Cat',
           skills: [evidenced, manual, excluded],

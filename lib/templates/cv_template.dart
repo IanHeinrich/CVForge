@@ -8,8 +8,8 @@ import 'design/cv_font_set.dart';
 
 /// Coarse classification surfaced as chips on a template gallery card —
 /// not a styling input, and no renderer reads this. Originally drove the
-/// gallery's grouping (7.5); dropped once two templates produced one card
-/// per group and a mostly-empty dialog (see
+/// gallery's grouping; dropped once two templates produced one card per
+/// group and a mostly-empty dialog (see
 /// `TemplateGalleryDialogModel`'s doc comment), so this is informational
 /// only now. A new value here is cheap while there are only two templates
 /// to update; keep the set small (four or five values) and require every

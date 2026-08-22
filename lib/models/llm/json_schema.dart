@@ -5,8 +5,9 @@ part 'json_schema.freezed.dart';
 /// A provider-agnostic JSON Schema, restricted on purpose to the
 /// intersection every structured-output-capable provider's dialect
 /// supports: object/array/string/number/boolean, `required`, and a
-/// string `enum` — see plan.md's 4.4/4.5 for why staying inside that
-/// intersection matters (an enum of real ids is what makes a hallucinated
+/// string `enum` — see plan.md's LLM provider and Copilot design notes for
+/// why staying inside that intersection matters (an enum of real ids is
+/// what makes a hallucinated
 /// reference structurally impossible, and that trick has to survive
 /// translation into whichever provider's dialect is calling
 /// [LlmProvider.completeJson]). An [LlmProvider] adapter walks this tree

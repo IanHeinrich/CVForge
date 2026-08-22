@@ -145,8 +145,8 @@ void main() {
       // The y-flip means the page-space "top" (ascent side, larger y)
       // maps to the smaller pixel y — confirm the box didn't just copy
       // page-space y values through unprojected.
-      final expectedTopPageY = 700 + 0.8 * 10;
-      final expectedBottomPageY = 700 - 0.2 * 10;
+      const expectedTopPageY = 700 + 0.8 * 10;
+      const expectedBottomPageY = 700 - 0.2 * 10;
       expect(rect.top, closeTo(expectedTopPageY * -2 + 1000, 1e-9));
       expect(rect.bottom, closeTo(expectedBottomPageY * -2 + 1000, 1e-9));
     });

@@ -15,3 +15,23 @@ analyzer:
     # wholesale by `stacked generate`, never hand-edited, so excluding it
     # here is the same treatment other generated output gets.
     - lib/app/app.bottomsheets.dart
+
+linter:
+  rules:
+    - prefer_const_declarations
+    - prefer_final_locals
+    # Not enabled despite being useful, because each already has a large
+    # pre-existing backlog across this codebase that a rules-only change
+    # shouldn't silently take on (`flutter analyze` fails on any info-level
+    # finding, `flutter analyze`'s exit code included, so turning these on
+    # without fixing the backlog first would break CI immediately):
+    #   - comment_references (~140 findings — a dartdoc `[Foo]` link that
+    #     no longer resolves; this repo leans heavily on cross-file doc
+    #     links, so this is worth doing as its own follow-up pass)
+    #   - directives_ordering (~126 — package: imports after relative
+    #     imports in most Vault/Studio widget files)
+    #   - unnecessary_lambdas (~50 — closures that could be tearoffs)
+    #   - avoid_redundant_argument_values (~50 — mostly in tests)
+    # Not enabled at all: always_use_package_imports — CLAUDE.md's import
+    # convention deliberately allows a same-directory relative import
+    # (`import 'foo.dart';`), which this lint would flag.

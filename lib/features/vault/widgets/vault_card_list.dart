@@ -210,7 +210,7 @@ class _HobbiesCard extends StatelessWidget {
       // A count, like Skills' "3 categories, 11 skills" — joining every
       // hobby with ", " reads fine at three but degrades into a
       // `maxLines: 1`-truncated list ("Running, Chess, Photography,
-      // Cook…") the moment there are more than about four (7.8).
+      // Cook…") the moment there are more than about four.
       subtitle: hobbies.isEmpty
           ? 'None yet'
           : '${hobbies.length} ${hobbies.length == 1 ? 'hobby' : 'hobbies'}',

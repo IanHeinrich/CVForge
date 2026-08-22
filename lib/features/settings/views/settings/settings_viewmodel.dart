@@ -13,11 +13,10 @@ import 'package:cv_forge/services/vault_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-/// Settings' content: backup export/import (4.2) and Copilot connection
-/// setup (4.4). Follows P1.7-G1's rule — `implements Initialisable`, loads
-/// via a keyed `runBusyFuture` (mirroring `DraftsListViewModel`, not
-/// Vault's unkeyed variant), renders `StorageUnavailableCard` on failure
-/// via `AppChrome.gated`.
+/// Settings' content: backup export/import and Copilot connection setup.
+/// `implements Initialisable`, loads via a keyed `runBusyFuture`
+/// (mirroring `DraftsListViewModel`, not Vault's unkeyed variant), renders
+/// `StorageUnavailableCard` on failure via `AppChrome.gated`.
 class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   final _settingsService = locator<SettingsService>();
   final _backupService = locator<BackupService>();
@@ -52,8 +51,8 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   bool get isImporting => busy(_importBusyKey);
 
   /// Short, per-failure copy for the most recent import attempt — mirrors
-  /// `PdfExportStage`'s per-stage messaging (one generic message for every
-  /// failure is a real defect, per P1.7-G7).
+  /// `PdfExportStage`'s per-stage messaging: one generic message for every
+  /// failure is a real defect, not an acceptable fallback.
   String? get importErrorMessage {
     final error = this.error(_importBusyKey);
     if (error is! BackupException) return null;
@@ -126,8 +125,8 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     await runBusyFuture(_applyImport(bundle), busyObject: _importBusyKey);
   }
 
-  /// Wipes every Vault entry after confirmation. Moved here from
-  /// `VaultViewModel` (7.8) — it belongs beside Backup, where "export
+  /// Wipes every Vault entry after confirmation. Lives here rather than
+  /// on `VaultViewModel` — it belongs beside Backup, where "export
   /// first, then restore replaces everything" is already the established
   /// framing, not as the first interactive element on the Vault screen
   /// above the user's own name. Reaching `/vault` afterwards constructs a
@@ -152,8 +151,6 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     // else happened to trigger a rebuild.
     rebuildUi();
   }
-
-  // --- Copilot connection (4.4) -------------------------------------
 
   static const _testConnectionBusyKey = 'settings_test_copilot_connection';
 
@@ -240,10 +237,10 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     rebuildUi();
   }
 
-  /// Mirrors `importErrorMessage`'s per-failure-case copy (P1.7-G7: one
-  /// generic message for every failure is a real defect). Interpolates
-  /// the selected provider's name rather than hardcoding one, now that
-  /// there's more than one.
+  /// Mirrors `importErrorMessage`'s per-failure-case copy — one generic
+  /// message for every failure is a real defect, not an acceptable
+  /// fallback. Interpolates the selected provider's name rather than
+  /// hardcoding one, now that there's more than one.
   String? get connectionTestErrorMessage {
     final error = this.error(_testConnectionBusyKey);
     if (error is! LlmException) return null;

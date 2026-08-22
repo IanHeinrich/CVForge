@@ -4,7 +4,8 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
-import 'package:remixicon/remixicon.dart';
+
+import 'app_delete_icon_button/app_delete_icon_button.dart';
 
 /// A collapsed entity summary card — tapping it opens an editor, a preview,
 /// or drills into whatever [onTap] represents. Shared by every Vault
@@ -108,14 +109,7 @@ class AppSummaryCard extends StatelessWidget {
               if (actions != null)
                 ...actions!
               else if (onDelete != null)
-                IconButton(
-                  icon: const Icon(
-                    RemixIcons.delete_bin_line,
-                    color: kcLightGrey,
-                  ),
-                  onPressed: onDelete,
-                  tooltip: 'Delete',
-                ),
+                AppDeleteIconButton(onPressed: onDelete!),
             ],
           ),
         ),
