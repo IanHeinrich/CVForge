@@ -11,37 +11,9 @@ import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
+import '../helpers/fixtures.dart';
 import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
-
-/// Backs [MockLocalStorageService] with a real in-memory map keyed by
-/// "box/key", so two [DraftService] instances sharing the same mock
-/// genuinely round-trip through separate index/per-draft entries — a
-/// blanket `when(storage.read(any, any))` returning one canned value
-/// can't exercise the indexed, multi-key storage scheme correctly (the
-/// index and a draft entry are both valid JSON with a `schemaVersion`
-/// key, so a wrong value can accidentally "succeed" parsing as the wrong
-/// shape instead of failing loudly).
-Map<String, String> _wireMemoryStorage(MockLocalStorageService storage) {
-  final memory = <String, String>{};
-  when(storage.read(any, any)).thenAnswer((invocation) async {
-    final box = invocation.positionalArguments[0] as String;
-    final key = invocation.positionalArguments[1] as String;
-    return memory['$box/$key'];
-  });
-  when(storage.write(any, any, any)).thenAnswer((invocation) async {
-    final box = invocation.positionalArguments[0] as String;
-    final key = invocation.positionalArguments[1] as String;
-    final value = invocation.positionalArguments[2] as String;
-    memory['$box/$key'] = value;
-  });
-  when(storage.delete(any, any)).thenAnswer((invocation) async {
-    final box = invocation.positionalArguments[0] as String;
-    final key = invocation.positionalArguments[1] as String;
-    memory.remove('$box/$key');
-  });
-  return memory;
-}
 
 void main() {
   group('DraftServiceTest -', () {
@@ -51,7 +23,7 @@ void main() {
 
     setUp(() {
       storage = getAndRegisterLocalStorageService();
-      memory = _wireMemoryStorage(storage);
+      memory = stubInMemoryStorage(storage);
       // DraftService resolves this for real (not mocked) to stamp a
       // genuinely registered template id on every seeded/migrated draft —
       // see CvDraft.empty's doc comment.
@@ -465,51 +437,47 @@ void main() {
       expect(service.draft.sectionOrder, CvSectionType.values);
     });
 
-    test('setHeadlineOverride sets and clears the override', () async {
-      final service = DraftService();
-      await service.load();
+    // setHeadlineOverride/setReferencesOverride/setEducationDetailsOverride
+    // are the same "sets and clears" round-trip three times over — one
+    // table instead of three copies.
+    for (final c
+        in <
+          ({
+            String label,
+            Future<void> Function(DraftService service, String? value)
+            setOverride,
+            String? Function(DraftService service) readOverride,
+          })
+        >[
+          (
+            label: 'setHeadlineOverride',
+            setOverride: (s, v) => s.setHeadlineOverride(v),
+            readOverride: (s) => s.draft.headlineOverride,
+          ),
+          (
+            label: 'setReferencesOverride',
+            setOverride: (s, v) => s.setReferencesOverride(v),
+            readOverride: (s) => s.draft.referencesOverride,
+          ),
+          (
+            label: 'setEducationDetailsOverride',
+            setOverride: (s, v) => s.setEducationDetailsOverride('edu-1', v),
+            readOverride: (s) => s.draft.educationDetailsOverrides['edu-1'],
+          ),
+        ]) {
+      test('${c.label} sets and clears the override', () async {
+        final service = DraftService();
+        await service.load();
 
-      await service.setHeadlineOverride('Rewritten headline');
-      expect(service.draft.headlineOverride, 'Rewritten headline');
+        await c.setOverride(service, 'Rewritten value');
+        expect(c.readOverride(service), 'Rewritten value');
 
-      await service.setHeadlineOverride(null);
-      expect(service.draft.headlineOverride, isNull);
+        await c.setOverride(service, null);
+        expect(c.readOverride(service), isNull);
 
-      await service.flushPendingWrites();
-    });
-
-    test('setReferencesOverride sets and clears the override', () async {
-      final service = DraftService();
-      await service.load();
-
-      await service.setReferencesOverride('Rewritten references');
-      expect(service.draft.referencesOverride, 'Rewritten references');
-
-      await service.setReferencesOverride(null);
-      expect(service.draft.referencesOverride, isNull);
-
-      await service.flushPendingWrites();
-    });
-
-    test('setEducationDetailsOverride sets and clears the override — '
-        'round-trips correctly', () async {
-      final service = DraftService();
-      await service.load();
-
-      await service.setEducationDetailsOverride('edu-1', 'Rewritten details');
-      expect(
-        service.draft.educationDetailsOverrides['edu-1'],
-        'Rewritten details',
-      );
-
-      await service.setEducationDetailsOverride('edu-1', null);
-      expect(
-        service.draft.educationDetailsOverrides.containsKey('edu-1'),
-        isFalse,
-      );
-
-      await service.flushPendingWrites();
-    });
+        await service.flushPendingWrites();
+      });
+    }
 
     test('Migrates a pre-multi-draft single draft into the indexed scheme, '
         "without discarding it or the legacy key it came from", () async {

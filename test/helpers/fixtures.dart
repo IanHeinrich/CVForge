@@ -153,7 +153,9 @@ const sampleHobby = HobbyItem(id: 'hobby-1', text: 'Climbing');
 /// per-test `when(storage.read(...)).thenAnswer(...)` boilerplate —
 /// `VaultServiceTest`/`DraftServiceTest` restubbed "read -> null, write ->
 /// succeeds" in nearly every test before this existed. Returns the
-/// backing map so a test can still seed or inspect specific entries.
+/// backing map, keyed `'$box/$key'`, so a test can still seed or inspect
+/// a specific entry directly (e.g. to pre-load a corrupt payload before
+/// calling `service.load()`).
 Map<String, String> stubInMemoryStorage(MockLocalStorageService storage) {
   final data = <String, String>{};
   String key(String box, String storageKey) => '$box/$storageKey';

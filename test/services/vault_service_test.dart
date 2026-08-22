@@ -12,20 +12,23 @@ import 'package:cv_forge/services/vault_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
+import '../helpers/fixtures.dart';
 import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
 
 void main() {
   group('VaultServiceTest -', () {
     late MockLocalStorageService storage;
+    late Map<String, String> memory;
 
-    setUp(() => storage = getAndRegisterLocalStorageService());
+    setUp(() {
+      storage = getAndRegisterLocalStorageService();
+      memory = stubInMemoryStorage(storage);
+    });
     tearDown(() => locator.reset());
 
     group('load -', () {
       test('When no stored payload exists, creates an empty vault', () async {
-        when(storage.read(any, any)).thenAnswer((_) async => null);
-
         final service = VaultService();
         await service.load();
 
@@ -42,10 +45,8 @@ void main() {
         'falls back to an empty vault and quarantines the original',
         () async {
           const rawPayload = '{"schemaVersion": 99, "nonsense": true}';
-          when(storage.read(any, any)).thenAnswer((_) async => rawPayload);
-          when(
-            storage.write(any, any, any),
-          ).thenAnswer((_) => Future<void>.value());
+          memory['${StorageBoxes.vault}/${StorageKeys.vaultProfile}'] =
+              rawPayload;
 
           final service = VaultService();
           await service.load();
@@ -75,7 +76,6 @@ void main() {
         when(
           storage.ensureInitialized(),
         ).thenAnswer((_) => Future<void>.value());
-        when(storage.read(any, any)).thenAnswer((_) async => null);
 
         // If the first failure's Future were still memoized, this would
         // replay the same rejection instead of actually retrying.
@@ -87,11 +87,6 @@ void main() {
 
     group('experiences -', () {
       test('add, update, and delete an experience', () async {
-        when(storage.read(any, any)).thenAnswer((_) async => null);
-        when(
-          storage.write(any, any, any),
-        ).thenAnswer((_) => Future<void>.value());
-
         final service = VaultService();
         await service.load();
 
@@ -122,11 +117,6 @@ void main() {
       test('groupExperience assigns a shared companyGroupId, reusing an '
           'existing group when adding a third member, and ungrouping only '
           'affects the one experience', () async {
-        when(storage.read(any, any)).thenAnswer((_) async => null);
-        when(
-          storage.write(any, any, any),
-        ).thenAnswer((_) => Future<void>.value());
-
         final service = VaultService();
         await service.load();
 
@@ -174,11 +164,6 @@ void main() {
 
     group('bullets -', () {
       test('add, reorder, and delete bullets within an experience', () async {
-        when(storage.read(any, any)).thenAnswer((_) async => null);
-        when(
-          storage.write(any, any, any),
-        ).thenAnswer((_) => Future<void>.value());
-
         final service = VaultService();
         await service.load();
 
@@ -238,11 +223,6 @@ void main() {
     test('Deleting an experience does not touch a draft referencing it — '
         'VaultService and DraftService share no reference to one another, '
         'so the dangling id in the draft survives untouched', () async {
-      when(storage.read(any, any)).thenAnswer((_) async => null);
-      when(
-        storage.write(any, any, any),
-      ).thenAnswer((_) => Future<void>.value());
-
       final vaultService = VaultService();
       await vaultService.load();
       final experience = await vaultService.addExperience(
@@ -282,11 +262,6 @@ void main() {
         'Round-trips nested collections as real JSON objects, not '
         'stringified instances — proves explicit_to_json is active',
         () async {
-          when(storage.read(any, any)).thenAnswer((_) async => null);
-          when(
-            storage.write(any, any, any),
-          ).thenAnswer((_) => Future<void>.value());
-
           final service = VaultService();
           await service.load();
 
