@@ -10,7 +10,7 @@ import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
 import 'tailoring_controls.dart';
 
-/// The persistent Copilot card in [StudioConfigPanel] (plan.md's 4.5): the
+/// The persistent Copilot card in `StudioSectionNav` (plan.md's 4.5): the
 /// job ad this draft is being tailored for, the "Tailor with AI" action,
 /// and "Undo AI changes" while a pass is applied.
 ///

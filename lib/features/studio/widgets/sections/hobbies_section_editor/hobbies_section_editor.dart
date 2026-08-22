@@ -14,7 +14,9 @@ class HobbiesSectionEditor extends StatelessWidget {
     return VaultItemSelectorList(
       title: 'Hobbies and interests',
       unselectedCount: viewModel.unselectedHobbies.length,
+      selectedCount: viewModel.selectedHobbies.length,
       onAddAll: viewModel.addAllHobbies,
+      onRemoveAll: viewModel.removeAllHobbies,
       items: [
         for (final hobby in viewModel.hobbies)
           SelectorItem(

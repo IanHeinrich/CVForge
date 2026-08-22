@@ -15,7 +15,9 @@ class ProjectsSectionEditor extends StatelessWidget {
     return VaultItemSelectorList(
       title: 'Projects',
       unselectedCount: viewModel.unselectedProjects.length,
+      selectedCount: viewModel.selectedProjects.length,
       onAddAll: viewModel.addAllProjects,
+      onRemoveAll: viewModel.removeAllProjects,
       items: [
         for (final project in viewModel.projects)
           SelectorItem(
@@ -25,6 +27,8 @@ class ProjectsSectionEditor extends StatelessWidget {
             selected: viewModel.isProjectIncluded(project.id),
             onToggle: () => viewModel.toggleProject(project),
             onAddAllBullets: () => viewModel.addAllProjectBullets(project),
+            onRemoveAllBullets: () =>
+                viewModel.removeAllProjectBullets(project),
             bullets: [
               for (final bullet in project.bullets)
                 SelectorItem(

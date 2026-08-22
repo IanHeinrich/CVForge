@@ -8,10 +8,13 @@ import 'package:stacked/stacked.dart';
 
 import 'template_gallery_dialog_data.dart';
 
-/// Backs [TemplateGalleryDialog]. Grouping is by [TemplateTag] rather than
-/// a filter control (7.5 decision 5) — a template with several tags files
-/// under the first one it declares, same rule [tagGroups] and each card's
-/// remaining-tag chips both follow.
+/// Backs [TemplateGalleryDialog] — a flat grid, not grouped by
+/// [TemplateTag]. Grouping under tag headings was tried in 7.5 and
+/// dropped: with two templates it produced one card per group and a
+/// mostly-empty dialog, which only gets worse rather than better once a
+/// tag applies to most templates. [TemplateTag] still exists — each
+/// card shows its own tags as chips, still useful at a glance — it just
+/// no longer drives layout.
 class TemplateGalleryDialogModel extends BaseViewModel {
   TemplateGalleryDialogModel({required this.data})
     : _selectedId = data.currentTemplateId;
@@ -30,20 +33,17 @@ class TemplateGalleryDialogModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// One group per first-declared [TemplateTag], in [TemplateTag]'s own
-  /// declaration order — not alphabetical, and not insertion order off
-  /// whichever template happens to be registered first.
-  List<MapEntry<TemplateTag, List<CvTemplate>>> get tagGroups {
-    final byTag = <TemplateTag, List<CvTemplate>>{};
-    for (final template in _templateRegistry.available) {
-      final primaryTag = template.tags.first;
-      (byTag[primaryTag] ??= []).add(template);
-    }
-    return [
-      for (final tag in TemplateTag.values)
-        if (byTag[tag] case final templates?) MapEntry(tag, templates),
-    ];
-  }
+  /// Every registered template, in registry order — the grid the dialog
+  /// renders.
+  List<CvTemplate> get templates => _templateRegistry.available;
+
+  /// The proportions of the page every thumbnail is rendered at, so each
+  /// card's image slot can match its image. Derived from the draft's own
+  /// [TemplateGalleryDialogData.pageFormat] — the same value handed to
+  /// [TemplateThumbnailService.thumbnail] — rather than assumed to be A4,
+  /// which letterboxed a US Letter draft's thumbnails inside a taller,
+  /// narrower box.
+  double get pageAspectRatio => data.pageFormat.width / data.pageFormat.height;
 
   /// Cached per template id so a card's `FutureBuilder` doesn't re-request
   /// a render on every rebuild — [TemplateThumbnailService] has its own

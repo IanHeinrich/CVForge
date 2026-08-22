@@ -15,7 +15,9 @@ class EducationSectionEditor extends StatelessWidget {
     return VaultItemSelectorList(
       title: 'Education',
       unselectedCount: viewModel.unselectedEducation.length,
+      selectedCount: viewModel.selectedEducation.length,
       onAddAll: viewModel.addAllEducation,
+      onRemoveAll: viewModel.removeAllEducation,
       items: [
         for (final entry in viewModel.education)
           SelectorItem(

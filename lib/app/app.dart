@@ -49,6 +49,8 @@ import 'package:cv_forge/services/template_thumbnail_service.dart';
 
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog.dart';
 
+import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -100,6 +102,7 @@ import 'package:cv_forge/features/studio/dialogs/template_gallery/template_galle
     StackedDialog(classType: EditDraftDialog),
     StackedDialog(classType: CopilotRunDialog),
     StackedDialog(classType: TemplateGalleryDialog),
+    StackedDialog(classType: RegionGalleryDialog),
     // @stacked-dialog
   ],
 )

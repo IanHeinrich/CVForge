@@ -10,17 +10,54 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 
-/// The one-row bar above Studio's three-column layout: a way back to
+/// The bar above Studio's three-column layout: a way back to
 /// [DraftsListView] and the draft name/edit affordance (absorbing what
-/// `studio_draft_header.dart` used to own), the template gallery button
-/// and region dropdown (7.5), the page count (7.3), and Export — moved
-/// off the preview pane's floating button so it reads as document-level,
-/// not preview-level. See `docs/ux/7.4-studio-restructure.md` and
+/// `studio_draft_header.dart` used to own), the template and region
+/// pickers (7.5), the page count (7.3), and Export — moved off the
+/// preview pane's floating button so it reads as document-level, not
+/// preview-level. See `docs/ux/7.4-studio-restructure.md` and
 /// `docs/ux/7.5-template-region-scaling.md`.
+///
+/// Three zones, grouped by what each control is about: identity (back,
+/// name, edit) on the left, the document's *setup* (template, region)
+/// centred, and its *output* (page count, Export) on the right.
+///
+/// The centre group is centred on the **bar**, not merely placed between
+/// the other two — which is why the side groups are equal-flex
+/// [Expanded]s rather than natural-width siblings. A `Row` hands each
+/// flexible child `freeSpace * flex / totalFlex`, so two equal flexes
+/// always split the surplus evenly and leave the natural-width centre
+/// group exactly in the middle regardless of how long the draft name is
+/// or whether the page count is showing. Each side then aligns its own
+/// content outward (start on the left, end on the right) inside its half.
+///
+/// Aligning within an [Expanded] also matters for the right group
+/// specifically: a `Row` gives a loose flexible child only what it asks
+/// for and lets the remainder collect at the row's end, so the earlier
+/// "one `Expanded` on the left, natural width after it" arrangement left
+/// Export short of the right edge by whatever share of the surplus a
+/// short draft name didn't spend.
 class StudioDocumentBar extends StatelessWidget {
   const StudioDocumentBar({super.key, required this.viewModel});
 
   final StudioViewModel viewModel;
+
+  /// Every control in the bar shares this height, so buttons whose own
+  /// default padding differs still line up as one row of controls.
+  static const _controlHeight = 40.0;
+
+  /// Below this the bar splits into two rows — identity above, controls
+  /// below. Squeezing all of it onto one row instead used to push the
+  /// template picker off-screen behind an unmarked horizontal scroll;
+  /// wrapping keeps every control visible and reachable at any width.
+  ///
+  /// Higher than it needs to be for the controls alone, because the
+  /// three-zone single row costs more than a two-zone one: the centre
+  /// group is centred on the bar, so the *wider* of the two side groups
+  /// dictates how much room both get. Set so the right group still fits
+  /// its half once the left group's name has ellipsised as far as it
+  /// usefully can.
+  static const _singleRowMinWidth = 900.0;
 
   @override
   Widget build(BuildContext context) {
@@ -39,101 +76,50 @@ class StudioDocumentBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              IconButton(
-                tooltip: 'Back to your CVs',
-                icon: const Icon(
-                  RemixIcons.arrow_left_line,
-                  color: kcLightGrey,
-                ),
-                onPressed: viewModel.goToDrafts,
-              ),
-              Flexible(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth >= _singleRowMinWidth) {
+                return Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        viewModel.draftName,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.appTypography.titleSmall,
+                    // Equal flexes, each aligning its content outward —
+                    // see the class doc comment for why that, and not
+                    // natural-width siblings, is what actually centres
+                    // the setup group and pins Export to the edge.
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _Identity(viewModel: viewModel),
                       ),
                     ),
-                    IconButton(
-                      tooltip: 'Edit CV details',
-                      icon: const Icon(
-                        RemixIcons.edit_line,
-                        color: kcLightGrey,
+                    const HGap.small(),
+                    _SetupControls(viewModel: viewModel),
+                    const HGap.small(),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: _OutputControls(viewModel: viewModel),
                       ),
-                      onPressed: viewModel.editDraftDetails,
                     ),
                   ],
-                ),
-              ),
-              // The remaining controls never wrap onto a second line (the
-              // bar stays one row, per the doc's target layout) — on a
-              // narrow compact breakpoint they scroll horizontally instead
-              // of overflowing, rather than risking a `RenderFlex` error.
-              Expanded(
-                flex: 2,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  reverse: true,
-                  child: Row(
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _Identity(viewModel: viewModel),
+                  const VGap.tiny(),
+                  // Too narrow to centre anything meaningfully, so the
+                  // two control groups just take an end each.
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      OutlinedButton.icon(
-                        onPressed: viewModel.openTemplateGallery,
-                        icon: const Icon(RemixIcons.layout_grid_line, size: 16),
-                        label: Text(viewModel.template.displayName),
-                      ),
-                      const HGap.small(),
-                      // A plain dropdown, not a chip row — 5-6 regions
-                      // fit in one menu without scrolling, and a chip
-                      // row of that many wouldn't fit this one-row bar.
-                      // See 7.5 decision 8.
-                      DropdownMenu<RegionProfile>(
-                        initialSelection: viewModel.region,
-                        textStyle: context.appTypography.bodySmall,
-                        onSelected: (region) {
-                          if (region != null) viewModel.setRegion(region);
-                        },
-                        dropdownMenuEntries: [
-                          for (final region in RegionProfile.values)
-                            DropdownMenuEntry(
-                              value: region,
-                              label: region.preset.displayName,
-                            ),
-                        ],
-                      ),
-                      if (viewModel.pageCount != null) ...[
-                        const HGap.small(),
-                        _PageCountBadge(count: viewModel.pageCount!),
-                      ],
-                      const HGap.small(),
-                      FilledButton.icon(
-                        onPressed: viewModel.isExporting
-                            ? null
-                            : viewModel.exportPdf,
-                        icon: viewModel.isExporting
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: kcWhite,
-                                ),
-                              )
-                            : const Icon(RemixIcons.download_line),
-                        label: Text(
-                          viewModel.isExporting ? 'Exporting…' : 'Export PDF',
-                        ),
-                      ),
+                      _SetupControls(viewModel: viewModel),
+                      _OutputControls(viewModel: viewModel),
                     ],
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
           if (viewModel.hasExportError) ...[
             const VGap.tiny(),
@@ -148,17 +134,167 @@ class StudioDocumentBar extends StatelessWidget {
   }
 }
 
+/// How the document is built — the centre group.
+class _SetupControls extends StatelessWidget {
+  const _SetupControls({required this.viewModel});
+
+  final StudioViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _BarButton(
+          onPressed: viewModel.openTemplateGallery,
+          icon: const Icon(RemixIcons.layout_grid_line, size: 16),
+          label: viewModel.template.displayName,
+        ),
+        const HGap.tiny(),
+        // A button opening a card dialog, not the `DropdownMenu` 7.5
+        // originally chose: region sits beside template here and is the
+        // same kind of decision, so it gets the same affordance — and
+        // unlike a dropdown, the dialog has room to say what picking a
+        // region actually changes. The flag leads, as on that dialog's
+        // own cards.
+        _BarButton(
+          onPressed: viewModel.openRegionGallery,
+          icon: Text(
+            viewModel.region.preset.flag,
+            style: const TextStyle(fontSize: 16),
+          ),
+          label: viewModel.region.preset.displayName,
+        ),
+      ],
+    );
+  }
+}
+
+/// What comes out of it — the right group. Page count sits immediately
+/// left of Export because both describe the produced PDF, where template
+/// and region describe how it gets built.
+class _OutputControls extends StatelessWidget {
+  const _OutputControls({required this.viewModel});
+
+  final StudioViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (viewModel.pageCount != null) ...[
+          _PageCountBadge(
+            count: viewModel.pageCount!,
+            height: StudioDocumentBar._controlHeight,
+          ),
+          const HGap.tiny(),
+        ],
+        SizedBox(
+          height: StudioDocumentBar._controlHeight,
+          child: FilledButton.icon(
+            onPressed: viewModel.isExporting ? null : viewModel.exportPdf,
+            icon: viewModel.isExporting
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: kcWhite,
+                    ),
+                  )
+                : const Icon(RemixIcons.download_line, size: 18),
+            label: Text(viewModel.isExporting ? 'Exporting…' : 'Export PDF'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Identity extends StatelessWidget {
+  const _Identity({required this.viewModel});
+
+  final StudioViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          tooltip: 'Back to your CVs',
+          icon: const Icon(RemixIcons.arrow_left_line, color: kcLightGrey),
+          onPressed: viewModel.goToDrafts,
+        ),
+        Flexible(
+          child: Text(
+            viewModel.draftName,
+            overflow: TextOverflow.ellipsis,
+            style: context.appTypography.titleSmall,
+          ),
+        ),
+        IconButton(
+          tooltip: 'Edit CV details',
+          icon: const Icon(RemixIcons.edit_line, color: kcLightGrey),
+          onPressed: viewModel.editDraftDetails,
+        ),
+      ],
+    );
+  }
+}
+
+/// The template and region pickers' shared shape. A plain outlined button
+/// on the bar's own ground, not one banded onto a filled container — the
+/// container's fill ended flush against each button's border with no
+/// breathing room between the two edges, which read as a rendering
+/// artefact rather than as grouping. Spacing groups these instead.
+class _BarButton extends StatelessWidget {
+  const _BarButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+  });
+
+  final VoidCallback onPressed;
+  final Widget icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: StudioDocumentBar._controlHeight,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: icon,
+        label: Text(label),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: kcWhite,
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.appSpacing.paddingCompact,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PageCountBadge extends StatelessWidget {
-  const _PageCountBadge({required this.count});
+  const _PageCountBadge({required this.count, required this.height});
 
   final int count;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      height: height,
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.appSpacing.paddingCompact,
+      ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(context.appRadius.medium),
       ),
       child: Text(

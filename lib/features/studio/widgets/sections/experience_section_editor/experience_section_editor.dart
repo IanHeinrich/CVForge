@@ -15,7 +15,9 @@ class ExperienceSectionEditor extends StatelessWidget {
     return VaultItemSelectorList(
       title: 'Work history',
       unselectedCount: viewModel.unselectedExperiences.length,
+      selectedCount: viewModel.selectedExperiences.length,
       onAddAll: viewModel.addAllExperiences,
+      onRemoveAll: viewModel.removeAllExperiences,
       items: [
         for (final experience in viewModel.experiences)
           SelectorItem(
@@ -26,6 +28,8 @@ class ExperienceSectionEditor extends StatelessWidget {
             onToggle: () => viewModel.toggleExperience(experience),
             onAddAllBullets: () =>
                 viewModel.addAllExperienceBullets(experience),
+            onRemoveAllBullets: () =>
+                viewModel.removeAllExperienceBullets(experience),
             bullets: [
               for (final bullet in experience.bullets)
                 SelectorItem(

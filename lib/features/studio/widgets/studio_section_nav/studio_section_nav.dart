@@ -112,11 +112,19 @@ class _SectionList extends StatelessWidget {
         return Row(
           key: ValueKey('section_${type.name}'),
           children: [
+            // shrinkWrap tap target + compact density — the default 48px
+            // tap target left the longest labels ("Professional summary",
+            // "Hobbies and interests") no room and forced an ellipsis
+            // even at a widened nav column; every pixel here is pixels
+            // the label doesn't get.
             Checkbox(
               value: !viewModel.isSectionHidden(type),
               onChanged: (_) => viewModel.toggleSectionHidden(type),
               activeColor: kcPrimaryColor,
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
+            const HGap.tiny(),
             Expanded(
               child: Material(
                 color: selected
@@ -145,9 +153,13 @@ class _SectionList extends StatelessWidget {
               index: index,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.appSpacing.paddingTight,
+                  horizontal: context.appSpacing.paddingHairline,
                 ),
-                child: const Icon(RemixIcons.draggable, color: kcMediumGrey),
+                child: const Icon(
+                  RemixIcons.draggable,
+                  color: kcMediumGrey,
+                  size: 18,
+                ),
               ),
             ),
           ],

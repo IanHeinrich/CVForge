@@ -15,7 +15,9 @@ class PublicationsSectionEditor extends StatelessWidget {
     return VaultItemSelectorList(
       title: 'Publications',
       unselectedCount: viewModel.unselectedPublications.length,
+      selectedCount: viewModel.selectedPublications.length,
       onAddAll: viewModel.addAllPublications,
+      onRemoveAll: viewModel.removeAllPublications,
       items: [
         for (final publication in viewModel.publications)
           SelectorItem(
@@ -28,6 +30,8 @@ class PublicationsSectionEditor extends StatelessWidget {
             onToggle: () => viewModel.togglePublication(publication),
             onAddAllBullets: () =>
                 viewModel.addAllPublicationBullets(publication),
+            onRemoveAllBullets: () =>
+                viewModel.removeAllPublicationBullets(publication),
             bullets: [
               for (final bullet in publication.bullets)
                 SelectorItem(

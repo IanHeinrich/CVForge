@@ -37,11 +37,17 @@ class AppDialogScaffold extends StatelessWidget {
   /// color, so the button itself signals the risk.
   final bool destructive;
 
-  /// Caps the dialog's width for a form-shaped body (e.g. name/notes
-  /// fields) that would otherwise stretch to fill a wide viewport. Left
-  /// unset for a body that already sizes itself to its content (e.g. a
-  /// short confirmation message).
+  /// Caps the dialog's width. Defaults to [_defaultMaxWidth] when unset —
+  /// a bare confirmation `Text` has no width of its own to size itself
+  /// to, and `Dialog`'s own default constraints don't cap width tightly
+  /// enough to stop one stretching to an awkward fraction of a wide
+  /// viewport, which is what every dialog that didn't pass this
+  /// explicitly (`ConfirmDeleteDialog`, notably) actually did. Pass a
+  /// larger value for a form-shaped or grid body that genuinely needs
+  /// more room (e.g. the template gallery's 760).
   final double? maxWidth;
+
+  static const _defaultMaxWidth = 420.0;
 
   @override
   Widget build(BuildContext context) {
@@ -72,12 +78,10 @@ class AppDialogScaffold extends StatelessWidget {
     return Dialog(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: maxWidth == null
-            ? body
-            : ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxWidth!),
-                child: body,
-              ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth ?? _defaultMaxWidth),
+          child: body,
+        ),
       ),
     );
   }

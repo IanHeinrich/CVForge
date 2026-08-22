@@ -31,6 +31,7 @@ class VGap extends StatelessWidget {
 
 /// Horizontal spacing between sibling widgets — see [VGap].
 class HGap extends StatelessWidget {
+  const HGap.tiny({super.key}) : _size = _GapSize.tiny;
   const HGap.small({super.key}) : _size = _GapSize.small;
 
   final _GapSize _size;

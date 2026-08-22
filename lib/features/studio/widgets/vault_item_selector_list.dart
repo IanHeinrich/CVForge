@@ -28,6 +28,7 @@ class SelectorItem {
     required this.onToggle,
     this.bullets = const [],
     this.onAddAllBullets,
+    this.onRemoveAllBullets,
     this.tailorable,
   });
 
@@ -49,11 +50,17 @@ class SelectorItem {
   /// same stale draft, and only the last one lands.
   final VoidCallback? onAddAllBullets;
 
+  /// Inverse of [onAddAllBullets], same sequential-await requirement.
+  /// Bullets used to offer only "Add all", while the skills chip groups
+  /// offered both — the same bulk action at two levels of the same screen
+  /// behaving differently, which is what this pairs up.
+  final VoidCallback? onRemoveAllBullets;
+
   /// Non-null only for entries with a manually-rewritable prose field —
   /// a bullet's own text, or an education entry's `details`. Null for
   /// everything else (skills, hobbies, the top-level experience/project/
-  /// education rows themselves) — see `StudioConfigPanel`'s call sites
-  /// for which is which.
+  /// education rows themselves) — see the `sections/` editors' call
+  /// sites for which is which.
   final TailorableField? tailorable;
 }
 
@@ -74,13 +81,20 @@ class VaultItemSelectorList extends StatefulWidget {
     required this.title,
     required this.items,
     required this.unselectedCount,
+    required this.selectedCount,
     this.onAddAll,
+    this.onRemoveAll,
   });
 
   final String title;
   final List<SelectorItem> items;
   final int unselectedCount;
+  final int selectedCount;
   final VoidCallback? onAddAll;
+
+  /// Inverse of [onAddAll], same sequential-await requirement — see
+  /// [SelectorItem.onRemoveAllBullets] for why both directions exist.
+  final VoidCallback? onRemoveAll;
 
   @override
   State<VaultItemSelectorList> createState() => _VaultItemSelectorListState();
@@ -109,6 +123,11 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                 TextButton(
                   onPressed: widget.onAddAll,
                   child: Text('Add all (${widget.unselectedCount})'),
+                ),
+              if (widget.selectedCount > 0 && widget.onRemoveAll != null)
+                TextButton(
+                  onPressed: widget.onRemoveAll,
+                  child: Text('Remove all (${widget.selectedCount})'),
                 ),
             ],
           ),
@@ -215,13 +234,24 @@ class _BulletSublist extends StatelessWidget {
                   item.onAddAllBullets != null)
                 TextButton(
                   onPressed: item.onAddAllBullets,
-                  // Same "Add all (N)" wording as every category-level
-                  // list above this one — this is the identical action
-                  // one level down (bullets within one entry instead of
-                  // entries within a category), so it should read the
-                  // same, not "Select all".
+                  // Same "Add all (N)"/"Remove all (N)" wording and same
+                  // pairing as every category-level list above this one
+                  // and as the skills chip groups — this is the identical
+                  // action one level down (bullets within one entry
+                  // instead of entries within a category), so it should
+                  // read the same, not "Select all".
                   child: Text(
                     'Add all ($unselectedCount)',
+                    style: context.appTypography.caption,
+                  ),
+                ),
+              if (expanded &&
+                  selectedCount > 0 &&
+                  item.onRemoveAllBullets != null)
+                TextButton(
+                  onPressed: item.onRemoveAllBullets,
+                  child: Text(
+                    'Remove all ($selectedCount)',
                     style: context.appTypography.caption,
                   ),
                 ),
