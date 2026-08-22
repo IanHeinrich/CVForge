@@ -16,8 +16,10 @@ import 'package:cv_forge/templates/cv_template.dart';
 import 'template_gallery_dialog_data.dart';
 import 'template_gallery_dialog_model.dart';
 
-/// Sized so the thumbnail is actually legible as a page — you're picking
-/// a visual design, so a stamp-sized render of it answers nothing.
+/// The card's ideal width, sized so the thumbnail is actually legible as a
+/// page — you're picking a visual design, so a stamp-sized render of it
+/// answers nothing. Only ever shrunk from this by [_TemplateCard]'s own
+/// `LayoutBuilder`, on a viewport too narrow to fit even one at full size.
 const _cardWidth = 300.0;
 
 /// A flat, wrapping grid of template cards — not grouped or filtered, see
@@ -128,79 +130,91 @@ class _TemplateCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(context.appRadius.medium),
         onTap: onTap,
-        child: Container(
-          width: _cardWidth,
-          padding: EdgeInsets.all(context.appSpacing.paddingTight),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(context.appRadius.medium),
-            border: Border.all(
-              color: selected ? kcPrimaryColor : Colors.transparent,
-              width: 2,
+        // `LayoutBuilder`'s `constraints.maxWidth` here is the `Wrap`'s
+        // own available width (a `Wrap` gives every child a loose
+        // constraint capped at its own width, not a per-child share of
+        // it) — so a card only ever shrinks below `_cardWidth` on a
+        // viewport too narrow to fit one at full size, instead of
+        // overflowing past the dialog's edge the way a bare fixed width
+        // did on mobile.
+        child: LayoutBuilder(
+          builder: (context, constraints) => Container(
+            width: constraints.maxWidth < _cardWidth
+                ? constraints.maxWidth
+                : _cardWidth,
+            padding: EdgeInsets.all(context.appSpacing.paddingTight),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(context.appRadius.medium),
+              border: Border.all(
+                color: selected ? kcPrimaryColor : Colors.transparent,
+                width: 2,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      context.appRadius.small,
-                    ),
-                    // AspectRatio, not a fixed height — the slot takes
-                    // the page's own proportions so `BoxFit.cover` fills
-                    // it exactly, with no letterbox band in either
-                    // direction whichever page size the draft uses.
-                    child: AspectRatio(
-                      aspectRatio: pageAspectRatio,
-                      child: PdfPageThumbnail(future: thumbnailFuture),
-                    ),
-                  ),
-                  if (selected)
-                    const Positioned(
-                      top: 6,
-                      right: 6,
-                      child: Icon(
-                        RemixIcons.checkbox_circle_fill,
-                        color: kcPrimaryColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        context.appRadius.small,
+                      ),
+                      // AspectRatio, not a fixed height — the slot takes
+                      // the page's own proportions so `BoxFit.cover` fills
+                      // it exactly, with no letterbox band in either
+                      // direction whichever page size the draft uses.
+                      child: AspectRatio(
+                        aspectRatio: pageAspectRatio,
+                        child: PdfPageThumbnail(future: thumbnailFuture),
                       ),
                     ),
-                ],
-              ),
-              const VGap.tiny(),
-              Text(
-                template.displayName,
-                style: context.appTypography.bodySmall.copyWith(
-                  color: kcWhite,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const VGap.tiny(),
-              Text(
-                template.description,
-                style: context.appTypography.caption.copyWith(
-                  color: kcLightGrey,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (tags.isNotEmpty) ...[
-                const VGap.tiny(),
-                Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
-                    for (final tag in tags)
-                      Chip(
-                        label: Text(tag.displayLabel),
-                        labelStyle: context.appTypography.caption,
-                        visualDensity: VisualDensity.compact,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    if (selected)
+                      const Positioned(
+                        top: 6,
+                        right: 6,
+                        child: Icon(
+                          RemixIcons.checkbox_circle_fill,
+                          color: kcPrimaryColor,
+                        ),
                       ),
                   ],
                 ),
+                const VGap.tiny(),
+                Text(
+                  template.displayName,
+                  style: context.appTypography.bodySmall.copyWith(
+                    color: kcWhite,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const VGap.tiny(),
+                Text(
+                  template.description,
+                  style: context.appTypography.caption.copyWith(
+                    color: kcLightGrey,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (tags.isNotEmpty) ...[
+                  const VGap.tiny(),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: [
+                      for (final tag in tags)
+                        Chip(
+                          label: Text(tag.displayLabel),
+                          labelStyle: context.appTypography.caption,
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

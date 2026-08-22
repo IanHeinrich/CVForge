@@ -47,7 +47,12 @@ class BackupSettingsCard extends StatelessWidget {
             hasChangesSinceBackup: viewModel.hasChangesSinceBackup,
           ),
           const VGap.small(),
-          Row(
+          // Wrap, not Row — on a narrow mobile viewport there isn't
+          // always room for both buttons side by side; Row would clip
+          // the second one instead of dropping it to its own line.
+          Wrap(
+            spacing: context.appSpacing.gapSmall,
+            runSpacing: context.appSpacing.gapSmall,
             children: [
               FilledButton(
                 onPressed: viewModel.isExporting
@@ -57,7 +62,6 @@ class BackupSettingsCard extends StatelessWidget {
                     ? const ButtonSpinner()
                     : const Text('Export backup'),
               ),
-              const HGap.small(),
               OutlinedButton(
                 onPressed: viewModel.isImporting
                     ? null

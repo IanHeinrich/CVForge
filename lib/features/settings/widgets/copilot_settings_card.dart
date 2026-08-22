@@ -191,12 +191,18 @@ class _ConnectionResultBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: context.appIconSize.small, color: color),
         const HGap.small(),
-        Text(
-          message,
-          style: context.appTypography.bodySmall.copyWith(color: color),
+        // Expanded — a connection test error is provider-supplied text
+        // with no length guarantee; a bare Text here would overflow the
+        // card's width on a narrow mobile viewport instead of wrapping.
+        Expanded(
+          child: Text(
+            message,
+            style: context.appTypography.bodySmall.copyWith(color: color),
+          ),
         ),
       ],
     );

@@ -76,9 +76,26 @@ class AppDialogScaffold extends StatelessWidget {
       ],
     );
 
+    // `Dialog`'s own default `insetPadding` (40px horizontal) plus this
+    // scaffold's page padding left almost no room for a wide body (the
+    // template gallery's card grid, notably) on a phone-width viewport —
+    // narrow enough that fixed-width content overflowed past the dialog's
+    // edge rather than shrinking to fit. Below the tablet breakpoint both
+    // insets shrink; tablet/desktop keep the original spacing untouched.
+    final isMobile = MediaQuery.sizeOf(context).width < 600;
     return Dialog(
+      insetPadding: isMobile
+          ? EdgeInsets.symmetric(
+              horizontal: context.appSpacing.paddingDefault,
+              vertical: context.appSpacing.paddingPanel,
+            )
+          : null,
       child: Padding(
-        padding: EdgeInsets.all(context.appSpacing.paddingPage),
+        padding: EdgeInsets.all(
+          isMobile
+              ? context.appSpacing.paddingDefault
+              : context.appSpacing.paddingPage,
+        ),
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth ?? _defaultMaxWidth),
           child: body,
