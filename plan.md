@@ -2325,7 +2325,7 @@ others a local Windows run had flagged were font-rasterization noise,
 not real changes, confirmed by the CI-generated artifact coming back
 byte-identical to what was already committed.
 
-### Post-7.8 (round 2) — CVs grid, a page-height layout bug, Vault reflow ✅ shipped
+### Post-7.8 (round 2) — CVs grid, a page-height layout bug, Vault reflow → [PR #60](https://github.com/IanHeinrich/CVForge/pull/60) ✅ shipped
 
 A second ad hoc feedback-driven pass, same rationale as the first
 post-7.8 round above.
