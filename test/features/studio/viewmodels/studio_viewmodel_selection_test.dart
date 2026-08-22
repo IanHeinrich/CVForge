@@ -254,11 +254,12 @@ void main() {
       expect(model.unselectedExperiences, [experience]);
     });
 
+    // Stands in for the identical one-line removeAllX delegators on
+    // projects/education/hobbies/publications — all of them share
+    // _Selection.removeAll, so one test of the mechanism covers every
+    // collection.
     test('removeAllExperiences excludes every currently-included '
-        'experience, one at a time — same shared _Selection.removeAll '
-        'mechanism every other collection\'s removeAll delegates to, so '
-        'this test stands in for the identical one-line delegators on '
-        'projects/education/hobbies/publications', () async {
+        'experience, one at a time', () async {
       final second = experience.copyWith(id: 'exp-2');
       when(
         vaultService.vault,
@@ -332,10 +333,11 @@ void main() {
       ).called(1);
     });
 
+    // Each toggle must be awaited before the next reads the draft, or
+    // they all race against the same stale state and only the last one
+    // lands — this is the sequential-await regression this test catches.
     test('addAllExperienceBullets selects every unselected bullet without '
-        'dropping earlier selections — each toggle must be awaited before '
-        'the next reads the draft, or they all race against the same stale '
-        'state and only the last one lands', () async {
+        'dropping earlier selections', () async {
       when(vaultService.vault).thenReturn(vaultWith(experiences: [experience]));
       var draft = draftWith(
         experienceIds: [experience.id],
@@ -551,11 +553,11 @@ void main() {
         });
       }
 
+      // Same sequential-await requirement as addAllExperienceBullets: a
+      // category of three only ends up with all three ids if each toggle
+      // is awaited before the next reads the draft.
       test('addAllSkillsInCategory selects only that category\'s skills and '
-          'leaves other categories untouched — the same sequential-await '
-          'assertion that catches a synchronous-loop regression, since a '
-          'category of three only ends up with all three ids if each '
-          'toggle is awaited before the next reads the draft', () async {
+          'leaves other categories untouched', () async {
         when(vaultService.vault).thenReturn(
           vaultWith(skillCategories: [skillCategoryA, skillCategoryB]),
         );
@@ -588,18 +590,18 @@ void main() {
       test('selectEvidencedSkills selects a skill linked to an included '
           'bullet, does not select one linked only to an excluded bullet, '
           'and does not deselect a manually-selected unlinked skill', () async {
-        final evidenced = const Skill(
+        const evidenced = Skill(
           id: 's-evidenced',
           label: 'Dart',
           linkedBulletIds: ['b1'],
         );
-        final manual = const Skill(id: 's-manual', label: 'Manual');
-        final excluded = const Skill(
+        const manual = Skill(id: 's-manual', label: 'Manual');
+        const excluded = Skill(
           id: 's-excluded',
           label: 'Excluded',
           linkedBulletIds: ['pb2'],
         );
-        final category = SkillCategory(
+        const category = SkillCategory(
           id: 'cat',
           name: 'Cat',
           skills: [evidenced, manual, excluded],
