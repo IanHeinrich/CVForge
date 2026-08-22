@@ -2327,6 +2327,15 @@ class MockSettingsService extends _i1.Mock implements _i45.SettingsService {
           as _i24.Future<void>);
 
   @override
+  _i24.Future<void> setLastBackupAt(DateTime? value) =>
+      (super.noSuchMethod(
+            Invocation.method(#setLastBackupAt, [value]),
+            returnValue: _i24.Future<void>.value(),
+            returnValueForMissingStub: _i24.Future<void>.value(),
+          )
+          as _i24.Future<void>);
+
+  @override
   _i24.Future<void> setRememberApiKey(bool? value) =>
       (super.noSuchMethod(
             Invocation.method(#setRememberApiKey, [value]),

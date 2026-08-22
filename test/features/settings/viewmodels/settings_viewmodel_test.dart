@@ -2,6 +2,8 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +18,7 @@ void main() {
     late MockSettingsService settingsService;
     late MockBackupService backupService;
     late MockDraftService draftService;
+    late MockVaultService vaultService;
     late MockDialogService dialogService;
     late MockLlmService llmService;
 
@@ -31,10 +34,21 @@ void main() {
       settingsService = getAndRegisterSettingsService();
       backupService = getAndRegisterBackupService();
       draftService = getAndRegisterDraftService();
+      vaultService = getAndRegisterVaultService();
       dialogService = getAndRegisterDialogService();
       llmService = getAndRegisterLlmService();
       when(draftService.drafts).thenReturn([]);
+      when(vaultService.vault).thenReturn(
+        CvVault(
+          schemaVersion: 1,
+          basics: ContactBasics.empty(),
+          updatedAt: DateTime(2026, 1, 1),
+        ),
+      );
       when(settingsService.settings).thenReturn(AppSettings.empty());
+      when(
+        settingsService.setLastBackupAt(any),
+      ).thenAnswer((_) => Future<void>.value());
     });
     tearDown(() => locator.reset());
 
@@ -59,6 +73,78 @@ void main() {
       await model.exportBackup();
 
       verify(backupService.exportBackup()).called(1);
+    });
+
+    group('backup state (7.7) -', () {
+      test('lastBackupAt is null initially', () {
+        final model = SettingsViewModel();
+
+        expect(model.lastBackupAt, isNull);
+      });
+
+      test('a successful exportBackup sets lastBackupAt', () async {
+        when(
+          backupService.exportBackup(),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.exportBackup();
+
+        verify(settingsService.setLastBackupAt(any)).called(1);
+      });
+
+      test('a failed exportBackup does not set lastBackupAt', () async {
+        when(
+          backupService.exportBackup(),
+        ).thenThrow(const BackupException(BackupFailure.ioError, 'disk full'));
+
+        final model = SettingsViewModel();
+        await model.exportBackup();
+
+        verifyNever(settingsService.setLastBackupAt(any));
+      });
+
+      test('hasChangesSinceBackup is false with no lastBackupAt at all', () {
+        final model = SettingsViewModel();
+
+        expect(model.hasChangesSinceBackup, isFalse);
+      });
+
+      test('hasChangesSinceBackup is true once the Vault was updated after '
+          'lastBackupAt', () {
+        when(settingsService.settings).thenReturn(
+          AppSettings.empty().copyWith(lastBackupAt: DateTime(2026, 1, 1)),
+        );
+        when(vaultService.vault).thenReturn(
+          CvVault(
+            schemaVersion: 1,
+            basics: ContactBasics.empty(),
+            updatedAt: DateTime(2026, 1, 2),
+          ),
+        );
+
+        final model = SettingsViewModel();
+
+        expect(model.hasChangesSinceBackup, isTrue);
+      });
+
+      test('hasChangesSinceBackup is false when nothing changed since '
+          'lastBackupAt', () {
+        when(settingsService.settings).thenReturn(
+          AppSettings.empty().copyWith(lastBackupAt: DateTime(2026, 1, 2)),
+        );
+        when(vaultService.vault).thenReturn(
+          CvVault(
+            schemaVersion: 1,
+            basics: ContactBasics.empty(),
+            updatedAt: DateTime(2026, 1, 1),
+          ),
+        );
+
+        final model = SettingsViewModel();
+
+        expect(model.hasChangesSinceBackup, isFalse);
+      });
     });
 
     group('importBackup -', () {
@@ -244,6 +330,49 @@ void main() {
         expect(model.connectionTestErrorMessage, isNotNull);
         verifyNever(settingsService.setApiKey('anthropic', 'bad-key'));
       });
+
+      test('clearConnectionTestResult clears a stale success, so a prior '
+          "test's result can't survive editing the key/provider/model "
+          '(7.7 issue 6)', () async {
+        when(
+          llmService.testConnection('anthropic', 'sk-ant-test'),
+        ).thenAnswer((_) => Future<void>.value());
+        when(
+          settingsService.setApiKey('anthropic', 'sk-ant-test'),
+        ).thenAnswer((_) => Future<void>.value());
+        final model = SettingsViewModel();
+        await model.testCopilotConnection('sk-ant-test');
+        expect(model.connectionTestSucceeded, isTrue);
+
+        model.clearConnectionTestResult();
+
+        expect(model.connectionTestSucceeded, isFalse);
+      });
+
+      test(
+        'selectCopilotProvider clears a stale connection test result',
+        () async {
+          when(
+            settingsService.setCopilotProvider(any),
+          ).thenAnswer((_) => Future<void>.value());
+          when(
+            settingsService.setCopilotModel(any),
+          ).thenAnswer((_) => Future<void>.value());
+          when(
+            llmService.testConnection('anthropic', 'sk-ant-test'),
+          ).thenAnswer((_) => Future<void>.value());
+          when(
+            settingsService.setApiKey('anthropic', 'sk-ant-test'),
+          ).thenAnswer((_) => Future<void>.value());
+          final model = SettingsViewModel();
+          await model.testCopilotConnection('sk-ant-test');
+          expect(model.connectionTestSucceeded, isTrue);
+
+          await model.selectCopilotProvider('gemini');
+
+          expect(model.connectionTestSucceeded, isFalse);
+        },
+      );
     });
   });
 }

@@ -9,6 +9,7 @@ import 'package:cv_forge/services/llm/llm_provider.dart';
 import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 import 'package:cv_forge/services/llm_service.dart';
 import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/services/vault_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -21,6 +22,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   final _settingsService = locator<SettingsService>();
   final _backupService = locator<BackupService>();
   final _draftService = locator<DraftService>();
+  final _vaultService = locator<VaultService>();
   final _dialogService = locator<DialogService>();
   final _llmService = locator<LlmService>();
 
@@ -70,11 +72,36 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   // directly — see `VaultViewModel._load`'s doc comment for why a call
   // that throws synchronously would otherwise bypass [runBusyFuture]'s
   // busy/error bookkeeping entirely.
-  Future<void> _export() async => _backupService.exportBackup();
+  Future<void> _export() async {
+    await _backupService.exportBackup();
+    // Only reached on success — a thrown BackupException propagates out
+    // of exportBackup above and this line never runs, so a failed export
+    // never advances lastBackupAt (7.7 risk 2's "does not set on failure").
+    await _settingsService.setLastBackupAt(DateTime.now());
+  }
+
   Future<CvBackupBundle?> _pickImportFile() async =>
       _backupService.pickImportFile();
   Future<void> _applyImport(CvBackupBundle bundle) async =>
       _backupService.applyImport(bundle);
+
+  /// Null means never backed up — [BackupSettingsCard] shows that state
+  /// plainly rather than defaulting to silence (7.7's "the real problem").
+  DateTime? get lastBackupAt => _settingsService.settings.lastBackupAt;
+
+  /// True once the Vault or any Draft has been touched since
+  /// [lastBackupAt] — computed from `CvVault.updatedAt`/`CvDraft.updatedAt`
+  /// rather than a separate persisted dirty flag, since those timestamps
+  /// already exist and a reactive comparison can't drift from them the
+  /// way a flag maintained on every write path could. Meaningless (and
+  /// not read) when [lastBackupAt] is null — "Never backed up" already
+  /// says everything that state needs to say.
+  bool get hasChangesSinceBackup {
+    final last = lastBackupAt;
+    if (last == null) return false;
+    if (_vaultService.vault.updatedAt.isAfter(last)) return true;
+    return _draftService.drafts.any((d) => d.updatedAt.isAfter(last));
+  }
 
   Future<void> importBackup() async {
     final bundle = await runBusyFuture<CvBackupBundle?>(
@@ -128,6 +155,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     await _settingsService.setCopilotModel(
       _llmProviders.byId(providerId).models.first.id,
     );
+    clearConnectionTestResult();
   }
 
   List<LlmModelOption> get copilotModels => selectedCopilotProvider.models;
@@ -148,8 +176,10 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     );
   }
 
-  Future<void> selectCopilotModel(String modelId) =>
-      _settingsService.setCopilotModel(modelId);
+  Future<void> selectCopilotModel(String modelId) async {
+    await _settingsService.setCopilotModel(modelId);
+    clearConnectionTestResult();
+  }
 
   bool get rememberApiKey => _settingsService.settings.rememberApiKey;
 
@@ -168,6 +198,20 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
 
   bool _connectionTestSucceeded = false;
   bool get connectionTestSucceeded => _connectionTestSucceeded;
+
+  /// Called whenever something the last connection test result no longer
+  /// describes changes — the provider, the model, or the key field itself
+  /// (see `CopilotSettingsCard`'s api key `onChanged`). Without this, a
+  /// stale "Connected." (or stale error) from a previous key/provider
+  /// stays shown indefinitely, which is 7.7 issue 6.
+  void clearConnectionTestResult() {
+    if (!_connectionTestSucceeded && !hasErrorForKey(_testConnectionBusyKey)) {
+      return;
+    }
+    _connectionTestSucceeded = false;
+    setErrorForObject(_testConnectionBusyKey, null);
+    rebuildUi();
+  }
 
   /// Mirrors `importErrorMessage`'s per-failure-case copy (P1.7-G7: one
   /// generic message for every failure is a real defect). Interpolates

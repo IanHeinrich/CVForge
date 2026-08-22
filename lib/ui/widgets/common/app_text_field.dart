@@ -18,6 +18,7 @@ class AppTextField extends StatefulWidget {
     this.minLines,
     this.keyboardType,
     this.autofocus = false,
+    this.errorText,
   });
 
   final String initialValue;
@@ -28,6 +29,13 @@ class AppTextField extends StatefulWidget {
   final int? minLines;
   final TextInputType? keyboardType;
   final bool autofocus;
+
+  /// Rendered by the underlying `TextField`'s own `InputDecoration.error`
+  /// styling — null (the default) shows nothing, same as before this
+  /// existed. The rule this exists to serve: a rejected edit must either
+  /// show an error via this, or be impossible to make (e.g. a dropdown
+  /// over a closed set) — never silently discarded. See 7.7/7.8.
+  final String? errorText;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -100,6 +108,7 @@ class _AppTextFieldState extends State<AppTextField> {
         labelText: widget.label,
         hintText: widget.hint,
         hintStyle: const TextStyle(color: kcMediumGrey),
+        errorText: widget.errorText,
       ),
     );
   }

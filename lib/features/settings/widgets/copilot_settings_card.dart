@@ -5,8 +5,14 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
+
+/// Caps the API key field's width — 7.7 issue 4: a secret this short (and
+/// `obscureText`, which buys nothing from extra width) doesn't need the
+/// full ~1,000px content measure the card would otherwise stretch it to.
+const _apiKeyFieldMaxWidth = 360.0;
 
 /// Copilot connection setup — pick a provider (once more than one is
 /// registered), enter a key, pick a model, test the connection. Same
@@ -52,9 +58,10 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           ),
           const VGap.medium(),
           if (viewModel.showCopilotProviderSelector) ...[
-            DropdownButton<String>(
-              value: viewModel.selectedCopilotProvider.id,
+            DropdownButtonFormField<String>(
+              initialValue: viewModel.selectedCopilotProvider.id,
               isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Provider'),
               items: [
                 for (final provider in viewModel.copilotProviders)
                   DropdownMenuItem(
@@ -73,18 +80,23 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
             ),
             const VGap.small(),
           ],
-          TextField(
-            controller: _apiKeyController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText:
-                  '${viewModel.selectedCopilotProvider.displayName} '
-                  'API key',
-              hintText: 'Paste your API key',
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _apiKeyFieldMaxWidth),
+            child: TextField(
+              controller: _apiKeyController,
+              obscureText: true,
+              onChanged: (_) => viewModel.clearConnectionTestResult(),
+              decoration: InputDecoration(
+                labelText:
+                    '${viewModel.selectedCopilotProvider.displayName} '
+                    'API key',
+                hintText: 'Paste your API key',
+              ),
             ),
           ),
           const VGap.small(),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Checkbox(
                 value: viewModel.rememberApiKey,
@@ -92,13 +104,24 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
                     viewModel.setRememberApiKey(value ?? false),
               ),
               const HGap.small(),
-              const Expanded(child: Text('Remember on this device')),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    'Remember on this device — stored unencrypted in this '
+                    "browser's local storage. Anyone with access to this "
+                    'device can read it.',
+                    style: context.appTypography.bodySmall,
+                  ),
+                ),
+              ),
             ],
           ),
           const VGap.small(),
-          DropdownButton<String>(
-            value: viewModel.selectedCopilotModelId,
+          DropdownButtonFormField<String>(
+            initialValue: viewModel.selectedCopilotModelId,
             isExpanded: true,
+            decoration: const InputDecoration(labelText: 'Model'),
             items: [
               for (final model in viewModel.copilotModels)
                 DropdownMenuItem(value: model.id, child: Text(model.label)),
@@ -109,8 +132,12 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           ),
           const VGap.tiny(),
           Text(
-            viewModel.priceLabelFor(viewModel.selectedCopilotModel),
-            style: context.appTypography.bodySmall,
+            // "Provider's rate" up front — the price table is the
+            // provider's own, not something CVForge charges (7.7 issue 7).
+            "${viewModel.selectedCopilotProvider.displayName}'s own rate — "
+            'not billed by CVForge: '
+            '${viewModel.priceLabelFor(viewModel.selectedCopilotModel)}',
+            style: context.appTypography.caption.copyWith(color: kcLightGrey),
           ),
           const VGap.medium(),
           FilledButton(
@@ -123,18 +150,52 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           ),
           if (viewModel.connectionTestErrorMessage != null) ...[
             const VGap.small(),
-            Text(
-              viewModel.connectionTestErrorMessage!,
-              style: context.appTypography.bodySmall.copyWith(
-                color: kcErrorColor,
-              ),
+            _ConnectionResultBanner(
+              icon: RemixIcons.error_warning_line,
+              color: kcErrorColor,
+              message: viewModel.connectionTestErrorMessage!,
             ),
           ] else if (viewModel.connectionTestSucceeded) ...[
             const VGap.small(),
-            Text('Connected.', style: context.appTypography.bodySmall),
+            const _ConnectionResultBanner(
+              icon: RemixIcons.checkbox_circle_line,
+              color: kcSuccessColor,
+              message: 'Connected.',
+            ),
           ],
         ],
       ),
+    );
+  }
+}
+
+/// The connection test's success/error state — 7.7 issue 6: previously
+/// plain body text with no colour or icon, indistinguishable from any
+/// other line in the card. [CopilotSettingsCard] clears this (via
+/// [SettingsViewModel.clearConnectionTestResult]) the moment the provider,
+/// model, or key changes, so it can't go stale either.
+class _ConnectionResultBanner extends StatelessWidget {
+  const _ConnectionResultBanner({
+    required this.icon,
+    required this.color,
+    required this.message,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color),
+        const HGap.small(),
+        Text(
+          message,
+          style: context.appTypography.bodySmall.copyWith(color: color),
+        ),
+      ],
     );
   }
 }

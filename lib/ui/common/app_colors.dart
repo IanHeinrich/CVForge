@@ -43,3 +43,8 @@ const Color kcErrorColor = Color(0xFFE05252);
 /// `kcErrorColor` already means critical elsewhere in the app, so warning
 /// needs its own tone rather than reusing it at lower opacity.
 const Color kcWarningColor = Color(0xFFE0A83B);
+
+/// A positive/confirmed-state colour — a successful connection test, a
+/// clean backup state. No prior use case existed for this before 7.7;
+/// `kcPrimaryColor` is brand purple, not semantically "success".
+const Color kcSuccessColor = Color(0xFF4CAF7D);
