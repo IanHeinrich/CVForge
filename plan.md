@@ -2262,12 +2262,75 @@ month via the dropdown; closed and reopened the panel and confirmed both
 fields showed exactly what was saved — the round trip the pre-fix
 implementation failed.
 
+### Post-7.8 — Studio/Vault UI polish → [PR #57](https://github.com/IanHeinrich/CVForge/pull/57) ✅ shipped
+
+Ad hoc, not one of the pre-spec `docs/ux/7.N` files — a live UI-review
+pass over 7.4/7.5's own output plus a bug found while doing it, driven
+directly by feedback rather than a written spec. Recorded here anyway,
+per this phase's own README on why sub-phases get a `plan.md` entry
+once shipped.
+
+**The bug**: `_companyGroup`/`_project`/`_education`/`_publication` (both
+templates) each appended a trailing `pw.SizedBox` gap after their last
+piece. `pw.MultiPage` evaluates every top-level widget independently,
+spacer or not, and starts a fresh page for one that doesn't fit — so a
+section that filled a page almost exactly to the margin produced a
+second, wholly blank page for nothing but that gap. New
+`interleaveWithGaps` (`section_pagination_pdf.dart`) places the gap
+*between* entries instead, so the last top-level widget in a section is
+always real content and this failure mode can't recur regardless of how
+exactly the content fills the page.
+
+**Studio document bar** rebuilt into three zones — identity left,
+template/region setup genuinely centred, page count + Export right —
+using two equal-flex sides rather than one `Expanded` plus natural-width
+trailing items; a `Row` hands each flexible child a share of the surplus
+as a *maximum*, so unequal treatment left Export short of the true edge
+by whatever a short draft name didn't spend. Region picker replaced with
+a card dialog (`RegionGalleryDialog`, new) matching the template
+gallery's shape — flags, and each card spelling out page size/dates/
+document noun — rather than a bare `DropdownMenu` that gave no clue
+what changing it actually did. Template gallery dropped 7.5's
+tag-grouping (thin with two templates — one card per group, mostly
+empty dialog), thumbnails sized to the draft's own page aspect ratio
+instead of a fixed A4 shape (a US Letter draft no longer letterboxes),
+and "Classic Centered" renamed "Traditional" now nothing supplies that
+context via a group heading.
+
+**Vault**: cards flow into two columns within each section once there's
+room (`VaultListSection`, not the page-level list — a section heading
+stays full width, only its own cards split), collapsing back to one
+column while the editor panel is open and the list column is narrower.
+Section editor pane cross-stretched so a short editor (References)
+sits at the top instead of shrink-wrapping and centering in the
+available height — `Row`'s cross-axis default is `center`, which had
+been silently doing this since 7.4. Section nav widened 220→300px so
+labels stop truncating. `AppDialogScaffold` gained a 420px default max
+width — `ConfirmDeleteDialog` never passed one, so every "Delete this?"
+prompt stretched across an arbitrary fraction of a wide viewport.
+`StudioFieldOverrideCard`'s card frame removed — it was the one
+card-shaped editor among eight flat ones, a leftover from before 7.4
+gave every section its own bounded pane. Bulk selection gained "Remove
+all" everywhere "Add all" already existed, at both category and bullet
+level, via a `_Selection.removeAll()` counterpart to the existing
+`addAll()`.
+
+Verified via `flutter analyze` (0 issues), `flutter test
+--exclude-tags=golden` (291/291 — new coverage for the region gallery
+model and the `removeAll*` bullet/category methods), and a live browser
+pass covering every change above at multiple widths. Goldens
+regenerated via `update-goldens.yml` on `ubuntu-latest` rather than
+locally — only `vault_view_populated.png` actually differed; the four
+others a local Windows run had flagged were font-rasterization noise,
+not real changes, confirmed by the CI-generated artifact coming back
+byte-identical to what was already committed.
+
 ### Phase 7 status
 
-7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped. **7.6 (logo, favicon,
-splash, plus the `manifest.json` bug) is the only sub-phase left** —
-deliberately deferred this round; it touches no Dart and is independent
-of everything else here. Repo version bumped to `2.3.0` covering
-7.4/7.5/7.7/7.8 (`BackupService._appVersion` — see its own doc comment —
-was found drifted at `1.4.0`, stale since well before this phase, and
-corrected to match in the same pass).
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus the post-7.8 UI
+polish pass above. **7.6 (logo, favicon, splash, plus the
+`manifest.json` bug) is the only sub-phase left** — deliberately
+deferred this round; it touches no Dart and is independent of
+everything else here. Repo version bumped to `2.4.0` (from `2.3.0`,
+which covered 7.4/7.5/7.7/7.8 — `BackupService._appVersion` bumped to
+match in the same pass, per that field's own doc comment).
