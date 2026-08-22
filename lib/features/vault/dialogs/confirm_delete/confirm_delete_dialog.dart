@@ -1,4 +1,4 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -37,10 +37,7 @@ class ConfirmDeleteDialog extends StackedView<ConfirmDeleteDialogModel> {
       children: [
         if (request.description != null) ...[
           const VGap.small(),
-          Text(
-            request.description!,
-            style: const TextStyle(fontSize: 14, color: kcLightGrey),
-          ),
+          Text(request.description!, style: context.appTypography.bodySmall),
         ],
       ],
     );

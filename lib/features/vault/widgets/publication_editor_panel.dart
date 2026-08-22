@@ -1,4 +1,3 @@
-import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -15,20 +14,14 @@ class PublicationEditorPanel extends StatelessWidget {
     required this.skillCategories,
     required this.onClose,
     required this.onChanged,
-    required this.onAddBullet,
-    required this.onBulletChanged,
-    required this.onBulletDeleted,
-    required this.onBulletsReordered,
+    required this.bulletCallbacks,
   });
 
   final Publication publication;
   final List<SkillCategory> skillCategories;
   final VoidCallback onClose;
   final ValueChanged<Publication> onChanged;
-  final VoidCallback onAddBullet;
-  final ValueChanged<CvBullet> onBulletChanged;
-  final ValueChanged<String> onBulletDeleted;
-  final ValueChanged<List<String>> onBulletsReordered;
+  final BulletEditorCallbacks bulletCallbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +43,7 @@ class PublicationEditorPanel extends StatelessWidget {
           initialValue: publication.citation ?? '',
           maxLines: 3,
           onChanged: (v) =>
-              onChanged(publication.copyWith(citation: v.isEmpty ? null : v)),
+              onChanged(publication.copyWith(citation: v.orNullIfEmpty)),
         ),
         const VGap.small(),
         AppTextField(
@@ -58,16 +51,13 @@ class PublicationEditorPanel extends StatelessWidget {
           hint: 'e.g. doi.org/10.1234/example',
           initialValue: publication.link ?? '',
           onChanged: (v) =>
-              onChanged(publication.copyWith(link: v.isEmpty ? null : v)),
+              onChanged(publication.copyWith(link: v.orNullIfEmpty)),
         ),
         const VGap.medium(),
         BulletListEditor(
           bullets: publication.bullets,
           skillCategories: skillCategories,
-          onAdd: onAddBullet,
-          onChanged: onBulletChanged,
-          onDelete: onBulletDeleted,
-          onReorder: onBulletsReordered,
+          callbacks: bulletCallbacks,
         ),
       ],
     );

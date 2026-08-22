@@ -4,6 +4,7 @@ import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_da
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
@@ -451,22 +452,22 @@ void main() {
           projectBulletIds: {...draft.projectBulletIds, id: bulletIds},
         );
       });
-      when(draftService.setBulletsForExperience(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
+      when(
+        draftService.setBulletIds(BulletOwner.experience, any, any),
+      ).thenAnswer((invocation) async {
+        final ids = invocation.positionalArguments[2] as List<String>;
         draft = draft.copyWith(
           bulletIds: {...draft.bulletIds, experience.id: ids},
         );
       });
-      when(draftService.setBulletsForProject(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
-        draft = draft.copyWith(
-          projectBulletIds: {...draft.projectBulletIds, project.id: ids},
-        );
-      });
+      when(draftService.setBulletIds(BulletOwner.project, any, any)).thenAnswer(
+        (invocation) async {
+          final ids = invocation.positionalArguments[2] as List<String>;
+          draft = draft.copyWith(
+            projectBulletIds: {...draft.projectBulletIds, project.id: ids},
+          );
+        },
+      );
       when(
         draftService.setSkillIncluded(any, included: anyNamed('included')),
       ).thenAnswer((_) => Future<void>.value());

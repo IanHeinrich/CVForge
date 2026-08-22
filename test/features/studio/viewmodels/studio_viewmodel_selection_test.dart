@@ -3,6 +3,7 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
@@ -394,14 +395,16 @@ void main() {
         ),
       );
       when(
-        draftService.setBulletsForExperience(any, any),
+        draftService.setBulletIds(BulletOwner.experience, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.toggleExperienceBullet(experience, experience.bullets[0]);
 
       verify(
-        draftService.setBulletsForExperience(experience.id, ['b2']),
+        draftService.setBulletIds(BulletOwner.experience, experience.id, [
+          'b2',
+        ]),
       ).called(1);
     });
 
@@ -417,13 +420,15 @@ void main() {
         ),
       );
       when(
-        draftService.setBulletsForProject(any, any),
+        draftService.setBulletIds(BulletOwner.project, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.toggleProjectBullet(project, project.bullets[0]);
 
-      verify(draftService.setBulletsForProject(project.id, ['pb2'])).called(1);
+      verify(
+        draftService.setBulletIds(BulletOwner.project, project.id, ['pb2']),
+      ).called(1);
     });
 
     test('addAllExperienceBullets selects every unselected bullet without '
@@ -436,10 +441,10 @@ void main() {
         bulletIds: {experience.id: <String>[]},
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForExperience(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
+      when(
+        draftService.setBulletIds(BulletOwner.experience, any, any),
+      ).thenAnswer((invocation) async {
+        final ids = invocation.positionalArguments[2] as List<String>;
         draft = draft.copyWith(
           bulletIds: {...draft.bulletIds, experience.id: ids},
         );
@@ -461,10 +466,10 @@ void main() {
         },
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForExperience(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
+      when(
+        draftService.setBulletIds(BulletOwner.experience, any, any),
+      ).thenAnswer((invocation) async {
+        final ids = invocation.positionalArguments[2] as List<String>;
         draft = draft.copyWith(
           bulletIds: {...draft.bulletIds, experience.id: ids},
         );
@@ -484,14 +489,14 @@ void main() {
         projectBulletIds: {project.id: <String>[]},
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForProject(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
-        draft = draft.copyWith(
-          projectBulletIds: {...draft.projectBulletIds, project.id: ids},
-        );
-      });
+      when(draftService.setBulletIds(BulletOwner.project, any, any)).thenAnswer(
+        (invocation) async {
+          final ids = invocation.positionalArguments[2] as List<String>;
+          draft = draft.copyWith(
+            projectBulletIds: {...draft.projectBulletIds, project.id: ids},
+          );
+        },
+      );
 
       final model = StudioViewModel();
       await model.addAllProjectBullets(project);
@@ -508,14 +513,14 @@ void main() {
         },
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForProject(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
-        draft = draft.copyWith(
-          projectBulletIds: {...draft.projectBulletIds, project.id: ids},
-        );
-      });
+      when(draftService.setBulletIds(BulletOwner.project, any, any)).thenAnswer(
+        (invocation) async {
+          final ids = invocation.positionalArguments[2] as List<String>;
+          draft = draft.copyWith(
+            projectBulletIds: {...draft.projectBulletIds, project.id: ids},
+          );
+        },
+      );
 
       final model = StudioViewModel();
       await model.removeAllProjectBullets(project);
@@ -537,14 +542,16 @@ void main() {
         ),
       );
       when(
-        draftService.setBulletsForPublication(any, any),
+        draftService.setBulletIds(BulletOwner.publication, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.togglePublicationBullet(publication, publication.bullets[0]);
 
       verify(
-        draftService.setBulletsForPublication(publication.id, ['ub2']),
+        draftService.setBulletIds(BulletOwner.publication, publication.id, [
+          'ub2',
+        ]),
       ).called(1);
     });
 
@@ -558,10 +565,10 @@ void main() {
         publicationBulletIds: {publication.id: <String>[]},
       );
       when(draftService.draft).thenAnswer((_) => draft);
-      when(draftService.setBulletsForPublication(any, any)).thenAnswer((
-        invocation,
-      ) async {
-        final ids = invocation.positionalArguments[1] as List<String>;
+      when(
+        draftService.setBulletIds(BulletOwner.publication, any, any),
+      ).thenAnswer((invocation) async {
+        final ids = invocation.positionalArguments[2] as List<String>;
         draft = draft.copyWith(
           publicationBulletIds: {
             ...draft.publicationBulletIds,
@@ -589,10 +596,10 @@ void main() {
           },
         );
         when(draftService.draft).thenAnswer((_) => draft);
-        when(draftService.setBulletsForPublication(any, any)).thenAnswer((
-          invocation,
-        ) async {
-          final ids = invocation.positionalArguments[1] as List<String>;
+        when(
+          draftService.setBulletIds(BulletOwner.publication, any, any),
+        ).thenAnswer((invocation) async {
+          final ids = invocation.positionalArguments[2] as List<String>;
           draft = draft.copyWith(
             publicationBulletIds: {
               ...draft.publicationBulletIds,

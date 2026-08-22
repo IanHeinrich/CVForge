@@ -95,9 +95,11 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
 
       case CopilotRunPhase.running:
         return [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(child: CircularProgressIndicator()),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: context.appSpacing.paddingPage,
+            ),
+            child: const Center(child: CircularProgressIndicator()),
           ),
           Center(
             child: Text(

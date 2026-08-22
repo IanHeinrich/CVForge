@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
@@ -94,7 +95,10 @@ class BackupSettingsCard extends StatelessWidget {
               foregroundColor: kcErrorColor,
               side: const BorderSide(color: kcErrorColor),
             ),
-            icon: const Icon(RemixIcons.delete_bin_line, size: 16),
+            icon: Icon(
+              RemixIcons.delete_bin_line,
+              size: context.appIconSize.small,
+            ),
             label: const Text('Clear Vault'),
           ),
         ],
@@ -141,7 +145,7 @@ class _BackupStatusLine extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: color),
+        Icon(icon, size: context.appIconSize.small, color: color),
         const HGap.small(),
         Expanded(
           child: Text(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'tokens/app_icon_size.dart';
 import 'tokens/app_motion.dart';
 import 'tokens/app_radius.dart';
 import 'tokens/app_spacing.dart';
@@ -63,7 +64,13 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: kcSurfaceSunken,
     canvasColor: kcSurfaceSunken,
     dividerColor: kcBorderColor,
-    extensions: const [appSpacing, appRadius, appTypography, appMotion],
+    extensions: const [
+      appSpacing,
+      appRadius,
+      appTypography,
+      appMotion,
+      appIconSize,
+    ],
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(shape: buttonShape),
     ),

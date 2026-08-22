@@ -1,5 +1,6 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
@@ -33,15 +34,11 @@ enum VaultEditorTarget {
 
 /// Most of this ViewModel's mutators are one-line forwards straight to
 /// [VaultService] — deliberately, not an oversight: it keeps one stable,
-/// mockable surface the View talks to (so a test only ever stubs
-/// `VaultViewModel`'s own dependencies, never reaches past it to
-/// `VaultService`), and it's the seam where a future mutator that needs
-/// real ViewModel logic (validation, a confirmation dialog, panel-state
-/// bookkeeping — see [deleteExperience]/[openExperienceEditor] for
-/// examples that already do) can grow without moving the View onto a
-/// different object. A future entity type's ViewModel should follow the
-/// same shape: forward the plain mutators, add logic only where the View
-/// genuinely needs it.
+/// mockable surface the View talks to, and it's the seam where a future
+/// mutator that needs real ViewModel logic (validation, a confirmation
+/// dialog, panel-state bookkeeping — see [deleteExperience]/
+/// [openExperienceEditor] for examples that already do) can grow without
+/// moving the View onto a different object.
 class VaultViewModel extends ReactiveViewModel implements Initialisable {
   final _vaultService = locator<VaultService>();
   final _dialogService = locator<DialogService>();
@@ -90,8 +87,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     _emptyStateDismissed = true;
     rebuildUi();
   }
-
-  // --- editor panel open/close ---
 
   VaultEditorTarget _openTarget = VaultEditorTarget.none;
   String? _openId;
@@ -158,15 +153,13 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> groupExperience(String experienceId, String? withId) =>
       _vaultService.groupExperience(experienceId, withId);
 
-  // --- year field validation (7.8) ---
-  //
-  // A rejected year edit must show an error, not silently discard the
-  // keystroke while the field goes on showing a value the model never
-  // received — see `docs/ux/7.8-vault.md`'s date-bug writeup. The error
-  // lives here rather than on the (stateless) editor panels, per
-  // CLAUDE.md's "logic in the ViewModel" rule; keyed by entity id since
-  // several entries' panels can exist across a session even though only
-  // one is open at a time.
+  // Year field validation: a rejected year edit must show an error, not
+  // silently discard the keystroke while the field goes on showing a
+  // value the model never received — see `docs/ux/7.8-vault.md`'s date-bug
+  // writeup. The error lives here rather than on the (stateless) editor
+  // panels, per CLAUDE.md's "logic in the ViewModel" rule; keyed by entity
+  // id since several entries' panels can exist across a session even
+  // though only one is open at a time.
 
   static const _minYear = 1900;
   static const _maxYear = 2100;
@@ -226,9 +219,9 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     }
     _experienceEndYearErrors.remove(experience.id);
     // An entry with no end date yet seeds the year from *now*, not from
-    // start — adopting start's year here (the pre-7.8 behaviour) produced
-    // a plausible-looking but silently wrong end date the moment only the
-    // month got set afterwards (7.8's "Failure 3").
+    // start — adopting start's year here produces a plausible-looking but
+    // silently wrong end date the moment only the month gets set
+    // afterwards.
     final end =
         experience.end ??
         YearMonth(year: DateTime.now().year, month: experience.start.month);
@@ -251,30 +244,40 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     );
   }
 
-  Future<void> deleteExperience(String id) async {
-    final confirmed = await _confirmDelete(
-      title: 'Delete this experience?',
-      description:
-          "This removes it and all of its bullets. This can't be undone.",
-    );
-    if (!confirmed) return;
-    await _vaultService.deleteExperience(id);
-    if (_openId == id) closeEditor();
-  }
+  Future<void> deleteExperience(String id) => _confirmDeleteThen(
+    title: 'Delete this experience?',
+    description:
+        "This removes it and all of its bullets. This can't be undone.",
+    delete: () => _vaultService.deleteExperience(id),
+    closeIfOpenId: id,
+  );
 
   // --- bullets ---
+  //
+  // One set of pass-throughs, parameterised by [BulletOwner], shared by
+  // experience/project/education/publication bullets — see
+  // `VaultService`'s matching bullet API for why one method per action
+  // replaces what used to be four.
 
   Future<void> addBullet(String experienceId) =>
-      _vaultService.addBullet(experienceId, text: '');
+      _vaultService.addBullet(BulletOwner.experience, experienceId, text: '');
 
   Future<void> updateBullet(String experienceId, CvBullet bullet) =>
-      _vaultService.updateBullet(experienceId, bullet);
+      _vaultService.updateBullet(BulletOwner.experience, experienceId, bullet);
 
   Future<void> deleteBullet(String experienceId, String bulletId) =>
-      _vaultService.deleteBullet(experienceId, bulletId);
+      _vaultService.deleteBullet(
+        BulletOwner.experience,
+        experienceId,
+        bulletId,
+      );
 
   Future<void> reorderBullets(String experienceId, List<String> orderedIds) =>
-      _vaultService.reorderBullets(experienceId, orderedIds);
+      _vaultService.reorderBullets(
+        BulletOwner.experience,
+        experienceId,
+        orderedIds,
+      );
 
   // --- projects ---
 
@@ -286,30 +289,27 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> updateProject(Project project) =>
       _vaultService.updateProject(project);
 
-  Future<void> deleteProject(String id) async {
-    final confirmed = await _confirmDelete(
-      title: 'Delete this project?',
-      description:
-          "This removes it and all of its bullets. This can't be undone.",
-    );
-    if (!confirmed) return;
-    await _vaultService.deleteProject(id);
-    if (_openId == id) closeEditor();
-  }
+  Future<void> deleteProject(String id) => _confirmDeleteThen(
+    title: 'Delete this project?',
+    description:
+        "This removes it and all of its bullets. This can't be undone.",
+    delete: () => _vaultService.deleteProject(id),
+    closeIfOpenId: id,
+  );
 
   Future<void> addProjectBullet(String projectId) =>
-      _vaultService.addProjectBullet(projectId, text: '');
+      _vaultService.addBullet(BulletOwner.project, projectId, text: '');
 
   Future<void> updateProjectBullet(String projectId, CvBullet bullet) =>
-      _vaultService.updateProjectBullet(projectId, bullet);
+      _vaultService.updateBullet(BulletOwner.project, projectId, bullet);
 
   Future<void> deleteProjectBullet(String projectId, String bulletId) =>
-      _vaultService.deleteProjectBullet(projectId, bulletId);
+      _vaultService.deleteBullet(BulletOwner.project, projectId, bulletId);
 
   Future<void> reorderProjectBullets(
     String projectId,
     List<String> orderedIds,
-  ) => _vaultService.reorderProjectBullets(projectId, orderedIds);
+  ) => _vaultService.reorderBullets(BulletOwner.project, projectId, orderedIds);
 
   // --- skills ---
 
@@ -349,29 +349,30 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> updateEducation(Education education) =>
       _vaultService.updateEducation(education);
 
-  Future<void> deleteEducation(String id) async {
-    final confirmed = await _confirmDelete(
-      title: 'Delete this qualification?',
-      description: "This can't be undone.",
-    );
-    if (!confirmed) return;
-    await _vaultService.deleteEducation(id);
-    if (_openId == id) closeEditor();
-  }
+  Future<void> deleteEducation(String id) => _confirmDeleteThen(
+    title: 'Delete this qualification?',
+    description: "This can't be undone.",
+    delete: () => _vaultService.deleteEducation(id),
+    closeIfOpenId: id,
+  );
 
   Future<void> addEducationBullet(String educationId) =>
-      _vaultService.addEducationBullet(educationId, text: '');
+      _vaultService.addBullet(BulletOwner.education, educationId, text: '');
 
   Future<void> updateEducationBullet(String educationId, CvBullet bullet) =>
-      _vaultService.updateEducationBullet(educationId, bullet);
+      _vaultService.updateBullet(BulletOwner.education, educationId, bullet);
 
   Future<void> deleteEducationBullet(String educationId, String bulletId) =>
-      _vaultService.deleteEducationBullet(educationId, bulletId);
+      _vaultService.deleteBullet(BulletOwner.education, educationId, bulletId);
 
   Future<void> reorderEducationBullets(
     String educationId,
     List<String> orderedIds,
-  ) => _vaultService.reorderEducationBullets(educationId, orderedIds);
+  ) => _vaultService.reorderBullets(
+    BulletOwner.education,
+    educationId,
+    orderedIds,
+  );
 
   // --- hobbies ---
 
@@ -391,30 +392,58 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> updatePublication(Publication publication) =>
       _vaultService.updatePublication(publication);
 
-  Future<void> deletePublication(String id) async {
-    final confirmed = await _confirmDelete(
-      title: 'Delete this publication?',
-      description:
-          "This removes it and all of its bullets. This can't be undone.",
-    );
-    if (!confirmed) return;
-    await _vaultService.deletePublication(id);
-    if (_openId == id) closeEditor();
-  }
+  Future<void> deletePublication(String id) => _confirmDeleteThen(
+    title: 'Delete this publication?',
+    description:
+        "This removes it and all of its bullets. This can't be undone.",
+    delete: () => _vaultService.deletePublication(id),
+    closeIfOpenId: id,
+  );
 
   Future<void> addPublicationBullet(String publicationId) =>
-      _vaultService.addPublicationBullet(publicationId, text: '');
+      _vaultService.addBullet(BulletOwner.publication, publicationId, text: '');
 
   Future<void> updatePublicationBullet(String publicationId, CvBullet bullet) =>
-      _vaultService.updatePublicationBullet(publicationId, bullet);
+      _vaultService.updateBullet(
+        BulletOwner.publication,
+        publicationId,
+        bullet,
+      );
 
   Future<void> deletePublicationBullet(String publicationId, String bulletId) =>
-      _vaultService.deletePublicationBullet(publicationId, bulletId);
+      _vaultService.deleteBullet(
+        BulletOwner.publication,
+        publicationId,
+        bulletId,
+      );
 
   Future<void> reorderPublicationBullets(
     String publicationId,
     List<String> orderedIds,
-  ) => _vaultService.reorderPublicationBullets(publicationId, orderedIds);
+  ) => _vaultService.reorderBullets(
+    BulletOwner.publication,
+    publicationId,
+    orderedIds,
+  );
+
+  /// Shared by every entity-level delete action above: confirm, delete,
+  /// and close the editor panel if it was showing the just-deleted entity
+  /// — one method instead of four identical bodies differing only in
+  /// copy and which service call to make.
+  Future<void> _confirmDeleteThen({
+    required String title,
+    required String description,
+    required Future<void> Function() delete,
+    String? closeIfOpenId,
+  }) async {
+    final confirmed = await _confirmDelete(
+      title: title,
+      description: description,
+    );
+    if (!confirmed) return;
+    await delete();
+    if (closeIfOpenId != null && _openId == closeIfOpenId) closeEditor();
+  }
 
   Future<bool> _confirmDelete({
     required String title,

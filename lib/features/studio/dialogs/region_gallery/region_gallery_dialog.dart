@@ -2,6 +2,7 @@ import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
@@ -124,7 +125,10 @@ class _RegionCard extends StatelessWidget {
                   // The flag carries its own colour, so it needs no icon
                   // treatment — sized up to read as the card's mark, the
                   // way a template card's thumbnail does.
-                  Text(preset.flag, style: const TextStyle(fontSize: 28)),
+                  Text(
+                    preset.flag,
+                    style: TextStyle(fontSize: context.appIconSize.large),
+                  ),
                   const HGap.small(),
                   Expanded(
                     child: Text(
@@ -136,10 +140,10 @@ class _RegionCard extends StatelessWidget {
                     ),
                   ),
                   if (selected)
-                    const Icon(
+                    Icon(
                       RemixIcons.checkbox_circle_fill,
                       color: kcPrimaryColor,
-                      size: 18,
+                      size: context.appIconSize.medium,
                     ),
                 ],
               ),
@@ -190,7 +194,7 @@ class _DetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 14, color: kcMediumGrey),
+        Icon(icon, size: context.appIconSize.tiny, color: kcMediumGrey),
         const HGap.tiny(),
         Expanded(
           child: RichText(

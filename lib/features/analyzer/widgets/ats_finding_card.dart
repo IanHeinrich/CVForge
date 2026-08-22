@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -154,7 +155,10 @@ class _StepControls extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: const Icon(RemixIcons.arrow_left_s_line, size: 18),
+          icon: Icon(
+            RemixIcons.arrow_left_s_line,
+            size: context.appIconSize.medium,
+          ),
           color: kcLightGrey,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
@@ -165,7 +169,10 @@ class _StepControls extends StatelessWidget {
           style: context.appTypography.caption.copyWith(color: kcLightGrey),
         ),
         IconButton(
-          icon: const Icon(RemixIcons.arrow_right_s_line, size: 18),
+          icon: Icon(
+            RemixIcons.arrow_right_s_line,
+            size: context.appIconSize.medium,
+          ),
           color: kcLightGrey,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 28, minHeight: 28),

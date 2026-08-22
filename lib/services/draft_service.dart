@@ -4,8 +4,10 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
+import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/llm/copilot_result.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
 import 'package:cv_forge/services/settings_service.dart';
@@ -282,17 +284,16 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     required String notes,
   }) async {
     await ready();
-    final index = _drafts.value.indexWhere((d) => d.id == id);
-    if (index == -1) return;
-    final updated = _drafts.value[index].copyWith(
+    final current = _drafts.value.findById(id, (d) => d.id);
+    if (current == null) return;
+    final updated = current.copyWith(
       name: name,
       notes: notes,
       updatedAt: DateTime.now(),
     );
-    _drafts.value = _sortedByRecency([
-      for (final d in _drafts.value)
-        if (d.id == id) updated else d,
-    ]);
+    _drafts.value = _sortedByRecency(
+      _drafts.value.replaceById(id, updated, (d) => d.id),
+    );
     await persistImmediately(updated);
   }
 
@@ -302,9 +303,8 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// no draft with that id exists.
   Future<String> duplicateDraft(String id) async {
     await ready();
-    final index = _drafts.value.indexWhere((d) => d.id == id);
-    if (index == -1) return id;
-    final source = _drafts.value[index];
+    final source = _drafts.value.findById(id, (d) => d.id);
+    if (source == null) return id;
     final newId = _uuid.v4();
     final copy = source.copyWith(
       id: newId,
@@ -445,16 +445,6 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     copyWith: (d, ids, map) => d.copyWith(experienceIds: ids, bulletIds: map),
   );
 
-  Future<void> setBulletsForExperience(
-    String experienceId,
-    List<String> bulletIds,
-  ) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(bulletIds: {...d.bulletIds, experienceId: bulletIds}),
-    );
-  }
-
   /// Same shape as [setExperienceIncluded], one entity type over — a
   /// [Project] instead of an [Experience].
   Future<void> setProjectIncluded(
@@ -471,21 +461,26 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         d.copyWith(projectIds: ids, projectBulletIds: map),
   );
 
-  Future<void> setBulletsForProject(
-    String projectId,
-    List<String> bulletIds,
-  ) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        projectBulletIds: {...d.projectBulletIds, projectId: bulletIds},
-      ),
-    );
-  }
+  /// Same shape as [setExperienceIncluded]/[setProjectIncluded], one
+  /// entity type over — a [Publication] instead of a [Project].
+  Future<void> setPublicationIncluded(
+    String publicationId, {
+    required bool included,
+    List<String> bulletIds = const [],
+  }) => _setIncludedWithBullets(
+    publicationId,
+    included: included,
+    bulletIds: bulletIds,
+    idsOf: (d) => d.publicationIds,
+    bulletIdsOf: (d) => d.publicationBulletIds,
+    copyWith: (d, ids, map) =>
+        d.copyWith(publicationIds: ids, publicationBulletIds: map),
+  );
 
-  /// Shared by [setExperienceIncluded] and [setProjectIncluded] — both
-  /// toggle an entity's id in one list while keeping a parallel
-  /// entityId->bulletIds map in sync, so the two can never drift apart.
+  /// Shared by [setExperienceIncluded], [setProjectIncluded] and
+  /// [setPublicationIncluded] — each toggles an entity's id in one list
+  /// while keeping a parallel entityId->bulletIds map in sync via
+  /// [_setIdIncluded]'s core, so the two can never drift apart.
   Future<void> _setIncludedWithBullets(
     String id, {
     required bool included,
@@ -501,13 +496,11 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   }) async {
     await ready();
     _setDraft((d) {
-      final ids = [...idsOf(d)];
+      final ids = _appliedIds(idsOf(d), id, included: included);
       final map = {...bulletIdsOf(d)};
       if (included) {
-        if (!ids.contains(id)) ids.add(id);
         map[id] = bulletIds;
       } else {
-        ids.remove(id);
         map.remove(id);
       }
       return copyWith(d, ids, map);
@@ -540,40 +533,10 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         copyWith: (d, ids) => d.copyWith(hobbyIds: ids),
       );
 
-  /// Same shape as [setExperienceIncluded]/[setProjectIncluded], one
-  /// entity type over — a [Publication] instead of a [Project].
-  Future<void> setPublicationIncluded(
-    String publicationId, {
-    required bool included,
-    List<String> bulletIds = const [],
-  }) => _setIncludedWithBullets(
-    publicationId,
-    included: included,
-    bulletIds: bulletIds,
-    idsOf: (d) => d.publicationIds,
-    bulletIdsOf: (d) => d.publicationBulletIds,
-    copyWith: (d, ids, map) =>
-        d.copyWith(publicationIds: ids, publicationBulletIds: map),
-  );
-
-  Future<void> setBulletsForPublication(
-    String publicationId,
-    List<String> bulletIds,
-  ) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        publicationBulletIds: {
-          ...d.publicationBulletIds,
-          publicationId: bulletIds,
-        },
-      ),
-    );
-  }
-
   /// Shared by [setSkillIncluded], [setEducationIncluded], and
   /// [setHobbyIncluded] — each just toggles [id] in a different one of
-  /// [CvDraft]'s flat id lists.
+  /// [CvDraft]'s flat id lists. Also backs [_setIncludedWithBullets]'s
+  /// id-list half via [_appliedIds].
   Future<void> _setIdIncluded(
     String id, {
     required bool included,
@@ -581,15 +544,55 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     required CvDraft Function(CvDraft draft, List<String> ids) copyWith,
   }) async {
     await ready();
-    _setDraft((d) {
-      final ids = [...idsOf(d)];
-      if (included) {
-        if (!ids.contains(id)) ids.add(id);
-      } else {
-        ids.remove(id);
-      }
-      return copyWith(d, ids);
-    });
+    _setDraft(
+      (d) => copyWith(d, _appliedIds(idsOf(d), id, included: included)),
+    );
+  }
+
+  /// [ids] with [id] added (if absent) or removed, per [included] — the
+  /// pure add-or-remove core shared by [_setIdIncluded] and
+  /// [_setIncludedWithBullets].
+  List<String> _appliedIds(
+    List<String> ids,
+    String id, {
+    required bool included,
+  }) {
+    final result = [...ids];
+    if (included) {
+      if (!result.contains(id)) result.add(id);
+    } else {
+      result.remove(id);
+    }
+    return result;
+  }
+
+  /// Replaces the bullet selection for the entity [ownerId] refers to,
+  /// under [owner]. Shared by every bullet-owning draft field
+  /// (experience/project/publication — [CvDraft] has no education
+  /// equivalent, see [BulletOwner]'s doc comment) rather than a
+  /// hand-written method per entity.
+  Future<void> setBulletIds(
+    BulletOwner owner,
+    String ownerId,
+    List<String> bulletIds,
+  ) async {
+    await ready();
+    _setDraft(
+      (d) => switch (owner) {
+        BulletOwner.experience => d.copyWith(
+          bulletIds: {...d.bulletIds, ownerId: bulletIds},
+        ),
+        BulletOwner.project => d.copyWith(
+          projectBulletIds: {...d.projectBulletIds, ownerId: bulletIds},
+        ),
+        BulletOwner.publication => d.copyWith(
+          publicationBulletIds: {...d.publicationBulletIds, ownerId: bulletIds},
+        ),
+        BulletOwner.education => throw UnsupportedError(
+          'CvDraft has no per-bullet selection for education entries.',
+        ),
+      },
+    );
   }
 
   Future<void> setSectionHidden(
@@ -639,30 +642,34 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
 
   /// Applies a Copilot tailoring pass ([result]) as a single draft update
   /// and a single persisted write — not N calls through the individual
-  /// setters above, which is exactly the shape that produced P2.1's
-  /// "Select all only selected one bullet" bug, at ten times the scale
-  /// here. Like [createDraft]/[updateDraftDetails], this is a deliberate,
-  /// infrequent action rather than continuous typing, so it persists
-  /// immediately instead of going through the debounce.
+  /// setters above, which produced a real "select all only selected one
+  /// bullet" bug at ten times this scale when tried. Like
+  /// [createDraft]/[updateDraftDetails], this is a deliberate, infrequent
+  /// action rather than continuous typing, so it persists immediately
+  /// instead of going through the debounce.
   ///
   /// Writes the pre-pass draft to a distinct storage key first (see
   /// [StorageKeys.copilotUndoFor]) so [undoCopilotPass] can restore it —
-  /// superseded by the next pass, never accumulated. A returned id/text
-  /// null (`result.headline`/`result.summary`) means "the model chose not
-  /// to touch this", so the existing override is left alone rather than
+  /// superseded by the next pass, never accumulated, and routed through
+  /// the same [persistImmediately] bookkeeping as every other write in
+  /// this class so a failed snapshot surfaces via [persistError] rather
+  /// than throwing out of this method. A returned id/text null
+  /// (`result.headline`/`result.summary`) means "the model chose not to
+  /// touch this", so the existing override is left alone rather than
   /// cleared.
   Future<void> applyCopilotResult(CopilotResult result) async {
     await ready();
     final id = _activeDraftId.value;
     if (id == null) return;
-    final index = _drafts.value.indexWhere((d) => d.id == id);
-    if (index == -1) return;
-    final current = _drafts.value[index];
+    final current = _drafts.value.findById(id, (d) => d.id);
+    if (current == null) return;
 
-    await _localStorage.write(
-      StorageBoxes.drafts,
-      StorageKeys.copilotUndoFor(id),
-      jsonEncode(current.toJson()),
+    await _persistAux(
+      () => _localStorage.write(
+        StorageBoxes.drafts,
+        StorageKeys.copilotUndoFor(id),
+        jsonEncode(current.toJson()),
+      ),
     );
 
     final updated = current.copyWith(
@@ -682,10 +689,9 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       updatedAt: DateTime.now(),
     );
     _freshDraftIds.remove(id);
-    _drafts.value = _sortedByRecency([
-      for (final d in _drafts.value)
-        if (d.id == id) updated else d,
-    ]);
+    _drafts.value = _sortedByRecency(
+      _drafts.value.replaceById(id, updated, (d) => d.id),
+    );
     await persistImmediately(updated);
   }
 
@@ -717,10 +723,9 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       return false;
     }
 
-    _drafts.value = _sortedByRecency([
-      for (final d in _drafts.value)
-        if (d.id == id) restored else d,
-    ]);
+    _drafts.value = _sortedByRecency(
+      _drafts.value.replaceById(id, restored, (d) => d.id),
+    );
     await persistImmediately(restored);
     await _localStorage.delete(
       StorageBoxes.drafts,
@@ -751,15 +756,11 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
 
   Future<void> setBulletOverride(String bulletId, String? text) async {
     await ready();
-    _setDraft((d) {
-      final overrides = {...d.bulletOverrides};
-      if (text == null) {
-        overrides.remove(bulletId);
-      } else {
-        overrides[bulletId] = text;
-      }
-      return d.copyWith(bulletOverrides: overrides);
-    });
+    _setDraft(
+      (d) => d.copyWith(
+        bulletOverrides: _appliedMapEntry(d.bulletOverrides, bulletId, text),
+      ),
+    );
   }
 
   Future<void> setHeadlineOverride(String? headline) async {
@@ -779,15 +780,31 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     String? text,
   ) async {
     await ready();
-    _setDraft((d) {
-      final overrides = {...d.educationDetailsOverrides};
-      if (text == null) {
-        overrides.remove(educationId);
-      } else {
-        overrides[educationId] = text;
-      }
-      return d.copyWith(educationDetailsOverrides: overrides);
-    });
+    _setDraft(
+      (d) => d.copyWith(
+        educationDetailsOverrides: _appliedMapEntry(
+          d.educationDetailsOverrides,
+          educationId,
+          text,
+        ),
+      ),
+    );
+  }
+
+  /// [map] with [key] set to [value], or removed if [value] is null —
+  /// shared by [setBulletOverride] and [setEducationDetailsOverride].
+  Map<String, String> _appliedMapEntry(
+    Map<String, String> map,
+    String key,
+    String? value,
+  ) {
+    final result = {...map};
+    if (value == null) {
+      result.remove(key);
+    } else {
+      result[key] = value;
+    }
+    return result;
   }
 
   /// Applies [update] to the active draft, stamps it, and schedules a
@@ -799,10 +816,9 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     if (id == null) return; // No draft loaded yet — defensive no-op.
     _freshDraftIds.remove(id);
     final updated = update(draft).copyWith(updatedAt: DateTime.now());
-    _drafts.value = _sortedByRecency([
-      for (final d in _drafts.value)
-        if (d.id == id) updated else d,
-    ]);
+    _drafts.value = _sortedByRecency(
+      _drafts.value.replaceById(id, updated, (d) => d.id),
+    );
     scheduleWrite(updated);
   }
 
@@ -818,17 +834,28 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   );
 
   Future<void> _persistIndex() async {
-    try {
-      final index = DraftIndex(
-        schemaVersion: 1,
-        draftIds: [for (final d in _drafts.value) d.id],
-        activeDraftId: _activeDraftId.value,
-      );
-      await _localStorage.write(
+    final index = DraftIndex(
+      schemaVersion: 1,
+      draftIds: [for (final d in _drafts.value) d.id],
+      activeDraftId: _activeDraftId.value,
+    );
+    await _persistAux(
+      () => _localStorage.write(
         StorageBoxes.drafts,
         StorageKeys.draftIndex,
         jsonEncode(index.toJson()),
-      );
+      ),
+    );
+  }
+
+  /// Writes something other than the [CvDraft] this mixin manages (a
+  /// Copilot undo snapshot, the [DraftIndex]) through the same
+  /// try/catch-and-surface-via-[persistError] bookkeeping
+  /// [PersistedStoreMixin.persistImmediately] gives the primary write —
+  /// so a failure here is never silently swallowed either.
+  Future<void> _persistAux(Future<void> Function() write) async {
+    try {
+      await write();
       persistError = null;
     } catch (e) {
       persistError = e;

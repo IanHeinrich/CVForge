@@ -2,6 +2,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
@@ -63,9 +64,9 @@ class StudioSectionNav extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
             onPressed: viewModel.resetSectionSettings,
-            icon: const Icon(
+            icon: Icon(
               RemixIcons.arrow_go_back_line,
-              size: 14,
+              size: context.appIconSize.tiny,
               color: kcLightGrey,
             ),
             label: Text(
@@ -155,10 +156,10 @@ class _SectionList extends StatelessWidget {
                 padding: EdgeInsets.symmetric(
                   horizontal: context.appSpacing.paddingHairline,
                 ),
-                child: const Icon(
+                child: Icon(
                   RemixIcons.draggable,
                   color: kcMediumGrey,
-                  size: 18,
+                  size: context.appIconSize.medium,
                 ),
               ),
             ),

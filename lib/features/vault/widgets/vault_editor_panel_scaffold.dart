@@ -27,7 +27,7 @@ class VaultEditorPanelScaffold extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(
             context.appSpacing.paddingPanel,
             context.appSpacing.paddingDefault,
-            12,
+            context.appSpacing.paddingCompact,
             context.appSpacing.paddingDefault,
           ),
           child: Row(

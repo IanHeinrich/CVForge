@@ -1,4 +1,3 @@
-import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -15,10 +14,7 @@ class EducationEditorPanel extends StatelessWidget {
     required this.skillCategories,
     required this.onClose,
     required this.onChanged,
-    required this.onAddBullet,
-    required this.onBulletChanged,
-    required this.onBulletDeleted,
-    required this.onBulletsReordered,
+    required this.bulletCallbacks,
     required this.yearError,
     required this.onYearChanged,
   });
@@ -27,10 +23,7 @@ class EducationEditorPanel extends StatelessWidget {
   final List<SkillCategory> skillCategories;
   final VoidCallback onClose;
   final ValueChanged<Education> onChanged;
-  final VoidCallback onAddBullet;
-  final ValueChanged<CvBullet> onBulletChanged;
-  final ValueChanged<String> onBulletDeleted;
-  final ValueChanged<List<String>> onBulletsReordered;
+  final BulletEditorCallbacks bulletCallbacks;
 
   /// Null means the field's current value is valid — see
   /// `ExperienceEditorPanel.startYearError`'s doc comment for the same
@@ -64,7 +57,7 @@ class EducationEditorPanel extends StatelessWidget {
           label: 'Location (optional)',
           initialValue: education.location ?? '',
           onChanged: (v) =>
-              onChanged(education.copyWith(location: v.isEmpty ? null : v)),
+              onChanged(education.copyWith(location: v.orNullIfEmpty)),
         ),
         const VGap.small(),
         AppTextField(
@@ -80,7 +73,7 @@ class EducationEditorPanel extends StatelessWidget {
           hint: 'e.g. First Class Honours',
           initialValue: education.grade ?? '',
           onChanged: (v) =>
-              onChanged(education.copyWith(grade: v.isEmpty ? null : v)),
+              onChanged(education.copyWith(grade: v.orNullIfEmpty)),
         ),
         const VGap.small(),
         AppTextField(
@@ -88,16 +81,13 @@ class EducationEditorPanel extends StatelessWidget {
           initialValue: education.details ?? '',
           maxLines: 3,
           onChanged: (v) =>
-              onChanged(education.copyWith(details: v.isEmpty ? null : v)),
+              onChanged(education.copyWith(details: v.orNullIfEmpty)),
         ),
         const VGap.medium(),
         BulletListEditor(
           bullets: education.bullets,
           skillCategories: skillCategories,
-          onAdd: onAddBullet,
-          onChanged: onBulletChanged,
-          onDelete: onBulletDeleted,
-          onReorder: onBulletsReordered,
+          callbacks: bulletCallbacks,
         ),
       ],
     );

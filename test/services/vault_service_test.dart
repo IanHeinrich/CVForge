@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -188,9 +189,21 @@ void main() {
           start: const YearMonth(year: 2020, month: 1),
         );
 
-        final b1 = await service.addBullet(experience.id, text: 'First');
-        final b2 = await service.addBullet(experience.id, text: 'Second');
-        await service.addBullet(experience.id, text: 'Third');
+        final b1 = await service.addBullet(
+          BulletOwner.experience,
+          experience.id,
+          text: 'First',
+        );
+        final b2 = await service.addBullet(
+          BulletOwner.experience,
+          experience.id,
+          text: 'Second',
+        );
+        await service.addBullet(
+          BulletOwner.experience,
+          experience.id,
+          text: 'Third',
+        );
 
         expect(service.vault.experiences.single.bullets.map((b) => b.text), [
           'First',
@@ -200,13 +213,20 @@ void main() {
 
         // Reordering to a subset also drops anything left out — 'Third'
         // is intentionally omitted here to exercise that.
-        await service.reorderBullets(experience.id, [b2.id, b1.id]);
+        await service.reorderBullets(BulletOwner.experience, experience.id, [
+          b2.id,
+          b1.id,
+        ]);
         expect(service.vault.experiences.single.bullets.map((b) => b.text), [
           'Second',
           'First',
         ]);
 
-        await service.deleteBullet(experience.id, b1.id);
+        await service.deleteBullet(
+          BulletOwner.experience,
+          experience.id,
+          b1.id,
+        );
         expect(service.vault.experiences.single.bullets.map((b) => b.text), [
           'Second',
         ]);
@@ -277,6 +297,7 @@ void main() {
             start: const YearMonth(year: 2020, month: 1),
           );
           await service.addBullet(
+            BulletOwner.experience,
             experience.id,
             label: 'Impact',
             text: 'Did a thing',

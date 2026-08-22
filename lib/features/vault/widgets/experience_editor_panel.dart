@@ -1,5 +1,4 @@
 import 'package:cv_forge/models/vault/experience.dart';
-import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
@@ -20,10 +19,7 @@ class ExperienceEditorPanel extends StatelessWidget {
     required this.onClose,
     required this.onChanged,
     required this.onGroupChanged,
-    required this.onAddBullet,
-    required this.onBulletChanged,
-    required this.onBulletDeleted,
-    required this.onBulletsReordered,
+    required this.bulletCallbacks,
     required this.startYearError,
     required this.endYearError,
     required this.onStartYearChanged,
@@ -46,10 +42,7 @@ class ExperienceEditorPanel extends StatelessWidget {
   /// Called with the id of the experience to group this one with (a
   /// promotion at the same company), or `null` to ungroup it.
   final ValueChanged<String?> onGroupChanged;
-  final VoidCallback onAddBullet;
-  final ValueChanged<CvBullet> onBulletChanged;
-  final ValueChanged<String> onBulletDeleted;
-  final ValueChanged<List<String>> onBulletsReordered;
+  final BulletEditorCallbacks bulletCallbacks;
 
   /// Null means the field's current value is valid. A rejected edit shows
   /// this rather than silently discarding the keystroke — see
@@ -174,10 +167,7 @@ class ExperienceEditorPanel extends StatelessWidget {
         BulletListEditor(
           bullets: experience.bullets,
           skillCategories: skillCategories,
-          onAdd: onAddBullet,
-          onChanged: onBulletChanged,
-          onDelete: onBulletDeleted,
-          onReorder: onBulletsReordered,
+          callbacks: bulletCallbacks,
         ),
       ],
     );

@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
@@ -521,7 +522,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
               onPressed: _toggleFlowLines,
               icon: Icon(
                 RemixIcons.route_line,
-                size: 18,
+                size: context.appIconSize.medium,
                 color: _showFlowLines ? kcPrimaryColor : kcLightGrey,
               ),
               label: Text(

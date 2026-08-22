@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/identified_list.dart';
+import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
@@ -164,15 +165,7 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateExperience(Experience experience) async {
     await ready();
-    _setVault(
-      (v) => v.copyWith(
-        experiences: v.experiences.replaceById(
-          experience.id,
-          experience,
-          (e) => e.id,
-        ),
-      ),
-    );
+    _updateExperience(experience.id, (_) => experience);
   }
 
   Future<void> deleteExperience(String experienceId) async {
@@ -185,9 +178,9 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
   }
 
   /// Groups [experienceId] with [withExperienceId] as a promotion (same
-  /// company, sequential roles) — or, when [withExperienceId] is `null`,
-  /// removes [experienceId] from whatever group it's in. Reuses the
-  /// target's existing `companyGroupId` if it already has one, so grouping
+  /// company, sequential roles) — or, when [withExperienceId] is null,
+  /// removes [experienceId] from whatever group it is in. Reuses the
+  /// target's existing companyGroupId if it already has one, so grouping
   /// a third role with an existing pair joins the same group rather than
   /// creating a new one.
   Future<void> groupExperience(
@@ -212,73 +205,14 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     _updateExperience(experienceId, (e) => e.copyWith(companyGroupId: groupId));
   }
 
-  // --- bullets ---
-
-  Future<CvBullet> addBullet(
-    String experienceId, {
-    String? label,
-    required String text,
-  }) async {
-    await ready();
-    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
-    _updateExperience(
-      experienceId,
-      (e) => e.copyWith(bullets: [...e.bullets, bullet]),
-    );
-    return bullet;
-  }
-
-  Future<void> updateBullet(String experienceId, CvBullet bullet) async {
-    await ready();
-    _updateExperience(
-      experienceId,
-      (e) => e.copyWith(
-        bullets: e.bullets.replaceById(bullet.id, bullet, (b) => b.id),
-      ),
-    );
-  }
-
-  Future<void> deleteBullet(String experienceId, String bulletId) async {
-    await ready();
-    _updateExperience(
-      experienceId,
-      (e) => e.copyWith(bullets: e.bullets.removeById(bulletId, (b) => b.id)),
-    );
-  }
-
-  Future<void> reorderBullets(
-    String experienceId,
-    List<String> orderedBulletIds,
-  ) async {
-    await ready();
-    _updateExperience(
-      experienceId,
-      (e) => e.copyWith(
-        bullets: [
-          for (final id in orderedBulletIds)
-            ...e.bullets.where((b) => b.id == id).take(1),
-        ],
-      ),
-    );
-  }
-
-  /// Applies [update] to the single experience matching [experienceId],
-  /// leaving every other experience untouched. Shared by every bullet
-  /// mutator above, since they all reach through the same experience to
-  /// touch its nested bullet list.
   void _updateExperience(
     String experienceId,
     Experience Function(Experience current) update,
-  ) {
-    _setVault(
-      (v) => v.copyWith(
-        experiences: [
-          for (final e in v.experiences)
-            if (e.id == experienceId) update(e) else e,
-        ],
-      ),
-    );
-  }
+  ) => _setVault(
+    (v) => v.copyWith(
+      experiences: v.experiences.updateById(experienceId, update, (e) => e.id),
+    ),
+  );
 
   // --- projects ---
 
@@ -291,11 +225,7 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateProject(Project project) async {
     await ready();
-    _setVault(
-      (v) => v.copyWith(
-        projects: v.projects.replaceById(project.id, project, (p) => p.id),
-      ),
-    );
+    _updateProject(project.id, (_) => project);
   }
 
   Future<void> deleteProject(String projectId) async {
@@ -306,71 +236,14 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     );
   }
 
-  // --- project bullets ---
-
-  Future<CvBullet> addProjectBullet(
-    String projectId, {
-    String? label,
-    required String text,
-  }) async {
-    await ready();
-    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
-    _updateProject(
-      projectId,
-      (p) => p.copyWith(bullets: [...p.bullets, bullet]),
-    );
-    return bullet;
-  }
-
-  Future<void> updateProjectBullet(String projectId, CvBullet bullet) async {
-    await ready();
-    _updateProject(
-      projectId,
-      (p) => p.copyWith(
-        bullets: p.bullets.replaceById(bullet.id, bullet, (b) => b.id),
-      ),
-    );
-  }
-
-  Future<void> deleteProjectBullet(String projectId, String bulletId) async {
-    await ready();
-    _updateProject(
-      projectId,
-      (p) => p.copyWith(bullets: p.bullets.removeById(bulletId, (b) => b.id)),
-    );
-  }
-
-  Future<void> reorderProjectBullets(
-    String projectId,
-    List<String> orderedBulletIds,
-  ) async {
-    await ready();
-    _updateProject(
-      projectId,
-      (p) => p.copyWith(
-        bullets: [
-          for (final id in orderedBulletIds)
-            ...p.bullets.where((b) => b.id == id).take(1),
-        ],
-      ),
-    );
-  }
-
-  /// Applies [update] to the single project matching [projectId]. Mirrors
-  /// [_updateExperience] — same shape, one entity type over.
   void _updateProject(
     String projectId,
     Project Function(Project current) update,
-  ) {
-    _setVault(
-      (v) => v.copyWith(
-        projects: [
-          for (final p in v.projects)
-            if (p.id == projectId) update(p) else p,
-        ],
-      ),
-    );
-  }
+  ) => _setVault(
+    (v) => v.copyWith(
+      projects: v.projects.updateById(projectId, update, (p) => p.id),
+    ),
+  );
 
   // --- skill categories & skills ---
 
@@ -385,15 +258,7 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateSkillCategory(SkillCategory category) async {
     await ready();
-    _setVault(
-      (v) => v.copyWith(
-        skillCategories: v.skillCategories.replaceById(
-          category.id,
-          category,
-          (c) => c.id,
-        ),
-      ),
-    );
+    _updateSkillCategory(category.id, (_) => category);
   }
 
   Future<void> deleteSkillCategory(String categoryId) async {
@@ -433,22 +298,18 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     );
   }
 
-  /// Applies [update] to the single skill category matching [categoryId].
-  /// Shared by every skill mutator, mirroring [_updateExperience] one
-  /// nesting level down.
   void _updateSkillCategory(
     String categoryId,
     SkillCategory Function(SkillCategory current) update,
-  ) {
-    _setVault(
-      (v) => v.copyWith(
-        skillCategories: [
-          for (final c in v.skillCategories)
-            if (c.id == categoryId) update(c) else c,
-        ],
+  ) => _setVault(
+    (v) => v.copyWith(
+      skillCategories: v.skillCategories.updateById(
+        categoryId,
+        update,
+        (c) => c.id,
       ),
-    );
-  }
+    ),
+  );
 
   // --- education ---
 
@@ -476,15 +337,7 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateEducation(Education education) async {
     await ready();
-    _setVault(
-      (v) => v.copyWith(
-        education: v.education.replaceById(
-          education.id,
-          education,
-          (e) => e.id,
-        ),
-      ),
-    );
+    _updateEducation(education.id, (_) => education);
   }
 
   Future<void> deleteEducation(String educationId) async {
@@ -496,78 +349,14 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     );
   }
 
-  // --- education bullets ---
-
-  Future<CvBullet> addEducationBullet(
-    String educationId, {
-    String? label,
-    required String text,
-  }) async {
-    await ready();
-    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
-    _updateEducation(
-      educationId,
-      (e) => e.copyWith(bullets: [...e.bullets, bullet]),
-    );
-    return bullet;
-  }
-
-  Future<void> updateEducationBullet(
-    String educationId,
-    CvBullet bullet,
-  ) async {
-    await ready();
-    _updateEducation(
-      educationId,
-      (e) => e.copyWith(
-        bullets: e.bullets.replaceById(bullet.id, bullet, (b) => b.id),
-      ),
-    );
-  }
-
-  Future<void> deleteEducationBullet(
-    String educationId,
-    String bulletId,
-  ) async {
-    await ready();
-    _updateEducation(
-      educationId,
-      (e) => e.copyWith(bullets: e.bullets.removeById(bulletId, (b) => b.id)),
-    );
-  }
-
-  Future<void> reorderEducationBullets(
-    String educationId,
-    List<String> orderedBulletIds,
-  ) async {
-    await ready();
-    _updateEducation(
-      educationId,
-      (e) => e.copyWith(
-        bullets: [
-          for (final id in orderedBulletIds)
-            ...e.bullets.where((b) => b.id == id).take(1),
-        ],
-      ),
-    );
-  }
-
-  /// Applies [update] to the single education entry matching [educationId].
-  /// Mirrors [_updateExperience]/[_updateProject] — same shape, one entity
-  /// type over.
   void _updateEducation(
     String educationId,
     Education Function(Education current) update,
-  ) {
-    _setVault(
-      (v) => v.copyWith(
-        education: [
-          for (final e in v.education)
-            if (e.id == educationId) update(e) else e,
-        ],
-      ),
-    );
-  }
+  ) => _setVault(
+    (v) => v.copyWith(
+      education: v.education.updateById(educationId, update, (e) => e.id),
+    ),
+  );
 
   // --- hobbies ---
 
@@ -594,19 +383,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     );
   }
 
-  /// Wholesale-replaces the Vault — the one call site is `BackupService`'s
-  /// import flow. Flushes (via [persistNow]) any write still sitting in
-  /// the debounce timer *before* overwriting in-memory state, so a normal
-  /// edit made just before import can't fire after import and silently
-  /// clobber the freshly-restored data. [vault]'s own `updatedAt` is kept
-  /// as-is — importing isn't itself an edit to the vault's content.
-  Future<void> replaceAll(CvVault vault) async {
-    await ready();
-    await persistNow(_vault.value);
-    _vault.value = vault;
-    await persistImmediately(vault);
-  }
-
   // --- publications ---
 
   Future<Publication> addPublication({
@@ -629,15 +405,7 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updatePublication(Publication publication) async {
     await ready();
-    _setVault(
-      (v) => v.copyWith(
-        publications: v.publications.replaceById(
-          publication.id,
-          publication,
-          (p) => p.id,
-        ),
-      ),
-    );
+    _updatePublication(publication.id, (_) => publication);
   }
 
   Future<void> deletePublication(String publicationId) async {
@@ -649,76 +417,106 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     );
   }
 
-  // --- publication bullets ---
+  void _updatePublication(
+    String publicationId,
+    Publication Function(Publication current) update,
+  ) => _setVault(
+    (v) => v.copyWith(
+      publications: v.publications.updateById(
+        publicationId,
+        update,
+        (p) => p.id,
+      ),
+    ),
+  );
 
-  Future<CvBullet> addPublicationBullet(
-    String publicationId, {
+  // --- bullets ---
+  //
+  // One API shared by every bullet-owning entity (experience, project,
+  // education, publication) rather than a hand-written quartet per entity
+  // — [owner] plus [_updateBulletsOf] resolves "which list, and how to
+  // write it back" without four copies of the same add/update/delete/
+  // reorder bodies.
+
+  Future<CvBullet> addBullet(
+    BulletOwner owner,
+    String ownerId, {
     String? label,
     required String text,
   }) async {
     await ready();
     final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
-    _updatePublication(
-      publicationId,
-      (p) => p.copyWith(bullets: [...p.bullets, bullet]),
-    );
+    _updateBulletsOf(owner, ownerId, (bullets) => [...bullets, bullet]);
     return bullet;
   }
 
-  Future<void> updatePublicationBullet(
-    String publicationId,
+  Future<void> updateBullet(
+    BulletOwner owner,
+    String ownerId,
     CvBullet bullet,
   ) async {
     await ready();
-    _updatePublication(
-      publicationId,
-      (p) => p.copyWith(
-        bullets: p.bullets.replaceById(bullet.id, bullet, (b) => b.id),
-      ),
+    _updateBulletsOf(
+      owner,
+      ownerId,
+      (bullets) => bullets.replaceById(bullet.id, bullet, (b) => b.id),
     );
   }
 
-  Future<void> deletePublicationBullet(
-    String publicationId,
+  Future<void> deleteBullet(
+    BulletOwner owner,
+    String ownerId,
     String bulletId,
   ) async {
     await ready();
-    _updatePublication(
-      publicationId,
-      (p) => p.copyWith(bullets: p.bullets.removeById(bulletId, (b) => b.id)),
+    _updateBulletsOf(
+      owner,
+      ownerId,
+      (bullets) => bullets.removeById(bulletId, (b) => b.id),
     );
   }
 
-  Future<void> reorderPublicationBullets(
-    String publicationId,
+  Future<void> reorderBullets(
+    BulletOwner owner,
+    String ownerId,
     List<String> orderedBulletIds,
   ) async {
     await ready();
-    _updatePublication(
-      publicationId,
-      (p) => p.copyWith(
-        bullets: [
-          for (final id in orderedBulletIds)
-            ...p.bullets.where((b) => b.id == id).take(1),
-        ],
-      ),
+    _updateBulletsOf(
+      owner,
+      ownerId,
+      (bullets) => bullets.reorderByIds(orderedBulletIds, (b) => b.id),
     );
   }
 
-  /// Applies [update] to the single publication matching [publicationId].
-  /// Mirrors [_updateProject] — same shape, one entity type over.
-  void _updatePublication(
-    String publicationId,
-    Publication Function(Publication current) update,
+  /// Resolves [owner] to the entity holding [ownerId] and rewrites its
+  /// bullets field via [update] — the one place that knows each owner's
+  /// concrete type, so every public bullet method above stays a single
+  /// call regardless of which entity it is operating on.
+  void _updateBulletsOf(
+    BulletOwner owner,
+    String ownerId,
+    List<CvBullet> Function(List<CvBullet> current) update,
   ) {
-    _setVault(
-      (v) => v.copyWith(
-        publications: [
-          for (final p in v.publications)
-            if (p.id == publicationId) update(p) else p,
-        ],
-      ),
-    );
+    switch (owner) {
+      case BulletOwner.experience:
+        _updateExperience(
+          ownerId,
+          (e) => e.copyWith(bullets: update(e.bullets)),
+        );
+      case BulletOwner.project:
+        _updateProject(ownerId, (p) => p.copyWith(bullets: update(p.bullets)));
+      case BulletOwner.education:
+        _updateEducation(
+          ownerId,
+          (e) => e.copyWith(bullets: update(e.bullets)),
+        );
+      case BulletOwner.publication:
+        _updatePublication(
+          ownerId,
+          (p) => p.copyWith(bullets: update(p.bullets)),
+        );
+    }
   }
 
   // --- persistence plumbing ---
@@ -728,10 +526,23 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     scheduleWrite(_vault.value);
   }
 
+  /// Wholesale-replaces the Vault — the one call site is BackupService's
+  /// import flow. Flushes (via [persistNow]) any write still sitting in
+  /// the debounce timer before overwriting in-memory state, so a normal
+  /// edit made just before import can not fire after import and silently
+  /// clobber the freshly-restored data. vault's own updatedAt is kept
+  /// as-is — importing is not itself an edit to the vault's content.
+  Future<void> replaceAll(CvVault vault) async {
+    await ready();
+    await persistNow(_vault.value);
+    _vault.value = vault;
+    await persistImmediately(vault);
+  }
+
   /// Persists immediately, bypassing any pending debounce timer. Called
-  /// from the app-lifecycle hook in `main.dart` when the tab is about to
-  /// be hidden or closed (a debounce timer alone can't survive that), and
-  /// from the Vault UI's "Retry" affordance after a [persistError] — both
+  /// from the app-lifecycle hook in main.dart when the tab is about to
+  /// be hidden or closed (a debounce timer alone can not survive that), and
+  /// from the Vault UI's Retry affordance after a [persistError] — both
   /// need the same "write right now" behaviour, so one method serves both.
   Future<void> flushPendingWrites() => persistNow(_vault.value);
 
