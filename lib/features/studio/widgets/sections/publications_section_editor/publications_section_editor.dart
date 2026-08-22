@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
-import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
-import 'package:cv_forge/features/studio/widgets/vault_item_selector_list.dart';
+import 'package:cv_forge/features/studio/widgets/sections/entity_bullet_section_editor.dart';
 
 /// The [CvSectionType.publications] editor.
 class PublicationsSectionEditor extends StatelessWidget {
@@ -11,53 +10,28 @@ class PublicationsSectionEditor extends StatelessWidget {
   final StudioViewModel viewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return VaultItemSelectorList(
-      title: 'Publications',
-      unselectedCount: viewModel.unselectedPublications.length,
-      selectedCount: viewModel.selectedPublications.length,
-      onAddAll: viewModel.addAllPublications,
-      onRemoveAll: viewModel.removeAllPublications,
-      items: [
-        for (final publication in viewModel.publications)
-          SelectorItem(
-            id: publication.id,
-            title: publication.title.isEmpty
-                ? 'Untitled publication'
-                : publication.title,
-            subtitle: publication.citation,
-            selected: viewModel.isPublicationIncluded(publication.id),
-            onToggle: () => viewModel.togglePublication(publication),
-            onAddAllBullets: () =>
-                viewModel.addAllPublicationBullets(publication),
-            onRemoveAllBullets: () =>
-                viewModel.removeAllPublicationBullets(publication),
-            bullets: [
-              for (final bullet in publication.bullets)
-                SelectorItem(
-                  id: bullet.id,
-                  title: bulletTitle(
-                    bullet.label,
-                    viewModel.bulletText(bullet),
-                  ),
-                  selected: viewModel.isPublicationBulletIncluded(
-                    publication.id,
-                    bullet.id,
-                  ),
-                  onToggle: () =>
-                      viewModel.togglePublicationBullet(publication, bullet),
-                  tailorable: TailorableField(
-                    hasOverride: viewModel.hasBulletOverride(bullet.id),
-                    effectiveText: viewModel.bulletText(bullet),
-                    fieldLabel: bullet.label,
-                    onChanged: (value) =>
-                        viewModel.setBulletOverride(bullet, value),
-                    onRevert: () => viewModel.revertBulletOverride(bullet.id),
-                  ),
-                ),
-            ],
-          ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => EntityBulletSectionEditor(
+    title: 'Publications',
+    items: viewModel.publications,
+    untitledLabel: 'Untitled publication',
+    idOf: (p) => p.id,
+    titleOf: (p) => p.title,
+    subtitleOf: (p) => p.citation,
+    bulletsOf: (p) => p.bullets,
+    unselectedCount: viewModel.unselectedPublications.length,
+    selectedCount: viewModel.selectedPublications.length,
+    onAddAll: viewModel.addAllPublications,
+    onRemoveAll: viewModel.removeAllPublications,
+    isIncluded: (p) => viewModel.isPublicationIncluded(p.id),
+    onToggle: viewModel.togglePublication,
+    onAddAllBullets: viewModel.addAllPublicationBullets,
+    onRemoveAllBullets: viewModel.removeAllPublicationBullets,
+    isBulletIncluded: (p, b) =>
+        viewModel.isPublicationBulletIncluded(p.id, b.id),
+    onToggleBullet: viewModel.togglePublicationBullet,
+    bulletText: viewModel.bulletText,
+    hasBulletOverride: viewModel.hasBulletOverride,
+    onSetBulletOverride: viewModel.setBulletOverride,
+    onRevertBulletOverride: viewModel.revertBulletOverride,
+  );
 }

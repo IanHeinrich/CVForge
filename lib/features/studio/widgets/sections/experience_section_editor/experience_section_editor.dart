@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
-import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
-import 'package:cv_forge/features/studio/widgets/vault_item_selector_list.dart';
+import 'package:cv_forge/features/studio/widgets/sections/entity_bullet_section_editor.dart';
 
 /// The [CvSectionType.experience] editor.
 class ExperienceSectionEditor extends StatelessWidget {
@@ -11,51 +10,28 @@ class ExperienceSectionEditor extends StatelessWidget {
   final StudioViewModel viewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return VaultItemSelectorList(
-      title: 'Work history',
-      unselectedCount: viewModel.unselectedExperiences.length,
-      selectedCount: viewModel.selectedExperiences.length,
-      onAddAll: viewModel.addAllExperiences,
-      onRemoveAll: viewModel.removeAllExperiences,
-      items: [
-        for (final experience in viewModel.experiences)
-          SelectorItem(
-            id: experience.id,
-            title: experience.role.isEmpty ? 'Untitled role' : experience.role,
-            subtitle: experience.company,
-            selected: viewModel.isExperienceIncluded(experience.id),
-            onToggle: () => viewModel.toggleExperience(experience),
-            onAddAllBullets: () =>
-                viewModel.addAllExperienceBullets(experience),
-            onRemoveAllBullets: () =>
-                viewModel.removeAllExperienceBullets(experience),
-            bullets: [
-              for (final bullet in experience.bullets)
-                SelectorItem(
-                  id: bullet.id,
-                  title: bulletTitle(
-                    bullet.label,
-                    viewModel.bulletText(bullet),
-                  ),
-                  selected: viewModel.isExperienceBulletIncluded(
-                    experience.id,
-                    bullet.id,
-                  ),
-                  onToggle: () =>
-                      viewModel.toggleExperienceBullet(experience, bullet),
-                  tailorable: TailorableField(
-                    hasOverride: viewModel.hasBulletOverride(bullet.id),
-                    effectiveText: viewModel.bulletText(bullet),
-                    fieldLabel: bullet.label,
-                    onChanged: (value) =>
-                        viewModel.setBulletOverride(bullet, value),
-                    onRevert: () => viewModel.revertBulletOverride(bullet.id),
-                  ),
-                ),
-            ],
-          ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => EntityBulletSectionEditor(
+    title: 'Work history',
+    items: viewModel.experiences,
+    untitledLabel: 'Untitled role',
+    idOf: (e) => e.id,
+    titleOf: (e) => e.role,
+    subtitleOf: (e) => e.company,
+    bulletsOf: (e) => e.bullets,
+    unselectedCount: viewModel.unselectedExperiences.length,
+    selectedCount: viewModel.selectedExperiences.length,
+    onAddAll: viewModel.addAllExperiences,
+    onRemoveAll: viewModel.removeAllExperiences,
+    isIncluded: (e) => viewModel.isExperienceIncluded(e.id),
+    onToggle: viewModel.toggleExperience,
+    onAddAllBullets: viewModel.addAllExperienceBullets,
+    onRemoveAllBullets: viewModel.removeAllExperienceBullets,
+    isBulletIncluded: (e, b) =>
+        viewModel.isExperienceBulletIncluded(e.id, b.id),
+    onToggleBullet: viewModel.toggleExperienceBullet,
+    bulletText: viewModel.bulletText,
+    hasBulletOverride: viewModel.hasBulletOverride,
+    onSetBulletOverride: viewModel.setBulletOverride,
+    onRevertBulletOverride: viewModel.revertBulletOverride,
+  );
 }
