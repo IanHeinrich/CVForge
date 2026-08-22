@@ -1980,3 +1980,132 @@ and were left untouched. Manually verified against the running app for
 every sub-phase above: section drag-reorder, save/reset default (order +
 hidden sections), template switch, region switch, publication bullets in
 Vault/Studio/both PDF exports, and the Clear Vault confirm-and-reset flow.
+
+## Phase 7 — Interface work (2026-08-22)
+
+The eight-workstream UI/UX review recorded in `docs/ux/` — see that
+folder's `README.md` for the full review findings, the decision table
+per workstream, and why these are pre-spec files rather than sections of
+this document. Each summarised here once shipped, per that file's own
+stated convention; the `docs/ux/7.N-*.md` file remains the long-form
+rationale.
+
+### 7.1 — Surface elevation ramp → [PR #51](https://github.com/IanHeinrich/CVForge/pull/51) ✅ shipped
+
+`app_colors.dart` gained a four-tier surface ramp (`kcSurfaceSunken` →
+`kcSurface` → `kcSurfaceRaised` → `kcSurfaceOverlay`) plus
+`kcBorderColor`/`kcBorderStrong`, replacing the single flat
+`kcBackgroundColor`/`kcDarkGreyColor` pair every panel and card used to
+share. Pinned onto `buildAppTheme()`'s `ColorScheme` container slots
+(`surface`, `surfaceContainerLowest/Low/High/Highest`,
+`outlineVariant`/`outline`) rather than read directly by widgets — so
+`Card`, `NavigationRail`, and `Divider` pick up the right tier from
+Material's own defaults, and roughly a dozen call sites (every top-level
+`Scaffold`'s `backgroundColor`, `AppChrome`'s `NavigationRail`, every
+plain `VerticalDivider`/`Divider`) could have their explicit color
+argument **deleted** entirely rather than repointed, since it now matches
+the theme default. The remaining call sites — block-card `Container`
+decorations, `Material` list-item fills, hairline borders — read
+`Theme.of(context).colorScheme.*` rather than a raw `kc*` const, so no
+widget outside `app_theme.dart` needs to know the ramp's actual values.
+`kcMediumGrey`'s three previously-conflated roles (border/divider colour,
+placeholder/disabled text, the preview pane's backdrop) split into their
+correct tiers — border and backdrop moved to the ramp, placeholder/
+disabled text is `kcMediumGrey`'s one remaining job. `AppSummaryCard`'s
+selected state moved from a full `kcPrimaryColorDark` fill to a
+`kcSurfaceOverlay` fill plus a 2px `kcPrimaryColor` left edge, per the
+doc's "also worth fixing while here" note, now that a real ramp exists
+underneath it to read against.
+
+Re-baselined all five golden snapshots (every one pumps its View inside
+`AppChrome`).
+
+### 7.2 — Grouped chip skill selection ✅ shipped
+
+Extracted `AppChipGroupSelector` (`lib/ui/widgets/common/`) from the
+`Wrap`-of-`FilterChip`s pattern the Vault's `_SkillBulletLinkPicker`
+(`skills_editor_panel.dart`) already used — a group has a label plus
+items, each item an id/label/selected/`onToggle`, with an optional
+per-group `onSelectAll`/`onSelectNone` computing its own "Add all (N)" /
+"Remove all (N)" count from the items it's given. The Vault's own bullet
+picker was switched onto it too (decision: prove the extraction by
+making the widget it was pulled from use it), so the two consumers can't
+drift.
+
+Studio's skill selector (`studio_skill_selector/studio_skill_selector.dart`)
+replaces `VaultItemSelectorList`'s flattened one-`CheckboxListTile`-per-
+skill rendering, which discarded the category grouping `CvComposer` and
+both templates reinstate when they print a skills section. Filtering is
+**category-level**: a category renders in full (every skill, unfiltered)
+once its name or any one skill's label matches the query, so a
+category's "Add all (N)" always matches what tapping it actually adds —
+never a partial-category count that would silently include hidden
+skills. `StudioViewModel` gained `addAllSkillsInCategory`/
+`removeAllSkillsInCategory` (same sequential-await shape every other bulk
+selection in this codebase already needs) and `selectEvidencedSkills` —
+adds every skill linked to a bullet actually included in the draft,
+add-only, wired to a "Select N evidenced skills" button that disables
+rather than hides at zero. `Skill.linkedBulletIds` had sat unused since
+Phase 1 (its own doc comment said so); this is the first thing that
+reads it.
+
+No golden coverage exists for either surface touched (`StudioView` has
+none at all; Phase 3.8 already recorded the Vault skills panel doesn't
+render in either golden-tested View's default state) — verified in the
+browser instead: chips wrap without scrolling, category headings appear
+once each, a filtered-out selection survives the filter clearing, and
+the evidenced-skills button's count matches what it selects.
+
+### 7.3 — Preview fit and page count ✅ shipped
+
+`StudioPreviewPane` swapped `printing.PdfPreview` for the same package's
+`PdfPreviewCustom` — confirmed by reading `third_party/printing`'s actual
+source that this is a drop-in replacement for every argument already in
+use, and deletes three arguments (`useActions`/`canChangePageFormat`/
+`canChangeOrientation`) whose only job was disabling `PdfPreview`'s own
+action bar. The page is now capped at its true printed width
+(`format.width / PdfPageFormat.inch * 96`, derived from `PdfPageFormat`
+rather than a literal so a US Letter draft sizes correctly too) instead
+of stretching to fill the pane — previously the page rendered at roughly
+130% of print size on a 1728px viewport. Page count is read from
+`pagesBuilder`'s own page list (free — the rasterisation already
+happened) and surfaced via `StudioViewModel.pageCount`/`setPageCount`,
+set from a post-frame callback guarded on the value changing, since
+`pagesBuilder` runs mid-build and a direct `notifyListeners()` from there
+would assert. Two-up rendering is gated on the pane's own available width
+(`LayoutBuilder`, not a user toggle), and — confirmed against the
+vendored source, not assumed — `PdfPreviewCustom` wraps its *entire*
+content (including a custom `pagesBuilder`'s output) in one
+`BoxConstraints(maxWidth: maxPageWidth)`, so the cap itself has to widen
+to two-pages-plus-gutter whenever two-up applies, or the two-up row would
+get clipped down to one page's width by the same constraint meant to cap
+a single page.
+
+**Not verified pixel-for-pixel in this session's browser check**: the
+sandbox's bundled Chromium build hits a `pdf.js`/CanvasKit compatibility
+error (`getOrInsertComputed` unimplemented) rasterising *any* PDF
+preview, old widget or new — confirmed unrelated to this change since
+both `PdfPreview` and `PdfPreviewCustom` share the same underlying
+`PdfPreviewRaster` mixin. The width-cap and two-up-widening logic above
+is verified against the real vendored source and the full test suite
+(`pdf_export_service_test.dart` is untouched and still passing, per the
+doc's own note that it exercises `PdfExportService.render` directly, not
+the preview widget) rather than a live screenshot — worth a real-browser
+check before relying on the exact pixel sizing.
+
+### Verification
+
+`flutter analyze` (0 issues) and `flutter test --exclude-tags=golden`
+(253/253, up from 250 — three new `StudioViewModel` tests covering
+`addAllSkillsInCategory`/`removeAllSkillsInCategory`/
+`selectEvidencedSkills`, including the sequential-await assertion every
+bulk-selection method in this codebase needs). Goldens regenerated
+locally (`flutter test --tags=golden --update-goldens`, same Linux OS
+family as `ubuntu-latest`) and separately confirmed green by dispatching
+`update-goldens.yml` on the branch — its artifact wasn't downloaded into
+this session (outside the sandbox's allowed egress), so the committed
+PNGs are the local render, not that run's artifact; a diff between the
+two is still worth doing. Browser-verified 7.1 and 7.2 against the
+running app (elevation ramp, chip grouping in both Vault and Studio); 7.3
+per its own note above. Shipped as one PR covering all three sub-phases;
+CI (`Analyze & test`, `update-goldens`) green before merge.
