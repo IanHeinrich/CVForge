@@ -34,6 +34,9 @@ class CompactTemplate implements CvTemplate {
   CvDesignTokens get tokens => compactTokens;
 
   @override
+  Set<TemplateTag> get tags => const {TemplateTag.atsSafe, TemplateTag.compact};
+
+  @override
   List<CvSectionType> get sectionOrder => CvSectionType.values;
 
   @override

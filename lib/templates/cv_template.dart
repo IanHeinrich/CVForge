@@ -6,6 +6,24 @@ import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'design/cv_design_tokens.dart';
 import 'design/cv_font_set.dart';
 
+/// Coarse classification for the template gallery's grouping (7.5) — not
+/// a styling input, and no renderer reads this. A new value here is cheap
+/// while there are only two templates to update; keep the set small
+/// (four or five values) and require every template to declare at least
+/// one, or grouping degenerates into one group per template.
+enum TemplateTag { atsSafe, academic, twoColumn, compact, traditional, modern }
+
+extension TemplateTagLabel on TemplateTag {
+  String get displayLabel => switch (this) {
+    TemplateTag.atsSafe => 'ATS-safe',
+    TemplateTag.academic => 'Academic',
+    TemplateTag.twoColumn => 'Two-column',
+    TemplateTag.compact => 'Compact',
+    TemplateTag.traditional => 'Traditional',
+    TemplateTag.modern => 'Modern',
+  };
+}
+
 /// The single-renderer boundary. A template never sees `CvVault`/`CvDraft`
 /// — only the [ResolvedCv] `CvComposer` produces — so Studio's live
 /// preview (a rasterized render of [buildDocument]'s real output, via
@@ -16,6 +34,11 @@ abstract interface class CvTemplate {
   String get displayName;
   String get description;
   CvDesignTokens get tokens;
+
+  /// Kept on the interface rather than in a separate registry-side map so
+  /// a template and its own description of itself can't drift. Every
+  /// template must declare at least one — see [TemplateTag]'s doc comment.
+  Set<TemplateTag> get tags;
 
   /// This template's suggested section order — a permutation of every
   /// [CvSectionType], not a subset (a case missing from it would silently

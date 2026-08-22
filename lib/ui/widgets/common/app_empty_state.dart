@@ -19,6 +19,7 @@ class AppEmptyState extends StatelessWidget {
     required this.title,
     required this.message,
     this.actions = const [],
+    this.messageMaxWidth,
   });
 
   final IconData icon;
@@ -29,6 +30,13 @@ class AppEmptyState extends StatelessWidget {
   /// no action, just an explanation (e.g. a preview render failure, where
   /// the fix is "try the export button instead", not a button here).
   final List<Widget> actions;
+
+  /// Caps [message] to a comfortable reading measure. Null (the default)
+  /// leaves it unconstrained — every existing message here is already
+  /// short enough that this has never mattered; set it for a longer one
+  /// that would otherwise stretch to the full available width, the way
+  /// the Analyzer upload prompt's did before this was added (7.5).
+  final double? messageMaxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +56,15 @@ class AppEmptyState extends StatelessWidget {
               style: context.appTypography.titleLarge,
             ),
             const VGap.small(),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: kcLightGrey),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: messageMaxWidth ?? double.infinity,
+              ),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: kcLightGrey),
+              ),
             ),
             if (actions.isNotEmpty) ...[
               const VGap.medium(),

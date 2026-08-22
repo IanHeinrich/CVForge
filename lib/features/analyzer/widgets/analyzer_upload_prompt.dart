@@ -39,11 +39,12 @@ class AnalyzerUploadPrompt extends StatelessWidget {
     return AppEmptyState(
       icon: RemixIcons.file_search_line,
       title: 'Check your CV for ATS issues',
+      messageMaxWidth: 480,
       message:
-          'Upload a PDF resume to check for formatting that applicant '
-          'tracking software commonly misreads — missing text layers, '
-          'multi-column layouts, garbled characters, and more. Nothing '
-          'leaves your browser.',
+          'Upload a PDF ${viewModel.documentNoun} to check for formatting '
+          'that applicant tracking software commonly misreads — missing '
+          'text layers, multi-column layouts, garbled characters, and '
+          'more. Nothing leaves your browser.',
       actions: [
         FilledButton(
           onPressed: viewModel.pickAndAnalyze,

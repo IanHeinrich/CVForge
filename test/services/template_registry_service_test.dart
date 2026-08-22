@@ -49,5 +49,18 @@ void main() {
         );
       }
     });
+
+    test('every registered template declares at least one tag, or the '
+        'gallery would have nowhere to group it', () {
+      final service = TemplateRegistryService();
+
+      for (final template in service.available) {
+        expect(
+          template.tags,
+          isNotEmpty,
+          reason: '${template.id}.tags must be non-empty',
+        );
+      }
+    });
   });
 }

@@ -32,6 +32,12 @@ class ClassicCenteredTemplate implements CvTemplate {
   @override
   CvDesignTokens get tokens => classicCenteredTokens;
 
+  @override
+  Set<TemplateTag> get tags => const {
+    TemplateTag.traditional,
+    TemplateTag.academic,
+  };
+
   /// Matches the reference CV's own order — Skills sits near the bottom,
   /// just before Publications, not near the top the way `compact`
   /// puts it. Projects/Hobbies/References aren't in the reference at all;

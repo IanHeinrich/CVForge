@@ -10,9 +10,10 @@ import 'package:stacked_services/stacked_services.dart';
 import 'app.locator.dart';
 import '../features/studio/dialogs/copilot_run/copilot_run_dialog.dart';
 import '../features/studio/dialogs/edit_draft/edit_draft_dialog.dart';
+import '../features/studio/dialogs/template_gallery/template_gallery_dialog.dart';
 import '../features/vault/dialogs/confirm_delete/confirm_delete_dialog.dart';
 
-enum DialogType { confirmDelete, editDraft, copilotRun }
+enum DialogType { confirmDelete, editDraft, copilotRun, templateGallery }
 
 void setupDialogUi() {
   final dialogService = locator<DialogService>();
@@ -24,6 +25,8 @@ void setupDialogUi() {
         EditDraftDialog(request: request, completer: completer),
     DialogType.copilotRun: (context, request, completer) =>
         CopilotRunDialog(request: request, completer: completer),
+    DialogType.templateGallery: (context, request, completer) =>
+        TemplateGalleryDialog(request: request, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);

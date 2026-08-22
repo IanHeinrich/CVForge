@@ -23,6 +23,7 @@ import '../services/local_storage_service.dart';
 import '../services/pdf_export_service.dart';
 import '../services/settings_service.dart';
 import '../services/template_registry_service.dart';
+import '../services/template_thumbnail_service.dart';
 import '../services/vault_service.dart';
 import 'app.router.dart';
 
@@ -55,6 +56,7 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => AtsAnalyzerService());
   locator.registerLazySingleton(() => LlmService());
   locator.registerLazySingleton(() => CopilotService());
+  locator.registerLazySingleton(() => TemplateThumbnailService());
   if (stackedRouter == null) {
     throw Exception(
       'Stacked is building to use the Router (Navigator 2.0) navigation but no stackedRouter is supplied. Pass the stackedRouter to the setupLocator function in main.dart',

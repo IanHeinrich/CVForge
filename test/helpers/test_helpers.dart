@@ -18,6 +18,7 @@ import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:cv_forge/templates/classic_centered/classic_centered_template.dart';
 import 'package:cv_forge/services/llm_service.dart';
 import 'package:cv_forge/services/copilot_service.dart';
+import 'package:cv_forge/services/template_thumbnail_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -43,6 +44,9 @@ import 'test_helpers.mocks.dart';
     MockSpec<AtsAnalyzerService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<LlmService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<CopilotService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<TemplateThumbnailService>(
+      onMissingStub: OnMissingStub.returnDefault,
+    ),
     // @stacked-mock-spec
   ],
 )
@@ -63,6 +67,7 @@ void registerServices() {
   getAndRegisterAtsAnalyzerService();
   getAndRegisterLlmService();
   getAndRegisterCopilotService();
+  getAndRegisterTemplateThumbnailService();
   // @stacked-mock-register
 }
 
@@ -190,6 +195,13 @@ MockCopilotService getAndRegisterCopilotService() {
   _removeRegistrationIfExists<CopilotService>();
   final service = MockCopilotService();
   locator.registerSingleton<CopilotService>(service);
+  return service;
+}
+
+MockTemplateThumbnailService getAndRegisterTemplateThumbnailService() {
+  _removeRegistrationIfExists<TemplateThumbnailService>();
+  final service = MockTemplateThumbnailService();
+  locator.registerSingleton<TemplateThumbnailService>(service);
   return service;
 }
 // @stacked-mock-create

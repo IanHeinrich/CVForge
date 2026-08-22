@@ -3,6 +3,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
+import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
@@ -135,10 +136,30 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   CvTemplate get template => _templateRegistry.byId(_draft.templateId);
 
-  List<CvTemplate> get availableTemplates => _templateRegistry.available;
-
   Future<void> setTemplate(String templateId) =>
       _draftService.setTemplate(templateId);
+
+  /// Opens the template gallery (7.5) and applies whatever was confirmed.
+  /// A cancelled dialog returns `confirmed: false` and this is a no-op —
+  /// [TemplateGalleryDialog] never calls back with `confirmed: true` and a
+  /// null template id, so the null-check here is just satisfying the
+  /// nullable [DialogResponse.data] type, not a real "confirmed but no
+  /// selection" case.
+  Future<void> openTemplateGallery() async {
+    final response = await _dialogService
+        .showCustomDialog<String, TemplateGalleryDialogData>(
+          variant: DialogType.templateGallery,
+          data: TemplateGalleryDialogData(
+            currentTemplateId: template.id,
+            cv: resolvedCv,
+            pageFormat: pageFormat,
+          ),
+        );
+    final selectedId = response?.data;
+    if (response?.confirmed == true && selectedId != null) {
+      await setTemplate(selectedId);
+    }
+  }
 
   RegionProfile get region => _draft.region;
   Future<void> setRegion(RegionProfile region) =>

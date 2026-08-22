@@ -12,14 +12,11 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 
 /// The one-row bar above Studio's three-column layout: a way back to
 /// [DraftsListView] and the draft name/edit affordance (absorbing what
-/// `studio_draft_header.dart` used to own), the template and region
-/// pickers, the page count (7.3), and Export — moved off the preview
-/// pane's floating button so it reads as document-level, not preview-
-/// level. See `docs/ux/7.4-studio-restructure.md`.
-///
-/// The pickers stay plain [ChoiceChip] rows in this step; 7.5 replaces
-/// them with a gallery and a searchable field, built once in this final
-/// home rather than twice.
+/// `studio_draft_header.dart` used to own), the template gallery button
+/// and region dropdown (7.5), the page count (7.3), and Export — moved
+/// off the preview pane's floating button so it reads as document-level,
+/// not preview-level. See `docs/ux/7.4-studio-restructure.md` and
+/// `docs/ux/7.5-template-region-scaling.md`.
 class StudioDocumentBar extends StatelessWidget {
   const StudioDocumentBar({super.key, required this.viewModel});
 
@@ -85,26 +82,30 @@ class StudioDocumentBar extends StatelessWidget {
                   reverse: true,
                   child: Row(
                     children: [
-                      for (final template in viewModel.availableTemplates)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: ChoiceChip(
-                            label: Text(template.displayName),
-                            selected: viewModel.template.id == template.id,
-                            onSelected: (_) =>
-                                viewModel.setTemplate(template.id),
-                          ),
-                        ),
+                      OutlinedButton.icon(
+                        onPressed: viewModel.openTemplateGallery,
+                        icon: const Icon(RemixIcons.layout_grid_line, size: 16),
+                        label: Text(viewModel.template.displayName),
+                      ),
                       const HGap.small(),
-                      for (final region in RegionProfile.values)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: ChoiceChip(
-                            label: Text(region.preset.displayName),
-                            selected: viewModel.region == region,
-                            onSelected: (_) => viewModel.setRegion(region),
-                          ),
-                        ),
+                      // A plain dropdown, not a chip row — 5-6 regions
+                      // fit in one menu without scrolling, and a chip
+                      // row of that many wouldn't fit this one-row bar.
+                      // See 7.5 decision 8.
+                      DropdownMenu<RegionProfile>(
+                        initialSelection: viewModel.region,
+                        textStyle: context.appTypography.bodySmall,
+                        onSelected: (region) {
+                          if (region != null) viewModel.setRegion(region);
+                        },
+                        dropdownMenuEntries: [
+                          for (final region in RegionProfile.values)
+                            DropdownMenuEntry(
+                              value: region,
+                              label: region.preset.displayName,
+                            ),
+                        ],
+                      ),
                       if (viewModel.pageCount != null) ...[
                         const HGap.small(),
                         _PageCountBadge(count: viewModel.pageCount!),
