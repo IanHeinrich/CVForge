@@ -1,5 +1,4 @@
 import 'package:cv_forge/ui/views/startup/startup_view.dart';
-import 'package:cv_forge/ui/views/unknown/unknown_view.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -63,10 +62,12 @@ import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_d
     CustomRoute(page: AnalyzerView, path: '/analyzer'),
     // @stacked-route
 
-    CustomRoute(page: UnknownView, path: '/404'),
-
-    /// When none of the above routes match, redirect to UnknownView
-    RedirectRoute(path: '*', redirectTo: '/404'),
+    /// A URL matching none of the above (including a stale `/404`
+    /// bookmark from before this redirect existed) lands on the Vault
+    /// instead of a dead-end 404 page — `VaultView`'s `invalidUrl` query
+    /// param is what tells `VaultViewModel` to surface the one-shot
+    /// "that page doesn't exist" notice for this case specifically.
+    RedirectRoute(path: '*', redirectTo: '/vault?invalidUrl=true'),
   ],
   dependencies: [
     LazySingleton(classType: DialogService),

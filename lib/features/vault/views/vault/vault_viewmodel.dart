@@ -40,11 +40,30 @@ enum VaultEditorTarget {
 /// [openExperienceEditor] for examples that already do) can grow without
 /// moving the View onto a different object.
 class VaultViewModel extends ReactiveViewModel implements Initialisable {
+  VaultViewModel({bool cameFromInvalidUrl = false})
+    : _invalidUrlNoticePending = cameFromInvalidUrl;
+
   final _vaultService = locator<VaultService>();
   final _dialogService = locator<DialogService>();
 
   @override
   List<ListenableServiceMixin> get listenableServices => [_vaultService];
+
+  /// Set once, from `VaultView`'s `invalidUrl` query param — see that
+  /// class's doc comment. `consumeInvalidUrlNotice` flips it off
+  /// immediately rather than via `rebuildUi()`/`notifyListeners()`: the
+  /// View calls it from inside `builder()`, and notifying listeners
+  /// mid-build would trigger a rebuild while one is already in progress.
+  /// A plain field mutation is safe there and still leaves every build
+  /// after the first — including the ones `AppChrome.gated`'s loading
+  /// state causes before the Vault finishes loading — returning `false`.
+  bool _invalidUrlNoticePending;
+
+  bool consumeInvalidUrlNotice() {
+    if (!_invalidUrlNoticePending) return false;
+    _invalidUrlNoticePending = false;
+    return true;
+  }
 
   /// Loads [VaultService] on this View's own account rather than assuming
   /// `StartupView` already ran — refreshing (or deep-linking) straight to

@@ -2,13 +2,22 @@ import 'package:cv_forge/ui/widgets/common/app_chrome/app_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked/stacked_annotations.dart';
 
 import 'vault_view.desktop.dart';
 import 'vault_view.mobile.dart';
 import 'vault_viewmodel.dart';
 
+/// [invalidUrl] is a query param (`/vault?invalidUrl=true`), set only by
+/// `app.dart`'s wildcard `RedirectRoute` for a URL that matched no route —
+/// it's how [VaultViewModel] knows to surface the "that page doesn't exist"
+/// notice once, versus a plain, direct `/vault` visit. String rather than
+/// bool because `@QueryParam()` values come off the URL as strings; `'true'`
+/// is the only value the redirect ever produces.
 class VaultView extends StackedView<VaultViewModel> {
-  const VaultView({super.key});
+  const VaultView({super.key, @QueryParam() this.invalidUrl});
+
+  final String? invalidUrl;
 
   @override
   Widget builder(
@@ -16,6 +25,16 @@ class VaultView extends StackedView<VaultViewModel> {
     VaultViewModel viewModel,
     Widget? child,
   ) {
+    if (viewModel.consumeInvalidUrlNotice()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("That page doesn't exist — here's your Vault."),
+          ),
+        );
+      });
+    }
     return AppChrome.gated(
       section: AppSection.vault,
       isLoading: viewModel.isLoading,
@@ -30,5 +49,6 @@ class VaultView extends StackedView<VaultViewModel> {
   }
 
   @override
-  VaultViewModel viewModelBuilder(BuildContext context) => VaultViewModel();
+  VaultViewModel viewModelBuilder(BuildContext context) =>
+      VaultViewModel(cameFromInvalidUrl: invalidUrl == 'true');
 }
