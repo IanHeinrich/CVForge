@@ -23,18 +23,29 @@ ThemeData buildAppTheme() {
   // Material-default-styled widgets (buttons, chips, TextField's error
   // state) match the brand color used everywhere else (the nav rail,
   // checkboxes) instead of a washed-out seed-derived approximation of it.
+  // The `surface*`/`outline*` slots pin the elevation ramp declared in
+  // app_colors.dart, so Material-default-styled widgets (`Card`,
+  // `NavigationRail`, `Divider`) read the right tier with no per-widget
+  // override — see that file's file-level comment for the ramp itself.
   // Every other slot stays seed-derived — nobody's designed a value for
   // those yet.
   final colorScheme =
       ColorScheme.fromSeed(
         seedColor: kcPrimaryColor,
         brightness: Brightness.dark,
-        surface: kcDarkGreyColor,
+        surface: kcSurface,
       ).copyWith(
         primary: kcPrimaryColor,
         onPrimary: kcWhite,
         error: kcErrorColor,
         onError: kcWhite,
+        surfaceContainerLowest: kcSurfaceSunken,
+        surfaceContainerLow: kcSurfaceRaised,
+        surfaceContainer: kcSurfaceRaised,
+        surfaceContainerHigh: kcSurfaceOverlay,
+        surfaceContainerHighest: kcSurfaceOverlay,
+        outlineVariant: kcBorderColor,
+        outline: kcBorderStrong,
       );
 
   // Deliberately squares off Material 3's default pill-shaped buttons to
@@ -49,9 +60,9 @@ ThemeData buildAppTheme() {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: colorScheme,
-    scaffoldBackgroundColor: kcBackgroundColor,
-    canvasColor: kcBackgroundColor,
-    dividerColor: kcMediumGrey,
+    scaffoldBackgroundColor: kcSurfaceSunken,
+    canvasColor: kcSurfaceSunken,
+    dividerColor: kcBorderColor,
     extensions: const [appSpacing, appRadius, appTypography, appMotion],
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(shape: buttonShape),
@@ -63,7 +74,7 @@ ThemeData buildAppTheme() {
       style: OutlinedButton.styleFrom(shape: buttonShape),
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: kcDarkGreyColor,
+      backgroundColor: kcSurfaceRaised,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(appRadius.large),
       ),

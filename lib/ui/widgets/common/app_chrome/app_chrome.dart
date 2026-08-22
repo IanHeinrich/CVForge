@@ -36,8 +36,8 @@ import 'package:stacked_services/stacked_services.dart';
 enum AppSection { vault, drafts, analyzer, studio, settings }
 
 /// The shared shell every top-level View wraps itself in: a left nav rail
-/// (Vault / CVs) over the dark [kcBackgroundColor] backdrop, with [child]
-/// filling the rest.
+/// (Vault / CVs) over the dark scaffold backdrop (`buildAppTheme()`'s
+/// `kcSurfaceSunken`), with [child] filling the rest.
 ///
 /// Deliberately modelless — it holds no state, and navigation is a single
 /// direct call to [RouterService] rather than routed through a
@@ -95,11 +95,9 @@ class AppChrome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kcBackgroundColor,
       body: Row(
         children: [
           NavigationRail(
-            backgroundColor: kcDarkGreyColor,
             // `settings` sits outside the indexed `destinations` list below
             // (it's rendered via `trailing` instead), so it has no valid
             // index to report here — `null` is "no destination selected",
@@ -154,7 +152,7 @@ class AppChrome extends StatelessWidget {
               ),
             ),
           ),
-          const VerticalDivider(width: 1, color: kcMediumGrey),
+          const VerticalDivider(width: 1),
           Expanded(child: child),
         ],
       ),

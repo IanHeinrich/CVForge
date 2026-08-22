@@ -24,7 +24,7 @@ class BackupSettingsCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.appSpacing.paddingPanel),
       decoration: BoxDecoration(
-        color: kcDarkGreyColor,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(context.appRadius.medium),
       ),
       child: Column(

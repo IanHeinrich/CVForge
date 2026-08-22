@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
@@ -36,11 +35,11 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
                 child: VaultCardList(viewModel: viewModel),
               ),
               if (viewModel.isEditorOpen) ...[
-                const VerticalDivider(width: 1, color: kcMediumGrey),
+                const VerticalDivider(width: 1),
                 Expanded(
                   flex: editorPanelFlex,
                   child: ColoredBox(
-                    color: kcDarkGreyColor,
+                    color: Theme.of(context).colorScheme.surface,
                     child: VaultEditorPanelRouter(viewModel: viewModel),
                   ),
                 ),

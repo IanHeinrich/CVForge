@@ -456,7 +456,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(width: _railWidth, child: _rail(result)),
-        const VerticalDivider(width: 1, color: kcMediumGrey),
+        const VerticalDivider(width: 1),
         Expanded(child: _buildPageView(context, result, data)),
       ],
     );

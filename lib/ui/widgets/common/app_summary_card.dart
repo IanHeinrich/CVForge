@@ -43,17 +43,25 @@ class AppSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
-      color: selected ? kcPrimaryColorDark : kcDarkGreyColor,
+      color: selected
+          ? Theme.of(context).colorScheme.surfaceContainerHigh
+          : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(context.appRadius.medium),
-        side: selected
-            ? const BorderSide(color: kcPrimaryColor)
-            : BorderSide.none,
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(context.appRadius.medium),
         onTap: onTap,
-        child: Padding(
+        child: Container(
+          // A left accent edge reads as "selected" without turning the
+          // whole card purple, now that a real surface ramp sits under it.
+          decoration: selected
+              ? const BoxDecoration(
+                  border: Border(
+                    left: BorderSide(color: kcPrimaryColor, width: 2),
+                  ),
+                )
+              : null,
           padding: EdgeInsets.symmetric(
             horizontal: context.appSpacing.paddingDefault,
             vertical: 14,

@@ -21,8 +21,12 @@ class StudioDraftHeader extends StatelessWidget {
         horizontal: context.appSpacing.paddingPage,
         vertical: context.appSpacing.paddingTight,
       ),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: kcMediumGrey)),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ),
       ),
       child: Row(
         children: [
