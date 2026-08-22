@@ -76,6 +76,27 @@ class BackupSettingsCard extends StatelessWidget {
               ),
             ),
           ],
+          const VGap.medium(),
+          const Divider(height: 1),
+          const VGap.medium(),
+          // Clear Vault lives here now, not as the Vault screen's first
+          // interactive element above the user's own name (7.8) — this is
+          // where "export first, then a destructive action replaces
+          // everything" is already the established framing.
+          Text(
+            'Danger zone',
+            style: context.appTypography.bodySmall.copyWith(color: kcLightGrey),
+          ),
+          const VGap.tiny(),
+          OutlinedButton.icon(
+            onPressed: viewModel.clearVault,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: kcErrorColor,
+              side: const BorderSide(color: kcErrorColor),
+            ),
+            icon: const Icon(RemixIcons.delete_bin_line, size: 16),
+            label: const Text('Clear Vault'),
+          ),
         ],
       ),
     );

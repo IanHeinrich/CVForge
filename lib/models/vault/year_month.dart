@@ -21,8 +21,15 @@ abstract class YearMonth with _$YearMonth {
 
   /// "Mon YYYY" (e.g. "Aug 2022"), matching every template's date format —
   /// a consistent 3-letter month abbreviation throughout.
-  String toMonYyyy() => '${_monthNames[month - 1]} $year';
+  String toMonYyyy() => '${monthName(month)} $year';
 }
+
+/// [monthNumber]'s 3-letter abbreviation (1 = Jan … 12 = Dec) — the single
+/// owner behind both [YearMonth.toMonYyyy] and the month-picker
+/// `DropdownButtonFormField`s in the Vault editor panels (7.8), so a
+/// picker option and the printed date can never disagree on what a given
+/// month is called.
+String monthName(int monthNumber) => _monthNames[monthNumber - 1];
 
 const _monthNames = [
   'Jan',

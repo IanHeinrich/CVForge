@@ -58,6 +58,12 @@ class VaultEditorPanelRouter extends StatelessWidget {
               viewModel.deleteBullet(experienceId, bulletId),
           onBulletsReordered: (ids) =>
               viewModel.reorderBullets(experienceId, ids),
+          startYearError: viewModel.experienceStartYearError(experienceId),
+          endYearError: viewModel.experienceEndYearError(experienceId),
+          onStartYearChanged: (v) =>
+              viewModel.updateExperienceStartYear(experience, v),
+          onEndYearChanged: (v) =>
+              viewModel.updateExperienceEndYear(experience, v),
         );
 
       case VaultEditorTarget.project:
@@ -100,6 +106,8 @@ class VaultEditorPanelRouter extends StatelessWidget {
               viewModel.deleteEducationBullet(educationId, bulletId),
           onBulletsReordered: (ids) =>
               viewModel.reorderEducationBullets(educationId, ids),
+          yearError: viewModel.educationYearError(educationId),
+          onYearChanged: (v) => viewModel.updateEducationYear(education, v),
         );
 
       case VaultEditorTarget.skills:

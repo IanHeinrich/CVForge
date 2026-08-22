@@ -19,6 +19,8 @@ class EducationEditorPanel extends StatelessWidget {
     required this.onBulletChanged,
     required this.onBulletDeleted,
     required this.onBulletsReordered,
+    required this.yearError,
+    required this.onYearChanged,
   });
 
   final Education education;
@@ -29,6 +31,13 @@ class EducationEditorPanel extends StatelessWidget {
   final ValueChanged<CvBullet> onBulletChanged;
   final ValueChanged<String> onBulletDeleted;
   final ValueChanged<List<String>> onBulletsReordered;
+
+  /// Null means the field's current value is valid — see
+  /// `ExperienceEditorPanel.startYearError`'s doc comment for the same
+  /// rule one field over. Unlike a start/end year, Education's year is
+  /// genuinely optional, so an empty field is valid here too.
+  final String? yearError;
+  final ValueChanged<String> onYearChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +71,8 @@ class EducationEditorPanel extends StatelessWidget {
           label: 'Year (optional)',
           initialValue: education.year?.toString() ?? '',
           keyboardType: TextInputType.number,
-          onChanged: (v) {
-            final year = int.tryParse(v);
-            onChanged(education.copyWith(year: v.isEmpty ? null : year));
-          },
+          errorText: yearError,
+          onChanged: onYearChanged,
         ),
         const VGap.small(),
         AppTextField(

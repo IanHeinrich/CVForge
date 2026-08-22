@@ -21,6 +21,11 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
   final int cardListFlex;
   final int editorPanelFlex;
 
+  /// Caps a card row (icon, two short lines, a delete icon) at a
+  /// comfortable width — uncapped it was a ~1,500px bar with the delete
+  /// icon a screen-width away from the label it deletes (7.8).
+  static const _cardListMaxWidth = 720.0;
+
   @override
   Widget build(BuildContext context, VaultViewModel viewModel) {
     return viewModel.showEmptyState
@@ -32,7 +37,19 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
             children: [
               Expanded(
                 flex: cardListFlex,
-                child: VaultCardList(viewModel: viewModel),
+                // Align relaxes the Row's tight cross-axis width before
+                // ConstrainedBox caps it — see SettingsView's identical
+                // pattern for why the cap alone (against a tight incoming
+                // constraint) would otherwise have no effect.
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: _cardListMaxWidth,
+                    ),
+                    child: VaultCardList(viewModel: viewModel),
+                  ),
+                ),
               ),
               if (viewModel.isEditorOpen) ...[
                 const VerticalDivider(width: 1),

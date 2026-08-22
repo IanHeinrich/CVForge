@@ -126,6 +126,33 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     await runBusyFuture(_applyImport(bundle), busyObject: _importBusyKey);
   }
 
+  /// Wipes every Vault entry after confirmation. Moved here from
+  /// `VaultViewModel` (7.8) — it belongs beside Backup, where "export
+  /// first, then restore replaces everything" is already the established
+  /// framing, not as the first interactive element on the Vault screen
+  /// above the user's own name. Reaching `/vault` afterwards constructs a
+  /// fresh `VaultViewModel`, which already starts at the empty state on
+  /// its own, so nothing here needs to reset Vault-side UI state the way
+  /// the old in-place `clearVault` did.
+  Future<void> clearVault() async {
+    final response = await _dialogService.showCustomDialog(
+      variant: DialogType.confirmDelete,
+      title: 'Clear your entire Vault?',
+      description:
+          'This removes every experience, project, skill, education '
+          "entry, hobby, and publication. This can't be undone.",
+      mainButtonTitle: 'Clear',
+      secondaryButtonTitle: 'Cancel',
+    );
+    if (response?.confirmed != true) return;
+    await _vaultService.clearVault();
+    // _vaultService isn't in listenableServices (only settings needs live
+    // reactivity here) — without this, the freshly-emptied vault's
+    // updatedAt wouldn't show up in hasChangesSinceBackup until something
+    // else happened to trigger a rebuild.
+    rebuildUi();
+  }
+
   // --- Copilot connection (4.4) -------------------------------------
 
   static const _testConnectionBusyKey = 'settings_test_copilot_connection';

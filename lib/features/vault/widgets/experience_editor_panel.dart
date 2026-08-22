@@ -1,6 +1,7 @@
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
+import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -23,6 +24,10 @@ class ExperienceEditorPanel extends StatelessWidget {
     required this.onBulletChanged,
     required this.onBulletDeleted,
     required this.onBulletsReordered,
+    required this.startYearError,
+    required this.endYearError,
+    required this.onStartYearChanged,
+    required this.onEndYearChanged,
   });
 
   final Experience experience;
@@ -45,6 +50,19 @@ class ExperienceEditorPanel extends StatelessWidget {
   final ValueChanged<CvBullet> onBulletChanged;
   final ValueChanged<String> onBulletDeleted;
   final ValueChanged<List<String>> onBulletsReordered;
+
+  /// Null means the field's current value is valid. A rejected edit shows
+  /// this rather than silently discarding the keystroke — see
+  /// `docs/ux/7.8-vault.md`'s date-bug writeup for exactly what that
+  /// silent-discard bug looked like.
+  final String? startYearError;
+  final String? endYearError;
+
+  /// Raw text, not a parsed `int` — validating and deciding whether to
+  /// commit is `VaultViewModel`'s job (CLAUDE.md's "logic in the
+  /// ViewModel" rule), not this stateless panel's.
+  final ValueChanged<String> onStartYearChanged;
+  final ValueChanged<String> onEndYearChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -72,22 +90,17 @@ class ExperienceEditorPanel extends StatelessWidget {
         ..._buildGroupPicker(context),
         const VGap.medium(),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: AppTextField(
+              child: _MonthField(
                 label: 'Start month',
-                initialValue: experience.start.month.toString(),
-                keyboardType: TextInputType.number,
-                onChanged: (v) {
-                  final month = int.tryParse(v);
-                  if (month != null && month >= 1 && month <= 12) {
-                    onChanged(
-                      experience.copyWith(
-                        start: experience.start.copyWith(month: month),
-                      ),
-                    );
-                  }
-                },
+                value: experience.start.month,
+                onChanged: (month) => onChanged(
+                  experience.copyWith(
+                    start: experience.start.copyWith(month: month),
+                  ),
+                ),
               ),
             ),
             const HGap.small(),
@@ -96,16 +109,8 @@ class ExperienceEditorPanel extends StatelessWidget {
                 label: 'Start year',
                 initialValue: experience.start.year.toString(),
                 keyboardType: TextInputType.number,
-                onChanged: (v) {
-                  final year = int.tryParse(v);
-                  if (year != null) {
-                    onChanged(
-                      experience.copyWith(
-                        start: experience.start.copyWith(year: year),
-                      ),
-                    );
-                  }
-                },
+                errorText: startYearError,
+                onChanged: onStartYearChanged,
               ),
             ),
           ],
@@ -130,16 +135,22 @@ class ExperienceEditorPanel extends StatelessWidget {
         if (!experience.isCurrent) ...[
           const VGap.small(),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: AppTextField(
+                child: _MonthField(
                   label: 'End month',
-                  initialValue: experience.end?.month.toString() ?? '',
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) {
-                    final month = int.tryParse(v);
-                    if (month == null || month < 1 || month > 12) return;
-                    final end = experience.end ?? experience.start;
+                  value: experience.end?.month,
+                  onChanged: (month) {
+                    // Seeds the year from *now*, not from start — see
+                    // `VaultViewModel.updateExperienceEndYear`'s doc
+                    // comment for why (7.8's "Failure 3").
+                    final end =
+                        experience.end ??
+                        YearMonth(
+                          year: DateTime.now().year,
+                          month: experience.start.month,
+                        );
                     onChanged(
                       experience.copyWith(end: end.copyWith(month: month)),
                     );
@@ -152,14 +163,8 @@ class ExperienceEditorPanel extends StatelessWidget {
                   label: 'End year',
                   initialValue: experience.end?.year.toString() ?? '',
                   keyboardType: TextInputType.number,
-                  onChanged: (v) {
-                    final year = int.tryParse(v);
-                    if (year == null) return;
-                    final end = experience.end ?? experience.start;
-                    onChanged(
-                      experience.copyWith(end: end.copyWith(year: year)),
-                    );
-                  },
+                  errorText: endYearError,
+                  onChanged: onEndYearChanged,
                 ),
               ),
             ],
@@ -213,5 +218,38 @@ class ExperienceEditorPanel extends StatelessWidget {
         ],
       ),
     ];
+  }
+}
+
+/// A month picker over the closed 1-12 set — replaces free-text month
+/// entry (7.8's decision 2). A closed set has no invalid state to reject
+/// and no partial keystroke to silently write, so unlike the year fields
+/// this never needs an [AppTextField.errorText].
+class _MonthField extends StatelessWidget {
+  const _MonthField({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final int? value;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<int>(
+      initialValue: value,
+      isExpanded: true,
+      decoration: InputDecoration(labelText: label),
+      hint: const Text('Select'),
+      items: [
+        for (var month = 1; month <= 12; month++)
+          DropdownMenuItem(value: month, child: Text(monthName(month))),
+      ],
+      onChanged: (month) {
+        if (month != null) onChanged(month);
+      },
+    );
   }
 }
