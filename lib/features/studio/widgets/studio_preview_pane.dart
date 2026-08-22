@@ -18,10 +18,22 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'studio_empty_preview.dart';
 
+/// A CV is a printed artefact, so the preview should never render the page
+/// larger than its printed size — scaling past 100% shows a zoomed
+/// fragment and answers none of the questions ("does it fit on two
+/// pages", "how does the whole page look") the preview exists for. 96 is
+/// the CSS reference pixel per inch, not the display's real DPI, which the
+/// web cannot know.
+double _printedWidth(PdfPageFormat format) =>
+    format.width / PdfPageFormat.inch * 96;
+
+/// Horizontal gap between the two pages of a [_PreviewPages] two-up row.
+const _twoUpGutter = 24.0;
+
 /// The live CV preview — shared by every breakpoint so desktop/tablet/
 /// mobile can't drift on how the preview itself renders.
 ///
-/// This rasterizes the *actual* exported PDF (via `printing.PdfPreview`,
+/// This rasterizes the *actual* exported PDF (via `printing.PdfPreviewCustom`,
 /// fed the same [PdfExportService.render] bytes the export button
 /// downloads) rather than maintaining a second, hand-built Flutter render
 /// tree alongside the `pw.Widget` one. Preview and export can't drift on
@@ -77,17 +89,16 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
     super.dispose();
   }
 
-  /// A bound method, not an inline closure — [PdfPreview] only regenerates
-  /// when this callback's *identity* changes or [shouldRepaint] is true,
-  /// so a fresh closure on every rebuild causes runaway repeated
+  /// A bound method, not an inline closure — [PdfPreviewCustom] only
+  /// regenerates when this callback's *identity* changes or [shouldRepaint]
+  /// is true, so a fresh closure on every rebuild causes runaway repeated
   /// regeneration (each regenerate's own `setState` would rebuild this
-  /// widget, which would hand `PdfPreview` a "new" callback, which would
-  /// trigger another regenerate...).
-  /// [format] is always [StudioViewModel.pageFormat] — `PdfPreview` is
-  /// constructed below with `canChangePageFormat: false`, so the format it
-  /// hands back here can never actually differ. Read from the ViewModel
-  /// instead of this parameter so the two can't silently drift if that
-  /// ever changes.
+  /// widget, which would hand `PdfPreviewCustom` a "new" callback, which
+  /// would trigger another regenerate...).
+  /// [format] is always [StudioViewModel.pageFormat] — there is no page
+  /// format switcher UI anywhere in this pane, so the format handed back
+  /// here can never actually differ. Read from the ViewModel instead of
+  /// this parameter so the two can't silently drift if that ever changes.
   Future<Uint8List> _buildPdf(PdfPageFormat format) {
     final viewModel = widget.viewModel;
     _renderedCv = viewModel.resolvedCv;
@@ -114,6 +125,19 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
           'The export button below uses the same PDF generation and may '
           'still work — try it, or reload the page.',
     );
+  }
+
+  /// Runs from inside [PdfPreviewCustom]'s `pagesBuilder`, which fires
+  /// during build — calling [StudioViewModel.setPageCount] straight from
+  /// here would notify listeners mid-build. Guarding on the count actually
+  /// changing before scheduling the post-frame callback keeps this from
+  /// scheduling one on every rebuild that doesn't change anything.
+  void _reportPageCount(int count) {
+    final viewModel = widget.viewModel;
+    if (viewModel.pageCount == count) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) viewModel.setPageCount(count);
+    });
   }
 
   @override
@@ -182,25 +206,157 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
             _settledTemplateId != _renderedTemplateId ||
             _settledPageFormat != _renderedPageFormat);
 
-    return Stack(
-      children: [
-        ColoredBox(
-          color: kcMediumGrey,
-          child: PdfPreview(
-            build: _buildPdf,
-            shouldRepaint: shouldRepaint,
-            useActions: false,
-            canChangePageFormat: false,
-            canChangeOrientation: false,
-            onError: _buildPreviewError,
-          ),
-        ),
-        Positioned(
-          right: context.appSpacing.paddingPage,
-          bottom: context.appSpacing.paddingPage,
-          child: _ExportFab(viewModel: viewModel),
-        ),
-      ],
+    // Two-up is a consequence of available width, not a user toggle — the
+    // same width-gated shape as the existing desktop/compact breakpoint
+    // split. `maxPageWidth` is widened to match whenever two-up applies:
+    // `PdfPreviewCustom` wraps its entire content (including a custom
+    // `pagesBuilder`'s output) in a `BoxConstraints(maxWidth:
+    // maxPageWidth)`, so a single-page-wide cap here would clip a two-up
+    // row down to one page — confirmed against `third_party/printing`'s
+    // actual source, not assumed.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final printedWidth = _printedWidth(viewModel.pageFormat);
+        final twoUp = constraints.maxWidth >= printedWidth * 2 + _twoUpGutter;
+        final maxPageWidth = twoUp
+            ? printedWidth * 2 + _twoUpGutter
+            : printedWidth;
+
+        return Stack(
+          children: [
+            ColoredBox(
+              color: Theme.of(context).colorScheme.surfaceContainerLowest,
+              child: PdfPreviewCustom(
+                build: _buildPdf,
+                shouldRepaint: shouldRepaint,
+                maxPageWidth: maxPageWidth,
+                onError: _buildPreviewError,
+                pagesBuilder: (context, pages) {
+                  _reportPageCount(pages.length);
+                  return _PreviewPages(
+                    pages: pages,
+                    twoUp: twoUp,
+                    pageWidth: printedWidth,
+                  );
+                },
+              ),
+            ),
+            if (viewModel.pageCount != null)
+              Positioned(
+                left: context.appSpacing.paddingPage,
+                top: context.appSpacing.paddingPage,
+                child: _PageCountBadge(count: viewModel.pageCount!),
+              ),
+            Positioned(
+              right: context.appSpacing.paddingPage,
+              bottom: context.appSpacing.paddingPage,
+              child: _ExportFab(viewModel: viewModel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Lays out [PdfPreviewCustom]'s rasterised pages — one scrolling column
+/// normally, or two side by side once [StudioPreviewPane]'s `LayoutBuilder`
+/// decides there's room. [pageWidth] is each page's true printed width
+/// ([_printedWidth]); in the two-up branch each page is boxed to exactly
+/// that width rather than left to fill half the row, so a two-up page
+/// reads at the same size as a single one, not stretched.
+class _PreviewPages extends StatelessWidget {
+  const _PreviewPages({
+    required this.pages,
+    required this.twoUp,
+    required this.pageWidth,
+  });
+
+  final List<PdfPreviewPageData> pages;
+  final bool twoUp;
+  final double pageWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!twoUp) {
+      return ListView.builder(
+        itemCount: pages.length,
+        itemBuilder: (context, index) =>
+            _PreviewPageImage(pageData: pages[index]),
+      );
+    }
+    return ListView.builder(
+      itemCount: (pages.length / 2).ceil(),
+      itemBuilder: (context, rowIndex) {
+        final first = rowIndex * 2;
+        final second = first + 1;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: pageWidth,
+              child: _PreviewPageImage(pageData: pages[first]),
+            ),
+            if (second < pages.length) ...[
+              const SizedBox(width: _twoUpGutter),
+              SizedBox(
+                width: pageWidth,
+                child: _PreviewPageImage(pageData: pages[second]),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// One rasterised page as a white sheet with a drop shadow — the same
+/// visual `printing`'s own (non-exported) `PdfPreviewPage` renders, rebuilt
+/// here because that widget isn't part of `package:printing`'s public API
+/// (only `PdfPreviewPageData` is, via `export 'page.dart' show
+/// PdfPreviewPageData`), and reaching into `src/` to import it directly
+/// would tie this file to the vendored package's internal layout instead
+/// of its actual contract.
+class _PreviewPageImage extends StatelessWidget {
+  const _PreviewPageImage({required this.pageData});
+
+  final PdfPreviewPageData pageData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [BoxShadow(offset: Offset(0, 3), blurRadius: 5)],
+      ),
+      child: AspectRatio(
+        aspectRatio: pageData.aspectRatio,
+        child: Image(image: pageData.image, fit: BoxFit.cover),
+      ),
+    );
+  }
+}
+
+class _PageCountBadge extends StatelessWidget {
+  const _PageCountBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(context.appRadius.medium),
+      ),
+      child: Text(
+        count == 1 ? '1 page' : '$count pages',
+        style: context.appTypography.caption,
+      ),
     );
   }
 }
@@ -224,7 +380,7 @@ class _ExportFab extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 240),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: kcDarkGreyColor,
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(context.appRadius.medium),
             ),
             child: Text(
