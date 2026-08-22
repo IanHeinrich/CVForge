@@ -11,15 +11,16 @@ import 'package:cv_forge/services/llm/llm_provider.dart';
 
 /// Google's Gemini API, called directly from the browser. Unlike Anthropic,
 /// no special browser-access header exists or is needed — confirmed via a
-/// real `fetch()` from an arbitrary origin (plan.md's 4.4b "Actually
-/// verified" note); general CORS support, not an allowlist.
+/// real `fetch()` from an arbitrary origin; general CORS support, not an
+/// allowlist.
 ///
 /// Every wire-shape detail below (uppercase `type` casing, string `enum`
 /// support, the `candidates[].content.parts[].text` response shape,
 /// `usageMetadata` field names, and the `error.status`/`error.details[]
 /// .reason` error envelope) was confirmed against real `generateContent`
-/// responses, not recalled from training — see plan.md's 4.4b for the
-/// exact requests/responses. `systemInstruction` is the one piece that
+/// responses, not recalled from training — see plan.md's Gemini provider
+/// notes for the exact requests/responses. `systemInstruction` is the one
+/// piece that
 /// wasn't independently exercised this way; it's a long-stable, widely
 /// documented part of this API's surface, but flagging it rather than
 /// implying every field here was tested is the whole point of that note.
@@ -35,7 +36,7 @@ class GeminiProvider implements LlmProvider {
   String get displayName => 'Google Gemini';
 
   /// USD per million tokens, from Google's published rates as of
-  /// 2026-08-21 (plan.md's 4.4b). `gemini-2.5-pro` omitted deliberately —
+  /// 2026-08-21. `gemini-2.5-pro` omitted deliberately —
   /// confirmed via a real request that it has already been retired for
   /// new API keys (redirected to `gemini-3.5-flash-lite`), so a model list
   /// pulled once from `ListModels` is not enough to trust; only models
@@ -171,8 +172,8 @@ class GeminiProvider implements LlmProvider {
         // bills its reasoning tokens as output, so both fields have to be
         // summed or the price shown in Settings is quietly wrong for any
         // model that thinks by default — the exact "an unrendered price
-        // can be wrong indefinitely" failure mode plan.md's Opus-pricing
-        // lesson (4.4) already burned once. Absent entirely on a
+        // can be wrong indefinitely" failure mode this project's own
+        // Opus-pricing lesson already burned once. Absent entirely on a
         // non-thinking response (confirmed for `gemini-3.5-flash-lite`'s
         // own captured response), so `?? 0` is a real default, not a
         // guess.

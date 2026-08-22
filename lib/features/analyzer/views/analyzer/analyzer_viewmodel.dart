@@ -29,10 +29,10 @@ class AnalyzerViewModel extends BaseViewModel {
 
   static const _analyzeBusyKey = 'analyzer_analyze';
 
-  /// "CV" or "résumé" — [AppSettings.defaultRegion]'s own document noun
-  /// (7.5), read here rather than adding a region concept of this
-  /// feature's own: Analyzer has no draft, so the device-wide default is
-  /// the only region signal available to it.
+  /// "CV" or "résumé" — [AppSettings.defaultRegion]'s own document noun,
+  /// read here rather than adding a region concept of this feature's own:
+  /// Analyzer has no draft, so the device-wide default is the only region
+  /// signal available to it.
   String get documentNoun =>
       _settingsService.settings.defaultRegion.preset.documentNoun;
 

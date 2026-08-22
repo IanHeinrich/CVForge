@@ -48,7 +48,7 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
   /// data), but debouncing still matters once fields become editable by
   /// typing directly (a planned addition) — regenerating and re-rasterizing
   /// on every keystroke would be wasteful. Same duration class as
-  /// `DraftService._scheduleWrite`'s persistence debounce.
+  /// `PersistedStoreMixin.scheduleWrite`'s persistence debounce.
   static const _debounce = Duration(milliseconds: 250);
 
   /// The CV content [PdfPreview] was last actually told to render.

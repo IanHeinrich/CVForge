@@ -18,7 +18,7 @@ class _CacheEntry {
 }
 
 /// A rasterised first page per (template, content) pair, for the template
-/// gallery (7.5). Renders through [PdfExportService.render] and
+/// gallery. Renders through [PdfExportService.render] and
 /// `Printing.raster` so a thumbnail can never show something the exported
 /// PDF wouldn't — same reasoning as `CvTemplate`'s doc comment gives for
 /// the live preview: same bytes, not a second hand-built render.

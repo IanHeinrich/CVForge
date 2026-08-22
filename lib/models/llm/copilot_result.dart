@@ -12,8 +12,9 @@ part 'copilot_result.freezed.dart';
 /// structurally impossible on a provider that honours them — but that
 /// guarantee doesn't hold for every provider (Gemini has no
 /// `additionalProperties`-style key-closure mechanism at all; see
-/// `GeminiProvider._walkSchema`'s doc comment and plan.md's 4.5 "Provider
-/// caveat"). [fromLlmResponse] therefore validates every id against
+/// `GeminiProvider._walkSchema`'s doc comment and plan.md's Copilot design
+/// notes on the provider caveat). [fromLlmResponse] therefore validates
+/// every id against
 /// [vault]'s own ids unconditionally — belt-and-braces on a provider that
 /// enforces the schema, the *only* enforcement on one that doesn't. An
 /// unknown id, a wrong type, or a bullet attached to the wrong

@@ -80,10 +80,10 @@ class BackupSettingsCard extends StatelessWidget {
           const VGap.medium(),
           const Divider(height: 1),
           const VGap.medium(),
-          // Clear Vault lives here now, not as the Vault screen's first
-          // interactive element above the user's own name (7.8) — this is
-          // where "export first, then a destructive action replaces
-          // everything" is already the established framing.
+          // Clear Vault lives here, not as the Vault screen's first
+          // interactive element above the user's own name — this is where
+          // "export first, then a destructive action replaces everything"
+          // is already the established framing.
           Text(
             'Danger zone',
             style: context.appTypography.bodySmall.copyWith(color: kcLightGrey),

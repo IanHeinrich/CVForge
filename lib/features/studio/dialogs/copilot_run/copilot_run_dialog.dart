@@ -11,10 +11,9 @@ import 'package:stacked_services/stacked_services.dart';
 import 'copilot_run_dialog_data.dart';
 import 'copilot_run_dialog_model.dart';
 
-/// The Copilot tailoring pass' run dialog (plan.md's 4.5): confirm what's
-/// about to be sent and to whom, run, then show the rationale and
-/// `keywordGaps` once applied. See [CopilotRunPhase] for the state
-/// machine this renders.
+/// The Copilot tailoring pass' run dialog: confirm what's about to be sent
+/// and to whom, run, then show the rationale and `keywordGaps` once
+/// applied. See [CopilotRunPhase] for the state machine this renders.
 class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
   final DialogRequest request;
   final Function(DialogResponse) completer;

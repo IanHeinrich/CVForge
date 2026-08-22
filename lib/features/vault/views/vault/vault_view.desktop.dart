@@ -23,8 +23,8 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
 
   /// Caps a card row (icon, two short lines, a delete icon) at a
   /// comfortable width — uncapped it was a ~1,500px bar with the delete
-  /// icon a screen-width away from the label it deletes (7.8). Used while
-  /// the editor panel is open and sits directly to the list's right.
+  /// icon a screen-width away from the label it deletes. Used while the
+  /// editor panel is open and sits directly to the list's right.
   static const _cardListMaxWidth = 720.0;
 
   /// The cap used instead when no editor is open, so the list is the

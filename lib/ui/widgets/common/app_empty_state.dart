@@ -36,7 +36,7 @@ class AppEmptyState extends StatelessWidget {
   /// leaves it unconstrained — every existing message here is already
   /// short enough that this has never mattered; set it for a longer one
   /// that would otherwise stretch to the full available width, the way
-  /// the Analyzer upload prompt's did before this was added (7.5).
+  /// the Analyzer upload prompt's did before this was added.
   final double? messageMaxWidth;
 
   @override

@@ -14,9 +14,9 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 /// The bar above Studio's three-column layout: a way back to
 /// [DraftsListView] and the draft name/edit affordance (absorbing what
 /// `studio_draft_header.dart` used to own), the template and region
-/// pickers (7.5), the page count (7.3), and Export — moved off the
-/// preview pane's floating button so it reads as document-level, not
-/// preview-level. See `docs/ux/7.4-studio-restructure.md` and
+/// pickers, the page count, and Export — moved off the preview pane's
+/// floating button so it reads as document-level, not preview-level. See
+/// `docs/ux/7.4-studio-restructure.md` and
 /// `docs/ux/7.5-template-region-scaling.md`.
 ///
 /// Three zones, grouped by what each control is about: identity (back,

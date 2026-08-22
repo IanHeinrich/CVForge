@@ -10,9 +10,9 @@ import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
 import 'tailoring_controls.dart';
 
-/// The persistent Copilot card in `StudioSectionNav` (plan.md's 4.5): the
-/// job ad this draft is being tailored for, the "Tailor with AI" action,
-/// and "Undo AI changes" while a pass is applied.
+/// The persistent Copilot card in `StudioSectionNav`: the job ad this
+/// draft is being tailored for, the "Tailor with AI" action, and "Undo AI
+/// changes" while a pass is applied.
 ///
 /// The job description editor deliberately does **not** reuse
 /// [StudioFieldOverrideCard] — that card's [TailorIconButtons] hardcodes
@@ -134,9 +134,9 @@ class _CopilotConfigCardState extends State<CopilotConfigCard> {
               minLines: 4,
             ),
           const VGap.small(),
-          // A `Wrap`, not a `Row` — this card now also lives in Studio's
-          // fixed ~220px nav column (7.4), too narrow for both buttons on
-          // one line at once.
+          // A `Wrap`, not a `Row` — this card lives in Studio's fixed
+          // ~220px nav column, too narrow for both buttons on one line at
+          // once.
           Wrap(
             spacing: 8,
             runSpacing: 8,

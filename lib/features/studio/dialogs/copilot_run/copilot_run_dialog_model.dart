@@ -14,9 +14,8 @@ import 'package:stacked/stacked.dart';
 /// successfully-applied pass' rationale/keywordGaps; `error` is a failed
 /// pass, offering a retry. There is no separate "apply" step after
 /// `result` — [run] already wrote it via [DraftService.applyCopilotResult]
-/// by the time this phase is reached, per plan.md's 4.5: the per-field
-/// `TailorableField` revert controls are the review surface, not a second
-/// one here.
+/// by the time this phase is reached: the per-field `TailorableField`
+/// revert controls are the review surface, not a second one here.
 enum CopilotRunPhase { confirm, running, result, error }
 
 class CopilotRunDialogModel extends BaseViewModel {
@@ -60,8 +59,7 @@ class CopilotRunDialogModel extends BaseViewModel {
   }
 
   /// Mirrors `SettingsViewModel.connectionTestErrorMessage`'s per-failure
-  /// copy (P1.7-G7: one generic message for every failure is a real
-  /// defect) — this dialog surfaces the same failure vocabulary as the
+  /// copy — this dialog surfaces the same failure vocabulary as the
   /// Settings connection test, since both ultimately call [LlmService].
   String? get errorMessage {
     final error = _error;

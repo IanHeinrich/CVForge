@@ -229,16 +229,15 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     return DraftIndex.fromJson(json);
   }
 
-  // --- draft list management (create/open/rename/duplicate/delete) ---
-  //
-  // These are deliberate, infrequent user actions (a button press, a
-  // dialog confirm) rather than continuous typing, so unlike the
-  // selection/tailoring setters below they persist immediately instead of
-  // going through the debounce.
-
   /// Creates a new draft, makes it the active one, and marks it fresh (see
   /// [isFreshDraft]) so Studio defaults it to everything-selected. Returns
   /// the new draft's id.
+  ///
+  /// This and the other draft list management methods below
+  /// (open/rename/duplicate/delete) are deliberate, infrequent user
+  /// actions — a button press, a dialog confirm — rather than continuous
+  /// typing, so unlike the selection/tailoring setters further down they
+  /// persist immediately instead of going through the debounce.
   Future<String> createDraft({
     required String name,
     String notes = '',
@@ -376,8 +375,6 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     }
     await _persistIndex();
   }
-
-  // --- active-draft selection/tailoring (Studio) ---
 
   Future<void> setTemplate(String templateId) async {
     await ready();
@@ -618,7 +615,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
 
   /// Resets the active draft's section order AND hidden-sections state
   /// back to the user's default — their remembered default (see
-  /// [AppSettings.defaultSectionOrder]/[AppSettings.defaultHiddenSections])
+  /// `AppSettings.defaultSectionOrder`/`AppSettings.defaultHiddenSections`)
   /// if they've saved one, else the active draft's own template's
   /// suggested order with nothing hidden. Same fallback rule as
   /// [_seedSectionOrder]/[_seedHiddenSections], just applied to an

@@ -91,8 +91,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     _setVault((_) => CvVault.empty());
   }
 
-  // --- basics ---
-
   Future<void> updateBasics(ContactBasics basics) async {
     await ready();
     _setVault((v) => v.copyWith(basics: basics));
@@ -138,8 +136,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     await ready();
     _setVault((v) => v.copyWith(referencesNote: note));
   }
-
-  // --- experiences ---
 
   Future<Experience> addExperience({
     required String role,
@@ -214,8 +210,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     ),
   );
 
-  // --- projects ---
-
   Future<Project> addProject({required String title, String? link}) async {
     await ready();
     final project = Project(id: _uuid.v4(), title: title, link: link);
@@ -244,8 +238,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
       projects: v.projects.updateById(projectId, update, (p) => p.id),
     ),
   );
-
-  // --- skill categories & skills ---
 
   Future<SkillCategory> addSkillCategory(String name) async {
     await ready();
@@ -311,8 +303,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     ),
   );
 
-  // --- education ---
-
   Future<Education> addEducation({
     required String qualification,
     required String institution,
@@ -358,8 +348,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     ),
   );
 
-  // --- hobbies ---
-
   Future<HobbyItem> addHobby(String text) async {
     await ready();
     final hobby = HobbyItem(id: _uuid.v4(), text: text);
@@ -382,8 +370,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
       (v) => v.copyWith(hobbies: v.hobbies.removeById(hobbyId, (h) => h.id)),
     );
   }
-
-  // --- publications ---
 
   Future<Publication> addPublication({
     required String title,
@@ -430,14 +416,11 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     ),
   );
 
-  // --- bullets ---
-  //
-  // One API shared by every bullet-owning entity (experience, project,
-  // education, publication) rather than a hand-written quartet per entity
-  // — [owner] plus [_updateBulletsOf] resolves "which list, and how to
-  // write it back" without four copies of the same add/update/delete/
-  // reorder bodies.
-
+  /// One API shared by every bullet-owning entity (experience, project,
+  /// education, publication) rather than a hand-written quartet per
+  /// entity — [owner] plus [_updateBulletsOf] resolves "which list, and
+  /// how to write it back" without four copies of the same add/update/
+  /// delete/reorder bodies.
   Future<CvBullet> addBullet(
     BulletOwner owner,
     String ownerId, {
@@ -518,8 +501,6 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
         );
     }
   }
-
-  // --- persistence plumbing ---
 
   void _setVault(CvVault Function(CvVault current) update) {
     _vault.value = update(_vault.value).copyWith(updatedAt: DateTime.now());

@@ -21,7 +21,7 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
   /// better spent on the panel than the preview") is now expressed
   /// structurally: the editor column takes the surplus, and the preview
   /// caps itself at printed width regardless of how much space it's
-  /// handed (7.3). 300, not the original 220 — at 220 (and still at 260,
+  /// handed. 300, not the original 220 — at 220 (and still at 260,
   /// even after shrinking the checkbox/drag-handle tap targets) the
   /// longest labels ("Professional summary", "Hobbies and interests")
   /// truncated to an ellipsis; measured empirically against the running

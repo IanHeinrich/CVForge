@@ -117,8 +117,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     rebuildUi();
   }
 
-  // --- basics ---
-
   Future<void> updateBasics(ContactBasics basics) =>
       _vaultService.updateBasics(basics);
 
@@ -133,8 +131,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> updateReferencesNote(String? note) =>
       _vaultService.updateReferencesNote(note);
-
-  // --- experiences ---
 
   Future<void> addExperience() async {
     final now = DateTime.now();
@@ -252,13 +248,10 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     closeIfOpenId: id,
   );
 
-  // --- bullets ---
-  //
-  // One set of pass-throughs, parameterised by [BulletOwner], shared by
-  // experience/project/education/publication bullets — see
-  // `VaultService`'s matching bullet API for why one method per action
-  // replaces what used to be four.
-
+  /// One set of pass-throughs, parameterised by [BulletOwner], shared by
+  /// experience/project/education/publication bullets — see
+  /// `VaultService`'s matching bullet API for why one method per action
+  /// replaces what used to be four.
   Future<void> addBullet(String experienceId) =>
       _vaultService.addBullet(BulletOwner.experience, experienceId, text: '');
 
@@ -278,8 +271,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
         experienceId,
         orderedIds,
       );
-
-  // --- projects ---
 
   Future<void> addProject() async {
     final created = await _vaultService.addProject(title: '');
@@ -311,8 +302,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     List<String> orderedIds,
   ) => _vaultService.reorderBullets(BulletOwner.project, projectId, orderedIds);
 
-  // --- skills ---
-
   Future<void> addSkillCategory(String name) =>
       _vaultService.addSkillCategory(name);
 
@@ -335,8 +324,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> deleteSkill(String categoryId, String skillId) =>
       _vaultService.deleteSkill(categoryId, skillId);
-
-  // --- education ---
 
   Future<void> addEducation() async {
     final created = await _vaultService.addEducation(
@@ -374,15 +361,11 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     orderedIds,
   );
 
-  // --- hobbies ---
-
   Future<void> addHobby(String text) => _vaultService.addHobby(text);
 
   Future<void> updateHobby(HobbyItem hobby) => _vaultService.updateHobby(hobby);
 
   Future<void> deleteHobby(String id) => _vaultService.deleteHobby(id);
-
-  // --- publications ---
 
   Future<void> addPublication() async {
     final created = await _vaultService.addPublication(title: '');

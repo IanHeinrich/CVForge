@@ -5,8 +5,8 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 /// Builds the per-request [JsonSchema] a Copilot tailoring pass must answer
 /// in, generated fresh from [vault] on every call so every id referenced
 /// anywhere in the schema is one this exact Vault actually has — see
-/// plan.md's 4.5 "corrected response shape" for why this is an id-keyed
-/// object rather than an array, and why that's legal under
+/// plan.md's Copilot design notes on the response shape for why this is
+/// an id-keyed object rather than an array, and why that's legal under
 /// `additionalProperties: false`.
 ///
 /// `headline`/`summary` are deliberately left out of the top-level

@@ -8,7 +8,8 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 /// they're the most sensitive thing in the Vault, and building the
 /// pre-send confirm off this type rather than the raw [CvVault] is what
 /// keeps that confirm's claim ("your CV content, not your identity, is
-/// sent") actually true instead of aspirational. See plan.md's 4.5.
+/// sent") actually true instead of aspirational. See plan.md's Copilot
+/// design notes.
 ///
 /// Not a `@freezed` domain model — this is a one-directional transform
 /// into an outbound request body, not app state, so a hand-written
