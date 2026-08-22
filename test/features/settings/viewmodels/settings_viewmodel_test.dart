@@ -147,6 +147,44 @@ void main() {
       });
     });
 
+    group('clearVault (7.8) -', () {
+      test('prompts for confirmation and, once confirmed, clears the '
+          'Vault', () async {
+        when(
+          dialogService.showCustomDialog(
+            variant: anyNamed('variant'),
+            title: anyNamed('title'),
+            description: anyNamed('description'),
+            mainButtonTitle: anyNamed('mainButtonTitle'),
+            secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+          ),
+        ).thenAnswer((_) async => DialogResponse(confirmed: true));
+        when(vaultService.clearVault()).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.clearVault();
+
+        verify(vaultService.clearVault()).called(1);
+      });
+
+      test('cancelling the confirmation clears nothing', () async {
+        when(
+          dialogService.showCustomDialog(
+            variant: anyNamed('variant'),
+            title: anyNamed('title'),
+            description: anyNamed('description'),
+            mainButtonTitle: anyNamed('mainButtonTitle'),
+            secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+          ),
+        ).thenAnswer((_) async => DialogResponse(confirmed: false));
+
+        final model = SettingsViewModel();
+        await model.clearVault();
+
+        verifyNever(vaultService.clearVault());
+      });
+    });
+
     group('importBackup -', () {
       test('cancelling the file picker does nothing', () async {
         when(backupService.pickImportFile()).thenAnswer((_) async => null);

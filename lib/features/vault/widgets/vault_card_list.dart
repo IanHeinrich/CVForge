@@ -38,22 +38,6 @@ class VaultCardList extends StatelessWidget {
           ),
           const VGap.medium(),
         ],
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton.icon(
-            onPressed: viewModel.clearVault,
-            icon: const Icon(
-              RemixIcons.delete_bin_line,
-              size: 16,
-              color: kcErrorColor,
-            ),
-            label: const Text(
-              'Clear Vault',
-              style: TextStyle(color: kcErrorColor),
-            ),
-          ),
-        ),
-        const VGap.medium(),
         _BasicsCard(
           basics: vault.basics,
           selected: viewModel.openTarget == VaultEditorTarget.basics,
@@ -219,9 +203,13 @@ class _HobbiesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppSummaryCard(
       title: 'Hobbies and interests',
+      // A count, like Skills' "3 categories, 11 skills" — joining every
+      // hobby with ", " reads fine at three but degrades into a
+      // `maxLines: 1`-truncated list ("Running, Chess, Photography,
+      // Cook…") the moment there are more than about four (7.8).
       subtitle: hobbies.isEmpty
           ? 'None yet'
-          : hobbies.map((h) => h.text).join(', '),
+          : '${hobbies.length} ${hobbies.length == 1 ? 'hobby' : 'hobbies'}',
       selected: selected,
       onTap: onTap,
       leading: const Icon(RemixIcons.footprint_line, color: kcLightGrey),

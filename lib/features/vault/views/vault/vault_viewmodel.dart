@@ -91,25 +91,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     rebuildUi();
   }
 
-  /// Wipes every Vault entry after confirmation, closes any open editor
-  /// (its target no longer exists), and un-dismisses the empty state so
-  /// the "Load example CV" / build-from-scratch choice reappears — the
-  /// same starting point as a first-ever launch.
-  Future<void> clearVault() async {
-    final confirmed = await _confirmDelete(
-      title: 'Clear your entire Vault?',
-      description:
-          'This removes every experience, project, skill, education '
-          "entry, hobby, and publication. This can't be undone.",
-      confirmLabel: 'Clear',
-    );
-    if (!confirmed) return;
-    await _vaultService.clearVault();
-    closeEditor();
-    _emptyStateDismissed = false;
-    rebuildUi();
-  }
-
   // --- editor panel open/close ---
 
   VaultEditorTarget _openTarget = VaultEditorTarget.none;
@@ -176,6 +157,99 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> groupExperience(String experienceId, String? withId) =>
       _vaultService.groupExperience(experienceId, withId);
+
+  // --- year field validation (7.8) ---
+  //
+  // A rejected year edit must show an error, not silently discard the
+  // keystroke while the field goes on showing a value the model never
+  // received — see `docs/ux/7.8-vault.md`'s date-bug writeup. The error
+  // lives here rather than on the (stateless) editor panels, per
+  // CLAUDE.md's "logic in the ViewModel" rule; keyed by entity id since
+  // several entries' panels can exist across a session even though only
+  // one is open at a time.
+
+  static const _minYear = 1900;
+  static const _maxYear = 2100;
+
+  final Map<String, String> _experienceStartYearErrors = {};
+  final Map<String, String> _experienceEndYearErrors = {};
+  final Map<String, String> _educationYearErrors = {};
+
+  String? experienceStartYearError(String experienceId) =>
+      _experienceStartYearErrors[experienceId];
+  String? experienceEndYearError(String experienceId) =>
+      _experienceEndYearErrors[experienceId];
+  String? educationYearError(String educationId) =>
+      _educationYearErrors[educationId];
+
+  /// Null means valid. [allowEmpty] lets Education's optional year treat
+  /// a blank field as valid too — a start/end year is never optional, so
+  /// callers for those leave it at the default.
+  String? _yearError(String raw, {bool allowEmpty = false}) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return allowEmpty ? null : 'Enter a year';
+    final year = int.tryParse(trimmed);
+    if (year == null) return 'Enter a valid year';
+    if (year < _minYear || year > _maxYear) {
+      return 'Enter a year between $_minYear and $_maxYear';
+    }
+    return null;
+  }
+
+  Future<void> updateExperienceStartYear(
+    Experience experience,
+    String raw,
+  ) async {
+    final error = _yearError(raw);
+    if (error != null) {
+      _experienceStartYearErrors[experience.id] = error;
+      rebuildUi();
+      return;
+    }
+    _experienceStartYearErrors.remove(experience.id);
+    await updateExperience(
+      experience.copyWith(
+        start: experience.start.copyWith(year: int.parse(raw.trim())),
+      ),
+    );
+  }
+
+  Future<void> updateExperienceEndYear(
+    Experience experience,
+    String raw,
+  ) async {
+    final error = _yearError(raw);
+    if (error != null) {
+      _experienceEndYearErrors[experience.id] = error;
+      rebuildUi();
+      return;
+    }
+    _experienceEndYearErrors.remove(experience.id);
+    // An entry with no end date yet seeds the year from *now*, not from
+    // start — adopting start's year here (the pre-7.8 behaviour) produced
+    // a plausible-looking but silently wrong end date the moment only the
+    // month got set afterwards (7.8's "Failure 3").
+    final end =
+        experience.end ??
+        YearMonth(year: DateTime.now().year, month: experience.start.month);
+    await updateExperience(
+      experience.copyWith(end: end.copyWith(year: int.parse(raw.trim()))),
+    );
+  }
+
+  Future<void> updateEducationYear(Education education, String raw) async {
+    final error = _yearError(raw, allowEmpty: true);
+    if (error != null) {
+      _educationYearErrors[education.id] = error;
+      rebuildUi();
+      return;
+    }
+    _educationYearErrors.remove(education.id);
+    final trimmed = raw.trim();
+    await updateEducation(
+      education.copyWith(year: trimmed.isEmpty ? null : int.parse(trimmed)),
+    );
+  }
 
   Future<void> deleteExperience(String id) async {
     final confirmed = await _confirmDelete(
