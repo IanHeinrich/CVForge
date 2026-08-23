@@ -71,6 +71,20 @@ ThemeData buildAppTheme() {
       appMotion,
       appIconSize,
     ],
+    // Cards (`AppSummaryCard`, drafts/template gallery cards) wrap a plain
+    // `InkWell` with no `overlayColor` of its own, so they fall through to
+    // these theme-level defaults — Material's own dark-theme default is a
+    // ~4% white overlay, which measured as a near-invisible ~9/255 channel
+    // shift on this palette's already-dark card surfaces, leaving every
+    // clickable card looking inert until actually pressed. `primary`-tinted
+    // overlays (rather than plain white/black) also tie the feedback to the
+    // brand accent already used for every other selected/active state.
+    // Buttons are unaffected — `Filled`/`Outlined`/`TextButton` define their
+    // own `overlayColor` in Material 3 and never fall back to these.
+    hoverColor: kcWhite.withValues(alpha: 0.06),
+    focusColor: kcPrimaryColor.withValues(alpha: 0.12),
+    highlightColor: kcPrimaryColor.withValues(alpha: 0.08),
+    splashColor: kcPrimaryColor.withValues(alpha: 0.14),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(shape: buttonShape),
     ),
