@@ -2540,12 +2540,43 @@ to see the true label truncation rather than reason about it blind. Both
 widths kept the compact controls on one line without falling back to
 `Wrap`.
 
+### Post-7.8 (round 6) — Safari PDF preview crash, and a comment-cleanup pass
+
+Studio's live preview (and PDF import in the ATS analyzer) never
+rendered in Safari: the console showed `NoSuchMethodError:
+getOrInsertComputed is not a function` on load. Root cause traced to the
+vendored `pdf.js` 5.7.284 bundles (`web/pdfjs/pdf.min.mjs` and
+`pdf.worker.min.mjs`) calling `Map.prototype.getOrInsertComputed` — a
+TC39 Map-upsert method Chrome/V8 and Firefox ship but Safari/
+JavaScriptCore doesn't implement yet — internally in pdf.js's
+`MessageHandler`. Fixed with a small polyfill prepended to both bundles
+(each is a separate JS realm — main thread and Web Worker — so both
+need their own copy); documented in a new `web/pdfjs/README.md`
+mirroring `third_party/printing/README.md`'s existing vendor-patch
+convention.
+
+Separately, a pass through hand-written `lib/` source removed comments
+that had drifted from clarifying non-obvious behavior into changelog
+narration or stale citations of internal planning artifacts — numbered
+`docs/ux/7.x-*.md` files, `plan.md` section/decision numbers, and the
+ATS-analyzer "spike" prototype phase — across 46 files. The underlying
+rationale stayed; only the "what changed"/"where the plan documented
+it" framing came out, per `CLAUDE.md`'s own comment-style rules.
+
+Verified via `node --check` on both patched `pdf.js` bundles (syntax
+only — no Safari runtime available in this environment to reproduce the
+original crash directly) and a manual re-read of every touched comment
+for line length and surrounding context; no `flutter analyze`/`flutter
+test` run since neither change touches Dart logic paths (`web/pdfjs/`
+is loaded but never compiled, and the comment pass is comment-only,
+confirmed via `git diff` containing no non-comment lines).
+
 ### Phase 7 status
 
-7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all five
-post-7.8 UI polish passes above. **7.6 (logo, favicon, splash, plus the
-`manifest.json` bug) is the only sub-phase left** — deliberately
-deferred across all five rounds; it touches no Dart and is independent
-of everything else here. Repo version bumped to `2.8.0` (from `2.7.0`,
-which covered the fourth post-7.8 round — `BackupService._appVersion`
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all six
+post-7.8 UI polish/fix passes above. **7.6 (logo, favicon, splash, plus
+the `manifest.json` bug) is the only sub-phase left** — deliberately
+deferred across all six rounds; it touches no Dart and is independent
+of everything else here. Repo version bumped to `2.9.0` (from `2.8.0`,
+which covered the fifth post-7.8 round — `BackupService._appVersion`
 bumped to match in the same pass, per that field's own doc comment).
