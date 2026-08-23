@@ -37,8 +37,8 @@ class AtsXrayPainter extends CustomPainter {
 
   /// Reading-order flow lines between consecutive [AtsXrayBoxStyle.
   /// ambient] boxes — i.e. every node, in extraction order, regardless of
-  /// [selection]. Off by default: the spike measured up to ~400 nodes on a
-  /// dense page, and lines for every one of them at once is noise unless
+  /// [selection]. Off by default: dense pages can carry up to ~400 nodes,
+  /// and lines for every one of them at once is noise unless
   /// a user has actually asked to see reading order.
   ///
   /// While on, this is the *only* thing drawn — no boxes, no selection

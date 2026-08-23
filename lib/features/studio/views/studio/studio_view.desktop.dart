@@ -15,17 +15,13 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
   /// Fixed — the nav only ever holds eight section labels plus the
   /// Copilot card and defaults controls beneath them, none of which
   /// benefit from more width. Extra window width goes to the editor
-  /// column instead (see `docs/ux/7.4-studio-restructure.md`) — this
-  /// replaces the old `_panelWidthFraction`/`_minPanelWidth`/
-  /// `_maxPanelWidth` scaling, whose own reasoning ("extra width is
-  /// better spent on the panel than the preview") is now expressed
-  /// structurally: the editor column takes the surplus, and the preview
-  /// caps itself at printed width regardless of how much space it's
-  /// handed. 300, not the original 220 — at 220 (and still at 260,
-  /// even after shrinking the checkbox/drag-handle tap targets) the
-  /// longest labels ("Professional summary", "Hobbies and interests")
-  /// truncated to an ellipsis; measured empirically against the running
-  /// app rather than estimated from character counts.
+  /// column instead: it takes the surplus, and the preview caps itself
+  /// at printed width regardless of how much space it's handed. 300, not
+  /// 220 — at 220 (and still at 260, even after shrinking the
+  /// checkbox/drag-handle tap targets) the longest labels ("Professional
+  /// summary", "Hobbies and interests") truncated to an ellipsis;
+  /// measured empirically against the running app rather than estimated
+  /// from character counts.
   static const _navWidth = 300.0;
 
   /// Editor:preview flex ratio at the normal desktop width — the editor

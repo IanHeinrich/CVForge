@@ -160,10 +160,10 @@ class _CopilotConfigCardState extends State<CopilotConfigCard> {
           ),
           if (widget.hasUndo) ...[
             const VGap.small(),
-            // Permanent while a pass is applied (decision 11, plan.md
-            // 4.5) — not a dismiss-once modal, since the run that
-            // actually invents something is exactly the one a user would
-            // have already dismissed the warning for.
+            // Permanent while a pass is applied, not a dismiss-once modal,
+            // since the run that actually invents something is exactly
+            // the one a user would have already dismissed the warning
+            // for.
             Text(
               'AI-written. Check every rewritten bullet against what you '
               'actually did.',

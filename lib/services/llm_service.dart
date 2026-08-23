@@ -12,8 +12,8 @@ import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 ///
 /// [LlmProviderRegistry] is instantiated directly rather than injected
 /// through the locator — it's stateless and deterministic (same
-/// reasoning plan.md already applies to `CvComposer` not getting its own
-/// service wrapper), and nothing besides this service ever needs one.
+/// reasoning as `CvComposer` not getting its own service wrapper, see
+/// its doc comment), and nothing besides this service ever needs one.
 class LlmService {
   /// [client] is a test seam — production code always uses the default.
   /// Nothing else needs one injected, so this isn't a locator

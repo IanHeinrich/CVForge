@@ -304,17 +304,11 @@ class _MobileChrome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // `Scaffold.body` hands its child a *loose* height constraint (0 up
-      // to the available height), same failure mode `_RailChrome`'s own
-      // `Row` doc comment already covers for the rail path — and
-      // `SingleChildScrollView` (unlike `ListView`) shrink-wraps to its
-      // content under a loose constraint rather than filling it. A short
-      // page reads as vertically centered instead of pinned to the top,
-      // and — the concrete case that surfaced this — a `Positioned`
-      // floating action button (the CVs page's "New CV") anchored to a
-      // shrunk `Stack` lands partway up the screen instead of at the
-      // page's true bottom. `SizedBox.expand` forces the tight, full-size
-      // constraint `Row`'s `crossAxisAlignment.stretch` forces there.
+      // Same loose-constraint issue as `_RailChrome`'s `Row` (see its
+      // comment) — `SizedBox.expand` is this widget's equivalent fix for
+      // `Scaffold.body`'s loose constraint, surfaced here by the CVs
+      // page's floating "New CV" button landing partway up the screen
+      // instead of at its true bottom.
       body: SizedBox.expand(child: child),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(

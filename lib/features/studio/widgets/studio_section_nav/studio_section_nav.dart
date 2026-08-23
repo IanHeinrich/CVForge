@@ -16,8 +16,7 @@ import 'package:cv_forge/features/studio/widgets/studio_panel_heading.dart';
 /// The persistent left-hand (desktop) / nav step (compact drill-down)
 /// column: which sections are visible and in what order, which one the
 /// editor pane is showing, the Copilot card, and the per-draft section
-/// defaults. Short and fixed by design — see
-/// `docs/ux/7.4-studio-restructure.md`.
+/// defaults. Short and fixed by design.
 class StudioSectionNav extends StatelessWidget {
   const StudioSectionNav({super.key, required this.viewModel});
 

@@ -5,9 +5,8 @@ import 'package:cv_forge/models/llm/llm_json_response.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
 
 /// One LLM vendor's dialect — auth header, structured-output format,
-/// response shape, and failure vocabulary all vary per provider (see
-/// plan.md's LLM provider design notes); an [LlmProvider] implementation
-/// owns translating all four into the one
+/// response shape, and failure vocabulary all vary per provider; an
+/// [LlmProvider] implementation owns translating all four into the one
 /// shape [LlmService] understands. Deliberately narrow: one method for
 /// the Copilot's one kind of call. Streaming, tool use, multi-turn, and
 /// per-provider prompt tuning are the next provider's problem, informed

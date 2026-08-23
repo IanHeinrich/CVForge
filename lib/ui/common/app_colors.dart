@@ -31,9 +31,7 @@ const Color kcBorderColor = Color(0xFF2F323A);
 /// focused field, a selected card's edge.
 const Color kcBorderStrong = Color(0xFF454956);
 
-/// Placeholder and disabled text/icon colour. This is `kcMediumGrey`'s one
-/// remaining job — it used to also carry border/divider colour and the
-/// preview pane's backdrop, both split out above.
+/// Placeholder and disabled text/icon colour.
 const Color kcMediumGrey = Color(0xFF474A54);
 const Color kcLightGrey = Color.fromARGB(255, 187, 187, 187);
 const Color kcWhite = Color(0xFFFFFFFF);

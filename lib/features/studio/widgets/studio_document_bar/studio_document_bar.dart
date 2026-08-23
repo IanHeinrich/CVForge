@@ -15,9 +15,7 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 /// [DraftsListView] and the draft name/edit affordance (absorbing what
 /// `studio_draft_header.dart` used to own), the template and region
 /// pickers, the page count, and Export — moved off the preview pane's
-/// floating button so it reads as document-level, not preview-level. See
-/// `docs/ux/7.4-studio-restructure.md` and
-/// `docs/ux/7.5-template-region-scaling.md`.
+/// floating button so it reads as document-level, not preview-level.
 ///
 /// Three zones, grouped by what each control is about: identity (back,
 /// name, edit) on the left, the document's *setup* (template, region)
@@ -195,9 +193,9 @@ class _SetupControls extends StatelessWidget {
           label: viewModel.template.displayName,
           labelMaxWidth: compact ? _compactLabelMaxWidth : null,
         ),
-        // A button opening a card dialog, not the `DropdownMenu` 7.5
-        // originally chose: region sits beside template here and is the
-        // same kind of decision, so it gets the same affordance — and
+        // A button opening a card dialog, not a `DropdownMenu`: region sits
+        // beside template here and is the same kind of decision, so it
+        // gets the same affordance — and
         // unlike a dropdown, the dialog has room to say what picking a
         // region actually changes. The flag leads, as on that dialog's
         // own cards.

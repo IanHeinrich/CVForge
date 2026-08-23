@@ -51,10 +51,9 @@ class AppChipGroup {
 /// heading, rather than one flat checkbox list per item that discards the
 /// grouping the document itself reinstates when it prints. Extracted from
 /// the Vault's `_SkillBulletLinkPicker` (`skills_editor_panel.dart`) once
-/// Studio's skill selector needed the same shape — see
-/// `docs/ux/7.2-skills-chips.md`. Presentational and stateless: it owns no
-/// state and reads nothing but [groups], so the two consumers can't drift
-/// on how a chip group renders.
+/// Studio's skill selector needed the same shape. Presentational and
+/// stateless: it owns no state and reads nothing but [groups], so the two
+/// consumers can't drift on how a chip group renders.
 class AppChipGroupSelector extends StatelessWidget {
   const AppChipGroupSelector({super.key, required this.groups});
 

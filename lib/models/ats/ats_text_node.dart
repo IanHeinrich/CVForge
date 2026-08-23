@@ -6,8 +6,8 @@ part 'ats_text_node.freezed.dart';
 
 /// One text run as `pdf.js`'s `getTextContent()` reports it — a run, never
 /// a single glyph, word, or line; the actual chunking is producer-
-/// dependent (confirmed empirically, see the ATS-analyzer spike notes).
-/// Never persisted, so no `fromJson`/`toJson`/`schemaVersion` — mirrors
+/// dependent (confirmed empirically). Never persisted, so no
+/// `fromJson`/`toJson`/`schemaVersion` — mirrors
 /// `ResolvedCv`'s precedent for extraction-time-only data.
 ///
 /// This is the seam between `PdfExtractionService` (marshalling only, and
@@ -28,7 +28,7 @@ abstract class AtsTextNode with _$AtsTextNode {
     required AtsTextMatrix transform,
 
     /// The advance width along the text direction — an *advance* box, not
-    /// an *ink* box. Confirmed in the spike: a dropped/unmapped glyph
+    /// an *ink* box. Confirmed empirically: a dropped/unmapped glyph
     /// (e.g. a PUA bullet drawn with a non-embedded font) can leave a
     /// nonzero [width] with no corresponding characters in [str] — see
     /// `AtsAnalyzerService`'s phantom-glyph check, which exists because of
@@ -42,8 +42,8 @@ abstract class AtsTextNode with _$AtsTextNode {
 }
 
 /// The text-rendering matrix `pdf.js` reports per run, exactly as given —
-/// confirmed empirically (spike probe output) to already be in the page's
-/// default user space: PDF points, origin bottom-left, y-up. That is
+/// confirmed empirically to already be in the page's default user space:
+/// PDF points, origin bottom-left, y-up. That is
 /// *not* the same space a rasterized backdrop uses (pixels, DPI-scaled,
 /// y-down) — reconciling the two is the X-Ray overlay painter's job via
 /// its own `getViewport()` call at the raster's scale, not something
@@ -72,6 +72,6 @@ abstract class AtsTextMatrix with _$AtsTextMatrix {
   double get fontSize => math.sqrt(c * c + d * d);
 
   /// `0` for unrotated text; nonzero for a rotated run (e.g. a sidebar
-  /// label), confirmed present in real synthetic output during the spike.
+  /// label), confirmed present in real synthetic output.
   double get rotationRadians => math.atan2(b, a);
 }

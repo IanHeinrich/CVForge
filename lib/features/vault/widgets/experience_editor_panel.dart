@@ -45,9 +45,7 @@ class ExperienceEditorPanel extends StatelessWidget {
   final BulletEditorCallbacks bulletCallbacks;
 
   /// Null means the field's current value is valid. A rejected edit shows
-  /// this rather than silently discarding the keystroke — see
-  /// `docs/ux/7.8-vault.md`'s date-bug writeup for exactly what that
-  /// silent-discard bug looked like.
+  /// this rather than silently discarding the keystroke.
   final String? startYearError;
   final String? endYearError;
 
@@ -137,7 +135,7 @@ class ExperienceEditorPanel extends StatelessWidget {
                   onChanged: (month) {
                     // Seeds the year from *now*, not from start — see
                     // `VaultViewModel.updateExperienceEndYear`'s doc
-                    // comment for why (7.8's "Failure 3").
+                    // comment for why.
                     final end =
                         experience.end ??
                         YearMonth(
@@ -211,10 +209,9 @@ class ExperienceEditorPanel extends StatelessWidget {
   }
 }
 
-/// A month picker over the closed 1-12 set — replaces free-text month
-/// entry (7.8's decision 2). A closed set has no invalid state to reject
-/// and no partial keystroke to silently write, so unlike the year fields
-/// this never needs an [AppTextField.errorText].
+/// A month picker over the closed 1-12 set. A closed set has no invalid
+/// state to reject and no partial keystroke to silently write, so unlike
+/// the year fields this never needs an [AppTextField.errorText].
 class _MonthField extends StatelessWidget {
   const _MonthField({
     required this.label,

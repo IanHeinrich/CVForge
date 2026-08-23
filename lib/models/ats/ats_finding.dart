@@ -2,13 +2,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ats_finding.freezed.dart';
 
-/// The reduced v1 check set the ATS-analyzer spike settled on. Two
-/// originally-proposed checks — typographic hierarchy and orphaned dates —
-/// were cut deliberately: they're resume-design critiques, not things an
-/// ATS text extractor actually fails on, and shipping them with the same
+/// The reduced check set this analyzer ships. Two originally-proposed
+/// checks — typographic hierarchy and orphaned dates — were cut
+/// deliberately: they're resume-design critiques, not things an ATS text
+/// extractor actually fails on, and shipping them with the same
 /// confidence as a real parsing-failure finding would erode trust in the
-/// findings that do matter. See the spike findings note for the full
-/// reasoning.
+/// findings that do matter.
 enum AtsFindingCategory {
   /// No extractable text at all (a scanned/image-only page).
   noTextLayer,
@@ -18,13 +17,13 @@ enum AtsFindingCategory {
   /// `setSortByPosition(true)`) would read as one interleaved line. This
   /// simulates *that* algorithm, applied to the extracted coordinates —
   /// not "the file's own reading order", which `pdf.js` already preserves
-  /// faithfully (confirmed against a second extractor in the spike).
+  /// faithfully (confirmed against a second extractor).
   columnCrush,
 
   /// Text that likely won't survive extraction as the words it visually
   /// renders as: PUA/replacement codepoints, or a "phantom glyph" — an
   /// advance width spent with no corresponding character, the specific
-  /// failure mode a non-embedded-font PUA bullet produced in the spike.
+  /// failure mode a non-embedded-font PUA bullet produces.
   garbledText,
 
   /// None of the canonical section headings (Experience, Education,

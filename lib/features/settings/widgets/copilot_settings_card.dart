@@ -10,7 +10,7 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 
-/// Caps the API key field's width — 7.7 issue 4: a secret this short (and
+/// Caps the API key field's width: a secret this short (and
 /// `obscureText`, which buys nothing from extra width) doesn't need the
 /// full ~1,000px content measure the card would otherwise stretch it to.
 const _apiKeyFieldMaxWidth = 360.0;
@@ -136,7 +136,7 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           const VGap.tiny(),
           Text(
             // "Provider's rate" up front — the price table is the
-            // provider's own, not something CVForge charges (7.7 issue 7).
+            // provider's own, not something CVForge charges.
             "${viewModel.selectedCopilotProvider.displayName}'s own rate — "
             'not billed by CVForge: '
             '${viewModel.priceLabelFor(viewModel.selectedCopilotModel)}',
@@ -172,9 +172,9 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
   }
 }
 
-/// The connection test's success/error state — 7.7 issue 6: previously
-/// plain body text with no colour or icon, indistinguishable from any
-/// other line in the card. [CopilotSettingsCard] clears this (via
+/// The connection test's success/error state, distinguished by colour and
+/// icon rather than plain body text indistinguishable from any other line
+/// in the card. [CopilotSettingsCard] clears this (via
 /// [SettingsViewModel.clearConnectionTestResult]) the moment the provider,
 /// model, or key changes, so it can't go stale either.
 class _ConnectionResultBanner extends StatelessWidget {

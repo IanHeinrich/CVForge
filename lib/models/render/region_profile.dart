@@ -21,8 +21,7 @@ enum RegionDateStyle { monYyyy }
 /// [dateStyle] were added once each gained a real consumer (ATS Check's
 /// copy, `CvComposer`'s date-range seam) — richer candidates like a phone
 /// label, a photo expectation, or a date-of-birth expectation are still
-/// cut because nothing downstream reads them yet. See
-/// `docs/ux/7.5-template-region-scaling.md`'s "Deferred" section.
+/// cut because nothing downstream reads them yet.
 class RegionPreset {
   const RegionPreset({
     required this.displayName,

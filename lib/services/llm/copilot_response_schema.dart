@@ -4,9 +4,8 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 
 /// Builds the per-request [JsonSchema] a Copilot tailoring pass must answer
 /// in, generated fresh from [vault] on every call so every id referenced
-/// anywhere in the schema is one this exact Vault actually has — see
-/// plan.md's Copilot design notes on the response shape for why this is
-/// an id-keyed object rather than an array, and why that's legal under
+/// anywhere in the schema is one this exact Vault actually has. It's an
+/// id-keyed object rather than an array so that's legal under
 /// `additionalProperties: false`.
 ///
 /// `headline`/`summary` are deliberately left out of the top-level
@@ -82,8 +81,7 @@ JsonSchema buildCopilotResponseSchema(CvVault vault) {
 /// bullets are selected, plus optional rewrites of them. Scoping the enum
 /// to [bulletIds] (rather than one flat enum of every bullet id in the
 /// Vault) is what makes it structurally impossible for the model to
-/// attach one experience's bullet to another — the exact bug the original
-/// array-of-objects shape had (plan.md 4.5's "Why this changed" note).
+/// attach one experience's bullet to another.
 JsonSchema _entryBulletsSchema(List<String> bulletIds) => JsonSchema.object(
   properties: {
     'bulletIds': JsonSchema.array(items: JsonSchema.stringEnum(bulletIds)),

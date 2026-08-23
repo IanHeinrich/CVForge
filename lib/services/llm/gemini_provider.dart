@@ -18,8 +18,7 @@ import 'package:cv_forge/services/llm/llm_provider.dart';
 /// support, the `candidates[].content.parts[].text` response shape,
 /// `usageMetadata` field names, and the `error.status`/`error.details[]
 /// .reason` error envelope) was confirmed against real `generateContent`
-/// responses, not recalled from training — see plan.md's Gemini provider
-/// notes for the exact requests/responses. `systemInstruction` is the one
+/// responses, not recalled from training. `systemInstruction` is the one
 /// piece that
 /// wasn't independently exercised this way; it's a long-stable, widely
 /// documented part of this API's surface, but flagging it rather than
@@ -46,8 +45,7 @@ class GeminiProvider implements LlmProvider {
     LlmModelOption(
       id: 'gemini-3.5-flash-lite',
       label: 'Gemini 3.5 Flash-Lite',
-      // Pricing not yet re-checked for the 3.5 generation — the 4.4b
-      // table covers the 2.5 family, which this id supersedes. Carrying
+      // Pricing not yet re-checked for the 3.5 generation. Carrying
       // 2.5 Flash-Lite's rate forward as the closest known tier; treat
       // as provisional until confirmed against Google's pricing page for
       // the 3.5 models specifically.
@@ -235,18 +233,18 @@ class GeminiProvider implements LlmProvider {
 
   /// Walks the provider-agnostic [JsonSchema] into Gemini's
   /// `generationConfig.responseSchema` dialect — confirmed uppercase type
-  /// names and string `enum` support via a real request (plan.md 4.4b).
+  /// names and string `enum` support via a real request.
   ///
   /// Deliberately omits `additionalProperties` on object nodes, unlike
-  /// [AnthropicProvider]'s unconditional `false` — **confirmed** (plan.md
-  /// 4.4b, not just documented) that Gemini's schema rejects the field
-  /// outright as unrecognized (`400 INVALID_ARGUMENT`, "Cannot find
-  /// field"). This is not a weaker version of Anthropic's guarantee, it's
-  /// an absent one: Gemini has no schema-level way to close an object to a
-  /// known key set at all. Any code that folds a Gemini response's object
-  /// keys into app state (4.5's per-experience/per-project id-keyed
-  /// objects, specifically) must validate those keys against the known id
-  /// set itself — the schema will not do it, for this provider only.
+  /// [AnthropicProvider]'s unconditional `false` — **confirmed**, not just
+  /// documented, that Gemini's schema rejects the field outright as
+  /// unrecognized (`400 INVALID_ARGUMENT`, "Cannot find field"). This is
+  /// not a weaker version of Anthropic's guarantee, it's an absent one:
+  /// Gemini has no schema-level way to close an object to a known key set
+  /// at all. Any code that folds a Gemini response's object keys into app
+  /// state (the per-experience/per-project id-keyed objects, specifically)
+  /// must validate those keys against the known id set itself — the
+  /// schema will not do it, for this provider only.
   Map<String, dynamic> _walkSchema(JsonSchema schema) => switch (schema) {
     JsonSchemaObject(:final properties, :final required) => {
       'type': 'OBJECT',

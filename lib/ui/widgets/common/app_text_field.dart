@@ -31,10 +31,10 @@ class AppTextField extends StatefulWidget {
   final bool autofocus;
 
   /// Rendered by the underlying `TextField`'s own `InputDecoration.error`
-  /// styling — null (the default) shows nothing, same as before this
-  /// existed. The rule this exists to serve: a rejected edit must either
-  /// show an error via this, or be impossible to make (e.g. a dropdown
-  /// over a closed set) — never silently discarded. See 7.7/7.8.
+  /// styling — null (the default) shows nothing. The rule this exists to
+  /// serve: a rejected edit must either show an error via this, or be
+  /// impossible to make (e.g. a dropdown over a closed set) — never
+  /// silently discarded.
   final String? errorText;
 
   @override
