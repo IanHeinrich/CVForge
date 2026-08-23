@@ -119,12 +119,26 @@ class StudioDocumentBar extends StatelessWidget {
                   // own line instead once the two groups' combined width
                   // stops fitting, while still reproducing the same
                   // side-by-side look whenever there's room for it.
+                  // `compact: true` — a phone-width bar doesn't have
+                  // room for full labels on every control, and the
+                  // uncapped version of this row (each button sized to
+                  // its own display name, Export spelled out in full)
+                  // was wide enough that `Wrap` fell back to two extra
+                  // rows on essentially every phone, not just
+                  // exceptionally narrow ones — a tall bar eating real
+                  // content height to stay "safe" for a case that was
+                  // actually the common one. Bounding each label's width
+                  // (see `_BarButton.labelMaxWidth`) and dropping Export
+                  // to icon-only keeps everything on this one line at
+                  // any realistic phone width; `Wrap` stays as the
+                  // fallback only a genuinely tiny viewport should ever
+                  // trigger.
                   Wrap(
                     alignment: WrapAlignment.spaceBetween,
                     runSpacing: context.appSpacing.gapSmall,
                     children: [
-                      _SetupControls(viewModel: viewModel),
-                      _OutputControls(viewModel: viewModel),
+                      _SetupControls(viewModel: viewModel, compact: true),
+                      _OutputControls(viewModel: viewModel, compact: true),
                     ],
                   ),
                 ],
@@ -146,9 +160,19 @@ class StudioDocumentBar extends StatelessWidget {
 
 /// How the document is built — the centre group.
 class _SetupControls extends StatelessWidget {
-  const _SetupControls({required this.viewModel});
+  const _SetupControls({required this.viewModel, this.compact = false});
 
   final StudioViewModel viewModel;
+
+  /// Caps each button's own label width (see [_BarButton.labelMaxWidth])
+  /// instead of letting it size to the template's/region's full display
+  /// name — see the mobile branch's own doc comment for why.
+  final bool compact;
+
+  /// Narrow enough that the name is still recognisable (not just an
+  /// initial) but short enough that two of these plus icon-only Export
+  /// reliably share one line on a phone-width bar.
+  static const _compactLabelMaxWidth = 56.0;
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +193,7 @@ class _SetupControls extends StatelessWidget {
             size: context.appIconSize.small,
           ),
           label: viewModel.template.displayName,
+          labelMaxWidth: compact ? _compactLabelMaxWidth : null,
         ),
         // A button opening a card dialog, not the `DropdownMenu` 7.5
         // originally chose: region sits beside template here and is the
@@ -183,6 +208,7 @@ class _SetupControls extends StatelessWidget {
             style: TextStyle(fontSize: context.appIconSize.small),
           ),
           label: viewModel.region.preset.displayName,
+          labelMaxWidth: compact ? _compactLabelMaxWidth : null,
         ),
       ],
     );
@@ -193,12 +219,48 @@ class _SetupControls extends StatelessWidget {
 /// left of Export because both describe the produced PDF, where template
 /// and region describe how it gets built.
 class _OutputControls extends StatelessWidget {
-  const _OutputControls({required this.viewModel});
+  const _OutputControls({required this.viewModel, this.compact = false});
 
   final StudioViewModel viewModel;
 
+  /// Drops Export to icon-only and hides the page-count badge — on a
+  /// phone-width bar there isn't room for "Export PDF" spelled out
+  /// alongside the (already-compacted) template/region buttons without
+  /// pushing this group onto its own line; the page count is the lower
+  /// -priority of the two (it's also visible on the Preview tab), so
+  /// it's the one dropped rather than further squeezing Export's own
+  /// tap target.
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
+    final exportIcon = viewModel.isExporting
+        ? const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2, color: kcWhite),
+          )
+        : Icon(RemixIcons.download_line, size: context.appIconSize.medium);
+    final exportTooltip = viewModel.isExporting ? 'Exporting…' : 'Export PDF';
+
+    if (compact) {
+      return SizedBox(
+        height: StudioDocumentBar._controlHeight,
+        width: StudioDocumentBar._controlHeight,
+        child: Tooltip(
+          message: exportTooltip,
+          child: FilledButton(
+            onPressed: viewModel.isExporting ? null : viewModel.exportPdf,
+            style: FilledButton.styleFrom(
+              padding: EdgeInsets.zero,
+              shape: const CircleBorder(),
+            ),
+            child: exportIcon,
+          ),
+        ),
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -213,20 +275,8 @@ class _OutputControls extends StatelessWidget {
           height: StudioDocumentBar._controlHeight,
           child: FilledButton.icon(
             onPressed: viewModel.isExporting ? null : viewModel.exportPdf,
-            icon: viewModel.isExporting
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: kcWhite,
-                    ),
-                  )
-                : Icon(
-                    RemixIcons.download_line,
-                    size: context.appIconSize.medium,
-                  ),
-            label: Text(viewModel.isExporting ? 'Exporting…' : 'Export PDF'),
+            icon: exportIcon,
+            label: Text(exportTooltip),
           ),
         ),
       ],
@@ -275,20 +325,40 @@ class _BarButton extends StatelessWidget {
     required this.onPressed,
     required this.icon,
     required this.label,
+    this.labelMaxWidth,
   });
 
   final VoidCallback onPressed;
   final Widget icon;
   final String label;
 
+  /// Caps the label to a fixed width (ellipsised past that) instead of
+  /// sizing to the full display name — the mobile bar's compact mode
+  /// needs a predictable, small button width regardless of how long a
+  /// given template's or region's name happens to be. Null (desktop/
+  /// tablet) leaves the label at its natural width, unchanged.
+  final double? labelMaxWidth;
+
   @override
   Widget build(BuildContext context) {
+    final maxWidth = labelMaxWidth;
+    final label = Text(
+      this.label,
+      overflow: maxWidth == null ? null : TextOverflow.ellipsis,
+      maxLines: maxWidth == null ? null : 1,
+      softWrap: maxWidth == null ? null : false,
+    );
     return SizedBox(
       height: StudioDocumentBar._controlHeight,
       child: OutlinedButton.icon(
         onPressed: onPressed,
         icon: icon,
-        label: Text(label),
+        label: maxWidth == null
+            ? label
+            : ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: label,
+              ),
         style: OutlinedButton.styleFrom(
           foregroundColor: kcWhite,
           side: BorderSide(color: Theme.of(context).colorScheme.outline),

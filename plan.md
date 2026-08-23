@@ -2501,12 +2501,51 @@ actually loaded and driven in a headless browser through Vault → CVs →
 Studio → the template gallery, plus the 404 flow above — not just
 static screenshots at a few widths.
 
+### Post-7.8 (round 5) — StudioDocumentBar's mobile fallback was safe but too tall
+
+Round 4's `Wrap`-based fix for `StudioDocumentBar`'s narrow layout (see
+above) was correct — nothing overflowed off-screen any more — but it
+traded that for height it didn't need to spend: on essentially every
+real phone width, the setup group (template + region, each sized to its
+own full display name) and the output group (page count + "Export PDF"
+spelled out) together were too wide for one line, so `Wrap` fell back to
+three total rows (identity, setup, output) instead of the original two.
+Live-testing on a real phone showed this ate a large enough share of the
+screen that the actual "Sections" content underneath was reduced to a
+sliver — technically safe, but not what "use mobile space efficiently"
+meant.
+
+The fix compacts the mobile row's content instead of just giving it
+more rows to spread into: `_BarButton` gained an optional
+`labelMaxWidth`, used only in the phone-width branch, that ellipsises
+the template/region name to a fixed ~56px instead of sizing to its full
+length — long enough to still suggest which one is active ("Compa…",
+"United …"), short enough that both buttons plus a third control
+reliably share one line. Export drops to icon-only (a circular
+`FilledButton` with a `Tooltip`, matching the "New CV" FAB's affordance
+language) rather than "Export PDF" spelled out, and the page-count badge
+is dropped entirely in this mode — the page is already visible on the
+Preview tab, so it's the lower-priority of the two to sacrifice for
+room. `Wrap` stays in place as the fallback for a genuinely tiny
+viewport; with compacted content it's no longer the *common* path,
+which is what was actually costing the height. Desktop/tablet's single
+-row branch is untouched.
+
+Verified via `flutter analyze` (0 issues), `flutter test` (298/298,
+golden suite included), and this round's build driven through Vault →
+CVs → Studio in a headless browser at both 390px and 320px — with actual
+font rendering this time (a local font served in place of the
+network-fetched one the sandbox's proxy couldn't reach), specifically
+to see the true label truncation rather than reason about it blind. Both
+widths kept the compact controls on one line without falling back to
+`Wrap`.
+
 ### Phase 7 status
 
-7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all four post-7.8
-UI polish passes above. **7.6 (logo, favicon, splash, plus the
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all five
+post-7.8 UI polish passes above. **7.6 (logo, favicon, splash, plus the
 `manifest.json` bug) is the only sub-phase left** — deliberately
-deferred across all four rounds; it touches no Dart and is independent
-of everything else here. Repo version bumped to `2.7.0` (from `2.6.0`,
-which covered the third post-7.8 round — `BackupService._appVersion`
+deferred across all five rounds; it touches no Dart and is independent
+of everything else here. Repo version bumped to `2.8.0` (from `2.7.0`,
+which covered the fourth post-7.8 round — `BackupService._appVersion`
 bumped to match in the same pass, per that field's own doc comment).
