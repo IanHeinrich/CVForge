@@ -10,7 +10,11 @@ import 'app_delete_icon_button/app_delete_icon_button.dart';
 /// A collapsed entity summary card — tapping it opens an editor, a preview,
 /// or drills into whatever [onTap] represents. Shared by every Vault
 /// section (basics, one per experience, one per education entry, skills,
-/// hobbies) and by the Drafts list, so they all read as one system.
+/// hobbies), so they all read as one system. The Drafts list and template
+/// gallery use their own thumbnail-first card instead (a different shape —
+/// preview image on top rather than an icon+text row) but match this one's
+/// corner radius and selection treatment, so the two families still read as
+/// one visual language despite not sharing an implementation.
 class AppSummaryCard extends StatelessWidget {
   const AppSummaryCard({
     super.key,
@@ -65,7 +69,7 @@ class AppSummaryCard extends StatelessWidget {
               : null,
           padding: EdgeInsets.symmetric(
             horizontal: context.appSpacing.paddingDefault,
-            vertical: 14,
+            vertical: context.appSpacing.paddingCompact,
           ),
           child: Row(
             children: [

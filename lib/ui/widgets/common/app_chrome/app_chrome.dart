@@ -2,6 +2,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/storage_unavailable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -320,11 +321,10 @@ class _MobileChrome extends StatelessWidget {
               onSelect(_destinations[index].section),
           indicatorColor: kcPrimaryColor.withValues(alpha: 0.18),
           labelTextStyle: WidgetStateProperty.resolveWith(
-            (states) => TextStyle(
+            (states) => context.appTypography.caption.copyWith(
               color: states.contains(WidgetState.selected)
                   ? kcPrimaryColor
                   : kcLightGrey,
-              fontSize: 12,
             ),
           ),
           destinations: [
