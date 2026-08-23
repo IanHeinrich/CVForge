@@ -49,7 +49,10 @@ List<_NavDestination> _workspaceDestinations() => [
     section: AppSection.drafts,
     icon: RemixIcons.file_text_line,
     selectedIcon: RemixIcons.file_text_fill,
-    label: locator<SettingsService>().settings.defaultRegion.preset
+    label: locator<SettingsService>()
+        .settings
+        .defaultRegion
+        .preset
         .documentNounPluralCapitalized,
   ),
   const _NavDestination(

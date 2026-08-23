@@ -82,9 +82,9 @@ class _RegionChip extends StatelessWidget {
       ),
       label: Text(preset.displayName),
       labelStyle: context.appTypography.bodySmall,
-      selectedColor: Theme.of(context).colorScheme.primary.withValues(
-        alpha: 0.18,
-      ),
+      selectedColor: Theme.of(
+        context,
+      ).colorScheme.primary.withValues(alpha: 0.18),
       checkmarkColor: Theme.of(context).colorScheme.primary,
     );
   }

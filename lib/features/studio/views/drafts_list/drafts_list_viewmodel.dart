@@ -97,9 +97,7 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
     return drafts.where((draft) {
       if (draft.name.toLowerCase().contains(_query)) return true;
       if (draft.notes.toLowerCase().contains(_query)) return true;
-      return templateName(
-        draft.templateId,
-      ).toLowerCase().contains(_query);
+      return templateName(draft.templateId).toLowerCase().contains(_query);
     }).toList();
   }
 

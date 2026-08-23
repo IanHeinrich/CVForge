@@ -87,9 +87,7 @@ class DraftsCardList extends StatelessWidget {
                     for (final draft in viewModel.filteredDrafts)
                       _DraftCard(
                         draft: draft,
-                        templateName: viewModel.templateName(
-                          draft.templateId,
-                        ),
+                        templateName: viewModel.templateName(draft.templateId),
                         thumbnailFuture: viewModel.thumbnailFor(draft),
                         pageAspectRatio: viewModel.pageAspectRatio(draft),
                         onOpen: () => viewModel.openDraft(draft.id),

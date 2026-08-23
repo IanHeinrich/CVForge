@@ -23,9 +23,11 @@ class EditDraftDialogModel extends BaseViewModel {
   /// The global default rather than the draft being edited's own region:
   /// [EditDraftDialogData] carries no region, and a name/notes editor isn't
   /// worth plumbing one through for.
-  String get documentNoun =>
-      locator<SettingsService>().settings.defaultRegion.preset
-          .documentNounCapitalized;
+  String get documentNoun => locator<SettingsService>()
+      .settings
+      .defaultRegion
+      .preset
+      .documentNounCapitalized;
 
   bool _nameTouched = false;
 

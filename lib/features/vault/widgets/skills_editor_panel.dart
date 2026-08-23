@@ -125,9 +125,8 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                       child: AppTextField(
                         label: 'Category name',
                         initialValue: category.name,
-                        onChanged: (v) => widget.onUpdateCategory(
-                          category.copyWith(name: v),
-                        ),
+                        onChanged: (v) =>
+                            widget.onUpdateCategory(category.copyWith(name: v)),
                       ),
                     ),
                     AppDeleteIconButton(
