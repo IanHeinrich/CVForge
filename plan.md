@@ -2616,12 +2616,72 @@ untouched. **`settings_view_default.png` needs regenerating** via
 `update-goldens.yml`: the card's key-field label now reads "Claude API
 key" and the new disclosure row shifts layout.
 
+### Post-7.8 (round 8) — Skill↔bullet linking rework, and blank entries stop persisting
+
+`Skill.linkedBulletIds` had a write-here/read-there split: the bullet
+editor *displayed* `Skills: A, B, C` as dead text exactly where you'd
+want to act on it, while the only editor for the relation lived on the
+opposite side, three levels into the Skills panel, showing 28-char
+bullet stubs. Three defects were confirmed by reading the code, not
+assumed: `linkedBulletIds` was never serialized into the Copilot request
+despite the feature being framed as AI-facing; the skill-side picker
+only received `experiences`, so a skill demonstrated only in a project
+bullet could never be linked; and Studio's "Select N evidenced skills"
+went silently disabled at zero with no hint why.
+
+Both directions are now editable. The bullet's own editor is the primary
+place to link (search skills, or mint one — with a new category if
+needed — inline via "+ Add skill"), and the Skills panel keeps the bulk
+direction (one skill, many bullets) now reaching all four bullet-owning
+entity types. Both are accordions — one open at a time — since expanding
+several at once grew the panel without bound.
+
+Both pickers now render inside one shared `LinkPickerShell`
+(`features/vault/widgets/link_picker_shell/`): they are one control
+pointed in opposite directions, and keeping the toggle row, inset
+surface, and filter field in one place is what stopped them describing
+the same empty state in different words. The shell owns the filter's
+`TextEditingController` so a query survives a collapse — previously the
+box re-rendered empty over a list that was still filtered. Wording is
+deliberately symmetric: "Link to skills"/"Linked to N skills" against
+"Link to bullets"/"Linked to N bullets", with the linked items spelled
+out under the label while collapsed so the common case costs no click.
+
+`linkedBulletIds` now reaches the model, with `copilotSystemPrompt`
+guidance on treating a kept bullet as evidence for its linked skills
+(and a skill whose every linked bullet was cut as a candidate to cut,
+unless the JD makes it a hard requirement — in which case it belongs in
+`keywordGaps`, not left standing unsupported).
+
+**Blank entries no longer persist.** A stray "+" click used to leave a
+permanent empty row. `CvVaultPruning.withoutBlankEntries`
+(`models/vault/vault_pruning.dart`) drops them on the way *out* to
+storage rather than by refusing to create them: every editor panel binds
+to a real, id-bearing entry the moment "+" is pressed, so deferring
+creation would mean a separate "pending entry" state per entity type.
+The trade is deliberate — a blank entry stays visible and editable for
+the rest of the session and simply never survives a reload. Children are
+pruned before their parent is judged (an experience whose only bullets
+are blank is itself blank), and the surviving bullet ids are used to
+drop dangling `linkedBulletIds` so pruning can't create the stale
+references it's cleaning up. Applied at `VaultService.writeToStorage`
+(covering the debounced write, an explicit flush, and import alike) and
+at `BackupService`'s export, which reads in-memory state directly. New
+skill categories now start genuinely blank rather than named "New
+category", so they prune like anything else; `SkillCategory.displayName`
+covers the headings and menu items that need something to render.
+
+Verified in the browser against a real Vault: linking from both sides,
+the inline add-skill and new-category flows, filter persistence across a
+collapse, and a blank experience surviving until reload and then not.
+No golden re-baseline needed — no golden opens a Vault editor panel.
+
 ### Phase 7 status
 
-7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all six
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all the
 post-7.8 UI polish/fix passes above. **7.6 (logo, favicon, splash, plus
 the `manifest.json` bug) is the only sub-phase left** — deliberately
-deferred across all seven rounds; it touches no Dart and is independent
-of everything else here. Repo version bumped to `2.10.0` (from `2.9.0`,
-which covered the sixth post-7.8 round — `BackupService._appVersion`
-bumped to match in the same pass, per that field's own doc comment).
+deferred across every round; it touches no Dart and is independent
+of everything else here. Repo version bumped to `2.12.0` (from
+`2.11.1`); `BackupService._appVersion` had drifted to `2.10.0` and was
+resynced in the same pass, per that field's own doc comment.

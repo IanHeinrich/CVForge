@@ -303,6 +303,121 @@ void main() {
           expect(firstBullet['text'], 'Did a thing');
         },
       );
+
+      Map<String, dynamic> lastWrittenVault() {
+        final captured = verify(
+          storage.write(
+            StorageBoxes.vault,
+            StorageKeys.vaultProfile,
+            captureAny,
+          ),
+        ).captured;
+        return jsonDecode(captured.last as String) as Map<String, dynamic>;
+      }
+
+      test('Entries added but never filled in are dropped on write, so a '
+          'stray "+" click leaves nothing behind', () async {
+        final service = VaultService();
+        await service.load();
+
+        await service.addExperience(
+          role: '',
+          company: '',
+          location: '',
+          start: const YearMonth(year: 2020, month: 1),
+        );
+        await service.addProject(title: '');
+        await service.addEducation(qualification: '', institution: '');
+        await service.addPublication(title: '');
+        await service.addHobby('');
+        await service.addProfileLink(label: '', url: '');
+        await service.addSkillCategory('');
+
+        await service.flushPendingWrites();
+
+        final decoded = lastWrittenVault();
+        expect(decoded['experiences'], isEmpty);
+        expect(decoded['projects'], isEmpty);
+        expect(decoded['education'], isEmpty);
+        expect(decoded['publications'], isEmpty);
+        expect(decoded['hobbies'], isEmpty);
+        expect(decoded['skillCategories'], isEmpty);
+        expect((decoded['basics'] as Map<String, dynamic>)['links'], isEmpty);
+
+        // Still in memory: the editor panel that was opened on "+" is
+        // bound to this entry and has to keep working until it's filled
+        // in or abandoned.
+        expect(service.vault.experiences, hasLength(1));
+      });
+
+      test('A blank bullet is dropped from an entry that does have content, '
+          'and no skill is left pointing at the id that went away', () async {
+        final service = VaultService();
+        await service.load();
+
+        final experience = await service.addExperience(
+          role: 'Engineer',
+          company: 'Acme',
+          location: 'London',
+          start: const YearMonth(year: 2020, month: 1),
+        );
+        final real = await service.addBullet(
+          BulletOwner.experience,
+          experience.id,
+          text: 'Did a thing',
+        );
+        final blank = await service.addBullet(
+          BulletOwner.experience,
+          experience.id,
+          text: '',
+        );
+
+        final category = await service.addSkillCategory('Languages');
+        final skill = await service.addSkill(category.id, 'Dart');
+        await service.updateSkill(
+          category.id,
+          skill.copyWith(linkedBulletIds: [real.id, blank.id]),
+        );
+
+        await service.flushPendingWrites();
+
+        final decoded = lastWrittenVault();
+        final experiences = decoded['experiences'] as List<dynamic>;
+        final bullets =
+            (experiences.single as Map<String, dynamic>)['bullets']
+                as List<dynamic>;
+        expect(bullets, hasLength(1));
+        expect((bullets.single as Map<String, dynamic>)['text'], 'Did a thing');
+
+        final categories = decoded['skillCategories'] as List<dynamic>;
+        final skills =
+            (categories.single as Map<String, dynamic>)['skills']
+                as List<dynamic>;
+        expect((skills.single as Map<String, dynamic>)['linkedBulletIds'], [
+          real.id,
+        ]);
+      });
+
+      test('A category left unnamed still persists once it has a skill in it '
+          '— content anywhere in an entry is enough to keep it', () async {
+        final service = VaultService();
+        await service.load();
+
+        final category = await service.addSkillCategory('');
+        await service.addSkill(category.id, 'Dart');
+        await service.addSkill(category.id, '');
+
+        await service.flushPendingWrites();
+
+        final categories =
+            lastWrittenVault()['skillCategories'] as List<dynamic>;
+        expect(categories, hasLength(1));
+        final skills =
+            (categories.single as Map<String, dynamic>)['skills']
+                as List<dynamic>;
+        expect(skills, hasLength(1));
+        expect((skills.single as Map<String, dynamic>)['label'], 'Dart');
+      });
     });
   });
 }

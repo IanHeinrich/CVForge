@@ -63,7 +63,17 @@ class CopilotVaultPayload {
           {
             'name': c.name,
             'skills': [
-              for (final s in c.skills) {'id': s.id, 'label': s.label},
+              for (final s in c.skills)
+                {
+                  'id': s.id,
+                  'label': s.label,
+                  // Bullets this skill is already evidenced by — see
+                  // `copilotSystemPrompt`'s guidance on how this should
+                  // factor into selection. Omitted rather than sent as
+                  // `[]` for a skill with no links.
+                  if (s.linkedBulletIds.isNotEmpty)
+                    'linkedBulletIds': s.linkedBulletIds,
+                },
             ],
           },
       ],

@@ -15,6 +15,7 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
+import 'package:cv_forge/models/vault/vault_pruning.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
@@ -527,10 +528,15 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
   /// need the same "write right now" behaviour, so one method serves both.
   Future<void> flushPendingWrites() => persistNow(_vault.value);
 
+  /// Every persistence path — the debounced write, an explicit flush, and
+  /// [replaceAll]'s import — funnels through here, which is why the
+  /// blank-entry prune lives at this one point rather than in each caller.
+  /// See [CvVaultPruning.withoutBlankEntries] for what counts as blank and
+  /// why it is enforced on write instead of on create.
   @override
   Future<void> writeToStorage(CvVault value) => _localStorage.write(
     StorageBoxes.vault,
     StorageKeys.vaultProfile,
-    jsonEncode(value.toJson()),
+    jsonEncode(value.withoutBlankEntries().toJson()),
   );
 }

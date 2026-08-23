@@ -361,7 +361,12 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     List<String> orderedIds,
   ) => _vaultService.reorderBullets(BulletOwner.project, projectId, orderedIds);
 
-  Future<void> addSkillCategory(String name) =>
+  /// Returns the created [SkillCategory] (not just `void`) so a caller
+  /// that needs its id right away — `BulletListEditor`'s "+ New category"
+  /// option when adding a skill that doesn't exist yet — can add a skill
+  /// under it in the same action, same reasoning as [addSkill]'s own doc
+  /// comment.
+  Future<SkillCategory> addSkillCategory(String name) =>
       _vaultService.addSkillCategory(name);
 
   Future<void> updateSkillCategory(SkillCategory category) =>
@@ -375,7 +380,11 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     if (confirmed) await _vaultService.deleteSkillCategory(id);
   }
 
-  Future<void> addSkill(String categoryId, String label) =>
+  /// Returns the created [Skill] (not just `void`) so a caller that needs
+  /// its id right away — `BulletListEditor`'s quick "add a skill that
+  /// doesn't exist yet" flow — can link it to a bullet in the same
+  /// action, rather than requiring a trip back to the Skills panel.
+  Future<Skill> addSkill(String categoryId, String label) =>
       _vaultService.addSkill(categoryId, label);
 
   Future<void> updateSkill(String categoryId, Skill skill) =>
