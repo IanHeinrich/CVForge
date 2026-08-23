@@ -11,6 +11,10 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/studio_panel_heading.dart';
 
+/// Caps the filter field's width so it doesn't stretch to fill the panel
+/// on wide monitors — matches `DraftsCardList`'s own search field.
+const _filterFieldMaxWidth = 320.0;
+
 /// Studio's skill picker — a filterable [AppChipGroupSelector] over
 /// [StudioViewModel.skillCategories], preserving the category grouping
 /// the document itself reinstates when it prints grouped skill lines.
@@ -71,18 +75,21 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
             ],
           ),
           const VGap.tiny(),
-          TextField(
-            controller: _filterController,
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: 'Filter skills…',
-              prefixIcon: Icon(
-                RemixIcons.search_line,
-                size: context.appIconSize.medium,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _filterFieldMaxWidth),
+            child: TextField(
+              controller: _filterController,
+              decoration: InputDecoration(
+                isDense: true,
+                hintText: 'Filter skills…',
+                prefixIcon: Icon(
+                  RemixIcons.search_line,
+                  size: context.appIconSize.medium,
+                ),
               ),
+              onChanged: (value) =>
+                  setState(() => _query = value.trim().toLowerCase()),
             ),
-            onChanged: (value) =>
-                setState(() => _query = value.trim().toLowerCase()),
           ),
           const VGap.tiny(),
           Align(
