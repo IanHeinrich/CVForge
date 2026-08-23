@@ -111,9 +111,8 @@ class BackupSettingsCard extends StatelessWidget {
   }
 }
 
-/// The state 7.7 gives Backup — "a pair of verbs with no nouns" before
-/// this existed. Everything is derived from a plain `DateTime?` and a
-/// `bool`, not a widget of its own state, so it can never drift from what
+/// Everything is derived from a plain `DateTime?` and a `bool`, not a
+/// widget of its own state, so it can never drift from what
 /// [SettingsViewModel.hasChangesSinceBackup] actually computed.
 class _BackupStatusLine extends StatelessWidget {
   const _BackupStatusLine({

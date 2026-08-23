@@ -75,7 +75,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     await _backupService.exportBackup();
     // Only reached on success — a thrown BackupException propagates out
     // of exportBackup above and this line never runs, so a failed export
-    // never advances lastBackupAt (7.7 risk 2's "does not set on failure").
+    // never advances lastBackupAt.
     await _settingsService.setLastBackupAt(DateTime.now());
   }
 
@@ -85,7 +85,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
       _backupService.applyImport(bundle);
 
   /// Null means never backed up — [BackupSettingsCard] shows that state
-  /// plainly rather than defaulting to silence (7.7's "the real problem").
+  /// plainly rather than defaulting to silence.
   DateTime? get lastBackupAt => _settingsService.settings.lastBackupAt;
 
   /// True once the Vault or any Draft has been touched since
@@ -227,7 +227,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// describes changes — the provider, the model, or the key field itself
   /// (see `CopilotSettingsCard`'s api key `onChanged`). Without this, a
   /// stale "Connected." (or stale error) from a previous key/provider
-  /// stays shown indefinitely, which is 7.7 issue 6.
+  /// stays shown indefinitely.
   void clearConnectionTestResult() {
     if (!_connectionTestSucceeded && !hasErrorForKey(_testConnectionBusyKey)) {
       return;

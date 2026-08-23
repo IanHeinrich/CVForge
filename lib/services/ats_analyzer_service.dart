@@ -8,7 +8,7 @@ import 'package:cv_forge/models/ats/ats_text_node.dart';
 /// counterpart to `PdfExtractionService`'s browser-only marshalling, and
 /// fully testable on the Flutter VM.
 ///
-/// Ships the reduced v1 check set — see [AtsFindingCategory]'s doc comment
+/// Ships a reduced check set — see [AtsFindingCategory]'s doc comment
 /// for what was cut and why.
 class AtsAnalyzerService {
   AtsAnalysisResult analyze(AtsExtractedDocument document) {
@@ -170,10 +170,9 @@ class AtsAnalyzerService {
       }
 
       // A PUA glyph as the first character of a run reads as a bullet,
-      // not garbled text — the spike's own synthetic bullet case, where
-      // pdf.js chunked a leading bullet glyph into the same run as the
-      // text that follows it. A PUA glyph anywhere else in the run is
-      // the garbled case.
+      // not garbled text: pdf.js chunks a leading bullet glyph into the
+      // same run as the text that follows it. A PUA glyph anywhere else
+      // in the run is the garbled case.
       var nodeHasEmbeddedPua = false;
       for (var i = 1; i < str.length; i++) {
         if (_isPua(str.codeUnitAt(i))) {
@@ -188,10 +187,10 @@ class AtsAnalyzerService {
       }
 
       // "Phantom glyph": an advance width spent with implausibly few
-      // characters to show for it — the specific failure the spike found
-      // for a non-embedded-font PUA bullet, which left a nonzero width
-      // and zero surviving characters rather than a visible PUA/
-      // replacement codepoint. Only checked on short runs with at least
+      // characters to show for it — the failure a non-embedded-font PUA
+      // bullet produces, leaving a nonzero width and zero surviving
+      // characters rather than a visible PUA/replacement codepoint. Only
+      // checked on short runs with at least
       // one non-whitespace character: a *pure*-whitespace run (`trimmed`
       // empty) never had any characters to drop in the first place, and a
       // wide single-space run is a completely ordinary PDF layout

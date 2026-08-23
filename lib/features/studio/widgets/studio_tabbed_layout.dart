@@ -13,8 +13,7 @@ import 'studio_section_nav/studio_section_nav.dart';
 /// three-column desktop layout, so it's two tabs instead. "Configure" is
 /// itself a drill-down — the section nav until something's selected, then
 /// that section's editor with a way back — rather than a third tab, which
-/// would put the preview two taps from whatever's changing it. See
-/// `docs/ux/7.4-studio-restructure.md`, decision 5.
+/// would put the preview two taps from whatever's changing it.
 class StudioTabbedLayout extends StatelessWidget {
   const StudioTabbedLayout({super.key, required this.viewModel});
 

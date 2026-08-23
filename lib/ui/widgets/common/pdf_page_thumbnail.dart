@@ -11,8 +11,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 /// render a card-sized preview through [TemplateThumbnailService], and the
 /// failed state matters in both: a font-load failure under a deployed
 /// `--base-href` would fail every thumbnail at once, and a card should
-/// degrade to a plain icon rather than an error box. See
-/// `docs/ux/7.5-template-region-scaling.md`'s "What changes" section.
+/// degrade to a plain icon rather than an error box.
 class PdfPageThumbnail extends StatelessWidget {
   const PdfPageThumbnail({super.key, required this.future});
 

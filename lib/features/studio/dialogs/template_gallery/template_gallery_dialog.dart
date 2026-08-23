@@ -23,8 +23,8 @@ import 'template_gallery_dialog_model.dart';
 const _cardWidth = 300.0;
 
 /// A flat, wrapping grid of template cards — not grouped or filtered, see
-/// [TemplateGalleryDialogModel]'s doc comment for why tag-grouping (7.5's
-/// original design) was dropped. Each thumbnail is the user's own CV,
+/// [TemplateGalleryDialogModel]'s doc comment for why tag-grouping was
+/// dropped. Each thumbnail is the user's own CV,
 /// rendered through the same [TemplateThumbnailService] pipeline the
 /// exported PDF uses, so a card can never show something switching to
 /// that template wouldn't actually produce.

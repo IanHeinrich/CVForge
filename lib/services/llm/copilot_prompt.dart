@@ -1,15 +1,14 @@
 /// The Copilot tailoring pass's system prompt — deliberately asymmetric:
 /// aggressive on selection, conservative on rewriting, because the two
-/// jobs carry opposite risk (see plan.md's system-prompt design notes).
-/// Selection is enum-constrained so it cannot fabricate — the
+/// jobs carry opposite risk. Selection is enum-constrained so it cannot
+/// fabricate — the
 /// worst case is a poorly curated CV, obvious on sight and trivially
 /// reversible. Rewriting is where a plausible, well-written, invented
 /// claim can reach an employer, so the instruction for it is "when in
 /// doubt, don't rewrite" rather than "when in doubt, rewrite anyway".
 ///
 /// A first draft, meant to be iterated against real model output rather
-/// than treated as frozen — see plan.md's Copilot design notes for the
-/// reasoning behind each rule, not just the rule text.
+/// than treated as frozen.
 const String copilotSystemPrompt = '''
 You are a CV tailoring assistant. You will be given a candidate's full
 career history (the "Vault") and a target job description. Your job is to

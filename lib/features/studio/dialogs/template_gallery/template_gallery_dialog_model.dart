@@ -9,8 +9,8 @@ import 'package:stacked/stacked.dart';
 import 'template_gallery_dialog_data.dart';
 
 /// Backs [TemplateGalleryDialog] — a flat grid, not grouped by
-/// [TemplateTag]. Grouping under tag headings was tried in 7.5 and
-/// dropped: with two templates it produced one card per group and a
+/// [TemplateTag]. Grouping under tag headings was tried and dropped: with
+/// two templates it produced one card per group and a
 /// mostly-empty dialog, which only gets worse rather than better once a
 /// tag applies to most templates. [TemplateTag] still exists — each
 /// card shows its own tags as chips, still useful at a glance — it just

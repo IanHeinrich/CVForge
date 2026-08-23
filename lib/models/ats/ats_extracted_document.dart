@@ -9,7 +9,7 @@ part 'ats_extracted_document.freezed.dart';
 
 /// The full wire shape `PdfExtractionService` marshals out of `pdf.js` —
 /// everything `AtsAnalyzerService` needs, and nothing it has to reach back
-/// into the interop layer for. This is the seam the spike's fixtures are
+/// into the interop layer for. This is the seam regression fixtures are
 /// captured at: a JSON dump of this shape (with `str` redacted or
 /// synthetic) is what makes the analyzer regression-testable on the
 /// Flutter VM despite the extraction layer only running in a browser.

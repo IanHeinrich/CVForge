@@ -42,7 +42,7 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
     try {
       // A fresh copy, never the caller's own bytes directly: getDocument()
       // transfers (detaches) the underlying buffer, confirmed against the
-      // bundle during the spike. The same source bytes are also handed to
+      // bundle. The same source bytes are also handed to
       // `Printing.raster()` for the X-Ray backdrop, so reusing the same
       // typed list here would silently break that second call.
       final copy = Uint8List.fromList(bytes);
@@ -84,7 +84,7 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
         // The synthetic line-boundary/whitespace-only entries `pdf.js`
         // still emits without `includeMarkedContent` show up as `str: ""`
         // rather than a structurally distinct shape — confirmed against
-        // the real bundle in the spike. They carry no useful geometry
+        // the real bundle. They carry no useful geometry
         // (their transform belongs to the next real run's line, not a
         // run of their own), so they're dropped here rather than passed
         // through as zero-width nodes.
@@ -133,7 +133,7 @@ class PdfExtractionServiceWeb implements PdfExtractionService {
 
       // Font metadata (bold/italic/embedded) is only populated on
       // `page.commonObjs` after `getOperatorList()` has run for that page
-      // — confirmed necessary against the real bundle in the spike.
+      // — confirmed necessary against the real bundle.
       try {
         await page.getOperatorList().toDart;
         final seenFontNames = items

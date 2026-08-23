@@ -11,10 +11,8 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/studio_panel_heading.dart';
 
 /// Studio's skill picker — a filterable [AppChipGroupSelector] over
-/// [StudioViewModel.skillCategories], replacing the flattened checkbox
-/// list `VaultItemSelectorList` used to render (which discarded the
-/// category grouping the document itself reinstates when it prints
-/// grouped skill lines). See `docs/ux/7.2-skills-chips.md`.
+/// [StudioViewModel.skillCategories], preserving the category grouping
+/// the document itself reinstates when it prints grouped skill lines.
 class StudioSkillSelector extends StatefulWidget {
   const StudioSkillSelector({super.key, required this.viewModel});
 

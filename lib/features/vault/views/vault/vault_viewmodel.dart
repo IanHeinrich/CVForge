@@ -170,11 +170,10 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   // Year field validation: a rejected year edit must show an error, not
   // silently discard the keystroke while the field goes on showing a
-  // value the model never received — see `docs/ux/7.8-vault.md`'s date-bug
-  // writeup. The error lives here rather than on the (stateless) editor
-  // panels, per CLAUDE.md's "logic in the ViewModel" rule; keyed by entity
-  // id since several entries' panels can exist across a session even
-  // though only one is open at a time.
+  // value the model never received. The error lives here rather than on
+  // the (stateless) editor panels, per CLAUDE.md's "logic in the
+  // ViewModel" rule; keyed by entity id since several entries' panels can
+  // exist across a session even though only one is open at a time.
 
   static const _minYear = 1900;
   static const _maxYear = 2100;
@@ -270,7 +269,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   /// One set of pass-throughs, parameterised by [BulletOwner], shared by
   /// experience/project/education/publication bullets — see
   /// `VaultService`'s matching bullet API for why one method per action
-  /// replaces what used to be four.
+  /// serves every bullet-owning entity.
   Future<void> addBullet(String experienceId) =>
       _vaultService.addBullet(BulletOwner.experience, experienceId, text: '');
 

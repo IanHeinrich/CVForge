@@ -5,8 +5,7 @@ import 'package:cv_forge/features/studio/widgets/studio_field_override_card.dart
 
 /// The [CvSectionType.summary] editor. Headline has no [CvSectionType] of
 /// its own — it prints in the page header, not a section — so it lives
-/// here alongside the summary rather than inventing a fake section for it
-/// (see `docs/ux/7.4-studio-restructure.md`).
+/// here alongside the summary rather than inventing a fake section for it.
 class SummarySectionEditor extends StatelessWidget {
   const SummarySectionEditor({super.key, required this.viewModel});
 

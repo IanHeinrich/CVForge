@@ -115,8 +115,7 @@ class SettingsService
   }
 
   /// Removes [providerId]'s key from memory and deletes its storage row
-  /// immediately — not on the next write, per decision 8's "turning the
-  /// toggle off deletes it immediately" requirement.
+  /// immediately, not on the next write.
   Future<void> clearApiKey(String providerId) async {
     _sessionApiKeys.remove(providerId);
     await _localStorage.delete(

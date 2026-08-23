@@ -9,8 +9,7 @@
 // `getOperatorList`/`commonObjs` need — none of which `printing`'s own
 // binding covers, since it only ever rasterizes.
 //
-// Binding-correctness notes (see the ATS-analyzer spike findings for the
-// verification behind each):
+// Binding-correctness notes:
 //  - Never declare an `external set` anywhere on this library. Depending
 //    on init order, `pdfjsLib` may be the frozen ES module namespace
 //    object `import()` resolves to (writes fail — silently on dart2js's
@@ -26,7 +25,7 @@
 //  - `commonObjs.get(id)` only returns real data once `getOperatorList()`
 //    (or `render()`) has populated it for that page — guard with `.has()`
 //    first, confirmed necessary and sufficient against the real bundle
-//    during the spike (no callback needed for an already-resolved id).
+//    (no callback needed for an already-resolved id).
 @JS('pdfjsLib')
 library;
 
@@ -96,9 +95,9 @@ extension type PdfJsPage._(JSObject _) implements JSObject {
   external int get rotate;
 
   /// `[x0, y0, x1, y1]` in default page space — a nonzero `x0`/`y0` means
-  /// an offset CropBox origin, a case the spike flagged as untested (no
-  /// tool available to produce one) and worth a coordinate-math guard
-  /// rather than an assumption.
+  /// an offset CropBox origin, an untested case (no tool available to
+  /// produce one) worth a coordinate-math guard rather than an
+  /// assumption.
   external JSArray<JSNumber> get view;
 
   /// The page-space → target-space transform for a given render scale —
@@ -133,8 +132,8 @@ extension type PdfJsViewport._(JSObject _) implements JSObject {
 @anonymous
 @JS()
 extension type PdfJsTextContent._(JSObject _) implements JSObject {
-  /// Without `includeMarkedContent` (which this binding never requests —
-  /// see the spike notes on why turning it on changes chunking), every
+  /// Without `includeMarkedContent` (which this binding never requests,
+  /// since turning it on changes chunking), every
   /// entry carries `str`/`fontName`/`transform`, but a synthetic
   /// line-boundary marker still shows up as `str: ""` (confirmed against
   /// the real bundle) rather than being a structurally different shape —

@@ -25,12 +25,11 @@ enum LlmFailure {
 /// Wraps whatever an [LlmProvider] call's failing stage threw, tagged with
 /// [failure] so callers can classify it without inspecting the underlying
 /// exception's type or message. Lives alongside [LlmProvider] rather than
-/// in `llm_service.dart` (where `plan.md` originally placed it, mirroring
-/// `PdfExportException`'s spot next to `PdfExportService`) because an
-/// `LlmProvider` adapter is what actually throws it, and `llm_service.dart`
-/// importing `llm_provider_registry.dart` which imports an adapter which
-/// would import back into `llm_service.dart` for this type is a real
-/// import cycle, not a hypothetical one.
+/// in `llm_service.dart` because an `LlmProvider` adapter is what actually
+/// throws it, and `llm_service.dart` importing `llm_provider_registry.dart`
+/// which imports an adapter which would import back into
+/// `llm_service.dart` for this type is a real import cycle, not a
+/// hypothetical one.
 class LlmException implements Exception {
   const LlmException(this.failure, [this.cause]);
 

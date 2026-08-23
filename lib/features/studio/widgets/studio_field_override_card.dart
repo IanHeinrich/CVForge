@@ -92,12 +92,7 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
         ? widget.effectiveValue
         : (hasVaultValue ? widget.vaultValue! : widget.emptyVaultMessage);
 
-    // Flat — no card frame. This widget used to be the one card-shaped
-    // editor beside six flat `VaultItemSelectorList`s stacked in the same
-    // pane, which read as an unexplained inconsistency once 7.4 gave
-    // every section its own dedicated pane: a card *inside* an already-
-    // bounded pane is a redundant boundary, not a meaningful one, and the
-    // rest of Studio's editors don't have one.
+    // Flat — no card frame; see class doc comment for why.
     return Padding(
       padding: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
       child: Column(

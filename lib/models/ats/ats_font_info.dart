@@ -4,8 +4,8 @@ part 'ats_font_info.freezed.dart';
 
 /// Font metadata `pdf.js` only exposes after `page.getOperatorList()` has
 /// run and `page.commonObjs` has been populated — not part of
-/// `getTextContent()` at all (confirmed by reading the vendored bundle
-/// during the spike). Keyed by `AtsTextNode.fontName` in
+/// `getTextContent()` at all (confirmed by reading the vendored bundle).
+/// Keyed by `AtsTextNode.fontName` in
 /// `AtsExtractedDocument.fonts`.
 @freezed
 abstract class AtsFontInfo with _$AtsFontInfo {
