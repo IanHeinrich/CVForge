@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
@@ -55,6 +56,17 @@ class SettingsService
   Future<void> setRememberApiKey(bool value) async {
     await ready();
     _settings.value = _settings.value.copyWith(rememberApiKey: value);
+    scheduleWrite(_settings.value);
+  }
+
+  /// Only the default a *new* draft is created with (`DraftService.
+  /// createDraft`'s own `_settings.settings.defaultRegion` read) — never
+  /// touches any existing draft's own `CvDraft.region`, the same way
+  /// changing [setDefaultSectionSettings] never rewrites a draft already
+  /// created from the old default.
+  Future<void> setDefaultRegion(RegionProfile region) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(defaultRegion: region);
     scheduleWrite(_settings.value);
   }
 

@@ -6,6 +6,7 @@ import 'package:stacked/stacked.dart';
 
 import 'package:cv_forge/features/settings/widgets/backup_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/copilot_settings_card.dart';
+import 'package:cv_forge/features/settings/widgets/region_settings_card.dart';
 import 'settings_viewmodel.dart';
 
 /// The only top-level surface that previously had neither a page header
@@ -42,6 +43,8 @@ class SettingsView extends StackedView<SettingsViewModel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                RegionSettingsCard(viewModel: viewModel),
+                const VGap.medium(),
                 BackupSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
                 CopilotSettingsCard(viewModel: viewModel),

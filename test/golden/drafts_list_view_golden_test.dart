@@ -6,8 +6,10 @@ import 'dart:convert';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_view.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/template_thumbnail_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
@@ -56,6 +58,12 @@ void main() {
     when(
       (locator<VaultService>() as MockVaultService).vault,
     ).thenReturn(CvVault.empty());
+    // DraftsCardList's "New CV"/search/empty-state copy reads
+    // `AppSettings.defaultRegion` — unstubbed, the mock's dummy `AppSettings`
+    // throws as soon as anything dereferences a field on it.
+    when(
+      (locator<SettingsService>() as MockSettingsService).settings,
+    ).thenReturn(AppSettings.empty());
     when(
       (locator<TemplateThumbnailService>() as MockTemplateThumbnailService)
           .thumbnail(

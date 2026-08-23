@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -36,17 +37,15 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
     super.dispose();
   }
 
-  /// A category is visible whenever its own name matches, or any one of
-  /// its skills' labels does — and once visible, every skill in it renders
-  /// (never a partial category), so typing "cloud" surfaces the whole
-  /// Cloud category rather than just the skills that happen to contain
-  /// the word. That also keeps this group's "Add all (N)" count always
-  /// equal to what tapping it actually adds — `addAllSkillsInCategory`
-  /// operates on the whole category, never a filtered subset of it.
-  bool _categoryVisible(SkillCategory category) {
-    if (_query.isEmpty) return true;
-    if (category.name.toLowerCase().contains(_query)) return true;
-    return category.skills.any((s) => s.label.toLowerCase().contains(_query));
+  /// Skills within [category] matching the current filter — the category
+  /// name itself is not matched against, so a query only ever surfaces the
+  /// skills that actually contain it, never a whole category dragged along
+  /// by an unrelated name match.
+  List<Skill> _matchingSkills(SkillCategory category) {
+    if (_query.isEmpty) return category.skills;
+    return category.skills
+        .where((s) => s.label.toLowerCase().contains(_query))
+        .toList();
   }
 
   @override
@@ -103,11 +102,12 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
           AppChipGroupSelector(
             groups: [
               for (final category in categories)
-                if (_categoryVisible(category))
+                if (_matchingSkills(category) case final skills
+                    when skills.isNotEmpty)
                   AppChipGroup(
                     label: category.name,
                     items: [
-                      for (final skill in category.skills)
+                      for (final skill in skills)
                         AppChipGroupItem(
                           id: skill.id,
                           label: skill.label,
@@ -115,10 +115,20 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                           onToggle: (_) => viewModel.toggleSkill(skill),
                         ),
                     ],
-                    onSelectAll: () =>
-                        viewModel.addAllSkillsInCategory(category),
-                    onSelectNone: () =>
-                        viewModel.removeAllSkillsInCategory(category),
+                    // Only offered unfiltered — scoping "Add all"/"Remove
+                    // all" to a filtered subset would need its own bulk
+                    // action distinct from `addAllSkillsInCategory`'s
+                    // whole-category meaning; simpler to just not offer a
+                    // bulk action whose count wouldn't match the filtered
+                    // chips actually shown, the same way `AppChipGroup`'s
+                    // own doc comment describes hiding it entirely for the
+                    // Vault's bullet picker.
+                    onSelectAll: _query.isEmpty
+                        ? () => viewModel.addAllSkillsInCategory(category)
+                        : null,
+                    onSelectNone: _query.isEmpty
+                        ? () => viewModel.removeAllSkillsInCategory(category)
+                        : null,
                   ),
             ],
           ),

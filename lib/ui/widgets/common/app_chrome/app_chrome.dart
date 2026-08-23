@@ -1,5 +1,7 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -30,8 +32,15 @@ class _NavDestination {
 /// [AppSection.settings] is deliberately excluded here since the rail
 /// pins it to its own `trailing` slot; see [_NavDestination]'s call sites
 /// for where each layout adds it back.
-const _workspaceDestinations = [
-  _NavDestination(
+///
+/// A function rather than a top-level `const`, since the drafts
+/// destination's label follows `AppSettings.defaultRegion`'s document noun
+/// ("CVs" for a UK default, "Résumés" for a US one) — read straight off the
+/// locator rather than threaded down as a parameter, matching this file's
+/// own "deliberately modelless" rationale (see [AppChrome]'s class doc):
+/// there's no ViewModel here to hold it as reactive state instead.
+List<_NavDestination> _workspaceDestinations() => [
+  const _NavDestination(
     section: AppSection.vault,
     icon: RemixIcons.safe_line,
     selectedIcon: RemixIcons.safe_fill,
@@ -41,9 +50,10 @@ const _workspaceDestinations = [
     section: AppSection.drafts,
     icon: RemixIcons.file_text_line,
     selectedIcon: RemixIcons.file_text_fill,
-    label: 'CVs',
+    label: locator<SettingsService>().settings.defaultRegion.preset
+        .documentNounPluralCapitalized,
   ),
-  _NavDestination(
+  const _NavDestination(
     section: AppSection.analyzer,
     icon: RemixIcons.file_search_line,
     selectedIcon: RemixIcons.file_search_fill,
@@ -87,7 +97,8 @@ const _settingsDestination = _NavDestination(
 enum AppSection { vault, drafts, analyzer, studio, settings }
 
 /// The shared shell every top-level View wraps itself in: a left nav rail
-/// (Vault / CVs) over the dark scaffold backdrop (`buildAppTheme()`'s
+/// (Vault / CVs or Résumés, per `AppSettings.defaultRegion`) over the dark
+/// scaffold backdrop (`buildAppTheme()`'s
 /// `kcSurfaceSunken`), with [child] filling the rest.
 ///
 /// Deliberately modelless — it holds no state, and navigation is a single
@@ -139,7 +150,7 @@ class AppChrome extends StatelessWidget {
   }
 
   /// [AppSection.studio] has no rail entry of its own — being in Studio
-  /// visually highlights the "CVs" tab it was reached from.
+  /// visually highlights the drafts tab it was reached from.
   AppSection get _visualSection =>
       currentSection == AppSection.studio ? AppSection.drafts : currentSection;
 
@@ -207,6 +218,7 @@ class _RailChrome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final destinations = _workspaceDestinations();
     return Scaffold(
       body: Row(
         // Row's own default cross-axis alignment is center, which gives
@@ -233,18 +245,16 @@ class _RailChrome extends StatelessWidget {
             // and the trailing settings button draws its own selected state.
             selectedIndex: section == AppSection.settings
                 ? null
-                : _workspaceDestinations.indexWhere(
-                    (d) => d.section == section,
-                  ),
+                : destinations.indexWhere((d) => d.section == section),
             labelType: NavigationRailLabelType.all,
             selectedIconTheme: const IconThemeData(color: kcPrimaryColor),
             selectedLabelTextStyle: const TextStyle(color: kcPrimaryColor),
             unselectedIconTheme: const IconThemeData(color: kcLightGrey),
             unselectedLabelTextStyle: const TextStyle(color: kcLightGrey),
             onDestinationSelected: (index) =>
-                onSelect(_workspaceDestinations[index].section),
+                onSelect(destinations[index].section),
             destinations: [
-              for (final d in _workspaceDestinations)
+              for (final d in destinations)
                 NavigationRailDestination(
                   icon: Icon(d.icon),
                   selectedIcon: Icon(d.selectedIcon),
@@ -297,28 +307,29 @@ class _MobileChrome extends StatelessWidget {
   final ValueChanged<AppSection> onSelect;
   final Widget child;
 
-  static const _destinations = [
-    ..._workspaceDestinations,
+  List<_NavDestination> get _destinations => [
+    ..._workspaceDestinations(),
     _settingsDestination,
   ];
 
   @override
   Widget build(BuildContext context) {
+    final destinations = _destinations;
     return Scaffold(
       // Same loose-constraint issue as `_RailChrome`'s `Row` (see its
       // comment) — `SizedBox.expand` is this widget's equivalent fix for
-      // `Scaffold.body`'s loose constraint, surfaced here by the CVs
-      // page's floating "New CV" button landing partway up the screen
-      // instead of at its true bottom.
+      // `Scaffold.body`'s loose constraint, surfaced here by the drafts
+      // page's floating "New CV"/"New Résumé" button landing partway up
+      // the screen instead of at its true bottom.
       body: SizedBox.expand(child: child),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: kcBorderColor)),
         ),
         child: NavigationBar(
-          selectedIndex: _destinations.indexWhere((d) => d.section == section),
+          selectedIndex: destinations.indexWhere((d) => d.section == section),
           onDestinationSelected: (index) =>
-              onSelect(_destinations[index].section),
+              onSelect(destinations[index].section),
           indicatorColor: kcPrimaryColor.withValues(alpha: 0.18),
           labelTextStyle: WidgetStateProperty.resolveWith(
             (states) => context.appTypography.caption.copyWith(
@@ -328,7 +339,7 @@ class _MobileChrome extends StatelessWidget {
             ),
           ),
           destinations: [
-            for (final d in _destinations)
+            for (final d in destinations)
               NavigationDestination(
                 icon: Icon(d.icon, color: kcLightGrey),
                 selectedIcon: Icon(d.selectedIcon, color: kcPrimaryColor),

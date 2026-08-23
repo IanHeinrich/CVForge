@@ -3,6 +3,7 @@ import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -16,6 +17,7 @@ void main() {
   group('DraftsListViewModel Tests -', () {
     late MockDraftService draftService;
     late MockVaultService vaultService;
+    late MockSettingsService settingsService;
     late MockTemplateRegistryService templateRegistry;
     late MockDialogService dialogService;
     late MockRouterService routerService;
@@ -37,27 +39,34 @@ void main() {
     setUp(() {
       draftService = getAndRegisterDraftService();
       vaultService = getAndRegisterVaultService();
+      settingsService = getAndRegisterSettingsService();
       templateRegistry = getAndRegisterTemplateRegistryService();
       dialogService = getAndRegisterDialogService();
       routerService = getAndRegisterRouterService();
       getAndRegisterTemplateThumbnailService();
+      when(settingsService.settings).thenReturn(AppSettings.empty());
     });
     tearDown(() => locator.reset());
 
-    test('initialise loads VaultService then DraftService', () async {
-      when(vaultService.load()).thenAnswer((_) => Future<void>.value());
-      when(draftService.load()).thenAnswer((_) => Future<void>.value());
-      when(draftService.drafts).thenReturn([]);
+    test(
+      'initialise loads VaultService, DraftService, then SettingsService',
+      () async {
+        when(vaultService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.load()).thenAnswer((_) => Future<void>.value());
+        when(settingsService.load()).thenAnswer((_) => Future<void>.value());
+        when(draftService.drafts).thenReturn([]);
 
-      final model = DraftsListViewModel();
-      model.initialise();
-      await pumpEventQueue();
+        final model = DraftsListViewModel();
+        model.initialise();
+        await pumpEventQueue();
 
-      verify(vaultService.load()).called(1);
-      verify(draftService.load()).called(1);
-      expect(model.isLoading, isFalse);
-      expect(model.hasLoadError, isFalse);
-    });
+        verify(vaultService.load()).called(1);
+        verify(draftService.load()).called(1);
+        verify(settingsService.load()).called(1);
+        expect(model.isLoading, isFalse);
+        expect(model.hasLoadError, isFalse);
+      },
+    );
 
     test('drafts/isEmpty read through to DraftService', () {
       when(draftService.drafts).thenReturn([draftWith()]);

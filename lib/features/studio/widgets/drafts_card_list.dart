@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 
 import 'package:cv_forge/models/draft/cv_draft.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:cv_forge/ui/widgets/common/pdf_page_thumbnail.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
@@ -17,10 +19,11 @@ import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_viewmodel
 /// The Drafts landing page's content: every saved CV as a thumbnail card —
 /// the same wrapping-grid-of-page-previews shape as
 /// `TemplateGalleryDialog`, so picking a CV to open reads the same as
-/// picking a template to switch to — plus a "New CV" action. Kept as one
-/// widget (no empty-state/populated split via separate files) since
-/// there's nothing here complex enough to warrant it — see
-/// [_DraftsEmptyState] below for the one branch.
+/// picking a template to switch to — plus a "New CV" action and a search
+/// field to narrow the grid down by name/notes/template. Kept as one widget
+/// (no empty-state/populated split via separate files) since there's
+/// nothing here complex enough to warrant it — see [_DraftsEmptyState] and
+/// [_NoSearchResults] below for the two branches.
 class DraftsCardList extends StatelessWidget {
   const DraftsCardList({super.key, required this.viewModel});
 
@@ -29,7 +32,11 @@ class DraftsCardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (viewModel.isEmpty) {
-      return _DraftsEmptyState(onNewCv: viewModel.createDraft);
+      return _DraftsEmptyState(
+        documentNoun: viewModel.documentNoun,
+        documentNounPlural: viewModel.documentNounPlural,
+        onNewCv: viewModel.createDraft,
+      );
     }
     return Stack(
       children: [
@@ -50,26 +57,48 @@ class DraftsCardList extends StatelessWidget {
                 ),
                 const VGap.medium(),
               ],
-              Wrap(
-                alignment: WrapAlignment.start,
-                runAlignment: WrapAlignment.start,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: context.appSpacing.gapSmall,
-                runSpacing: context.appSpacing.gapSmall,
-                children: [
-                  for (final draft in viewModel.drafts)
-                    _DraftCard(
-                      draft: draft,
-                      templateName: viewModel.templateName(draft.templateId),
-                      thumbnailFuture: viewModel.thumbnailFor(draft),
-                      pageAspectRatio: viewModel.pageAspectRatio(draft),
-                      onOpen: () => viewModel.openDraft(draft.id),
-                      onEdit: () => viewModel.editDraft(draft),
-                      onDuplicate: () => viewModel.duplicateDraft(draft),
-                      onDelete: () => viewModel.deleteDraft(draft),
+              SizedBox(
+                width: 320,
+                child: TextField(
+                  onChanged: viewModel.setQuery,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: 'Search ${viewModel.documentNounPlural}…',
+                    prefixIcon: Icon(
+                      RemixIcons.search_line,
+                      size: context.appIconSize.medium,
                     ),
-                ],
+                  ),
+                ),
               ),
+              const VGap.medium(),
+              if (viewModel.hasNoSearchResults)
+                _NoSearchResults(
+                  documentNounPlural: viewModel.documentNounPlural,
+                )
+              else
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  runAlignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  spacing: context.appSpacing.gapSmall,
+                  runSpacing: context.appSpacing.gapSmall,
+                  children: [
+                    for (final draft in viewModel.filteredDrafts)
+                      _DraftCard(
+                        draft: draft,
+                        templateName: viewModel.templateName(
+                          draft.templateId,
+                        ),
+                        thumbnailFuture: viewModel.thumbnailFor(draft),
+                        pageAspectRatio: viewModel.pageAspectRatio(draft),
+                        onOpen: () => viewModel.openDraft(draft.id),
+                        onEdit: () => viewModel.editDraft(draft),
+                        onDuplicate: () => viewModel.duplicateDraft(draft),
+                        onDelete: () => viewModel.deleteDraft(draft),
+                      ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -79,10 +108,32 @@ class DraftsCardList extends StatelessWidget {
           child: FloatingActionButton.extended(
             onPressed: viewModel.createDraft,
             icon: const Icon(RemixIcons.add_line),
-            label: const Text('New CV'),
+            label: Text('New ${viewModel.documentNoun}'),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Shown instead of the grid once a search matches nothing, distinct from
+/// [_DraftsEmptyState] — there are drafts, just none matching, so this
+/// suggests clearing the search rather than creating a first one.
+class _NoSearchResults extends StatelessWidget {
+  const _NoSearchResults({required this.documentNounPlural});
+
+  final String documentNounPlural;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: context.appSpacing.paddingPage),
+      child: Center(
+        child: Text(
+          'No $documentNounPlural match your search.',
+          style: context.appTypography.bodySmall.copyWith(color: kcLightGrey),
+        ),
+      ),
     );
   }
 }
@@ -144,7 +195,10 @@ class _DraftCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      draft.name.isEmpty ? 'Untitled CV' : draft.name,
+                      draft.name.isEmpty
+                          ? 'Untitled '
+                                '${draft.region.preset.documentNounCapitalized}'
+                          : draft.name,
                       style: context.appTypography.bodySmall.copyWith(
                         color: kcWhite,
                         fontWeight: FontWeight.w600,
@@ -225,19 +279,27 @@ class _DraftCard extends StatelessWidget {
 enum _DraftCardAction { edit, duplicate, delete }
 
 class _DraftsEmptyState extends StatelessWidget {
-  const _DraftsEmptyState({required this.onNewCv});
+  const _DraftsEmptyState({
+    required this.documentNoun,
+    required this.documentNounPlural,
+    required this.onNewCv,
+  });
 
+  final String documentNoun;
+  final String documentNounPlural;
   final VoidCallback onNewCv;
 
   @override
   Widget build(BuildContext context) {
     return AppEmptyState(
       icon: RemixIcons.file_text_line,
-      title: 'No CVs yet',
+      title: 'No $documentNounPlural yet',
       message:
-          'Create a CV to start tailoring your Vault for a specific '
-          'application.',
-      actions: [FilledButton(onPressed: onNewCv, child: const Text('New CV'))],
+          'Create a $documentNoun to start tailoring your Vault for a '
+          'specific application.',
+      actions: [
+        FilledButton(onPressed: onNewCv, child: Text('New $documentNoun')),
+      ],
     );
   }
 }

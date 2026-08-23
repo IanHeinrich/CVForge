@@ -88,3 +88,19 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
 extension RegionProfileX on RegionProfile {
   RegionPreset get preset => regionPresets[this]!;
 }
+
+/// Sentence-case and plural spellings derived from [RegionPreset.
+/// documentNoun] — "CV"/"résumé" is already the right case and number for
+/// [documentNoun]'s own mid-sentence use (`AnalyzerViewModel.documentNoun`),
+/// but chrome copy like a nav tab label or an empty-state heading needs a
+/// capitalized, pluralized form ("CVs"/"résumés"). Plain `+ 's'`
+/// pluralization is correct for both of today's presets; a future region
+/// whose noun doesn't pluralize this way would need its own case here.
+extension RegionPresetDocumentNoun on RegionPreset {
+  String get documentNounCapitalized =>
+      documentNoun.substring(0, 1).toUpperCase() + documentNoun.substring(1);
+
+  String get documentNounPlural => '${documentNoun}s';
+
+  String get documentNounPluralCapitalized => '${documentNounCapitalized}s';
+}
