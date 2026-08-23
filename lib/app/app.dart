@@ -56,6 +56,10 @@ import 'package:cv_forge/services/drive_sync_service.dart';
 
 import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict_dialog.dart';
 
+import 'package:cv_forge/ui/views/privacy/privacy_view.dart';
+
+import 'package:cv_forge/ui/views/terms/terms_view.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -66,6 +70,8 @@ import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict
     CustomRoute(page: DraftsListView, path: '/drafts'),
     CustomRoute(page: SettingsView, path: '/settings'),
     CustomRoute(page: AnalyzerView, path: '/analyzer'),
+    CustomRoute(page: PrivacyView, path: '/privacy'),
+    CustomRoute(page: TermsView, path: '/terms'),
     // @stacked-route
 
     /// A URL matching none of the above (including a stale `/404`

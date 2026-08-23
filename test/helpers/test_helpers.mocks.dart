@@ -221,6 +221,11 @@ class _FakeDriveFileSnapshot_25 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeDuration_26 extends _i1.SmartFake implements Duration {
+  _FakeDuration_26(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [RouterService].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -2658,6 +2663,33 @@ class MockDriveApiClientService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockDriveSyncService extends _i1.Mock implements _i58.DriveSyncService {
+  @override
+  Duration get idleDebounce =>
+      (super.noSuchMethod(
+            Invocation.getter(#idleDebounce),
+            returnValue: _FakeDuration_26(
+              this,
+              Invocation.getter(#idleDebounce),
+            ),
+            returnValueForMissingStub: _FakeDuration_26(
+              this,
+              Invocation.getter(#idleDebounce),
+            ),
+          )
+          as Duration);
+
+  @override
+  Duration get maxWait =>
+      (super.noSuchMethod(
+            Invocation.getter(#maxWait),
+            returnValue: _FakeDuration_26(this, Invocation.getter(#maxWait)),
+            returnValueForMissingStub: _FakeDuration_26(
+              this,
+              Invocation.getter(#maxWait),
+            ),
+          )
+          as Duration);
+
   @override
   _i59.DriveSyncStatus get status =>
       (super.noSuchMethod(
