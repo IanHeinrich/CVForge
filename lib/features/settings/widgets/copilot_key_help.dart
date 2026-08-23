@@ -33,45 +33,54 @@ class CopilotKeyHelp extends StatelessWidget {
       // theme; the card already has its own separation, so a rule here
       // just reads as a stray line across the middle of a form.
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        // Named per provider rather than a generic "How do I get a key?" —
-        // the card's provider dropdown sits directly above this, so the
-        // help must visibly answer for whichever provider is selected.
-        title: Text(
-          'How do I get a ${provider.displayName} API key?',
-          style: context.appTypography.bodySmall,
-        ),
-        leading: Icon(
-          RemixIcons.question_line,
-          size: context.appIconSize.small,
-          color: kcLightGrey,
-        ),
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: EdgeInsets.only(
-          bottom: context.appSpacing.paddingCompact,
-        ),
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final (index, step) in provider.apiKeySteps.indexed)
-            Padding(
-              padding: EdgeInsets.only(bottom: context.appSpacing.gapTiny),
-              child: _NumberedStep(number: index + 1, text: step),
+      // ExpansionTile is a ListTile underneath, and a ListTile paints its
+      // ink splash onto the nearest Material *ancestor* — which here is
+      // above the card's own decorated background, so the ripple would be
+      // painted behind that background and never seen. Flutter asserts on
+      // exactly this. Its own suggested fix: give the tile a Material of
+      // its own, transparent so the card's colour still shows through.
+      child: Material(
+        color: Colors.transparent,
+        child: ExpansionTile(
+          // Named per provider rather than a generic "How do I get a key?" —
+          // the card's provider dropdown sits directly above this, so the
+          // help must visibly answer for whichever provider is selected.
+          title: Text(
+            'How do I get a ${provider.displayName} API key?',
+            style: context.appTypography.bodySmall,
+          ),
+          leading: Icon(
+            RemixIcons.question_line,
+            size: context.appIconSize.small,
+            color: kcLightGrey,
+          ),
+          tilePadding: EdgeInsets.zero,
+          childrenPadding: EdgeInsets.only(
+            bottom: context.appSpacing.paddingCompact,
+          ),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final (index, step) in provider.apiKeySteps.indexed)
+              Padding(
+                padding: EdgeInsets.only(bottom: context.appSpacing.gapTiny),
+                child: _NumberedStep(number: index + 1, text: step),
+              ),
+            const VGap.small(),
+            _LinkButton(
+              icon: RemixIcons.external_link_line,
+              label: 'Open ${provider.displayName} key settings',
+              url: provider.apiKeyConsoleUrl,
             ),
-          const VGap.small(),
-          _LinkButton(
-            icon: RemixIcons.external_link_line,
-            label: 'Open ${provider.displayName} key settings',
-            url: provider.apiKeyConsoleUrl,
-          ),
-          const VGap.medium(),
-          const _SpendWarning(),
-          const VGap.small(),
-          _LinkButton(
-            icon: RemixIcons.wallet_line,
-            label: 'Open billing & spend limits',
-            url: provider.billingConsoleUrl,
-          ),
-        ],
+            const VGap.medium(),
+            const _SpendWarning(),
+            const VGap.small(),
+            _LinkButton(
+              icon: RemixIcons.wallet_line,
+              label: 'Open billing & spend limits',
+              url: provider.billingConsoleUrl,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -94,14 +103,10 @@ class _NumberedStep extends StatelessWidget {
           width: context.appSpacing.paddingPanel,
           child: Text(
             '$number.',
-            style: context.appTypography.bodySmall.copyWith(
-              color: kcLightGrey,
-            ),
+            style: context.appTypography.bodySmall.copyWith(color: kcLightGrey),
           ),
         ),
-        Expanded(
-          child: Text(text, style: context.appTypography.bodySmall),
-        ),
+        Expanded(child: Text(text, style: context.appTypography.bodySmall)),
       ],
     );
   }
@@ -158,10 +163,7 @@ class _SpendWarning extends StatelessWidget {
                 children: [
                   Text('• ', style: context.appTypography.bodySmall),
                   Expanded(
-                    child: Text(
-                      point,
-                      style: context.appTypography.bodySmall,
-                    ),
+                    child: Text(point, style: context.appTypography.bodySmall),
                   ),
                 ],
               ),
