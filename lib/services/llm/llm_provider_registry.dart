@@ -15,8 +15,16 @@ class LlmProviderRegistry {
 
   LlmProvider get defaultProvider => _providers.first;
 
-  /// id/displayName/models only, for a Settings dropdown.
-  List<LlmProvider> get available => _providers;
+  /// id/displayName/models only, for a Settings dropdown — Gemini listed
+  /// first, deliberately its own order rather than [_providers]'.
+  /// [_providers] stays Anthropic-first because [defaultProvider] is
+  /// [_providers.first]: a brand-new user's pre-selected provider (and
+  /// every id-not-found fallback via [byId]) shouldn't change just
+  /// because the dropdown's display order does.
+  List<LlmProvider> get available => const [
+    GeminiProvider(),
+    AnthropicProvider(),
+  ];
 
   /// Falls back to [defaultProvider] for an unknown id — never throws, so
   /// a stored `copilotProviderId` from a since-removed provider still

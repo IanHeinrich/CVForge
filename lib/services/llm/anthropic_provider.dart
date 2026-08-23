@@ -23,7 +23,7 @@ class AnthropicProvider implements LlmProvider {
   String get id => 'anthropic';
 
   @override
-  String get displayName => 'Anthropic';
+  String get displayName => 'Claude';
 
   /// USD per million tokens, from Anthropic's published rates as of
   /// 2026-08-21. These are rendered in Settings rather than only stored,
@@ -59,6 +59,20 @@ class AnthropicProvider implements LlmProvider {
     'anthropic-dangerous-direct-browser-access': 'true',
   };
 
+  /// Haiku 4.5 only supports the older manual `enabled`/`budget_tokens`
+  /// thinking mode (or no thinking at all) — confirmed against Anthropic's
+  /// docs: "If your model supports only extended thinking (Claude Sonnet
+  /// 4.5, Claude Opus 4.5, Claude Haiku 4.5, and earlier Claude 4 models)
+  /// ... type: 'adaptive' returns a 400 error." Sending `thinking:
+  /// {"type": "adaptive"}` unconditionally, as every other model here
+  /// wants, made every tailoring request against Haiku 4.5 fail with a
+  /// 400 while `validateKey`'s GET (which never sends `thinking`) kept
+  /// succeeding — the exact "test connection works, tailoring doesn't"
+  /// split this set exists to prevent. Thinking is optional for a
+  /// structured-JSON completion, so omitting it for these models is
+  /// enough; there's no need to configure the older budget-based mode.
+  static const _modelsWithoutAdaptiveThinking = {'claude-haiku-4-5'};
+
   @override
   Future<LlmJsonResponse> completeJson({
     required Dio client,
@@ -76,7 +90,8 @@ class AnthropicProvider implements LlmProvider {
         data: {
           'model': modelId,
           'max_tokens': 16000,
-          'thinking': {'type': 'adaptive'},
+          if (!_modelsWithoutAdaptiveThinking.contains(modelId))
+            'thinking': {'type': 'adaptive'},
           'system': systemPrompt,
           'messages': [
             {'role': 'user', 'content': userContent},

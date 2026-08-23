@@ -34,5 +34,12 @@ void main() {
         );
       }
     });
+
+    test('available lists Gemini before Anthropic in the Settings dropdown',
+        () {
+      final registry = LlmProviderRegistry();
+
+      expect(registry.available.map((p) => p.id), ['gemini', 'anthropic']);
+    });
   });
 }

@@ -61,7 +61,7 @@ void main() {
       final model = CopilotRunDialogModel(jobDescription: 'We need a dev');
 
       expect(model.phase, CopilotRunPhase.confirm);
-      expect(model.providerDisplayName, 'Anthropic');
+      expect(model.providerDisplayName, 'Claude');
     });
 
     test('run() resolves the provider/model/key from Settings, applies the '
