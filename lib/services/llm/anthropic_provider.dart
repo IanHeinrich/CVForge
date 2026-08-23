@@ -52,6 +52,28 @@ class AnthropicProvider implements LlmProvider {
     ),
   ];
 
+  /// Verified against Anthropic's live API docs on 2026-08-23, not
+  /// recalled: the Console moved to `platform.claude.com`, so the older
+  /// `console.anthropic.com` URLs a model is likely to remember are the
+  /// wrong thing to send a user to. Re-check if either page 404s.
+  @override
+  Uri get apiKeyConsoleUrl =>
+      Uri.parse('https://platform.claude.com/settings/keys');
+
+  @override
+  Uri get billingConsoleUrl =>
+      Uri.parse('https://platform.claude.com/settings/billing');
+
+  @override
+  List<String> get apiKeySteps => const [
+    'Sign in to the Claude Console and open Settings → API keys.',
+    'Claude has no free API tier — add a small amount of prepaid credit '
+        'under Settings → Billing before your first run.',
+    'Create a key, then copy it. The Console shows it once and never '
+        'again.',
+    'Paste it above and press Test connection.',
+  ];
+
   Map<String, String> _headers(String apiKey) => {
     'x-api-key': apiKey,
     'anthropic-version': _apiVersion,

@@ -26,6 +26,29 @@ abstract interface class LlmProvider {
   /// id/label/pricing, for a Settings dropdown.
   List<LlmModelOption> get models;
 
+  /// Where this provider's API keys are created, and where spend caps and
+  /// auto top-up are configured — rendered as real links by Settings'
+  /// "How do I get a key?" disclosure.
+  ///
+  /// Provider-specific facts live here beside [displayName] rather than in
+  /// the widget, for the same reason [models] does: a new provider has to
+  /// answer these questions to be usable at all, and an implementation
+  /// that forgets one won't compile. Split into two URLs because they are
+  /// two different destinations for both current providers, and the
+  /// billing one is what the budget advice actually points at.
+  Uri get apiKeyConsoleUrl;
+  Uri get billingConsoleUrl;
+
+  /// Ordered, provider-specific steps to get from "no key" to "key pasted
+  /// into CVForge", rendered as a numbered list.
+  ///
+  /// Only the steps that genuinely differ per provider belong here. The
+  /// budget/safety advice (turn off auto top-up, set a hard cap, use a
+  /// dedicated key) is identical for every provider and is stated once in
+  /// the widget instead — restating it per provider would rot in as many
+  /// places as there are providers.
+  List<String> get apiKeySteps;
+
   /// Sends [systemPrompt] + [userContent] to [modelId] via [client],
   /// constrained to answer in the shape [schema] describes, and returns
   /// the parsed JSON plus token usage. Throws [LlmException] for every
