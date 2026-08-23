@@ -2603,9 +2603,11 @@ is stated once in the widget.
 Claude's console URLs were verified against the live API docs — the
 console is `platform.claude.com` now, not `console.anthropic.com`.
 Gemini's could not be verified (Google's docs are blocked by this
-environment's egress policy) and are flagged as such in
-`gemini_provider.dart`, matching that file's existing
-confirmed-vs-assumed convention.
+environment's egress policy); its key URL was then corrected by the repo
+owner to `aistudio.google.com/api-keys` (plural — the `/apikey` singular
+is not the live path), while its billing URL remains unconfirmed. Both
+states are flagged in `gemini_provider.dart`, matching that file's
+existing confirmed-vs-assumed convention.
 
 Not verified in this pass: no `flutter analyze`, `dart format`, or
 `flutter test` run — no Dart SDK in the environment. `url_launcher`

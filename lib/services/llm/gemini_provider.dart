@@ -69,16 +69,20 @@ class GeminiProvider implements LlmProvider {
     ),
   ];
 
-  /// Unlike [AnthropicProvider]'s pair, these two were **not** verifiable
-  /// from the environment this was written in — Google's docs are blocked
-  /// by its network egress policy, so these are the long-stable public
-  /// URLs rather than something confirmed against a live page the way
-  /// every wire-shape detail above was. Flagged rather than presented as
-  /// checked, for the same reason `systemInstruction` is flagged above:
-  /// sending a user to a dead link is exactly the failure this note
-  /// exists to make visible. Confirm both before relying on them.
+  /// Neither of these was reachable from the environment this was written
+  /// in — Google's docs are blocked by its network egress policy — so
+  /// unlike [AnthropicProvider]'s pair they were not confirmed against a
+  /// live page the way every wire-shape detail above was.
+  ///
+  /// [apiKeyConsoleUrl] was corrected by the repo owner to `/api-keys`;
+  /// the plural is the whole point, since the `/apikey` singular that a
+  /// model is likely to recall is not the live path. [billingConsoleUrl]
+  /// is still only the long-stable public URL and remains unconfirmed —
+  /// flagged separately rather than covered by the same note, because
+  /// "one of these was checked" is the kind of detail that quietly
+  /// becomes "both were" otherwise.
   @override
-  Uri get apiKeyConsoleUrl => Uri.parse('https://aistudio.google.com/apikey');
+  Uri get apiKeyConsoleUrl => Uri.parse('https://aistudio.google.com/api-keys');
 
   @override
   Uri get billingConsoleUrl =>
@@ -86,7 +90,7 @@ class GeminiProvider implements LlmProvider {
 
   @override
   List<String> get apiKeySteps => const [
-    'Sign in to Google AI Studio and open Get API key.',
+    'Sign in to Google AI Studio and open API keys.',
     'Create a key — Gemini has a free tier, so you can start without '
         'enabling billing at all.',
     'Copy the key, paste it above, and press Test connection.',
