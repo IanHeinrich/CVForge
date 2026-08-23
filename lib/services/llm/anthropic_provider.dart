@@ -23,7 +23,7 @@ class AnthropicProvider implements LlmProvider {
   String get id => 'anthropic';
 
   @override
-  String get displayName => 'Anthropic';
+  String get displayName => 'Claude';
 
   /// USD per million tokens, from Anthropic's published rates as of
   /// 2026-08-21. These are rendered in Settings rather than only stored,
@@ -52,12 +52,48 @@ class AnthropicProvider implements LlmProvider {
     ),
   ];
 
+  /// Verified against Anthropic's live API docs on 2026-08-23, not
+  /// recalled: the Console moved to `platform.claude.com`, so the older
+  /// `console.anthropic.com` URLs a model is likely to remember are the
+  /// wrong thing to send a user to. Re-check if either page 404s.
+  @override
+  Uri get apiKeyConsoleUrl =>
+      Uri.parse('https://platform.claude.com/settings/keys');
+
+  @override
+  Uri get billingConsoleUrl =>
+      Uri.parse('https://platform.claude.com/settings/billing');
+
+  @override
+  List<String> get apiKeySteps => const [
+    'Sign in to the Claude Console and open Settings → API keys.',
+    'Claude has no free API tier — add a small amount of prepaid credit '
+        'under Settings → Billing before your first run.',
+    'Create a key, then copy it. The Console shows it once and never '
+        'again.',
+    'Paste it above and press Test connection.',
+  ];
+
   Map<String, String> _headers(String apiKey) => {
     'x-api-key': apiKey,
     'anthropic-version': _apiVersion,
     'content-type': 'application/json',
     'anthropic-dangerous-direct-browser-access': 'true',
   };
+
+  /// Haiku 4.5 only supports the older manual `enabled`/`budget_tokens`
+  /// thinking mode (or no thinking at all) — confirmed against Anthropic's
+  /// docs: "If your model supports only extended thinking (Claude Sonnet
+  /// 4.5, Claude Opus 4.5, Claude Haiku 4.5, and earlier Claude 4 models)
+  /// ... type: 'adaptive' returns a 400 error." Sending `thinking:
+  /// {"type": "adaptive"}` unconditionally, as every other model here
+  /// wants, made every tailoring request against Haiku 4.5 fail with a
+  /// 400 while `validateKey`'s GET (which never sends `thinking`) kept
+  /// succeeding — the exact "test connection works, tailoring doesn't"
+  /// split this set exists to prevent. Thinking is optional for a
+  /// structured-JSON completion, so omitting it for these models is
+  /// enough; there's no need to configure the older budget-based mode.
+  static const _modelsWithoutAdaptiveThinking = {'claude-haiku-4-5'};
 
   @override
   Future<LlmJsonResponse> completeJson({
@@ -76,7 +112,8 @@ class AnthropicProvider implements LlmProvider {
         data: {
           'model': modelId,
           'max_tokens': 16000,
-          'thinking': {'type': 'adaptive'},
+          if (!_modelsWithoutAdaptiveThinking.contains(modelId))
+            'thinking': {'type': 'adaptive'},
           'system': systemPrompt,
           'messages': [
             {'role': 'user', 'content': userContent},

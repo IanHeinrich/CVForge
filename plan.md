@@ -2571,12 +2571,57 @@ test` run since neither change touches Dart logic paths (`web/pdfjs/`
 is loaded but never compiled, and the comment pass is comment-only,
 confirmed via `git diff` containing no non-comment lines).
 
+### Post-7.8 (round 7) — Copilot: Anthropic tailoring fix, provider naming, key-setup help
+
+Tailoring against Anthropic failed for one model while "Test connection"
+kept succeeding. Root cause: `AnthropicProvider.completeJson` sent
+`thinking: {"type": "adaptive"}` on every request, but Claude Haiku 4.5
+supports only the older manual `enabled`/`budget_tokens` mode and
+returns a 400 for `adaptive`. `validateKey`'s `GET /v1/models` never
+sends `thinking` at all, so the connection test could never surface the
+problem — the failure was per-model, not per-key. Fixed by omitting the
+thinking config for models that don't support it; thinking is optional
+for a structured-JSON completion, so no budget-mode fallback is needed.
+
+Provider display name changed from "Anthropic" to "Claude" (the name
+users recognise). The persisted `id` stays `anthropic`, per
+`LlmProvider.id`'s never-rename-once-shipped contract. Gemini now lists
+first in the Settings dropdown; `LlmProviderRegistry.available` gained
+its own order for that, deliberately separate from `_providers` so
+`defaultProvider` (and every `byId` fallback) doesn't silently change
+with display order.
+
+Added a collapsed "How do I get a `<provider>` API key?" disclosure to
+the Copilot card — per-provider steps, links into that provider's
+console, and spend advice (turn off auto top-up, set a hard cap, use a
+CVForge-only key). Inline rather than a dialog because it's followed
+*while* typing into the key field below it; the existing dialogs here
+are decisions and pickers. Per-provider URLs/steps live on `LlmProvider`
+beside `displayName`; the spend advice is identical across providers and
+is stated once in the widget.
+
+Claude's console URLs were verified against the live API docs — the
+console is `platform.claude.com` now, not `console.anthropic.com`.
+Gemini's could not be verified (Google's docs are blocked by this
+environment's egress policy); its key URL was then corrected by the repo
+owner to `aistudio.google.com/api-keys` (plural — the `/apikey` singular
+is not the live path), while its billing URL remains unconfirmed. Both
+states are flagged in `gemini_provider.dart`, matching that file's
+existing confirmed-vs-assumed convention.
+
+Not verified in this pass: no `flutter analyze`, `dart format`, or
+`flutter test` run — no Dart SDK in the environment. `url_launcher`
+(new dependency) is therefore unresolved locally and `pubspec.lock` is
+untouched. **`settings_view_default.png` needs regenerating** via
+`update-goldens.yml`: the card's key-field label now reads "Claude API
+key" and the new disclosure row shifts layout.
+
 ### Phase 7 status
 
 7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all six
 post-7.8 UI polish/fix passes above. **7.6 (logo, favicon, splash, plus
 the `manifest.json` bug) is the only sub-phase left** — deliberately
-deferred across all six rounds; it touches no Dart and is independent
-of everything else here. Repo version bumped to `2.9.0` (from `2.8.0`,
-which covered the fifth post-7.8 round — `BackupService._appVersion`
+deferred across all seven rounds; it touches no Dart and is independent
+of everything else here. Repo version bumped to `2.10.0` (from `2.9.0`,
+which covered the sixth post-7.8 round — `BackupService._appVersion`
 bumped to match in the same pass, per that field's own doc comment).

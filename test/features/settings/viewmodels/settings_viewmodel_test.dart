@@ -295,8 +295,8 @@ void main() {
 
         expect(model.showCopilotProviderSelector, isTrue);
         expect(model.copilotProviders.map((p) => p.id), [
-          'anthropic',
           'gemini',
+          'anthropic',
         ]);
       });
 

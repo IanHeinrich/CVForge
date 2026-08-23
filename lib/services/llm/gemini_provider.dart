@@ -69,6 +69,35 @@ class GeminiProvider implements LlmProvider {
     ),
   ];
 
+  /// Neither of these was reachable from the environment this was written
+  /// in — Google's docs are blocked by its network egress policy — so
+  /// unlike [AnthropicProvider]'s pair they were not confirmed against a
+  /// live page the way every wire-shape detail above was.
+  ///
+  /// [apiKeyConsoleUrl] was corrected by the repo owner to `/api-keys`;
+  /// the plural is the whole point, since the `/apikey` singular that a
+  /// model is likely to recall is not the live path. [billingConsoleUrl]
+  /// is still only the long-stable public URL and remains unconfirmed —
+  /// flagged separately rather than covered by the same note, because
+  /// "one of these was checked" is the kind of detail that quietly
+  /// becomes "both were" otherwise.
+  @override
+  Uri get apiKeyConsoleUrl => Uri.parse('https://aistudio.google.com/api-keys');
+
+  @override
+  Uri get billingConsoleUrl =>
+      Uri.parse('https://console.cloud.google.com/billing');
+
+  @override
+  List<String> get apiKeySteps => const [
+    'Sign in to Google AI Studio and open API keys.',
+    'Create a key — Gemini has a free tier, so you can start without '
+        'enabling billing at all.',
+    'Copy the key, paste it above, and press Test connection.',
+    'Only if you later enable paid billing: set a budget in the Google '
+        'Cloud console, per the note below.',
+  ];
+
   Map<String, String> _headers(String apiKey) => {
     'x-goog-api-key': apiKey,
     'content-type': 'application/json',

@@ -34,5 +34,40 @@ void main() {
         );
       }
     });
+
+    test('available lists Gemini before Anthropic in the Settings '
+        'dropdown', () {
+      final registry = LlmProviderRegistry();
+
+      expect(registry.available.map((p) => p.id), ['gemini', 'anthropic']);
+    });
+
+    test('every provider ships the key-setup guide the Settings help '
+        'panel renders', () {
+      final registry = LlmProviderRegistry();
+
+      for (final provider in registry.available) {
+        expect(
+          provider.apiKeySteps,
+          isNotEmpty,
+          reason:
+              '${provider.id} must explain how to get a key, or the help '
+              'panel renders a heading with nothing under it',
+        );
+        for (final url in [
+          provider.apiKeyConsoleUrl,
+          provider.billingConsoleUrl,
+        ]) {
+          expect(
+            url.scheme,
+            'https',
+            reason:
+                '${provider.id} link $url must be https — these open in '
+                "the user's browser straight from Settings",
+          );
+          expect(url.host, isNotEmpty, reason: '${provider.id}: $url');
+        }
+      }
+    });
   });
 }

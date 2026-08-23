@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
+import 'package:cv_forge/features/settings/widgets/copilot_key_help.dart';
 
 /// Caps the API key field's width: a secret this short (and
 /// `obscureText`, which buys nothing from extra width) doesn't need the
@@ -120,6 +121,12 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
               ),
             ],
           ),
+          // Sits with the key field and its "remember" toggle rather than
+          // further down: someone who has no key yet is stuck looking at
+          // that field, and this is what unsticks them. Kept above the
+          // model dropdown so the price caption stays adjacent to the
+          // dropdown it describes.
+          CopilotKeyHelp(provider: viewModel.selectedCopilotProvider),
           const VGap.small(),
           DropdownButtonFormField<String>(
             initialValue: viewModel.selectedCopilotModelId,

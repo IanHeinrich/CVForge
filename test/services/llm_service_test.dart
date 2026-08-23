@@ -138,6 +138,36 @@ void main() {
       });
     });
 
+    test('completeJson omits "thinking" for claude-haiku-4-5 — it only '
+        'supports the older enabled/budget_tokens mode, and sending '
+        '{"type": "adaptive"} the way every other model here wants '
+        'returns a 400', () async {
+      final adapter = _FakeAdapter(
+        (_) async => _jsonResponse({
+          'stop_reason': 'end_turn',
+          'content': [
+            {'type': 'text', 'text': '{"headline":"Backend Engineer"}'},
+          ],
+          'usage': {'input_tokens': 120, 'output_tokens': 40},
+        }, 200),
+      );
+      final dio = Dio()..httpClientAdapter = adapter;
+      final service = LlmService(client: dio);
+
+      await service.completeJson(
+        providerId: 'anthropic',
+        modelId: 'claude-haiku-4-5',
+        apiKey: 'sk-ant-test',
+        systemPrompt: 'be helpful',
+        userContent: 'tailor this',
+        schema: _fixtureSchema,
+      );
+
+      final body = adapter.lastBody!;
+      expect(body['model'], 'claude-haiku-4-5');
+      expect(body.containsKey('thinking'), isFalse);
+    });
+
     test('completeJson maps stop_reason "refusal" to LlmFailure.refusal, '
         'not malformedResponse', () async {
       final adapter = _FakeAdapter(
