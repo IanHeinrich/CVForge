@@ -1,16 +1,19 @@
+import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
+import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
-import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
+import 'link_picker_shell/link_picker_shell.dart';
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
 import 'package:cv_forge/ui/widgets/common/app_chip_group_selector/app_chip_group_selector.dart';
@@ -23,6 +26,9 @@ class SkillsEditorPanel extends StatefulWidget {
     super.key,
     required this.categories,
     required this.experiences,
+    required this.projects,
+    required this.education,
+    required this.publications,
     required this.onClose,
     required this.onAddCategory,
     required this.onUpdateCategory,
@@ -34,9 +40,16 @@ class SkillsEditorPanel extends StatefulWidget {
 
   final List<SkillCategory> categories;
 
-  /// Offered as bullet-linking toggles per skill — see
-  /// [_SkillBulletLinkPicker].
+  /// Every bullet-owning entity in the Vault, offered as bulk
+  /// bullet-linking toggles per skill — see [_SkillBulletLinkPicker]. This
+  /// is the coarse, bulk-linking direction (link one skill across many
+  /// bullets at once, e.g. right after adding a new skill); linking one
+  /// bullet to several skills is primarily done from the bullet's own
+  /// editor instead — see `BulletListEditor`'s `_BulletSkillLinkPicker`.
   final List<Experience> experiences;
+  final List<Project> projects;
+  final List<Education> education;
+  final List<Publication> publications;
   final VoidCallback onClose;
   final VoidCallback onAddCategory;
   final ValueChanged<SkillCategory> onUpdateCategory;
@@ -57,6 +70,19 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
   /// match.
   String _query = '';
 
+  /// At most one skill's bullet-link picker open at a time, across every
+  /// category — without this, opening one after another (which is exactly
+  /// the workflow the "Add skill" affordance invites) grows the panel
+  /// without bound, each `AppChipGroupSelector` stacking on top of the
+  /// last rather than replacing it.
+  String? _expandedSkillId;
+
+  void _toggleSkillExpanded(String skillId) {
+    setState(
+      () => _expandedSkillId = _expandedSkillId == skillId ? null : skillId,
+    );
+  }
+
   List<Skill> _matchingSkills(SkillCategory category) {
     if (_query.isEmpty) return category.skills;
     return category.skills
@@ -68,6 +94,49 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
     if (_query.isEmpty) return true;
     if (category.name.toLowerCase().contains(_query)) return true;
     return _matchingSkills(category).isNotEmpty;
+  }
+
+  /// Every bullet-owning entity in the Vault, reduced to a heading plus
+  /// its bullets — the common shape [_SkillBulletLinkPicker] needs
+  /// regardless of which of the four entity types a bullet actually
+  /// belongs to.
+  List<_BulletGroup> get _bulletGroups => [
+    for (final e in widget.experiences)
+      if (e.bullets.isNotEmpty) _BulletGroup(_experienceHeading(e), e.bullets),
+    for (final p in widget.projects)
+      if (p.bullets.isNotEmpty)
+        _BulletGroup(p.title.isEmpty ? 'Untitled project' : p.title, p.bullets),
+    for (final e in widget.education)
+      if (e.bullets.isNotEmpty) _BulletGroup(_educationHeading(e), e.bullets),
+    for (final p in widget.publications)
+      if (p.bullets.isNotEmpty)
+        _BulletGroup(
+          p.title.isEmpty ? 'Untitled publication' : p.title,
+          p.bullets,
+        ),
+  ];
+
+  /// "Role · Company" — falls back to just the role when there's no
+  /// company to disambiguate against (or vice versa), rather than a
+  /// dangling " · " with nothing on one side. Several roles can easily
+  /// share a title ("Software Engineer" at three different companies),
+  /// so the heading needs the company to actually tell them apart.
+  String _experienceHeading(Experience experience) {
+    final role = experience.role.isEmpty ? 'Untitled role' : experience.role;
+    final company = experience.company;
+    return company.isEmpty ? role : '$role · $company';
+  }
+
+  /// Same reasoning as [_experienceHeading] — several qualifications can
+  /// share a name across institutions (or vice versa).
+  String _educationHeading(Education education) {
+    final qualification = education.qualification.isEmpty
+        ? 'Untitled qualification'
+        : education.qualification;
+    final institution = education.institution;
+    return institution.isEmpty
+        ? qualification
+        : '$qualification · $institution';
   }
 
   @override
@@ -124,6 +193,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                     Expanded(
                       child: AppTextField(
                         label: 'Category name',
+                        hint: 'e.g. Languages & Frameworks',
                         initialValue: category.name,
                         onChanged: (v) =>
                             widget.onUpdateCategory(category.copyWith(name: v)),
@@ -170,8 +240,11 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                         _SkillBulletLinkPicker(
                           categoryId: category.id,
                           skill: skill,
-                          experiences: widget.experiences,
+                          bulletGroups: _bulletGroups,
                           onUpdateSkill: widget.onUpdateSkill,
+                          expanded: _expandedSkillId == skill.id,
+                          onToggleExpanded: () =>
+                              _toggleSkillExpanded(skill.id),
                         ),
                       ],
                     ),
@@ -196,117 +269,146 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
   }
 }
 
-/// Collapsed by default — a skill can have a bullet linked in every
-/// experience, and showing every bullet as a chip for every skill up
-/// front would make a Vault with a handful of skills and experiences
-/// scroll for miles. Local `_expanded` is pure presentation state, not
-/// Vault data, so it doesn't go through the ViewModel.
+/// One bullet-owning entity's heading plus its bullets — the common shape
+/// [_SkillBulletLinkPicker] groups chips by, regardless of whether the
+/// entity underneath is an experience, project, education entry, or
+/// publication.
+class _BulletGroup {
+  const _BulletGroup(this.heading, this.bullets);
+
+  final String heading;
+  final List<CvBullet> bullets;
+}
+
+/// Collapsed by default — a skill can have a bullet linked under every
+/// entity in the Vault, and showing every bullet as a chip for every skill
+/// up front would make a well-stocked Vault scroll for miles. [expanded]/
+/// [onToggleExpanded] are controlled by `_SkillsEditorPanelState`, which
+/// keeps at most one of these open across the whole panel — see
+/// `_SkillsEditorPanelState._expandedSkillId`'s doc comment for why this
+/// can't just be this widget's own local state. This is the bulk-linking
+/// direction (one skill, many bullets); linking one bullet to several
+/// skills is primarily done from the bullet's own editor — see
+/// `BulletListEditor`'s `_BulletSkillLinkPicker`.
 class _SkillBulletLinkPicker extends StatefulWidget {
   const _SkillBulletLinkPicker({
     required this.categoryId,
     required this.skill,
-    required this.experiences,
+    required this.bulletGroups,
     required this.onUpdateSkill,
+    required this.expanded,
+    required this.onToggleExpanded,
   });
 
   final String categoryId;
   final Skill skill;
-  final List<Experience> experiences;
+  final List<_BulletGroup> bulletGroups;
   final void Function(String categoryId, Skill skill) onUpdateSkill;
+  final bool expanded;
+  final VoidCallback onToggleExpanded;
 
   @override
   State<_SkillBulletLinkPicker> createState() => _SkillBulletLinkPickerState();
 }
 
 class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
-  bool _expanded = false;
+  /// Presentation state, not Vault data — same call as
+  /// `_SkillsEditorPanelState._query`. A well-stocked Vault can easily
+  /// have dozens of bullets across every experience/project/education/
+  /// publication; without this, expanding a single skill dumps all of
+  /// them on screen at once with no way to narrow down to the handful
+  /// actually relevant to it. Kept local (unlike [_SkillBulletLinkPicker.
+  /// expanded]) since a stale filter left over from a previous expansion
+  /// is harmless — it's invisible until expanded again, and clearing it
+  /// on every collapse would be extra bookkeeping for no visible benefit.
+  String _query = '';
+
+  List<CvBullet> _matchingBullets(_BulletGroup group) {
+    if (_query.isEmpty) return group.bullets;
+    return group.bullets
+        .where((b) => (b.label ?? b.text).toLowerCase().contains(_query))
+        .toList();
+  }
+
+  /// The linked bullets that still exist, resolved through
+  /// [_SkillBulletLinkPicker.bulletGroups] rather than trusting
+  /// `Skill.linkedBulletIds` to name only live bullets — deleting a bullet
+  /// doesn't currently strip its id from the skills that referenced it, so
+  /// the raw id count can over-report. Counting what actually resolves
+  /// keeps the label honest and gives the collapsed summary its text.
+  List<CvBullet> get _linkedBullets => [
+    for (final group in widget.bulletGroups)
+      for (final bullet in group.bullets)
+        if (widget.skill.linkedBulletIds.contains(bullet.id)) bullet,
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final experiencesWithBullets = widget.experiences
-        .where((e) => e.bullets.isNotEmpty)
-        .toList();
-    if (experiencesWithBullets.isEmpty) return const SizedBox.shrink();
+    if (widget.bulletGroups.isEmpty) return const SizedBox.shrink();
 
-    final linkedCount = widget.skill.linkedBulletIds.length;
+    final linked = _linkedBullets;
+    final groups = [
+      for (final group in widget.bulletGroups)
+        if (_matchingBullets(group) case final bullets when bullets.isNotEmpty)
+          AppChipGroup(
+            label: group.heading,
+            items: [
+              for (final bullet in bullets)
+                AppChipGroupItem(
+                  id: bullet.id,
+                  label: _chipLabel(bullet),
+                  selected: widget.skill.linkedBulletIds.contains(bullet.id),
+                  tooltip: bullet.label ?? bullet.text,
+                  onToggle: (selected) {
+                    final ids = [...widget.skill.linkedBulletIds];
+                    if (selected) {
+                      ids.add(bullet.id);
+                    } else {
+                      ids.remove(bullet.id);
+                    }
+                    widget.onUpdateSkill(
+                      widget.categoryId,
+                      widget.skill.copyWith(linkedBulletIds: ids),
+                    );
+                  },
+                ),
+            ],
+          ),
+    ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LinkPickerShell(
+      icon: RemixIcons.list_check_2,
+      // Mirrors the bullet side's label exactly — see the reasoning on
+      // `BulletListEditor`'s `_BulletSkillLinkPicker`.
+      label: linked.isEmpty
+          ? 'Link to bullets'
+          : 'Linked to ${linked.length} bullet${linked.length == 1 ? '' : 's'}',
+      summary: linked.isEmpty
+          ? null
+          : linked.map((b) => b.label ?? b.text).join(' · '),
+      searchHint: 'Search bullets…',
+      onQueryChanged: (value) =>
+          setState(() => _query = value.trim().toLowerCase()),
+      expanded: widget.expanded,
+      onToggleExpanded: widget.onToggleExpanded,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: () => setState(() => _expanded = !_expanded),
-            icon: Icon(
-              _expanded
-                  ? RemixIcons.arrow_up_s_line
-                  : RemixIcons.arrow_down_s_line,
-              size: context.appIconSize.small,
-            ),
-            label: Text(
-              linkedCount == 0
-                  ? 'Link to bullets'
-                  : 'Linked to $linkedCount '
-                        'bullet${linkedCount == 1 ? '' : 's'}',
-              style: context.appTypography.caption,
-            ),
-          ),
-        ),
-        if (_expanded)
-          Padding(
-            padding: EdgeInsets.only(
-              top: context.appSpacing.paddingDefault,
-              left: context.appSpacing.paddingTight,
-            ),
-            child: AppChipGroupSelector(
-              groups: [
-                for (final experience in experiencesWithBullets)
-                  AppChipGroup(
-                    label: _experienceHeading(experience),
-                    items: [
-                      for (final bullet in experience.bullets)
-                        AppChipGroupItem(
-                          id: bullet.id,
-                          label: _chipLabel(bullet),
-                          selected: widget.skill.linkedBulletIds.contains(
-                            bullet.id,
-                          ),
-                          tooltip: bullet.label ?? bullet.text,
-                          onToggle: (selected) {
-                            final ids = [...widget.skill.linkedBulletIds];
-                            if (selected) {
-                              ids.add(bullet.id);
-                            } else {
-                              ids.remove(bullet.id);
-                            }
-                            widget.onUpdateSkill(
-                              widget.categoryId,
-                              widget.skill.copyWith(linkedBulletIds: ids),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
+        if (groups.isNotEmpty)
+          AppChipGroupSelector(groups: groups)
+        else
+          const AppInlineEmptyMessage('No bullets match your search.'),
       ],
     );
   }
 
-  /// "Role · Company" — falls back to just the role when there's no
-  /// company to disambiguate against (or vice versa), rather than a
-  /// dangling " · " with nothing on one side. Several roles can easily
-  /// share a title ("Software Engineer" at three different companies),
-  /// so the heading needs the company to actually tell them apart.
-  String _experienceHeading(Experience experience) {
-    final role = experience.role.isEmpty ? 'Untitled role' : experience.role;
-    final company = experience.company;
-    return company.isEmpty ? role : '$role · $company';
-  }
+  /// Bullet text is a full sentence; a chip is not. The full text stays
+  /// reachable as the chip's tooltip, and the bullet's own editor is where
+  /// it's meant to be read in full.
+  static const _chipLabelMaxLength = 28;
 
   String _chipLabel(CvBullet bullet) {
     final text = bullet.label ?? bullet.text;
-    return text.length > 28 ? '${text.substring(0, 28)}…' : text;
+    return text.length > _chipLabelMaxLength
+        ? '${text.substring(0, _chipLabelMaxLength)}…'
+        : text;
   }
 }

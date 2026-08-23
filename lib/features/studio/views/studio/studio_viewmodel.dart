@@ -597,9 +597,8 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   /// Bullet ids currently included in this draft, across experiences,
   /// projects and publications — restricted to entries that are themselves
   /// included, since an excluded entry's bullet map entry doesn't mean the
-  /// bullets are shown. Backs [unselectedEvidencedSkills] and
-  /// [selectEvidencedSkills]; not exposed itself since nothing outside
-  /// those two needs it.
+  /// bullets are shown. Backs [unselectedEvidencedSkills],
+  /// [selectEvidencedSkills], and [evidenceCountFor].
   Set<String> get _includedBulletIds => {
     for (final id in _draft.experienceIds) ...?_draft.bulletIds[id],
     for (final id in _draft.projectIds) ...?_draft.projectBulletIds[id],
@@ -631,6 +630,21 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       await toggleSkill(skill);
     }
   }
+
+  /// Whether any skill in the whole Vault has ever been linked to a
+  /// bullet — distinguishes "nothing has been linked yet" from "everything
+  /// evidenced is already selected" so the evidenced-skills button in
+  /// `StudioSkillSelector` can explain a zero count correctly instead of
+  /// just going quietly disabled.
+  bool get hasAnyLinkedSkills =>
+      _allSkills.any((s) => s.linkedBulletIds.isNotEmpty);
+
+  /// How many of [skill]'s linked bullets are included in this draft right
+  /// now — backs a per-chip "proven by N included bullets" tooltip in
+  /// `StudioSkillSelector`. Zero for a skill with no links at all, same as
+  /// one whose links exist but none are currently included.
+  int evidenceCountFor(Skill skill) =>
+      skill.linkedBulletIds.where(_includedBulletIds.contains).length;
 
   late final _educationSelection = _Selection<Education>(
     items: () => _vault.education,

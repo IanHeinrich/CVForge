@@ -91,6 +91,9 @@ class VaultEditorPanelRouter extends StatelessWidget {
           experience: experience,
           allExperiences: viewModel.vault.experiences,
           skillCategories: viewModel.vault.skillCategories,
+          onUpdateSkill: viewModel.updateSkill,
+          onAddSkill: viewModel.addSkill,
+          onAddCategory: viewModel.addSkillCategory,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateExperience,
           onGroupChanged: (withId) =>
@@ -116,6 +119,9 @@ class VaultEditorPanelRouter extends StatelessWidget {
         return ProjectEditorPanel(
           project: project,
           skillCategories: viewModel.vault.skillCategories,
+          onUpdateSkill: viewModel.updateSkill,
+          onAddSkill: viewModel.addSkill,
+          onAddCategory: viewModel.addSkillCategory,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateProject,
           bulletCallbacks: _bulletCallbacksFor(BulletOwner.project, project.id),
@@ -130,6 +136,9 @@ class VaultEditorPanelRouter extends StatelessWidget {
         return EducationEditorPanel(
           education: education,
           skillCategories: viewModel.vault.skillCategories,
+          onUpdateSkill: viewModel.updateSkill,
+          onAddSkill: viewModel.addSkill,
+          onAddCategory: viewModel.addSkillCategory,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updateEducation,
           bulletCallbacks: _bulletCallbacksFor(
@@ -144,8 +153,15 @@ class VaultEditorPanelRouter extends StatelessWidget {
         return SkillsEditorPanel(
           categories: viewModel.vault.skillCategories,
           experiences: viewModel.vault.experiences,
+          projects: viewModel.vault.projects,
+          education: viewModel.vault.education,
+          publications: viewModel.vault.publications,
           onClose: viewModel.closeEditor,
-          onAddCategory: () => viewModel.addSkillCategory('New category'),
+          // Deliberately blank, not a "New category" placeholder: an
+          // unnamed category is then indistinguishable from any other
+          // unfilled entry and gets dropped on write like the rest of
+          // them — see `CvVaultPruning.withoutBlankEntries`.
+          onAddCategory: () => viewModel.addSkillCategory(''),
           onUpdateCategory: viewModel.updateSkillCategory,
           onDeleteCategory: viewModel.deleteSkillCategory,
           onAddSkill: (categoryId) => viewModel.addSkill(categoryId, ''),
@@ -171,6 +187,9 @@ class VaultEditorPanelRouter extends StatelessWidget {
         return PublicationEditorPanel(
           publication: publication,
           skillCategories: viewModel.vault.skillCategories,
+          onUpdateSkill: viewModel.updateSkill,
+          onAddSkill: viewModel.addSkill,
+          onAddCategory: viewModel.addSkillCategory,
           onClose: viewModel.closeEditor,
           onChanged: viewModel.updatePublication,
           bulletCallbacks: _bulletCallbacksFor(

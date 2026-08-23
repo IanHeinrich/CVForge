@@ -637,6 +637,60 @@ void main() {
         expect(draft.skillIds, isNot(contains('s-excluded')));
         expect(draft.skillIds, hasLength(2));
       });
+
+      test('hasAnyLinkedSkills is false when no skill in the Vault has a '
+          'linkedBulletIds entry, true as soon as one does', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(skillCategories: [skillCategoryB]));
+        when(draftService.draft).thenAnswer((_) => draftWith());
+
+        final unlinkedModel = StudioViewModel();
+        expect(unlinkedModel.hasAnyLinkedSkills, isFalse);
+
+        when(vaultService.vault).thenReturn(
+          vaultWith(skillCategories: [skillCategoryA, skillCategoryB]),
+        );
+        final linkedModel = StudioViewModel();
+        expect(linkedModel.hasAnyLinkedSkills, isTrue);
+      });
+
+      test('evidenceCountFor counts only a skill\'s linked bullets that are '
+          'themselves included in the draft, restricted to entries that are '
+          'themselves included', () async {
+        const skill = Skill(
+          id: 's-multi',
+          label: 'Dart',
+          linkedBulletIds: ['b1', 'b2', 'pb2'],
+        );
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            experiences: [experience],
+            projects: [project],
+            skillCategories: [
+              SkillCategory(id: 'cat', name: 'Cat', skills: const [skill]),
+            ],
+          ),
+        );
+        // `project` is deliberately NOT in `projectIds` — its
+        // `projectBulletIds` entry exists but must not count, same rule
+        // as `_includedBulletIds` itself.
+        when(draftService.draft).thenAnswer(
+          (_) => draftWith(
+            experienceIds: [experience.id],
+            bulletIds: {
+              experience.id: ['b1'],
+            },
+            projectBulletIds: {
+              project.id: ['pb2'],
+            },
+          ),
+        );
+
+        final model = StudioViewModel();
+
+        expect(model.evidenceCountFor(skill), 1);
+      });
     });
 
     group('section order -', () {

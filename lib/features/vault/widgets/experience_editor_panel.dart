@@ -1,4 +1,5 @@
 import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
@@ -16,6 +17,9 @@ class ExperienceEditorPanel extends StatelessWidget {
     required this.experience,
     required this.allExperiences,
     required this.skillCategories,
+    required this.onUpdateSkill,
+    required this.onAddSkill,
+    required this.onAddCategory,
     required this.onClose,
     required this.onChanged,
     required this.onGroupChanged,
@@ -33,9 +37,11 @@ class ExperienceEditorPanel extends StatelessWidget {
   /// widget does its own same-company matching.
   final List<Experience> allExperiences;
 
-  /// Passed straight through to [BulletListEditor] for its read-only
-  /// "which skills link to this bullet" display.
+  /// Passed straight through to [BulletListEditor]'s skill-link picker.
   final List<SkillCategory> skillCategories;
+  final void Function(String categoryId, Skill skill) onUpdateSkill;
+  final Future<Skill> Function(String categoryId, String label) onAddSkill;
+  final Future<SkillCategory> Function(String name) onAddCategory;
   final VoidCallback onClose;
   final ValueChanged<Experience> onChanged;
 
@@ -165,6 +171,9 @@ class ExperienceEditorPanel extends StatelessWidget {
         BulletListEditor(
           bullets: experience.bullets,
           skillCategories: skillCategories,
+          onUpdateSkill: onUpdateSkill,
+          onAddSkill: onAddSkill,
+          onAddCategory: onAddCategory,
           callbacks: bulletCallbacks,
         ),
       ],

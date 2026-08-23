@@ -52,6 +52,18 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
         .toList();
   }
 
+  /// Null for a skill with no included evidence, so [AppChipGroupItem]
+  /// skips rendering a tooltip at all for the common case rather than
+  /// showing an empty or "proven by 0" one.
+  String? _evidenceTooltip(StudioViewModel viewModel, Skill skill) {
+    final count = viewModel.evidenceCountFor(skill);
+    if (count == 0) return null;
+    // Same "Linked to N bullets" phrasing the Vault's own pickers use,
+    // narrowed to the bullets this CV actually includes — which is the
+    // only sense in which a link is evidence *here*.
+    return 'Linked to $count bullet${count == 1 ? '' : 's'} in this CV';
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.viewModel;
@@ -94,15 +106,24 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
           const VGap.tiny(),
           Align(
             alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              // Adds only — see `StudioViewModel.selectEvidencedSkills`'s
-              // doc comment. Disabled rather than hidden at zero so the
-              // control doesn't jump around as bullets are (de)selected.
-              onPressed: evidencedCount == 0
-                  ? null
-                  : viewModel.selectEvidencedSkills,
-              icon: const Icon(RemixIcons.shield_check_line, size: 16),
-              label: Text('Select $evidencedCount evidenced skills'),
+            child: Tooltip(
+              message: evidencedCount > 0
+                  ? 'Selects every skill linked to a bullet already '
+                        'included in this CV'
+                  : viewModel.hasAnyLinkedSkills
+                  ? 'No new evidenced skills to add — every skill linked '
+                        'to an included bullet is already selected'
+                  : 'Link skills to bullets in the Vault to use this',
+              child: TextButton.icon(
+                // Adds only — see `StudioViewModel.selectEvidencedSkills`'s
+                // doc comment. Disabled rather than hidden at zero so the
+                // control doesn't jump around as bullets are (de)selected.
+                onPressed: evidencedCount == 0
+                    ? null
+                    : viewModel.selectEvidencedSkills,
+                icon: const Icon(RemixIcons.shield_check_line, size: 16),
+                label: Text('Select $evidencedCount evidenced skills'),
+              ),
             ),
           ),
           const VGap.tiny(),
@@ -112,7 +133,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                 if (_matchingSkills(category) case final skills
                     when skills.isNotEmpty)
                   AppChipGroup(
-                    label: category.name,
+                    label: category.displayName,
                     items: [
                       for (final skill in skills)
                         AppChipGroupItem(
@@ -120,6 +141,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                           label: skill.label,
                           selected: viewModel.isSkillIncluded(skill.id),
                           onToggle: (_) => viewModel.toggleSkill(skill),
+                          tooltip: _evidenceTooltip(viewModel, skill),
                         ),
                     ],
                     // Hidden while filtering — it'd otherwise add/remove

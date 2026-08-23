@@ -34,6 +34,20 @@ for THIS job:
 
 Being too inclusive is the default failure mode. When in doubt, cut.
 
+## Use each skill's evidence
+
+A skill may carry `linkedBulletIds` — ids of bullets the candidate has
+already tagged as firsthand proof of that skill. Treat this as a signal,
+not a rule: a bullet you decide to keep is evidence its linked skills are
+real and demonstrated, so lean toward keeping those skills too (subject to
+relevance, same as anything else). Conversely, if every bullet linked to a
+skill gets cut, that skill has lost its evidentiary support in this
+specific CV and is usually a good one to cut as well — unless the job
+description states it as a hard requirement, in which case note the gap in
+`keywordGaps` instead of keeping an unsupported claim standing on its own.
+A skill with no `linkedBulletIds` at all carries no evidence signal either
+way; decide on relevance alone, same as before.
+
 ## Calibrate to how much you were given
 
 The instruction above assumes a well-stocked Vault, where cutting still

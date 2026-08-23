@@ -1,4 +1,5 @@
 import 'package:cv_forge/models/vault/education.dart';
+import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,9 @@ class EducationEditorPanel extends StatelessWidget {
     super.key,
     required this.education,
     required this.skillCategories,
+    required this.onUpdateSkill,
+    required this.onAddSkill,
+    required this.onAddCategory,
     required this.onClose,
     required this.onChanged,
     required this.bulletCallbacks,
@@ -21,6 +25,9 @@ class EducationEditorPanel extends StatelessWidget {
 
   final Education education;
   final List<SkillCategory> skillCategories;
+  final void Function(String categoryId, Skill skill) onUpdateSkill;
+  final Future<Skill> Function(String categoryId, String label) onAddSkill;
+  final Future<SkillCategory> Function(String name) onAddCategory;
   final VoidCallback onClose;
   final ValueChanged<Education> onChanged;
   final BulletEditorCallbacks bulletCallbacks;
@@ -87,6 +94,9 @@ class EducationEditorPanel extends StatelessWidget {
         BulletListEditor(
           bullets: education.bullets,
           skillCategories: skillCategories,
+          onUpdateSkill: onUpdateSkill,
+          onAddSkill: onAddSkill,
+          onAddCategory: onAddCategory,
           callbacks: bulletCallbacks,
         ),
       ],

@@ -5,6 +5,7 @@ import 'package:file_saver/file_saver.dart';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
+import 'package:cv_forge/models/vault/vault_pruning.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/file_download_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
@@ -46,14 +47,17 @@ class BackupService {
   /// Provenance only, never branched on — a small hardcoded literal rather
   /// than a `package_info_plus` dependency, since nothing reads this back.
   /// Keep it in sync with `pubspec.yaml`'s `version:` at each bump.
-  static const _appVersion = '2.10.0';
+  static const _appVersion = '2.12.0';
 
   CvBackupBundle _buildBundle() => CvBackupBundle(
     app: 'cv-forge',
     bundleVersion: bundleVersion,
     exportedAt: DateTime.now(),
     appVersion: _appVersion,
-    vault: _vaultService.vault,
+    // Reads in-memory state rather than going back through storage, so
+    // it has to apply the same blank-entry prune the write path does —
+    // otherwise a backup is the one artefact that can carry blanks.
+    vault: _vaultService.vault.withoutBlankEntries(),
     drafts: _draftService.drafts,
     activeDraftId: _draftService.activeDraftId,
   );
