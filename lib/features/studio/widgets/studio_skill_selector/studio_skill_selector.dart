@@ -115,14 +115,8 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                           onToggle: (_) => viewModel.toggleSkill(skill),
                         ),
                     ],
-                    // Only offered unfiltered — scoping "Add all"/"Remove
-                    // all" to a filtered subset would need its own bulk
-                    // action distinct from `addAllSkillsInCategory`'s
-                    // whole-category meaning; simpler to just not offer a
-                    // bulk action whose count wouldn't match the filtered
-                    // chips actually shown, the same way `AppChipGroup`'s
-                    // own doc comment describes hiding it entirely for the
-                    // Vault's bullet picker.
+                    // Hidden while filtering — it'd otherwise add/remove
+                    // the whole category, not just the chips shown.
                     onSelectAll: _query.isEmpty
                         ? () => viewModel.addAllSkillsInCategory(category)
                         : null,

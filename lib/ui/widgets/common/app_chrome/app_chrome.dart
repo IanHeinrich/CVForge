@@ -35,10 +35,9 @@ class _NavDestination {
 ///
 /// A function rather than a top-level `const`, since the drafts
 /// destination's label follows `AppSettings.defaultRegion`'s document noun
-/// ("CVs" for a UK default, "Résumés" for a US one) — read straight off the
-/// locator rather than threaded down as a parameter, matching this file's
-/// own "deliberately modelless" rationale (see [AppChrome]'s class doc):
-/// there's no ViewModel here to hold it as reactive state instead.
+/// ("CVs" for a UK default, "Résumés" for a US one), read straight off the
+/// locator — this file is deliberately modelless (see [AppChrome]'s class
+/// doc), so there's no ViewModel to hold it as reactive state instead.
 List<_NavDestination> _workspaceDestinations() => [
   const _NavDestination(
     section: AppSection.vault,

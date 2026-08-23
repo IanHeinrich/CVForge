@@ -110,10 +110,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   /// Presentation state, not persisted — same call as
   /// `DraftsListViewModel._query`. Only narrows `VaultCardList`'s
   /// multi-entry sections (work history, projects, education,
-  /// publications); Basics/Skills/Hobbies each render as a single summary
-  /// card rather than a list of many, so there's nothing there for a text
-  /// filter to narrow down — Skills gets its own search once its editor
-  /// panel is open instead (`SkillsEditorPanel`'s own `_query`).
+  /// publications) — Basics/Skills/Hobbies are single summary cards, not
+  /// lists, so there's nothing there to filter.
   String _query = '';
   bool get isSearching => _query.isNotEmpty;
 

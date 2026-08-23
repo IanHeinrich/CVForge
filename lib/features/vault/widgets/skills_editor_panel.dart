@@ -51,13 +51,10 @@ class SkillsEditorPanel extends StatefulWidget {
 
 class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
   /// Presentation state, not Vault data — same call as
-  /// `StudioSkillSelector._query`. A category stays visible while it's
-  /// being searched for by name even if none of its skills match yet
-  /// (e.g. it's still empty, or you're about to add a skill under it),
-  /// but never shows a skill that doesn't itself match — that's the
-  /// "shows the entire category" behaviour Studio's own skill picker used
-  /// to have, and searching to edit one skill shouldn't dump every other
-  /// skill in the same category into view either.
+  /// `StudioSkillSelector._query`. A category stays visible on a name
+  /// match even with no matching skills yet (so it can still be found to
+  /// add one under), but only ever renders the skills that themselves
+  /// match.
   String _query = '';
 
   List<Skill> _matchingSkills(SkillCategory category) {
