@@ -58,9 +58,18 @@ jobs:
 
       - name: Build web release
         if: steps.version.outputs.bumped == 'true'
+        # GOOGLE_OAUTH_CLIENT_ID is a repo *variable* (Settings → Secrets
+        # and variables → Actions → Variables), not a secret — a web
+        # OAuth client id is public by design (it ships in the compiled
+        # JS regardless), the origin allow-list on the Google Cloud side
+        # is the actual security boundary. Left unset, it compiles to an
+        # empty string and GoogleAuthService.isConfigured stays false, so
+        # the whole Drive sync feature just stays hidden rather than
+        # breaking the build.
         run: |
           flutter pub get
-          flutter build web --release --base-href /CVForge/
+          flutter build web --release --base-href /CVForge/ \
+            --dart-define=GOOGLE_OAUTH_CLIENT_ID=${{ vars.GOOGLE_OAUTH_CLIENT_ID }}
 
       - uses: actions/configure-pages@v5
         if: steps.version.outputs.bumped == 'true'

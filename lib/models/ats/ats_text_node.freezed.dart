@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 mixin _$AtsTextNode {
 
  int get pageIndex; String get str; AtsTextMatrix get transform;/// The advance width along the text direction — an *advance* box, not
-/// an *ink* box. Confirmed in the spike: a dropped/unmapped glyph
+/// an *ink* box. Confirmed empirically: a dropped/unmapped glyph
 /// (e.g. a PUA bullet drawn with a non-embedded font) can leave a
 /// nonzero [width] with no corresponding characters in [str] — see
 /// `AtsAnalyzerService`'s phantom-glyph check, which exists because of
@@ -234,7 +234,7 @@ class _AtsTextNode implements AtsTextNode {
 @override final  String str;
 @override final  AtsTextMatrix transform;
 /// The advance width along the text direction — an *advance* box, not
-/// an *ink* box. Confirmed in the spike: a dropped/unmapped glyph
+/// an *ink* box. Confirmed empirically: a dropped/unmapped glyph
 /// (e.g. a PUA bullet drawn with a non-embedded font) can leave a
 /// nonzero [width] with no corresponding characters in [str] — see
 /// `AtsAnalyzerService`'s phantom-glyph check, which exists because of

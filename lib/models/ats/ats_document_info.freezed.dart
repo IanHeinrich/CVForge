@@ -15,9 +15,9 @@ T _$identity<T>(T value) => value;
 mixin _$AtsDocumentInfo {
 
  int get pageCount; String? get producer; String? get creator; String? get language;/// Whether `page.getStructTree()` returned non-null for at least one
-/// page — a tagged/accessible PDF. `null` across the entire spike
-/// corpus (no genuinely tagged sample was available), so no check
-/// depends on this in v1; kept for a later calibration pass.
+/// page — a tagged/accessible PDF. `null` across every corpus sample
+/// seen so far (no genuinely tagged sample was available), so no
+/// check currently depends on this.
  bool get hasStructTree;
 /// Create a copy of AtsDocumentInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -222,9 +222,9 @@ class _AtsDocumentInfo implements AtsDocumentInfo {
 @override final  String? creator;
 @override final  String? language;
 /// Whether `page.getStructTree()` returned non-null for at least one
-/// page — a tagged/accessible PDF. `null` across the entire spike
-/// corpus (no genuinely tagged sample was available), so no check
-/// depends on this in v1; kept for a later calibration pass.
+/// page — a tagged/accessible PDF. `null` across every corpus sample
+/// seen so far (no genuinely tagged sample was available), so no
+/// check currently depends on this.
 @override@JsonKey() final  bool hasStructTree;
 
 /// Create a copy of AtsDocumentInfo

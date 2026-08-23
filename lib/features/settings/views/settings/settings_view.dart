@@ -6,6 +6,7 @@ import 'package:stacked/stacked.dart';
 
 import 'package:cv_forge/features/settings/widgets/backup_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/copilot_settings_card.dart';
+import 'package:cv_forge/features/settings/widgets/drive_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/region_settings_card.dart';
 import 'settings_viewmodel.dart';
 
@@ -45,6 +46,15 @@ class SettingsView extends StackedView<SettingsViewModel> {
               children: [
                 RegionSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
+                // DriveSettingsCard renders nothing when Drive sync isn't
+                // configured for this build — skipped here too, rather
+                // than left in with its own VGap either side, so an
+                // unconfigured build shows no stray gap between Region
+                // and Backup.
+                if (viewModel.isDriveAvailable) ...[
+                  DriveSettingsCard(viewModel: viewModel),
+                  const VGap.medium(),
+                ],
                 BackupSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
                 CopilotSettingsCard(viewModel: viewModel),

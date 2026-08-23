@@ -19,6 +19,13 @@ import 'package:cv_forge/templates/classic_centered/classic_centered_template.da
 import 'package:cv_forge/services/llm_service.dart';
 import 'package:cv_forge/services/copilot_service.dart';
 import 'package:cv_forge/services/template_thumbnail_service.dart';
+import 'package:cv_forge/services/drive_api_client_service.dart';
+import 'package:cv_forge/services/drive_sync_service.dart';
+// Not registered through app.dart's @StackedApp dependencies list (see
+// GoogleAuthService's own doc comment for why — same reasoning as
+// PdfExtractionService just above), but every service the app can
+// resolve still needs a mock here regardless of how it's wired.
+import 'package:cv_forge/services/google_auth_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -47,6 +54,9 @@ import 'test_helpers.mocks.dart';
     MockSpec<TemplateThumbnailService>(
       onMissingStub: OnMissingStub.returnDefault,
     ),
+    MockSpec<DriveApiClientService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<DriveSyncService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<GoogleAuthService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -68,6 +78,9 @@ void registerServices() {
   getAndRegisterLlmService();
   getAndRegisterCopilotService();
   getAndRegisterTemplateThumbnailService();
+  getAndRegisterDriveApiClientService();
+  getAndRegisterDriveSyncService();
+  getAndRegisterGoogleAuthService();
   // @stacked-mock-register
 }
 
@@ -202,6 +215,27 @@ MockTemplateThumbnailService getAndRegisterTemplateThumbnailService() {
   _removeRegistrationIfExists<TemplateThumbnailService>();
   final service = MockTemplateThumbnailService();
   locator.registerSingleton<TemplateThumbnailService>(service);
+  return service;
+}
+
+MockDriveApiClientService getAndRegisterDriveApiClientService() {
+  _removeRegistrationIfExists<DriveApiClientService>();
+  final service = MockDriveApiClientService();
+  locator.registerSingleton<DriveApiClientService>(service);
+  return service;
+}
+
+MockDriveSyncService getAndRegisterDriveSyncService() {
+  _removeRegistrationIfExists<DriveSyncService>();
+  final service = MockDriveSyncService();
+  locator.registerSingleton<DriveSyncService>(service);
+  return service;
+}
+
+MockGoogleAuthService getAndRegisterGoogleAuthService() {
+  _removeRegistrationIfExists<GoogleAuthService>();
+  final service = MockGoogleAuthService();
+  locator.registerSingleton<GoogleAuthService>(service);
   return service;
 }
 // @stacked-mock-create

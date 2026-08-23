@@ -6,6 +6,9 @@ import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/drive_sync_service.dart';
+import 'package:cv_forge/services/google_auth_service.dart';
+import 'package:cv_forge/services/google_auth_service_web.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service_web.dart';
 import 'package:cv_forge/services/vault_service.dart';
@@ -26,7 +29,20 @@ Future<void> main() async {
   locator.registerLazySingleton<PdfExtractionService>(
     PdfExtractionServiceWeb.new,
   );
+  // Same reasoning and the same manual-registration mechanism as
+  // PdfExtractionService above: GoogleAuthServiceWeb imports
+  // dart:js_interop (via gis_bindings.dart), which doesn't compile under
+  // the Dart VM, so it can't go through app.dart's normal
+  // @StackedApp(dependencies: [...]) list.
+  locator.registerLazySingleton<GoogleAuthService>(GoogleAuthServiceWeb.new);
   setupDialogUi();
+  // Resumes a previously-connected Drive sync session (if any) and arms
+  // autosave for the whole app session, regardless of which route the
+  // user lands on first — see DriveSyncService.start's doc comment for
+  // why this can't wait for StartupView. Not awaited: a no-op when never
+  // connected, and otherwise best-effort — the first paint shouldn't
+  // block on a network round trip to Drive.
+  unawaited(locator<DriveSyncService>().start());
   runApp(const MainApp());
 }
 
@@ -60,6 +76,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
     if (state != AppLifecycleState.hidden) return;
     unawaited(locator<VaultService>().flushPendingWrites());
     unawaited(locator<DraftService>().flushPendingWrites());
+    unawaited(locator<DriveSyncService>().flushPendingWrites());
   }
 
   @override

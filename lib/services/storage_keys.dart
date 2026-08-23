@@ -48,4 +48,18 @@ abstract final class StorageKeys {
   /// the draft it belongs to; superseded by the next pass, cleared when
   /// the draft is deleted.
   static String copilotUndoFor(String draftId) => 'copilot_undo_$draftId';
+
+  /// `DriveSyncService`'s own bookkeeping rows — kept in
+  /// [StorageBoxes.settings] alongside [appSettings] rather than a new
+  /// box, since they're device-scoped preferences in exactly the same
+  /// sense. Never the access token itself (that's in-memory only, the
+  /// same rule `apiKeyFor`'s doc comment already establishes for the
+  /// Copilot key) and never reachable through [AppSettings] or
+  /// [CvBackupBundle], for the same "no secret-adjacent state in a
+  /// serialized model" reasoning.
+  static const driveEnabled = 'drive_enabled';
+  static const driveFileId = 'drive_file_id';
+  static const driveLastSyncedVersion = 'drive_last_synced_version';
+  static const driveLastSyncedAt = 'drive_last_synced_at';
+  static const driveAccountEmail = 'drive_account_email';
 }
