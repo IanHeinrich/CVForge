@@ -38,7 +38,7 @@ class AnalyzerUploadPrompt extends StatelessWidget {
 
     return AppEmptyState(
       icon: RemixIcons.file_search_line,
-      title: 'Check your CV for ATS issues',
+      title: 'Check your ${viewModel.documentNoun} for ATS issues',
       messageMaxWidth: 480,
       message:
           'Upload a PDF ${viewModel.documentNoun} to check for formatting '

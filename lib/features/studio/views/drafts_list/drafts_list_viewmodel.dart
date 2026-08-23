@@ -9,6 +9,7 @@ import 'package:cv_forge/models/render/cv_composer.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/template_thumbnail_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
@@ -23,6 +24,7 @@ import 'package:stacked_services/stacked_services.dart';
 class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   final _draftService = locator<DraftService>();
   final _vaultService = locator<VaultService>();
+  final _settingsService = locator<SettingsService>();
   final _templateRegistry = locator<TemplateRegistryService>();
   final _thumbnailService = locator<TemplateThumbnailService>();
   final _dialogService = locator<DialogService>();
@@ -32,6 +34,7 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   List<ListenableServiceMixin> get listenableServices => [
     _draftService,
     _vaultService,
+    _settingsService,
   ];
 
   static const _loadBusyKey = 'drafts_load';
@@ -41,10 +44,14 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
 
   /// A real `async` wrapper, not `runBusyFuture(_vaultService.load())`
   /// directly — see `StudioViewModel._load`'s doc comment for why: the
-  /// Vault is needed here too now, for each card's thumbnail.
+  /// Vault is needed here too now, for each card's thumbnail. Settings
+  /// must be loaded too, since this page's own copy reads
+  /// `AppSettings.defaultRegion` and a deep link straight to this route
+  /// skips `SettingsView`.
   Future<void> _load() async {
     await _vaultService.load();
     await _draftService.load();
+    await _settingsService.load();
   }
 
   bool get isLoading => busy(_loadBusyKey);
@@ -57,8 +64,48 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   List<CvDraft> get drafts => _draftService.drafts;
   bool get isEmpty => drafts.isEmpty;
 
+  /// "CV"/"Résumé" per `AppSettings.defaultRegion` — same source
+  /// `AppChrome`'s nav label and `SettingsViewModel`'s replace-data copy
+  /// read, so this page's own "New CV" button and empty state never say
+  /// something the sidebar tab it lives under disagrees with.
+  String get documentNoun =>
+      _settingsService.settings.defaultRegion.preset.documentNounCapitalized;
+
+  String get documentNounPlural => _settingsService
+      .settings
+      .defaultRegion
+      .preset
+      .documentNounPluralCapitalized;
+
   String templateName(String templateId) =>
       _templateRegistry.byId(templateId).displayName;
+
+  /// Presentation state, not persisted — same call as `StudioSkillSelector.
+  /// _query`. Filters by name, notes, or template name so "cover letter" or
+  /// "Modern" surfaces a draft as readily as its own title does.
+  String _query = '';
+
+  void setQuery(String value) {
+    final trimmed = value.trim().toLowerCase();
+    if (trimmed == _query) return;
+    _query = trimmed;
+    notifyListeners();
+  }
+
+  List<CvDraft> get filteredDrafts {
+    if (_query.isEmpty) return drafts;
+    return drafts.where((draft) {
+      if (draft.name.toLowerCase().contains(_query)) return true;
+      if (draft.notes.toLowerCase().contains(_query)) return true;
+      return templateName(draft.templateId).toLowerCase().contains(_query);
+    }).toList();
+  }
+
+  /// Distinct from [isEmpty] — that one means no draft exists at all (and
+  /// shows the "create your first CV" onboarding state); this means drafts
+  /// exist but none match the current search, which needs its own "no
+  /// results" copy rather than an onboarding prompt to create one.
+  bool get hasNoSearchResults => drafts.isNotEmpty && filteredDrafts.isEmpty;
 
   /// This draft's own [ResolvedCv] — the same join [StudioViewModel.
   /// resolvedCv] performs, computed per-draft here since the drafts list
@@ -112,7 +159,7 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> createDraft() async {
     final result = await _editDraftDialog(
-      title: 'New CV',
+      title: 'New $documentNoun',
       initial: const EditDraftDialogData(name: '', notes: ''),
       mainButtonTitle: 'Create',
     );
@@ -132,7 +179,7 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> editDraft(CvDraft draft) async {
     final result = await _editDraftDialog(
-      title: 'Edit CV details',
+      title: 'Edit $documentNoun details',
       initial: EditDraftDialogData(name: draft.name, notes: draft.notes),
       mainButtonTitle: 'Save',
     );

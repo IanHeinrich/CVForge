@@ -289,10 +289,14 @@ class _Identity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // This draft's own region, not `AppSettings.defaultRegion` — a draft
+    // already created under one region keeps calling itself by that
+    // region's noun regardless of what the global default is set to now.
+    final preset = viewModel.region.preset;
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back to your CVs',
+          tooltip: 'Back to your ${preset.documentNounPluralCapitalized}',
           icon: const Icon(RemixIcons.arrow_left_line, color: kcLightGrey),
           onPressed: viewModel.goToDrafts,
         ),
@@ -304,7 +308,7 @@ class _Identity extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Edit CV details',
+          tooltip: 'Edit ${preset.documentNounCapitalized} details',
           icon: const Icon(RemixIcons.edit_line, color: kcLightGrey),
           onPressed: viewModel.editDraftDetails,
         ),

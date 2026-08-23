@@ -18,7 +18,7 @@ import 'package:cv_forge/ui/widgets/common/app_delete_icon_button/app_delete_ico
 import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
-class SkillsEditorPanel extends StatelessWidget {
+class SkillsEditorPanel extends StatefulWidget {
   const SkillsEditorPanel({
     super.key,
     required this.categories,
@@ -46,19 +46,65 @@ class SkillsEditorPanel extends StatelessWidget {
   final void Function(String categoryId, String skillId) onDeleteSkill;
 
   @override
+  State<SkillsEditorPanel> createState() => _SkillsEditorPanelState();
+}
+
+class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
+  /// Presentation state, not Vault data — same call as
+  /// `StudioSkillSelector._query`. A category stays visible on a name
+  /// match even with no matching skills yet (so it can still be found to
+  /// add one under), but only ever renders the skills that themselves
+  /// match.
+  String _query = '';
+
+  List<Skill> _matchingSkills(SkillCategory category) {
+    if (_query.isEmpty) return category.skills;
+    return category.skills
+        .where((s) => s.label.toLowerCase().contains(_query))
+        .toList();
+  }
+
+  bool _categoryVisible(SkillCategory category) {
+    if (_query.isEmpty) return true;
+    if (category.name.toLowerCase().contains(_query)) return true;
+    return _matchingSkills(category).isNotEmpty;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final categories = widget.categories;
+    final visibleCategories = categories
+        .where(_categoryVisible)
+        .toList(growable: false);
     return VaultEditorPanelScaffold(
       title: 'Skills',
-      onClose: onClose,
+      onClose: widget.onClose,
       children: [
         VaultSectionHeading(
           title: 'Categories',
-          onAdd: onAddCategory,
+          onAdd: widget.onAddCategory,
           addLabel: 'Add category',
         ),
         if (categories.isEmpty)
-          const AppInlineEmptyMessage('No skill categories yet.'),
-        for (final category in categories)
+          const AppInlineEmptyMessage('No skill categories yet.')
+        else ...[
+          TextField(
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'Search skills…',
+              prefixIcon: Icon(
+                RemixIcons.search_line,
+                size: context.appIconSize.medium,
+              ),
+            ),
+            onChanged: (value) =>
+                setState(() => _query = value.trim().toLowerCase()),
+          ),
+          const VGap.small(),
+          if (visibleCategories.isEmpty)
+            const AppInlineEmptyMessage('No skills match your search.'),
+        ],
+        for (final category in visibleCategories)
           Container(
             margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
             padding: EdgeInsets.all(context.appSpacing.paddingCompact),
@@ -80,16 +126,16 @@ class SkillsEditorPanel extends StatelessWidget {
                         label: 'Category name',
                         initialValue: category.name,
                         onChanged: (v) =>
-                            onUpdateCategory(category.copyWith(name: v)),
+                            widget.onUpdateCategory(category.copyWith(name: v)),
                       ),
                     ),
                     AppDeleteIconButton(
                       tooltip: 'Delete category',
-                      onPressed: () => onDeleteCategory(category.id),
+                      onPressed: () => widget.onDeleteCategory(category.id),
                     ),
                   ],
                 ),
-                for (final skill in category.skills)
+                for (final skill in _matchingSkills(category))
                   Padding(
                     padding: EdgeInsets.only(
                       top: context.appSpacing.paddingTight,
@@ -103,7 +149,7 @@ class SkillsEditorPanel extends StatelessWidget {
                               child: AppTextField(
                                 hint: 'Skill',
                                 initialValue: skill.label,
-                                onChanged: (v) => onUpdateSkill(
+                                onChanged: (v) => widget.onUpdateSkill(
                                   category.id,
                                   skill.copyWith(label: v),
                                 ),
@@ -116,7 +162,7 @@ class SkillsEditorPanel extends StatelessWidget {
                                 size: context.appIconSize.medium,
                               ),
                               onPressed: () =>
-                                  onDeleteSkill(category.id, skill.id),
+                                  widget.onDeleteSkill(category.id, skill.id),
                               tooltip: 'Delete skill',
                             ),
                           ],
@@ -124,8 +170,8 @@ class SkillsEditorPanel extends StatelessWidget {
                         _SkillBulletLinkPicker(
                           categoryId: category.id,
                           skill: skill,
-                          experiences: experiences,
-                          onUpdateSkill: onUpdateSkill,
+                          experiences: widget.experiences,
+                          onUpdateSkill: widget.onUpdateSkill,
                         ),
                       ],
                     ),
@@ -134,7 +180,7 @@ class SkillsEditorPanel extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
-                    onPressed: () => onAddSkill(category.id),
+                    onPressed: () => widget.onAddSkill(category.id),
                     icon: Icon(
                       RemixIcons.add_line,
                       size: context.appIconSize.small,

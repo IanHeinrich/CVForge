@@ -6,6 +6,7 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -84,6 +85,18 @@ class _VaultCardListState extends State<VaultCardList> {
           ),
           const VGap.medium(),
         ],
+        TextField(
+          onChanged: viewModel.setQuery,
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: 'Search your Vault…',
+            prefixIcon: Icon(
+              RemixIcons.search_line,
+              size: context.appIconSize.medium,
+            ),
+          ),
+        ),
+        const VGap.medium(),
         for (final section in _sections(context)) ...[
           section,
           const VGap.medium(),
@@ -122,9 +135,9 @@ class _VaultCardListState extends State<VaultCardList> {
       VaultListSection<Experience>(
         title: 'Work history',
         addLabel: 'Add experience',
-        emptyMessage: 'No experience yet.',
+        emptyMessage: _emptyMessage(viewModel, 'No experience yet.'),
         icon: RemixIcons.briefcase_line,
-        items: vault.experiences,
+        items: viewModel.filteredExperiences,
         idOf: (e) => e.id,
         titleOf: (e) => e.role.isEmpty ? 'Untitled role' : e.role,
         subtitleOf: (e) => e.company,
@@ -141,9 +154,9 @@ class _VaultCardListState extends State<VaultCardList> {
       VaultListSection<Project>(
         title: 'Projects',
         addLabel: 'Add project',
-        emptyMessage: 'No projects yet.',
+        emptyMessage: _emptyMessage(viewModel, 'No projects yet.'),
         icon: RemixIcons.rocket_line,
-        items: vault.projects,
+        items: viewModel.filteredProjects,
         idOf: (p) => p.id,
         titleOf: (p) => p.title.isEmpty ? 'Untitled project' : p.title,
         subtitleOf: (p) => p.link,
@@ -164,9 +177,9 @@ class _VaultCardListState extends State<VaultCardList> {
       VaultListSection<Education>(
         title: 'Education',
         addLabel: 'Add education',
-        emptyMessage: 'No education yet.',
+        emptyMessage: _emptyMessage(viewModel, 'No education yet.'),
         icon: RemixIcons.graduation_cap_line,
-        items: vault.education,
+        items: viewModel.filteredEducation,
         idOf: (e) => e.id,
         titleOf: (e) => e.qualification.isEmpty
             ? 'Untitled qualification'
@@ -189,9 +202,9 @@ class _VaultCardListState extends State<VaultCardList> {
       VaultListSection<Publication>(
         title: 'Publications',
         addLabel: 'Add publication',
-        emptyMessage: 'No publications yet.',
+        emptyMessage: _emptyMessage(viewModel, 'No publications yet.'),
         icon: RemixIcons.article_line,
-        items: vault.publications,
+        items: viewModel.filteredPublications,
         idOf: (p) => p.id,
         titleOf: (p) => p.title.isEmpty ? 'Untitled publication' : p.title,
         subtitleOf: (p) => p.citation,
@@ -207,6 +220,14 @@ class _VaultCardListState extends State<VaultCardList> {
       ),
     ];
   }
+
+  /// [base] once nothing is being searched for; while a search is active
+  /// and this section's filtered list came up empty, a "no matches"
+  /// message instead — otherwise a genuinely non-empty section (say, work
+  /// history with entries, none of which match the current search) would
+  /// misleadingly claim to have no entries at all.
+  String _emptyMessage(VaultViewModel viewModel, String base) =>
+      viewModel.isSearching ? 'No matches for your search.' : base;
 }
 
 class _BasicsCard extends StatelessWidget {

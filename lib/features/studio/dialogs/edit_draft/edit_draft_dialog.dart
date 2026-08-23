@@ -31,7 +31,7 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
-      title: request.title ?? 'CV details',
+      title: request.title ?? '${viewModel.documentNoun} details',
       maxWidth: 420,
       cancelLabel: request.secondaryButtonTitle ?? 'Cancel',
       confirmLabel: request.mainButtonTitle ?? 'Save',
@@ -54,7 +54,9 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
           decoration: InputDecoration(
             labelText: 'Name',
             hintText: 'e.g. "Acme — Backend Engineer"',
-            errorText: viewModel.showNameError ? 'Give this CV a name' : null,
+            errorText: viewModel.showNameError
+                ? 'Give this ${viewModel.documentNoun} a name'
+                : null,
           ),
         ),
         const VGap.small(),
@@ -63,9 +65,11 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
           minLines: 2,
           maxLines: 5,
           style: const TextStyle(color: kcWhite),
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'Notes',
-            hintText: 'What this CV is for, or anything to remember',
+            hintText:
+                'What this ${viewModel.documentNoun} is for, or anything '
+                'to remember',
           ),
         ),
       ],

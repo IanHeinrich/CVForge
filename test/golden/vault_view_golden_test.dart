@@ -11,8 +11,10 @@ library;
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/views/vault/vault_view.dart';
+import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/ui/common/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,12 @@ void main() {
     // remembering to update every golden test's setUp individually.
     registerServices();
     vaultService = locator<VaultService>() as MockVaultService;
+    // AppChrome's nav rail reads `AppSettings.defaultRegion` for the
+    // drafts tab's "CVs"/"Résumés" label — unstubbed, the mock's dummy
+    // `AppSettings` throws as soon as anything dereferences a field on it.
+    when(
+      (locator<SettingsService>() as MockSettingsService).settings,
+    ).thenReturn(AppSettings.empty());
   });
   tearDown(() => locator.reset());
 

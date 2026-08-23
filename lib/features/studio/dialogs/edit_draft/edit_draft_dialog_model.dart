@@ -1,3 +1,6 @@
+import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:stacked/stacked.dart';
 
@@ -13,6 +16,18 @@ class EditDraftDialogModel extends BaseViewModel {
 
   final TextEditingController nameController;
   final TextEditingController notesController;
+
+  /// `AppSettings.defaultRegion`'s document noun — the same source
+  /// `DraftsListViewModel`/`AppChrome` read, so this dialog's field copy
+  /// never disagrees with the "New CV"/"New Résumé" button that opened it.
+  /// The global default rather than the draft being edited's own region:
+  /// [EditDraftDialogData] carries no region, and a name/notes editor isn't
+  /// worth plumbing one through for.
+  String get documentNoun => locator<SettingsService>()
+      .settings
+      .defaultRegion
+      .preset
+      .documentNounCapitalized;
 
   bool _nameTouched = false;
 

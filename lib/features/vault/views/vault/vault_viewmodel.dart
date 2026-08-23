@@ -107,6 +107,47 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     rebuildUi();
   }
 
+  /// Presentation state, not persisted — same call as
+  /// `DraftsListViewModel._query`. Only narrows `VaultCardList`'s
+  /// multi-entry sections (work history, projects, education,
+  /// publications) — Basics/Skills/Hobbies are single summary cards, not
+  /// lists, so there's nothing there to filter.
+  String _query = '';
+  bool get isSearching => _query.isNotEmpty;
+
+  void setQuery(String value) {
+    final trimmed = value.trim().toLowerCase();
+    if (trimmed == _query) return;
+    _query = trimmed;
+    rebuildUi();
+  }
+
+  List<T> _filtered<T>(List<T> items, List<String> Function(T) fieldsOf) {
+    if (_query.isEmpty) return items;
+    return items.where((item) {
+      return fieldsOf(item).any((f) => f.toLowerCase().contains(_query));
+    }).toList();
+  }
+
+  /// Matches role or company — the same two fields `VaultCardList` shows
+  /// as an experience card's title/subtitle.
+  List<Experience> get filteredExperiences =>
+      _filtered(vault.experiences, (e) => [e.role, e.company]);
+
+  /// Matches title or link, mirroring a project card's title/subtitle.
+  List<Project> get filteredProjects =>
+      _filtered(vault.projects, (p) => [p.title, p.link ?? '']);
+
+  /// Matches qualification or institution, mirroring an education card's
+  /// title/subtitle.
+  List<Education> get filteredEducation =>
+      _filtered(vault.education, (e) => [e.qualification, e.institution]);
+
+  /// Matches title or citation, mirroring a publication card's
+  /// title/subtitle.
+  List<Publication> get filteredPublications =>
+      _filtered(vault.publications, (p) => [p.title, p.citation ?? '']);
+
   VaultEditorTarget _openTarget = VaultEditorTarget.none;
   String? _openId;
 
