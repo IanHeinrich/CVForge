@@ -2392,12 +2392,46 @@ Verified via `flutter analyze` (0 issues) and `flutter test
 widths for every change except the Vault scroll-into-view gap noted
 above.
 
+### Post-7.8 (round 3) — Mobile chrome and overflow fixes → [PR #62](https://github.com/IanHeinrich/CVForge/pull/62) ✅ shipped
+
+Third ad hoc feedback-driven pass: tablet/desktop were fine, but the
+phone-width layout had three related problems, all traced back to one
+root cause.
+
+**`AppChrome`'s side `NavigationRail` was permanently docked**, even
+below `responsive_builder`'s tablet breakpoint — `NavigationRailLabelType
+.all` needs ~80–100 logical px, a fifth to a quarter of a 320–414px phone
+screen eaten before any real content shows. `AppChrome` now branches on
+screen type: tablet/desktop keep the original docked rail untouched
+(pixel-verified via the existing golden suite), mobile gets a bottom
+`NavigationBar` instead, with all four sections — including Settings,
+which the rail instead pins to its own `trailing` slot; there's no
+equivalent slot on a bottom bar, so it gets a real destination there.
+
+That stolen rail width is what was pushing two other things past their
+container edges on mobile: Settings' "Export backup"/"Import backup"
+button `Row` (now a `Wrap`, so the second button drops to its own line
+instead of clipping) and the connection-test result banner's message
+`Text` (now `Expanded`, matching the sibling backup-status line's
+existing pattern — a provider error string has no length guarantee).
+`AppDialogScaffold`'s inset/content padding also shrinks on mobile —
+`Dialog`'s default 40px inset left almost no room for a wide body — and
+the template gallery's cards size themselves to `min(300, available
+width)` via a `LayoutBuilder` instead of a fixed 300px, so they shrink to
+a single full-width column on a narrow phone instead of overflowing past
+the dialog edge.
+
+Verified via `flutter analyze` (0 issues), `flutter test` (298/298,
+golden suite included with zero pixel diffs — confirming tablet/desktop
+are unchanged), and a manual pass in a headless browser at 320/390/1400px
+viewport widths.
+
 ### Phase 7 status
 
-7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus both post-7.8 UI
-polish passes above. **7.6 (logo, favicon, splash, plus the
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all three post-7.8
+UI polish passes above. **7.6 (logo, favicon, splash, plus the
 `manifest.json` bug) is the only sub-phase left** — deliberately
-deferred across both rounds; it touches no Dart and is independent of
-everything else here. Repo version bumped to `2.5.0` (from `2.4.0`,
-which covered the first post-7.8 round — `BackupService._appVersion`
+deferred across all three rounds; it touches no Dart and is independent
+of everything else here. Repo version bumped to `2.6.0` (from `2.5.0`,
+which covered the second post-7.8 round — `BackupService._appVersion`
 bumped to match in the same pass, per that field's own doc comment).
