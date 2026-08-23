@@ -64,30 +64,26 @@ class TemplateGalleryDialog extends StackedView<TemplateGalleryDialogModel> {
         // width: double.maxFinite forces the grid to use the dialog's
         // full available width so `Wrap` actually flows cards across
         // several columns instead of shrink-wrapping to one card's
-        // width; maxHeight caps it once there are enough templates to
-        // need scrolling, but doesn't force that much height with only
-        // a couple — the fixed-height box this replaced left most of
-        // itself blank with two templates.
+        // width. No height cap or scroll view of its own here —
+        // `AppDialogScaffold` now bounds and scrolls the whole dialog
+        // body against the actual viewport height, which a fixed height
+        // picked for this one dialog can't do (that's exactly what left
+        // the confirm/cancel row unreachable on a short mobile screen).
         SizedBox(
           width: double.maxFinite,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 620),
-            child: SingleChildScrollView(
-              child: Wrap(
-                spacing: context.appSpacing.gapSmall,
-                runSpacing: context.appSpacing.gapSmall,
-                children: [
-                  for (final template in viewModel.templates)
-                    _TemplateCard(
-                      template: template,
-                      selected: viewModel.selectedTemplateId == template.id,
-                      onTap: () => viewModel.selectTemplate(template.id),
-                      thumbnailFuture: viewModel.thumbnailFor(template.id),
-                      pageAspectRatio: viewModel.pageAspectRatio,
-                    ),
-                ],
-              ),
-            ),
+          child: Wrap(
+            spacing: context.appSpacing.gapSmall,
+            runSpacing: context.appSpacing.gapSmall,
+            children: [
+              for (final template in viewModel.templates)
+                _TemplateCard(
+                  template: template,
+                  selected: viewModel.selectedTemplateId == template.id,
+                  onTap: () => viewModel.selectTemplate(template.id),
+                  thumbnailFuture: viewModel.thumbnailFor(template.id),
+                  pageAspectRatio: viewModel.pageAspectRatio,
+                ),
+            ],
           ),
         ),
       ],
