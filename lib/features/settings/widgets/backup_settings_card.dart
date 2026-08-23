@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/relative_time.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -137,12 +138,12 @@ class _BackupStatusLine extends StatelessWidget {
       icon = RemixIcons.error_warning_line;
       color = kcWarningColor;
       message =
-          'Last backed up ${_formatRelative(last)} — you have '
+          'Last backed up ${formatRelativeTime(last)} — you have '
           'changes since then';
     } else {
       icon = RemixIcons.checkbox_circle_line;
       color = kcSuccessColor;
-      message = 'Last backed up ${_formatRelative(last)}';
+      message = 'Last backed up ${formatRelativeTime(last)}';
     }
 
     return Row(
@@ -158,17 +159,5 @@ class _BackupStatusLine extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  /// "today" / "yesterday" / "N days ago", falling back to an absolute
-  /// date past a month — "47 days ago" stops being a useful unit for a
-  /// backup you may not think about for months at a time.
-  String _formatRelative(DateTime time) {
-    final days = DateTime.now().difference(time).inDays;
-    if (days <= 0) return 'today';
-    if (days == 1) return 'yesterday';
-    if (days < 30) return '$days days ago';
-    return 'on ${time.day.toString().padLeft(2, '0')}/'
-        '${time.month.toString().padLeft(2, '0')}/${time.year}';
   }
 }

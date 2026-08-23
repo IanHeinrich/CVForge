@@ -50,6 +50,12 @@ import 'package:cv_forge/features/studio/dialogs/template_gallery/template_galle
 
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog.dart';
 
+import 'package:cv_forge/services/drive_api_client_service.dart';
+
+import 'package:cv_forge/services/drive_sync_service.dart';
+
+import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict_dialog.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -93,6 +99,8 @@ import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_d
     LazySingleton(classType: LlmService),
     LazySingleton(classType: CopilotService),
     LazySingleton(classType: TemplateThumbnailService),
+    LazySingleton(classType: DriveApiClientService),
+    LazySingleton(classType: DriveSyncService),
     // @stacked-service
   ],
   bottomsheets: [
@@ -104,6 +112,7 @@ import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_d
     StackedDialog(classType: CopilotRunDialog),
     StackedDialog(classType: TemplateGalleryDialog),
     StackedDialog(classType: RegionGalleryDialog),
+    StackedDialog(classType: DriveConflictDialog),
     // @stacked-dialog
   ],
 )

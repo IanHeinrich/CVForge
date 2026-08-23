@@ -1,10 +1,14 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict_dialog_data.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
+import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
+import 'package:cv_forge/services/drive_sync_service.dart';
+import 'package:cv_forge/services/google_auth_service.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
 import 'package:cv_forge/services/llm/llm_provider_registry.dart';
@@ -25,13 +29,17 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   final _vaultService = locator<VaultService>();
   final _dialogService = locator<DialogService>();
   final _llmService = locator<LlmService>();
+  final _driveSyncService = locator<DriveSyncService>();
 
   /// Not locator-registered — see `LlmService`'s own doc comment for why
   /// (stateless, deterministic, nothing else needs one injected).
   final _llmProviders = LlmProviderRegistry();
 
   @override
-  List<ListenableServiceMixin> get listenableServices => [_settingsService];
+  List<ListenableServiceMixin> get listenableServices => [
+    _settingsService,
+    _driveSyncService,
+  ];
 
   static const _loadBusyKey = 'settings_load';
   static const _exportBusyKey = 'settings_export';
@@ -310,5 +318,102 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
       await _settingsService.setApiKey(selectedCopilotProvider.id, apiKey);
     }
     rebuildUi();
+  }
+
+  static const _driveConnectBusyKey = 'drive_connect';
+  static const _driveSyncBusyKey = 'drive_sync';
+
+  /// False hides `DriveSettingsCard` entirely — no `GOOGLE_OAUTH_CLIENT_ID`
+  /// was compiled into this build, so a "Connect" button here could only
+  /// ever fail.
+  bool get isDriveAvailable => _driveSyncService.isAvailable;
+
+  DriveSyncStatus get driveSyncStatus => _driveSyncService.status;
+
+  bool get isDriveConnecting => busy(_driveConnectBusyKey);
+  bool get isDriveSyncingNow => busy(_driveSyncBusyKey);
+
+  /// Mirrors `importErrorMessage`/`connectionTestErrorMessage`'s
+  /// per-failure-case copy — one generic message for every failure is a
+  /// real defect, not an acceptable fallback.
+  String? get driveConnectErrorMessage {
+    final error = this.error(_driveConnectBusyKey);
+    if (error is! GoogleAuthException) return null;
+    return switch (error.failure) {
+      GoogleAuthFailure.notConfigured => 'Google Drive sync is not set up.',
+      GoogleAuthFailure.scriptLoadFailed =>
+        "Couldn't reach Google — check your connection and try again.",
+      GoogleAuthFailure.cancelledOrBlocked => 'Connection cancelled.',
+      GoogleAuthFailure.unknown =>
+        "Couldn't connect to Google Drive — try again.",
+    };
+  }
+
+  Future<void> connectDrive() =>
+      runBusyFuture(_connectDrive(), busyObject: _driveConnectBusyKey);
+
+  // Real `async` wrappers, not the service calls passed to [runBusyFuture]
+  // directly — see `VaultViewModel._load`'s doc comment for why a call
+  // that throws synchronously would otherwise escape `runBusyFuture`'s
+  // busy/error bookkeeping entirely.
+  Future<void> _connectDrive() async => _driveSyncService.connect();
+
+  Future<void> syncDriveNow() =>
+      runBusyFuture(_syncDriveNow(), busyObject: _driveSyncBusyKey);
+
+  Future<void> _syncDriveNow() async => _driveSyncService.syncNow();
+
+  /// Stops syncing on this device only — see `DriveSyncService.disconnect`'s
+  /// doc comment for why local data is never touched by this. Confirmed
+  /// first since it's easy to mistake for "delete my data on Drive",
+  /// which it explicitly is not.
+  Future<void> disconnectDrive() async {
+    final response = await _dialogService.showCustomDialog(
+      variant: DialogType.confirmDelete,
+      title: 'Disconnect Google Drive?',
+      description:
+          'Your Vault and CVs stay exactly as they are on this device — '
+          'this only stops syncing them to Drive. You can reconnect any '
+          'time.',
+      mainButtonTitle: 'Disconnect',
+      secondaryButtonTitle: 'Cancel',
+    );
+    if (response?.confirmed != true) return;
+    await _driveSyncService.disconnect();
+  }
+
+  /// Opens `DriveConflictDialog` and applies the user's choice. A no-op
+  /// if the status has already moved past `conflict` by the time this
+  /// runs (e.g. `DriveSyncService` losing the token mid-dialog) — nothing
+  /// left to resolve.
+  Future<void> resolveDriveConflict() async {
+    final status = driveSyncStatus;
+    if (status is! DriveSyncConflict) return;
+    final response = await _dialogService
+        .showCustomDialog<bool, DriveConflictDialogData>(
+          variant: DialogType.driveConflict,
+          data: DriveConflictDialogData(
+            accountEmail: status.accountEmail,
+            localUpdatedAt: _mostRecentLocalUpdate(),
+            remoteModifiedAt: _driveSyncService.conflictRemoteModifiedAt,
+          ),
+        );
+    final keepLocal = response?.data;
+    if (response?.confirmed == true && keepLocal != null) {
+      await _driveSyncService.resolveConflict(keepLocal: keepLocal);
+    }
+  }
+
+  /// The later of the Vault's own `updatedAt` and every Draft's —
+  /// `DriveConflictDialog`'s "This device — N days ago" copy, the same
+  /// timestamp source `hasChangesSinceBackup` already reads.
+  DateTime? _mostRecentLocalUpdate() {
+    DateTime? latest = _vaultService.vault.updatedAt;
+    for (final draft in _draftService.drafts) {
+      if (latest == null || draft.updatedAt.isAfter(latest)) {
+        latest = draft.updatedAt;
+      }
+    }
+    return latest;
   }
 }

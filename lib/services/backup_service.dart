@@ -47,9 +47,13 @@ class BackupService {
   /// Provenance only, never branched on — a small hardcoded literal rather
   /// than a `package_info_plus` dependency, since nothing reads this back.
   /// Keep it in sync with `pubspec.yaml`'s `version:` at each bump.
-  static const _appVersion = '2.12.0';
+  static const _appVersion = '2.13.0';
 
-  CvBackupBundle _buildBundle() => CvBackupBundle(
+  /// The current Vault + every Draft as one envelope — also the payload
+  /// `DriveSyncService` pushes to Drive, so a local JSON export and a
+  /// Drive sync can never drift on what "the current state" means. Public
+  /// (not `_buildBundle`) for exactly that second caller.
+  CvBackupBundle buildBundle() => CvBackupBundle(
     app: 'cv-forge',
     bundleVersion: bundleVersion,
     exportedAt: DateTime.now(),
@@ -64,7 +68,7 @@ class BackupService {
 
   /// Downloads the whole Vault + every Draft as one JSON file.
   Future<void> exportBackup() async {
-    final bundle = _buildBundle();
+    final bundle = buildBundle();
     final bytes = Uint8List.fromList(utf8.encode(jsonEncode(bundle.toJson())));
     try {
       await _fileDownload.saveFile(

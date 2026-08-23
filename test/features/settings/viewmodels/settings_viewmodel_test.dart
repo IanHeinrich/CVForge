@@ -1,10 +1,14 @@
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/app/app.dialogs.dart';
+import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict_dialog_data.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
+import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/services/backup_service.dart';
+import 'package:cv_forge/services/google_auth_service.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -21,6 +25,7 @@ void main() {
     late MockVaultService vaultService;
     late MockDialogService dialogService;
     late MockLlmService llmService;
+    late MockDriveSyncService driveSyncService;
 
     final bundle = CvBackupBundle(
       app: 'cv-forge',
@@ -37,6 +42,19 @@ void main() {
       vaultService = getAndRegisterVaultService();
       dialogService = getAndRegisterDialogService();
       llmService = getAndRegisterLlmService();
+      driveSyncService = getAndRegisterDriveSyncService();
+      // Mockito can't synthesize its own dummy for a custom sealed class
+      // like DriveSyncStatus — `when(driveSyncService.status)` below would
+      // otherwise throw MissingDummyValueError before the explicit stub
+      // even applies.
+      provideDummy<DriveSyncStatus>(const DriveSyncStatus.disconnected());
+      // Every test not specifically about Drive gets the
+      // hidden-when-unconfigured default, matching a build with no
+      // GOOGLE_OAUTH_CLIENT_ID compiled in.
+      when(driveSyncService.isAvailable).thenReturn(false);
+      when(
+        driveSyncService.status,
+      ).thenReturn(const DriveSyncStatus.disconnected());
       when(draftService.drafts).thenReturn([]);
       when(vaultService.vault).thenReturn(
         CvVault(
@@ -409,6 +427,132 @@ void main() {
           await model.selectCopilotProvider('gemini');
 
           expect(model.connectionTestSucceeded, isFalse);
+        },
+      );
+    });
+
+    group('Google Drive -', () {
+      test('isDriveAvailable mirrors DriveSyncService.isAvailable', () {
+        when(driveSyncService.isAvailable).thenReturn(true);
+
+        final model = SettingsViewModel();
+
+        expect(model.isDriveAvailable, isTrue);
+      });
+
+      test('connectDrive delegates to DriveSyncService.connect', () async {
+        when(driveSyncService.connect()).thenAnswer((_) async {});
+
+        final model = SettingsViewModel();
+        await model.connectDrive();
+
+        verify(driveSyncService.connect()).called(1);
+        expect(model.isDriveConnecting, isFalse);
+      });
+
+      test(
+        'a cancelled/blocked connect surfaces a specific error message',
+        () async {
+          when(driveSyncService.connect()).thenThrow(
+            const GoogleAuthException(GoogleAuthFailure.cancelledOrBlocked),
+          );
+
+          final model = SettingsViewModel();
+          await model.connectDrive();
+
+          expect(model.driveConnectErrorMessage, 'Connection cancelled.');
+        },
+      );
+
+      test('syncDriveNow delegates to DriveSyncService.syncNow', () async {
+        when(driveSyncService.syncNow()).thenAnswer((_) async {});
+
+        final model = SettingsViewModel();
+        await model.syncDriveNow();
+
+        verify(driveSyncService.syncNow()).called(1);
+      });
+
+      test(
+        'disconnectDrive does nothing when the confirmation is declined',
+        () async {
+          when(
+            dialogService.showCustomDialog(
+              variant: anyNamed('variant'),
+              title: anyNamed('title'),
+              description: anyNamed('description'),
+              mainButtonTitle: anyNamed('mainButtonTitle'),
+              secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+            ),
+          ).thenAnswer((_) async => DialogResponse(confirmed: false));
+
+          final model = SettingsViewModel();
+          await model.disconnectDrive();
+
+          verifyNever(driveSyncService.disconnect());
+        },
+      );
+
+      test('disconnectDrive calls through once confirmed', () async {
+        when(
+          dialogService.showCustomDialog(
+            variant: anyNamed('variant'),
+            title: anyNamed('title'),
+            description: anyNamed('description'),
+            mainButtonTitle: anyNamed('mainButtonTitle'),
+            secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+          ),
+        ).thenAnswer((_) async => DialogResponse(confirmed: true));
+        when(driveSyncService.disconnect()).thenAnswer((_) async {});
+
+        final model = SettingsViewModel();
+        await model.disconnectDrive();
+
+        verify(driveSyncService.disconnect()).called(1);
+      });
+
+      test(
+        'resolveDriveConflict is a no-op when not currently in conflict',
+        () async {
+          when(
+            driveSyncService.status,
+          ).thenReturn(const DriveSyncStatus.disconnected());
+
+          final model = SettingsViewModel();
+          await model.resolveDriveConflict();
+
+          verifyNever(
+            dialogService.showCustomDialog<bool, DriveConflictDialogData>(
+              variant: anyNamed('variant'),
+              data: anyNamed('data'),
+            ),
+          );
+        },
+      );
+
+      test(
+        'resolveDriveConflict resolves with the choice from the dialog',
+        () async {
+          when(driveSyncService.status).thenReturn(
+            const DriveSyncStatus.conflict(accountEmail: 'person@example.com'),
+          );
+          when(driveSyncService.conflictRemoteModifiedAt).thenReturn(null);
+          when(
+            dialogService.showCustomDialog<bool, DriveConflictDialogData>(
+              variant: DialogType.driveConflict,
+              data: anyNamed('data'),
+            ),
+          ).thenAnswer(
+            (_) async => DialogResponse<bool>(confirmed: true, data: false),
+          );
+          when(
+            driveSyncService.resolveConflict(keepLocal: false),
+          ).thenAnswer((_) async {});
+
+          final model = SettingsViewModel();
+          await model.resolveDriveConflict();
+
+          verify(driveSyncService.resolveConflict(keepLocal: false)).called(1);
         },
       );
     });
