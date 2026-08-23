@@ -57,8 +57,10 @@ class DraftsCardList extends StatelessWidget {
                 ),
                 const VGap.medium(),
               ],
-              SizedBox(
-                width: 320,
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: _searchFieldMaxWidth,
+                ),
                 child: TextField(
                   onChanged: viewModel.setQuery,
                   decoration: InputDecoration(
@@ -141,6 +143,11 @@ class _NoSearchResults extends StatelessWidget {
 /// mostly its thumbnail, and a full CVs page tends to hold more drafts at
 /// once than a template gallery dialog holds templates.
 const _cardWidth = 200.0;
+
+/// Caps the search field's width so it doesn't stretch to fill the grid's
+/// full row width on wide monitors — matches
+/// `StudioSkillSelector`'s own filter field.
+const _searchFieldMaxWidth = 320.0;
 
 class _DraftCard extends StatelessWidget {
   const _DraftCard({
