@@ -2426,12 +2426,87 @@ golden suite included with zero pixel diffs — confirming tablet/desktop
 are unchanged), and a manual pass in a headless browser at 320/390/1400px
 viewport widths.
 
+### Post-7.8 (round 4) — Mobile fixes found by live-testing round 3 on a real phone
+
+Round 3 (above) shipped from a headless-browser smoke test at a few fixed
+widths, which missed three real bugs and introduced a fourth — all
+caught by actually loading the deployed build on a phone, which is the
+gap this round closes.
+
+**A page-height regression in `AppChrome`'s own new mobile branch.**
+Round 3's `_MobileChrome` used a bare `Scaffold(body: child, ...)`
+without the `Row` `crossAxisAlignment.stretch` trick the rail path
+already relies on (see round 2's own entry above for why that trick
+exists at all) — `Scaffold.body` hands out the exact same loose height
+constraint a bare `Row` does, so the fix regressed for mobile the moment
+mobile stopped going through the rail's `Row`. Concretely: the CVs
+page's "New CV" FAB, anchored via `Positioned` to a `Stack` that shrunk
+to its scrollable content's natural height, landed partway up the screen
+instead of at the true bottom. `SizedBox.expand(child: child)` restores
+the tight, full-height constraint.
+
+**`AppDialogScaffold` had no ceiling on its own height at all.** A tall
+body (the template gallery's card grid, notably) simply extended past
+the screen on a phone short on height, with nothing to scroll it back
+into view — the confirm/cancel row wasn't clipped with an overflow
+warning, it was just unreachable. The whole dialog (title + body +
+button row) is now capped to the viewport height actually left after
+`Dialog`'s inset and the scaffold's own content padding, wrapped in a
+`SingleChildScrollView` that only engages when content is actually too
+tall for that cap. The template gallery's own fixed `maxHeight: 620` +
+inner `SingleChildScrollView` — a magic number that couldn't know what
+a given phone actually had left — is gone now that the scaffold handles
+it generically; `RegionGalleryDialog`, which had no height handling of
+its own at all, gets the fix for free.
+
+**The confirm/cancel button row's own width had no fallback either.** A
+confirm label is caller-supplied text with no length guarantee (the
+template gallery's "Use this template" is already long enough to be
+marginal on a narrow phone) — a plain `Row` had nothing to fall back on
+if the two buttons didn't fit side by side. Replaced with `OverflowBar`,
+the same widget `AlertDialog.actions` itself uses: lays out identically
+to the `Row` it replaced whenever both buttons fit, stacks them instead
+of overflowing when they don't.
+
+**`StudioDocumentBar`'s narrow-width layout could still push Export off
+the bar.** Its two-row fallback (below `_singleRowMinWidth`) put the
+setup and output control groups in a `Row(mainAxisAlignment:
+spaceBetween)` with nothing to fall back on if they didn't both fit —
+and on a phone-width bar they often didn't, running Export off the
+bar's right edge with no way to scroll it back. Both that row and
+`_SetupControls`'s own inner `Row` (template + region buttons, which
+could overflow on its own before ever reaching the outer fallback) are
+now `Wrap`s, matching Settings' own backup-buttons fix from round 3.
+
+**A pre-existing gap, not a round-3 regression: a fresh browser load of
+a deep link 404'd.** `url_strategy`'s `setPathUrlStrategy()` gives this
+app clean History-API URLs (`/vault`, not `/#/vault`), but GitHub Pages
+has no server-side rewrite rules — a bookmark, a shared link, or a plain
+refresh on any route past the root hit GitHub's own static 404 before
+Flutter ever loaded, regardless of the in-app wildcard `RedirectRoute`
+(that only helps once the SPA is already running). Fixed with the
+standard workaround for this exact combination
+([rafgraph/spa-github-pages](https://github.com/rafgraph/spa-github-pages)):
+`web/404.html` redirects back to the app root with the originally
+-requested path encoded as a query string, and a matching script at the
+very top of `web/index.html`'s `<head>` decodes it and restores the real
+URL via `history.replaceState` before the Flutter router ever reads
+`window.location`. Verified end-to-end against a local server that
+reproduces GitHub Pages' actual 404-serving behavior (not just a
+generic SPA fallback), not merely reasoned through.
+
+Verified via `flutter analyze` (0 issues), `flutter test` (298/298,
+golden suite included with zero pixel diffs), and this time a build
+actually loaded and driven in a headless browser through Vault → CVs →
+Studio → the template gallery, plus the 404 flow above — not just
+static screenshots at a few widths.
+
 ### Phase 7 status
 
-7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all three post-7.8
+7.1, 7.2, 7.3, 7.4, 7.5, 7.7, and 7.8 are shipped, plus all four post-7.8
 UI polish passes above. **7.6 (logo, favicon, splash, plus the
 `manifest.json` bug) is the only sub-phase left** — deliberately
-deferred across all three rounds; it touches no Dart and is independent
-of everything else here. Repo version bumped to `2.6.0` (from `2.5.0`,
-which covered the second post-7.8 round — `BackupService._appVersion`
+deferred across all four rounds; it touches no Dart and is independent
+of everything else here. Repo version bumped to `2.7.0` (from `2.6.0`,
+which covered the third post-7.8 round — `BackupService._appVersion`
 bumped to match in the same pass, per that field's own doc comment).

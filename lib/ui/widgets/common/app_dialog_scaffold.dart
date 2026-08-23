@@ -50,6 +50,14 @@ class AppDialogScaffold extends StatelessWidget {
 
   static const _defaultMaxWidth = 420.0;
 
+  /// `Dialog`'s own built-in default, made explicit here (rather than
+  /// left as `insetPadding: null`) so it can be subtracted from the
+  /// viewport height below — see [build]'s `maxHeight` comment.
+  static const _defaultInsetPadding = EdgeInsets.symmetric(
+    horizontal: 40,
+    vertical: 24,
+  );
+
   @override
   Widget build(BuildContext context) {
     final body = Column(
@@ -59,11 +67,19 @@ class AppDialogScaffold extends StatelessWidget {
         Text(title, style: context.appTypography.titleMedium),
         ...children,
         const VGap.medium(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+        // OverflowBar, not Row — a confirm label is caller-supplied and
+        // has no length guarantee (the template gallery's "Use this
+        // template" is already long enough to be marginal on a narrow
+        // phone). It lays the two buttons out exactly like the Row this
+        // replaced whenever they fit, but stacks them instead of
+        // overflowing past the dialog's edge when they don't — the same
+        // widget `AlertDialog.actions` itself uses for this.
+        OverflowBar(
+          alignment: MainAxisAlignment.end,
+          spacing: context.appSpacing.gapSmall,
+          overflowSpacing: context.appSpacing.gapSmall,
           children: [
             TextButton(onPressed: onCancel, child: Text(cancelLabel)),
-            const HGap.small(),
             FilledButton(
               style: destructive
                   ? FilledButton.styleFrom(backgroundColor: kcErrorColor)
@@ -83,22 +99,41 @@ class AppDialogScaffold extends StatelessWidget {
     // edge rather than shrinking to fit. Below the tablet breakpoint both
     // insets shrink; tablet/desktop keep the original spacing untouched.
     final isMobile = MediaQuery.sizeOf(context).width < 600;
+    final insetPadding = isMobile
+        ? EdgeInsets.symmetric(
+            horizontal: context.appSpacing.paddingDefault,
+            vertical: context.appSpacing.paddingPanel,
+          )
+        : _defaultInsetPadding;
+    final contentPadding = isMobile
+        ? context.appSpacing.paddingDefault
+        : context.appSpacing.paddingPage;
+
     return Dialog(
-      insetPadding: isMobile
-          ? EdgeInsets.symmetric(
-              horizontal: context.appSpacing.paddingDefault,
-              vertical: context.appSpacing.paddingPanel,
-            )
-          : null,
+      insetPadding: insetPadding,
       child: Padding(
-        padding: EdgeInsets.all(
-          isMobile
-              ? context.appSpacing.paddingDefault
-              : context.appSpacing.paddingPage,
-        ),
+        padding: EdgeInsets.all(contentPadding),
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth ?? _defaultMaxWidth),
-          child: body,
+          constraints: BoxConstraints(
+            maxWidth: maxWidth ?? _defaultMaxWidth,
+            // Caps the whole dialog (title + body + button row) to
+            // whatever height the viewport actually has left after
+            // `Dialog`'s own inset and this padding — without this, a
+            // tall body (the template gallery's card grid, on a phone
+            // short on height) had nothing bounding it, so it simply
+            // extended past the screen with no way to reach the
+            // confirm/cancel row below it: not clipped with an overflow
+            // warning, just silently unreachable. `SingleChildScrollView`
+            // already shrinks to its child's natural size (clamped to
+            // whatever max its parent allows) with no extra flag needed
+            // — a dialog that already fits doesn't pay for this at all;
+            // only content actually taller than the cap ends up scrolled.
+            maxHeight:
+                MediaQuery.sizeOf(context).height -
+                insetPadding.vertical -
+                contentPadding * 2,
+          ),
+          child: SingleChildScrollView(child: body),
         ),
       ),
     );

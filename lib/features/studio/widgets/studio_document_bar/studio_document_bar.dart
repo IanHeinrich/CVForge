@@ -110,9 +110,18 @@ class StudioDocumentBar extends StatelessWidget {
                   _Identity(viewModel: viewModel),
                   const VGap.tiny(),
                   // Too narrow to centre anything meaningfully, so the
-                  // two control groups just take an end each.
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // two control groups just take an end each — but on a
+                  // phone-width bar even that end-each pair (template +
+                  // region buttons on one side, page count + Export on
+                  // the other) doesn't always fit one line. A plain `Row`
+                  // let Export run off the bar's right edge with nothing
+                  // to scroll it back into view; `Wrap` drops it to its
+                  // own line instead once the two groups' combined width
+                  // stops fitting, while still reproducing the same
+                  // side-by-side look whenever there's room for it.
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    runSpacing: context.appSpacing.gapSmall,
                     children: [
                       _SetupControls(viewModel: viewModel),
                       _OutputControls(viewModel: viewModel),
@@ -143,8 +152,15 @@ class _SetupControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    // Wrap, not Row — the template button's label is the template's own
+    // (potentially long) display name, and on a narrow phone-width bar
+    // the two buttons together don't always fit one line. A plain Row
+    // let the region button run off the bar's edge with no way to reach
+    // it; Wrap drops it to its own line instead, same fix as the parent
+    // bar's own two-group Wrap just above this in the widget tree.
+    return Wrap(
+      spacing: context.appSpacing.gapTiny,
+      runSpacing: context.appSpacing.gapTiny,
       children: [
         _BarButton(
           onPressed: viewModel.openTemplateGallery,
@@ -154,7 +170,6 @@ class _SetupControls extends StatelessWidget {
           ),
           label: viewModel.template.displayName,
         ),
-        const HGap.tiny(),
         // A button opening a card dialog, not the `DropdownMenu` 7.5
         // originally chose: region sits beside template here and is the
         // same kind of decision, so it gets the same affordance — and

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>CV Forge</title>
+  <script type="text/javascript">
+    // GitHub Pages has no server-side rewrite rules, so a fresh browser
+    // load (a bookmark, a shared link, a refresh) of a deep path like
+    // /CVForge/vault 404s before the Flutter app — which owns routing
+    // for that path via url_strategy's History-API URLs — ever loads.
+    // This is the standard workaround for that combination (History-API
+    // client-side routing + GitHub Pages' static hosting): GitHub Pages
+    // serves this file for any unmatched path, and it redirects back to
+    // the real app root, encoding the originally-requested path as a
+    // query string; index.html's matching script decodes that and
+    // restores the real URL via history.replaceState before Flutter's
+    // router ever reads window.location. See
+    // https://github.com/rafgraph/spa-github-pages.
+    //
+    // pathSegmentsToKeep is 1 — this repo deploys as a *project* Pages
+    // site (ianheinrich.github.io/CVForge/...), so the first path
+    // segment ("CVForge") is the app root and must survive the redirect
+    // untouched, matching deploy.yml's `--base-href /CVForge/`.
+    var pathSegmentsToKeep = 1;
+    var l = window.location;
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+      (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+      l.hash
+    );
+  </script>
+</head>
+
+<body>
+</body>
+
+</html>
