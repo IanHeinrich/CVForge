@@ -8,7 +8,7 @@ import 'package:cv_forge/features/studio/dialogs/template_gallery/template_galle
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';

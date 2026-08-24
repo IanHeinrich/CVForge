@@ -6,7 +6,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
 import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';

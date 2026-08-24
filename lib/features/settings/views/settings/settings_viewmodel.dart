@@ -3,7 +3,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/drive_sync_service.dart';

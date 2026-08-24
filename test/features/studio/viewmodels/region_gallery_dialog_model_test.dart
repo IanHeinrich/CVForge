@@ -1,7 +1,7 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_model.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_helpers.dart';

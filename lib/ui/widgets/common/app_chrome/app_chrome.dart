@@ -1,6 +1,6 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';

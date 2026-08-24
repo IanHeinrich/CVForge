@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/services/local_storage_service.dart';

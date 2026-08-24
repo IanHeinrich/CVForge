@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:flutter_test/flutter_test.dart';

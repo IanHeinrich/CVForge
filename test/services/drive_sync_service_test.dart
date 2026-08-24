@@ -6,7 +6,7 @@ import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/drive/drive_file_snapshot.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';

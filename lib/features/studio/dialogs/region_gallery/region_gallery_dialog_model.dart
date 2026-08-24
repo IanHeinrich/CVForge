@@ -1,4 +1,4 @@
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:stacked/stacked.dart';
 
 import 'region_gallery_dialog_data.dart';

@@ -1,4 +1,4 @@
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 
 /// What [RegionGalleryDialog] needs to mark the current region — passed in
 /// as the dialog's
