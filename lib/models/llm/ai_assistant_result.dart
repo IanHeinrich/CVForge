@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/llm/llm_field_length_guard.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 
 part 'ai_assistant_result.freezed.dart';
@@ -20,6 +21,14 @@ part 'ai_assistant_result.freezed.dart';
 /// experience/project/publication is dropped silently, the same "dangling
 /// ids are normal, not an error" rule [CvDraft] already applies everywhere
 /// else — never a crash, never a thrown exception.
+///
+/// The three fields that reach the page — headline, summary and each
+/// bullet rewrite — additionally go through [acceptRewrittenField], so a
+/// single runaway value cannot produce a CV that will not render. This
+/// pass is not chunked the way translation is, and shouldn't be: tailoring
+/// decides what to *cut*, which it can only do seeing the whole CV at
+/// once. Guarding the output is what buys the same safety without taking
+/// away the context the pass exists to use.
 @freezed
 abstract class AiAssistantResult with _$AiAssistantResult {
   const factory AiAssistantResult({
@@ -111,8 +120,8 @@ abstract class AiAssistantResult with _$AiAssistantResult {
     }
 
     return AiAssistantResult(
-      headline: _asString(json['headline']),
-      summary: _asString(json['summary']),
+      headline: acceptRewrittenField(json['headline']),
+      summary: acceptRewrittenField(json['summary']),
       experienceIds: [
         for (final e in vault.experiences)
           if (resultBulletIds.containsKey(e.id)) e.id,
@@ -165,7 +174,7 @@ void _applyEntry(
   for (final rewrite in _asList(entry['rewrites'])) {
     if (rewrite is! Map) continue;
     final id = _asString(rewrite['id']);
-    final text = _asString(rewrite['text']);
+    final text = acceptRewrittenField(rewrite['text']);
     if (id != null && text != null && validBulletIds.contains(id)) {
       bulletOverridesOut[id] = text;
     }
