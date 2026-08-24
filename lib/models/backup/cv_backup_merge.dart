@@ -67,6 +67,14 @@ CvBackupBundle mergeBackupBundles({
 /// nothing finer to merge by — each field goes to whichever side changed
 /// it, and a field both sides changed goes to the later [CvPreferences.
 /// updatedAt]. A null side means "nothing to say", never "clear these".
+///
+/// Built with `local.copyWith` rather than a bare constructor call
+/// deliberately: a field added to [CvPreferences] and forgotten here then
+/// degrades to "keep this device's value" instead of silently resetting to
+/// the class default on every sync. That is not hypothetical — `localeTag`
+/// was added without a line here and was being reset to "follow the
+/// browser" for anyone syncing, which is invisible until someone notices
+/// their language choice not sticking on a second device.
 CvPreferences? _mergePreferences(
   CvPreferences? base,
   CvPreferences? local,
@@ -76,7 +84,7 @@ CvPreferences? _mergePreferences(
   if (remote == null) return local;
   final b = base ?? CvPreferences.empty();
   final pr = remote.updatedAt.isAfter(local.updatedAt);
-  final merged = CvPreferences(
+  final merged = local.copyWith(
     defaultRegion: _pick(
       b.defaultRegion,
       local.defaultRegion,
@@ -113,6 +121,7 @@ CvPreferences? _mergePreferences(
       remote.defaultHiddenSections,
       pr,
     ),
+    localeTag: _pick(b.localeTag, local.localeTag, remote.localeTag, pr),
     updatedAt: local.updatedAt,
   );
   // Same reasoning as _stampMerged: a result identical to one side didn't
@@ -164,7 +173,11 @@ CvVault? _mergeVaults(CvVault? base, CvVault? local, CvVault? remote) {
       );
   final pr = remote.updatedAt.isAfter(local.updatedAt);
 
-  final merged = CvVault(
+  // `local.copyWith` rather than a bare constructor call, for the same
+  // reason as _mergePreferences: a field added to [CvVault] and forgotten
+  // here degrades to "keep this device's value" instead of silently
+  // resetting to the class default on every sync.
+  final merged = local.copyWith(
     schemaVersion: local.schemaVersion,
     basics: _mergeBasics(b.basics, local.basics, remote.basics, pr),
     experiences: b.experiences.mergeThreeWay(

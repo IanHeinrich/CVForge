@@ -81,10 +81,12 @@ CvBackupBundle _b(
 CvPreferences _prefs({
   RegionProfile region = RegionProfile.uk,
   String? providerId,
+  String? localeTag,
   DateTime? at,
 }) => CvPreferences(
   defaultRegion: region,
   aiAssistantProviderId: providerId,
+  localeTag: localeTag,
   updatedAt: at ?? _t0,
 );
 
@@ -652,6 +654,16 @@ void main() {
       );
       expect(mergedPrefs(changed, base)?.defaultRegion, RegionProfile.us);
       expect(mergedPrefs(base, changed)?.defaultRegion, RegionProfile.us);
+    });
+
+    test('an explicitly chosen UI language survives a sync', () {
+      final chosen = _b(
+        _v(),
+        preferences: _prefs(localeTag: 'es', at: _t1),
+      );
+
+      expect(mergedPrefs(chosen, base)?.localeTag, 'es');
+      expect(mergedPrefs(base, chosen)?.localeTag, 'es');
     });
 
     test('different preferences changed on each side both survive — no id '

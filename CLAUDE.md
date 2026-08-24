@@ -267,7 +267,7 @@ while reading a German UI. Nothing the UI locale does may reach:
   break the invariant that getter's doc exists to protect.
 
 This is a separate future feature, not an oversight. Region is a third axis
-again — see `RegionProfile`'s own note on region ≠ locale.
+again — see `RegionProfile`'s own "Region is not a locale" note.
 
 ### Also deliberately not localized
 

@@ -9,6 +9,27 @@
 /// [RegionProfile] is a plain enum and stays one: the per-region data lives
 /// on [RegionPreset], so this only ever needs to be a stable identifier.
 ///
+/// ## Region is not a locale
+///
+/// A region is the *market a document targets*, and it is independent of both
+/// of the app's language axes:
+///
+/// - **The UI locale** — which language the app's own buttons and labels are
+///   drawn in (`LocalizationService`, `CvPreferences.localeTag`). Someone
+///   applying across borders routinely reads a German interface while
+///   preparing a UK application, so the two must not be inferred from each
+///   other in either direction.
+/// - **The document's language** — which language the produced CV is written
+///   in. A German-language CV can target Austria or Switzerland; an
+///   English-language one can target the UK, the US or Singapore. Region
+///   supplies page size, date convention and the tailoring prompt's advice;
+///   it never supplies vocabulary.
+///
+/// Region is the coarsest of the three by design: [RegionProfile.dach] groups
+/// Germany, Austria and Switzerland precisely because they share a market's
+/// conventions, and it therefore cannot be used to tell Vienna's *Jän.* from
+/// Berlin's *Jan.* — that is the document language's job, not this enum's.
+///
 /// Declaration order is the region picker's display order: curated rather
 /// than alphabetical, with the two original regions first.
 enum RegionProfile { uk, us, anz, dach, nordics, europe, latamLetter, latamA4 }
