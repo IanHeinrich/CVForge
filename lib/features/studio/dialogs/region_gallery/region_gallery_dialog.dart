@@ -19,7 +19,7 @@ import 'region_gallery_dialog_model.dart';
 /// accordion instead. Layout breakpoints rather than spacing values, so
 /// they stay here rather than moving into `AppSpacing`.
 const _twoPaneMinWidth = 560.0;
-const _listWidth = 230.0;
+const _listWidth = 280.0;
 
 /// The region picker: a list of regions beside a pane explaining the
 /// selected one's conventions.
@@ -53,7 +53,7 @@ class RegionGalleryDialog extends StackedView<RegionGalleryDialogModel> {
   ) {
     return AppDialogScaffold(
       title: viewModel.title,
-      maxWidth: 720,
+      maxWidth: 760,
       cancelLabel: 'Cancel',
       confirmLabel: viewModel.confirmLabel,
       onCancel: () =>
@@ -182,9 +182,13 @@ class _RegionListRow extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    // Wraps rather than ellipsising: the country list is
+                    // how a reader knows "Nordics" includes Finland, and
+                    // the longest two would otherwise lose their last
+                    // entry. Uneven row heights are the cheaper cost.
                     Text(
                       preset.coverage,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: context.appTypography.caption.copyWith(
                         color: kcLightGrey,

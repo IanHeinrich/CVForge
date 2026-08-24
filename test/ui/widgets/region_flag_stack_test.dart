@@ -54,25 +54,15 @@ void main() {
       }
     });
 
-    testWidgets('maxFlags truncates rather than shrinking further, so the '
-        'document bar still shows one legible flag', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: RegionFlagStack(
-                flags: ['🇸🇪', '🇳🇴', '🇩🇰', '🇫🇮'],
-                size: 16,
-                maxFlags: 1,
-              ),
-            ),
-          ),
-        ),
-      );
+    testWidgets('truncates past four rather than shrinking further, since '
+        'a fifth flag would be illegible at any size used here', (
+      tester,
+    ) async {
+      await pump(tester, const ['🇸🇪', '🇳🇴', '🇩🇰', '🇫🇮', '🇮🇸'], 28);
 
       expect(tester.takeException(), isNull);
       expect(find.text('🇸🇪'), findsOneWidget);
-      expect(find.text('🇳🇴'), findsNothing);
+      expect(find.text('🇮🇸'), findsNothing);
     });
 
     testWidgets('an empty flag list still occupies its slot rather than '

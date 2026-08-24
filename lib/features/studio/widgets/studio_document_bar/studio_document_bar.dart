@@ -6,7 +6,6 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
-import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -202,14 +201,14 @@ class _SetupControls extends StatelessWidget {
         // own cards.
         _BarButton(
           onPressed: viewModel.openRegionGallery,
-          // One flag, not the region's full set: a 2x2 grid at this size
-          // is ~8px per glyph, and the label beside it already names the
-          // region, so the mark here is decoration rather than information.
-          icon: RegionFlagStack(
-            flags: viewModel.region.preset.flags,
-            size: context.appIconSize.small,
-            maxFlags: 1,
-          ),
+          // A globe rather than the region's flags. Four flags at this
+          // size are ~8px each and unreadable, but showing just the first
+          // is worse than showing none: "UK & Ireland" would be marked
+          // with the UK flag alone. The label already names the region,
+          // and this matches the icon treatment on the template button
+          // beside it. The flags appear in the picker and in Settings,
+          // where there is room to show all of them.
+          icon: Icon(RemixIcons.earth_line, size: context.appIconSize.small),
           label: viewModel.region.preset.displayName,
           labelMaxWidth: compact ? _compactLabelMaxWidth : null,
         ),

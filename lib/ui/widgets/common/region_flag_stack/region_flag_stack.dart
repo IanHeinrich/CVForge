@@ -4,11 +4,18 @@ import 'package:flutter/material.dart';
 /// four countries reads honestly without taking four times the width.
 ///
 /// `RegionPreset.flags` is a list rather than one emoji because most regions
-/// span several countries — but the mark still has to fit slots built for
-/// one glyph (`StudioDocumentBar`'s icon, the picker row's leading mark).
-/// Rendering the list as a plain string would be four glyphs wide and
-/// overflow both, so this lays them out in a [size]-square box instead: one
-/// flag fills it, two sit side by side, three or four go in a 2x2 grid.
+/// span several countries — but the mark still has to fit a slot built for
+/// one glyph. Rendering the list as a plain string would be four glyphs
+/// wide and overflow it, so this lays them out in a [size]-square box
+/// instead: one flag fills it, two sit side by side, three or four go in a
+/// 2x2 grid. Beyond four it truncates, since a fifth would be illegible at
+/// any size this is used at.
+///
+/// Only used where there is room to render every flag — the region picker
+/// and Settings, both at `appIconSize.large`. `StudioDocumentBar` shows a
+/// globe instead: its 16px slot would reduce four flags to mush, and
+/// showing only the first would mark "UK & Ireland" with the UK flag
+/// alone.
 ///
 /// The glyphs are laid out at a nominal size and scaled to fit by
 /// [FittedBox], rather than at a computed fraction of [size]. A flag emoji
@@ -20,12 +27,7 @@ import 'package:flutter/material.dart';
 /// Deliberately not overlapped: flag emoji are colour glyphs with no
 /// outline, and overlapping them reads as a smudge at these sizes.
 class RegionFlagStack extends StatelessWidget {
-  const RegionFlagStack({
-    super.key,
-    required this.flags,
-    required this.size,
-    this.maxFlags = 4,
-  });
+  const RegionFlagStack({super.key, required this.flags, required this.size});
 
   final List<String> flags;
 
@@ -33,20 +35,13 @@ class RegionFlagStack extends StatelessWidget {
   /// the same value a single-flag `Text` would have used as its `fontSize`.
   final double size;
 
-  /// Caps how many flags are drawn. Truncates rather than scaling further
-  /// down, since a fifth flag would be illegible at any size this is used
-  /// at. `StudioDocumentBar` passes 1: a 2x2 grid inside a 16px slot is
-  /// ~8px per glyph, and the button's label already names the region, so
-  /// the mark there is decoration rather than information.
-  final int maxFlags;
-
   /// Arbitrary — only the *ratios* between glyphs matter, since [FittedBox]
   /// rescales the result. Large enough that layout rounding doesn't show.
   static const _nominalGlyphSize = 100.0;
 
   @override
   Widget build(BuildContext context) {
-    final shown = flags.take(maxFlags).toList();
+    final shown = flags.take(4).toList();
     if (shown.isEmpty) return SizedBox.square(dimension: size);
 
     return SizedBox.square(
