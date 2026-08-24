@@ -1,4 +1,4 @@
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -6,6 +6,7 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
+import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -122,12 +123,12 @@ class _RegionCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  // The flag carries its own colour, so it needs no icon
+                  // The flags carry their own colour, so they need no icon
                   // treatment — sized up to read as the card's mark, the
                   // way a template card's thumbnail does.
-                  Text(
-                    preset.flag,
-                    style: TextStyle(fontSize: context.appIconSize.large),
+                  RegionFlagStack(
+                    flags: preset.flags,
+                    size: context.appIconSize.large,
                   ),
                   const HGap.small(),
                   Expanded(
@@ -167,8 +168,8 @@ class _RegionCard extends StatelessWidget {
               const VGap.tiny(),
               _DetailRow(
                 icon: RemixIcons.text,
-                label: 'Called a',
-                value: preset.documentNoun,
+                label: 'Known locally as',
+                value: preset.localName,
               ),
             ],
           ),

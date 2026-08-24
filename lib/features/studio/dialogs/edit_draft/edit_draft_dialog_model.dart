@@ -1,5 +1,5 @@
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:stacked/stacked.dart';
@@ -28,7 +28,8 @@ class EditDraftDialogModel extends BaseViewModel {
       .preferences
       .defaultRegion
       .preset
-      .documentNounCapitalized;
+      .documentNoun
+      .capitalized;
 
   bool _nameTouched = false;
 

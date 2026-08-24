@@ -1,6 +1,6 @@
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';

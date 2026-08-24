@@ -1,9 +1,10 @@
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
@@ -76,9 +77,9 @@ class _RegionChip extends StatelessWidget {
     return ChoiceChip(
       selected: selected,
       onSelected: (_) => onTap(),
-      avatar: Text(
-        preset.flag,
-        style: TextStyle(fontSize: context.appIconSize.small),
+      avatar: RegionFlagStack(
+        flags: preset.flags,
+        size: context.appIconSize.small,
       ),
       label: Text(preset.displayName),
       labelStyle: context.appTypography.bodySmall,

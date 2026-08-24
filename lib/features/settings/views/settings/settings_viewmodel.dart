@@ -3,7 +3,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/drive_sync_service.dart';
@@ -132,7 +132,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     if (bundle == null) return; // cancelled, or pickImportFile's own error —
     // surfaced separately via importErrorMessage.
 
-    final noun = defaultRegion.preset.documentNounPluralCapitalized;
+    final noun = defaultRegion.preset.documentNoun.pluralCapitalized;
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
       title: 'Replace your data?',

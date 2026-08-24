@@ -1,4 +1,4 @@
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -6,6 +6,7 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
+import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -201,9 +202,13 @@ class _SetupControls extends StatelessWidget {
         // own cards.
         _BarButton(
           onPressed: viewModel.openRegionGallery,
-          icon: Text(
-            viewModel.region.preset.flag,
-            style: TextStyle(fontSize: context.appIconSize.small),
+          // One flag, not the region's full set: a 2x2 grid at this size
+          // is ~8px per glyph, and the label beside it already names the
+          // region, so the mark here is decoration rather than information.
+          icon: RegionFlagStack(
+            flags: viewModel.region.preset.flags,
+            size: context.appIconSize.small,
+            maxFlags: 1,
           ),
           label: viewModel.region.preset.displayName,
           labelMaxWidth: compact ? _compactLabelMaxWidth : null,
@@ -296,7 +301,7 @@ class _Identity extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back to your ${preset.documentNounPluralCapitalized}',
+          tooltip: 'Back to your ${preset.documentNoun.pluralCapitalized}',
           icon: const Icon(RemixIcons.arrow_left_line, color: kcLightGrey),
           onPressed: viewModel.goToDrafts,
         ),
@@ -308,7 +313,7 @@ class _Identity extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Edit ${preset.documentNounCapitalized} details',
+          tooltip: 'Edit ${preset.documentNoun.capitalized} details',
           icon: const Icon(RemixIcons.edit_line, color: kcLightGrey),
           onPressed: viewModel.editDraftDetails,
         ),

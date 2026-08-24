@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cv_forge/models/draft/cv_draft.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -202,7 +202,7 @@ class _DraftCard extends StatelessWidget {
                     child: Text(
                       draft.name.isEmpty
                           ? 'Untitled '
-                                '${draft.region.preset.documentNounCapitalized}'
+                                '${draft.region.preset.documentNoun.capitalized}'
                           : draft.name,
                       style: context.appTypography.bodySmall.copyWith(
                         color: kcWhite,
