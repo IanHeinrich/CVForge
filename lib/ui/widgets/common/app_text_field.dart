@@ -46,6 +46,12 @@ class _AppTextFieldState extends State<AppTextField> {
   final _focusNode = FocusNode();
   Timer? _debounce;
 
+  /// The value most recently handed to [AppTextField.onChanged]. Both blur
+  /// and dispose flush, and every editor panel in the app is rebuilt
+  /// constantly, so without this a field that was merely focused and left
+  /// alone would still push a write through the ViewModel to storage.
+  late String _lastSent = widget.initialValue;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +66,7 @@ class _AppTextFieldState extends State<AppTextField> {
     // rebuild while the user is mid-keystroke would fight their typing.
     if (widget.initialValue != _controller.text && !_focusNode.hasFocus) {
       _controller.text = widget.initialValue;
+      _lastSent = widget.initialValue;
     }
   }
 
@@ -69,24 +76,28 @@ class _AppTextFieldState extends State<AppTextField> {
 
   void _handleChanged(String value) {
     _debounce?.cancel();
-    _debounce = Timer(
-      const Duration(milliseconds: 400),
-      () => widget.onChanged(value),
-    );
+    _debounce = Timer(const Duration(milliseconds: 400), () => _send(value));
   }
 
+  /// Delivers whatever is in the field now, cancelling any queued debounce.
+  /// Losing focus and being disposed both mean "no more keystrokes are
+  /// coming", and a still-queued timer would otherwise drop the last edit
+  /// — e.g. the panel closing right after a final keystroke.
   void _flush() {
     _debounce?.cancel();
-    widget.onChanged(_controller.text);
+    _debounce = null;
+    _send(_controller.text);
+  }
+
+  void _send(String value) {
+    if (value == _lastSent) return;
+    _lastSent = value;
+    widget.onChanged(value);
   }
 
   @override
   void dispose() {
-    // A pending debounce means the last keystroke(s) haven't reached
-    // onChanged yet — cancelling it outright without flushing would drop
-    // them (e.g. the panel closes right after a final edit).
-    if (_debounce?.isActive ?? false) widget.onChanged(_controller.text);
-    _debounce?.cancel();
+    _flush();
     _focusNode.removeListener(_handleFocusChange);
     _focusNode.dispose();
     _controller.dispose();
