@@ -247,20 +247,38 @@ class _OutputControls extends StatelessWidget {
     final exportTooltip = viewModel.isExporting ? 'Exporting…' : 'Export PDF';
 
     if (compact) {
-      return SizedBox(
-        height: StudioDocumentBar._controlHeight,
-        width: StudioDocumentBar._controlHeight,
-        child: Tooltip(
-          message: exportTooltip,
-          child: FilledButton(
-            onPressed: viewModel.isExporting ? null : viewModel.exportPdf,
-            style: FilledButton.styleFrom(
-              padding: EdgeInsets.zero,
-              shape: const CircleBorder(),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // The neutral page count stays hidden here (see [compact]), but a
+          // warning is actionable rather than informational, so it earns
+          // the width — and costs none in the ordinary case, because it
+          // only exists when there is something to say.
+          if (viewModel.pageCountWarning != null) ...[
+            _PageCountBadge(
+              count: viewModel.pageCount!,
+              height: StudioDocumentBar._controlHeight,
+              warning: viewModel.pageCountWarning,
+              iconOnly: true,
             ),
-            child: exportIcon,
+            const HGap.tiny(),
+          ],
+          SizedBox(
+            height: StudioDocumentBar._controlHeight,
+            width: StudioDocumentBar._controlHeight,
+            child: Tooltip(
+              message: exportTooltip,
+              child: FilledButton(
+                onPressed: viewModel.isExporting ? null : viewModel.exportPdf,
+                style: FilledButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  shape: const CircleBorder(),
+                ),
+                child: exportIcon,
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 
@@ -271,6 +289,7 @@ class _OutputControls extends StatelessWidget {
           _PageCountBadge(
             count: viewModel.pageCount!,
             height: StudioDocumentBar._controlHeight,
+            warning: viewModel.pageCountWarning,
           ),
           const HGap.tiny(),
         ],
@@ -378,28 +397,79 @@ class _BarButton extends StatelessWidget {
   }
 }
 
+/// How many pages the CV came out at, and — when [warning] is non-null —
+/// that this is more than the draft's region typically expects.
+///
+/// The comparison itself lives on `StudioViewModel.pageCountWarning`; this
+/// only renders what it decided.
 class _PageCountBadge extends StatelessWidget {
-  const _PageCountBadge({required this.count, required this.height});
+  const _PageCountBadge({
+    required this.count,
+    required this.height,
+    this.warning,
+    this.iconOnly = false,
+  });
 
   final int count;
   final double height;
 
+  /// Null renders the plain badge, unchanged.
+  final String? warning;
+
+  /// Drops the label, leaving a [height]-square warning icon with the same
+  /// footprint as the compact Export button. Only meaningful with a
+  /// [warning] to explain via the tooltip.
+  final bool iconOnly;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isWarning = warning != null;
+
+    // Lifted from `_SpendWarning` in `ai_assistant_key_help.dart` so the
+    // app's two amber surfaces match. A third one should promote this to a
+    // shared widget — it's a colour treatment rather than a scale value, so
+    // it doesn't belong in `tokens/`.
+    final badge = Container(
       height: height,
+      width: iconOnly ? height : null,
       alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(
-        horizontal: context.appSpacing.paddingCompact,
-      ),
+      padding: iconOnly
+          ? EdgeInsets.zero
+          : EdgeInsets.symmetric(horizontal: context.appSpacing.paddingCompact),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        color: isWarning
+            ? kcWarningColor.withValues(alpha: 0.08)
+            : Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(context.appRadius.medium),
+        border: isWarning
+            ? Border.all(color: kcWarningColor.withValues(alpha: 0.4))
+            : null,
       ),
-      child: Text(
-        count == 1 ? '1 page' : '$count pages',
-        style: context.appTypography.caption,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isWarning) ...[
+            Icon(
+              RemixIcons.error_warning_line,
+              size: context.appIconSize.small,
+              color: kcWarningColor,
+            ),
+            if (!iconOnly) const HGap.tiny(),
+          ],
+          if (!iconOnly)
+            Text(
+              count == 1 ? '1 page' : '$count pages',
+              style: isWarning
+                  ? context.appTypography.caption.copyWith(
+                      color: kcWarningColor,
+                    )
+                  : context.appTypography.caption,
+            ),
+        ],
       ),
     );
+
+    // Long-press reaches the message on touch, where there is no hover.
+    return isWarning ? Tooltip(message: warning!, child: badge) : badge;
   }
 }

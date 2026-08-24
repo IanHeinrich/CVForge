@@ -2,7 +2,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -409,6 +409,36 @@ void main() {
         expect(StudioViewModel().pageFormat, PdfPageFormat.letter);
       });
 
+      test('every region resolves its own page format, including the two '
+          'Latin American presets that exist only to differ on it', () {
+        when(vaultService.vault).thenReturn(vaultWith());
+
+        const expected = {
+          RegionProfile.uk: PdfPageFormat.a4,
+          RegionProfile.us: PdfPageFormat.letter,
+          RegionProfile.anz: PdfPageFormat.a4,
+          RegionProfile.dach: PdfPageFormat.a4,
+          RegionProfile.nordics: PdfPageFormat.a4,
+          RegionProfile.europe: PdfPageFormat.a4,
+          RegionProfile.latamLetter: PdfPageFormat.letter,
+          RegionProfile.latamA4: PdfPageFormat.a4,
+        };
+        expect(
+          expected.keys.toSet(),
+          RegionProfile.values.toSet(),
+          reason: 'a new region needs a page format asserted here',
+        );
+
+        for (final entry in expected.entries) {
+          when(draftService.draft).thenReturn(draftWith(region: entry.key));
+          expect(
+            StudioViewModel().pageFormat,
+            entry.value,
+            reason: entry.key.name,
+          );
+        }
+      });
+
       test('setRegion delegates to DraftService', () async {
         when(vaultService.vault).thenReturn(vaultWith());
         when(draftService.draft).thenReturn(draftWith());
@@ -420,6 +450,49 @@ void main() {
         await model.setRegion(RegionProfile.us);
 
         verify(draftService.setRegion(RegionProfile.us)).called(1);
+      });
+    });
+
+    group('pageCountWarning -', () {
+      StudioViewModel modelFor(RegionProfile region, {int? pages}) {
+        when(vaultService.vault).thenReturn(vaultWith());
+        when(draftService.draft).thenReturn(draftWith(region: region));
+        final model = StudioViewModel();
+        if (pages != null) model.setPageCount(pages);
+        return model;
+      }
+
+      test('stays silent before anything has rendered — no page count is '
+          'not the same as a page count that is fine', () {
+        expect(modelFor(RegionProfile.uk).pageCountWarning, isNull);
+      });
+
+      test('silent at exactly the typical maximum, speaks above it', () {
+        final max = RegionProfile.uk.preset.typicalMaxPages;
+
+        expect(modelFor(RegionProfile.uk, pages: max).pageCountWarning, isNull);
+        expect(
+          modelFor(RegionProfile.uk, pages: max + 1).pageCountWarning,
+          isNotNull,
+        );
+      });
+
+      test('the same page count warns in one region and not another, which '
+          'is the whole point of tying it to region', () {
+        expect(
+          modelFor(RegionProfile.uk, pages: 3).pageCountWarning,
+          isNotNull,
+        );
+        expect(modelFor(RegionProfile.anz, pages: 3).pageCountWarning, isNull);
+      });
+
+      test('names the region and offers the template as well as the '
+          'content, since page count follows both', () {
+        final warning = modelFor(RegionProfile.us, pages: 5).pageCountWarning;
+
+        expect(warning, contains(RegionProfile.us.preset.displayName));
+        expect(warning, contains(RegionProfile.us.preset.lengthNote));
+        expect(warning, contains('template'));
       });
     });
   });

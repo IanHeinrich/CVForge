@@ -227,6 +227,28 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     notifyListeners();
   }
 
+  /// Why this CV has run longer than its region typically expects, or null
+  /// when it hasn't — the badge branches on null rather than doing the
+  /// comparison itself, keeping the judgement out of the View.
+  ///
+  /// Null while [pageCount] is still null: "we don't know yet" is not
+  /// "you're fine", but it is not something to warn about either, and the
+  /// badge isn't rendered in that state at all.
+  ///
+  /// Strictly *over* the typical maximum — a two-page CV in a two-page
+  /// market is fine, not marginal. And the message offers the template as
+  /// well as the content, because page count follows template density at
+  /// least as much as it follows region; a warning that only says "cut
+  /// something" is wrong about half the time.
+  String? get pageCountWarning {
+    final count = pageCount;
+    if (count == null) return null;
+    final preset = _draft.region.preset;
+    if (count <= preset.typicalMaxPages) return null;
+    return 'Longer than ${preset.displayName} typically expects. '
+        '${preset.lengthNote} Try trimming content, or a denser template.';
+  }
+
   Future<void> goToVault() => _routerService.replaceWith(VaultViewRoute());
 
   Future<void> goToDrafts() =>
