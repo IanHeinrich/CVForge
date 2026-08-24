@@ -118,6 +118,7 @@ class CvTranslationRunDialog extends StackedView<CvTranslationRunDialogModel> {
           Text(
             context.l10n.studioTranslateResultBody(
               viewModel.result!.translatedCount,
+              viewModel.result!.requestedCount,
             ),
             style: context.appTypography.bodySmall,
           ),

@@ -450,7 +450,7 @@
   "studioTranslateFailedTitle": "La traducción falló",
   "studioTranslateRemove": "Quitar la traducción",
   "studioTranslateRemoveConfirm": "Esto restaura cada línea a como estaba antes de traducir, incluido lo que hayas editado desde entonces. ¿Quitarla?",
-  "studioTranslateResultBody": "{count, plural, one{Se tradujo 1 línea.} other{Se tradujeron {count} líneas.}}",
+  "studioTranslateResultBody": "{count, plural, one{Se tradujo 1 línea de {total}.} other{Se tradujeron {count} líneas de {total}.}}",
   "studioTranslateRunAgain": "Traducir de nuevo",
   "studioTranslateRunningBody": "Traduciendo cada línea que imprime este CV. Puede tardar unos minutos.",
   "studioTranslateRunningTitle": "Traduciendo tu CV",
