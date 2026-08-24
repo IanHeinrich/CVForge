@@ -1,7 +1,7 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_model.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_helpers.dart';
@@ -13,8 +13,12 @@ void main() {
 
     RegionGalleryDialogModel buildModel({
       RegionProfile currentRegion = RegionProfile.uk,
+      RegionGalleryContext context = RegionGalleryContext.draft,
     }) => RegionGalleryDialogModel(
-      data: RegionGalleryDialogData(currentRegion: currentRegion),
+      data: RegionGalleryDialogData(
+        currentRegion: currentRegion,
+        context: context,
+      ),
     );
 
     test('starts with the current region already selected', () {
@@ -48,33 +52,71 @@ void main() {
       expect(buildModel().regions, RegionProfile.values);
     });
 
-    test('every region declares the presentation values the card renders — '
-        'a new region missing one would render a blank cell rather than '
+    test('every region declares the presentation values the picker renders '
+        '— a new region missing one would render a blank cell rather than '
         'fail to compile', () {
       for (final region in RegionProfile.values) {
         final preset = region.preset;
-        expect(preset.flag, isNotEmpty, reason: '${region.name} flag');
+        final why = region.name;
+
+        expect(preset.flags, isNotEmpty, reason: '$why flags');
         expect(
-          preset.displayName,
-          isNotEmpty,
-          reason: '${region.name} displayName',
+          preset.flags.length,
+          lessThanOrEqualTo(4),
+          reason: '$why flags exceeds what RegionFlagStack lays out',
         );
+        for (final flag in preset.flags) {
+          expect(flag, isNotEmpty, reason: '$why has a blank flag');
+        }
+
+        for (final entry in <String, String>{
+          'displayName': preset.displayName,
+          'coverage': preset.coverage,
+          'localName': preset.localName,
+          'lengthNote': preset.lengthNote,
+          'toneNote': preset.toneNote,
+          'page label': preset.page.displayLabel,
+          'date label': preset.dateStyle.displayLabel,
+          'noun lower': preset.documentNoun.lower,
+          'noun capitalized': preset.documentNoun.capitalized,
+          'noun plural': preset.documentNoun.plural,
+          'noun pluralCapitalized': preset.documentNoun.pluralCapitalized,
+          'photo displayLabel': preset.photo.displayLabel,
+          'photo promptLabel': preset.photo.promptLabel,
+          'personalDetails displayLabel': preset.personalDetails.displayLabel,
+          'personalDetails promptLabel': preset.personalDetails.promptLabel,
+          'spelling displayLabel': preset.spelling.displayLabel,
+          'spelling promptLabel': preset.spelling.promptLabel,
+        }.entries) {
+          expect(entry.value, isNotEmpty, reason: '$why ${entry.key}');
+        }
+
         expect(
-          preset.documentNoun,
-          isNotEmpty,
-          reason: '${region.name} documentNoun',
+          preset.typicalMaxPages,
+          greaterThan(0),
+          reason: '$why typicalMaxPages',
         );
-        expect(
-          preset.page.displayLabel,
-          isNotEmpty,
-          reason: '${region.name} page label',
-        );
-        expect(
-          preset.dateStyle.displayLabel,
-          isNotEmpty,
-          reason: '${region.name} date label',
-        );
+        expect(preset.conventions, isNotEmpty, reason: '$why conventions');
+        for (final convention in preset.conventions) {
+          expect(convention, isNotEmpty, reason: '$why has a blank convention');
+        }
       }
+    });
+
+    test('copy differs between the two entry points, so neither words the '
+        'same decision its own way', () {
+      final draft = buildModel(context: RegionGalleryContext.draft);
+      final appDefault = buildModel(context: RegionGalleryContext.appDefault);
+
+      for (final model in [draft, appDefault]) {
+        expect(model.title, isNotEmpty);
+        expect(model.introText, isNotEmpty);
+        expect(model.confirmLabel, isNotEmpty);
+      }
+
+      expect(draft.title, isNot(appDefault.title));
+      expect(draft.introText, isNot(appDefault.introText));
+      expect(draft.confirmLabel, isNot(appDefault.confirmLabel));
     });
   });
 }

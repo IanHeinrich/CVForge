@@ -7,7 +7,7 @@ import 'package:cv_forge/models/ats/ats_analysis_result.dart';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_font_info.dart';
 import 'package:cv_forge/models/ats/ats_text_node.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
@@ -33,8 +33,13 @@ class AnalyzerViewModel extends BaseViewModel {
   /// read here rather than adding a region concept of this feature's own:
   /// Analyzer has no draft, so the device-wide default is the only region
   /// signal available to it.
-  String get documentNoun =>
-      _settingsService.settings.preferences.defaultRegion.preset.documentNoun;
+  String get documentNoun => _settingsService
+      .settings
+      .preferences
+      .defaultRegion
+      .preset
+      .documentNoun
+      .lower;
 
   AtsAnalysisResult? _result;
   AtsAnalysisResult? get result => _result;

@@ -18,7 +18,7 @@ import 'package:cv_forge/models/drive/drive_sync_status.dart' as _i60;
 import 'package:cv_forge/models/llm/ai_assistant_result.dart' as _i23;
 import 'package:cv_forge/models/llm/json_schema.dart' as _i55;
 import 'package:cv_forge/models/llm/llm_json_response.dart' as _i22;
-import 'package:cv_forge/models/render/region_profile.dart' as _i38;
+import 'package:cv_forge/models/region/region_profile.dart' as _i38;
 import 'package:cv_forge/models/render/resolved_cv.dart' as _i46;
 import 'package:cv_forge/models/settings/app_settings.dart' as _i17;
 import 'package:cv_forge/models/settings/cv_preferences.dart' as _i49;
@@ -2494,6 +2494,7 @@ class MockAiAssistantService extends _i1.Mock
   _i26.Future<_i23.AiAssistantResult> runTailoringPass({
     required _i4.CvVault? vault,
     required String? jobDescription,
+    required _i38.RegionProfile? region,
     required String? providerId,
     required String? modelId,
     required String? apiKey,
@@ -2502,6 +2503,7 @@ class MockAiAssistantService extends _i1.Mock
             Invocation.method(#runTailoringPass, [], {
               #vault: vault,
               #jobDescription: jobDescription,
+              #region: region,
               #providerId: providerId,
               #modelId: modelId,
               #apiKey: apiKey,
@@ -2512,6 +2514,7 @@ class MockAiAssistantService extends _i1.Mock
                 Invocation.method(#runTailoringPass, [], {
                   #vault: vault,
                   #jobDescription: jobDescription,
+                  #region: region,
                   #providerId: providerId,
                   #modelId: modelId,
                   #apiKey: apiKey,
@@ -2525,6 +2528,7 @@ class MockAiAssistantService extends _i1.Mock
                     Invocation.method(#runTailoringPass, [], {
                       #vault: vault,
                       #jobDescription: jobDescription,
+                      #region: region,
                       #providerId: providerId,
                       #modelId: modelId,
                       #apiKey: apiKey,

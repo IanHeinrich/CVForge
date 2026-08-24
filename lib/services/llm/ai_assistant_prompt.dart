@@ -1,3 +1,5 @@
+import 'package:cv_forge/models/region/region_presets.dart';
+
 /// The AI Assistant tailoring pass's system prompt — deliberately asymmetric:
 /// aggressive on selection, conservative on rewriting, because the two
 /// jobs carry opposite risk. Selection is enum-constrained so it cannot
@@ -107,3 +109,50 @@ actually covers. This is not a place to paper over a gap with a
 rewrite — if the Vault doesn't support a requirement, say so here instead
 of stretching a bullet to imply it.
 ''';
+
+/// [aiAssistantSystemPrompt] plus a block describing [region]'s document
+/// conventions, built entirely from that region's `RegionPreset` — adding a
+/// region means adding a row to `regionPresets`, never editing here.
+///
+/// A function appending to the const rather than one interpolated template:
+/// the base prompt is stable and region-agnostic, so keeping it a named
+/// `const` lets the region block be tested as a delta against it, and keeps
+/// a stable prefix for any prompt caching added later.
+String aiAssistantSystemPromptFor(RegionProfile region) =>
+    '$aiAssistantSystemPrompt\n${_regionBlock(region)}';
+
+/// The closing paragraph is load-bearing, not boilerplate. Several regions
+/// expect a photograph, a date of birth, or a work-rights line, and the
+/// Vault has a field for none of them — so describing those conventions to
+/// a model that is also allowed to rewrite bullets is, without this, an
+/// invitation to invent one. The per-stance `promptLabel`s carry the same
+/// guard inline; this restates it once for the conventions list, which is
+/// free text and cannot.
+String _regionBlock(RegionProfile region) {
+  final preset = region.preset;
+  final conventions = preset.conventions.map((c) => '- $c').join('\n');
+
+  return '''
+
+## Target region: ${preset.displayName}
+
+This CV is being written for ${preset.displayName} (${preset.coverage}).
+Follow that market's conventions when selecting and phrasing content:
+
+- The document is called a "${preset.localName}" there.
+- Length: ${preset.lengthNote} Do not produce a selection that would run
+  past ${preset.typicalMaxPages} pages.
+- Spelling: ${preset.spelling.promptLabel}
+- Tone: ${preset.toneNote}
+- Photograph: ${preset.photo.promptLabel}
+- Personal details: ${preset.personalDetails.promptLabel}
+$conventions
+
+These conventions govern selection and phrasing only. They never license
+inventing anything: the rewriting rules above apply in full and are not
+relaxed by any convention here. Where a convention calls for something the
+Vault does not contain — a photograph, a date of birth, a language
+certification, a work-rights statement — do not add, describe, or imply it.
+Record it in `keywordGaps` instead.
+''';
+}

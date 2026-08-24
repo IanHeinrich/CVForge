@@ -8,7 +8,7 @@ import 'package:cv_forge/features/studio/dialogs/template_gallery/template_galle
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
-import 'package:cv_forge/models/render/region_profile.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
@@ -172,7 +172,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     final response = await _dialogService
         .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
           variant: DialogType.regionGallery,
-          data: RegionGalleryDialogData(currentRegion: region),
+          data: RegionGalleryDialogData(
+            currentRegion: region,
+            context: RegionGalleryContext.draft,
+          ),
         );
     final selected = response?.data;
     if (response?.confirmed == true && selected != null) {
@@ -222,6 +225,28 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     if (_pageCount == value) return;
     _pageCount = value;
     notifyListeners();
+  }
+
+  /// Why this CV has run longer than its region typically expects, or null
+  /// when it hasn't — the badge branches on null rather than doing the
+  /// comparison itself, keeping the judgement out of the View.
+  ///
+  /// Null while [pageCount] is still null: "we don't know yet" is not
+  /// "you're fine", but it is not something to warn about either, and the
+  /// badge isn't rendered in that state at all.
+  ///
+  /// Strictly *over* the typical maximum — a two-page CV in a two-page
+  /// market is fine, not marginal. And the message offers the template as
+  /// well as the content, because page count follows template density at
+  /// least as much as it follows region; a warning that only says "cut
+  /// something" is wrong about half the time.
+  String? get pageCountWarning {
+    final count = pageCount;
+    if (count == null) return null;
+    final preset = _draft.region.preset;
+    if (count <= preset.typicalMaxPages) return null;
+    return 'Longer than ${preset.displayName} typically expects. '
+        '${preset.lengthNote} Try trimming content, or a denser template.';
   }
 
   Future<void> goToVault() => _routerService.replaceWith(VaultViewRoute());

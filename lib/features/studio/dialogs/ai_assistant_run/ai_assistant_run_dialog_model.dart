@@ -7,6 +7,7 @@ import 'package:cv_forge/services/llm/llm_provider.dart';
 import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:stacked/stacked.dart';
 
 /// [AiAssistantRunDialog]'s state machine. `confirm` shows what's about to be
@@ -48,6 +49,11 @@ class AiAssistantRunDialogModel extends BaseViewModel {
   );
 
   String get providerDisplayName => _provider.displayName;
+
+  /// Named on the confirm screen so the region choice is visible before the
+  /// run, not just inferable from the output — it steers length, spelling,
+  /// and tone.
+  String get regionDisplayName => _draftService.draft.region.preset.displayName;
 
   /// Same stored-id-may-be-stale fallback as
   /// `SettingsViewModel.selectedAiAssistantModel`.
@@ -97,6 +103,7 @@ class AiAssistantRunDialogModel extends BaseViewModel {
       final result = await _aiAssistantService.runTailoringPass(
         vault: _vaultService.vault,
         jobDescription: jobDescription,
+        region: _draftService.draft.region,
         providerId: _provider.id,
         modelId: _modelId,
         apiKey: apiKey,

@@ -2,6 +2,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog_model.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
@@ -10,6 +11,7 @@ import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
@@ -57,6 +59,9 @@ void main() {
         ),
       );
       when(vaultService.vault).thenReturn(vault);
+      // run() reads the draft for its region; without this the model
+      // fails before it reaches the service at all.
+      when(draftService.draft).thenReturn(draftWith());
     });
     tearDown(() => locator.reset());
 
@@ -76,6 +81,7 @@ void main() {
         aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
+          region: anyNamed('region'),
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -94,6 +100,7 @@ void main() {
         aiAssistantService.runTailoringPass(
           vault: vault,
           jobDescription: 'We need a dev',
+          region: anyNamed('region'),
           providerId: 'anthropic',
           modelId: 'claude-sonnet-5',
           apiKey: 'sk-ant-test',
@@ -119,6 +126,7 @@ void main() {
         aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
+          region: anyNamed('region'),
           providerId: anyNamed('providerId'),
           modelId: captureAnyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -135,6 +143,7 @@ void main() {
         aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
+          region: anyNamed('region'),
           providerId: anyNamed('providerId'),
           modelId: captureAnyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -152,6 +161,7 @@ void main() {
         aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
+          region: anyNamed('region'),
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -164,6 +174,45 @@ void main() {
       expect(model.phase, AiAssistantRunPhase.error);
       expect(model.errorMessage, contains('rejected'));
       verifyNever(draftService.applyAiAssistantResult(any));
+    });
+
+    test('tailors for the region this CV was created under, not the device '
+        'default — the draft owns that choice', () async {
+      when(
+        settingsService.apiKeyFor('anthropic'),
+      ).thenAnswer((_) async => 'sk-ant-test');
+      when(
+        draftService.draft,
+      ).thenReturn(draftWith(region: RegionProfile.dach));
+      when(
+        aiAssistantService.runTailoringPass(
+          vault: anyNamed('vault'),
+          jobDescription: anyNamed('jobDescription'),
+          region: anyNamed('region'),
+          providerId: anyNamed('providerId'),
+          modelId: anyNamed('modelId'),
+          apiKey: anyNamed('apiKey'),
+        ),
+      ).thenAnswer((_) async => emptyResult);
+      when(
+        draftService.applyAiAssistantResult(emptyResult),
+      ).thenAnswer((_) async {});
+
+      final model = AiAssistantRunDialogModel(jobDescription: 'Wir suchen');
+      await model.run();
+
+      final captured = verify(
+        aiAssistantService.runTailoringPass(
+          vault: anyNamed('vault'),
+          jobDescription: anyNamed('jobDescription'),
+          region: captureAnyNamed('region'),
+          providerId: anyNamed('providerId'),
+          modelId: anyNamed('modelId'),
+          apiKey: anyNamed('apiKey'),
+        ),
+      ).captured.single;
+
+      expect(captured, RegionProfile.dach);
     });
   });
 }
