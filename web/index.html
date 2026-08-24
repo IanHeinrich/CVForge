@@ -91,44 +91,151 @@
       transition: opacity .4s ease-out;
     }
 
-    /* The mark and the ring share one grid cell, so the mark is centred by the
-       same flow that centres everything else. The previous `position: absolute`
-       with no offsets took the logo out of .main-content's centring and pinned
-       it to its static-position origin, which is why it sat left of centre on
-       every cold start. */
+    /* One grid cell holds the mark, so it is centred by the same flow that
+       centres everything else. A previous `position: absolute` with no offsets
+       took the logo out of .main-content's centring and pinned it to its
+       static-position origin, which is why it sat left of centre on every cold
+       start. */
     .splash {
-      position: relative;
       display: grid;
       place-items: center;
-      width: 168px;
-      height: 168px;
     }
 
+    /* Wider than the logo's own 192 box, because the swing carries the hand out
+       past the mark's right edge. Square and centred on the mark's own centre
+       (96,96), so the art sits exactly where the static logo's does — there is
+       just air around it. The art is 192/232 of the box, hence the size below
+       being larger than the 96px the old static splash used. */
     .splash-mark {
-      width: 96px;
-      height: 96px;
+      width: 170px;
+      height: 170px;
+      color: #FFFFFF;
     }
 
-    .splash-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      /* kcBorderColor for the track, kcPrimaryColor for the travelling arc. */
-      border: 3px solid #2F323A;
-      border-top-color: #9600FF;
-      animation: splash-spin 1s linear infinite;
+    /* The hammer is the mark's own — 40x20 head, 60 haft, untouched. Everything
+       here is trajectory and rotation.
+
+       The head's pose is +35deg baked into the mark, so the outer rotation sets
+       the total: 35 + r. Two constraints fix where the strike lands:
+
+       - It has to be the head's END face that meets the anvil, not the long
+         edge, because that is the only part of a hammer that strikes anything.
+       - It must not be a dead-flat landing. Flat means total 90, which lays the
+         haft horizontal — parallel to, and a stroke's width above, the anvil's
+         own top edge. Two parallel bars at that size stop reading as a hammer
+         at all; it looks like the handle resting on the anvil. Total 70 keeps
+         the end face on the anvil while the haft stays visibly diagonal, which
+         is what makes the head read as the thing doing the work.
+
+       Contact lands at (134,94): the middle of the strip of anvil face the page
+       doesn't cover.
+
+       The rotation is about the haft tip, but the haft tip is not a fixed
+       point — a swing hinged on one pivot reads as a lever being worked, not
+       as an arm. So the hand travels through the blow as well: down 27 and
+       forward 9, while the head drops 58. Keeping the hand still and letting
+       rotation do all the work is what made an earlier pass look mechanical. */
+    .splash-hammer {
+      transform-box: view-box;
+      transform-origin: 168px 19px;
+      animation: splash-strike 1300ms linear infinite;
     }
 
-    @keyframes splash-spin {
-      to {
-        transform: rotate(360deg);
+    @keyframes splash-strike {
+      /* cocked back: total 100, hand up at (202,24) */
+      0%, 10% {
+        transform: rotate(65deg) translate(18.5px, -28.5px);
+        animation-timing-function: cubic-bezier(.55, 0, .9, .35);
+      }
+      /* The blow — total 70, hand down at (193,51) — and then held for a beat.
+         A hammer meeting an immovable face stops dead, so unlike the hang at
+         the top of the bounce this is a true hold rather than a drift; the
+         give comes from the anvil's own jolt and the sparks, both of which run
+         across it, so nothing on screen actually freezes. Without the beat the
+         whole thing reads as a tap rather than a strike.
+
+         The dwell is taken out of the two holds at the windup, not out of the
+         strokes either side, so the swing, bounce and lift keep the durations
+         they were tuned to. */
+      25%, 31% {
+        transform: rotate(35deg) translate(38.5px, 12.3px);
+        animation-timing-function: cubic-bezier(.08, .6, .3, 1);
+      }
+      /* Bounce, total 95 — the head clears the face by 37. The curve above
+         leaves the anvil fast and decelerates, which is what makes this read
+         as the hammer being thrown off the face rather than lifted from it.
+         The deceleration has to stay gentle enough to spread over the frames
+         it has: a curve that front-loads the distance (y1 up near .8) covers
+         most of the travel in the first frame and then crawls, which reads as
+         choppiness rather than as force. */
+      43% {
+        transform: rotate(60deg) translate(31.8px, -13.6px);
+        animation-timing-function: cubic-bezier(.3, .3, .6, 1);
+      }
+      /* The hang at the top of the bounce. Barely any travel: it is here to
+         separate the bounce from the lift, and a dead hold would read as a
+         dropped frame where a drift reads as momentum running out. */
+      51% {
+        transform: rotate(62deg) translate(30.2px, -15.9px);
+        animation-timing-function: cubic-bezier(.5, 0, .3, 1);
+      }
+      /* and the arm takes over again — slow off the mark, by contrast */
+      79%, 100% {
+        transform: rotate(65deg) translate(18.5px, -28.5px);
       }
     }
 
+    /* The anvil takes the blow: without it the hammer stops dead against a
+       surface that never acknowledges the hit. */
+    .splash-anvil {
+      transform-box: view-box;
+      animation: splash-jolt 1300ms ease-out infinite;
+    }
+
+    @keyframes splash-jolt {
+      0%, 25% { transform: translate(0, 0); }
+      27%     { transform: translate(0, 3px); }
+      33%     { transform: translate(0, 0); }
+      100%    { transform: translate(0, 0); }
+    }
+
+    /* kcPrimaryColor — the only colour in the splash, spent on the one moment
+       that has to read as an impact. */
+    .splash-sparks {
+      transform-box: view-box;
+      transform-origin: 134px 94px;
+      opacity: 0;
+      animation: splash-sparks 1300ms ease-out infinite;
+    }
+
+    @keyframes splash-sparks {
+      0%, 25% { opacity: 0; transform: scale(.3); }
+      29%     { opacity: 1; transform: scale(1); }
+      44%     { opacity: 0; transform: scale(1.7); }
+      100%    { opacity: 0; transform: scale(.3); }
+    }
+
+    /* Reduced motion gets no movement at all — but it still has to say
+       "working", so the mark breathes on opacity, which carries no motion
+       signal. The hammer sits in the logo's own resting pose. */
     @media (prefers-reduced-motion: reduce) {
-      .splash-ring {
+      .splash-hammer,
+      .splash-anvil {
         animation: none;
       }
+
+      .splash-sparks {
+        display: none;
+      }
+
+      .splash-mark {
+        animation: splash-breathe 2.4s ease-in-out infinite;
+      }
+    }
+
+    @keyframes splash-breathe {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .5; }
     }
 
   </style>
@@ -162,8 +269,45 @@
   </script>
   <div class="main-content" id="loader-content">
     <div class="splash">
-      <div class="splash-ring"></div>
-      <img class="splash-mark" src="main-icon.png" alt="" />
+      <!-- The mark, inline rather than main-icon.png, because the hammer has to
+           move independently of the anvil. The paths are exactly those in
+           assets/brand/cvforge-mark.svg, so the two cannot drift; only the
+           grouping and the viewBox differ. See that file for what each shape is
+           and why it is drawn that way. -->
+      <svg class="splash-mark" xmlns="http://www.w3.org/2000/svg"
+           viewBox="-20 -20 232 232" fill="none" stroke="currentColor"
+           stroke-width="12" stroke-linecap="round" stroke-linejoin="round"
+           role="img" aria-label="CVForge">
+        <g class="splash-anvil">
+          <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
+                   C150 116 120 130 104 154
+                   H134 V176 H104 A26 26 0 0 0 72 176 H44 V154 H74
+                   C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
+          <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
+          <path d="M100 100 H60 V118 C60 126 58 130 56 132"/>
+          <g stroke-width="8">
+            <path d="M34 54 H78"/>
+            <path d="M34 70 H86"/>
+            <path d="M34 86 H86"/>
+          </g>
+        </g>
+        <g class="splash-hammer">
+          <g transform="translate(134 68) rotate(35)">
+            <rect x="-20" y="-10" width="40" height="20" rx="4"
+                  fill="currentColor" stroke="none"/>
+            <path d="M0 -10 V-60"/>
+          </g>
+        </g>
+        <!-- Struck off the contact corner at (134,94), placed clear of the
+             head's own silhouette so they are not hidden behind it. -->
+        <g class="splash-sparks" stroke="#9600FF" stroke-width="8"
+           stroke-linecap="round">
+          <path d="M126 99 L112 101"/>
+          <path d="M120 95 L106 89"/>
+          <path d="M146 99 L160 101"/>
+          <path d="M152 96 L166 91"/>
+        </g>
+      </svg>
     </div>
   </div>
 </body>
