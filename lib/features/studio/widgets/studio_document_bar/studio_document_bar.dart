@@ -11,6 +11,8 @@ import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 
+import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/ui/common/l10n/document_language_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -61,7 +63,12 @@ class StudioDocumentBar extends StatelessWidget {
   /// dictates how much room both get. Set so the right group still fits
   /// its half once the left group's name has ellipsised as far as it
   /// usefully can.
-  static const _singleRowMinWidth = 900.0;
+  ///
+  /// Raised from 900 when the centre group grew a third control (document
+  /// language, beside template and region). The centre is what pushes the
+  /// side groups apart, so a button added there costs roughly its own
+  /// width twice over.
+  static const _singleRowMinWidth = 1080.0;
 
   @override
   Widget build(BuildContext context) {
@@ -173,18 +180,21 @@ class _SetupControls extends StatelessWidget {
   final bool compact;
 
   /// Narrow enough that the name is still recognisable (not just an
-  /// initial) but short enough that two of these plus icon-only Export
-  /// reliably share one line on a phone-width bar.
+  /// initial) but short enough that these plus icon-only Export share a
+  /// line on a phone-width bar where they can. With three controls the
+  /// [Wrap] below breaks to a second line more often than it used to,
+  /// which is the intended outcome rather than a regression: a language
+  /// that has dropped off the bar's edge cannot be reached at all.
   static const _compactLabelMaxWidth = 56.0;
 
   @override
   Widget build(BuildContext context) {
     // Wrap, not Row — the template button's label is the template's own
     // (potentially long) display name, and on a narrow phone-width bar
-    // the two buttons together don't always fit one line. A plain Row
-    // let the region button run off the bar's edge with no way to reach
-    // it; Wrap drops it to its own line instead, same fix as the parent
-    // bar's own two-group Wrap just above this in the widget tree.
+    // the three buttons together don't fit one line. A plain Row let the
+    // region button run off the bar's edge with no way to reach it; Wrap
+    // drops it to its own line instead, same fix as the parent bar's own
+    // two-group Wrap just above this in the widget tree.
     return Wrap(
       spacing: context.appSpacing.gapTiny,
       runSpacing: context.appSpacing.gapTiny,
@@ -217,7 +227,50 @@ class _SetupControls extends StatelessWidget {
           label: viewModel.region.displayName(context.l10n),
           labelMaxWidth: compact ? _compactLabelMaxWidth : null,
         ),
+        // A menu rather than a dialog, unlike the two beside it. Template
+        // and region both carry consequences worth a page of explanation
+        // — page size, length targets, what the assistant is told. A
+        // language carries none: it is the language, and the name of it
+        // says everything a picker could. Same argument
+        // `LanguageSettingsCard` already makes for the UI locale.
+        _BarLanguageMenu(viewModel: viewModel, compact: compact),
       ],
+    );
+  }
+}
+
+/// The document's own language, as a menu on the bar.
+///
+/// Seventeen entries is a lot for a flat menu, but they are self-sorting
+/// in practice — someone looking for Nederlands finds it under N — and
+/// grouping by base language would mean a submenu for a decision that is
+/// one tap today.
+class _BarLanguageMenu extends StatelessWidget {
+  const _BarLanguageMenu({required this.viewModel, required this.compact});
+
+  final StudioViewModel viewModel;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return MenuAnchor(
+      menuChildren: [
+        for (final language in DocumentLanguage.values)
+          MenuItemButton(
+            onPressed: () => viewModel.setDocumentLanguage(language),
+            leadingIcon: language == viewModel.documentLanguage
+                ? Icon(RemixIcons.check_line, size: context.appIconSize.small)
+                : SizedBox(width: context.appIconSize.small),
+            child: Text(language.displayLabel(context.l10n)),
+          ),
+      ],
+      builder: (context, controller, _) => _BarButton(
+        onPressed: () =>
+            controller.isOpen ? controller.close() : controller.open(),
+        icon: Icon(RemixIcons.translate_2, size: context.appIconSize.small),
+        label: viewModel.documentLanguage.displayLabel(context.l10n),
+        labelMaxWidth: compact ? _SetupControls._compactLabelMaxWidth : null,
+      ),
     );
   }
 }

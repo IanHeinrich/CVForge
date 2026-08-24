@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
 import 'vault_editor_panel_scaffold.dart';
+import 'year_month_picker/year_month_picker.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class EducationEditorPanel extends StatelessWidget {
@@ -20,8 +21,6 @@ class EducationEditorPanel extends StatelessWidget {
     required this.onClose,
     required this.onChanged,
     required this.bulletCallbacks,
-    required this.yearError,
-    required this.onYearChanged,
   });
 
   final Education education;
@@ -37,8 +36,6 @@ class EducationEditorPanel extends StatelessWidget {
   /// `ExperienceEditorPanel.startYearError`'s doc comment for the same
   /// rule one field over. Unlike a start/end year, Education's year is
   /// genuinely optional, so an empty field is valid here too.
-  final String? yearError;
-  final ValueChanged<String> onYearChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +65,11 @@ class EducationEditorPanel extends StatelessWidget {
               onChanged(education.copyWith(location: v.orNullIfEmpty)),
         ),
         const VGap.small(),
-        AppTextField(
+        YearField(
           label: context.l10n.vaultEducationYear,
-          initialValue: education.year?.toString() ?? '',
-          keyboardType: TextInputType.number,
-          errorText: yearError,
-          onChanged: onYearChanged,
+          value: education.year,
+          onChanged: (year) => onChanged(education.copyWith(year: year)),
+          onCleared: () => onChanged(education.copyWith(year: null)),
         ),
         const VGap.small(),
         AppTextField(

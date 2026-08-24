@@ -1,15 +1,14 @@
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
-import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
-import 'package:cv_forge/ui/common/l10n/month_labels.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
 import 'vault_editor_panel_scaffold.dart';
+import 'year_month_picker/year_month_picker.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 
 class ExperienceEditorPanel extends StatelessWidget {
@@ -25,10 +24,6 @@ class ExperienceEditorPanel extends StatelessWidget {
     required this.onChanged,
     required this.onGroupChanged,
     required this.bulletCallbacks,
-    required this.startYearError,
-    required this.endYearError,
-    required this.onStartYearChanged,
-    required this.onEndYearChanged,
   });
 
   final Experience experience;
@@ -51,16 +46,9 @@ class ExperienceEditorPanel extends StatelessWidget {
   final ValueChanged<String?> onGroupChanged;
   final BulletEditorCallbacks bulletCallbacks;
 
-  /// Null means the field's current value is valid. A rejected edit shows
-  /// this rather than silently discarding the keystroke.
-  final String? startYearError;
-  final String? endYearError;
-
   /// Raw text, not a parsed `int` — validating and deciding whether to
   /// commit is `VaultViewModel`'s job (CLAUDE.md's "logic in the
   /// ViewModel" rule), not this stateless panel's.
-  final ValueChanged<String> onStartYearChanged;
-  final ValueChanged<String> onEndYearChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -93,24 +81,14 @@ class ExperienceEditorPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: _MonthField(
-                label: context.l10n.vaultExperienceStartMonth,
-                value: experience.start.month,
-                onChanged: (month) => onChanged(
-                  experience.copyWith(
-                    start: experience.start.copyWith(month: month),
-                  ),
-                ),
-              ),
-            ),
-            const HGap.small(),
-            Expanded(
-              child: AppTextField(
-                label: context.l10n.vaultExperienceStartYear,
-                initialValue: experience.start.year.toString(),
-                keyboardType: TextInputType.number,
-                errorText: startYearError,
-                onChanged: onStartYearChanged,
+              child: YearMonthPicker(
+                label: context.l10n.vaultExperienceStart,
+                value: experience.start,
+                // No onCleared: a role without a start date is not a
+                // thing, and the picker hides the affordance when it is
+                // null.
+                onChanged: (start) =>
+                    onChanged(experience.copyWith(start: start)),
               ),
             ),
           ],
@@ -134,40 +112,16 @@ class ExperienceEditorPanel extends StatelessWidget {
         ),
         if (!experience.isCurrent) ...[
           const VGap.small(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _MonthField(
-                  label: context.l10n.vaultExperienceEndMonth,
-                  value: experience.end?.month,
-                  onChanged: (month) {
-                    // Seeds the year from *now*, not from start — see
-                    // `VaultViewModel.updateExperienceEndYear`'s doc
-                    // comment for why.
-                    final end =
-                        experience.end ??
-                        YearMonth(
-                          year: DateTime.now().year,
-                          month: experience.start.month,
-                        );
-                    onChanged(
-                      experience.copyWith(end: end.copyWith(month: month)),
-                    );
-                  },
-                ),
-              ),
-              const HGap.small(),
-              Expanded(
-                child: AppTextField(
-                  label: context.l10n.vaultExperienceEndYear,
-                  initialValue: experience.end?.year.toString() ?? '',
-                  keyboardType: TextInputType.number,
-                  errorText: endYearError,
-                  onChanged: onEndYearChanged,
-                ),
-              ),
-            ],
+          YearMonthPicker(
+            label: context.l10n.vaultExperienceEnd,
+            value: experience.end,
+            // Opens on the current year rather than the start year.
+            // Adopting start's year produces a plausible-looking but
+            // silently wrong end date the moment only the month is
+            // changed afterwards.
+            initialYearWhenEmpty: DateTime.now().year,
+            onChanged: (end) => onChanged(experience.copyWith(end: end)),
+            onCleared: () => onChanged(experience.copyWith(end: null)),
           ),
         ],
         const VGap.medium(),
@@ -223,40 +177,5 @@ class ExperienceEditorPanel extends StatelessWidget {
         ],
       ),
     ];
-  }
-}
-
-/// A month picker over the closed 1-12 set. A closed set has no invalid
-/// state to reject and no partial keystroke to silently write, so unlike
-/// the year fields this never needs an [AppTextField.errorText].
-class _MonthField extends StatelessWidget {
-  const _MonthField({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final int? value;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<int>(
-      initialValue: value,
-      isExpanded: true,
-      decoration: InputDecoration(labelText: label),
-      hint: Text(context.l10n.commonSelect),
-      items: [
-        for (var month = 1; month <= 12; month++)
-          DropdownMenuItem(
-            value: month,
-            child: Text(monthLabel(context.l10n, month)),
-          ),
-      ],
-      onChanged: (month) {
-        if (month != null) onChanged(month);
-      },
-    );
   }
 }

@@ -7,6 +7,7 @@ import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_r
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
@@ -168,6 +169,13 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   RegionProfile get region => _draft.region;
+
+  /// This CV's own language — the value that renders, not the Vault's
+  /// default. See [CvDraft.documentLanguage] for why it is per-draft.
+  DocumentLanguage get documentLanguage => _draft.documentLanguage;
+
+  Future<void> setDocumentLanguage(DocumentLanguage language) =>
+      _draftService.setDocumentLanguage(language);
   Future<void> setRegion(RegionProfile region) =>
       _draftService.setRegion(region);
 

@@ -251,23 +251,45 @@ Every user-facing string lives in `lib/l10n/app_en.arb`. A string literal in a
 `Text(...)`, `label:`, `hintText:`, `tooltip:`, or a dialog
 `title:`/`description:` under `lib/features/**` or `lib/ui/**` is a bug.
 
-### The UI's language and the document's language are different axes
+### Three language axes, and they never touch
 
-The app chrome is localized. **The CV this app produces is not** — it is
-written in English regardless of what language the user reads the interface
-in, because someone applying across borders routinely needs an English CV
-while reading a German UI. Nothing the UI locale does may reach:
+1. **The UI locale** — what the app's own buttons and labels are drawn in.
+   `AppLocalizations`, `LocalizationService`, `CvPreferences.localeTag`.
+   Lives in Settings.
+2. **The document language** — what the produced CV is written in.
+   `DocumentLanguage` and the `documentStrings` table in
+   `lib/models/document/`. Lives on the Vault (`DocumentDefaults.language`,
+   the default) and on each draft (`CvDraft.documentLanguage`, the value
+   that renders).
+3. **The region** — which market a CV targets. `RegionProfile`. Supplies
+   page size, date convention and the tailoring prompt's advice, never
+   vocabulary. See its own "Region is not a locale" note.
 
-- `lib/models/render/cv_composer.dart` — section titles, and the `'Present'`
-  marker (capitalized deliberately for ATS regex matching)
-- all of `lib/templates/**`
-- `YearMonth.monthName` and the Vault month pickers it feeds. The picker looks
-  like an obvious localization target and is not: it selects a value that gets
-  *printed*, in English, so showing "Mär" where the CV will say "Mar" would
-  break the invariant that getter's doc exists to protect.
+**Nothing the UI locale does may reach the document.** Someone reading a
+Spanish interface while preparing an English CV is the ordinary case, not
+an edge one. That rule is enforced structurally rather than by review:
+`lib/models/document/` cannot import `AppLocalizations`, because
+`lib/models/` may not import Flutter. So:
 
-This is a separate future feature, not an oversight. Region is a third axis
-again — see `RegionProfile`'s own "Region is not a locale" note.
+- `lib/models/render/cv_composer.dart` and all of `lib/templates/**` read
+  `DocumentLanguage`, never `AppLocalizations`.
+- `YearMonth.monthName` takes a `DocumentLanguage` and has exactly one
+  consumer, the document. The Vault's month **picker** is the opposite case
+  and follows the UI locale (`monthLabel`, in `lib/ui/common/l10n/`) — it
+  stores a month *number*, so its labels were only ever chrome.
+- `'Present'` is capitalized in every language: ATS parsers regex for it,
+  against whatever language the document is in.
+
+**Adding a document language is one entry in `documentStrings`** — nine
+strings plus twelve month abbreviations transcribed from CLDR. It is a
+locale, not a bare language, because that is where the strings actually
+differ (Austria's *Jän.*, Brazil's *acadêmica*, the UK's *Sept*). Two tests
+hold the line: every entry must be complete, and no two may be identical.
+
+The month abbreviations are checked in rather than read from `package:intl`
+at render time, because `intl: any` is pinned by the SDK and CLDR data
+shifting under an upgrade would silently rewrite every exported PDF. A test
+compares the two and fails on divergence.
 
 ### Also deliberately not localized
 
@@ -276,7 +298,9 @@ paths; `Exception.toString()` bodies (localize the *ViewModel switch* that
 maps a failure to user copy, not the exception — `SettingsViewModel.
 connectionTestErrorMessage` is the pattern); every `promptLabel` and all LLM
 prompt text, which is English because the model is instructed in English and
-translating it changes model behaviour; backup filenames; and brand names
+translating it changes model behaviour (the *output* language is a parameter
+in that prompt, which is a different thing — see `_languageBlock`); backup
+filenames; and brand names
 (`ksAppTitle`, `LlmProvider.displayName`, `RegionPreset.localName` — the
 market's own word for the document, whose entire purpose is to not be
 translated).

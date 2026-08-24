@@ -1388,7 +1388,7 @@ abstract class AppLocalizations {
   /// **'Skills'**
   String get sectionLabelSkills;
 
-  /// Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which stays English.
+  /// Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which follows the document's own language, not the app's.
   ///
   /// In en, this message translates to:
   /// **'Professional summary'**
@@ -1850,10 +1850,10 @@ abstract class AppLocalizations {
   /// **'This backup was made by a newer version of CVForge.'**
   String get settingsImportErrorNewerVersion;
 
-  /// Settings, language card, body paragraph. States the app/document language distinction explicitly, because users reasonably assume changing this would translate their CV.
+  /// Settings, language card body. Says what this setting does NOT control — the document's own language, which lives on the Vault — because the two are the app's most confusable pair.
   ///
   /// In en, this message translates to:
-  /// **'The language CVForge\'s own buttons and labels are shown in. The CV you produce is not translated.'**
+  /// **'The language CVForge\'s own buttons and labels are shown in. The language your CV is written in is separate, and lives in the Vault.'**
   String get settingsLanguageCardBody;
 
   /// Settings, language card, section heading. Sits above a one-line body paragraph.
@@ -3170,17 +3170,11 @@ abstract class AppLocalizations {
   /// **'I currently work here'**
   String get vaultExperienceCurrent;
 
-  /// Vault experience form field label for when the role ended.
+  /// Label on the end-date picker in the Vault's experience editor. Only shown when the role is not the current one.
   ///
   /// In en, this message translates to:
-  /// **'End month'**
-  String get vaultExperienceEndMonth;
-
-  /// Vault experience form field label for when the role ended.
-  ///
-  /// In en, this message translates to:
-  /// **'End year'**
-  String get vaultExperienceEndYear;
+  /// **'End'**
+  String get vaultExperienceEnd;
 
   /// Vault experience form field label.
   ///
@@ -3206,17 +3200,11 @@ abstract class AppLocalizations {
   /// **'Role'**
   String get vaultExperienceRole;
 
-  /// Vault experience form field label for when the role began.
+  /// Label on the start-date picker in the Vault's experience editor.
   ///
   /// In en, this message translates to:
-  /// **'Start month'**
-  String get vaultExperienceStartMonth;
-
-  /// Vault experience form field label for when the role began.
-  ///
-  /// In en, this message translates to:
-  /// **'Start year'**
-  String get vaultExperienceStartYear;
+  /// **'Start'**
+  String get vaultExperienceStart;
 
   /// Vault summary card line counting hobbies. English has an irregular plural here (hobby/hobbies); other languages may need different plural categories.
   ///
@@ -3671,23 +3659,47 @@ abstract class AppLocalizations {
   /// **'Untitled role'**
   String get vaultUntitledRole;
 
-  /// Vault form validation: the year field holds something that is not a number.
+  /// Button in the Vault's year/month picker that removes the chosen date. Only shown where the date is optional — an experience start date never is.
   ///
   /// In en, this message translates to:
-  /// **'Enter a valid year'**
-  String get vaultYearInvalid;
+  /// **'Clear'**
+  String get vaultYearMonthClear;
 
-  /// Vault form validation: the year is a number but outside the accepted range.
+  /// Placeholder in the Vault's year/month field before a date has been chosen.
   ///
   /// In en, this message translates to:
-  /// **'Enter a year between {min} and {max}'**
-  String vaultYearOutOfRange(int min, int max);
+  /// **'Pick a date'**
+  String get vaultYearMonthEmpty;
 
-  /// Vault form validation: the year field was left empty.
+  /// Tooltip on the forward arrow in the Vault's year/month picker.
   ///
   /// In en, this message translates to:
-  /// **'Enter a year'**
-  String get vaultYearRequired;
+  /// **'Next year'**
+  String get vaultYearMonthNextYear;
+
+  /// Tooltip on the forward arrow while the Vault's picker is showing its grid of years.
+  ///
+  /// In en, this message translates to:
+  /// **'Later years'**
+  String get vaultYearMonthNextYears;
+
+  /// Tooltip on the year label in the Vault's year/month picker, which switches the grid from months to years.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a year'**
+  String get vaultYearMonthPickYear;
+
+  /// Tooltip on the back arrow in the Vault's year/month picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous year'**
+  String get vaultYearMonthPreviousYear;
+
+  /// Tooltip on the back arrow while the Vault's picker is showing its grid of years.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier years'**
+  String get vaultYearMonthPreviousYears;
 }
 
 class _AppLocalizationsDelegate

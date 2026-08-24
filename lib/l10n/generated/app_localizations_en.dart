@@ -1186,7 +1186,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageCardBody =>
-      'The language CVForge\'s own buttons and labels are shown in. The CV you produce is not translated.';
+      'The language CVForge\'s own buttons and labels are shown in. The language your CV is written in is separate, and lives in the Vault.';
 
   @override
   String get settingsLanguageCardTitle => 'Language';
@@ -2054,10 +2054,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultExperienceCurrent => 'I currently work here';
 
   @override
-  String get vaultExperienceEndMonth => 'End month';
-
-  @override
-  String get vaultExperienceEndYear => 'End year';
+  String get vaultExperienceEnd => 'End';
 
   @override
   String get vaultExperienceLocation => 'Location';
@@ -2072,10 +2069,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultExperienceRole => 'Role';
 
   @override
-  String get vaultExperienceStartMonth => 'Start month';
-
-  @override
-  String get vaultExperienceStartYear => 'Start year';
+  String get vaultExperienceStart => 'Start';
 
   @override
   String vaultHobbiesCount(int count) {
@@ -2341,13 +2335,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultUntitledRole => 'Untitled role';
 
   @override
-  String get vaultYearInvalid => 'Enter a valid year';
+  String get vaultYearMonthClear => 'Clear';
 
   @override
-  String vaultYearOutOfRange(int min, int max) {
-    return 'Enter a year between $min and $max';
-  }
+  String get vaultYearMonthEmpty => 'Pick a date';
 
   @override
-  String get vaultYearRequired => 'Enter a year';
+  String get vaultYearMonthNextYear => 'Next year';
+
+  @override
+  String get vaultYearMonthNextYears => 'Later years';
+
+  @override
+  String get vaultYearMonthPickYear => 'Choose a year';
+
+  @override
+  String get vaultYearMonthPreviousYear => 'Previous year';
+
+  @override
+  String get vaultYearMonthPreviousYears => 'Earlier years';
 }

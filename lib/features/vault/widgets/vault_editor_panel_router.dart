@@ -88,12 +88,6 @@ class VaultEditorPanelRouter extends StatelessWidget {
             BulletOwner.experience,
             experience.id,
           ),
-          startYearError: viewModel.experienceStartYearError(experience.id),
-          endYearError: viewModel.experienceEndYearError(experience.id),
-          onStartYearChanged: (v) =>
-              viewModel.updateExperienceStartYear(experience, v),
-          onEndYearChanged: (v) =>
-              viewModel.updateExperienceEndYear(experience, v),
         );
 
       case VaultEditorTarget.project:
@@ -131,8 +125,6 @@ class VaultEditorPanelRouter extends StatelessWidget {
             BulletOwner.education,
             education.id,
           ),
-          yearError: viewModel.educationYearError(education.id),
-          onYearChanged: (v) => viewModel.updateEducationYear(education, v),
         );
 
       case VaultEditorTarget.skills:

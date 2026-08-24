@@ -1036,7 +1036,7 @@
   },
   "sectionLabelSummary": "Professional summary",
   "@sectionLabelSummary": {
-    "description": "Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which stays English."
+    "description": "Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which follows the document's own language, not the app's."
   },
   "settingsAiBody": "Bring your own API key to enable AI-assisted tailoring. Your key never leaves this device except to call the provider's API directly. There is no CVForge server.",
   "@settingsAiBody": {
@@ -1494,9 +1494,9 @@
   "@settingsImportErrorNewerVersion": {
     "description": "Settings, error shown when the backup file's schema is newer than this build understands."
   },
-  "settingsLanguageCardBody": "The language CVForge's own buttons and labels are shown in. The CV you produce is not translated.",
+  "settingsLanguageCardBody": "The language CVForge's own buttons and labels are shown in. The language your CV is written in is separate, and lives in the Vault.",
   "@settingsLanguageCardBody": {
-    "description": "Settings, language card, body paragraph. States the app/document language distinction explicitly, because users reasonably assume changing this would translate their CV."
+    "description": "Settings, language card body. Says what this setting does NOT control — the document's own language, which lives on the Vault — because the two are the app's most confusable pair."
   },
   "settingsLanguageCardTitle": "Language",
   "@settingsLanguageCardTitle": {
@@ -2630,13 +2630,9 @@
   "@vaultExperienceCurrent": {
     "description": "Vault experience checkbox that marks the role as ongoing and hides the end date fields."
   },
-  "vaultExperienceEndMonth": "End month",
-  "@vaultExperienceEndMonth": {
-    "description": "Vault experience form field label for when the role ended."
-  },
-  "vaultExperienceEndYear": "End year",
-  "@vaultExperienceEndYear": {
-    "description": "Vault experience form field label for when the role ended."
+  "vaultExperienceEnd": "End",
+  "@vaultExperienceEnd": {
+    "description": "Label on the end-date picker in the Vault's experience editor. Only shown when the role is not the current one."
   },
   "vaultExperienceLocation": "Location",
   "@vaultExperienceLocation": {
@@ -2654,13 +2650,9 @@
   "@vaultExperienceRole": {
     "description": "Vault experience form field label — the job title held."
   },
-  "vaultExperienceStartMonth": "Start month",
-  "@vaultExperienceStartMonth": {
-    "description": "Vault experience form field label for when the role began."
-  },
-  "vaultExperienceStartYear": "Start year",
-  "@vaultExperienceStartYear": {
-    "description": "Vault experience form field label for when the role began."
+  "vaultExperienceStart": "Start",
+  "@vaultExperienceStart": {
+    "description": "Label on the start-date picker in the Vault's experience editor."
   },
   "vaultHobbiesCount": "{count, plural, =1{1 hobby} other{{count} hobbies}}",
   "@vaultHobbiesCount": {
@@ -3010,26 +3002,32 @@
   "@vaultUntitledRole": {
     "description": "Placeholder shown wherever a job entry is referenced but has no role name filled in yet."
   },
-  "vaultYearInvalid": "Enter a valid year",
-  "@vaultYearInvalid": {
-    "description": "Vault form validation: the year field holds something that is not a number."
+  "vaultYearMonthClear": "Clear",
+  "@vaultYearMonthClear": {
+    "description": "Button in the Vault's year/month picker that removes the chosen date. Only shown where the date is optional — an experience start date never is."
   },
-  "vaultYearOutOfRange": "Enter a year between {min} and {max}",
-  "@vaultYearOutOfRange": {
-    "description": "Vault form validation: the year is a number but outside the accepted range.",
-    "placeholders": {
-      "min": {
-        "type": "int",
-        "example": "1900"
-      },
-      "max": {
-        "type": "int",
-        "example": "2036"
-      }
-    }
+  "vaultYearMonthEmpty": "Pick a date",
+  "@vaultYearMonthEmpty": {
+    "description": "Placeholder in the Vault's year/month field before a date has been chosen."
   },
-  "vaultYearRequired": "Enter a year",
-  "@vaultYearRequired": {
-    "description": "Vault form validation: the year field was left empty."
+  "vaultYearMonthNextYear": "Next year",
+  "@vaultYearMonthNextYear": {
+    "description": "Tooltip on the forward arrow in the Vault's year/month picker."
+  },
+  "vaultYearMonthNextYears": "Later years",
+  "@vaultYearMonthNextYears": {
+    "description": "Tooltip on the forward arrow while the Vault's picker is showing its grid of years."
+  },
+  "vaultYearMonthPickYear": "Choose a year",
+  "@vaultYearMonthPickYear": {
+    "description": "Tooltip on the year label in the Vault's year/month picker, which switches the grid from months to years."
+  },
+  "vaultYearMonthPreviousYear": "Previous year",
+  "@vaultYearMonthPreviousYear": {
+    "description": "Tooltip on the back arrow in the Vault's year/month picker."
+  },
+  "vaultYearMonthPreviousYears": "Earlier years",
+  "@vaultYearMonthPreviousYears": {
+    "description": "Tooltip on the back arrow while the Vault's picker is showing its grid of years."
   }
 }

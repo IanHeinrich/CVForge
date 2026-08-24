@@ -11,7 +11,6 @@ import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_photo.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
-import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -140,110 +139,6 @@ void main() {
       await model.updateExperience(experience);
 
       verify(vaultService.updateExperience(experience)).called(1);
-    });
-
-    group('year field validation -', () {
-      final experience = Experience(
-        id: 'exp-1',
-        role: 'Engineer',
-        company: 'Acme',
-        location: 'London',
-        start: const YearMonth(year: 2020, month: 1),
-      );
-
-      test('updateExperienceStartYear rejects an out-of-range year with an '
-          'error, rather than silently discarding it — the field must be '
-          'unreachable once the value is invalid, per 7.8', () async {
-        final model = VaultViewModel();
-
-        await model.updateExperienceStartYear(experience, '13000');
-
-        expect(model.experienceStartYearError(experience.id), isNotNull);
-        verifyNever(vaultService.updateExperience(any));
-      });
-
-      test('updateExperienceStartYear rejects non-numeric text with an '
-          'error', () async {
-        final model = VaultViewModel();
-
-        await model.updateExperienceStartYear(experience, 'abc');
-
-        expect(model.experienceStartYearError(experience.id), isNotNull);
-        verifyNever(vaultService.updateExperience(any));
-      });
-
-      test('updateExperienceStartYear commits a valid year and clears the '
-          'error', () async {
-        when(
-          vaultService.updateExperience(any),
-        ).thenAnswer((_) => Future<void>.value());
-        final model = VaultViewModel();
-        await model.updateExperienceStartYear(experience, 'abc');
-        expect(model.experienceStartYearError(experience.id), isNotNull);
-
-        await model.updateExperienceStartYear(experience, '2019');
-
-        expect(model.experienceStartYearError(experience.id), isNull);
-        verify(
-          vaultService.updateExperience(
-            experience.copyWith(start: experience.start.copyWith(year: 2019)),
-          ),
-        ).called(1);
-      });
-
-      test('updateExperienceEndYear seeds a null end from the current year, '
-          'not from start — adopting start\'s year silently produced a '
-          "plausible-looking but wrong date (7.8's Failure 3)", () async {
-        when(
-          vaultService.updateExperience(any),
-        ).thenAnswer((_) => Future<void>.value());
-        final model = VaultViewModel();
-
-        await model.updateExperienceEndYear(experience, '2022');
-
-        final captured =
-            verify(vaultService.updateExperience(captureAny)).captured.single
-                as Experience;
-        expect(captured.end?.year, 2022);
-        expect(captured.end?.month, experience.start.month);
-        expect(captured.end?.year, isNot(experience.start.year));
-      });
-
-      test('updateEducationYear treats an empty field as valid, clearing '
-          "the year — it's optional, unlike a start/end year", () async {
-        const education = Education(
-          id: 'edu-1',
-          qualification: 'BSc Computing',
-          institution: 'Leeds',
-          year: 2018,
-        );
-        when(
-          vaultService.updateEducation(any),
-        ).thenAnswer((_) => Future<void>.value());
-        final model = VaultViewModel();
-
-        await model.updateEducationYear(education, '');
-
-        expect(model.educationYearError(education.id), isNull);
-        verify(
-          vaultService.updateEducation(education.copyWith(year: null)),
-        ).called(1);
-      });
-
-      test('updateEducationYear rejects invalid non-empty text with an '
-          'error', () async {
-        const education = Education(
-          id: 'edu-1',
-          qualification: 'BSc Computing',
-          institution: 'Leeds',
-        );
-        final model = VaultViewModel();
-
-        await model.updateEducationYear(education, 'not a year');
-
-        expect(model.educationYearError(education.id), isNotNull);
-        verifyNever(vaultService.updateEducation(any));
-      });
     });
 
     test('deleteExperience prompts for confirmation and only deletes when '

@@ -1199,7 +1199,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsLanguageCardBody =>
-      'El idioma en que se muestran los botones y las etiquetas de CVForge. El CV que produces no se traduce.';
+      'El idioma en el que se muestran los botones y las etiquetas de CVForge. El idioma en el que está escrito tu CV es aparte y se elige en la Bóveda.';
 
   @override
   String get settingsLanguageCardTitle => 'Idioma';
@@ -2076,10 +2076,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultExperienceCurrent => 'Actualmente trabajo aquí';
 
   @override
-  String get vaultExperienceEndMonth => 'Mes de término';
-
-  @override
-  String get vaultExperienceEndYear => 'Año de término';
+  String get vaultExperienceEnd => 'Fin';
 
   @override
   String get vaultExperienceLocation => 'Ubicación';
@@ -2094,10 +2091,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultExperienceRole => 'Cargo';
 
   @override
-  String get vaultExperienceStartMonth => 'Mes de inicio';
-
-  @override
-  String get vaultExperienceStartYear => 'Año de inicio';
+  String get vaultExperienceStart => 'Inicio';
 
   @override
   String vaultHobbiesCount(int count) {
@@ -2365,13 +2359,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultUntitledRole => 'Cargo sin título';
 
   @override
-  String get vaultYearInvalid => 'Ingresa un año válido';
+  String get vaultYearMonthClear => 'Borrar';
 
   @override
-  String vaultYearOutOfRange(int min, int max) {
-    return 'Ingresa un año entre $min y $max';
-  }
+  String get vaultYearMonthEmpty => 'Elige una fecha';
 
   @override
-  String get vaultYearRequired => 'Ingresa un año';
+  String get vaultYearMonthNextYear => 'Año siguiente';
+
+  @override
+  String get vaultYearMonthNextYears => 'Años posteriores';
+
+  @override
+  String get vaultYearMonthPickYear => 'Elegir un año';
+
+  @override
+  String get vaultYearMonthPreviousYear => 'Año anterior';
+
+  @override
+  String get vaultYearMonthPreviousYears => 'Años anteriores';
 }
