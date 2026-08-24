@@ -596,12 +596,6 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get commonTryAgain;
 
-  /// How dates are written on the CV. The pattern letters and the example should be rewritten to show the same format using the target language's own month abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'Mon YYYY (e.g. Jun 2023)'**
-  String get dateStyleMonYyyy;
-
   /// Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
   ///
   /// In en, this message translates to:
@@ -911,7 +905,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'Around two thirds of German-speaking employers still expect a professional headshot, top right. CVForge does not add one; a template that renders a photo is planned, and until then it has to be added to the exported PDF by hand.'**
+  /// **'Around two thirds of German-speaking employers still expect a professional headshot, top right. Upload one in the Vault and choose a template that includes one; the rest leave it off.'**
   String get regionDachConvention1;
 
   /// Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1043,7 +1037,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.'**
+  /// **'A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.'**
   String get regionLatamA4Convention3;
 
   /// Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1109,7 +1103,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.'**
+  /// **'A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.'**
   String get regionLatamLetterConvention3;
 
   /// Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1193,7 +1187,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'English CVs are widely accepted; use British spelling.'**
+  /// **'English CVs are widely accepted; if you write in English, use British spelling.'**
   String get regionNordicsConvention6;
 
   /// Region picker: which countries the NORDICS grouping covers. Use each country's own name in the target language.
@@ -2389,12 +2383,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing selected yet'**
   String get studioPreviewNothingSelectedTitle;
-
-  /// Region detail row label — how dates are formatted on a CV in this market.
-  ///
-  /// In en, this message translates to:
-  /// **'Dates'**
-  String get studioRegionDates;
 
   /// Region detail row prefix, putting the label before its value on one line.
   ///

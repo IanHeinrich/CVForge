@@ -47,6 +47,15 @@ enum PdfPageFormatToken { a4, letter }
 /// this enum rather than on [RegionProfile] directly so a region that
 /// genuinely differs needs one new case in the composer, not a change at
 /// every call site.
+///
+/// Deliberately **not** shown in the region picker, though it once was. It
+/// decides the date's *shape*, never its words — which month name gets
+/// printed comes from `DocumentLanguage`. With one case in this enum the
+/// row read identically under all eight regions while carrying a worked
+/// example in a language the region does not choose, so it claimed the
+/// document language's ground and told the reader nothing about the
+/// decision they were making. Add it back only if a second case ever makes
+/// it a real difference between regions.
 enum RegionDateStyle { monYyyy }
 
 /// What the app's own chrome calls the document.
