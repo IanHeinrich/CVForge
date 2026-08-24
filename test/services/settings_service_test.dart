@@ -26,7 +26,6 @@ void main() {
       expect(service.settings.schemaVersion, 1);
       expect(service.settings.preferences.defaultRegion, RegionProfile.uk);
       expect(service.settings.preferences.aiAssistantProviderId, isNull);
-      expect(service.settings.rememberApiKey, isFalse);
     });
 
     test('When the stored payload has an unrecognised schemaVersion, falls '
@@ -98,55 +97,48 @@ void main() {
         },
       );
 
-      test('setRememberApiKey updates settings', () async {
+      test('setApiKey always persists — there is no "remember" opt-in, so '
+          'a validated key survives a reload by default', () async {
         when(storage.read(any, any)).thenAnswer((_) async => null);
+        when(
+          storage.write(any, any, any),
+        ).thenAnswer((_) => Future<void>.value());
 
         final service = SettingsService();
         await service.load();
-        expect(service.settings.rememberApiKey, isFalse);
 
-        await service.setRememberApiKey(true);
-        expect(service.settings.rememberApiKey, isTrue);
+        await service.setApiKey('anthropic', 'sk-ant-test');
+
+        verify(
+          storage.write(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyFor('anthropic'),
+            'sk-ant-test',
+          ),
+        ).called(1);
+        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.remembered);
       });
 
-      test(
-        'setApiKey with rememberApiKey false keeps the key in memory only',
-        () async {
-          when(storage.read(any, any)).thenAnswer((_) async => null);
+      test('a failed write leaves the key usable for this session and says '
+          'so, rather than throwing out of the button that just reported '
+          'a successful connection', () async {
+        when(storage.read(any, any)).thenAnswer((_) async => null);
+        when(
+          storage.write(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyFor('anthropic'),
+            any,
+          ),
+        ).thenThrow(Exception('IndexedDB unavailable'));
 
-          final service = SettingsService();
-          await service.load();
+        final service = SettingsService();
+        await service.load();
 
-          await service.setApiKey('anthropic', 'sk-ant-test');
+        await service.setApiKey('anthropic', 'sk-ant-test');
 
-          verifyNever(storage.write(any, any, any));
-          expect(await service.apiKeyFor('anthropic'), 'sk-ant-test');
-        },
-      );
-
-      test(
-        'setApiKey with rememberApiKey true also persists the key',
-        () async {
-          when(storage.read(any, any)).thenAnswer((_) async => null);
-          when(
-            storage.write(any, any, any),
-          ).thenAnswer((_) => Future<void>.value());
-
-          final service = SettingsService();
-          await service.load();
-          await service.setRememberApiKey(true);
-
-          await service.setApiKey('anthropic', 'sk-ant-test');
-
-          verify(
-            storage.write(
-              StorageBoxes.settings,
-              StorageKeys.apiKeyFor('anthropic'),
-              'sk-ant-test',
-            ),
-          ).called(1);
-        },
-      );
+        expect(await service.apiKeyFor('anthropic'), 'sk-ant-test');
+        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.session);
+      });
 
       test('clearApiKey deletes the stored row immediately', () async {
         when(storage.read(any, any)).thenAnswer((_) async => null);
@@ -157,7 +149,6 @@ void main() {
 
         final service = SettingsService();
         await service.load();
-        await service.setRememberApiKey(true);
         await service.setApiKey('anthropic', 'sk-ant-test');
 
         await service.clearApiKey('anthropic');
@@ -206,62 +197,6 @@ void main() {
 
         expect(service.apiKeyOriginFor('gemini'), ApiKeyOrigin.none);
         expect(service.maskedApiKeyFor('gemini'), isNull);
-      });
-
-      test('a key entered with rememberApiKey off reports session, and '
-          'turning the toggle on promotes it to remembered without the '
-          'user retyping it', () async {
-        when(storage.write(any, any, any)).thenAnswer((_) async {});
-
-        final service = SettingsService();
-        await service.load();
-        await service.setApiKey('anthropic', 'sk-ant-session');
-
-        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.session);
-        verifyNever(
-          storage.write(
-            StorageBoxes.settings,
-            StorageKeys.apiKeyFor('anthropic'),
-            any,
-          ),
-        );
-
-        await service.setRememberApiKey(true);
-
-        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.remembered);
-        verify(
-          storage.write(
-            StorageBoxes.settings,
-            StorageKeys.apiKeyFor('anthropic'),
-            'sk-ant-session',
-          ),
-        ).called(1);
-      });
-
-      test('turning rememberApiKey off deletes every stored key row, not '
-          "just the selected provider's — the toggle is one global flag, "
-          'so leaving another key on disk would contradict it', () async {
-        when(storage.write(any, any, any)).thenAnswer((_) async {});
-        when(storage.delete(any, any)).thenAnswer((_) async {});
-
-        final service = SettingsService();
-        await service.load();
-        await service.setRememberApiKey(true);
-        await service.setApiKey('anthropic', 'sk-ant-test');
-        await service.setApiKey('gemini', 'AIza-test');
-
-        await service.setRememberApiKey(false);
-
-        for (final providerId in ['anthropic', 'gemini']) {
-          verify(
-            storage.delete(
-              StorageBoxes.settings,
-              StorageKeys.apiKeyFor(providerId),
-            ),
-          ).called(1);
-          // Still usable this session — "stop remembering" is not "discard".
-          expect(service.apiKeyOriginFor(providerId), ApiKeyOrigin.session);
-        }
       });
 
       test('markAiAssistantConfigured is write-once, so re-testing an '

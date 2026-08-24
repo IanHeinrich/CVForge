@@ -2180,15 +2180,6 @@ class MockSettingsService extends _i1.Mock implements _i50.SettingsService {
           as _i28.Future<void>);
 
   @override
-  _i28.Future<void> setRememberApiKey(bool? value) =>
-      (super.noSuchMethod(
-            Invocation.method(#setRememberApiKey, [value]),
-            returnValue: _i28.Future<void>.value(),
-            returnValueForMissingStub: _i28.Future<void>.value(),
-          )
-          as _i28.Future<void>);
-
-  @override
   _i28.Future<void> setDefaultRegion(_i40.RegionProfile? region) =>
       (super.noSuchMethod(
             Invocation.method(#setDefaultRegion, [region]),

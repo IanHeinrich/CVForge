@@ -19,9 +19,6 @@ part 'cv_preferences.g.dart';
 /// Deliberately excluded, and none of these are oversights:
 /// - **the API key** — a secret, and it isn't even a field on
 ///   [AppSettings]; it lives in its own storage row.
-/// - **`rememberApiKey`** — a per-device security choice. "Remember my key
-///   on this machine" means the opposite thing once it lands on another
-///   machine, where there is no key to remember.
 /// - **`lastBackupAt`** — a fact about one device ("*this* browser
 ///   exported recently"). Syncing it would have a second device claim a
 ///   download it never made.

@@ -332,31 +332,6 @@ void main() {
         expect(model.selectedAiAssistantProvider.id, 'anthropic');
       });
 
-      test('setRememberApiKey(false) stops persisting the key without '
-          'discarding it — the service reconciles storage, and the key '
-          'stays usable for the rest of the session', () async {
-        when(
-          settingsService.setRememberApiKey(false),
-        ).thenAnswer((_) => Future<void>.value());
-
-        final model = SettingsViewModel();
-        await model.setRememberApiKey(false);
-
-        verify(settingsService.setRememberApiKey(false)).called(1);
-        verifyNever(settingsService.clearApiKey(any));
-      });
-
-      test('setRememberApiKey(true) does not clear the key', () async {
-        when(
-          settingsService.setRememberApiKey(true),
-        ).thenAnswer((_) => Future<void>.value());
-
-        final model = SettingsViewModel();
-        await model.setRememberApiKey(true);
-
-        verifyNever(settingsService.clearApiKey('anthropic'));
-      });
-
       test('apiKeyOrigin and hasApiKey report what the service holds, so the '
           'card can tell a stored key from an empty field', () async {
         final model = SettingsViewModel();

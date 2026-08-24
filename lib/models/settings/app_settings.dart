@@ -15,16 +15,14 @@ part 'app_settings.g.dart';
 ///
 /// The API key is not a field here at all. It lives in its own storage row
 /// keyed per provider, so no code path that serializes settings can carry
-/// a secret along by accident.
+/// a secret along by accident. There is no "remember my key" flag either:
+/// a validated key is always saved to this device, the same as the Vault
+/// and every CV, and `ApiKeyOrigin` reports where it actually ended up.
 @freezed
 abstract class AppSettings with _$AppSettings {
   const factory AppSettings({
     required int schemaVersion,
     required CvPreferences preferences,
-
-    /// Whether to persist the API key to storage rather than keep it for
-    /// the session only. Per-device by definition — see [CvPreferences].
-    @Default(false) bool rememberApiKey,
 
     /// When `BackupService.exportBackup` last completed on *this* device,
     /// set by `SettingsViewModel.exportBackup` — null means never.

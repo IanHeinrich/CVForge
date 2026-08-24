@@ -238,22 +238,6 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     clearConnectionTestResult();
   }
 
-  bool get rememberApiKey => _settingsService.settings.rememberApiKey;
-
-  /// Deleting the stored row is immediate rather than deferred to the next
-  /// write — see [SettingsService.setRememberApiKey], which also explains
-  /// why it applies to every provider.
-  ///
-  /// Turning this off no longer discards the key outright, only its
-  /// persistence: it drops to [ApiKeyOrigin.session] and keeps working
-  /// until the tab reloads, which is what "stop remembering it" plainly
-  /// means. That was indistinguishable from deletion while the card showed
-  /// no key state at all; now that [apiKeyOrigin] is on screen, and
-  /// [removeApiKey] exists as its own explicit action, the honest reading
-  /// of the label is also the safer one.
-  Future<void> setRememberApiKey(bool value) =>
-      _settingsService.setRememberApiKey(value);
-
   /// Whether the selected provider has a key, and how long it survives —
   /// the state the card's whole two-mode layout keys off.
   ApiKeyOrigin get apiKeyOrigin =>
@@ -371,10 +355,9 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// connection" fail with `LlmFailure.noKey` for users whose key was
   /// present and working.
   ///
-  /// A typed key is only stored (in memory always, on disk if
-  /// [rememberApiKey] is on — see `SettingsService.setApiKey`) once the
-  /// connection actually validates it, so a rejected key never lingers or
-  /// overwrites a good one.
+  /// A typed key is only stored — see `SettingsService.setApiKey` — once
+  /// the connection actually validates it, so a rejected key never lingers
+  /// or overwrites a good one.
   Future<void> testAiAssistantConnection([String? typedKey]) async {
     _connectionTestSucceeded = false;
     final providerId = selectedAiAssistantProvider.id;

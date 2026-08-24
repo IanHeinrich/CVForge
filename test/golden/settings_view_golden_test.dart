@@ -61,10 +61,6 @@ void main() {
       settingsService.apiKeyOriginFor(any),
     ).thenReturn(ApiKeyOrigin.remembered);
     when(settingsService.maskedApiKeyFor(any)).thenReturn('••••••••a1b2');
-    when(
-      settingsService.settings,
-    ).thenReturn(AppSettings.empty().copyWith(rememberApiKey: true));
-
     await pumpSettings(tester);
     await screenMatchesGolden(tester, 'settings_view_ai_key_remembered');
   });

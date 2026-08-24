@@ -29,10 +29,14 @@ enum ApiKeyOrigin {
   /// cannot run.
   none,
 
-  /// Entered this session with "remember" off — works now, gone on reload.
+  /// In memory only — works now, gone on reload. No longer something a
+  /// user can choose: [SettingsService.setApiKey] always tries to persist,
+  /// so this means the write actually failed (storage unavailable), and
+  /// the UI says so rather than implying the key is safely saved.
   session,
 
-  /// Persisted to this device's storage and rehydrated at load.
+  /// Persisted to this device's storage and rehydrated at load. The normal
+  /// outcome of a successful connection test.
   remembered,
 }
 
@@ -104,16 +108,6 @@ class SettingsService
     await ready();
     _settings.value = _settings.value.copyWith(lastBackupAt: value);
     scheduleWrite(_settings.value);
-  }
-
-  /// Flipping this immediately reconciles what's on disk with the new
-  /// answer — see [_syncRememberedKeys] for why that's all providers and
-  /// not just the selected one.
-  Future<void> setRememberApiKey(bool value) async {
-    await ready();
-    _settings.value = _settings.value.copyWith(rememberApiKey: value);
-    scheduleWrite(_settings.value);
-    await _syncRememberedKeys();
   }
 
   /// Only the default a *new* draft is created with (`DraftService.
@@ -201,26 +195,35 @@ class SettingsService
     return _sessionApiKeys[providerId];
   }
 
-  /// Always kept in memory for the rest of this session; additionally
-  /// persisted only when [AppSettings.rememberApiKey] is on — see that
-  /// field's doc comment. Awaits [ready] first because that flag is read
-  /// from loaded settings: without it, a call landing before the initial
-  /// load sees a default-empty `rememberApiKey: false` and silently
-  /// declines to persist a key the user did ask to remember.
+  /// Saves [key] to this device, and keeps it in memory for this session
+  /// regardless.
+  ///
+  /// Persisting is unconditional. It used to be gated on a "Remember on
+  /// this device" checkbox that defaulted to *off*, which made the default
+  /// experience "your key silently vanishes when you reload" — and singled
+  /// the key out for an opt-in that the Vault and every CV, sitting in the
+  /// same unencrypted IndexedDB, never asked for. The storage caveat is
+  /// still stated in the UI; it just isn't a control any more.
+  ///
+  /// A failed write is not fatal: the key stays usable for this session and
+  /// is reported as [ApiKeyOrigin.session] so the UI can say so. That case
+  /// is real rather than defensive — `LocalStorageService` documents
+  /// IndexedDB being genuinely unavailable under Firefox's strict privacy
+  /// mode, and letting the exception escape here would surface as an
+  /// unhandled error from the button that had just reported success.
   Future<void> setApiKey(String providerId, String key) async {
     await ready();
     _sessionApiKeys[providerId] = key;
-    if (settings.rememberApiKey) {
+    try {
       await _localStorage.write(
         StorageBoxes.settings,
         StorageKeys.apiKeyFor(providerId),
         key,
       );
+      _setApiKeyOrigin(providerId, ApiKeyOrigin.remembered);
+    } catch (_) {
+      _setApiKeyOrigin(providerId, ApiKeyOrigin.session);
     }
-    _setApiKeyOrigin(
-      providerId,
-      settings.rememberApiKey ? ApiKeyOrigin.remembered : ApiKeyOrigin.session,
-    );
   }
 
   /// Removes [providerId]'s key from memory and deletes its storage row
@@ -232,35 +235,6 @@ class SettingsService
       StorageKeys.apiKeyFor(providerId),
     );
     _setApiKeyOrigin(providerId, ApiKeyOrigin.none);
-  }
-
-  /// Brings storage in line with [AppSettings.rememberApiKey], in both
-  /// directions, for **every** provider rather than just the selected one.
-  ///
-  /// The toggle is a single global flag, so its label promises something
-  /// global: turning it off and leaving another provider's key on disk
-  /// would contradict the checkbox the user just cleared — and now that
-  /// [apiKeyOriginFor] is rendered per provider, that contradiction is
-  /// visible rather than theoretical. Turning it on is the mirror image:
-  /// a key already entered this session becomes remembered, instead of
-  /// silently staying session-only until the user happens to retype it.
-  Future<void> _syncRememberedKeys() async {
-    for (final providerId in _sessionApiKeys.keys.toList()) {
-      if (settings.rememberApiKey) {
-        await _localStorage.write(
-          StorageBoxes.settings,
-          StorageKeys.apiKeyFor(providerId),
-          _sessionApiKeys[providerId]!,
-        );
-        _setApiKeyOrigin(providerId, ApiKeyOrigin.remembered);
-      } else {
-        await _localStorage.delete(
-          StorageBoxes.settings,
-          StorageKeys.apiKeyFor(providerId),
-        );
-        _setApiKeyOrigin(providerId, ApiKeyOrigin.session);
-      }
-    }
   }
 
   /// The provider the AI Assistant is currently set to use.
@@ -323,7 +297,7 @@ class SettingsService
   /// [apiKeyOriginFor] can be a synchronous `build`-safe read. Enumerating
   /// rather than looping over known provider ids means a key belonging to
   /// a since-removed provider is still found — and so can still be cleared
-  /// by [_syncRememberedKeys] — instead of being orphaned on disk forever.
+  /// by [clearApiKey] — instead of being orphaned on disk forever.
   Future<void> _loadRememberedApiKeys() async {
     final keys = await _localStorage.keysWithPrefix(
       StorageBoxes.settings,

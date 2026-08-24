@@ -184,29 +184,21 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
               onRemove: viewModel.removeApiKey,
             ),
           const VGap.small(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Checkbox(
-                value: viewModel.rememberApiKey,
-                onChanged: (value) =>
-                    viewModel.setRememberApiKey(value ?? false),
-              ),
-              const HGap.small(),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: context.appSpacing.paddingCompact,
-                  ),
-                  child: Text(
-                    'Remember on this device. Stored unencrypted in this '
-                    "browser's local storage, so anyone with access to "
-                    'this device can read it.',
-                    style: context.appTypography.bodySmall,
-                  ),
-                ),
-              ),
-            ],
+          // The storage caveat outlived the "Remember on this device"
+          // checkbox it used to label. That checkbox defaulted to off,
+          // which made losing your key on reload the default experience,
+          // and it singled the key out for an opt-in the Vault and every
+          // CV — sitting in the same unencrypted IndexedDB — never asked
+          // for. Keeping the disclosure at the same weight it had as a
+          // checkbox label means removing the control costs no
+          // transparency.
+          _StatusLine(
+            icon: RemixIcons.information_line,
+            color: kcLightGrey,
+            message:
+                'Your key is saved on this device, unencrypted in this '
+                "browser's storage — the same as your Vault and CVs. "
+                'Anyone with access to this device can read it.',
           ),
           // Sits with the key field and its "remember" toggle rather than
           // further down: someone who has no key yet is stuck looking at
