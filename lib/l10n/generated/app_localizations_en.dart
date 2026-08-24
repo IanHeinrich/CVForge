@@ -304,6 +304,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get commonBeta => 'BETA';
+
+  @override
   String get commonCancel => 'Cancel';
 
   @override
@@ -1210,9 +1213,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get spellingEnUs => 'US English';
 
   @override
-  String get studioAiBeta => 'BETA';
-
-  @override
   String get studioAiCardBody =>
       'Paste the job ad here to select and rewrite this CV for it.';
 
@@ -1517,6 +1517,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioExportPdf => 'Export PDF';
 
   @override
+  String get studioFieldDetails => 'Details';
+
+  @override
+  String get studioFieldGrade => 'Grade';
+
+  @override
+  String get studioFieldProjectTitle => 'Project title';
+
+  @override
+  String get studioFieldQualification => 'Qualification';
+
+  @override
+  String get studioFieldRole => 'Role';
+
+  @override
+  String get studioFieldSkill => 'Skill';
+
+  @override
+  String get studioFieldSkillCategory => 'Category';
+
+  @override
+  String get studioHeadlineInclude => 'Include headline';
+
+  @override
   String studioItemLabelledText(String label, String text) {
     return '$label: $text';
   }
@@ -1538,6 +1562,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioNoEducationDetails => 'No details in your Vault yet.';
+
+  @override
+  String get studioNoGrade => 'No grade in your Vault yet.';
 
   @override
   String get studioNoHeadline => 'No headline in your Vault yet.';
@@ -1744,6 +1771,126 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioTemplatePickerUse => 'Use this template';
+
+  @override
+  String get studioTranslateCardBody =>
+      'Rewrite everything this CV prints into its document language, leaving your Vault in the language you wrote it.';
+
+  @override
+  String get studioTranslateCardBodyNoKey =>
+      'Translating a CV uses the same AI provider as tailoring. Add a key in Settings to turn it on.';
+
+  @override
+  String studioTranslateCardStale(String translated, String current) {
+    return 'Translated into $translated, but this CV is now set to $current.';
+  }
+
+  @override
+  String studioTranslateCardTarget(String language) {
+    return 'This CV\'s language is $language.';
+  }
+
+  @override
+  String get studioTranslateCardTitle => 'Translate';
+
+  @override
+  String studioTranslateCardTranslated(String language) {
+    return 'Translated into $language.';
+  }
+
+  @override
+  String studioTranslateDialogLanguageNote(String language) {
+    return 'Every line this CV prints will be rewritten into $language — job titles, bullet points, skills and section content. Employers, schools and publication titles are left exactly as they are.';
+  }
+
+  @override
+  String get studioTranslateDialogReplaceNote =>
+      'This CV already has a translation. Running again replaces it.';
+
+  @override
+  String get studioTranslateDialogTitle => 'Translate this CV';
+
+  @override
+  String get studioTranslateErrorGeneric =>
+      'Couldn\'t translate this CV — try again.';
+
+  @override
+  String studioTranslateErrorInvalidRequest(String provider) {
+    return '$provider rejected the request. This CV may be too long to translate in one pass.';
+  }
+
+  @override
+  String get studioTranslateErrorMalformedResponse =>
+      'The translation came back in a form CVForge couldn\'t read — try again.';
+
+  @override
+  String studioTranslateErrorNetwork(String provider) {
+    return 'Couldn\'t reach $provider — check your connection and try again.';
+  }
+
+  @override
+  String get studioTranslateErrorNoKey =>
+      'No API key set up yet — add one in Settings.';
+
+  @override
+  String studioTranslateErrorOverloaded(String provider) {
+    return '$provider is busy right now — try again in a moment.';
+  }
+
+  @override
+  String get studioTranslateErrorRateLimited =>
+      'You\'ve hit your provider\'s rate limit — wait a moment and try again.';
+
+  @override
+  String get studioTranslateErrorRefusal =>
+      'The provider declined to translate this CV.';
+
+  @override
+  String get studioTranslateErrorTimeout =>
+      'The translation took too long and timed out — try again.';
+
+  @override
+  String get studioTranslateErrorUnauthorized =>
+      'Your API key was rejected — check it in Settings.';
+
+  @override
+  String get studioTranslateFailedTitle => 'Translation failed';
+
+  @override
+  String get studioTranslateRemove => 'Remove translation';
+
+  @override
+  String get studioTranslateRemoveConfirm =>
+      'This restores every line to how it read before translating, including anything you\'ve edited since. Remove it?';
+
+  @override
+  String studioTranslateResultBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Translated $count lines.',
+      one: 'Translated 1 line.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioTranslateRunAgain => 'Translate again';
+
+  @override
+  String get studioTranslateRunningBody =>
+      'Translating every line this CV prints. This can take a few minutes.';
+
+  @override
+  String get studioTranslateRunningTitle => 'Translating your CV';
+
+  @override
+  String get studioTranslateTailorFirst =>
+      'Tailor before translating — a tailoring pass rewrites in English and would undo this.';
+
+  @override
+  String get studioTranslateWarning =>
+      'Machine-translated. Have a fluent speaker read it before you send it.';
 
   @override
   String get templateDescriptionClassicCentered =>

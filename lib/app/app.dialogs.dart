@@ -9,6 +9,7 @@ import 'package:stacked_services/stacked_services.dart';
 
 import 'app.locator.dart';
 import '../features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog.dart';
+import '../features/studio/dialogs/cv_translation_run/cv_translation_run_dialog.dart';
 import '../features/studio/dialogs/edit_draft/edit_draft_dialog.dart';
 import '../features/studio/dialogs/region_gallery/region_gallery_dialog.dart';
 import '../features/studio/dialogs/template_gallery/template_gallery_dialog.dart';
@@ -22,6 +23,7 @@ enum DialogType {
   templateGallery,
   regionGallery,
   cropPhoto,
+  cvTranslationRun,
 }
 
 void setupDialogUi() {
@@ -40,6 +42,8 @@ void setupDialogUi() {
         RegionGalleryDialog(request: request, completer: completer),
     DialogType.cropPhoto: (context, request, completer) =>
         CropPhotoDialog(request: request, completer: completer),
+    DialogType.cvTranslationRun: (context, request, completer) =>
+        CvTranslationRunDialog(request: request, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);

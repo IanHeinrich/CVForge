@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/widgets/common/app_beta_badge/app_beta_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -86,7 +87,7 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
             children: [
               StudioPanelHeading(context.l10n.studioAiCardTitle),
               const HGap.small(),
-              const _BetaBadge(),
+              const AppBetaBadge(),
             ],
           ),
           const VGap.tiny(),
@@ -205,28 +206,3 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
 /// tailoring is functional but not yet held to the same bar as the rest of
 /// the app, and this flags that inline rather than only in release notes
 /// nobody reads before hitting "Tailor with AI".
-class _BetaBadge extends StatelessWidget {
-  const _BetaBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: context.appPalette.warning.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(context.appRadius.small),
-        border: Border.all(
-          color: context.appPalette.warning.withValues(alpha: 0.5),
-        ),
-      ),
-      child: Text(
-        context.l10n.studioAiBeta,
-        style: context.appTypography.caption.copyWith(
-          color: context.appPalette.warning,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-}

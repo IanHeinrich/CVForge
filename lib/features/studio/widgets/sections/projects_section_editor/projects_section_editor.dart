@@ -16,7 +16,7 @@ class ProjectsSectionEditor extends StatelessWidget {
     items: viewModel.projects,
     untitledLabel: context.l10n.vaultUntitledProject,
     idOf: (p) => p.id,
-    titleOf: (p) => p.title,
+    titleOf: viewModel.projectTitleText,
     subtitleOf: (p) => p.link,
     bulletsOf: (p) => p.bullets,
     unselectedCount: viewModel.unselectedProjects.length,
@@ -33,5 +33,9 @@ class ProjectsSectionEditor extends StatelessWidget {
     hasBulletOverride: viewModel.hasBulletOverride,
     onSetBulletOverride: viewModel.setBulletOverride,
     onRevertBulletOverride: viewModel.revertBulletOverride,
+    titleFieldLabel: context.l10n.studioFieldProjectTitle,
+    hasTitleOverride: viewModel.hasProjectTitleOverride,
+    onSetTitleOverride: viewModel.setProjectTitleOverride,
+    onRevertTitleOverride: viewModel.revertProjectTitleOverride,
   );
 }

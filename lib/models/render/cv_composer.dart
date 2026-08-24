@@ -33,7 +33,13 @@ abstract final class CvComposer {
     final strings = language.strings;
     final header = ResolvedHeader(
       fullName: vault.basics.fullName,
-      headline: draft.headlineOverride ?? vault.basics.headline,
+      // Empty rather than a nullable ResolvedCv.headline: every template
+      // already guards on `headline.trim().isNotEmpty` to handle a Vault
+      // that simply has none, so hiding reuses that one check instead of
+      // adding a second, and no template signature moves.
+      headline: draft.hideHeadline
+          ? ''
+          : (draft.headlineOverride ?? vault.basics.headline),
       email: vault.basics.email,
       phone: vault.basics.phone,
       location: vault.basics.location,
@@ -134,7 +140,7 @@ abstract final class CvComposer {
             positions: [
               for (final experience in roles)
                 ResolvedPosition(
-                  role: experience.role,
+                  role: draft.roleOverrides[experience.id] ?? experience.role,
                   dateRange: _formatDateRange(experience, region, language),
                   bullets: _resolveBullets(
                     experience.bullets,
@@ -187,7 +193,7 @@ abstract final class CvComposer {
       for (final id in draft.projectIds)
         if (byId[id] case final project?)
           ResolvedProject(
-            title: project.title,
+            title: draft.projectTitleOverrides[id] ?? project.title,
             link: project.link,
             bullets: _resolveBullets(
               project.bullets,
@@ -212,10 +218,17 @@ abstract final class CvComposer {
     for (final category in vault.skillCategories) {
       final skills = [
         for (final skill in category.skills)
-          if (selected.contains(skill.id)) skill.label,
+          if (selected.contains(skill.id))
+            draft.skillLabelOverrides[skill.id] ?? skill.label,
       ];
       if (skills.isNotEmpty) {
-        groups.add(ResolvedSkillGroup(category: category.name, skills: skills));
+        groups.add(
+          ResolvedSkillGroup(
+            category:
+                draft.skillCategoryNameOverrides[category.id] ?? category.name,
+            skills: skills,
+          ),
+        );
       }
     }
 
@@ -233,11 +246,13 @@ abstract final class CvComposer {
       for (final id in draft.educationIds)
         if (byId[id] case final edu?)
           ResolvedQualification(
-            qualification: edu.qualification,
+            qualification:
+                draft.educationQualificationOverrides[edu.id] ??
+                edu.qualification,
             institution: edu.institution,
             location: edu.location,
             yearLabel: edu.year?.toString(),
-            grade: edu.grade,
+            grade: draft.educationGradeOverrides[edu.id] ?? edu.grade,
             details: draft.educationDetailsOverrides[edu.id] ?? edu.details,
             bullets: [
               for (final bullet in edu.bullets)
@@ -261,7 +276,8 @@ abstract final class CvComposer {
     final byId = {for (final h in vault.hobbies) h.id: h};
     final items = <String>[
       for (final id in draft.hobbyIds)
-        if (byId[id] case final hobby?) hobby.text,
+        if (byId[id] case final hobby?)
+          draft.hobbyOverrides[hobby.id] ?? hobby.text,
     ];
 
     if (items.isEmpty) return null;

@@ -8,6 +8,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
 import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
+import 'package:cv_forge/models/llm/cv_translation_result.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
@@ -371,9 +372,15 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
           : _drafts.value.first.id;
     }
     await _localStorage.delete(StorageBoxes.drafts, StorageKeys.draftEntry(id));
+    // Both undo snapshots, not just one — each pass keeps its own slot, so
+    // a deleted draft would otherwise leave an orphaned row behind.
     await _localStorage.delete(
       StorageBoxes.drafts,
       StorageKeys.aiAssistantUndoFor(id),
+    );
+    await _localStorage.delete(
+      StorageBoxes.drafts,
+      StorageKeys.cvTranslationUndoFor(id),
     );
     await _persistIndex();
   }
@@ -708,13 +715,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     final current = _drafts.value.findById(id, (d) => d.id);
     if (current == null) return;
 
-    await _persistAux(
-      () => _localStorage.write(
-        StorageBoxes.drafts,
-        StorageKeys.aiAssistantUndoFor(id),
-        jsonEncode(current.toJson()),
-      ),
-    );
+    await _writeUndoSnapshot(StorageKeys.aiAssistantUndoFor(id), current);
 
     final updated = current.copyWith(
       headlineOverride: result.headline ?? current.headlineOverride,
@@ -744,14 +745,96 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// call without an intervening pass is a no-op. Returns whether a
   /// snapshot actually existed and was restored, so the caller knows
   /// whether anything happened.
-  Future<bool> undoAiAssistantPass() async {
+  Future<bool> undoAiAssistantPass() =>
+      _restoreUndoSnapshot(StorageKeys.aiAssistantUndoFor);
+
+  /// Whether [draftId] has a pending AI Assistant undo snapshot — the Studio UI
+  /// reads this to decide whether to show "Undo AI changes" at all. Not
+  /// tracked as in-memory reactive state (unlike [isFreshDraft]): a
+  /// snapshot's existence is storage state that must survive a reload, so
+  /// it's checked directly rather than cached in a field that would just
+  /// be wrong until the next write.
+  Future<bool> hasAiAssistantUndoFor(String draftId) =>
+      _hasUndoSnapshot(draftId, StorageKeys.aiAssistantUndoFor);
+
+  /// Applies a finished translation pass to the active draft.
+  ///
+  /// Every map is **replaced**, not merged — unlike
+  /// [applyAiAssistantResult]'s `bulletOverrides`. A second pass into a
+  /// different language must not leave the first language's strings behind
+  /// for whatever the model declined to answer this time.
+  ///
+  /// That is also why an unanswered key clears rather than keeps: the model
+  /// omits a key to mean "this text is already right in the target
+  /// language", and the text it was judging was the Vault's. Keeping a
+  /// stale override there would print the *previous* translation of a
+  /// string the model just told us needs none.
+  Future<void> applyCvTranslationResult(
+    CvTranslationResult result,
+    DocumentLanguage language,
+  ) async {
+    await ready();
+    final id = _activeDraftId.value;
+    if (id == null) return;
+    final current = _drafts.value.findById(id, (d) => d.id);
+    if (current == null) return;
+
+    await _writeUndoSnapshot(StorageKeys.cvTranslationUndoFor(id), current);
+
+    final updated = current.copyWith(
+      headlineOverride: result.headline ?? current.headlineOverride,
+      tailoredSummary: result.summary ?? current.tailoredSummary,
+      referencesOverride: result.referencesNote ?? current.referencesOverride,
+      roleOverrides: result.roles,
+      projectTitleOverrides: result.projectTitles,
+      skillCategoryNameOverrides: result.skillCategoryNames,
+      skillLabelOverrides: result.skillLabels,
+      educationQualificationOverrides: result.educationQualifications,
+      educationGradeOverrides: result.educationGrades,
+      educationDetailsOverrides: result.educationDetails,
+      hobbyOverrides: result.hobbies,
+      bulletOverrides: {...current.bulletOverrides, ...result.bullets},
+      translatedTo: language,
+      updatedAt: DateTime.now(),
+    );
+    _freshDraftIds.remove(id);
+    _drafts.value = _sortedByRecency(
+      _drafts.value.replaceById(id, updated, (d) => d.id),
+    );
+    await persistImmediately(updated);
+  }
+
+  /// Restores the active draft to how it was immediately before the most
+  /// recent [applyCvTranslationResult], clearing [CvDraft.translatedTo]
+  /// with it. Returns whether a snapshot existed.
+  Future<bool> removeCvTranslation() =>
+      _restoreUndoSnapshot(StorageKeys.cvTranslationUndoFor);
+
+  Future<bool> hasCvTranslationUndoFor(String draftId) =>
+      _hasUndoSnapshot(draftId, StorageKeys.cvTranslationUndoFor);
+
+  Future<void> _writeUndoSnapshot(String key, CvDraft current) => _persistAux(
+    () => _localStorage.write(
+      StorageBoxes.drafts,
+      key,
+      jsonEncode(current.toJson()),
+    ),
+  );
+
+  /// Restores the active draft from the snapshot [keyFor] names and clears
+  /// it — a second call without an intervening pass is a no-op. Returns
+  /// whether a snapshot actually existed and was restored, so the caller
+  /// knows whether anything happened.
+  ///
+  /// Shared by the AI Assistant and translation passes, which snapshot to
+  /// two separate keys for the reason [StorageKeys.cvTranslationUndoFor]
+  /// gives, but restore identically.
+  Future<bool> _restoreUndoSnapshot(String Function(String) keyFor) async {
     await ready();
     final id = _activeDraftId.value;
     if (id == null) return false;
-    final raw = await _localStorage.read(
-      StorageBoxes.drafts,
-      StorageKeys.aiAssistantUndoFor(id),
-    );
+    final key = keyFor(id);
+    final raw = await _localStorage.read(StorageBoxes.drafts, key);
     if (raw == null) return false;
 
     CvDraft restored;
@@ -760,10 +843,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         jsonDecode(raw) as Map<String, dynamic>,
       ).copyWith(updatedAt: DateTime.now());
     } catch (_) {
-      await _localStorage.delete(
-        StorageBoxes.drafts,
-        StorageKeys.aiAssistantUndoFor(id),
-      );
+      await _localStorage.delete(StorageBoxes.drafts, key);
       return false;
     }
 
@@ -771,25 +851,16 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       _drafts.value.replaceById(id, restored, (d) => d.id),
     );
     await persistImmediately(restored);
-    await _localStorage.delete(
-      StorageBoxes.drafts,
-      StorageKeys.aiAssistantUndoFor(id),
-    );
+    await _localStorage.delete(StorageBoxes.drafts, key);
     return true;
   }
 
-  /// Whether [draftId] has a pending AI Assistant undo snapshot — the Studio UI
-  /// reads this to decide whether to show "Undo AI changes" at all. Not
-  /// tracked as in-memory reactive state (unlike [isFreshDraft]): a
-  /// snapshot's existence is storage state that must survive a reload, so
-  /// it's checked directly rather than cached in a field that would just
-  /// be wrong until the next write.
-  Future<bool> hasAiAssistantUndoFor(String draftId) async {
+  Future<bool> _hasUndoSnapshot(
+    String draftId,
+    String Function(String) keyFor,
+  ) async {
     await ready();
-    final raw = await _localStorage.read(
-      StorageBoxes.drafts,
-      StorageKeys.aiAssistantUndoFor(draftId),
-    );
+    final raw = await _localStorage.read(StorageBoxes.drafts, keyFor(draftId));
     return raw != null;
   }
 
@@ -817,8 +888,12 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     _setDraft((d) => d.copyWith(referencesOverride: references));
   }
 
-  /// Same shape as [setBulletOverride], one entity type over — only
-  /// [Education.details] is prose-overridable.
+  Future<void> setHeadlineHidden(bool hidden) async {
+    await ready();
+    _setDraft((d) => d.copyWith(hideHeadline: hidden));
+  }
+
+  /// Same shape as [setBulletOverride], one entity type over.
   Future<void> setEducationDetailsOverride(
     String educationId,
     String? text,
@@ -835,8 +910,100 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     );
   }
 
+  Future<void> setRoleOverride(String experienceId, String? text) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        roleOverrides: _appliedMapEntry(d.roleOverrides, experienceId, text),
+      ),
+    );
+  }
+
+  Future<void> setProjectTitleOverride(String projectId, String? text) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        projectTitleOverrides: _appliedMapEntry(
+          d.projectTitleOverrides,
+          projectId,
+          text,
+        ),
+      ),
+    );
+  }
+
+  Future<void> setSkillLabelOverride(String skillId, String? text) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        skillLabelOverrides: _appliedMapEntry(
+          d.skillLabelOverrides,
+          skillId,
+          text,
+        ),
+      ),
+    );
+  }
+
+  Future<void> setSkillCategoryNameOverride(
+    String categoryId,
+    String? text,
+  ) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        skillCategoryNameOverrides: _appliedMapEntry(
+          d.skillCategoryNameOverrides,
+          categoryId,
+          text,
+        ),
+      ),
+    );
+  }
+
+  Future<void> setHobbyOverride(String hobbyId, String? text) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        hobbyOverrides: _appliedMapEntry(d.hobbyOverrides, hobbyId, text),
+      ),
+    );
+  }
+
+  Future<void> setEducationQualificationOverride(
+    String educationId,
+    String? text,
+  ) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        educationQualificationOverrides: _appliedMapEntry(
+          d.educationQualificationOverrides,
+          educationId,
+          text,
+        ),
+      ),
+    );
+  }
+
+  Future<void> setEducationGradeOverride(
+    String educationId,
+    String? text,
+  ) async {
+    await ready();
+    _setDraft(
+      (d) => d.copyWith(
+        educationGradeOverrides: _appliedMapEntry(
+          d.educationGradeOverrides,
+          educationId,
+          text,
+        ),
+      ),
+    );
+  }
+
   /// [map] with [key] set to [value], or removed if [value] is null —
-  /// shared by [setBulletOverride] and [setEducationDetailsOverride].
+  /// shared by every id-keyed text-override setter above.
   Map<String, String> _appliedMapEntry(
     Map<String, String> map,
     String key,
