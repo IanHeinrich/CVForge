@@ -41,11 +41,15 @@ class PhotoHeaderTemplate implements CvTemplate {
   /// [TemplateTag.atsSafe]'s own doc comment. The photograph's market
   /// risk is a human screening question, and [description] is where it is
   /// said plainly rather than implied by a missing tag.
+  /// [TemplateTag.modern], not [TemplateTag.traditional]: this template is
+  /// called "Modern with photo", and Classic Centered is called
+  /// "Traditional", so tagging this one `traditional` printed another
+  /// template's *name* on this one's card.
   @override
   Set<TemplateTag> get tags => const {
     TemplateTag.atsSafe,
     TemplateTag.photo,
-    TemplateTag.traditional,
+    TemplateTag.modern,
   };
 
   /// Same order as Compact. A photo changes the header, not what a market

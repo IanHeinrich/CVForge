@@ -82,7 +82,6 @@ void main() {
           'lengthNote': preset.lengthNote,
           'toneNote': preset.toneNote,
           'page label': preset.page.displayLabel(l10n),
-          'date label': preset.dateStyle.displayLabel(l10n),
           'photo displayLabel': preset.photo.displayLabel(l10n),
           'photo promptLabel': preset.photo.promptLabel,
           'personalDetails displayLabel': preset.personalDetails.displayLabel(

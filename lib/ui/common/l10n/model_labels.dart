@@ -66,12 +66,6 @@ extension PdfPageFormatTokenLabel on PdfPageFormatToken {
   };
 }
 
-extension RegionDateStyleLabel on RegionDateStyle {
-  String displayLabel(AppLocalizations l10n) => switch (this) {
-    RegionDateStyle.monYyyy => l10n.dateStyleMonYyyy,
-  };
-}
-
 /// The `displayLabel` halves of the region stances. Their `promptLabel`
 /// counterparts deliberately stay behind in `region_profile.dart`, English
 /// and Flutter-free: they instruct the AI model, not the reader, and

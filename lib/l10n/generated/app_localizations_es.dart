@@ -406,9 +406,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonTryAgain => 'Intentar de nuevo';
 
   @override
-  String get dateStyleMonYyyy => 'Mes AAAA (p. ej. jun 2023)';
-
-  @override
   String get documentLanguageDaName => 'Dansk';
 
   @override
@@ -583,7 +580,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionDachConvention1 =>
-      'Alrededor de dos tercios de los empleadores de habla alemana siguen esperando una foto profesional, arriba a la derecha. CVForge no la agrega; hay prevista una plantilla que incluya foto y, hasta entonces, hay que añadirla a mano al PDF exportado.';
+      'Alrededor de dos tercios de los empleadores de habla alemana siguen esperando una foto profesional, arriba a la derecha. Súbela en la Bóveda y elige una plantilla que la incluya; las demás la omiten.';
 
   @override
   String get regionDachConvention2 =>
@@ -668,7 +665,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionLatamA4Convention3 =>
-      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CPF, DNI/CUIL) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge no tiene ningún campo para ellos.';
+      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CPF, DNI/CUIL) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge incluye la fotografía cuando la plantilla la admite; no tiene campo para el resto.';
 
   @override
   String get regionLatamA4Convention4 => 'Dos o tres páginas es lo normal.';
@@ -708,7 +705,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionLatamLetterConvention3 =>
-      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CURP/RFC, Cédula) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge no tiene ningún campo para ellos.';
+      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CURP/RFC, Cédula) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge incluye la fotografía cuando la plantilla la admite; no tiene campo para el resto.';
 
   @override
   String get regionLatamLetterConvention4 => 'Dos o tres páginas es lo normal.';
@@ -761,7 +758,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionNordicsConvention6 =>
-      'Los CV en inglés se aceptan ampliamente; usa ortografía británica.';
+      'Los CV en inglés se aceptan ampliamente; si escribes en inglés, usa ortografía británica.';
 
   @override
   String get regionNordicsCoverage => 'Suecia, Noruega, Dinamarca, Finlandia';
@@ -1632,9 +1629,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get studioPreviewNothingSelectedTitle =>
       'Aún no hay nada seleccionado';
-
-  @override
-  String get studioRegionDates => 'Fechas';
 
   @override
   String studioRegionDetailRow(String label) {

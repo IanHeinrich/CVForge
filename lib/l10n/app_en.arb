@@ -494,10 +494,6 @@
   "@commonTryAgain": {
     "description": "Button on the full-page card shown when local storage could not be read at all. Retries loading."
   },
-  "dateStyleMonYyyy": "Mon YYYY (e.g. Jun 2023)",
-  "@dateStyleMonYyyy": {
-    "description": "How dates are written on the CV. The pattern letters and the example should be rewritten to show the same format using the target language's own month abbreviation."
-  },
   "documentLanguageDaName": "Dansk",
   "@documentLanguageDaName": {
     "description": "Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
@@ -714,7 +710,7 @@
   "@regionAnzToneNote": {
     "description": "Region picker: how achievements should be framed in the ANZ market."
   },
-  "regionDachConvention1": "Around two thirds of German-speaking employers still expect a professional headshot, top right. CVForge does not add one; a template that renders a photo is planned, and until then it has to be added to the exported PDF by hand.",
+  "regionDachConvention1": "Around two thirds of German-speaking employers still expect a professional headshot, top right. Upload one in the Vault and choose a template that includes one; the rest leave it off.",
   "@regionDachConvention1": {
     "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -802,7 +798,7 @@
   "@regionLatamA4Convention2": {
     "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionLatamA4Convention3": "A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.",
+  "regionLatamA4Convention3": "A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.",
   "@regionLatamA4Convention3": {
     "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -846,7 +842,7 @@
   "@regionLatamLetterConvention2": {
     "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionLatamLetterConvention3": "A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.",
+  "regionLatamLetterConvention3": "A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.",
   "@regionLatamLetterConvention3": {
     "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -902,7 +898,7 @@
   "@regionNordicsConvention5": {
     "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionNordicsConvention6": "English CVs are widely accepted; use British spelling.",
+  "regionNordicsConvention6": "English CVs are widely accepted; if you write in English, use British spelling.",
   "@regionNordicsConvention6": {
     "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -2053,10 +2049,6 @@
   "studioPreviewNothingSelectedTitle": "Nothing selected yet",
   "@studioPreviewNothingSelectedTitle": {
     "description": "Studio preview pane empty state when the Vault has content but none is included in this CV."
-  },
-  "studioRegionDates": "Dates",
-  "@studioRegionDates": {
-    "description": "Region detail row label — how dates are formatted on a CV in this market."
   },
   "studioRegionDetailRow": "{label}: ",
   "@studioRegionDetailRow": {
