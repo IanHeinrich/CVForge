@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="docs/images/logo.png" alt="" width="112">
+<img src="docs/images/logo.png" alt="" width="104">
 
 # CVForge
 
-**Tailor a CV to every application — without losing your history.**
+**Tailor a CV to every application without losing your history.**
 
 A client-side, privacy-first CV builder for the web. No backend, no account,
 no tracking. Everything you type stays in your browser.
@@ -19,142 +19,124 @@ no tracking. Everything you type stays in your browser.
 [Features](#features) · [Getting started](#getting-started) ·
 [Architecture](#architecture) · [Contributing](CONTRIBUTING.md)
 
-</div>
+<img src="docs/images/studio.png" alt="The Studio: section picker, bullet selection, and a live PDF preview" width="820">
 
----
+</div>
 
 ## The idea
 
-Most CV tools make you keep one CV and edit it into the ground. Every time you
-tailor it for a role, you lose something you might have wanted next time.
+Most CV tools give you one CV and let you edit it into the ground. Every time
+you tailor it for a role, you lose something you might have wanted next time.
 
-CVForge splits the two jobs apart:
+CVForge splits that into two jobs.
 
-- **The Vault** is your master record — every role, project, bullet point,
-  skill, publication and qualification you have ever had. It is never what you
-  send anyone.
-- **The Studio** is where you build one CV for one application, by picking
-  from the Vault. Toggle sections, choose which bullets make the cut, reorder
-  them, and watch a real PDF update as you go.
+The **Vault** is your master record. Every role, project, bullet point, skill,
+publication and qualification you've ever had, whether or not it belongs on
+any particular CV. It's never the thing you send.
 
-Delete a bullet from a CV and it is still in your Vault. Build twenty CVs from
-one history without a single copy-paste.
+The **Studio** is where you build one CV for one application by picking from
+the Vault. Toggle sections, choose which bullets make the cut, reorder them,
+and watch a real PDF update as you go.
 
-<div align="center">
-<img src="docs/images/studio.png" alt="The Studio: section picker, bullet selection, and a live PDF preview" width="900">
-</div>
-
----
+Delete a bullet from a CV and it's still in your Vault. Build twenty CVs off
+one history without copy-pasting between documents.
 
 ## Features
 
-### Vault — your master record
+### Vault
 
 Work history with per-role bullets, projects, skills grouped into categories,
 education, publications, references and hobbies. Bullets can be linked to
-skills, so selecting a skill for a CV can pull in the evidence that backs it.
+skills, so picking a skill for a CV can pull in the evidence behind it.
 
-<div align="center">
-<img src="docs/images/vault.png" alt="The Vault, with an entry open in the editor panel" width="900">
-</div>
-
-### Studio — one CV per application
+### Studio
 
 Pick sections and individual bullets, reorder them, and preview the result as
-a real PDF. The preview *is* the export — Studio rasterises the same bytes
-that `Export PDF` writes, so what you see cannot drift from what you send.
+a real PDF (that's the screenshot at the top). The preview is the export:
+Studio rasterises the same bytes that `Export PDF` writes, so what you see
+can't drift from what you send.
 
-<div align="center">
-<img src="docs/images/cvs.png" alt="The CVs grid, each card showing a rendered first page" width="900">
-</div>
+Every CV you build lands in a grid with its first page rendered, so you can
+tell twenty near-identical CVs apart at a glance.
 
-### Genuinely ATS-readable output
+|  |  |
+| :--: | :--: |
+| <img src="docs/images/vault.png" alt="The Vault, with an entry open in the editor panel" width="100%"> | <img src="docs/images/cvs.png" alt="The CVs grid, each card showing a rendered first page" width="100%"> |
+| The Vault, with an entry open | The CVs you've built so far |
 
-Exports are vector PDFs with selectable, copyable text — not an image of a CV.
-Two templates ship today, both single-column by design, because multi-column
-layouts are what most often confuse a resume parser:
+### Output that survives a resume parser
+
+Exports are vector PDFs with selectable, copyable text, not a picture of a CV.
+Two templates ship today. Both are single-column on purpose, since
+multi-column layouts are what most often confuse a parser.
 
 | Template | Shape |
 |---|---|
 | **Compact** | Clean, single-column, sans-serif. Built to pass through ATS parsers without friction. |
-| **Traditional** | Centred, whitespace-led, with a two-row entry header and a justified summary. |
+| **Traditional** | Centred and whitespace-led, with a two-row entry header and a justified summary. |
+
+CV conventions also aren't universal, so you pick a region and CVForge adjusts
+page size, expected length, date format, what the document is even called, and
+the guidance it shows you. Eight regions ship: UK & Ireland, US & Canada,
+Australia & New Zealand, DACH, Nordics, Europe (international),
+Mexico/Colombia/Chile, and Brazil & Southern Cone.
+
+|  |  |
+| :--: | :--: |
+| <img src="docs/images/templates.png" alt="The template gallery, previewing each template against your own CV" width="100%"> | <img src="docs/images/regions.png" alt="Region picker, showing UK and Ireland conventions" width="100%"> |
+| Templates, previewed against your own CV | Region conventions |
+
+### ATS Check
+
+Upload any existing CV, not only one CVForge made, and see what a resume
+parser sees. X-Ray flags the format problems that make extractors misread a
+document. The main offender is a multi-column layout, where two columns
+sharing a baseline get merged into one nonsense line. Reading order traces the
+path a position-sorting extractor actually takes through the page.
 
 <div align="center">
-<img src="docs/images/templates.png" alt="The template gallery, previewing each template against your own CV" width="820">
-</div>
-
-### ATS Check — x-ray any PDF
-
-Upload *any* existing CV, not just one CVForge made, and see what a resume
-parser sees. **X-Ray** highlights the format problems that make extractors
-misread a document — the big one being multi-column layouts, where two columns
-sharing a baseline get merged into one nonsense line. **Reading order** traces
-the exact path a position-sorting extractor takes through the page.
-
-<div align="center">
-<img src="docs/images/ats-check.png" alt="ATS Check tracing a parser's reading order across a two-column CV" width="900">
-</div>
-
-### Region-aware conventions
-
-CV norms are not universal. Pick a region and CVForge adjusts page size,
-expected length, date format, the document's own name, and the guidance it
-shows you. Eight regions ship: UK & Ireland, US & Canada, Australia & New
-Zealand, DACH, Nordics, Europe (international), Mexico/Colombia/Chile, and
-Brazil & Southern Cone.
-
-<div align="center">
-<img src="docs/images/regions.png" alt="Region picker, showing UK and Ireland conventions" width="820">
+<img src="docs/images/ats-check.png" alt="ATS Check tracing a parser's reading order across a two-column CV" width="760">
 </div>
 
 ### Optional extras, all off by default
 
-- **Tailor with AI** *(beta)* — paste a job ad and have a model select and
-  rewrite bullets for it. Bring your own API key; Anthropic and Google Gemini
-  are supported. Off until you add a key.
-- **Google Drive sync** — mirrors your Vault and every CV to your Drive's
-  hidden app folder, so a second browser picks up where you left off. Off
-  until you sign in.
-- **JSON backup** — export your whole world to a file and import it back.
-
----
+- **Tailor with AI** (beta). Paste a job ad and have a model select and rewrite
+  bullets for it. Bring your own API key; Anthropic and Google Gemini are
+  supported. Stays off until you add one.
+- **Google Drive sync.** Mirrors your Vault and CVs to your Drive's hidden app
+  folder, so a second browser picks up where you left off. Stays off until you
+  sign in.
+- **JSON backup.** Export everything to a file and import it back.
 
 ## Privacy
 
-**By default, CVForge makes no network calls with your data at all.** There is
-no server component to this project. Your Vault and CVs live in your browser's
+By default CVForge makes no network calls with your data at all. There's no
+server component to this project. Your Vault and CVs live in your browser's
 IndexedDB, and PDF generation happens on-device.
 
-That cuts both ways, so it is worth being blunt about it: **your data is only
-as durable as your browser's site storage.** Clearing site data, or working in
-a private window, will lose it. Turn on Drive sync or take a JSON backup if
-that matters to you.
+That cuts both ways, so it's worth being blunt: your data is only as durable
+as your browser's site storage. Clearing site data, or working in a private
+window, will lose it. Turn on Drive sync or take a JSON backup if that matters
+to you.
 
-Two optional features change the picture, and only if you turn them on:
+Two optional features change the picture, and only if you turn them on.
 
 | Feature | What leaves your browser | Where it goes |
 |---|---|---|
-| **Tailor with AI** | The job ad, and your CV's career content — experience, projects, skills, education | Straight to Anthropic or Google, using *your* API key |
+| **Tailor with AI** | The job ad, plus your CV's career content: experience, projects, skills, education | Straight to Anthropic or Google, using *your* API key |
 | **Google Drive sync** | Your Vault and CVs, as the same JSON the backup export produces | Your own Google Drive, hidden app folder |
 
 Neither routes through a CVForge server, because there still isn't one.
 
-For AI tailoring specifically: your identifying details — name, email, phone,
-location and profile links — are **stripped before the request is built** and
-are never part of it. The feature always shows you exactly what is about to be
-sent, before it sends it.
-
----
+For AI tailoring specifically, your identifying details (name, email, phone,
+location and profile links) are stripped before the request is built and are
+never part of it. The feature shows you exactly what's about to be sent,
+before it sends it.
 
 ## Getting started
 
-### Prerequisites
-
-- [Flutter](https://docs.flutter.dev/get-started/install) **3.47.0** — the
-  version CI pins; newer stable releases will usually work
-- Chrome, for `flutter run -d chrome`
-
-### Run it
+You'll need [Flutter](https://docs.flutter.dev/get-started/install) 3.47.0,
+which is what CI pins, though newer stable releases will usually work.
 
 ```bash
 git clone https://github.com/IanHeinrich/CVForge.git
@@ -163,52 +145,48 @@ flutter pub get
 flutter run -d chrome
 ```
 
-That is the whole setup. No environment variables, no services to stand up and
-no API keys — the app runs fully featured without them, minus the two optional
-integrations above.
+That's the whole setup. There are no environment variables, no services to
+stand up and no API keys. The app runs fully featured without them, minus the
+two optional integrations above.
 
-### Build a release
+To build a release:
 
 ```bash
 flutter build web --release
 ```
 
-For a deploy under a sub-path, as GitHub Pages does, pass the base href:
+Deploying under a sub-path, as GitHub Pages does, needs the base href:
 
 ```bash
 flutter build web --release --base-href /CVForge/
 ```
-
----
 
 ## Architecture
 
 Flutter Web, [Stacked](https://stacked.filledstacks.com/) MVVM, with
 [freezed](https://pub.dev/packages/freezed) for immutable models.
 
-A few decisions worth knowing before reading the code:
+Four things are worth knowing before you read the code.
 
-**Package by feature, not by layer.** Views, dialogs and feature-specific
-widgets live together under `lib/features/<feature>/`. Only genuinely shared
-things — services, common widgets, routing and DI — stay global, because
-Stacked's routing and locator are centralised by design.
+**It's organised by feature, not by layer.** Views, dialogs and
+feature-specific widgets live together under `lib/features/<feature>/`. Only
+genuinely shared things stay global: services, common widgets, routing and DI.
+Stacked's routing and locator are centralised by design, so splitting those up
+isn't on the table.
 
 **Models never import Flutter.** `lib/models/` is pure Dart.
-`render/cv_composer.dart` is the single place Vault data and Draft selections
-are joined into the `ResolvedCv` a template renders.
+`render/cv_composer.dart` is the only place Vault data and Draft selections get
+joined into the `ResolvedCv` a template renders.
 
-**One renderer, not two.** A template owns exactly one `pdf`-package renderer.
-Studio's live preview rasterises that same PDF rather than maintaining a
-parallel Flutter widget tree, so preview and export can never disagree — on
+**There's one renderer, not two.** A template owns exactly one `pdf`-package
+renderer. Studio's live preview rasterises that same PDF instead of keeping a
+parallel Flutter widget tree alive, so preview and export can't disagree on
 content or on pixels.
 
-**Pagination is a solved trap.** Splitting a CV across pages correctly is
-harder than it looks in `package:pdf`, and
-`templates/design/section_pagination_pdf.dart` is the one place it is
-implemented. New templates must route through it. The reasoning is written up
-in [CLAUDE.md](CLAUDE.md) — read that before writing a template.
-
-### Project layout
+**Pagination is already solved, and it's a trap.** Splitting a CV across pages
+is harder than it looks in `package:pdf`. `templates/design/section_pagination_pdf.dart`
+is the one place it's done correctly, and new templates have to route through
+it. [CONTRIBUTING.md](CONTRIBUTING.md) explains why before you write one.
 
 ```
 lib/
@@ -227,13 +205,10 @@ lib/
 └── ui/             # Shared chrome: theme, tokens, common widgets
 ```
 
----
-
 ## Development
 
-Full conventions, gotchas and the reasoning behind them live in
-**[CONTRIBUTING.md](CONTRIBUTING.md)** and [CLAUDE.md](CLAUDE.md). The short
-version:
+[CONTRIBUTING.md](CONTRIBUTING.md) has the full conventions and the reasoning
+behind them. The short version:
 
 ```bash
 stacked generate                  # freezed, json_serializable, locator, router
@@ -243,41 +218,34 @@ flutter test --exclude-tags=golden
 ```
 
 > [!NOTE]
-> Golden tests are baselined on Linux and show small pixel diffs on macOS or
-> Windows even with no real change. `--exclude-tags=golden` is the signal that
-> is actually green locally; CI verifies the goldens for real on every PR.
-
----
+> Golden tests are baselined on Linux, so they show small pixel diffs on macOS
+> or Windows even when nothing has really changed. `--exclude-tags=golden` is
+> the signal that's actually green locally. CI verifies them properly on every
+> PR.
 
 ## Deployment
 
-Pushing to `main` runs [`deploy.yml`](.github/workflows/deploy.yml), which
-detects a version bump in `pubspec.yaml`, builds with `--base-href /CVForge/`,
-publishes to GitHub Pages, and tags the release.
+Pushing to `main` runs [`deploy.yml`](.github/workflows/deploy.yml). It looks
+for a version bump in `pubspec.yaml`, builds with `--base-href /CVForge/`,
+publishes to GitHub Pages and tags the release. No bump means no deploy.
 
-`404.html` handles deep links: GitHub Pages has no rewrite rules, so it
-encodes the requested path into a query string and `index.html` restores it
-before the router ever reads the URL.
-
----
+`404.html` handles deep links. GitHub Pages has no rewrite rules, so it encodes
+the requested path into a query string and `index.html` restores it before the
+router reads the URL.
 
 ## Contributing
 
-Issues and pull requests are welcome. **[CONTRIBUTING.md](CONTRIBUTING.md)**
-covers setup, the conventions this codebase actually enforces, and what CI
-will check.
+Issues and pull requests are welcome.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers setup, the conventions this codebase
+enforces, and what CI checks.
 
-The one rule worth stating up front: **scaffold with the Stacked CLI, never by
-hand.** Hand-written views, services and widgets miss the route and DI wiring
+One rule is worth stating up front: scaffold with the Stacked CLI rather than
+by hand. Hand-written views, services and widgets miss the route and DI wiring
 the CLI maintains, and drift from the generated conventions.
-
----
 
 ## License
 
 [Apache License 2.0](LICENSE), Copyright 2026 Ian Heinrich.
-
----
 
 ## Acknowledgements
 
