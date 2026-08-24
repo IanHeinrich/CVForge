@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cv_forge/app/app.locator.dart';
@@ -44,6 +45,35 @@ Map<String, String> _wireMemoryStorage(MockLocalStorageService storage) {
 }
 
 void main() {
+  test('the version stamped on a bundle matches pubspec — the only thing '
+      'keeping the two in step is a doc comment saying to bump both, so '
+      'this is what actually notices when one is missed', () {
+    final declared = File('pubspec.yaml')
+        .readAsLinesSync()
+        .firstWhere((line) => line.startsWith('version:'))
+        .split(':')
+        .last
+        .trim();
+
+    final storage = getAndRegisterLocalStorageService();
+    _wireMemoryStorage(storage);
+    locator.registerLazySingleton<TemplateRegistryService>(
+      TemplateRegistryService.new,
+    );
+    final settingsService = getAndRegisterSettingsService();
+    when(settingsService.settings).thenReturn(AppSettings.empty());
+    locator.registerSingleton<VaultService>(VaultService());
+    locator.registerSingleton<DraftService>(DraftService());
+    getAndRegisterFileDownloadService();
+    getAndRegisterFileUploadService();
+    getAndRegisterLocalizationService();
+
+    final bundle = BackupService().buildBundle();
+
+    expect(bundle.appVersion, declared);
+    locator.reset();
+  });
+
   group('BackupServiceTest -', () {
     late Map<String, String> memory;
     late VaultService vaultService;
