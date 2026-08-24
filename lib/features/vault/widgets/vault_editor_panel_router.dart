@@ -20,48 +20,18 @@ class VaultEditorPanelRouter extends StatelessWidget {
 
   final VaultViewModel viewModel;
 
-  /// Builds the shared bullet-callbacks object for whichever entity
-  /// [owner] identifies, all routed through the matching
-  /// `VaultViewModel` pass-throughs — see `VaultService`'s bullet API for
-  /// why one [BulletOwner] parameter replaces four near-identical methods
-  /// per action.
-  BulletEditorCallbacks _bulletCallbacksFor(BulletOwner owner, String ownerId) {
-    switch (owner) {
-      case BulletOwner.experience:
-        return BulletEditorCallbacks(
-          onAdd: () => viewModel.addBullet(ownerId),
-          onChanged: (bullet) => viewModel.updateBullet(ownerId, bullet),
-          onDelete: (bulletId) => viewModel.deleteBullet(ownerId, bulletId),
-          onReorder: (ids) => viewModel.reorderBullets(ownerId, ids),
-        );
-      case BulletOwner.project:
-        return BulletEditorCallbacks(
-          onAdd: () => viewModel.addProjectBullet(ownerId),
-          onChanged: (bullet) => viewModel.updateProjectBullet(ownerId, bullet),
-          onDelete: (bulletId) =>
-              viewModel.deleteProjectBullet(ownerId, bulletId),
-          onReorder: (ids) => viewModel.reorderProjectBullets(ownerId, ids),
-        );
-      case BulletOwner.education:
-        return BulletEditorCallbacks(
-          onAdd: () => viewModel.addEducationBullet(ownerId),
-          onChanged: (bullet) =>
-              viewModel.updateEducationBullet(ownerId, bullet),
-          onDelete: (bulletId) =>
-              viewModel.deleteEducationBullet(ownerId, bulletId),
-          onReorder: (ids) => viewModel.reorderEducationBullets(ownerId, ids),
-        );
-      case BulletOwner.publication:
-        return BulletEditorCallbacks(
-          onAdd: () => viewModel.addPublicationBullet(ownerId),
-          onChanged: (bullet) =>
-              viewModel.updatePublicationBullet(ownerId, bullet),
-          onDelete: (bulletId) =>
-              viewModel.deletePublicationBullet(ownerId, bulletId),
-          onReorder: (ids) => viewModel.reorderPublicationBullets(ownerId, ids),
-        );
-    }
-  }
+  /// The bullet callbacks for whichever entity [owner]/[ownerId] identify
+  /// — see `VaultService`'s bullet API for why the owner travels as a
+  /// parameter rather than picking one of four methods per action.
+  BulletEditorCallbacks _bulletCallbacksFor(
+    BulletOwner owner,
+    String ownerId,
+  ) => BulletEditorCallbacks(
+    onAdd: () => viewModel.addBullet(owner, ownerId),
+    onChanged: (bullet) => viewModel.updateBullet(owner, ownerId, bullet),
+    onDelete: (bulletId) => viewModel.deleteBullet(owner, ownerId, bulletId),
+    onReorder: (ids) => viewModel.reorderBullets(owner, ownerId, ids),
+  );
 
   @override
   Widget build(BuildContext context) {

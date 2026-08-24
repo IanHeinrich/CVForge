@@ -307,29 +307,30 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     closeIfOpenId: id,
   );
 
-  /// One set of pass-throughs, parameterised by [BulletOwner], shared by
-  /// experience/project/education/publication bullets — see
-  /// `VaultService`'s matching bullet API for why one method per action
-  /// serves every bullet-owning entity.
-  Future<void> addBullet(String experienceId) =>
-      _vaultService.addBullet(BulletOwner.experience, experienceId, text: '');
+  /// One set of pass-throughs for every bullet-owning entity, carrying
+  /// [owner] straight through to the matching [VaultService] method — see
+  /// that class's bullet API for why the owner is a parameter rather than
+  /// four methods per action.
+  Future<void> addBullet(BulletOwner owner, String ownerId) =>
+      _vaultService.addBullet(owner, ownerId, text: '');
 
-  Future<void> updateBullet(String experienceId, CvBullet bullet) =>
-      _vaultService.updateBullet(BulletOwner.experience, experienceId, bullet);
+  Future<void> updateBullet(
+    BulletOwner owner,
+    String ownerId,
+    CvBullet bullet,
+  ) => _vaultService.updateBullet(owner, ownerId, bullet);
 
-  Future<void> deleteBullet(String experienceId, String bulletId) =>
-      _vaultService.deleteBullet(
-        BulletOwner.experience,
-        experienceId,
-        bulletId,
-      );
+  Future<void> deleteBullet(
+    BulletOwner owner,
+    String ownerId,
+    String bulletId,
+  ) => _vaultService.deleteBullet(owner, ownerId, bulletId);
 
-  Future<void> reorderBullets(String experienceId, List<String> orderedIds) =>
-      _vaultService.reorderBullets(
-        BulletOwner.experience,
-        experienceId,
-        orderedIds,
-      );
+  Future<void> reorderBullets(
+    BulletOwner owner,
+    String ownerId,
+    List<String> orderedIds,
+  ) => _vaultService.reorderBullets(owner, ownerId, orderedIds);
 
   Future<void> addProject() async {
     final created = await _vaultService.addProject(title: '');
@@ -346,20 +347,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     delete: () => _vaultService.deleteProject(id),
     closeIfOpenId: id,
   );
-
-  Future<void> addProjectBullet(String projectId) =>
-      _vaultService.addBullet(BulletOwner.project, projectId, text: '');
-
-  Future<void> updateProjectBullet(String projectId, CvBullet bullet) =>
-      _vaultService.updateBullet(BulletOwner.project, projectId, bullet);
-
-  Future<void> deleteProjectBullet(String projectId, String bulletId) =>
-      _vaultService.deleteBullet(BulletOwner.project, projectId, bulletId);
-
-  Future<void> reorderProjectBullets(
-    String projectId,
-    List<String> orderedIds,
-  ) => _vaultService.reorderBullets(BulletOwner.project, projectId, orderedIds);
 
   /// Returns the created [SkillCategory] (not just `void`) so a caller
   /// that needs its id right away — `BulletListEditor`'s "+ New category"
@@ -411,24 +398,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     closeIfOpenId: id,
   );
 
-  Future<void> addEducationBullet(String educationId) =>
-      _vaultService.addBullet(BulletOwner.education, educationId, text: '');
-
-  Future<void> updateEducationBullet(String educationId, CvBullet bullet) =>
-      _vaultService.updateBullet(BulletOwner.education, educationId, bullet);
-
-  Future<void> deleteEducationBullet(String educationId, String bulletId) =>
-      _vaultService.deleteBullet(BulletOwner.education, educationId, bulletId);
-
-  Future<void> reorderEducationBullets(
-    String educationId,
-    List<String> orderedIds,
-  ) => _vaultService.reorderBullets(
-    BulletOwner.education,
-    educationId,
-    orderedIds,
-  );
-
   Future<void> addHobby(String text) => _vaultService.addHobby(text);
 
   Future<void> updateHobby(HobbyItem hobby) => _vaultService.updateHobby(hobby);
@@ -449,32 +418,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
         "This removes it and all of its bullets. This can't be undone.",
     delete: () => _vaultService.deletePublication(id),
     closeIfOpenId: id,
-  );
-
-  Future<void> addPublicationBullet(String publicationId) =>
-      _vaultService.addBullet(BulletOwner.publication, publicationId, text: '');
-
-  Future<void> updatePublicationBullet(String publicationId, CvBullet bullet) =>
-      _vaultService.updateBullet(
-        BulletOwner.publication,
-        publicationId,
-        bullet,
-      );
-
-  Future<void> deletePublicationBullet(String publicationId, String bulletId) =>
-      _vaultService.deleteBullet(
-        BulletOwner.publication,
-        publicationId,
-        bulletId,
-      );
-
-  Future<void> reorderPublicationBullets(
-    String publicationId,
-    List<String> orderedIds,
-  ) => _vaultService.reorderBullets(
-    BulletOwner.publication,
-    publicationId,
-    orderedIds,
   );
 
   /// Shared by every entity-level delete action above: confirm, delete,
