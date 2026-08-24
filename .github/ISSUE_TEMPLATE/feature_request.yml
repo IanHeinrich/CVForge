@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest something CVForge should do
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: >
+        Describe the situation you are in, not the solution you have in mind.
+        The underlying problem is usually the more useful half.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What did you have in mind?
+      description: Optional. A sketch of a solution, if you have one.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app?
+      options:
+        - Vault
+        - Studio (building a CV)
+        - Templates or PDF output
+        - ATS Check
+        - Tailor with AI
+        - Google Drive sync
+        - Settings / backup
+        - Something new
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Does this fit the project's constraints?
+      description: >
+        CVForge has no backend and no account system, and everything runs in
+        the browser. Features needing a server are out of scope by design.
+      options:
+        - label: This works without a backend, or I have thought about how it could
+          required: false

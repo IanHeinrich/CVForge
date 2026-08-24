@@ -377,8 +377,8 @@ void main() {
     group('Gemini -', () {
       test('completeJson happy path sends the confirmed request shape and '
           'parses the confirmed response shape', () async {
-        // Field names and casing below match a real generateContent
-        // response captured in plan.md's 4.4b note, not an assumption.
+        // Field names and casing below were captured from a real
+        // generateContent response, not assumed from the docs.
         final adapter = _FakeAdapter(
           (_) async => _jsonResponse({
             'candidates': [
@@ -422,8 +422,8 @@ void main() {
         );
         expect(options.headers['x-goog-api-key'], 'gemini-test-key');
         // No Anthropic-style browser-access header exists or is needed
-        // for Gemini — confirmed via a real cross-origin fetch() in
-        // plan.md's 4.4b.
+        // for Gemini — confirmed with a real cross-origin fetch(), not
+        // inferred.
         expect(
           options.headers.containsKey(
             'anthropic-dangerous-direct-browser-access',
