@@ -2,6 +2,7 @@ import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
@@ -222,6 +223,46 @@ void main() {
 
       expect(model.includeHeadline, isTrue);
       expect(model.resolvedCv.header.headline, 'Tailored');
+    });
+
+    test('a headline with no summary is still reachable — while the two '
+        'shared an editor, this CV could not reach its headline at all', () {
+      when(vaultService.vault).thenReturn(
+        vaultWith(basics: ContactBasics.empty().copyWith(headline: 'Vault')),
+      );
+      when(draftService.draft).thenReturn(draftWith());
+
+      final model = StudioViewModel();
+
+      expect(model.hasHeadline, isTrue);
+      // No summary text, so the Summary section has nothing behind it.
+      expect(model.sectionHasData(CvSectionType.summary), isFalse);
+    });
+
+    test('opening the headline closes whichever section was open, and vice '
+        'versa — one editor pane, two kinds of thing it can show', () {
+      when(vaultService.vault).thenReturn(
+        vaultWith(basics: ContactBasics.empty().copyWith(headline: 'Vault')),
+      );
+      when(draftService.draft).thenReturn(draftWith());
+
+      final model = StudioViewModel()..selectSection(CvSectionType.skills);
+      expect(model.isHeadlineOpen, isFalse);
+
+      model.selectHeadline();
+      expect(model.isHeadlineOpen, isTrue);
+      expect(model.openSection, isNull);
+
+      model.selectSection(CvSectionType.skills);
+      expect(model.isHeadlineOpen, isFalse);
+      expect(model.openSection, CvSectionType.skills);
+    });
+
+    test('no headline anywhere means no row to show', () {
+      when(vaultService.vault).thenReturn(vaultWith());
+      when(draftService.draft).thenReturn(draftWith());
+
+      expect(StudioViewModel().hasHeadline, isFalse);
     });
 
     test(

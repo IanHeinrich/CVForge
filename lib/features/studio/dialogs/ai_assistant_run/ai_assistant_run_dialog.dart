@@ -77,6 +77,13 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
           ),
           const VGap.small(),
           Text(
+            context.l10n.studioAiCostEstimate(viewModel.estimatedCents),
+            style: context.appTypography.bodySmall.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const VGap.small(),
+          Text(
             context.l10n.studioAiDialogRegionNote(viewModel.regionDisplayName),
             style: context.appTypography.bodySmall,
           ),

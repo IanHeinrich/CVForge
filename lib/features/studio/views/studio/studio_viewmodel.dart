@@ -615,10 +615,36 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   CvSectionType? _openSection;
 
   void selectSection(CvSectionType? type) {
-    if (_openSection == type) return;
+    if (_openSection == type && !_headlineOpen) return;
     _openSection = type;
+    _headlineOpen = false;
     notifyListeners();
   }
+
+  /// Whether the editor pane is showing the headline rather than a
+  /// section.
+  ///
+  /// The headline is not a [CvSectionType] and must not become one — it
+  /// prints in the name block, has no heading of its own and cannot be
+  /// reordered, so a ninth case would appear in the reorderable list as a
+  /// draggable row that changes nothing. It still needs its own row and
+  /// its own editor, so "what the pane is showing" is a section *or* the
+  /// headline, and this is the second half of that.
+  bool get isHeadlineOpen => _headlineOpen;
+  bool _headlineOpen = false;
+
+  void selectHeadline() {
+    if (_headlineOpen) return;
+    _headlineOpen = true;
+    _openSection = null;
+    notifyListeners();
+  }
+
+  /// Whether there is a headline to show a row for at all — the same
+  /// "nothing behind it, so no toggle" rule [sectionHasData] applies to
+  /// every section.
+  bool get hasHeadline =>
+      (_draft.headlineOverride ?? _vault.basics.headline).trim().isNotEmpty;
 
   /// This draft's full section order (all [CvSectionType] cases, whether
   /// [sectionHasData] or not) — the "Sections" picker filters this down to

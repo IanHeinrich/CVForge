@@ -1243,6 +1243,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioAiClearJobDescription => 'Borrar la descripción del puesto';
 
   @override
+  String studioAiCostEstimate(int cents) {
+    String _temp0 = intl.Intl.pluralLogic(
+      cents,
+      locale: localeName,
+      other: 'Aproximadamente $cents¢ a las tarifas actuales.',
+      one: 'Aproximadamente 1¢ a las tarifas actuales.',
+      zero: 'Menos de 1¢ a las tarifas actuales.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String studioAiDialogLanguageNote(String language) {
     return 'Redactado en $language: el asistente traduce tus viñetas si tu Bóveda está en otro idioma.';
   }

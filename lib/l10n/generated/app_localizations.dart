@@ -1934,6 +1934,12 @@ abstract class AppLocalizations {
   /// **'Clear job description'**
   String get studioAiClearJobDescription;
 
+  /// Confirm screen of both AI dialogs (tailoring and translation) — roughly what this run will cost. In US cents because both providers price and bill in USD, so it matches the invoice; do not convert to a local currency, the app has no way to keep a rate current. Approximate by nature: token counts are inferred from character counts.
+  ///
+  /// In en, this message translates to:
+  /// **'{cents, plural, =0{Under 1¢ at current rates.} one{About 1¢ at current rates.} other{About {cents}¢ at current rates.}}'**
+  String studioAiCostEstimate(int cents);
+
   /// AI dialog, note naming the language the assistant will write the tailored bullets in. Sits beside the region note. Names it explicitly because translating someone's career history is a larger surprise than a page size if they had not noticed the setting.
   ///
   /// In en, this message translates to:

@@ -7,6 +7,7 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/sections/education_section_editor/education_section_editor.dart';
+import 'package:cv_forge/features/studio/widgets/sections/headline_editor/headline_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/experience_section_editor/experience_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/hobbies_section_editor/hobbies_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/projects_section_editor/projects_section_editor.dart';
@@ -25,6 +26,10 @@ class StudioSectionEditorRouter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (viewModel.isHeadlineOpen) {
+      return HeadlineEditor(viewModel: viewModel);
+    }
+
     final type = viewModel.openSection;
     // A hidden/no-data section can't normally reach here — the nav only
     // ever selects a visible section, and `toggleSectionHidden` clears the

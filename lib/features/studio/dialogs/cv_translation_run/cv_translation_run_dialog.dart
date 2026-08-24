@@ -82,6 +82,13 @@ class CvTranslationRunDialog extends StackedView<CvTranslationRunDialogModel> {
             context.l10n.studioAiDialogPrivacy(viewModel.providerDisplayName),
             style: context.appTypography.bodySmall,
           ),
+          const VGap.small(),
+          Text(
+            context.l10n.studioAiCostEstimate(viewModel.estimatedCents),
+            style: context.appTypography.bodySmall.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
           if (viewModel.replacesExisting) ...[
             const VGap.small(),
             Text(

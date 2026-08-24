@@ -1230,6 +1230,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioAiClearJobDescription => 'Clear job description';
 
   @override
+  String studioAiCostEstimate(int cents) {
+    String _temp0 = intl.Intl.pluralLogic(
+      cents,
+      locale: localeName,
+      other: 'About $cents¢ at current rates.',
+      one: 'About 1¢ at current rates.',
+      zero: 'Under 1¢ at current rates.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String studioAiDialogLanguageNote(String language) {
     return 'Written in $language — the assistant translates your bullets if your Vault is in another language.';
   }

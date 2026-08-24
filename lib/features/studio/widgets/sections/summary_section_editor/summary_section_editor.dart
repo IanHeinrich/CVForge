@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/studio_field_override_card.dart';
 
-/// The [CvSectionType.summary] editor. Headline has no [CvSectionType] of
-/// its own — it prints in the page header, not a section — so it lives
-/// here alongside the summary rather than inventing a fake section for it.
+/// The [CvSectionType.summary] editor.
+///
+/// The headline used to live here too. It has its own row and its own
+/// editor now — see [HeadlineEditor] — because the two are independent
+/// and pairing them meant a CV with a headline and no summary could not
+/// reach the headline at all.
 class SummarySectionEditor extends StatelessWidget {
   const SummarySectionEditor({super.key, required this.viewModel});
 
@@ -17,19 +20,6 @@ class SummarySectionEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        StudioFieldOverrideCard(
-          key: const ValueKey('studio_headline_editor'),
-          label: context.l10n.studioSectionHeadline,
-          vaultValue: viewModel.vaultHeadline,
-          hasOverride: viewModel.hasHeadlineOverride,
-          effectiveValue: viewModel.headlineText,
-          onChanged: viewModel.setHeadlineOverride,
-          onRevert: viewModel.revertHeadlineToVault,
-          emptyVaultMessage: context.l10n.studioNoHeadline,
-          includeLabel: context.l10n.studioHeadlineInclude,
-          included: viewModel.includeHeadline,
-          onToggleInclude: viewModel.toggleHeadline,
-        ),
         StudioFieldOverrideCard(
           key: const ValueKey('studio_summary_editor'),
           label: context.l10n.vaultBasicsSummary,

@@ -1550,6 +1550,13 @@
   "@studioAiClearJobDescription": {
     "description": "Tooltip on the button that empties the job description field."
   },
+  "studioAiCostEstimate": "{cents, plural, =0{Under 1¢ at current rates.} one{About 1¢ at current rates.} other{About {cents}¢ at current rates.}}",
+  "@studioAiCostEstimate": {
+    "description": "Confirm screen of both AI dialogs (tailoring and translation) — roughly what this run will cost. In US cents because both providers price and bill in USD, so it matches the invoice; do not convert to a local currency, the app has no way to keep a rate current. Approximate by nature: token counts are inferred from character counts.",
+    "placeholders": {
+      "cents": { "type": "int", "example": "4" }
+    }
+  },
   "studioAiDialogLanguageNote": "Written in {language} — the assistant translates your bullets if your Vault is in another language.",
   "@studioAiDialogLanguageNote": {
     "description": "AI dialog, note naming the language the assistant will write the tailored bullets in. Sits beside the region note. Names it explicitly because translating someone's career history is a larger surprise than a page size if they had not noticed the setting.",
