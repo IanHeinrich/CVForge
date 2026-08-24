@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -255,7 +254,7 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
             const VGap.small(),
             _StatusLine(
               icon: RemixIcons.error_warning_line,
-              color: kcErrorColor,
+              color: Theme.of(context).colorScheme.error,
               message: viewModel.connectionTestErrorMessage!,
             ),
           ] else if (viewModel.connectionTestSucceeded) ...[
@@ -349,7 +348,9 @@ class _StoredKeyRow extends StatelessWidget {
             TextButton(onPressed: onReplace, child: const Text('Replace key')),
             TextButton(
               onPressed: onRemove,
-              style: TextButton.styleFrom(foregroundColor: kcErrorColor),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
               child: const Text('Remove key'),
             ),
           ],

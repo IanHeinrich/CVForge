@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
@@ -39,9 +38,9 @@ class VaultSectionHeading extends StatelessWidget {
           if (onAdd != null)
             IconButton(
               onPressed: onAdd,
-              icon: const Icon(
+              icon: Icon(
                 RemixIcons.add_circle_line,
-                color: kcPrimaryColor,
+                color: Theme.of(context).colorScheme.primary,
               ),
               tooltip: addLabel,
               visualDensity: VisualDensity.compact,

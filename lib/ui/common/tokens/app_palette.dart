@@ -41,3 +41,13 @@ const appPalette = AppPalette(
   warning: kcWarningColor,
   success: kcSuccessColor,
 );
+
+/// [appPalette]'s light-theme counterpart. Three unrelated semantic
+/// colours with nothing shared between the two instances, so this is a
+/// second hand-written const rather than a derivation — unlike
+/// [AppTypography], where the two instances must agree on glyph metrics.
+const appPaletteLight = AppPalette(
+  placeholder: kcMediumGreyLight,
+  warning: kcWarningColorLight,
+  success: kcSuccessColorLight,
+);

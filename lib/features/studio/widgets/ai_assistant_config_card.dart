@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -137,7 +136,7 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 color: _editing
-                    ? kcPrimaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurfaceVariant,
                 tooltip: _editing ? 'Done' : 'Edit job description',
                 onPressed: _toggleEditing,
@@ -192,7 +191,7 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
               'AI-written. Check every rewritten bullet against what you '
               'actually did.',
               style: context.appTypography.bodySmall.copyWith(
-                color: kcErrorColor,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
           ],

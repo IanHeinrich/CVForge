@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -61,9 +60,12 @@ class AppSummaryCard extends StatelessWidget {
           // A left accent edge reads as "selected" without turning the
           // whole card purple, now that a real surface ramp sits under it.
           decoration: selected
-              ? const BoxDecoration(
+              ? BoxDecoration(
                   border: Border(
-                    left: BorderSide(color: kcPrimaryColor, width: 2),
+                    left: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
                   ),
                 )
               : null,

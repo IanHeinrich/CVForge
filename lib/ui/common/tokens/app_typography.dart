@@ -75,3 +75,24 @@ const appTypography = AppTypography(
   bodySmall: TextStyle(fontSize: 13, color: kcLightGrey),
   caption: TextStyle(fontSize: 12),
 );
+
+/// [appTypography]'s light-theme counterpart — the same type scale with
+/// light-mode foregrounds.
+///
+/// Derived from [appTypography] by colour-only `copyWith` rather than
+/// written out a second time, so the two instances cannot drift on
+/// `fontSize`/`fontWeight` (or on the absent `letterSpacing`/`height` this
+/// class exists to keep absent — see the class doc). A second hand-written
+/// const would put that invariant back on remembering to update both.
+///
+/// Not `const`, because it derives. That is deliberate: it keeps
+/// [appTypography] itself a plain const, so the dark theme's extension
+/// list stays exactly what it was.
+final appTypographyLight = appTypography.copyWith(
+  titleLarge: appTypography.titleLarge.copyWith(color: kcOnSurfaceLight),
+  titleMedium: appTypography.titleMedium.copyWith(color: kcOnSurfaceLight),
+  titleSmall: appTypography.titleSmall.copyWith(color: kcOnSurfaceLight),
+  bodySmall: appTypography.bodySmall.copyWith(color: kcOnSurfaceVariantLight),
+  // `caption` carries no colour of its own (see its doc comment) and so
+  // needs no light variant — it inherits the ambient foreground.
+);

@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -503,14 +502,14 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
                 RemixIcons.route_line,
                 size: context.appIconSize.medium,
                 color: _showFlowLines
-                    ? kcPrimaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               label: Text(
                 'Reading order',
                 style: context.appTypography.bodySmall.copyWith(
                   color: _showFlowLines
-                      ? kcPrimaryColor
+                      ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),

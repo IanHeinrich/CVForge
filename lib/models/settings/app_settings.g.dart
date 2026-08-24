@@ -14,6 +14,9 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
   lastBackupAt: json['lastBackupAt'] == null
       ? null
       : DateTime.parse(json['lastBackupAt'] as String),
+  themeMode:
+      $enumDecodeNullable(_$AppThemeModeEnumMap, json['themeMode']) ??
+      AppThemeMode.system,
 );
 
 Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
@@ -21,4 +24,11 @@ Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
       'schemaVersion': instance.schemaVersion,
       'preferences': instance.preferences.toJson(),
       'lastBackupAt': instance.lastBackupAt?.toIso8601String(),
+      'themeMode': _$AppThemeModeEnumMap[instance.themeMode]!,
     };
+
+const _$AppThemeModeEnumMap = {
+  AppThemeMode.system: 'system',
+  AppThemeMode.light: 'light',
+  AppThemeMode.dark: 'dark',
+};

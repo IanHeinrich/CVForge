@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_strings.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/brand_mark/brand_mark.dart';
@@ -58,11 +57,11 @@ class _StartupLoading extends StatelessWidget {
           ),
         ),
         const VGap.medium(),
-        const SizedBox(
+        SizedBox(
           width: 20,
           height: 20,
           child: CircularProgressIndicator(
-            color: kcPrimaryColor,
+            color: Theme.of(context).colorScheme.primary,
             strokeWidth: 3,
           ),
         ),

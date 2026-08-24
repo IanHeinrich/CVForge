@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/relative_time.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -79,7 +78,7 @@ class BackupSettingsCard extends StatelessWidget {
             Text(
               viewModel.importErrorMessage!,
               style: context.appTypography.bodySmall.copyWith(
-                color: kcErrorColor,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
           ],
@@ -100,8 +99,8 @@ class BackupSettingsCard extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: viewModel.clearVault,
             style: OutlinedButton.styleFrom(
-              foregroundColor: kcErrorColor,
-              side: const BorderSide(color: kcErrorColor),
+              foregroundColor: Theme.of(context).colorScheme.error,
+              side: BorderSide(color: Theme.of(context).colorScheme.error),
             ),
             icon: Icon(
               RemixIcons.delete_bin_line,
