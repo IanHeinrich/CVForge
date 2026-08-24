@@ -14,12 +14,11 @@ import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/template_thumbnail_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/templates/compact/compact_template.dart';
-import 'package:cv_forge/ui/common/app_theme.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mockito/mockito.dart';
 
+import '../helpers/golden_helpers.dart';
 import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
 
@@ -75,30 +74,10 @@ void main() {
   });
   tearDown(() => locator.reset());
 
-  Future<void> pumpDraftsListView(WidgetTester tester) async {
-    await loadAppFonts();
-    await tester.binding.setSurfaceSize(const Size(1600, 1000));
-    tester.view.devicePixelRatio = 1.0;
-
-    await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(
-          size: Size(1600, 1000),
-          devicePixelRatio: 1.0,
-        ),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: buildAppTheme(),
-          home: const DraftsListView(),
-        ),
-      ),
-    );
-  }
-
   testGoldens('DraftsListView - empty state', (tester) async {
     when(draftService.drafts).thenReturn(const []);
 
-    await pumpDraftsListView(tester);
+    await pumpGoldenScreen(tester, const DraftsListView());
 
     await screenMatchesGolden(tester, 'drafts_list_view_empty');
   });
@@ -120,7 +99,7 @@ void main() {
       ).copyWith(updatedAt: DateTime(2026, 2, 18)),
     ]);
 
-    await pumpDraftsListView(tester);
+    await pumpGoldenScreen(tester, const DraftsListView());
 
     await screenMatchesGolden(tester, 'drafts_list_view_populated');
   });
