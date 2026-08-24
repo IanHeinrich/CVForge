@@ -208,8 +208,8 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
     // `PdfPreviewCustom` wraps its entire content (including a custom
     // `pagesBuilder`'s output) in a `BoxConstraints(maxWidth:
     // maxPageWidth)`, so a single-page-wide cap here would clip a two-up
-    // row down to one page — confirmed against `third_party/printing`'s
-    // actual source, not assumed.
+    // row down to one page — confirmed against `printing`'s actual
+    // source, not assumed.
     return LayoutBuilder(
       builder: (context, constraints) {
         final printedWidth = _printedWidth(viewModel.pageFormat);

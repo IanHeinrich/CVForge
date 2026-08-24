@@ -763,9 +763,11 @@ packages:
   printing:
     dependency: "direct main"
     description:
-      path: "third_party/printing"
-      relative: true
-    source: path
+      path: printing
+      ref: "15c868a2c1e53e1104b75c8557b761017f82294c"
+      resolved-ref: "15c868a2c1e53e1104b75c8557b761017f82294c"
+      url: "https://github.com/IanHeinrich/dart_pdf.git"
+    source: git
     version: "5.15.0"
   provider:
     dependency: transitive

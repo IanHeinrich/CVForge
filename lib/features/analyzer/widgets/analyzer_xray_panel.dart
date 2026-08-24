@@ -103,10 +103,9 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   /// just the peek text's own small `ValueListenableBuilder`.
   final _hoveredNodeIndex = ValueNotifier<int?>(null);
 
-  /// Web-only grab/grabbing affordance, the same idea `printing`'s
-  /// vendored zoom preview uses (`third_party/printing/lib/src/preview/
-  /// custom.dart`'s `_zoomPreview()`/`_updateCursor()`) — copied idea, not
-  /// the vendored dependency itself (it's slated for deletion).
+  /// Web-only grab/grabbing affordance, the same idea `printing`'s zoom
+  /// preview uses (its `lib/src/preview/custom.dart`, `_zoomPreview()`/
+  /// `_updateCursor()`) — the idea copied, not the dependency itself.
   ///
   /// A [ValueNotifier] for the same reason as [_hoveredNodeIndex]: a drag
   /// gesture repeatedly fires `onLongPressDown`/`onLongPressCancel` while

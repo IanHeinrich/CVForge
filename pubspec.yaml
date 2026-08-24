@@ -43,12 +43,16 @@ dev_dependencies:
   json_serializable: ^6.14.1
   theme_tailor: ^3.1.3
 
-# See third_party/printing/README.md — a locally-patched copy of the
-# published printing 5.15.0, fixing an upstream web bug that's a hard
-# blocker for this app's privacy stance. Remove once fixed upstream.
+# See docs/printing-fork.md — printing 5.15.0 plus a one-line fix for an
+# upstream web bug that blocks this app's privacy stance, carried on a
+# fork rather than vendored. Pinned by commit so the build is
+# reproducible; remove the whole block once the fix ships on pub.dev.
 dependency_overrides:
   printing:
-    path: third_party/printing
+    git:
+      url: https://github.com/IanHeinrich/dart_pdf.git
+      ref: 15c868a2c1e53e1104b75c8557b761017f82294c
+      path: printing
 
 flutter:
   uses-material-design: true
