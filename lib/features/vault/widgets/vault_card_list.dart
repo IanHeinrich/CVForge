@@ -11,6 +11,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -79,7 +80,7 @@ class _VaultCardListState extends State<VaultCardList> {
       children: [
         if (viewModel.hasPersistError) ...[
           PersistErrorBanner(
-            message: "Your last change couldn't be saved.",
+            message: context.l10n.vaultPersistError,
             onRetry: viewModel.retryPersist,
           ),
           const VGap.medium(),
@@ -88,7 +89,7 @@ class _VaultCardListState extends State<VaultCardList> {
           onChanged: viewModel.setQuery,
           decoration: InputDecoration(
             isDense: true,
-            hintText: 'Search your Vault…',
+            hintText: context.l10n.vaultSearch,
             prefixIcon: Icon(
               RemixIcons.search_line,
               size: context.appIconSize.medium,
@@ -132,13 +133,14 @@ class _VaultCardListState extends State<VaultCardList> {
         onTap: viewModel.openBasicsEditor,
       ),
       VaultListSection<Experience>(
-        title: 'Work history',
-        addLabel: 'Add experience',
-        emptyMessage: _emptyMessage(viewModel, 'No experience yet.'),
+        title: context.l10n.vaultSectionExperience,
+        addLabel: context.l10n.vaultAddExperience,
+        emptyMessage: _emptyMessage(viewModel, context.l10n.vaultNoExperience),
         icon: RemixIcons.briefcase_line,
         items: viewModel.filteredExperiences,
         idOf: (e) => e.id,
-        titleOf: (e) => e.role.isEmpty ? 'Untitled role' : e.role,
+        titleOf: (e) =>
+            e.role.isEmpty ? context.l10n.vaultUntitledRole : e.role,
         subtitleOf: (e) => e.company,
         openId: target == VaultEditorTarget.experience
             ? viewModel.openId
@@ -151,13 +153,14 @@ class _VaultCardListState extends State<VaultCardList> {
         onDelete: viewModel.deleteExperience,
       ),
       VaultListSection<Project>(
-        title: 'Projects',
-        addLabel: 'Add project',
-        emptyMessage: _emptyMessage(viewModel, 'No projects yet.'),
+        title: context.l10n.vaultSectionProjects,
+        addLabel: context.l10n.vaultAddProject,
+        emptyMessage: _emptyMessage(viewModel, context.l10n.vaultNoProjects),
         icon: RemixIcons.rocket_line,
         items: viewModel.filteredProjects,
         idOf: (p) => p.id,
-        titleOf: (p) => p.title.isEmpty ? 'Untitled project' : p.title,
+        titleOf: (p) =>
+            p.title.isEmpty ? context.l10n.vaultUntitledProject : p.title,
         subtitleOf: (p) => p.link,
         openId: target == VaultEditorTarget.project ? viewModel.openId : null,
         selectedItemKey: target == VaultEditorTarget.project
@@ -174,14 +177,14 @@ class _VaultCardListState extends State<VaultCardList> {
         onTap: viewModel.openSkillsEditor,
       ),
       VaultListSection<Education>(
-        title: 'Education',
-        addLabel: 'Add education',
-        emptyMessage: _emptyMessage(viewModel, 'No education yet.'),
+        title: context.l10n.vaultSectionEducation,
+        addLabel: context.l10n.vaultAddEducation,
+        emptyMessage: _emptyMessage(viewModel, context.l10n.vaultNoEducation),
         icon: RemixIcons.graduation_cap_line,
         items: viewModel.filteredEducation,
         idOf: (e) => e.id,
         titleOf: (e) => e.qualification.isEmpty
-            ? 'Untitled qualification'
+            ? context.l10n.vaultUntitledQualification
             : e.qualification,
         subtitleOf: (e) => e.institution,
         openId: target == VaultEditorTarget.education ? viewModel.openId : null,
@@ -199,13 +202,17 @@ class _VaultCardListState extends State<VaultCardList> {
         onTap: viewModel.openHobbiesEditor,
       ),
       VaultListSection<Publication>(
-        title: 'Publications',
-        addLabel: 'Add publication',
-        emptyMessage: _emptyMessage(viewModel, 'No publications yet.'),
+        title: context.l10n.vaultSectionPublications,
+        addLabel: context.l10n.vaultAddPublication,
+        emptyMessage: _emptyMessage(
+          viewModel,
+          context.l10n.vaultNoPublications,
+        ),
         icon: RemixIcons.article_line,
         items: viewModel.filteredPublications,
         idOf: (p) => p.id,
-        titleOf: (p) => p.title.isEmpty ? 'Untitled publication' : p.title,
+        titleOf: (p) =>
+            p.title.isEmpty ? context.l10n.vaultUntitledPublication : p.title,
         subtitleOf: (p) => p.citation,
         openId: target == VaultEditorTarget.publication
             ? viewModel.openId
@@ -226,7 +233,7 @@ class _VaultCardListState extends State<VaultCardList> {
   /// history with entries, none of which match the current search) would
   /// misleadingly claim to have no entries at all.
   String _emptyMessage(VaultViewModel viewModel, String base) =>
-      viewModel.isSearching ? 'No matches for your search.' : base;
+      viewModel.isSearching ? context.l10n.vaultNoSearchMatches : base;
 }
 
 class _BasicsCard extends StatelessWidget {
@@ -249,7 +256,9 @@ class _BasicsCard extends StatelessWidget {
     ].where((s) => s.isNotEmpty).join(' · ');
 
     return AppSummaryCard(
-      title: basics.fullName.isEmpty ? 'Add your basics' : basics.fullName,
+      title: basics.fullName.isEmpty
+          ? context.l10n.vaultAddBasics
+          : basics.fullName,
       subtitle: subtitle,
       selected: selected,
       onTap: onTap,
@@ -281,10 +290,10 @@ class _SkillsCard extends StatelessWidget {
     );
 
     return AppSummaryCard(
-      title: 'Skills',
+      title: context.l10n.vaultSkillsTitle,
       subtitle: categories.isEmpty
-          ? 'No skills yet'
-          : '${categories.length} categories, $skillCount skills',
+          ? context.l10n.vaultNoSkillsYet
+          : context.l10n.vaultSkillsSummary(categories.length, skillCount),
       selected: selected,
       onTap: onTap,
       leading: Icon(
@@ -310,14 +319,14 @@ class _HobbiesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppSummaryCard(
-      title: 'Hobbies and interests',
+      title: context.l10n.vaultHobbiesTitle,
       // A count, like Skills' "3 categories, 11 skills" — joining every
       // hobby with ", " reads fine at three but degrades into a
       // `maxLines: 1`-truncated list ("Running, Chess, Photography,
       // Cook…") the moment there are more than about four.
       subtitle: hobbies.isEmpty
-          ? 'None yet'
-          : '${hobbies.length} ${hobbies.length == 1 ? 'hobby' : 'hobbies'}',
+          ? context.l10n.vaultHobbiesNoneYet
+          : context.l10n.vaultHobbiesCount(hobbies.length),
       selected: selected,
       onTap: onTap,
       leading: Icon(

@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -20,18 +21,16 @@ class VaultEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppEmptyState(
       icon: RemixIcons.safe_line,
-      title: 'Your Vault is empty',
-      message:
-          'Add your work history, skills, and education here — this is '
-          'your master record, separate from any CV you export.',
+      title: context.l10n.vaultEmptyTitle,
+      message: context.l10n.vaultEmptyBody,
       actions: [
         OutlinedButton(
           onPressed: onLoadExample,
-          child: const Text('Load example CV'),
+          child: Text(context.l10n.vaultEmptyLoadExample),
         ),
         FilledButton(
           onPressed: onStartFromScratch,
-          child: const Text('Start from scratch'),
+          child: Text(context.l10n.vaultEmptyStartScratch),
         ),
       ],
     );

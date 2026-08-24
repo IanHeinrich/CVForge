@@ -5,6 +5,8 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_chip_group_selector/app_chip_group_selector.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -79,9 +81,14 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
         children: [
           Row(
             children: [
-              const Expanded(child: StudioPanelHeading('Skills')),
+              Expanded(
+                child: StudioPanelHeading(context.l10n.studioSkillsTitle),
+              ),
               Text(
-                '$selectedCount of $totalCount selected',
+                context.l10n.studioSkillsSelectedCount(
+                  selectedCount,
+                  totalCount,
+                ),
                 style: context.appTypography.caption,
               ),
             ],
@@ -93,7 +100,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
               controller: _filterController,
               decoration: InputDecoration(
                 isDense: true,
-                hintText: 'Filter skills…',
+                hintText: context.l10n.studioSkillsFilter,
                 prefixIcon: Icon(
                   RemixIcons.search_line,
                   size: context.appIconSize.medium,
@@ -108,12 +115,10 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
             alignment: Alignment.centerLeft,
             child: Tooltip(
               message: evidencedCount > 0
-                  ? 'Selects every skill linked to a bullet already '
-                        'included in this CV'
+                  ? context.l10n.studioSkillsSelectEvidencedTooltip
                   : viewModel.hasAnyLinkedSkills
-                  ? 'No new evidenced skills to add — every skill linked '
-                        'to an included bullet is already selected'
-                  : 'Link skills to bullets in the Vault to use this',
+                  ? context.l10n.studioSkillsNoNewEvidenced
+                  : context.l10n.studioSkillsNoLinks,
               child: TextButton.icon(
                 // Adds only — see `StudioViewModel.selectEvidencedSkills`'s
                 // doc comment. Disabled rather than hidden at zero so the
@@ -121,8 +126,10 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                 onPressed: evidencedCount == 0
                     ? null
                     : viewModel.selectEvidencedSkills,
-                icon: const Icon(RemixIcons.shield_check_line, size: 16),
-                label: Text('Select $evidencedCount evidenced skills'),
+                icon: Icon(RemixIcons.shield_check_line, size: 16),
+                label: Text(
+                  context.l10n.studioSkillsSelectEvidenced(evidencedCount),
+                ),
               ),
             ),
           ),
@@ -133,7 +140,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                 if (_matchingSkills(category) case final skills
                     when skills.isNotEmpty)
                   AppChipGroup(
-                    label: category.displayName,
+                    label: category.displayName(context.l10n),
                     items: [
                       for (final skill in skills)
                         AppChipGroupItem(

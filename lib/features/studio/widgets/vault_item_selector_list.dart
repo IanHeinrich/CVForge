@@ -4,6 +4,8 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -15,8 +17,10 @@ import 'tailoring_controls.dart';
 /// none. Shared by every section editor that builds a bullet
 /// [SelectorItem] (experience, projects, publications) rather than each
 /// restating the same one-liner.
-String bulletTitle(String? label, String text) =>
-    label == null || label.isEmpty ? text : '$label: $text';
+String bulletTitle(AppLocalizations l10n, String? label, String text) =>
+    label == null || label.isEmpty
+    ? text
+    : l10n.studioItemLabelledText(label, text);
 
 /// One selectable row in a [VaultItemSelectorList] — also reused for the
 /// nested rows in [bullets], since a bullet is just a title plus a
@@ -124,12 +128,16 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
               if (widget.unselectedCount > 0 && widget.onAddAll != null)
                 TextButton(
                   onPressed: widget.onAddAll,
-                  child: Text('Add all (${widget.unselectedCount})'),
+                  child: Text(
+                    context.l10n.commonAddAll(widget.unselectedCount),
+                  ),
                 ),
               if (widget.selectedCount > 0 && widget.onRemoveAll != null)
                 TextButton(
                   onPressed: widget.onRemoveAll,
-                  child: Text('Remove all (${widget.selectedCount})'),
+                  child: Text(
+                    context.l10n.commonRemoveAll(widget.selectedCount),
+                  ),
                 ),
             ],
           ),
@@ -214,8 +222,15 @@ class _BulletSublist extends StatelessWidget {
         .where((b) => b.tailorable?.hasOverride ?? false)
         .length;
     final countLabel = tailoredCount > 0
-        ? '$selectedCount/${item.bullets.length} bullets · $tailoredCount tailored'
-        : '$selectedCount/${item.bullets.length} bullets';
+        ? context.l10n.studioBulletsSelectedTailored(
+            selectedCount,
+            item.bullets.length,
+            tailoredCount,
+          )
+        : context.l10n.studioBulletsSelected(
+            selectedCount,
+            item.bullets.length,
+          );
 
     return Padding(
       padding: EdgeInsets.only(left: context.appSpacing.paddingDefault),
@@ -248,7 +263,7 @@ class _BulletSublist extends StatelessWidget {
                   // instead of entries within a category), so it should
                   // read the same, not "Select all".
                   child: Text(
-                    'Add all ($unselectedCount)',
+                    context.l10n.commonAddAll(unselectedCount),
                     style: context.appTypography.caption,
                   ),
                 ),
@@ -258,7 +273,7 @@ class _BulletSublist extends StatelessWidget {
                 TextButton(
                   onPressed: item.onRemoveAllBullets,
                   child: Text(
-                    'Remove all ($selectedCount)',
+                    context.l10n.commonRemoveAll(selectedCount),
                     style: context.appTypography.caption,
                   ),
                 ),

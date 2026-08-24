@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -40,7 +41,7 @@ class VaultEditorPanelScaffold extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 onPressed: onClose,
-                tooltip: 'Close',
+                tooltip: context.l10n.commonClose,
               ),
             ],
           ),

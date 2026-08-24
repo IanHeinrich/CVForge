@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -30,10 +31,12 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
-      title: request.title ?? '${viewModel.documentNoun} details',
+      title:
+          request.title ??
+          context.l10n.studioEditDraftTitle(viewModel.documentNoun),
       maxWidth: 420,
-      cancelLabel: request.secondaryButtonTitle ?? 'Cancel',
-      confirmLabel: request.mainButtonTitle ?? 'Save',
+      cancelLabel: request.secondaryButtonTitle,
+      confirmLabel: request.mainButtonTitle ?? context.l10n.commonSave,
       onCancel: () =>
           completer(DialogResponse<EditDraftDialogData>(confirmed: false)),
       onConfirm: () {
@@ -51,10 +54,10 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
           onChanged: viewModel.onNameChanged,
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
-            labelText: 'Name',
-            hintText: 'e.g. "Acme — Backend Engineer"',
+            labelText: context.l10n.studioEditDraftName,
+            hintText: context.l10n.studioEditDraftNameHint,
             errorText: viewModel.showNameError
-                ? 'Give this ${viewModel.documentNoun} a name'
+                ? context.l10n.studioEditDraftNameHelper(viewModel.documentNoun)
                 : null,
           ),
         ),
@@ -65,10 +68,10 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
           maxLines: 5,
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
-            labelText: 'Notes',
-            hintText:
-                'What this ${viewModel.documentNoun} is for, or anything '
-                'to remember',
+            labelText: context.l10n.studioEditDraftNotes,
+            hintText: context.l10n.studioEditDraftNotesHelper(
+              viewModel.documentNoun,
+            ),
           ),
         ),
       ],

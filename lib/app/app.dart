@@ -58,6 +58,8 @@ import 'package:cv_forge/ui/views/privacy/privacy_view.dart';
 
 import 'package:cv_forge/ui/views/terms/terms_view.dart';
 
+import 'package:cv_forge/services/localization_service.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -105,6 +107,7 @@ import 'package:cv_forge/ui/views/terms/terms_view.dart';
     LazySingleton(classType: TemplateThumbnailService),
     LazySingleton(classType: DriveApiClientService),
     LazySingleton(classType: DriveSyncService),
+    LazySingleton(classType: LocalizationService),
     // @stacked-service
   ],
   bottomsheets: [

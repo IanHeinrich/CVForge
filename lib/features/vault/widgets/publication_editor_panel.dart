@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
@@ -33,20 +34,22 @@ class PublicationEditorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VaultEditorPanelScaffold(
-      title: publication.title.isEmpty ? 'New publication' : publication.title,
+      title: publication.title.isEmpty
+          ? context.l10n.vaultPublicationNew
+          : publication.title,
       onClose: onClose,
       children: [
         AppTextField(
-          label: 'Title',
-          hint: 'e.g. Community resistance in Doña Juana',
+          label: context.l10n.vaultPublicationTitle,
+          hint: context.l10n.vaultPublicationTitleHint,
           initialValue: publication.title,
           maxLines: 3,
           onChanged: (v) => onChanged(publication.copyWith(title: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Citation (optional)',
-          hint: 'e.g. Trujillo, L. (2021). Journal Name, 11(2), 194–206.',
+          label: context.l10n.vaultPublicationCitation,
+          hint: context.l10n.vaultPublicationCitationHint,
           initialValue: publication.citation ?? '',
           maxLines: 3,
           onChanged: (v) =>
@@ -54,8 +57,8 @@ class PublicationEditorPanel extends StatelessWidget {
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Link (optional)',
-          hint: 'e.g. doi.org/10.1234/example',
+          label: context.l10n.vaultPublicationLink,
+          hint: context.l10n.vaultPublicationLinkHint,
           initialValue: publication.link ?? '',
           onChanged: (v) =>
               onChanged(publication.copyWith(link: v.orNullIfEmpty)),

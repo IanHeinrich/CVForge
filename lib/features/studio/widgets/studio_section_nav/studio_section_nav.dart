@@ -1,4 +1,3 @@
-import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -7,6 +6,8 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -35,7 +36,7 @@ class StudioSectionNav extends StatelessWidget {
           ),
           const VGap.medium(),
         ],
-        const StudioPanelHeading('Sections'),
+        StudioPanelHeading(context.l10n.studioSectionsTitle),
         const VGap.tiny(),
         _SectionList(viewModel: viewModel),
         const VGap.medium(),
@@ -46,14 +47,12 @@ class StudioSectionNav extends StatelessWidget {
               await viewModel.saveSectionSettingsAsDefault();
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Saved this order and section selection as your default',
-                  ),
+                SnackBar(
+                  content: Text(context.l10n.studioSectionsSavedDefault),
                 ),
               );
             },
-            child: const Text('Save as my default'),
+            child: Text(context.l10n.studioSectionsSaveDefault),
           ),
         ),
         const VGap.small(),
@@ -70,7 +69,7 @@ class StudioSectionNav extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             label: Text(
-              'Reset to my saved default',
+              context.l10n.studioSectionsResetDefault,
               style: context.appTypography.caption.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -146,7 +145,7 @@ class _SectionList extends StatelessWidget {
                       vertical: context.appSpacing.paddingTight,
                     ),
                     child: Text(
-                      type.displayLabel,
+                      type.displayLabel(context.l10n),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),

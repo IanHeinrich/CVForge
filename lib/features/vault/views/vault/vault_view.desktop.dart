@@ -89,7 +89,9 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
               duration: context.appMotion.layout,
               curve: _transitionCurve,
               width: listWidth,
-              alignment: hasEditor ? Alignment.topLeft : Alignment.topCenter,
+              alignment: hasEditor
+                  ? AlignmentDirectional.topStart
+                  : AlignmentDirectional.topCenter,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: hasEditor

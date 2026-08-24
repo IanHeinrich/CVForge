@@ -126,6 +126,16 @@ class SettingsService
   /// `DraftService.createDraft`'s doc comment. The pair is always saved
   /// (and reset) together from the same Studio action, so there's no
   /// legitimate call site that would ever want to update just one.
+  /// The app chrome's language. Null restores "follow the browser", which is
+  /// the default — see [CvPreferences.localeTag] for why an explicit choice
+  /// is the only thing that syncs.
+  ///
+  /// Never touches what the *document* is written in; that stays English.
+  Future<void> setLocaleTag(String? tag) async {
+    await ready();
+    _setPreferences((p) => p.copyWith(localeTag: tag));
+  }
+
   Future<void> setDefaultSectionSettings({
     required List<CvSectionType> order,
     required Set<CvSectionType> hiddenSections,

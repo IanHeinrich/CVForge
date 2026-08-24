@@ -44,6 +44,7 @@ void main() {
       dialogService = getAndRegisterDialogService();
       routerService = getAndRegisterRouterService();
       getAndRegisterTemplateThumbnailService();
+      getAndRegisterLocalizationService();
       when(settingsService.settings).thenReturn(AppSettings.empty());
     });
     tearDown(() => locator.reset());

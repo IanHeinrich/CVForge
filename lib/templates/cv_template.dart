@@ -16,17 +16,6 @@ import 'design/cv_font_set.dart';
 /// template to declare at least one.
 enum TemplateTag { atsSafe, academic, twoColumn, compact, traditional, modern }
 
-extension TemplateTagLabel on TemplateTag {
-  String get displayLabel => switch (this) {
-    TemplateTag.atsSafe => 'ATS-safe',
-    TemplateTag.academic => 'Academic',
-    TemplateTag.twoColumn => 'Two-column',
-    TemplateTag.compact => 'Compact',
-    TemplateTag.traditional => 'Traditional',
-    TemplateTag.modern => 'Modern',
-  };
-}
-
 /// The single-renderer boundary. A template never sees `CvVault`/`CvDraft`
 /// — only the [ResolvedCv] `CvComposer` produces — so Studio's live
 /// preview (a rasterized render of [buildDocument]'s real output, via

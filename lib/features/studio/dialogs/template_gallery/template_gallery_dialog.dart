@@ -7,6 +7,8 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:cv_forge/ui/widgets/common/pdf_page_thumbnail.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -48,10 +50,10 @@ class TemplateGalleryDialog extends StackedView<TemplateGalleryDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
-      title: 'Choose a template',
+      title: context.l10n.studioTemplatePickerTitle,
       maxWidth: 760,
-      cancelLabel: 'Cancel',
-      confirmLabel: 'Use this template',
+      cancelLabel: context.l10n.commonCancel,
+      confirmLabel: context.l10n.studioTemplatePickerUse,
       onCancel: () => completer(DialogResponse<String>(confirmed: false)),
       onConfirm: () => completer(
         DialogResponse<String>(
@@ -200,7 +202,7 @@ class _TemplateCard extends StatelessWidget {
                     children: [
                       for (final tag in tags)
                         Chip(
-                          label: Text(tag.displayLabel),
+                          label: Text(tag.displayLabel(context.l10n)),
                           labelStyle: context.appTypography.caption,
                           visualDensity: VisualDensity.compact,
                           materialTapTargetSize:

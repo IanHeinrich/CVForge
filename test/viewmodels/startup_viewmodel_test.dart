@@ -20,6 +20,7 @@ void main() {
       draft = getAndRegisterDraftService();
       router = getAndRegisterRouterService();
       getAndRegisterFontService();
+      getAndRegisterLocalizationService();
     });
     tearDown(() => locator.reset());
 

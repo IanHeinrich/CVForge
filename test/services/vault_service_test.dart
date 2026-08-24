@@ -23,6 +23,7 @@ void main() {
 
     setUp(() {
       storage = getAndRegisterLocalStorageService();
+      getAndRegisterLocalizationService();
       memory = stubInMemoryStorage(storage);
     });
     tearDown(() => locator.reset());

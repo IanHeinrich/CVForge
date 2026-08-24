@@ -9,6 +9,8 @@ import 'package:cv_forge/ui/widgets/common/app_chip_group_selector/app_chip_grou
 import 'package:cv_forge/ui/widgets/common/app_delete_icon_button/app_delete_icon_button.dart';
 import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -96,8 +98,12 @@ class _BulletListEditorState extends State<BulletListEditor> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        VaultSectionHeading(title: 'Bullets', onAdd: callbacks.onAdd),
-        if (bullets.isEmpty) const AppInlineEmptyMessage('No bullets yet.'),
+        VaultSectionHeading(
+          title: context.l10n.vaultBulletsTitle,
+          onAdd: callbacks.onAdd,
+        ),
+        if (bullets.isEmpty)
+          AppInlineEmptyMessage(context.l10n.vaultBulletsEmpty),
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -122,9 +128,9 @@ class _BulletListEditorState extends State<BulletListEditor> {
                   ReorderableDragStartListener(
                     index: index,
                     child: Padding(
-                      padding: EdgeInsets.only(
+                      padding: EdgeInsetsDirectional.only(
                         top: 14,
-                        right: context.appSpacing.paddingHairline,
+                        end: context.appSpacing.paddingHairline,
                       ),
                       child: Icon(
                         RemixIcons.draggable,
@@ -136,8 +142,8 @@ class _BulletListEditorState extends State<BulletListEditor> {
                     child: Column(
                       children: [
                         AppTextField(
-                          label: 'Label (optional)',
-                          hint: 'e.g. Performance',
+                          label: context.l10n.vaultBulletLabel,
+                          hint: context.l10n.vaultBulletLabelHint,
                           initialValue: bullet.label ?? '',
                           onChanged: (v) => callbacks.onChanged(
                             bullet.copyWith(label: v.orNullIfEmpty),
@@ -145,7 +151,7 @@ class _BulletListEditorState extends State<BulletListEditor> {
                         ),
                         const VGap.tiny(),
                         AppTextField(
-                          label: 'Text',
+                          label: context.l10n.vaultBulletText,
                           initialValue: bullet.text,
                           maxLines: 3,
                           onChanged: (v) =>
@@ -165,7 +171,7 @@ class _BulletListEditorState extends State<BulletListEditor> {
                     ),
                   ),
                   AppDeleteIconButton(
-                    tooltip: 'Delete bullet',
+                    tooltip: context.l10n.vaultBulletDelete,
                     onPressed: () => callbacks.onDelete(bullet.id),
                   ),
                 ],
@@ -313,7 +319,7 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
       for (final category in widget.skillCategories)
         if (_matchingSkills(category) case final skills when skills.isNotEmpty)
           AppChipGroup(
-            label: category.displayName,
+            label: category.displayName(context.l10n),
             items: [
               for (final skill in skills)
                 AppChipGroupItem(
@@ -343,10 +349,10 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
       // Skills panel's own picker: these are one relation seen from its
       // two ends, and symmetric wording is what makes that legible.
       label: linked.isEmpty
-          ? 'Link to skills'
-          : 'Linked to ${linked.length} skill${linked.length == 1 ? '' : 's'}',
+          ? context.l10n.vaultBulletLinkToSkills
+          : context.l10n.vaultBulletLinkedSkills(linked.length),
       summary: linked.isEmpty ? null : linked.map((s) => s.label).join(' · '),
-      searchHint: 'Search or add a skill…',
+      searchHint: context.l10n.vaultBulletSearchSkills,
       onQueryChanged: (value) => setState(() {
         _rawQuery = value.trim();
         _query = _rawQuery.toLowerCase();
@@ -359,8 +365,8 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
         else
           AppInlineEmptyMessage(
             _query.isEmpty
-                ? 'No skills in your Vault yet.'
-                : 'No skills match your search.',
+                ? context.l10n.vaultBulletNoSkillsYet
+                : context.l10n.vaultBulletNoSkillMatches,
           ),
         if (_query.isNotEmpty && !_hasExactMatch) _buildAddSkill(context),
       ],
@@ -380,7 +386,7 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
       children: [
         Divider(height: context.appSpacing.gapMedium),
         Text(
-          '"$_rawQuery" isn\'t in your Vault yet',
+          context.l10n.vaultBulletSkillNotInVault(_rawQuery),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: context.appTypography.caption.copyWith(
@@ -402,7 +408,7 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
             FilledButton.icon(
               onPressed: _canAdd ? _addAndLinkSkill : null,
               icon: Icon(RemixIcons.add_line, size: context.appIconSize.small),
-              label: const Text('Add skill'),
+              label: Text(context.l10n.vaultBulletAddSkill),
             ),
           ],
         ),
@@ -420,7 +426,10 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
   /// in the panel.
   Widget _buildCategoryDropdown(BuildContext context) {
     return InputDecorator(
-      decoration: const InputDecoration(isDense: true, labelText: 'Category'),
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: context.l10n.vaultBulletCategory,
+      ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _dropdownValue,
@@ -431,14 +440,14 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
               DropdownMenuItem(
                 value: category.id,
                 child: Text(
-                  category.displayName,
+                  category.displayName(context.l10n),
                   style: context.appTypography.caption,
                 ),
               ),
             DropdownMenuItem(
               value: _newCategorySentinel,
               child: Text(
-                'New category…',
+                context.l10n.vaultBulletNewCategory,
                 style: context.appTypography.caption.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -456,9 +465,9 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
 
   Widget _buildNewCategoryField(BuildContext context) {
     return TextField(
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         isDense: true,
-        labelText: 'New category name',
+        labelText: context.l10n.vaultBulletNewCategoryName,
       ),
       onChanged: (value) => setState(() => _newCategoryName = value.trim()),
     );

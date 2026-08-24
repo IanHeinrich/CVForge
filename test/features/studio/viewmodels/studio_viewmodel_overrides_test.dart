@@ -88,6 +88,7 @@ void main() {
       // tests actually exercise navigation/dialogs.
       getAndRegisterRouterService();
       getAndRegisterDialogService();
+      getAndRegisterLocalizationService();
     });
     tearDown(() => locator.reset());
 

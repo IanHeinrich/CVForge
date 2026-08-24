@@ -131,6 +131,7 @@ void main() {
       drafts = getAndRegisterDraftService();
       backup = getAndRegisterBackupService();
       settings = getAndRegisterSettingsService();
+      getAndRegisterLocalizationService();
       when(settings.settings).thenReturn(AppSettings.empty());
       when(settings.replacePreferences(any)).thenAnswer((_) async {});
 

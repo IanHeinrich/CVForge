@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
@@ -33,18 +34,20 @@ class ProjectEditorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VaultEditorPanelScaffold(
-      title: project.title.isEmpty ? 'New project' : project.title,
+      title: project.title.isEmpty
+          ? context.l10n.vaultProjectNew
+          : project.title,
       onClose: onClose,
       children: [
         AppTextField(
-          label: 'Title',
+          label: context.l10n.vaultProjectTitle,
           initialValue: project.title,
           onChanged: (v) => onChanged(project.copyWith(title: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Link (optional)',
-          hint: 'e.g. github.com/you/project',
+          label: context.l10n.vaultProjectLink,
+          hint: context.l10n.vaultProjectLinkHint,
           initialValue: project.link ?? '',
           onChanged: (v) => onChanged(project.copyWith(link: v.orNullIfEmpty)),
         ),

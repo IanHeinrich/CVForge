@@ -22,6 +22,7 @@ _CvPreferences _$CvPreferencesFromJson(Map<String, dynamic> json) =>
       defaultHiddenSections: (json['defaultHiddenSections'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
           .toSet(),
+      localeTag: json['localeTag'] as String?,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
@@ -38,6 +39,7 @@ Map<String, dynamic> _$CvPreferencesToJson(_CvPreferences instance) =>
       'defaultHiddenSections': instance.defaultHiddenSections
           ?.map((e) => _$CvSectionTypeEnumMap[e]!)
           .toList(),
+      'localeTag': instance.localeTag,
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
 

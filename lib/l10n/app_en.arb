@@ -1,0 +1,2849 @@
+{
+  "@@locale": "en",
+  "analyzerAnalyzingBody": "Reading the PDF and checking for ATS parsing issues.",
+  "@analyzerAnalyzingBody": {
+    "description": "ATS check, body text shown while processing."
+  },
+  "analyzerAnalyzingTitle": "Analyzing…",
+  "@analyzerAnalyzingTitle": {
+    "description": "ATS check, shown while the uploaded PDF is being processed."
+  },
+  "analyzerErrorEngineLoad": "Couldn't load the PDF engine — check your connection and try again.",
+  "@analyzerErrorEngineLoad": {
+    "description": "ATS check error message when the PDF parsing library itself failed to download."
+  },
+  "analyzerErrorGeneric": "Couldn't analyze that file — try again.",
+  "@analyzerErrorGeneric": {
+    "description": "ATS check error message for an unclassified failure while analyzing."
+  },
+  "analyzerErrorInteractiveForm": "This is an interactive PDF form, which works differently from a typical resume and can't be analyzed the same way.",
+  "@analyzerErrorInteractiveForm": {
+    "description": "ATS check error message when the PDF is an interactive form (AcroForm) rather than a normal document."
+  },
+  "analyzerErrorInvalidPdf": "That file doesn't look like a valid PDF, or it's password-protected.",
+  "@analyzerErrorInvalidPdf": {
+    "description": "ATS check error message when the chosen file could not be opened as a PDF."
+  },
+  "analyzerErrorTitle": "Couldn't analyze that file",
+  "@analyzerErrorTitle": {
+    "description": "ATS check, heading shown when processing the uploaded PDF failed."
+  },
+  "analyzerFindingLocationsAcrossPages": "{count} locations across {pages} pages",
+  "@analyzerFindingLocationsAcrossPages": {
+    "description": "ATS check finding card, shown when a finding's evidence spans more than one page.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "9"
+      },
+      "pages": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "analyzerFindingLocationsOnPage": "{count} locations on page {page}",
+  "@analyzerFindingLocationsOnPage": {
+    "description": "ATS check finding card, shown when a finding has several pieces of evidence all on the same page.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      },
+      "page": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "analyzerFindingStepOf": "{index} of {total}",
+  "@analyzerFindingStepOf": {
+    "description": "ATS check finding card, position indicator while stepping through a finding's evidence one location at a time — e.g. '2 of 5'. {index} is 1-based.",
+    "placeholders": {
+      "index": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "analyzerMachineEmptyBody": "This PDF didn't yield any extractable text runs.",
+  "@analyzerMachineEmptyBody": {
+    "description": "ATS check Machine Ingestion tab, body of the empty state."
+  },
+  "analyzerMachineEmptyTitle": "No text extracted",
+  "@analyzerMachineEmptyTitle": {
+    "description": "ATS check Machine Ingestion tab, shown when the PDF yielded no text runs."
+  },
+  "analyzerPageLabel": "Page {page}",
+  "@analyzerPageLabel": {
+    "description": "Page marker shown above each page's text in the Machine Ingestion tab, and on a finding that belongs to one page. {page} is 1-based.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "analyzerResultsAnalyzeAnother": "Analyze another file",
+  "@analyzerResultsAnalyzeAnother": {
+    "description": "ATS check results screen, button that clears the current result and returns to the upload prompt."
+  },
+  "analyzerResultsExtractionSummary": "{pages, plural, =1{1 page} other{{pages} pages}}, {runs, plural, =1{1 text run} other{{runs} text runs}} extracted.",
+  "@analyzerResultsExtractionSummary": {
+    "description": "ATS check results screen, one-line summary of what was pulled out of the PDF. A 'text run' is one contiguous piece of text the extractor found.",
+    "placeholders": {
+      "pages": {
+        "type": "int",
+        "example": "2"
+      },
+      "runs": {
+        "type": "int",
+        "example": "418"
+      }
+    }
+  },
+  "analyzerResultsTitle": "Results",
+  "@analyzerResultsTitle": {
+    "description": "ATS check results screen, heading above the analysis output."
+  },
+  "analyzerTabMachineIngestion": "Machine Ingestion",
+  "@analyzerTabMachineIngestion": {
+    "description": "ATS check results screen, second tab. Shows the raw text in the order a machine would read it."
+  },
+  "analyzerTabXray": "X-Ray",
+  "@analyzerTabXray": {
+    "description": "ATS check results screen, first tab. Shows the PDF page with boxes drawn over each extracted text run, so the user sees what a parser sees."
+  },
+  "analyzerUploadBody": "{noun, select, cv{Upload a PDF CV to check for formatting that applicant tracking software commonly misreads} resume{Upload a PDF résumé to check for formatting that applicant tracking software commonly misreads} other{Upload a PDF document to check for formatting that applicant tracking software commonly misreads}} — missing text layers, multi-column layouts, garbled characters, and more. Nothing leaves your browser.",
+  "@analyzerUploadBody": {
+    "description": "ATS check, explanatory text on the upload screen. The branch follows the region's document noun; the list after the dash is shared.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "analyzerUploadCta": "Upload PDF",
+  "@analyzerUploadCta": {
+    "description": "ATS check, button that opens the file picker to choose a PDF."
+  },
+  "analyzerUploadTitle": "{noun, select, cv{Check your CV for ATS issues} resume{Check your résumé for ATS issues} other{Check your document for ATS issues}}",
+  "@analyzerUploadTitle": {
+    "description": "ATS check, main heading on the upload screen. The branch follows the user's default REGION's document noun, not their language.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "analyzerXrayDocumentLevel": "Document-level",
+  "@analyzerXrayDocumentLevel": {
+    "description": "ATS check findings rail, group heading for findings that apply to the whole document rather than one page."
+  },
+  "analyzerXrayEmptyBody": "Analyze a PDF to see its X-Ray.",
+  "@analyzerXrayEmptyBody": {
+    "description": "ATS check X-Ray tab, body of the pre-analysis empty state."
+  },
+  "analyzerXrayEmptyTitle": "Nothing to show yet",
+  "@analyzerXrayEmptyTitle": {
+    "description": "ATS check X-Ray tab, shown before any file has been analyzed."
+  },
+  "analyzerXrayFindings": "Findings",
+  "@analyzerXrayFindings": {
+    "description": "ATS check X-Ray, tab/heading over the list of detected problems."
+  },
+  "analyzerXrayNoIssuesBody": "Nothing in this PDF matched a known ATS parsing problem.",
+  "@analyzerXrayNoIssuesBody": {
+    "description": "ATS check findings rail, body of the no-issues state."
+  },
+  "analyzerXrayNoIssuesTitle": "No issues found",
+  "@analyzerXrayNoIssuesTitle": {
+    "description": "ATS check findings rail, shown when the PDF matched none of the known parsing problems."
+  },
+  "analyzerXrayPageEmptyBody": "No extractable text runs to draw boxes on.",
+  "@analyzerXrayPageEmptyBody": {
+    "description": "ATS check X-Ray tab, body of the empty-page state."
+  },
+  "analyzerXrayPageEmptyTitle": "Nothing to show on this page",
+  "@analyzerXrayPageEmptyTitle": {
+    "description": "ATS check X-Ray tab, shown when the selected page has no extractable text to draw boxes over."
+  },
+  "analyzerXrayPageOf": "Page {page} of {total}",
+  "@analyzerXrayPageOf": {
+    "description": "ATS check X-Ray, the page navigator's position indicator. Both numbers are 1-based.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "analyzerXrayPageTab": "Page",
+  "@analyzerXrayPageTab": {
+    "description": "ATS check X-Ray, tab/heading over the rendered PDF page view."
+  },
+  "analyzerXrayReadingOrder": "Reading order",
+  "@analyzerXrayReadingOrder": {
+    "description": "ATS check X-Ray, toggle that numbers the text boxes in the order a machine would read them."
+  },
+  "appNavAnalyzer": "ATS Check",
+  "@appNavAnalyzer": {
+    "description": "Main navigation rail, third destination. Checks a finished PDF for problems an Applicant Tracking System would hit. 'ATS' is a widely-used industry abbreviation — keep it if recognised in the target market, otherwise expand it."
+  },
+  "appNavDrafts": "{noun, select, cv{CVs} resume{Résumés} other{Documents}}",
+  "@appNavDrafts": {
+    "description": "Main navigation rail, second destination — the list of CVs the user has built. The branch follows the user's default REGION's document noun, not their language: someone targeting the US market sees 'Résumés' even in a non-English UI. Translate each branch into the target language's word for that kind of document.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "appNavSettings": "Settings",
+  "@appNavSettings": {
+    "description": "Main navigation rail, pinned bottom destination."
+  },
+  "appNavVault": "Vault",
+  "@appNavVault": {
+    "description": "Main navigation rail, first destination. This app's name for the user's stored career history — a single place everything is kept and drawn from. Treat as a product term and keep it consistent everywhere it appears."
+  },
+  "atsFindingColumnCrushBody": "\"{left}\" and \"{right}\" sit on the same line with a wide gap between them. A text extractor that reads by position rather than by the document's own structure may merge these into one run, e.g. \"{merged}\".",
+  "@atsFindingColumnCrushBody": {
+    "description": "ATS check finding body for a suspected multi-column layout. {left} and {right} are verbatim excerpts from the user's own PDF and must not be translated; {merged} shows the two run together to demonstrate the failure.",
+    "placeholders": {
+      "left": {
+        "type": "String",
+        "example": "Senior Engineer"
+      },
+      "right": {
+        "type": "String",
+        "example": "2019-2023"
+      },
+      "merged": {
+        "type": "String",
+        "example": "Senior Engineer2019-2023"
+      }
+    }
+  },
+  "atsFindingColumnCrushTitle": "Possible multi-column layout",
+  "@atsFindingColumnCrushTitle": {
+    "description": "ATS check finding title: two text runs sit on one line with a wide gap, which a position-sorting parser may merge incorrectly."
+  },
+  "atsFindingDroppedCharsBody": "{count, plural, =1{Found 1 short run where more space was used than the extracted characters account for} other{Found {count} short runs where more space was used than the extracted characters account for}} — a sign a symbol (often a bullet) silently failed to extract at all.",
+  "@atsFindingDroppedCharsBody": {
+    "description": "ATS check finding body for characters that vanished during extraction.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "atsFindingDroppedCharsTitle": "Possible dropped characters",
+  "@atsFindingDroppedCharsTitle": {
+    "description": "ATS check finding title: a run used more horizontal space than its characters account for, so a glyph likely failed to extract."
+  },
+  "atsFindingGarbledBody": "{count, plural, =1{Found 1 character that failed to decode to readable text} other{Found {count} characters that failed to decode to readable text}} — the font used likely has a missing or broken character map. An ATS will see this text as garbage.",
+  "@atsFindingGarbledBody": {
+    "description": "ATS check finding body for undecodable characters.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "14"
+      }
+    }
+  },
+  "atsFindingGarbledTitle": "Unreadable characters found",
+  "@atsFindingGarbledTitle": {
+    "description": "ATS check finding title: characters that failed to decode to readable text."
+  },
+  "atsFindingIconFontBody": "{count, plural, =1{Found 1 character from a private-use code range} other{Found {count} characters from a private-use code range}} embedded within words — a common sign of an icon or symbol font (e.g. Wingdings) rather than real text, which most ATS parsers will render as blanks or gibberish.",
+  "@atsFindingIconFontBody": {
+    "description": "ATS check finding body for icon-font glyphs. 'Wingdings' is a font name and stays untranslated.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "atsFindingIconFontTitle": "Possible icon/symbol font glyphs in text",
+  "@atsFindingIconFontTitle": {
+    "description": "ATS check finding title: private-use-area codepoints inside words, typically an icon font used as if it were text."
+  },
+  "atsFindingMissingHeadingBody": "{section, select, experience{Couldn't find a heading for Experience anywhere in the document.} education{Couldn't find a heading for Education anywhere in the document.} skills{Couldn't find a heading for Skills anywhere in the document.} other{Couldn't find a heading for {section} anywhere in the document.}} Some ATS software structures a resume by matching canonical section headings, and may file this content as unstructured text if the heading is missing or phrased unusually.",
+  "@atsFindingMissingHeadingBody": {
+    "description": "ATS check finding body for a missing canonical section heading. The first sentence varies by section; the explanation after it is shared.",
+    "placeholders": {
+      "section": {
+        "type": "String",
+        "example": "experience"
+      }
+    }
+  },
+  "atsFindingMissingHeadingTitle": "{section, select, experience{No Experience section detected} education{No Education section detected} skills{No Skills section detected} other{No {section} section detected}}",
+  "@atsFindingMissingHeadingTitle": {
+    "description": "ATS check finding title for a canonical CV section whose heading could not be found. The branch names a section of a CV. Note the app searches the PDF for ENGLISH heading keywords because the CVs it produces are English, so this reports on an English document even in a translated UI.",
+    "placeholders": {
+      "section": {
+        "type": "String",
+        "example": "experience"
+      }
+    }
+  },
+  "atsFindingNoEmailBody": "Couldn't find an email address in the extracted text or in any clickable link. Most ATS software requires a readable email address to file an application.",
+  "@atsFindingNoEmailBody": {
+    "description": "ATS check finding body for a missing email address."
+  },
+  "atsFindingNoEmailTitle": "No email address found",
+  "@atsFindingNoEmailTitle": {
+    "description": "ATS check finding title: no email address in the extracted text or in any clickable link."
+  },
+  "atsFindingNonEmbeddedFontBody": "This PDF relies on at least one font that is not embedded in the file. Combined with the unreadable text found above, this is a likely contributing cause.",
+  "@atsFindingNonEmbeddedFontBody": {
+    "description": "ATS check finding body for a non-embedded font. Only ever shown below one of the garbled-text findings, which is what 'found above' refers to."
+  },
+  "atsFindingNonEmbeddedFontTitle": "Non-embedded font in use",
+  "@atsFindingNonEmbeddedFontTitle": {
+    "description": "ATS check finding title: the PDF depends on a font that is not embedded in the file."
+  },
+  "atsFindingNoPhoneBody": "Couldn't find a phone number in the extracted text or in any clickable link.",
+  "@atsFindingNoPhoneBody": {
+    "description": "ATS check finding body for a missing phone number."
+  },
+  "atsFindingNoPhoneTitle": "No phone number found",
+  "@atsFindingNoPhoneTitle": {
+    "description": "ATS check finding title: no phone number in the extracted text or in any clickable link."
+  },
+  "atsFindingNoTextLayerBody": "This PDF has no text layer at all — likely a scanned image. Most ATS software will read this as a completely blank resume.",
+  "@atsFindingNoTextLayerBody": {
+    "description": "ATS check finding body for a PDF with no text layer. 'ATS' = Applicant Tracking System, the software employers use to parse CVs."
+  },
+  "atsFindingNoTextLayerTitle": "No extractable text found",
+  "@atsFindingNoTextLayerTitle": {
+    "description": "ATS check finding title, most severe case: the uploaded PDF contains no machine-readable text at all."
+  },
+  "atsFindingPageNoTextBody": "Page {page} contributed no text at all, while other pages did — an ATS will likely skip this page entirely.",
+  "@atsFindingPageNoTextBody": {
+    "description": "ATS check finding body for a single page with no extractable text.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "atsFindingPageNoTextTitle": "Page {page} has no extractable text",
+  "@atsFindingPageNoTextTitle": {
+    "description": "ATS check finding title for one page that yielded no text while other pages did. {page} is 1-based for display.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "chromeStorageUnavailableBody": "Local storage is unavailable in this browser or browsing mode. CVForge keeps everything on your device, so it needs access to it to work. Try a normal (non-private) browsing window, or a different browser.",
+  "@chromeStorageUnavailableBody": {
+    "description": "Body of the storage-unavailable error card, explaining the cause and the way out."
+  },
+  "chromeStorageUnavailableTitle": "CVForge couldn't load your data",
+  "@chromeStorageUnavailableTitle": {
+    "description": "Full-page error card heading, shown when the browser's local storage cannot be read — typically private browsing or Firefox strict privacy mode."
+  },
+  "commonAdd": "Add",
+  "@commonAdd": {
+    "description": "Small action on a Vault section heading that appends a new, empty entry to that section."
+  },
+  "commonAddAll": "Add all ({count})",
+  "@commonAddAll": {
+    "description": "Chip-group action that selects every currently unselected chip. Shown only when at least one is unselected.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Default label for the dismiss button on every dialog. Closes without applying changes."
+  },
+  "commonClear": "Clear",
+  "@commonClear": {
+    "description": "Confirm button on the dialog that wipes the whole Vault."
+  },
+  "commonClearSearch": "Clear search",
+  "@commonClearSearch": {
+    "description": "Tooltip on the button that empties a search field."
+  },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Tooltip on the button that closes an open Vault editor panel."
+  },
+  "commonCreate": "Create",
+  "@commonCreate": {
+    "description": "Confirm button on the dialog that makes a new CV."
+  },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "Default tooltip on the small delete icon button used throughout the Vault and Studio editors."
+  },
+  "commonDisconnect": "Disconnect",
+  "@commonDisconnect": {
+    "description": "Button that stops Google Drive syncing, and the confirm button on its dialog."
+  },
+  "commonDone": "Done",
+  "@commonDone": {
+    "description": "Button that closes an inline editor and keeps what was typed."
+  },
+  "commonMore": "More",
+  "@commonMore": {
+    "description": "Tooltip on a button that opens an overflow menu of extra actions."
+  },
+  "commonRelativeDaysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@commonRelativeDaysAgo": {
+    "description": "Relative timestamp for 2-29 days ago, used mid-sentence. Past 29 days the app switches to an absolute date instead.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "commonRelativeOnDate": "on {date}",
+  "@commonRelativeOnDate": {
+    "description": "Absolute fallback for a timestamp older than about a month, used mid-sentence — e.g. 'Last backup: on 23/08/2026'. The day/month/year order is pinned deliberately and should follow the locale's own convention.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "dd/MM/yyyy",
+        "isCustomDateFormat": "true",
+        "example": "23/08/2026"
+      }
+    }
+  },
+  "commonRelativeToday": "today",
+  "@commonRelativeToday": {
+    "description": "Relative timestamp, used mid-sentence after a label like 'Last backup:' — e.g. 'Last backup: today'. Lowercase on purpose."
+  },
+  "commonRelativeYesterday": "yesterday",
+  "@commonRelativeYesterday": {
+    "description": "Relative timestamp for the previous day, used mid-sentence. Lowercase on purpose."
+  },
+  "commonRemove": "Remove",
+  "@commonRemove": {
+    "description": "Confirm button on the dialog that deletes a stored API key."
+  },
+  "commonRemoveAll": "Remove all ({count})",
+  "@commonRemoveAll": {
+    "description": "Chip-group action that deselects every currently selected chip. Shown only when at least one is selected.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "commonReplace": "Replace",
+  "@commonReplace": {
+    "description": "Confirm button on the dialog that replaces all local data with an imported backup."
+  },
+  "commonRetry": "Retry",
+  "@commonRetry": {
+    "description": "Button on the inline error banner shown when saving to local storage failed. Retries the failed write."
+  },
+  "commonRun": "Run",
+  "@commonRun": {
+    "description": "Button that starts the AI tailoring run."
+  },
+  "commonRunning": "Running…",
+  "@commonRunning": {
+    "description": "Button label while the AI tailoring run is in progress."
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Confirm button on dialogs that persist an edit."
+  },
+  "commonSelect": "Select",
+  "@commonSelect": {
+    "description": "Neutral placeholder shown in a dropdown before the user has chosen anything."
+  },
+  "commonTryAgain": "Try again",
+  "@commonTryAgain": {
+    "description": "Button on the full-page card shown when local storage could not be read at all. Retries loading."
+  },
+  "dateStyleMonYyyy": "Mon YYYY (e.g. Jun 2023)",
+  "@dateStyleMonYyyy": {
+    "description": "How dates are written on the CV. The pattern letters and the example should be rewritten to show the same format using the target language's own month abbreviation."
+  },
+  "draftCopySuffix": "{name} (copy)",
+  "@draftCopySuffix": {
+    "description": "The name given to a duplicated CV, based on the original's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Acme — Backend Engineer"
+      }
+    }
+  },
+  "draftDefaultName": "My CV",
+  "@draftDefaultName": {
+    "description": "The name a newly created CV gets before the user renames it."
+  },
+  "driveSyncAccountFallback": "your Google account",
+  "@driveSyncAccountFallback": {
+    "description": "Stands in for the user's email address when it could not be read from Google. Appears mid-sentence, e.g. 'Connected as your Google account', so keep it lowercase."
+  },
+  "driveSyncErrorCorrupted": "Drive's copy looked corrupted. Left this device as is.",
+  "@driveSyncErrorCorrupted": {
+    "description": "Google Drive sync status message: the file stored on Drive could not be parsed, so nothing on this device was changed."
+  },
+  "driveSyncErrorFileGone": "Your CVForge file on Drive is gone. Syncing again will recreate it.",
+  "@driveSyncErrorFileGone": {
+    "description": "Google Drive sync status message: the app's own file was deleted from the user's Drive."
+  },
+  "driveSyncErrorNetwork": "Couldn't reach Google Drive. Saved on this device.",
+  "@driveSyncErrorNetwork": {
+    "description": "Google Drive sync status message: the upload failed but local data is safe."
+  },
+  "driveSyncErrorNewerVersion": "Another device is running a newer version of CVForge. Update this device to sync again.",
+  "@driveSyncErrorNewerVersion": {
+    "description": "Google Drive sync status message: the Drive file was written by a newer app version this build cannot safely read."
+  },
+  "driveSyncErrorUnknown": "Something went wrong syncing to Drive. Saved on this device.",
+  "@driveSyncErrorUnknown": {
+    "description": "Google Drive sync status message: an unclassified sync failure; local data is safe."
+  },
+  "driveSyncMerged": "Merged changes from your other device",
+  "@driveSyncMerged": {
+    "description": "Tooltip on the sync status icon just after incoming changes from another browser were merged into this one."
+  },
+  "driveSyncNeedsReauth": "Reconnect Google Drive in Settings to keep syncing",
+  "@driveSyncNeedsReauth": {
+    "description": "Tooltip on the sync status icon when the Google authorisation has expired or been revoked and syncing has stopped."
+  },
+  "driveSyncPending": "Waiting to sync to Google Drive…",
+  "@driveSyncPending": {
+    "description": "Tooltip on the sync status icon when changes are queued but the debounced upload has not started yet."
+  },
+  "driveSyncSynced": "Synced to Google Drive",
+  "@driveSyncSynced": {
+    "description": "Tooltip on the sync status icon in the app chrome, when everything is saved and the last sync time is not known."
+  },
+  "driveSyncSyncedAt": "Synced to Google Drive · {relative}",
+  "@driveSyncSyncedAt": {
+    "description": "Tooltip on the sync status icon when the last sync time is known. {relative} is an already-formatted phrase like 'today', 'yesterday', '12 days ago' or 'on 23/08/2026', so it arrives lowercase and mid-sentence.",
+    "placeholders": {
+      "relative": {
+        "type": "String",
+        "example": "yesterday"
+      }
+    }
+  },
+  "driveSyncSyncing": "Syncing to Google Drive…",
+  "@driveSyncSyncing": {
+    "description": "Tooltip on the sync status icon while an upload is in flight."
+  },
+  "legalBackToApp": "Back to CVForge",
+  "@legalBackToApp": {
+    "description": "Privacy and Terms pages, back link at the top of the page. Returns to the Vault."
+  },
+  "legalEffectiveDate": "Effective 23 August 2026",
+  "@legalEffectiveDate": {
+    "description": "Privacy and Terms pages, the date the current version took effect, shown under the page title. Render the date in whatever form is conventional for the locale."
+  },
+  "localeDisplayName": "English",
+  "@localeDisplayName": {
+    "description": "This locale's own name, in this locale (an autonym). Shown in the Settings language picker. NEVER translate this into another language — it is what lets someone who landed in a language they cannot read find their way back."
+  },
+  "pageFormatA4": "A4 (210 × 297 mm)",
+  "@pageFormatA4": {
+    "description": "Paper size option. Includes the physical dimensions because 'A4' versus 'Letter' only means something to someone who already knows the difference."
+  },
+  "pageFormatLetter": "US Letter (8.5 × 11 in)",
+  "@pageFormatLetter": {
+    "description": "Paper size option, the North American standard. Includes the physical dimensions for the same reason as A4."
+  },
+  "personalDetailsMinimal": "Name, contact, city",
+  "@personalDetailsMinimal": {
+    "description": "Region detail: CV header carries a location as well as name and contact."
+  },
+  "personalDetailsOmit": "Name and contact only",
+  "@personalDetailsOmit": {
+    "description": "Region detail: what a CV header carries in this market. The three options describe increasing amounts of personal information."
+  },
+  "personalDetailsTraditional": "Name, contact, date of birth, nationality",
+  "@personalDetailsTraditional": {
+    "description": "Region detail: CV header conventionally carries date of birth and nationality in this market."
+  },
+  "photoStanceDiscouraged": "No — strongly discouraged",
+  "@photoStanceDiscouraged": {
+    "description": "Region detail: photograph not expected, and a liability under equality law in this market."
+  },
+  "photoStanceExpected": "Usually expected",
+  "@photoStanceExpected": {
+    "description": "Region detail: a professional photograph is conventional in this market."
+  },
+  "photoStanceOptional": "Optional",
+  "@photoStanceOptional": {
+    "description": "Region detail: a photograph is neither expected nor discouraged in this market."
+  },
+  "photoStanceProhibited": "No — an automatic rejection",
+  "@photoStanceProhibited": {
+    "description": "Region detail: whether a CV should carry a photograph. This is the strongest 'no' on a four-point scale; the four options are meant to read against each other."
+  },
+  "privacyAiBody": "If you use the optional AI Assistant, the relevant CV content and job description are sent directly from your browser to the AI provider you choose (Anthropic or Google), using an API key you supply yourself. This call never passes through any CVForge server, and the key is stored only in your browser.",
+  "@privacyAiBody": {
+    "description": "Privacy page, body of the AI section. 'Anthropic' and 'Google' are company names and stay untranslated."
+  },
+  "privacyAiTitle": "AI-assisted tailoring",
+  "@privacyAiTitle": {
+    "description": "Privacy page, section heading."
+  },
+  "privacyContactBody": "Questions about this policy: heinrich-development-support@googlegroups.com",
+  "@privacyContactBody": {
+    "description": "Privacy page, contact line. The email address must stay exactly as written."
+  },
+  "privacyContactTitle": "Contact",
+  "@privacyContactTitle": {
+    "description": "Privacy page, section heading for the support contact address."
+  },
+  "privacyControlBody": "Export your whole Vault and every CV as a JSON file at any time from Settings, or clear your Vault entirely. Uninstalling/clearing this site's data in your browser removes everything CVForge ever stored locally.",
+  "@privacyControlBody": {
+    "description": "Privacy page, body of the data-control section. 'JSON' is a file format name and stays untranslated."
+  },
+  "privacyControlTitle": "Your control over your data",
+  "@privacyControlTitle": {
+    "description": "Privacy page, section heading."
+  },
+  "privacyDriveDisconnect": "You can disconnect at any time from Settings, which stops syncing immediately. Disconnecting does not delete the file already on Drive. You can remove it yourself from your Google Account's \"Third-party apps & services\" page at myaccount.google.com, which also fully revokes CVForge's access.",
+  "@privacyDriveDisconnect": {
+    "description": "Privacy page, Drive section, fourth paragraph. Use Google's own official name for the 'Third-party apps & services' page in the target language; myaccount.google.com is a URL and stays as-is."
+  },
+  "privacyDriveEmail": "CVForge also reads your Google account email address (via the same connection) purely to show which account is connected in Settings. That address is kept only in your browser's local storage, never transmitted anywhere else.",
+  "@privacyDriveEmail": {
+    "description": "Privacy page, Drive section, third paragraph."
+  },
+  "privacyDriveFile": "That file is a copy of your Vault and CVs, letting you recover them by signing in again on another browser. It is readable only by CVForge acting on your own Google account. CVForge's developer has no access to it, and no other app can read it either.",
+  "@privacyDriveFile": {
+    "description": "Privacy page, Drive section, second paragraph."
+  },
+  "privacyDriveScope": "If you choose to connect Google Drive, CVForge requests exactly one Google OAuth scope: `drive.appdata`. This scope only grants access to a single hidden file CVForge creates for itself in your Drive. It cannot see, list, or touch any other file in your Google Drive.",
+  "@privacyDriveScope": {
+    "description": "Privacy page, Drive section, first paragraph. `drive.appdata` is a literal API scope name and must not be translated."
+  },
+  "privacyDriveTitle": "Google Drive sync",
+  "@privacyDriveTitle": {
+    "description": "Privacy page, section heading. 'Google Drive' is a product name and stays untranslated."
+  },
+  "privacyIntro": "CVForge doesn't have a server. It's a static web app that runs entirely in your browser, and this policy exists to explain exactly what that means for your data.",
+  "@privacyIntro": {
+    "description": "Privacy page, opening paragraph, before any section heading."
+  },
+  "privacyNoTrackingBody": "No analytics, no tracking scripts, no advertising, no cookies beyond what your browser itself uses to keep you signed in to Google. Nothing about your usage of CVForge is collected or sold.",
+  "@privacyNoTrackingBody": {
+    "description": "Privacy page, body of the 'What CVForge doesn't do' section."
+  },
+  "privacyNoTrackingTitle": "What CVForge doesn't do",
+  "@privacyNoTrackingTitle": {
+    "description": "Privacy page, section heading."
+  },
+  "privacyStorageBody": "Your Vault (career history) and every CV you build are stored only in your browser's local storage (IndexedDB), on your own device. CVForge's developer cannot see, access, or receive this data. There is no backend for it to be sent to.",
+  "@privacyStorageBody": {
+    "description": "Privacy page, body of the 'What CVForge stores, and where' section. 'Vault' is this app's name for the user's stored career history; IndexedDB is a browser API name."
+  },
+  "privacyStorageTitle": "What CVForge stores, and where",
+  "@privacyStorageTitle": {
+    "description": "Privacy page, section heading."
+  },
+  "privacyTitle": "Privacy Policy",
+  "@privacyTitle": {
+    "description": "Privacy page, page title."
+  },
+  "regionAnzConvention1": "Two to three pages is normal and expected. A one-page resume reads as thin here.",
+  "@regionAnzConvention1": {
+    "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionAnzConvention2": "No photograph, date of birth, or marital status.",
+  "@regionAnzConvention2": {
+    "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionAnzConvention3": "State your work rights in the header — \"Australian citizen\", \"NZ permanent resident\", \"482 visa\". Recruiters filter on this first.",
+  "@regionAnzConvention3": {
+    "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionAnzConvention4": "Include a dedicated \"Referees\" section with two named referees, or state that details are available on request.",
+  "@regionAnzConvention4": {
+    "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionAnzConvention5": "Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.",
+  "@regionAnzConvention5": {
+    "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionAnzConvention6": "Give more context per role than a US résumé would: company scope, reporting lines, team size, budget.",
+  "@regionAnzConvention6": {
+    "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionAnzCoverage": "Australia, New Zealand",
+  "@regionAnzCoverage": {
+    "description": "Region picker: which countries the ANZ grouping covers. Use each country's own name in the target language."
+  },
+  "regionAnzDisplayName": "Australia & New Zealand",
+  "@regionAnzDisplayName": {
+    "description": "Region picker: the name of the ANZ market grouping."
+  },
+  "regionAnzLengthNote": "Two to three pages mid-career; three to five for executive roles.",
+  "@regionAnzLengthNote": {
+    "description": "Region picker: how long a CV should run in the ANZ market."
+  },
+  "regionAnzToneNote": "Context-rich and concrete. Explain what the organisation does, the size of your remit, then the outcome — Australasian readers expect more surrounding detail than a US résumé gives.",
+  "@regionAnzToneNote": {
+    "description": "Region picker: how achievements should be framed in the ANZ market."
+  },
+  "regionDachConvention1": "Around two thirds of German-speaking employers still expect a professional headshot, top right. CVForge does not add one; a template that renders a photo is planned, and until then it has to be added to the exported PDF by hand.",
+  "@regionDachConvention1": {
+    "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionDachConvention2": "Date and place of birth, nationality, and sometimes marital status are traditional in the personal-details block, and CVForge has no field for any of them. Younger and international employers increasingly omit them: omitting is safe, including is conventional.",
+  "@regionDachConvention2": {
+    "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionDachConvention3": "The chronology must be gap-free and month-precise. An unexplained gap reads as concealment; label it plainly (\"Parental leave\", \"Further education\").",
+  "@regionDachConvention3": {
+    "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionDachConvention4": "Education stays prominent throughout your career, with the institution named and grades given.",
+  "@regionDachConvention4": {
+    "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionDachConvention5": "Certificates (Zeugnisse) are attached as a separate document; the Lebenslauf references them rather than reproducing them.",
+  "@regionDachConvention5": {
+    "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionDachConvention6": "If writing in English, use British spelling.",
+  "@regionDachConvention6": {
+    "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionDachCoverage": "Germany, Austria, Switzerland",
+  "@regionDachCoverage": {
+    "description": "Region picker: which countries the DACH grouping covers. Use each country's own name in the target language."
+  },
+  "regionDachDisplayName": "DACH",
+  "@regionDachDisplayName": {
+    "description": "Region picker: the name of the DACH market grouping."
+  },
+  "regionDachLengthNote": "Two to three pages, tabular and complete.",
+  "@regionDachLengthNote": {
+    "description": "Region picker: how long a CV should run in the DACH market."
+  },
+  "regionDachToneNote": "Formal, factual, complete. Understatement over salesmanship, verifiable facts over adjectives.",
+  "@regionDachToneNote": {
+    "description": "Region picker: how achievements should be framed in the DACH market."
+  },
+  "regionEuropeConvention1": "One to two pages. France in particular expects a single page for anything under about fifteen years' experience.",
+  "@regionEuropeConvention1": {
+    "description": "Region picker: one of the EUROPE market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionEuropeConvention2": "A photograph is common in France, Spain, Italy, and Portugal, and unusual elsewhere. For an international or multinational application, leave it off.",
+  "@regionEuropeConvention2": {
+    "description": "Region picker: one of the EUROPE market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionEuropeConvention3": "Keep personal data minimal for a multinational. A domestic French or Southern European employer may still expect date of birth and nationality.",
+  "@regionEuropeConvention3": {
+    "description": "Region picker: one of the EUROPE market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionEuropeConvention4": "List language proficiencies with CEFR levels (A1–C2). European recruiters read these precisely.",
+  "@regionEuropeConvention4": {
+    "description": "Region picker: one of the EUROPE market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionEuropeConvention5": "Southern European employers tolerate longer CVs — four or five pages is seen — but a tighter document still reads better.",
+  "@regionEuropeConvention5": {
+    "description": "Region picker: one of the EUROPE market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionEuropeConvention6": "If writing in English, use British spelling. A local-language version is worth producing for a domestic application.",
+  "@regionEuropeConvention6": {
+    "description": "Region picker: one of the EUROPE market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionEuropeCoverage": "France, Benelux, Southern Europe, and multinationals",
+  "@regionEuropeCoverage": {
+    "description": "Region picker: which countries the EUROPE grouping covers. Use each country's own name in the target language."
+  },
+  "regionEuropeDisplayName": "Europe — international",
+  "@regionEuropeDisplayName": {
+    "description": "Region picker: the name of the EUROPE market grouping."
+  },
+  "regionEuropeLengthNote": "One to two pages. France prefers one; Southern Europe tolerates more.",
+  "@regionEuropeLengthNote": {
+    "description": "Region picker: how long a CV should run in the EUROPE market."
+  },
+  "regionEuropeToneNote": "Professional and measured. Concrete results, without the hard-sell register of a US résumé.",
+  "@regionEuropeToneNote": {
+    "description": "Region picker: how achievements should be framed in the EUROPE market."
+  },
+  "regionLatamA4Convention1": "A4 is standard across Brazil, Argentina, Uruguay, and Peru. For Mexico, Colombia, Chile, or Central America, pick \"Mexico, Colombia & Chile\" instead — those markets use US Letter.",
+  "@regionLatamA4Convention1": {
+    "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamA4Convention2": "The document is a \"Currículo\" in Brazil and a \"Curriculum Vitae\" across the Southern Cone.",
+  "@regionLatamA4Convention2": {
+    "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamA4Convention3": "A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.",
+  "@regionLatamA4Convention3": {
+    "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamA4Convention4": "Two to three pages is normal.",
+  "@regionLatamA4Convention4": {
+    "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamA4Convention5": "Certified language proficiency is a primary screening filter, especially in Brazil: state TOEFL, IELTS, DELE, or CELPE-Bras scores with the date taken.",
+  "@regionLatamA4Convention5": {
+    "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamA4Convention6": "Name the institution for every qualification; university reputation is read closely.",
+  "@regionLatamA4Convention6": {
+    "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamA4Convention7": "If writing in English, US spelling is the regional norm.",
+  "@regionLatamA4Convention7": {
+    "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamA4Coverage": "Brazil, Argentina, Uruguay, Peru",
+  "@regionLatamA4Coverage": {
+    "description": "Region picker: which countries the LATAMA4 grouping covers. Use each country's own name in the target language."
+  },
+  "regionLatamA4DisplayName": "Brazil & Southern Cone",
+  "@regionLatamA4DisplayName": {
+    "description": "Region picker: the name of the LATAMA4 market grouping."
+  },
+  "regionLatamA4LengthNote": "Two to three pages.",
+  "@regionLatamA4LengthNote": {
+    "description": "Region picker: how long a CV should run in the LATAMA4 market."
+  },
+  "regionLatamA4ToneNote": "Formal and credential-forward. Qualifications, institutions, and certifications carry real weight — state them fully.",
+  "@regionLatamA4ToneNote": {
+    "description": "Region picker: how achievements should be framed in the LATAMA4 market."
+  },
+  "regionLatamLetterConvention1": "US Letter is standard across Mexico, Colombia, Chile, and Central America. For Brazil, Argentina, Uruguay, or Peru, pick \"Brazil & Southern Cone\" instead — those markets use A4.",
+  "@regionLatamLetterConvention1": {
+    "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamLetterConvention2": "The document is a \"Hoja de Vida\" in Colombia and the Andean countries, and a \"Currículum Vitae\" in Mexico and Central America.",
+  "@regionLatamLetterConvention2": {
+    "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamLetterConvention3": "A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.",
+  "@regionLatamLetterConvention3": {
+    "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamLetterConvention4": "Two to three pages is normal.",
+  "@regionLatamLetterConvention4": {
+    "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamLetterConvention5": "Certified language proficiency carries real weight: state TOEFL, IELTS, or DELE scores with the date taken.",
+  "@regionLatamLetterConvention5": {
+    "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamLetterConvention6": "Name the institution for every qualification; university reputation is read closely.",
+  "@regionLatamLetterConvention6": {
+    "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamLetterConvention7": "If writing in English, US spelling is the regional norm.",
+  "@regionLatamLetterConvention7": {
+    "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionLatamLetterCoverage": "Mexico, Colombia, Chile, Central America",
+  "@regionLatamLetterCoverage": {
+    "description": "Region picker: which countries the LATAMLETTER grouping covers. Use each country's own name in the target language."
+  },
+  "regionLatamLetterDisplayName": "Mexico, Colombia & Chile",
+  "@regionLatamLetterDisplayName": {
+    "description": "Region picker: the name of the LATAMLETTER market grouping."
+  },
+  "regionLatamLetterLengthNote": "Two to three pages.",
+  "@regionLatamLetterLengthNote": {
+    "description": "Region picker: how long a CV should run in the LATAMLETTER market."
+  },
+  "regionLatamLetterToneNote": "Formal and credential-forward. Qualifications, institutions, and certifications carry real weight — state them fully.",
+  "@regionLatamLetterToneNote": {
+    "description": "Region picker: how achievements should be framed in the LATAMLETTER market."
+  },
+  "regionNordicsConvention1": "One to two pages. A long CV reads as poor editing.",
+  "@regionNordicsConvention1": {
+    "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionNordicsConvention2": "A photograph is neither expected nor unwelcome. Include one only if it is genuinely professional.",
+  "@regionNordicsConvention2": {
+    "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionNordicsConvention3": "Keep personal data minimal: name, contact, city. No date of birth, marital status, or national ID number.",
+  "@regionNordicsConvention3": {
+    "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionNordicsConvention4": "Frame achievements around the team and the outcome rather than personal heroics.",
+  "@regionNordicsConvention4": {
+    "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionNordicsConvention5": "State Scandinavian language proficiency explicitly with a level (\"Swedish — B2\"). It moves the needle.",
+  "@regionNordicsConvention5": {
+    "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionNordicsConvention6": "English CVs are widely accepted; use British spelling.",
+  "@regionNordicsConvention6": {
+    "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionNordicsCoverage": "Sweden, Norway, Denmark, Finland",
+  "@regionNordicsCoverage": {
+    "description": "Region picker: which countries the NORDICS grouping covers. Use each country's own name in the target language."
+  },
+  "regionNordicsDisplayName": "Nordics",
+  "@regionNordicsDisplayName": {
+    "description": "Region picker: the name of the NORDICS market grouping."
+  },
+  "regionNordicsLengthNote": "One to two pages. Concision is read as a virtue here.",
+  "@regionNordicsLengthNote": {
+    "description": "Region picker: how long a CV should run in the NORDICS market."
+  },
+  "regionNordicsToneNote": "Factual and team-framed. Say what the team achieved and what your part in it was; \"I single-handedly\" reads badly across the Nordics.",
+  "@regionNordicsToneNote": {
+    "description": "Region picker: how achievements should be framed in the NORDICS market."
+  },
+  "regionUkConvention1": "Two pages is the norm. One page for a recent graduate; three only for academic or very senior roles.",
+  "@regionUkConvention1": {
+    "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUkConvention2": "No photograph, date of birth, marital status, or nationality. UK equality law makes them a liability for the employer as much as for you.",
+  "@regionUkConvention2": {
+    "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUkConvention3": "British spelling throughout: organised, programme, centre, analyse.",
+  "@regionUkConvention3": {
+    "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUkConvention4": "\"References available on request\" at the foot is still expected. Do not list referees' contact details.",
+  "@regionUkConvention4": {
+    "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUkConvention5": "Open with a short personal statement or profile.",
+  "@regionUkConvention5": {
+    "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUkConvention6": "Ireland follows the same conventions. State your work authorisation if you are not an EU or UK citizen.",
+  "@regionUkConvention6": {
+    "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUkCoverage": "United Kingdom, Ireland",
+  "@regionUkCoverage": {
+    "description": "Region picker: which countries the UK grouping covers. Use each country's own name in the target language."
+  },
+  "regionUkDisplayName": "UK & Ireland",
+  "@regionUkDisplayName": {
+    "description": "Region picker: the name of the UK market grouping."
+  },
+  "regionUkLengthNote": "Two pages is the standard. One page is fine for a recent graduate.",
+  "@regionUkLengthNote": {
+    "description": "Region picker: how long a CV should run in the UK market."
+  },
+  "regionUkToneNote": "Understated and factual. State achievements plainly with the evidence behind them; overt self-promotion reads as boastful.",
+  "@regionUkToneNote": {
+    "description": "Region picker: how achievements should be framed in the UK market."
+  },
+  "regionUsConvention1": "One page until roughly ten years of experience, two beyond that. Three pages means an academic CV, which is a different document.",
+  "@regionUsConvention1": {
+    "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUsConvention2": "Never include a photograph, date of birth, marital status, or gender. US employers routinely discard résumés carrying them to avoid discrimination claims.",
+  "@regionUsConvention2": {
+    "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUsConvention3": "Single column. No tables, text boxes, headers, or footers — US applicant tracking systems are the strictest anywhere and mis-parse everything else.",
+  "@regionUsConvention3": {
+    "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUsConvention4": "US spelling: organized, program, center, analyze.",
+  "@regionUsConvention4": {
+    "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUsConvention5": "Quantify everything you can. An unquantified bullet reads as a job description rather than an achievement.",
+  "@regionUsConvention5": {
+    "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUsConvention6": "Do not add a references line; it is assumed.",
+  "@regionUsConvention6": {
+    "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUsConvention7": "Canada follows the same conventions. Quebec roles may expect a French-language version alongside.",
+  "@regionUsConvention7": {
+    "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
+  },
+  "regionUsCoverage": "United States, Canada",
+  "@regionUsCoverage": {
+    "description": "Region picker: which countries the US grouping covers. Use each country's own name in the target language."
+  },
+  "regionUsDisplayName": "US & Canada",
+  "@regionUsDisplayName": {
+    "description": "Region picker: the name of the US market grouping."
+  },
+  "regionUsLengthNote": "One page under about ten years' experience; two pages beyond that.",
+  "@regionUsLengthNote": {
+    "description": "Region picker: how long a CV should run in the US market."
+  },
+  "regionUsToneNote": "Quantified and outcome-led. Lead each bullet with the result and a number — revenue, percentage, headcount, time saved.",
+  "@regionUsToneNote": {
+    "description": "Region picker: how achievements should be framed in the US market."
+  },
+  "sectionLabelEducation": "Education",
+  "@sectionLabelEducation": {
+    "description": "Studio's section-visibility picker: qualifications."
+  },
+  "sectionLabelExperience": "Work history",
+  "@sectionLabelExperience": {
+    "description": "Studio's section-visibility picker: jobs and roles."
+  },
+  "sectionLabelHobbies": "Hobbies and interests",
+  "@sectionLabelHobbies": {
+    "description": "Studio's section-visibility picker: personal interests."
+  },
+  "sectionLabelProjects": "Projects",
+  "@sectionLabelProjects": {
+    "description": "Studio's section-visibility picker: the projects section."
+  },
+  "sectionLabelPublications": "Publications",
+  "@sectionLabelPublications": {
+    "description": "Studio's section-visibility picker: published work."
+  },
+  "sectionLabelReferences": "References",
+  "@sectionLabelReferences": {
+    "description": "Studio's section-visibility picker: the references note."
+  },
+  "sectionLabelSkills": "Skills",
+  "@sectionLabelSkills": {
+    "description": "Studio's section-visibility picker: the skills section."
+  },
+  "sectionLabelSummary": "Professional summary",
+  "@sectionLabelSummary": {
+    "description": "Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which stays English."
+  },
+  "settingsAiBody": "Bring your own API key to enable AI-assisted tailoring. Your key never leaves this device except to call the provider's API directly. There is no CVForge server.",
+  "@settingsAiBody": {
+    "description": "Settings, AI card body. 'Bring your own API key' (BYOK) means the user supplies their own paid account rather than the app providing one."
+  },
+  "settingsAiConfiguredElsewhere": "You set the AI Assistant up on another device. Your CVs synced, but your key stayed there on purpose — paste your {provider} key below to use the assistant here too.",
+  "@settingsAiConfiguredElsewhere": {
+    "description": "Settings, shown when this user has configured the AI Assistant elsewhere but this browser has no key. Explains that the key deliberately did not sync.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiConnected": "Connected.",
+  "@settingsAiConnected": {
+    "description": "Settings, confirmation shown after a successful AI connection test."
+  },
+  "settingsAiErrorInvalidRequest": "{provider} rejected the request. That's a bug in CVForge, not your key.",
+  "@settingsAiErrorInvalidRequest": {
+    "description": "Settings, AI connection test error: the request was malformed, which is the app's fault rather than the user's.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiErrorMalformedResponse": "Got an unexpected response. Try again.",
+  "@settingsAiErrorMalformedResponse": {
+    "description": "Settings, AI connection test error: the provider's reply could not be parsed."
+  },
+  "settingsAiErrorNetwork": "Couldn't reach {provider}. Check your connection.",
+  "@settingsAiErrorNetwork": {
+    "description": "Settings, AI connection test error: the request never reached the provider.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiErrorNoKey": "Enter an API key first.",
+  "@settingsAiErrorNoKey": {
+    "description": "Settings, AI connection test error: the field was empty."
+  },
+  "settingsAiErrorOverloaded": "{provider}'s API is temporarily unavailable. Try again shortly.",
+  "@settingsAiErrorOverloaded": {
+    "description": "Settings, AI connection test error: the provider's service is overloaded.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiErrorRateLimited": "Your API account is rate limited. Try again in a moment.",
+  "@settingsAiErrorRateLimited": {
+    "description": "Settings, AI connection test error: too many requests to the provider."
+  },
+  "settingsAiErrorRefusal": "The connection check was refused.",
+  "@settingsAiErrorRefusal": {
+    "description": "Settings, AI connection test error: the model declined to answer the check."
+  },
+  "settingsAiErrorTimeout": "The request timed out. Try again.",
+  "@settingsAiErrorTimeout": {
+    "description": "Settings, AI connection test error: the provider did not respond in time."
+  },
+  "settingsAiErrorUnauthorized": "That key was rejected. Check it and try again.",
+  "@settingsAiErrorUnauthorized": {
+    "description": "Settings, AI connection test error: the provider rejected the key as invalid."
+  },
+  "settingsAiHelpDedicatedKey": "Use a key created only for CVForge, so you can revoke it without breaking anything else.",
+  "@settingsAiHelpDedicatedKey": {
+    "description": "Settings, safety advice item about using a separate key per application."
+  },
+  "settingsAiHelpNoAutoTopUp": "Turn OFF auto top-up / auto-reload. Left on, a runaway or leaked key can recharge itself indefinitely.",
+  "@settingsAiHelpNoAutoTopUp": {
+    "description": "Settings, safety advice item. 'auto top-up' / 'auto-reload' are the provider's own terms for automatically buying more credit."
+  },
+  "settingsAiHelpOpenBilling": "Open billing & spend limits",
+  "@settingsAiHelpOpenBilling": {
+    "description": "Settings, link that opens the provider's billing page in a new tab."
+  },
+  "settingsAiHelpOpenKeySettings": "Open {provider} key settings",
+  "@settingsAiHelpOpenKeySettings": {
+    "description": "Settings, link that opens the provider's own API key page in a new tab.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiHelpProtectTitle": "Protect yourself from surprise bills",
+  "@settingsAiHelpProtectTitle": {
+    "description": "Settings, heading of the safety advice list in the API key help panel."
+  },
+  "settingsAiHelpSpendCap": "Set a hard monthly spend cap, as low as you are willing to pay.",
+  "@settingsAiHelpSpendCap": {
+    "description": "Settings, safety advice item about limiting monthly spending."
+  },
+  "settingsAiHelpStepNumber": "{number}.",
+  "@settingsAiHelpStepNumber": {
+    "description": "Settings, the numeral prefixing each step in the API key help list — e.g. '1.'. Use whatever numbering punctuation is conventional for the locale.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "settingsAiHelpTitle": "How do I get a {provider} API key?",
+  "@settingsAiHelpTitle": {
+    "description": "Settings, heading of the expandable help panel explaining how to obtain an API key.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiKeepCurrentKey": "Keep my current key",
+  "@settingsAiKeepCurrentKey": {
+    "description": "Settings, button that cancels replacing an existing API key."
+  },
+  "settingsAiKeyFieldHint": "Paste your API key",
+  "@settingsAiKeyFieldHint": {
+    "description": "Settings, placeholder text inside the empty API key field."
+  },
+  "settingsAiKeyFieldLabel": "{provider} API key",
+  "@settingsAiKeyFieldLabel": {
+    "description": "Settings, label on the API key text field, naming the selected provider.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiKeyNone": "No {provider} key yet. The AI Assistant is off.",
+  "@settingsAiKeyNone": {
+    "description": "Settings, status line when no key is stored for the selected provider.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiKeySaved": "Your {provider} key is saved on this device.",
+  "@settingsAiKeySaved": {
+    "description": "Settings, status line when a key is stored persistently.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiKeySavedOnSuccess": "Your key is saved only if the connection test succeeds.",
+  "@settingsAiKeySavedOnSuccess": {
+    "description": "Settings, helper text under the API key field, explaining the key is not stored until verified."
+  },
+  "settingsAiKeySession": "Your {provider} key is set for this session only. It will be gone when you reload the page.",
+  "@settingsAiKeySession": {
+    "description": "Settings, status line when a key was entered but not persisted.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiModelLabel": "Model",
+  "@settingsAiModelLabel": {
+    "description": "Settings, label on the dropdown choosing which AI model to use."
+  },
+  "settingsAiPriceLabel": "{provider}'s own rate, not billed by CVForge: {price}",
+  "@settingsAiPriceLabel": {
+    "description": "Settings, note under the model dropdown clarifying that the AI provider bills the user directly.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      },
+      "price": {
+        "type": "String",
+        "example": "$3.00 in / $15.00 out per M tokens"
+      }
+    }
+  },
+  "settingsAiPriceRate": "{input} in / {output} out per M tokens",
+  "@settingsAiPriceRate": {
+    "description": "Settings, the model's price per million tokens, split into input and output rates. Prices are in US dollars because the AI providers bill in USD — keep the dollar sign whatever the locale.",
+    "placeholders": {
+      "input": {
+        "type": "double",
+        "format": "currency",
+        "optionalParameters": {
+          "symbol": "$",
+          "decimalDigits": 2
+        },
+        "example": "3.00"
+      },
+      "output": {
+        "type": "double",
+        "format": "currency",
+        "optionalParameters": {
+          "symbol": "$",
+          "decimalDigits": 2
+        },
+        "example": "15.00"
+      }
+    }
+  },
+  "settingsAiProviderLabel": "Provider",
+  "@settingsAiProviderLabel": {
+    "description": "Settings, label on the dropdown choosing which AI company to use."
+  },
+  "settingsAiRemoveKey": "Remove key",
+  "@settingsAiRemoveKey": {
+    "description": "Settings, button that deletes the stored API key."
+  },
+  "settingsAiRemoveKeyConfirmBody": "{provider} won't show you this key again, so you'd need to create a new one in their console to use the AI Assistant on this device. Your CVs and Vault are not affected.",
+  "@settingsAiRemoveKeyConfirmBody": {
+    "description": "Settings, body of the API key removal dialog, explaining the action is not undoable.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiRemoveKeyConfirmTitle": "Remove your {provider} key?",
+  "@settingsAiRemoveKeyConfirmTitle": {
+    "description": "Settings, title of the dialog confirming API key deletion.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "settingsAiReplaceKey": "Replace key",
+  "@settingsAiReplaceKey": {
+    "description": "Settings, button that reveals the field to enter a new API key over the existing one."
+  },
+  "settingsAiStorageWarning": "Your key is saved on this device, unencrypted in this browser's storage — the same as your Vault and CVs. Anyone with access to this device can read it.",
+  "@settingsAiStorageWarning": {
+    "description": "Settings, security warning shown near the API key field."
+  },
+  "settingsAiTestAndSave": "Test and save",
+  "@settingsAiTestAndSave": {
+    "description": "Settings, button that verifies a newly entered API key and stores it if it works."
+  },
+  "settingsAiTestConnection": "Test connection",
+  "@settingsAiTestConnection": {
+    "description": "Settings, button that verifies the already-saved API key still works."
+  },
+  "settingsAiTitle": "AI Assistant",
+  "@settingsAiTitle": {
+    "description": "Settings, AI card heading. An optional feature that tailors a CV to a job description using the user's own API key."
+  },
+  "settingsBackupBody": "Export your whole Vault and every CV as one JSON file, or restore from a previous export. Restoring replaces everything currently on this device. Your current data downloads as a backup first.",
+  "@settingsBackupBody": {
+    "description": "Settings, backup card body explaining export and import."
+  },
+  "settingsBackupExport": "Export backup",
+  "@settingsBackupExport": {
+    "description": "Settings, button that downloads all data as a JSON file."
+  },
+  "settingsBackupImport": "Import backup",
+  "@settingsBackupImport": {
+    "description": "Settings, button that opens a file picker to restore from a backup file."
+  },
+  "settingsBackupLast": "Last backed up {relative}",
+  "@settingsBackupLast": {
+    "description": "Settings, backup status line when nothing has changed since the last export.",
+    "placeholders": {
+      "relative": {
+        "type": "String",
+        "example": "yesterday"
+      }
+    }
+  },
+  "settingsBackupLastWithChanges": "Last backed up {relative}, and you have changes since then",
+  "@settingsBackupLastWithChanges": {
+    "description": "Settings, backup status line when data has changed since the last export. {relative} is an already-formatted lowercase phrase like 'yesterday' or '12 days ago'.",
+    "placeholders": {
+      "relative": {
+        "type": "String",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "settingsBackupNever": "Never backed up",
+  "@settingsBackupNever": {
+    "description": "Settings, backup status line when no export has ever been made on this device."
+  },
+  "settingsBackupTitle": "Manual backup",
+  "@settingsBackupTitle": {
+    "description": "Settings, backup card heading."
+  },
+  "settingsClearVault": "Clear Vault",
+  "@settingsClearVault": {
+    "description": "Settings, button that deletes every entry in the user's Vault."
+  },
+  "settingsClearVaultConfirmBody": "This removes every experience, project, skill, education entry, hobby, and publication. This can't be undone.",
+  "@settingsClearVaultConfirmBody": {
+    "description": "Settings, body of the clear-Vault confirmation dialog. The list names the kinds of entry a Vault holds."
+  },
+  "settingsClearVaultConfirmTitle": "Clear your entire Vault?",
+  "@settingsClearVaultConfirmTitle": {
+    "description": "Settings, title of the dialog confirming deletion of all Vault content."
+  },
+  "settingsDangerZone": "Danger zone",
+  "@settingsDangerZone": {
+    "description": "Settings, heading above destructive actions. A common convention for a visually separated section of irreversible operations."
+  },
+  "settingsDriveBody": "Sign in with Google to keep your Vault and every CV synced to your own Google Drive. Sign in again on another browser and they'll all be there. CVForge never sees or stores your Google credentials, only a single hidden file this app creates for itself.",
+  "@settingsDriveBody": {
+    "description": "Settings, Drive card body explaining what connecting does."
+  },
+  "settingsDriveConnect": "Connect Google Drive",
+  "@settingsDriveConnect": {
+    "description": "Settings, button that starts the Google sign-in flow."
+  },
+  "settingsDriveConnectedAs": "Connected as {email}",
+  "@settingsDriveConnectedAs": {
+    "description": "Settings, shows which Google account is currently linked.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "someone@example.com"
+      }
+    }
+  },
+  "settingsDriveConnecting": "Connecting…",
+  "@settingsDriveConnecting": {
+    "description": "Settings, Drive status while the Google sign-in flow is in progress."
+  },
+  "settingsDriveDisconnectConfirmBody": "Your Vault and CVs stay exactly as they are on this device. This only stops syncing them to Drive. You can reconnect any time.",
+  "@settingsDriveDisconnectConfirmBody": {
+    "description": "Settings, body of the Drive disconnect dialog. Stresses that no data is deleted, since users commonly read 'disconnect' as 'delete'."
+  },
+  "settingsDriveDisconnectConfirmTitle": "Disconnect Google Drive?",
+  "@settingsDriveDisconnectConfirmTitle": {
+    "description": "Settings, title of the dialog confirming Drive disconnection."
+  },
+  "settingsDriveErrorCancelled": "Connection cancelled.",
+  "@settingsDriveErrorCancelled": {
+    "description": "Settings, Drive error: the user closed the Google popup, or a popup blocker stopped it."
+  },
+  "settingsDriveErrorNotConfigured": "Google Drive sync is not set up.",
+  "@settingsDriveErrorNotConfigured": {
+    "description": "Settings, Drive error: this build has no Google client id compiled in."
+  },
+  "settingsDriveErrorScriptLoad": "Couldn't reach Google. Check your connection and try again.",
+  "@settingsDriveErrorScriptLoad": {
+    "description": "Settings, Drive error: Google's sign-in script failed to load."
+  },
+  "settingsDriveErrorUnknown": "Couldn't connect to Google Drive. Try again.",
+  "@settingsDriveErrorUnknown": {
+    "description": "Settings, Drive error: an unclassified sign-in failure."
+  },
+  "settingsDriveLastSynced": "Last synced {relative}",
+  "@settingsDriveLastSynced": {
+    "description": "Settings, Drive status naming when the last successful sync happened.",
+    "placeholders": {
+      "relative": {
+        "type": "String",
+        "example": "today"
+      }
+    }
+  },
+  "settingsDriveMerged": "Merged changes from your other device",
+  "@settingsDriveMerged": {
+    "description": "Settings, Drive status just after incoming changes were merged in."
+  },
+  "settingsDriveNotYetSynced": "Not yet synced",
+  "@settingsDriveNotYetSynced": {
+    "description": "Settings, Drive status when connected but no sync has completed yet."
+  },
+  "settingsDriveReconnect": "Reconnect",
+  "@settingsDriveReconnect": {
+    "description": "Settings, button that re-runs the Google sign-in flow after authorisation expired."
+  },
+  "settingsDriveReconnectPrompt": "Connected as {email}. Reconnect to keep syncing.",
+  "@settingsDriveReconnectPrompt": {
+    "description": "Settings, shown when the Google authorisation expired and syncing has stopped.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "someone@example.com"
+      }
+    }
+  },
+  "settingsDriveSyncing": "Syncing…",
+  "@settingsDriveSyncing": {
+    "description": "Settings, Drive status while an upload is in flight."
+  },
+  "settingsDriveSyncNow": "Sync now",
+  "@settingsDriveSyncNow": {
+    "description": "Settings, button that forces an immediate sync instead of waiting for the debounce."
+  },
+  "settingsDriveTitle": "Google Drive",
+  "@settingsDriveTitle": {
+    "description": "Settings, Drive card heading. A product name — keep as-is."
+  },
+  "settingsDriveWaiting": "Waiting to sync…",
+  "@settingsDriveWaiting": {
+    "description": "Settings, Drive status when changes are queued but the upload has not started."
+  },
+  "settingsImportConfirmBody": "{noun, select, cv{This will replace your Vault and all {current} CVs with {incoming} CVs from this file.} resume{This will replace your Vault and all {current} résumés with {incoming} résumés from this file.} other{This will replace your Vault and all {current} documents with {incoming} documents from this file.}} Your current data downloads as a backup first.",
+  "@settingsImportConfirmBody": {
+    "description": "Settings, body of the import confirmation dialog. The branch follows the user's default REGION's document noun, not their language. {current} is how many documents exist now; {incoming} is how many the file contains.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      },
+      "current": {
+        "type": "int",
+        "example": "4"
+      },
+      "incoming": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "settingsImportConfirmTitle": "Replace your data?",
+  "@settingsImportConfirmTitle": {
+    "description": "Settings, title of the dialog confirming a backup import, which overwrites everything."
+  },
+  "settingsImportErrorIo": "Couldn't read that file. Try again.",
+  "@settingsImportErrorIo": {
+    "description": "Settings, error shown when the import file could not be read from disk."
+  },
+  "settingsImportErrorMalformed": "That file isn't a valid CVForge backup.",
+  "@settingsImportErrorMalformed": {
+    "description": "Settings, error shown when the chosen import file could not be parsed as a backup."
+  },
+  "settingsImportErrorNewerVersion": "This backup was made by a newer version of CVForge.",
+  "@settingsImportErrorNewerVersion": {
+    "description": "Settings, error shown when the backup file's schema is newer than this build understands."
+  },
+  "settingsLanguageCardBody": "The language CVForge's own buttons and labels are shown in. The CV you produce is not translated.",
+  "@settingsLanguageCardBody": {
+    "description": "Settings, language card, body paragraph. States the app/document language distinction explicitly, because users reasonably assume changing this would translate their CV."
+  },
+  "settingsLanguageCardTitle": "Language",
+  "@settingsLanguageCardTitle": {
+    "description": "Settings, language card, section heading. Sits above a one-line body paragraph."
+  },
+  "settingsLanguageFollowSystem": "Use my browser's language",
+  "@settingsLanguageFollowSystem": {
+    "description": "Settings, language picker, the first option. Selecting it clears the stored preference so the app follows the browser locale."
+  },
+  "settingsLinkPrivacy": "Privacy Policy",
+  "@settingsLinkPrivacy": {
+    "description": "Settings, footer link to the privacy policy page."
+  },
+  "settingsLinkTerms": "Terms of Service",
+  "@settingsLinkTerms": {
+    "description": "Settings, footer link to the terms of service page."
+  },
+  "settingsRegionCardBody": "The region every new CV starts with. Change it any time for an individual CV from Studio.",
+  "@settingsRegionCardBody": {
+    "description": "Settings, region card body. 'Studio' is this app's name for the CV editor screen."
+  },
+  "settingsRegionCardChange": "Change",
+  "@settingsRegionCardChange": {
+    "description": "Settings, region card button that opens the region picker."
+  },
+  "settingsRegionCardTitle": "Default region",
+  "@settingsRegionCardTitle": {
+    "description": "Settings, region card heading. Region controls CV conventions for a job market (page size, date style, whether a photo is expected), not the app's language."
+  },
+  "skillCategoryUnnamed": "Unnamed category",
+  "@skillCategoryUnnamed": {
+    "description": "Stands in for a skill category's name while it is still blank. Shown wherever the name is displayed (a chip-group heading, a menu item); the editor field itself still shows the real empty value."
+  },
+  "spellingEnAu": "Australian English",
+  "@spellingEnAu": {
+    "description": "Region detail: which spelling convention the CV should use."
+  },
+  "spellingEnGb": "British English",
+  "@spellingEnGb": {
+    "description": "Region detail: which spelling convention the CV should use."
+  },
+  "spellingEnUs": "US English",
+  "@spellingEnUs": {
+    "description": "Region detail: which spelling convention the CV should use."
+  },
+  "studioAiBeta": "BETA",
+  "@studioAiBeta": {
+    "description": "Badge marking the AI Assistant as an unfinished feature. Widely understood in English; keep if recognised in the target market."
+  },
+  "studioAiCardBody": "Paste the job ad here to select and rewrite this CV for it.",
+  "@studioAiCardBody": {
+    "description": "Studio AI card body when an API key is configured."
+  },
+  "studioAiCardBodyNoKey": "Bring your own API key in Settings, then paste a job ad here to select and rewrite this CV for it.",
+  "@studioAiCardBodyNoKey": {
+    "description": "Studio AI card body when no API key is configured yet."
+  },
+  "studioAiCardTitle": "Tailor with AI",
+  "@studioAiCardTitle": {
+    "description": "Studio AI card heading, and the button that opens the run dialog."
+  },
+  "studioAiClearJobDescription": "Clear job description",
+  "@studioAiClearJobDescription": {
+    "description": "Tooltip on the button that empties the job description field."
+  },
+  "studioAiDialogPrivacy": "This sends the job description below and your CV content — not your name, email, phone, or links — to {provider}, using your own API key. There is no CVForge server in between. This can take up to a few minutes — the model reasons through your whole Vault before responding.",
+  "@studioAiDialogPrivacy": {
+    "description": "AI dialog, privacy note listing exactly what is and is not transmitted. The exclusions matter; keep them explicit.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "studioAiDialogRegionNote": "Tailored for {region} — the assistant follows that market's length, spelling, and tone conventions.",
+  "@studioAiDialogRegionNote": {
+    "description": "AI dialog, note naming which regional CV conventions the AI will follow.",
+    "placeholders": {
+      "region": {
+        "type": "String",
+        "example": "United Kingdom"
+      }
+    }
+  },
+  "studioAiDialogTitle": "Tailor with AI",
+  "@studioAiDialogTitle": {
+    "description": "Title of the dialog that rewrites a CV against a job description using AI."
+  },
+  "studioAiEditJobDescription": "Edit job description",
+  "@studioAiEditJobDescription": {
+    "description": "Button that reopens the job description for editing."
+  },
+  "studioAiErrorGeneric": "Something went wrong — try again.",
+  "@studioAiErrorGeneric": {
+    "description": "AI run error: an unclassified failure."
+  },
+  "studioAiErrorInvalidRequest": "{provider} rejected the request. That's a bug in CVForge, not your input.",
+  "@studioAiErrorInvalidRequest": {
+    "description": "AI run error: a malformed request, which is the app's fault rather than the user's.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "studioAiErrorMalformedResponse": "Got an unexpected response — try again.",
+  "@studioAiErrorMalformedResponse": {
+    "description": "AI run error: the provider's reply could not be parsed."
+  },
+  "studioAiErrorNetwork": "Couldn't reach {provider} — check your connection.",
+  "@studioAiErrorNetwork": {
+    "description": "AI run error: the request never reached the provider.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "studioAiErrorNoKey": "Add an AI Assistant API key in Settings first.",
+  "@studioAiErrorNoKey": {
+    "description": "AI run error: no API key is configured."
+  },
+  "studioAiErrorOverloaded": "{provider}'s API is temporarily unavailable — try again shortly.",
+  "@studioAiErrorOverloaded": {
+    "description": "AI run error: the provider's service is overloaded.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Claude"
+      }
+    }
+  },
+  "studioAiErrorRateLimited": "Your API account is rate limited — try again in a moment.",
+  "@studioAiErrorRateLimited": {
+    "description": "AI run error: too many requests."
+  },
+  "studioAiErrorRefusal": "The model declined to answer — try rephrasing the job description.",
+  "@studioAiErrorRefusal": {
+    "description": "AI run error: the model refused to produce a result."
+  },
+  "studioAiErrorTimeout": "The request timed out — try again.",
+  "@studioAiErrorTimeout": {
+    "description": "AI run error: the provider did not respond in time."
+  },
+  "studioAiErrorUnauthorized": "Your API key was rejected — check it in Settings.",
+  "@studioAiErrorUnauthorized": {
+    "description": "AI run error: the provider rejected the key."
+  },
+  "studioAiFailedTitle": "Something went wrong.",
+  "@studioAiFailedTitle": {
+    "description": "AI dialog, heading shown when the run failed."
+  },
+  "studioAiGapItem": "• {gap}",
+  "@studioAiGapItem": {
+    "description": "AI dialog, one bullet in the 'Not covered by your Vault' list. The leading middle dot is the bullet mark.",
+    "placeholders": {
+      "gap": {
+        "type": "String",
+        "example": "Kubernetes"
+      }
+    }
+  },
+  "studioAiJobAdHint": "Paste the job ad you're tailoring this CV for.",
+  "@studioAiJobAdHint": {
+    "description": "Studio AI card, placeholder in the job description text area."
+  },
+  "studioAiKeywordGaps": "Not covered by your Vault",
+  "@studioAiKeywordGaps": {
+    "description": "AI dialog, heading above job-ad requirements the user's Vault has no evidence for."
+  },
+  "studioAiRationale": "Rationale",
+  "@studioAiRationale": {
+    "description": "AI dialog, heading above the model's explanation of the choices it made."
+  },
+  "studioAiRunningBody": "This can take up to a few minutes. Please keep this dialog open.",
+  "@studioAiRunningBody": {
+    "description": "AI dialog, body shown while the run is in progress, warning against closing it."
+  },
+  "studioAiRunningTitle": "Tailoring your CV",
+  "@studioAiRunningTitle": {
+    "description": "AI dialog, heading shown while the run is in progress."
+  },
+  "studioAiSetUpInSettings": "Set up in Settings",
+  "@studioAiSetUpInSettings": {
+    "description": "Studio AI card button that navigates to Settings to configure an API key."
+  },
+  "studioAiUndo": "Undo AI changes",
+  "@studioAiUndo": {
+    "description": "Studio button that reverts everything the AI run rewrote."
+  },
+  "studioAiWarning": "AI-written. Check every rewritten bullet against what you actually did.",
+  "@studioAiWarning": {
+    "description": "Studio warning shown on AI-rewritten content, reminding the user to verify accuracy of their own CV."
+  },
+  "studioBackToDrafts": "{noun, select, cv{Back to your CVs} resume{Back to your résumés} other{Back to your documents}}",
+  "@studioBackToDrafts": {
+    "description": "Studio tooltip on the link returning to the CV list.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioBackToSections": "Back to sections",
+  "@studioBackToSections": {
+    "description": "Studio narrow-layout button returning from one section's editor to the section list."
+  },
+  "studioBulletsSelected": "{selected}/{total} bullets",
+  "@studioBulletsSelected": {
+    "description": "Studio, how many of an entry's bullets are included in this CV.",
+    "placeholders": {
+      "selected": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "studioBulletsSelectedTailored": "{selected}/{total} bullets · {tailored} tailored",
+  "@studioBulletsSelectedTailored": {
+    "description": "Studio, how many of an entry's bullets are included, and how many of those have been reworded for this CV.",
+    "placeholders": {
+      "selected": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      },
+      "tailored": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "studioDeleteDraftBody": "This can't be undone.",
+  "@studioDeleteDraftBody": {
+    "description": "Confirmation dialog body for deleting a CV."
+  },
+  "studioDeleteDraftTitle": "Delete \"{name}\"?",
+  "@studioDeleteDraftTitle": {
+    "description": "Confirmation dialog title for deleting a CV, naming it.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Acme — Backend Engineer"
+      }
+    }
+  },
+  "studioDraftDuplicate": "Duplicate",
+  "@studioDraftDuplicate": {
+    "description": "CV card menu item that makes a copy of the CV."
+  },
+  "studioDraftRename": "Rename / edit notes",
+  "@studioDraftRename": {
+    "description": "CV card menu item that opens the rename dialog."
+  },
+  "studioDraftsEmptyBody": "{noun, select, cv{Create a CV to start tailoring your Vault for a specific application.} resume{Create a résumé to start tailoring your Vault for a specific application.} other{Create a document to start tailoring your Vault for a specific application.}}",
+  "@studioDraftsEmptyBody": {
+    "description": "CV list first-run empty state body.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioDraftsEmptyTitle": "{noun, select, cv{No CVs yet} resume{No résumés yet} other{No documents yet}}",
+  "@studioDraftsEmptyTitle": {
+    "description": "CV list first-run empty state heading.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioDraftsNoMatches": "{noun, select, cv{No CVs match your search.} resume{No résumés match your search.} other{No documents match your search.}}",
+  "@studioDraftsNoMatches": {
+    "description": "CV list empty state when the search matches nothing.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioDraftsPersistError": "Your last change couldn't be saved.",
+  "@studioDraftsPersistError": {
+    "description": "CV list banner shown when a write to local storage failed."
+  },
+  "studioDraftsSearch": "{noun, select, cv{Search CVs…} resume{Search résumés…} other{Search documents…}}",
+  "@studioDraftsSearch": {
+    "description": "Placeholder in the CV list search field.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioDraftUntitled": "{noun, select, cv{Untitled CV} resume{Untitled Résumé} other{Untitled Document}}",
+  "@studioDraftUntitled": {
+    "description": "Shown on a CV card when the CV has no name yet.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioDraftUpdated": "Updated {timestamp}",
+  "@studioDraftUpdated": {
+    "description": "CV card line showing when the CV was last edited.",
+    "placeholders": {
+      "timestamp": {
+        "type": "DateTime",
+        "format": "dd/MM/yyyy HH:mm",
+        "isCustomDateFormat": "true",
+        "example": "23/08/2026 14:05"
+      }
+    }
+  },
+  "studioEditDetailsTooltip": "{noun, select, cv{Edit CV details} resume{Edit résumé details} other{Edit document details}}",
+  "@studioEditDetailsTooltip": {
+    "description": "Studio tooltip on the button opening the rename dialog.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioEditDraftDetailsTitle": "{noun, select, cv{Edit CV details} resume{Edit résumé details} other{Edit document details}}",
+  "@studioEditDraftDetailsTitle": {
+    "description": "Title of the dialog for editing an existing CV's name and notes.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioEditDraftName": "Name",
+  "@studioEditDraftName": {
+    "description": "Edit-CV dialog, form field label for the CV's name."
+  },
+  "studioEditDraftNameHelper": "{noun, select, cv{Give this CV a name} resume{Give this résumé a name} other{Give this document a name}}",
+  "@studioEditDraftNameHelper": {
+    "description": "Edit-CV dialog, helper text under the name field.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioEditDraftNameHint": "e.g. \"Acme — Backend Engineer\"",
+  "@studioEditDraftNameHint": {
+    "description": "Edit-CV dialog, name placeholder. A company and role, which is how people usually name a tailored CV."
+  },
+  "studioEditDraftNotes": "Notes",
+  "@studioEditDraftNotes": {
+    "description": "Edit-CV dialog, form field label for free-text notes."
+  },
+  "studioEditDraftNotesHelper": "{noun, select, cv{What this CV is for, or anything to remember} resume{What this résumé is for, or anything to remember} other{What this document is for, or anything to remember}}",
+  "@studioEditDraftNotesHelper": {
+    "description": "Edit-CV dialog, helper text under the notes field.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioEditDraftTitle": "{noun, select, cv{CV details} resume{Résumé details} other{Document details}}",
+  "@studioEditDraftTitle": {
+    "description": "Title of the dialog for renaming a CV and editing its notes. The branch follows the user's REGION's document noun, not their language.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioExportErrorFonts": "Couldn't load the fonts needed to export — check your connection and try again.",
+  "@studioExportErrorFonts": {
+    "description": "Studio export error: the font files could not be fetched."
+  },
+  "studioExportErrorGeneric": "Couldn't export the PDF — try again.",
+  "@studioExportErrorGeneric": {
+    "description": "Studio export error: an unclassified failure."
+  },
+  "studioExportErrorRender": "Couldn't generate the PDF — try again, and if it keeps failing, check your CV for unusual characters or formatting.",
+  "@studioExportErrorRender": {
+    "description": "Studio export error: building the PDF document failed."
+  },
+  "studioExportErrorSave": "Couldn't save the file — check your browser's download settings and try again.",
+  "@studioExportErrorSave": {
+    "description": "Studio export error: the browser refused the download."
+  },
+  "studioExporting": "Exporting…",
+  "@studioExporting": {
+    "description": "Studio button label while the PDF is being generated."
+  },
+  "studioExportPdf": "Export PDF",
+  "@studioExportPdf": {
+    "description": "Studio button that generates and downloads the CV as a PDF."
+  },
+  "studioItemLabelledText": "{label}: {text}",
+  "@studioItemLabelledText": {
+    "description": "Studio, one bullet shown with its optional label prefix.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Performance"
+      },
+      "text": {
+        "type": "String",
+        "example": "Cut p99 latency by 40%"
+      }
+    }
+  },
+  "studioLengthWarning": "Longer than {region} typically expects. {note} Try trimming content, or a denser template.",
+  "@studioLengthWarning": {
+    "description": "Studio warning when the CV runs longer than the chosen market's convention. {note} is the region's own length guidance sentence, already complete.",
+    "placeholders": {
+      "region": {
+        "type": "String",
+        "example": "United Kingdom"
+      },
+      "note": {
+        "type": "String",
+        "example": "Two pages is standard."
+      }
+    }
+  },
+  "studioNewDraftTitle": "{noun, select, cv{New CV} resume{New résumé} other{New document}}",
+  "@studioNewDraftTitle": {
+    "description": "Title of the dialog for creating a CV, and the button that opens it.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "studioNoEducationDetails": "No details in your Vault yet.",
+  "@studioNoEducationDetails": {
+    "description": "Studio empty state when an education entry has no detail text to draw from."
+  },
+  "studioNoHeadline": "No headline in your Vault yet.",
+  "@studioNoHeadline": {
+    "description": "Studio empty state when the Vault has no headline to draw from."
+  },
+  "studioNoReferences": "No references note in your Vault yet.",
+  "@studioNoReferences": {
+    "description": "Studio empty state when the Vault has no references note to draw from."
+  },
+  "studioNoSectionSelectedBody": "Choose a section on the left to edit its content.",
+  "@studioNoSectionSelectedBody": {
+    "description": "Studio editor pane placeholder body."
+  },
+  "studioNoSectionSelectedTitle": "Nothing selected",
+  "@studioNoSectionSelectedTitle": {
+    "description": "Studio editor pane placeholder when no section is chosen."
+  },
+  "studioNoSummary": "No summary in your Vault yet.",
+  "@studioNoSummary": {
+    "description": "Studio empty state when the Vault has no professional summary to draw from."
+  },
+  "studioPageCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  "@studioPageCount": {
+    "description": "Studio, how many pages the exported CV currently runs to.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "studioPreviewAddAll": "Add all",
+  "@studioPreviewAddAll": {
+    "description": "Studio preview pane button that includes every Vault item in this CV."
+  },
+  "studioPreviewEmptyBody": "Add something to your Vault, then come back to build a CV.",
+  "@studioPreviewEmptyBody": {
+    "description": "Studio preview pane empty state body."
+  },
+  "studioPreviewEmptyTitle": "Nothing to preview yet",
+  "@studioPreviewEmptyTitle": {
+    "description": "Studio preview pane empty state when the Vault itself is empty."
+  },
+  "studioPreviewErrorBody": "The Export PDF button above uses the same PDF generation and may still work — try it, or reload the page.",
+  "@studioPreviewErrorBody": {
+    "description": "Studio preview pane error body, pointing at a workaround."
+  },
+  "studioPreviewErrorContext": "rasterizing the Studio preview",
+  "@studioPreviewErrorContext": {
+    "description": "Internal description of the failing operation, appended to a diagnostic message. Names what the app was doing when preview rendering failed."
+  },
+  "studioPreviewErrorTitle": "Couldn't render the preview",
+  "@studioPreviewErrorTitle": {
+    "description": "Studio preview pane error heading."
+  },
+  "studioPreviewGoToVault": "Go to Vault",
+  "@studioPreviewGoToVault": {
+    "description": "Studio preview pane button navigating to the Vault."
+  },
+  "studioPreviewNothingSelectedBody": "Your Vault has {count} items, but none are included in this CV.",
+  "@studioPreviewNothingSelectedBody": {
+    "description": "Studio preview pane empty state body, counting available Vault entries.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "18"
+      }
+    }
+  },
+  "studioPreviewNothingSelectedTitle": "Nothing selected yet",
+  "@studioPreviewNothingSelectedTitle": {
+    "description": "Studio preview pane empty state when the Vault has content but none is included in this CV."
+  },
+  "studioRegionDates": "Dates",
+  "@studioRegionDates": {
+    "description": "Region detail row label — how dates are formatted on a CV in this market."
+  },
+  "studioRegionDetailRow": "{label}: ",
+  "@studioRegionDetailRow": {
+    "description": "Region detail row prefix, putting the label before its value on one line.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Page size"
+      }
+    }
+  },
+  "studioRegionLocalName": "Known locally as",
+  "@studioRegionLocalName": {
+    "description": "Region detail row label, introducing the market's own word for a CV."
+  },
+  "studioRegionPageSize": "Page size",
+  "@studioRegionPageSize": {
+    "description": "Region detail row label — the paper size CVs are exported at for this market."
+  },
+  "studioRegionPersonalDetails": "Personal details",
+  "@studioRegionPersonalDetails": {
+    "description": "Region detail row label — which personal information a CV header carries in this market."
+  },
+  "studioRegionPhoto": "Photo",
+  "@studioRegionPhoto": {
+    "description": "Region detail row label — whether a photograph is expected on a CV in this market."
+  },
+  "studioRegionPickerBody": "Conventions differ by market. This changes how this CV is built — page size, expected length, and the guidance below. It never changes what your Vault stores.",
+  "@studioRegionPickerBody": {
+    "description": "Region picker body when choosing for one CV."
+  },
+  "studioRegionPickerDefaultBody": "Sets the region every new CV starts with. Changing it never touches a CV you have already created — switch those individually from Studio.",
+  "@studioRegionPickerDefaultBody": {
+    "description": "Region picker body when setting the default from Settings."
+  },
+  "studioRegionPickerDefaultTitle": "Default region",
+  "@studioRegionPickerDefaultTitle": {
+    "description": "Title of the region picker when opened from Settings to set the default for new CVs."
+  },
+  "studioRegionPickerSetDefault": "Set as default",
+  "@studioRegionPickerSetDefault": {
+    "description": "Region picker confirm button when setting the default for new CVs."
+  },
+  "studioRegionPickerTitle": "Choose a region",
+  "@studioRegionPickerTitle": {
+    "description": "Title of the region picker when opened for one specific CV."
+  },
+  "studioRegionPickerUse": "Use this region",
+  "@studioRegionPickerUse": {
+    "description": "Region picker confirm button when choosing for one CV."
+  },
+  "studioRegionSpelling": "Spelling",
+  "@studioRegionSpelling": {
+    "description": "Region detail row label — which spelling convention this market expects."
+  },
+  "studioRegionTypicalLength": "Typical length",
+  "@studioRegionTypicalLength": {
+    "description": "Region detail row label — how many pages a CV usually runs to in this market."
+  },
+  "studioSectionHeadline": "Headline",
+  "@studioSectionHeadline": {
+    "description": "Studio section editor label for the professional title line."
+  },
+  "studioSectionNavPersistError": "Your last selection change couldn't be saved.",
+  "@studioSectionNavPersistError": {
+    "description": "Studio banner shown when saving the section order or selection failed."
+  },
+  "studioSectionsResetDefault": "Reset to my saved default",
+  "@studioSectionsResetDefault": {
+    "description": "Studio button that restores the saved default section arrangement."
+  },
+  "studioSectionsSavedDefault": "Saved this order and section selection as your default",
+  "@studioSectionsSavedDefault": {
+    "description": "Studio confirmation after saving the current section arrangement as the default for new CVs."
+  },
+  "studioSectionsSaveDefault": "Save as my default",
+  "@studioSectionsSaveDefault": {
+    "description": "Studio button that remembers the current section arrangement for new CVs."
+  },
+  "studioSectionsTitle": "Sections",
+  "@studioSectionsTitle": {
+    "description": "Studio heading above the reorderable list of CV sections."
+  },
+  "studioSectionSummary": "Summary",
+  "@studioSectionSummary": {
+    "description": "Studio section editor heading for the CV's opening paragraph."
+  },
+  "studioSkillLinkedBullets": "{count, plural, =1{Linked to 1 bullet in this CV} other{Linked to {count} bullets in this CV}}",
+  "@studioSkillLinkedBullets": {
+    "description": "Studio, how many included bullets evidence this skill.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "studioSkillsFilter": "Filter skills…",
+  "@studioSkillsFilter": {
+    "description": "Studio skill selector search placeholder."
+  },
+  "studioSkillsNoLinks": "Link skills to bullets in the Vault to use this",
+  "@studioSkillsNoLinks": {
+    "description": "Studio tooltip when no skill is linked to any bullet, so the evidenced-skills action is unavailable."
+  },
+  "studioSkillsNoNewEvidenced": "No new evidenced skills to add — every skill linked to an included bullet is already selected",
+  "@studioSkillsNoNewEvidenced": {
+    "description": "Studio tooltip when the evidenced-skills bulk action would do nothing."
+  },
+  "studioSkillsSelectedCount": "{selected} of {total} selected",
+  "@studioSkillsSelectedCount": {
+    "description": "Studio skill selector, how many skills are included out of those available.",
+    "placeholders": {
+      "selected": {
+        "type": "int",
+        "example": "12"
+      },
+      "total": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "studioSkillsSelectEvidenced": "Select {count} evidenced skills",
+  "@studioSkillsSelectEvidenced": {
+    "description": "Studio button that selects every skill supported by an included bullet.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "studioSkillsSelectEvidencedTooltip": "Selects every skill linked to a bullet already included in this CV",
+  "@studioSkillsSelectEvidencedTooltip": {
+    "description": "Studio tooltip explaining the bulk-select action for skills that have supporting evidence."
+  },
+  "studioSkillsTitle": "Skills",
+  "@studioSkillsTitle": {
+    "description": "Studio skill selector heading."
+  },
+  "studioTabConfigure": "Configure",
+  "@studioTabConfigure": {
+    "description": "Studio narrow-layout tab showing the section editors."
+  },
+  "studioTabPreview": "Preview",
+  "@studioTabPreview": {
+    "description": "Studio narrow-layout tab showing the rendered CV."
+  },
+  "studioTailoringEditText": "Edit text",
+  "@studioTailoringEditText": {
+    "description": "Studio button that opens an inline editor for this CV's copy of the text."
+  },
+  "studioTailoringFromVault": "From your Vault — not yet tailored",
+  "@studioTailoringFromVault": {
+    "description": "Studio tooltip on text still showing the Vault's original wording."
+  },
+  "studioTailoringOnlyThisCv": "Only affects this CV.",
+  "@studioTailoringOnlyThisCv": {
+    "description": "Studio note clarifying that an edit here does not change the Vault."
+  },
+  "studioTailoringReverted": "Revert to Vault — tailored for this CV",
+  "@studioTailoringReverted": {
+    "description": "Studio tooltip on text that has been edited for this CV only; the action restores the Vault's original wording."
+  },
+  "studioTemplatePickerTitle": "Choose a template",
+  "@studioTemplatePickerTitle": {
+    "description": "Title of the dialog for picking the CV's visual template."
+  },
+  "studioTemplatePickerUse": "Use this template",
+  "@studioTemplatePickerUse": {
+    "description": "Template picker confirm button."
+  },
+  "templateTagAcademic": "Academic",
+  "@templateTagAcademic": {
+    "description": "Template tag: suited to academic CVs, which run longer and list publications."
+  },
+  "templateTagAtsSafe": "ATS-safe",
+  "@templateTagAtsSafe": {
+    "description": "Template tag: this layout parses cleanly in applicant tracking software. 'ATS' is a widely-used industry abbreviation."
+  },
+  "templateTagCompact": "Compact",
+  "@templateTagCompact": {
+    "description": "Template tag: fits more content per page."
+  },
+  "templateTagModern": "Modern",
+  "@templateTagModern": {
+    "description": "Template tag: a contemporary layout."
+  },
+  "templateTagTraditional": "Traditional",
+  "@templateTagTraditional": {
+    "description": "Template tag: a conservative, conventional layout."
+  },
+  "templateTagTwoColumn": "Two-column",
+  "@templateTagTwoColumn": {
+    "description": "Template tag: the layout splits the page into two columns."
+  },
+  "termsAcceptableUseBody": "Don't use CVForge to violate the law, or to abuse any third-party API (Google's or an AI provider's) beyond that provider's own acceptable-use terms.",
+  "@termsAcceptableUseBody": {
+    "description": "Terms page, body of the acceptable-use section."
+  },
+  "termsAcceptableUseTitle": "Acceptable use",
+  "@termsAcceptableUseTitle": {
+    "description": "Terms page, section heading."
+  },
+  "termsAsIsBody": "CVForge is provided free of charge, \"as is\" and \"as available\", with no warranty of any kind, express or implied. That includes no guarantee it will always be available or error-free. It's hosted on GitHub Pages with no uptime commitment.",
+  "@termsAsIsBody": {
+    "description": "Terms page, warranty disclaimer. '\"as is\" and \"as available\"' are legal terms of art — use the established equivalent in the target jurisdiction rather than a literal translation. 'GitHub Pages' is a product name."
+  },
+  "termsAsIsTitle": "The app, as-is",
+  "@termsAsIsTitle": {
+    "description": "Terms page, section heading."
+  },
+  "termsChangesBody": "These terms may be updated from time to time; the current version always lives at this page.",
+  "@termsChangesBody": {
+    "description": "Terms page, body of the changes section."
+  },
+  "termsChangesTitle": "Changes",
+  "@termsChangesTitle": {
+    "description": "Terms page, section heading for how the terms may change."
+  },
+  "termsContactBody": "heinrich-development-support@googlegroups.com",
+  "@termsContactBody": {
+    "description": "Terms page, contact line. An email address — must stay exactly as written."
+  },
+  "termsContactTitle": "Contact",
+  "@termsContactTitle": {
+    "description": "Terms page, section heading for the support contact address."
+  },
+  "termsIntro": "CVForge is a free, source-available personal project, not a company or a paid product. These terms are intentionally short.",
+  "@termsIntro": {
+    "description": "Terms page, opening paragraph, before any section heading."
+  },
+  "termsLiabilityBody": "To the fullest extent permitted by law, CVForge's developer is not liable for any damages arising from your use of the app, including lost data.",
+  "@termsLiabilityBody": {
+    "description": "Terms page, liability disclaimer. Legal text — use established equivalents rather than a literal translation."
+  },
+  "termsLiabilityTitle": "Limitation of liability",
+  "@termsLiabilityTitle": {
+    "description": "Terms page, section heading. A legal term of art — use the established equivalent in the target jurisdiction."
+  },
+  "termsOpenSourceBody": "CVForge is source-available on GitHub. See the repository's own license file for the exact terms governing the code itself.",
+  "@termsOpenSourceBody": {
+    "description": "Terms page, body of the open-source section. 'GitHub' is a product name."
+  },
+  "termsOpenSourceTitle": "Open source",
+  "@termsOpenSourceTitle": {
+    "description": "Terms page, section heading."
+  },
+  "termsThirdPartyBody": "If you use the AI Assistant or Google Drive sync, you are also bound by that provider's own terms: Anthropic's, Google's Gemini API terms, or Google's own Terms of Service for your Drive account. CVForge has no control over, and no responsibility for, those providers' services.",
+  "@termsThirdPartyBody": {
+    "description": "Terms page, body of the third-party section. 'Anthropic', 'Gemini API' and 'Google' are product/company names."
+  },
+  "termsThirdPartyTitle": "Third-party services",
+  "@termsThirdPartyTitle": {
+    "description": "Terms page, section heading."
+  },
+  "termsTitle": "Terms of Service",
+  "@termsTitle": {
+    "description": "Terms page, page title."
+  },
+  "termsYourDataBody": "Because CVForge stores your Vault and CVs only in your own browser (and, if you choose to enable it, your own Google Drive), you are responsible for keeping your own backups. Clearing your browser's site data, or disconnecting Drive sync incorrectly, can result in permanent data loss that CVForge cannot recover on your behalf.",
+  "@termsYourDataBody": {
+    "description": "Terms page, body of the user-responsibility section."
+  },
+  "termsYourDataTitle": "Your data, your responsibility",
+  "@termsYourDataTitle": {
+    "description": "Terms page, section heading."
+  },
+  "vaultAddBasics": "Add your basics",
+  "@vaultAddBasics": {
+    "description": "Vault action shown when no personal details have been entered yet."
+  },
+  "vaultAddEducation": "Add education",
+  "@vaultAddEducation": {
+    "description": "Vault button that adds a new education entry."
+  },
+  "vaultAddExperience": "Add experience",
+  "@vaultAddExperience": {
+    "description": "Vault button that adds a new job entry."
+  },
+  "vaultAddProject": "Add project",
+  "@vaultAddProject": {
+    "description": "Vault button that adds a new project entry."
+  },
+  "vaultAddPublication": "Add publication",
+  "@vaultAddPublication": {
+    "description": "Vault button that adds a new publication entry."
+  },
+  "vaultBasicsDeleteLink": "Delete link",
+  "@vaultBasicsDeleteLink": {
+    "description": "Tooltip on the button removing one link row."
+  },
+  "vaultBasicsEmail": "Email",
+  "@vaultBasicsEmail": {
+    "description": "Vault basics form field label."
+  },
+  "vaultBasicsFullName": "Full name",
+  "@vaultBasicsFullName": {
+    "description": "Vault basics form field label."
+  },
+  "vaultBasicsHeadline": "Headline",
+  "@vaultBasicsHeadline": {
+    "description": "Vault basics form field label. A short professional title line shown under the name on a CV."
+  },
+  "vaultBasicsHeadlineHint": "e.g. Senior Software Engineer",
+  "@vaultBasicsHeadlineHint": {
+    "description": "Vault basics headline field placeholder. Replace the example with one natural in the target language."
+  },
+  "vaultBasicsLinkLabel": "Label",
+  "@vaultBasicsLinkLabel": {
+    "description": "Vault basics form field label for a link's display name."
+  },
+  "vaultBasicsLinkLabelHint": "e.g. LinkedIn",
+  "@vaultBasicsLinkLabelHint": {
+    "description": "Vault basics link-label placeholder. LinkedIn is a product name; keep it."
+  },
+  "vaultBasicsLinks": "Links",
+  "@vaultBasicsLinks": {
+    "description": "Vault basics sub-heading above the list of profile links."
+  },
+  "vaultBasicsLinkUrl": "URL",
+  "@vaultBasicsLinkUrl": {
+    "description": "Vault basics form field label for a link's web address."
+  },
+  "vaultBasicsLocation": "Location",
+  "@vaultBasicsLocation": {
+    "description": "Vault basics form field label — the city or region the candidate is based in."
+  },
+  "vaultBasicsPhone": "Phone",
+  "@vaultBasicsPhone": {
+    "description": "Vault basics form field label."
+  },
+  "vaultBasicsReferences": "References",
+  "@vaultBasicsReferences": {
+    "description": "Vault basics form field label. On a CV, a note about who can vouch for the candidate."
+  },
+  "vaultBasicsReferencesHint": "e.g. \"Available on request.\"",
+  "@vaultBasicsReferencesHint": {
+    "description": "Vault basics references placeholder. 'Available on request' is the conventional English phrase — use the equivalent convention in the target market."
+  },
+  "vaultBasicsSummary": "Professional summary",
+  "@vaultBasicsSummary": {
+    "description": "Vault basics form field label. A short paragraph opening the CV."
+  },
+  "vaultBasicsTitle": "Basics",
+  "@vaultBasicsTitle": {
+    "description": "Vault section heading for personal and contact details."
+  },
+  "vaultBulletAddSkill": "Add skill",
+  "@vaultBulletAddSkill": {
+    "description": "Vault button that creates a new skill from the typed search text."
+  },
+  "vaultBulletCategory": "Category",
+  "@vaultBulletCategory": {
+    "description": "Vault form label for which category a newly added skill goes into."
+  },
+  "vaultBulletDelete": "Delete bullet",
+  "@vaultBulletDelete": {
+    "description": "Tooltip on the button removing one bullet point."
+  },
+  "vaultBulletLabel": "Label (optional)",
+  "@vaultBulletLabel": {
+    "description": "Vault bullet form field label — an optional short tag grouping bullets."
+  },
+  "vaultBulletLabelHint": "e.g. Performance",
+  "@vaultBulletLabelHint": {
+    "description": "Vault bullet label placeholder."
+  },
+  "vaultBulletLinkedSkills": "{count, plural, =1{Linked to 1 skill} other{Linked to {count} skills}}",
+  "@vaultBulletLinkedSkills": {
+    "description": "Vault, summary of how many skills are tied to this bullet.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "vaultBulletLinkToSkills": "Link to skills",
+  "@vaultBulletLinkToSkills": {
+    "description": "Vault action opening the picker that ties skills to this bullet."
+  },
+  "vaultBulletNewCategory": "New category…",
+  "@vaultBulletNewCategory": {
+    "description": "Vault dropdown option that creates a new skill category instead of picking an existing one."
+  },
+  "vaultBulletNewCategoryName": "New category name",
+  "@vaultBulletNewCategoryName": {
+    "description": "Vault form field label for naming a newly created skill category."
+  },
+  "vaultBulletNoSkillMatches": "No skills match your search.",
+  "@vaultBulletNoSkillMatches": {
+    "description": "Vault empty state in the skill-link picker when the search matches nothing."
+  },
+  "vaultBulletNoSkillsYet": "No skills in your Vault yet.",
+  "@vaultBulletNoSkillsYet": {
+    "description": "Vault empty state in the skill-link picker when the Vault holds no skills at all."
+  },
+  "vaultBulletSearchSkills": "Search or add a skill…",
+  "@vaultBulletSearchSkills": {
+    "description": "Vault placeholder in the skill-link search field."
+  },
+  "vaultBulletsEmpty": "No bullets yet.",
+  "@vaultBulletsEmpty": {
+    "description": "Vault empty state for an entry with no bullet points."
+  },
+  "vaultBulletSkillNotInVault": "\"{query}\" isn't in your Vault yet",
+  "@vaultBulletSkillNotInVault": {
+    "description": "Vault, shown in the skill picker when the typed text matches no existing skill, offering to create it.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "Kubernetes"
+      }
+    }
+  },
+  "vaultBulletsTitle": "Bullets",
+  "@vaultBulletsTitle": {
+    "description": "Vault sub-heading above the achievement lines belonging to a role or project."
+  },
+  "vaultBulletText": "Text",
+  "@vaultBulletText": {
+    "description": "Vault bullet form field label for the bullet's own wording."
+  },
+  "vaultConfirmDeleteFallbackTitle": "Delete this?",
+  "@vaultConfirmDeleteFallbackTitle": {
+    "description": "Fallback title for the delete-confirmation dialog when a caller supplies none. Callers normally pass something specific."
+  },
+  "vaultDeleteCategoryBody": "This removes it and all of its skills.",
+  "@vaultDeleteCategoryBody": {
+    "description": "Confirmation dialog body for deleting a skill category."
+  },
+  "vaultDeleteCategoryTitle": "Delete this category?",
+  "@vaultDeleteCategoryTitle": {
+    "description": "Confirmation dialog title for deleting a skill category from the Vault."
+  },
+  "vaultDeleteExperienceTitle": "Delete this experience?",
+  "@vaultDeleteExperienceTitle": {
+    "description": "Confirmation dialog title for deleting one job/role from the Vault."
+  },
+  "vaultDeleteProjectTitle": "Delete this project?",
+  "@vaultDeleteProjectTitle": {
+    "description": "Confirmation dialog title for deleting one project from the Vault."
+  },
+  "vaultDeletePublicationTitle": "Delete this publication?",
+  "@vaultDeletePublicationTitle": {
+    "description": "Confirmation dialog title for deleting one publication from the Vault."
+  },
+  "vaultDeleteQualificationTitle": "Delete this qualification?",
+  "@vaultDeleteQualificationTitle": {
+    "description": "Confirmation dialog title for deleting one education entry from the Vault."
+  },
+  "vaultDeleteUndoneBody": "This can't be undone.",
+  "@vaultDeleteUndoneBody": {
+    "description": "Confirmation dialog body for deleting an entry that owns nothing else."
+  },
+  "vaultDeleteWithBulletsBody": "This removes it and all of its bullets. This can't be undone.",
+  "@vaultDeleteWithBulletsBody": {
+    "description": "Confirmation dialog body used when deleting an entry that owns bullet points. 'Bullets' are the achievement lines under a role or project."
+  },
+  "vaultEducationDetails": "Details (optional)",
+  "@vaultEducationDetails": {
+    "description": "Vault education form field label for any extra notes."
+  },
+  "vaultEducationGrade": "Grade (optional)",
+  "@vaultEducationGrade": {
+    "description": "Vault education form field label — the classification or result achieved."
+  },
+  "vaultEducationGradeHint": "e.g. First Class Honours",
+  "@vaultEducationGradeHint": {
+    "description": "Vault education grade placeholder. 'First Class Honours' is a UK grading term — substitute the target market's own convention."
+  },
+  "vaultEducationInstitution": "Institution",
+  "@vaultEducationInstitution": {
+    "description": "Vault education form field label — the university, college or school."
+  },
+  "vaultEducationLocation": "Location (optional)",
+  "@vaultEducationLocation": {
+    "description": "Vault education form field label."
+  },
+  "vaultEducationNew": "New qualification",
+  "@vaultEducationNew": {
+    "description": "Vault placeholder title for an education entry with no name yet."
+  },
+  "vaultEducationQualification": "Qualification",
+  "@vaultEducationQualification": {
+    "description": "Vault education form field label — the degree or certificate earned."
+  },
+  "vaultEducationQualificationHint": "e.g. BSc Computer Science",
+  "@vaultEducationQualificationHint": {
+    "description": "Vault education placeholder. Replace with a qualification name natural in the target market."
+  },
+  "vaultEducationYear": "Year (optional)",
+  "@vaultEducationYear": {
+    "description": "Vault education form field label — the year the qualification was completed."
+  },
+  "vaultEmptyBody": "Add your work history, skills, and education here — this is your master record, separate from any CV you export.",
+  "@vaultEmptyBody": {
+    "description": "Vault first-run empty state body, explaining the Vault holds everything while a CV is a selected subset."
+  },
+  "vaultEmptyLoadExample": "Load example CV",
+  "@vaultEmptyLoadExample": {
+    "description": "Vault first-run button that fills the Vault with sample content so the app can be explored."
+  },
+  "vaultEmptyStartScratch": "Start from scratch",
+  "@vaultEmptyStartScratch": {
+    "description": "Vault first-run button that begins with an empty Vault."
+  },
+  "vaultEmptyTitle": "Your Vault is empty",
+  "@vaultEmptyTitle": {
+    "description": "Vault first-run empty state heading."
+  },
+  "vaultExperienceCompany": "Company",
+  "@vaultExperienceCompany": {
+    "description": "Vault experience form field label — the employer's name."
+  },
+  "vaultExperienceCurrent": "I currently work here",
+  "@vaultExperienceCurrent": {
+    "description": "Vault experience checkbox that marks the role as ongoing and hides the end date fields."
+  },
+  "vaultExperienceEndMonth": "End month",
+  "@vaultExperienceEndMonth": {
+    "description": "Vault experience form field label for when the role ended."
+  },
+  "vaultExperienceEndYear": "End year",
+  "@vaultExperienceEndYear": {
+    "description": "Vault experience form field label for when the role ended."
+  },
+  "vaultExperienceLocation": "Location",
+  "@vaultExperienceLocation": {
+    "description": "Vault experience form field label."
+  },
+  "vaultExperienceNew": "New experience",
+  "@vaultExperienceNew": {
+    "description": "Vault placeholder title for a job entry with no role name yet."
+  },
+  "vaultExperiencePromotionGroup": "Promotion — group with",
+  "@vaultExperiencePromotionGroup": {
+    "description": "Vault experience field that ties this role to an earlier one at the same employer, so the CV shows them as one company with several positions."
+  },
+  "vaultExperienceRole": "Role",
+  "@vaultExperienceRole": {
+    "description": "Vault experience form field label — the job title held."
+  },
+  "vaultExperienceStartMonth": "Start month",
+  "@vaultExperienceStartMonth": {
+    "description": "Vault experience form field label for when the role began."
+  },
+  "vaultExperienceStartYear": "Start year",
+  "@vaultExperienceStartYear": {
+    "description": "Vault experience form field label for when the role began."
+  },
+  "vaultHobbiesCount": "{count, plural, =1{1 hobby} other{{count} hobbies}}",
+  "@vaultHobbiesCount": {
+    "description": "Vault summary card line counting hobbies. English has an irregular plural here (hobby/hobbies); other languages may need different plural categories.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "vaultHobbiesEmptyShort": "Nothing yet.",
+  "@vaultHobbiesEmptyShort": {
+    "description": "Vault empty state inside the hobbies editor."
+  },
+  "vaultHobbiesItems": "Items",
+  "@vaultHobbiesItems": {
+    "description": "Vault sub-heading above the list of individual hobbies."
+  },
+  "vaultHobbiesNoneYet": "None yet",
+  "@vaultHobbiesNoneYet": {
+    "description": "Vault summary card text when no hobbies have been added."
+  },
+  "vaultHobbiesTitle": "Hobbies and interests",
+  "@vaultHobbiesTitle": {
+    "description": "Vault section heading for personal interests."
+  },
+  "vaultInvalidUrlNotice": "That page doesn't exist — here's your Vault.",
+  "@vaultInvalidUrlNotice": {
+    "description": "One-shot notice shown when the user lands on a URL that matches no route and is redirected to the Vault."
+  },
+  "vaultNoEducation": "No education yet.",
+  "@vaultNoEducation": {
+    "description": "Vault empty state for the education section."
+  },
+  "vaultNoExperience": "No experience yet.",
+  "@vaultNoExperience": {
+    "description": "Vault empty state for the work history section."
+  },
+  "vaultNoProjects": "No projects yet.",
+  "@vaultNoProjects": {
+    "description": "Vault empty state for the projects section."
+  },
+  "vaultNoPublications": "No publications yet.",
+  "@vaultNoPublications": {
+    "description": "Vault empty state for the publications section."
+  },
+  "vaultNoSearchMatches": "No matches for your search.",
+  "@vaultNoSearchMatches": {
+    "description": "Vault empty state when the whole-Vault search matches nothing."
+  },
+  "vaultNoSkillsYet": "No skills yet",
+  "@vaultNoSkillsYet": {
+    "description": "Vault summary card text when no skills have been added."
+  },
+  "vaultPersistError": "Your last change couldn't be saved.",
+  "@vaultPersistError": {
+    "description": "Vault banner shown when a write to local storage failed."
+  },
+  "vaultProjectLink": "Link (optional)",
+  "@vaultProjectLink": {
+    "description": "Vault project form field label for a URL showing the project."
+  },
+  "vaultProjectLinkHint": "e.g. github.com/you/project",
+  "@vaultProjectLinkHint": {
+    "description": "Vault project link placeholder. A URL example — keep the shape."
+  },
+  "vaultProjectNew": "New project",
+  "@vaultProjectNew": {
+    "description": "Vault placeholder title for a project entry with no title yet."
+  },
+  "vaultProjectTitle": "Title",
+  "@vaultProjectTitle": {
+    "description": "Vault project form field label."
+  },
+  "vaultPublicationCitation": "Citation (optional)",
+  "@vaultPublicationCitation": {
+    "description": "Vault publication form field label for the full academic citation."
+  },
+  "vaultPublicationCitationHint": "e.g. Trujillo, L. (2021). Journal Name, 11(2), 194–206.",
+  "@vaultPublicationCitationHint": {
+    "description": "Vault publication citation placeholder. Keep the citation shape; the target market's own citation style may differ."
+  },
+  "vaultPublicationLink": "Link (optional)",
+  "@vaultPublicationLink": {
+    "description": "Vault publication form field label for a URL or DOI."
+  },
+  "vaultPublicationLinkHint": "e.g. doi.org/10.1234/example",
+  "@vaultPublicationLinkHint": {
+    "description": "Vault publication link placeholder. 'doi.org' is a real domain — keep it."
+  },
+  "vaultPublicationNew": "New publication",
+  "@vaultPublicationNew": {
+    "description": "Vault placeholder title for a publication entry with no title yet."
+  },
+  "vaultPublicationTitle": "Title",
+  "@vaultPublicationTitle": {
+    "description": "Vault publication form field label."
+  },
+  "vaultPublicationTitleHint": "e.g. Community resistance in Doña Juana",
+  "@vaultPublicationTitleHint": {
+    "description": "Vault publication title placeholder — an example paper title. Replace with one natural in the target language."
+  },
+  "vaultQualificationAtInstitution": "{qualification} · {institution}",
+  "@vaultQualificationAtInstitution": {
+    "description": "Vault, one line naming an education entry by qualification and institution.",
+    "placeholders": {
+      "qualification": {
+        "type": "String",
+        "example": "BSc Computer Science"
+      },
+      "institution": {
+        "type": "String",
+        "example": "University of Leeds"
+      }
+    }
+  },
+  "vaultRoleAtCompany": "{role} · {company}",
+  "@vaultRoleAtCompany": {
+    "description": "Vault, one line naming a job by role and employer, used in the bullet picker so a bullet can be told apart from a similar one elsewhere.",
+    "placeholders": {
+      "role": {
+        "type": "String",
+        "example": "Senior Engineer"
+      },
+      "company": {
+        "type": "String",
+        "example": "Acme Ltd"
+      }
+    }
+  },
+  "vaultSearch": "Search your Vault…",
+  "@vaultSearch": {
+    "description": "Placeholder in the search field above the Vault's entry list."
+  },
+  "vaultSectionEducation": "Education",
+  "@vaultSectionEducation": {
+    "description": "Vault list section heading for qualifications."
+  },
+  "vaultSectionExperience": "Work history",
+  "@vaultSectionExperience": {
+    "description": "Vault list section heading for jobs and roles. Note this is the Vault's own picker label, deliberately independent of the heading printed on the CV."
+  },
+  "vaultSectionProjects": "Projects",
+  "@vaultSectionProjects": {
+    "description": "Vault list section heading for projects."
+  },
+  "vaultSectionPublications": "Publications",
+  "@vaultSectionPublications": {
+    "description": "Vault list section heading for published work."
+  },
+  "vaultSkillLinkedBullets": "{count, plural, =1{Linked to 1 bullet} other{Linked to {count} bullets}}",
+  "@vaultSkillLinkedBullets": {
+    "description": "Vault, summary of how many bullet points this skill is tied to.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "vaultSkillLinkToBullets": "Link to bullets",
+  "@vaultSkillLinkToBullets": {
+    "description": "Vault action opening the picker that ties this skill to bullet points."
+  },
+  "vaultSkillNoBulletMatches": "No bullets match your search.",
+  "@vaultSkillNoBulletMatches": {
+    "description": "Vault empty state in the bullet-link picker when the search matches nothing."
+  },
+  "vaultSkillsAddCategory": "Add category",
+  "@vaultSkillsAddCategory": {
+    "description": "Vault button that creates a new, empty skill category."
+  },
+  "vaultSkillsAddSkill": "Add skill",
+  "@vaultSkillsAddSkill": {
+    "description": "Vault button that adds a new, empty skill to a category."
+  },
+  "vaultSkillsCategories": "Categories",
+  "@vaultSkillsCategories": {
+    "description": "Vault sub-heading above the skill category list."
+  },
+  "vaultSkillsCategoryName": "Category name",
+  "@vaultSkillsCategoryName": {
+    "description": "Vault form field label for a skill category's name."
+  },
+  "vaultSkillsCategoryNameHint": "e.g. Languages & Frameworks",
+  "@vaultSkillsCategoryNameHint": {
+    "description": "Vault skill category name placeholder."
+  },
+  "vaultSkillsDeleteCategory": "Delete category",
+  "@vaultSkillsDeleteCategory": {
+    "description": "Tooltip on the button removing a whole skill category."
+  },
+  "vaultSkillsDeleteSkill": "Delete skill",
+  "@vaultSkillsDeleteSkill": {
+    "description": "Tooltip on the button removing one skill."
+  },
+  "vaultSkillSearchBullets": "Search bullets…",
+  "@vaultSkillSearchBullets": {
+    "description": "Vault placeholder in the bullet-link search field."
+  },
+  "vaultSkillsNoCategories": "No skill categories yet.",
+  "@vaultSkillsNoCategories": {
+    "description": "Vault empty state when no skill categories exist."
+  },
+  "vaultSkillsNoMatches": "No skills match your search.",
+  "@vaultSkillsNoMatches": {
+    "description": "Vault empty state when the skills search matches nothing."
+  },
+  "vaultSkillsSearch": "Search skills…",
+  "@vaultSkillsSearch": {
+    "description": "Vault placeholder in the skills search field."
+  },
+  "vaultSkillsSkillLabel": "Skill",
+  "@vaultSkillsSkillLabel": {
+    "description": "Vault form field label for one skill's name."
+  },
+  "vaultSkillsSummary": "{categories} categories, {skills} skills",
+  "@vaultSkillsSummary": {
+    "description": "Vault summary card line counting skill categories and skills.",
+    "placeholders": {
+      "categories": {
+        "type": "int",
+        "example": "4"
+      },
+      "skills": {
+        "type": "int",
+        "example": "23"
+      }
+    }
+  },
+  "vaultSkillsTitle": "Skills",
+  "@vaultSkillsTitle": {
+    "description": "Vault section heading for the user's skills."
+  },
+  "vaultUntitledProject": "Untitled project",
+  "@vaultUntitledProject": {
+    "description": "Placeholder shown wherever a project is referenced but has no title yet."
+  },
+  "vaultUntitledPublication": "Untitled publication",
+  "@vaultUntitledPublication": {
+    "description": "Placeholder shown wherever a publication is referenced but has no title yet."
+  },
+  "vaultUntitledQualification": "Untitled qualification",
+  "@vaultUntitledQualification": {
+    "description": "Placeholder shown wherever an education entry is referenced but has no qualification name yet."
+  },
+  "vaultUntitledRole": "Untitled role",
+  "@vaultUntitledRole": {
+    "description": "Placeholder shown wherever a job entry is referenced but has no role name filled in yet."
+  },
+  "vaultYearInvalid": "Enter a valid year",
+  "@vaultYearInvalid": {
+    "description": "Vault form validation: the year field holds something that is not a number."
+  },
+  "vaultYearOutOfRange": "Enter a year between {min} and {max}",
+  "@vaultYearOutOfRange": {
+    "description": "Vault form validation: the year is a number but outside the accepted range.",
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "example": "1900"
+      },
+      "max": {
+        "type": "int",
+        "example": "2036"
+      }
+    }
+  },
+  "vaultYearRequired": "Enter a year",
+  "@vaultYearRequired": {
+    "description": "Vault form validation: the year field was left empty."
+  }
+}

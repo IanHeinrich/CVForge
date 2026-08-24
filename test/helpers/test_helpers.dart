@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:cv_forge/app/app.locator.dart';
@@ -28,6 +29,8 @@ import 'package:cv_forge/services/drive_sync_service.dart';
 // PdfExtractionService just above), but every service the app can
 // resolve still needs a mock here regardless of how it's wired.
 import 'package:cv_forge/services/google_auth_service.dart';
+import 'package:cv_forge/l10n/generated/app_localizations_en.dart';
+import 'package:cv_forge/services/localization_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -59,6 +62,7 @@ import 'test_helpers.mocks.dart';
     MockSpec<DriveApiClientService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<DriveSyncService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<GoogleAuthService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<LocalizationService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -83,6 +87,7 @@ void registerServices() {
   getAndRegisterDriveApiClientService();
   getAndRegisterDriveSyncService();
   getAndRegisterGoogleAuthService();
+  getAndRegisterLocalizationService();
   // @stacked-mock-register
 }
 
@@ -277,6 +282,25 @@ MockGoogleAuthService getAndRegisterGoogleAuthService() {
   _removeRegistrationIfExists<GoogleAuthService>();
   final service = MockGoogleAuthService();
   locator.registerSingleton<GoogleAuthService>(service);
+  return service;
+}
+
+/// Stubbed with the *real* English localizations, not a bare mock, for the
+/// same reason [getAndRegisterTemplateRegistryService] hands back real
+/// templates: every View and most ViewModels read `strings` on every build,
+/// and an unstubbed getter returns a dummy that throws on first access — the
+/// trap `AppSettings` already sprang on the golden tests.
+///
+/// It also means a test asserting on English copy keeps passing untouched as
+/// strings move into the ARB, which is what makes the extraction sweep
+/// reviewable.
+MockLocalizationService getAndRegisterLocalizationService() {
+  _removeRegistrationIfExists<LocalizationService>();
+  final service = MockLocalizationService();
+  when(service.strings).thenReturn(AppLocalizationsEn());
+  when(service.resolvedLocale).thenReturn(const Locale('en'));
+  when(service.selectedLocale).thenReturn(null);
+  locator.registerSingleton<LocalizationService>(service);
   return service;
 }
 // @stacked-mock-create

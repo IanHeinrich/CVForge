@@ -5,6 +5,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:cv_forge/ui/widgets/common/brand_mark_loader/brand_mark_loader.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -35,16 +36,16 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
-      title: 'Tailor with AI',
+      title: context.l10n.studioAiDialogTitle,
       maxWidth: 480,
       cancelLabel: viewModel.phase == AiAssistantRunPhase.result
-          ? 'Close'
-          : 'Cancel',
+          ? context.l10n.commonClose
+          : context.l10n.commonCancel,
       confirmLabel: switch (viewModel.phase) {
-        AiAssistantRunPhase.confirm => 'Run',
-        AiAssistantRunPhase.running => 'Running…',
-        AiAssistantRunPhase.result => 'Done',
-        AiAssistantRunPhase.error => 'Try again',
+        AiAssistantRunPhase.confirm => context.l10n.commonRun,
+        AiAssistantRunPhase.running => context.l10n.commonRunning,
+        AiAssistantRunPhase.result => context.l10n.commonDone,
+        AiAssistantRunPhase.error => context.l10n.commonTryAgain,
       },
       // Blocked while running rather than left dismissible — closing
       // mid-flight would abandon a callback into a disposed ViewModel
@@ -72,18 +73,12 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
       case AiAssistantRunPhase.confirm:
         return [
           Text(
-            'This sends the job description below and your CV content — '
-            'not your name, email, phone, or links — to '
-            '${viewModel.providerDisplayName}, using your own API key. '
-            'There is no CVForge server in between. This can take up to '
-            'a few minutes — the model reasons through your whole Vault '
-            'before responding.',
+            context.l10n.studioAiDialogPrivacy(viewModel.providerDisplayName),
             style: context.appTypography.bodySmall,
           ),
           const VGap.small(),
           Text(
-            'Tailored for ${viewModel.regionDisplayName} — the assistant '
-            "follows that market's length, spelling, and tone conventions.",
+            context.l10n.studioAiDialogRegionNote(viewModel.regionDisplayName),
             style: context.appTypography.bodySmall,
           ),
           const VGap.small(),
@@ -114,14 +109,15 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
             // The forging mark rather than a spinner: this wait runs to tens
             // of seconds, long enough that a spinner starts reading as a
             // stall. See BrandMarkLoader for where that line is drawn.
-            child: const Center(
-              child: BrandMarkLoader(semanticsLabel: 'Tailoring your CV'),
+            child: Center(
+              child: BrandMarkLoader(
+                semanticsLabel: context.l10n.studioAiRunningTitle,
+              ),
             ),
           ),
           Center(
             child: Text(
-              'This can take up to a few minutes. Please keep this dialog '
-              'open.',
+              context.l10n.studioAiRunningBody,
               style: context.appTypography.bodySmall,
             ),
           ),
@@ -130,25 +126,31 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
       case AiAssistantRunPhase.result:
         final result = viewModel.result!;
         return [
-          Text('Rationale', style: context.appTypography.titleSmall),
+          Text(
+            context.l10n.studioAiRationale,
+            style: context.appTypography.titleSmall,
+          ),
           const VGap.tiny(),
           Text(result.rationale, style: context.appTypography.bodySmall),
           if (result.keywordGaps.isNotEmpty) ...[
             const VGap.small(),
             Text(
-              "Not covered by your Vault",
+              context.l10n.studioAiKeywordGaps,
               style: context.appTypography.titleSmall,
             ),
             const VGap.tiny(),
             for (final gap in result.keywordGaps)
-              Text('• $gap', style: context.appTypography.bodySmall),
+              Text(
+                context.l10n.studioAiGapItem(gap),
+                style: context.appTypography.bodySmall,
+              ),
           ],
         ];
 
       case AiAssistantRunPhase.error:
         return [
           Text(
-            viewModel.errorMessage ?? 'Something went wrong.',
+            viewModel.errorMessage ?? context.l10n.studioAiFailedTitle,
             style: context.appTypography.bodySmall.copyWith(
               color: kcErrorColor,
             ),

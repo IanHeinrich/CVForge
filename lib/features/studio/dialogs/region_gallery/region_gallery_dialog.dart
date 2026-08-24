@@ -8,6 +8,9 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
+import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -55,7 +58,7 @@ class RegionGalleryDialog extends StackedView<RegionGalleryDialogModel> {
     return AppDialogScaffold(
       title: viewModel.title,
       maxWidth: 760,
-      cancelLabel: 'Cancel',
+      cancelLabel: context.l10n.commonCancel,
       confirmLabel: viewModel.confirmLabel,
       onCancel: () =>
           completer(DialogResponse<RegionProfile>(confirmed: false)),
@@ -177,7 +180,7 @@ class _RegionListRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      preset.displayName,
+                      region.displayName(context.l10n),
                       style: context.appTypography.bodySmall.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
@@ -188,7 +191,7 @@ class _RegionListRow extends StatelessWidget {
                     // the longest two would otherwise lose their last
                     // entry. Uneven row heights are the cheaper cost.
                     Text(
-                      preset.coverage,
+                      region.coverage(context.l10n),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: context.appTypography.caption.copyWith(
@@ -240,49 +243,52 @@ class _RegionDetail extends StatelessWidget {
         children: [
           _DetailRow(
             icon: RemixIcons.file_paper_2_line,
-            label: 'Page size',
-            value: preset.page.displayLabel,
+            label: context.l10n.studioRegionPageSize,
+            value: preset.page.displayLabel(context.l10n),
           ),
           const VGap.tiny(),
           _DetailRow(
             icon: RemixIcons.file_list_2_line,
-            label: 'Typical length',
-            value: preset.lengthNote,
+            label: context.l10n.studioRegionTypicalLength,
+            value: region.lengthNote(context.l10n),
           ),
           const VGap.tiny(),
           _DetailRow(
             icon: RemixIcons.translate_2,
-            label: 'Spelling',
-            value: preset.spelling.displayLabel,
+            label: context.l10n.studioRegionSpelling,
+            value: preset.spelling.displayLabel(context.l10n),
           ),
           const VGap.tiny(),
           _DetailRow(
             icon: RemixIcons.user_line,
-            label: 'Photo',
-            value: preset.photo.displayLabel,
+            label: context.l10n.studioRegionPhoto,
+            value: preset.photo.displayLabel(context.l10n),
           ),
           const VGap.tiny(),
           _DetailRow(
             icon: RemixIcons.profile_line,
-            label: 'Personal details',
-            value: preset.personalDetails.displayLabel,
+            label: context.l10n.studioRegionPersonalDetails,
+            value: preset.personalDetails.displayLabel(context.l10n),
           ),
           const VGap.tiny(),
           _DetailRow(
             icon: RemixIcons.calendar_line,
-            label: 'Dates',
-            value: preset.dateStyle.displayLabel,
+            label: context.l10n.studioRegionDates,
+            value: preset.dateStyle.displayLabel(context.l10n),
           ),
           const VGap.tiny(),
           _DetailRow(
             icon: RemixIcons.text,
-            label: 'Known locally as',
+            label: context.l10n.studioRegionLocalName,
             value: preset.localName,
           ),
           const VGap.small(),
-          Text(preset.toneNote, style: context.appTypography.bodySmall),
+          Text(
+            region.toneNote(context.l10n),
+            style: context.appTypography.bodySmall,
+          ),
           const VGap.small(),
-          for (final convention in preset.conventions)
+          for (final convention in region.conventions(context.l10n))
             Padding(
               padding: EdgeInsets.only(bottom: context.appSpacing.gapTiny),
               child: Row(
@@ -340,7 +346,7 @@ class _DetailRow extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               children: [
-                TextSpan(text: '$label: '),
+                TextSpan(text: context.l10n.studioRegionDetailRow(label)),
                 TextSpan(
                   text: value,
                   style: TextStyle(

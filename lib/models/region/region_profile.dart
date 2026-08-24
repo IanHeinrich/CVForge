@@ -155,67 +155,19 @@ class RegionPreset {
   final List<String> conventions;
 }
 
-extension PdfPageFormatTokenLabel on PdfPageFormatToken {
-  /// Includes the physical dimensions, since "A4" versus "Letter" only
-  /// means something to a reader who already knows the difference — the
-  /// region picker exists partly to explain it.
-  String get displayLabel => switch (this) {
-    PdfPageFormatToken.a4 => 'A4 (210 × 297 mm)',
-    PdfPageFormatToken.letter => 'US Letter (8.5 × 11 in)',
-  };
-}
-
-extension RegionDateStyleLabel on RegionDateStyle {
-  String get displayLabel => switch (this) {
-    RegionDateStyle.monYyyy => 'Mon YYYY (e.g. Jun 2023)',
-  };
-}
-
-extension RegionDocumentNounLabel on RegionDocumentNoun {
-  /// Mid-sentence: "Upload a PDF CV", "Upload a PDF résumé".
-  String get lower => switch (this) {
-    RegionDocumentNoun.cv => 'CV',
-    RegionDocumentNoun.resume => 'résumé',
-  };
-
-  String get capitalized => switch (this) {
-    RegionDocumentNoun.cv => 'CV',
-    RegionDocumentNoun.resume => 'Résumé',
-  };
-
-  String get plural => switch (this) {
-    RegionDocumentNoun.cv => 'CVs',
-    RegionDocumentNoun.resume => 'résumés',
-  };
-
-  String get pluralCapitalized => switch (this) {
-    RegionDocumentNoun.cv => 'CVs',
-    RegionDocumentNoun.resume => 'Résumés',
-  };
-}
-
-/// [displayLabel] is the short form for the region picker's detail rows;
-/// [promptLabel] is the instruction-register version for the AI Assistant's
-/// region block. Two consumers with genuinely different registers, so one
-/// shared string would be wrong in both.
+/// The instruction-register version of each stance, for the AI Assistant's
+/// region block. Its short display counterpart now lives in
+/// `lib/ui/common/l10n/model_labels.dart`: two consumers with genuinely
+/// different registers, so one shared string would be wrong in both — and
+/// now they are two files as well as two strings, because only one of them
+/// is translated. These stay English; the model is instructed in English,
+/// and translating a prompt changes its behaviour.
 ///
 /// The stances describing something the Vault cannot hold carry their own
 /// anti-fabrication guard inline — telling a model a photograph is expected,
 /// while handing it a Vault with no photo field, is otherwise an invitation
 /// to invent one.
-extension RegionPhotoStanceLabel on RegionPhotoStance {
-  /// One scale, read as answers to "should this CV carry a photo?" — so
-  /// the four read against each other rather than each describing the
-  /// market its own way. "Not expected" for the UK understated a market
-  /// where equality law makes a photo a liability; the severity now sits
-  /// after the dash, where it can differ without the answer differing.
-  String get displayLabel => switch (this) {
-    RegionPhotoStance.prohibited => 'No — an automatic rejection',
-    RegionPhotoStance.discouraged => 'No — strongly discouraged',
-    RegionPhotoStance.optional => 'Optional',
-    RegionPhotoStance.expected => 'Usually expected',
-  };
-
+extension RegionPhotoStancePrompt on RegionPhotoStance {
   String get promptLabel => switch (this) {
     RegionPhotoStance.prohibited =>
       'Employers here discard documents carrying a photograph. Never '
@@ -232,17 +184,7 @@ extension RegionPhotoStanceLabel on RegionPhotoStance {
   };
 }
 
-extension RegionPersonalDetailsStanceLabel on RegionPersonalDetailsStance {
-  /// Same scale treatment as [RegionPhotoStanceLabel.displayLabel]: each
-  /// says what the header actually carries, so the three can be compared
-  /// rather than each describing its market differently.
-  String get displayLabel => switch (this) {
-    RegionPersonalDetailsStance.omit => 'Name and contact only',
-    RegionPersonalDetailsStance.minimal => 'Name, contact, city',
-    RegionPersonalDetailsStance.traditional =>
-      'Name, contact, date of birth, nationality',
-  };
-
+extension RegionPersonalDetailsStancePrompt on RegionPersonalDetailsStance {
   String get promptLabel => switch (this) {
     RegionPersonalDetailsStance.omit =>
       'Personal details are limited to name and contact information. Date '
@@ -257,13 +199,7 @@ extension RegionPersonalDetailsStanceLabel on RegionPersonalDetailsStance {
   };
 }
 
-extension RegionSpellingLabel on RegionSpelling {
-  String get displayLabel => switch (this) {
-    RegionSpelling.enGb => 'British English',
-    RegionSpelling.enUs => 'US English',
-    RegionSpelling.enAu => 'Australian English',
-  };
-
+extension RegionSpellingPrompt on RegionSpelling {
   String get promptLabel => switch (this) {
     RegionSpelling.enGb =>
       'British English (en-GB): organised, programme, centre, analyse, '

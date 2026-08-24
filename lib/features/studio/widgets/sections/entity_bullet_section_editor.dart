@@ -1,4 +1,5 @@
 import 'package:cv_forge/models/vault/cv_bullet.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
@@ -96,7 +97,11 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
               for (final bullet in bulletsOf(item))
                 SelectorItem(
                   id: bullet.id,
-                  title: bulletTitle(bullet.label, bulletText(bullet)),
+                  title: bulletTitle(
+                    context.l10n,
+                    bullet.label,
+                    bulletText(bullet),
+                  ),
                   selected: isBulletIncluded(item, bullet),
                   onToggle: () => onToggleBullet(item, bullet),
                   tailorable: TailorableField(

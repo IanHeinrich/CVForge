@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -35,7 +36,6 @@ class DraftsCardList extends StatelessWidget {
     if (viewModel.isEmpty) {
       return _DraftsEmptyState(
         documentNoun: viewModel.documentNoun,
-        documentNounPlural: viewModel.documentNounPlural,
         onNewCv: viewModel.createDraft,
       );
     }
@@ -53,7 +53,7 @@ class DraftsCardList extends StatelessWidget {
             children: [
               if (viewModel.hasPersistError) ...[
                 PersistErrorBanner(
-                  message: "Your last change couldn't be saved.",
+                  message: context.l10n.studioDraftsPersistError,
                   onRetry: viewModel.retryPersist,
                 ),
                 const VGap.medium(),
@@ -66,7 +66,9 @@ class DraftsCardList extends StatelessWidget {
                   onChanged: viewModel.setQuery,
                   decoration: InputDecoration(
                     isDense: true,
-                    hintText: 'Search ${viewModel.documentNounPlural}…',
+                    hintText: context.l10n.studioDraftsSearch(
+                      viewModel.documentNoun,
+                    ),
                     prefixIcon: Icon(
                       RemixIcons.search_line,
                       size: context.appIconSize.medium,
@@ -76,9 +78,7 @@ class DraftsCardList extends StatelessWidget {
               ),
               const VGap.medium(),
               if (viewModel.hasNoSearchResults)
-                _NoSearchResults(
-                  documentNounPlural: viewModel.documentNounPlural,
-                )
+                _NoSearchResults(documentNoun: viewModel.documentNoun)
               else
                 Wrap(
                   alignment: WrapAlignment.start,
@@ -108,8 +108,10 @@ class DraftsCardList extends StatelessWidget {
           bottom: context.appSpacing.paddingPage,
           child: FloatingActionButton.extended(
             onPressed: viewModel.createDraft,
-            icon: const Icon(RemixIcons.add_line),
-            label: Text('New ${viewModel.documentNoun}'),
+            icon: Icon(RemixIcons.add_line),
+            label: Text(
+              context.l10n.studioNewDraftTitle(viewModel.documentNoun),
+            ),
           ),
         ),
       ],
@@ -121,9 +123,9 @@ class DraftsCardList extends StatelessWidget {
 /// [_DraftsEmptyState] — there are drafts, just none matching, so this
 /// suggests clearing the search rather than creating a first one.
 class _NoSearchResults extends StatelessWidget {
-  const _NoSearchResults({required this.documentNounPlural});
+  const _NoSearchResults({required this.documentNoun});
 
-  final String documentNounPlural;
+  final String documentNoun;
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +133,7 @@ class _NoSearchResults extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: context.appSpacing.paddingPage),
       child: Center(
         child: Text(
-          'No $documentNounPlural match your search.',
+          context.l10n.studioDraftsNoMatches(documentNoun),
           style: context.appTypography.bodySmall.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -204,8 +206,9 @@ class _DraftCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       draft.name.isEmpty
-                          ? 'Untitled '
-                                '${draft.region.preset.documentNoun.capitalized}'
+                          ? context.l10n.studioDraftUntitled(
+                              draft.region.preset.documentNoun.name,
+                            )
                           : draft.name,
                       style: context.appTypography.bodySmall.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
@@ -222,24 +225,24 @@ class _DraftCard extends StatelessWidget {
                       size: 18,
                     ),
                     padding: EdgeInsets.zero,
-                    tooltip: 'More',
+                    tooltip: context.l10n.commonMore,
                     onSelected: (action) => switch (action) {
                       _DraftCardAction.edit => onEdit(),
                       _DraftCardAction.duplicate => onDuplicate(),
                       _DraftCardAction.delete => onDelete(),
                     },
-                    itemBuilder: (context) => const [
+                    itemBuilder: (context) => [
                       PopupMenuItem(
                         value: _DraftCardAction.edit,
-                        child: Text('Rename / edit notes'),
+                        child: Text(context.l10n.studioDraftRename),
                       ),
                       PopupMenuItem(
                         value: _DraftCardAction.duplicate,
-                        child: Text('Duplicate'),
+                        child: Text(context.l10n.studioDraftDuplicate),
                       ),
                       PopupMenuItem(
                         value: _DraftCardAction.delete,
-                        child: Text('Delete'),
+                        child: Text(context.l10n.commonDelete),
                       ),
                     ],
                   ),
@@ -259,7 +262,7 @@ class _DraftCard extends StatelessWidget {
               // the one piece of metadata (when a CV was last touched)
               // that's actually useful for telling drafts apart.
               Text(
-                'Updated ${_formatDateTime(draft.updatedAt)}',
+                context.l10n.studioDraftUpdated(draft.updatedAt),
                 style: context.appTypography.caption.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -287,14 +290,9 @@ class _DraftCard extends StatelessWidget {
 enum _DraftCardAction { edit, duplicate, delete }
 
 class _DraftsEmptyState extends StatelessWidget {
-  const _DraftsEmptyState({
-    required this.documentNoun,
-    required this.documentNounPlural,
-    required this.onNewCv,
-  });
+  const _DraftsEmptyState({required this.documentNoun, required this.onNewCv});
 
   final String documentNoun;
-  final String documentNounPlural;
   final VoidCallback onNewCv;
 
   @override
@@ -305,19 +303,14 @@ class _DraftsEmptyState extends StatelessWidget {
       // to carry the product. Every other empty state keeps its icon.
       graphic: BrandMark(color: context.appPalette.placeholder),
       icon: RemixIcons.file_text_line,
-      title: 'No $documentNounPlural yet',
-      message:
-          'Create a $documentNoun to start tailoring your Vault for a '
-          'specific application.',
+      title: context.l10n.studioDraftsEmptyTitle(documentNoun),
+      message: context.l10n.studioDraftsEmptyBody(documentNoun),
       actions: [
-        FilledButton(onPressed: onNewCv, child: Text('New $documentNoun')),
+        FilledButton(
+          onPressed: onNewCv,
+          child: Text(context.l10n.studioNewDraftTitle(documentNoun)),
+        ),
       ],
     );
   }
 }
-
-String _formatDateTime(DateTime date) =>
-    '${date.day.toString().padLeft(2, '0')}/'
-    '${date.month.toString().padLeft(2, '0')}/${date.year} '
-    '${date.hour.toString().padLeft(2, '0')}:'
-    '${date.minute.toString().padLeft(2, '0')}';

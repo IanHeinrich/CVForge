@@ -24,6 +24,7 @@ void main() {
       getAndRegisterPdfExportService();
       getAndRegisterRouterService();
       dialogService = getAndRegisterDialogService();
+      getAndRegisterLocalizationService();
       when(vaultService.vault).thenReturn(vaultWith());
       when(draftService.draft).thenReturn(draftWith());
       when(

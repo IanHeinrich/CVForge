@@ -1,5 +1,7 @@
 import 'package:cv_forge/ui/common/app_theme.dart';
 import 'package:flutter/material.dart';
+
+import 'package:cv_forge/l10n/generated/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 
@@ -31,6 +33,12 @@ Future<void> pumpGoldenScreen(WidgetTester tester, Widget view) async {
       ),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        // Pinned rather than left to the test binding's default, so a
+        // baseline can never move because the binding changed its mind about
+        // what locale a test starts in.
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: buildAppTheme(),
         home: view,
       ),

@@ -6,6 +6,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -102,12 +103,13 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('AI Assistant', style: context.appTypography.titleMedium),
+          Text(
+            context.l10n.settingsAiTitle,
+            style: context.appTypography.titleMedium,
+          ),
           const VGap.tiny(),
           Text(
-            'Bring your own API key to enable AI-assisted tailoring. Your '
-            'key never leaves this device except to call the provider\'s '
-            'API directly. There is no CVForge server.',
+            context.l10n.settingsAiBody,
             style: context.appTypography.bodySmall,
           ),
           const VGap.small(),
@@ -117,7 +119,9 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
             DropdownButtonFormField<String>(
               initialValue: viewModel.selectedAiAssistantProvider.id,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Provider'),
+              decoration: InputDecoration(
+                labelText: context.l10n.settingsAiProviderLabel,
+              ),
               items: [
                 for (final provider in viewModel.aiAssistantProviders)
                   DropdownMenuItem(
@@ -153,10 +157,10 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
                 autofocus: _replacing,
                 onChanged: _onApiKeyChanged,
                 decoration: InputDecoration(
-                  labelText:
-                      '${viewModel.selectedAiAssistantProvider.displayName} '
-                      'API key',
-                  hintText: 'Paste your API key',
+                  labelText: context.l10n.settingsAiKeyFieldLabel(
+                    viewModel.selectedAiAssistantProvider.displayName,
+                  ),
+                  hintText: context.l10n.settingsAiKeyFieldHint,
                 ),
               ),
             ),
@@ -167,7 +171,7 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
             // like it saves on its own. Also explains after the fact why a
             // rejected key didn't stick.
             Text(
-              'Your key is saved only if the connection test succeeds.',
+              context.l10n.settingsAiKeySavedOnSuccess,
               style: context.appTypography.caption.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -176,7 +180,7 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
               const VGap.tiny(),
               TextButton(
                 onPressed: _cancelReplacing,
-                child: const Text('Keep my current key'),
+                child: Text(context.l10n.settingsAiKeepCurrentKey),
               ),
             ],
           ] else
@@ -198,10 +202,7 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
           _StatusLine(
             icon: RemixIcons.information_line,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
-            message:
-                'Your key is saved on this device, unencrypted in this '
-                "browser's storage — the same as your Vault and CVs. "
-                'Anyone with access to this device can read it.',
+            message: context.l10n.settingsAiStorageWarning,
           ),
           // Sits with the key field and its "remember" toggle rather than
           // further down: someone who has no key yet is stuck looking at
@@ -219,7 +220,9 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
           DropdownButtonFormField<String>(
             initialValue: viewModel.selectedAiAssistantModelId,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Model'),
+            decoration: InputDecoration(
+              labelText: context.l10n.settingsAiModelLabel,
+            ),
             items: [
               for (final model in viewModel.aiAssistantModels)
                 DropdownMenuItem(value: model.id, child: Text(model.label)),
@@ -232,9 +235,10 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
           Text(
             // "Provider's rate" up front — the price table is the
             // provider's own, not something CVForge charges.
-            "${viewModel.selectedAiAssistantProvider.displayName}'s own rate, "
-            'not billed by CVForge: '
-            '${viewModel.priceLabelFor(viewModel.selectedAiAssistantModel)}',
+            context.l10n.settingsAiPriceLabel(
+              viewModel.selectedAiAssistantProvider.displayName,
+              viewModel.priceLabelFor(viewModel.selectedAiAssistantModel),
+            ),
             style: context.appTypography.caption.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -249,7 +253,11 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
                 // Stays plain "Test connection" over an already-stored key,
                 // where nothing new is being saved and promising a save
                 // would be untrue.
-                : Text(_hasTypedKey ? 'Test and save' : 'Test connection'),
+                : Text(
+                    _hasTypedKey
+                        ? context.l10n.settingsAiTestAndSave
+                        : context.l10n.settingsAiTestConnection,
+                  ),
           ),
           if (viewModel.connectionTestErrorMessage != null) ...[
             const VGap.small(),
@@ -263,7 +271,7 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
             _StatusLine(
               icon: RemixIcons.checkbox_circle_line,
               color: context.appPalette.success,
-              message: 'Connected.',
+              message: context.l10n.settingsAiConnected,
             ),
           ],
         ],
@@ -291,19 +299,17 @@ class _KeyStatusLine extends StatelessWidget {
       ApiKeyOrigin.remembered => _StatusLine(
         icon: RemixIcons.checkbox_circle_line,
         color: context.appPalette.success,
-        message: 'Your $providerName key is saved on this device.',
+        message: context.l10n.settingsAiKeySaved(providerName),
       ),
       ApiKeyOrigin.session => _StatusLine(
         icon: RemixIcons.time_line,
         color: context.appPalette.warning,
-        message:
-            'Your $providerName key is set for this session only. It will '
-            'be gone when you reload the page.',
+        message: context.l10n.settingsAiKeySession(providerName),
       ),
       ApiKeyOrigin.none => _StatusLine(
         icon: RemixIcons.information_line,
         color: context.appPalette.placeholder,
-        message: 'No $providerName key yet. The AI Assistant is off.',
+        message: context.l10n.settingsAiKeyNone(providerName),
       ),
     };
   }
@@ -332,7 +338,7 @@ class _StoredKeyRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$providerName API key',
+          context.l10n.settingsAiKeyFieldLabel(providerName),
           style: context.appTypography.caption.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -346,11 +352,14 @@ class _StoredKeyRow extends StatelessWidget {
         Wrap(
           spacing: context.appSpacing.paddingCompact,
           children: [
-            TextButton(onPressed: onReplace, child: const Text('Replace key')),
+            TextButton(
+              onPressed: onReplace,
+              child: Text(context.l10n.settingsAiReplaceKey),
+            ),
             TextButton(
               onPressed: onRemove,
               style: TextButton.styleFrom(foregroundColor: kcErrorColor),
-              child: const Text('Remove key'),
+              child: Text(context.l10n.settingsAiRemoveKey),
             ),
           ],
         ),
@@ -373,10 +382,7 @@ class _SetUpElsewhereNotice extends StatelessWidget {
     return _StatusLine(
       icon: RemixIcons.device_line,
       color: Theme.of(context).colorScheme.onSurfaceVariant,
-      message:
-          'You set the AI Assistant up on another device. Your CVs synced, '
-          'but your key stayed there on purpose — paste your $providerName '
-          'key below to use the assistant here too.',
+      message: context.l10n.settingsAiConfiguredElsewhere(providerName),
     );
   }
 }

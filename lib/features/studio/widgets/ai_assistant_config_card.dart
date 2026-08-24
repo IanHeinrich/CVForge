@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -70,7 +71,7 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
     final hasDescription = widget.jobDescription.trim().isNotEmpty;
     final previewText = hasDescription
         ? widget.jobDescription
-        : 'Paste the job ad you\'re tailoring this CV for.';
+        : context.l10n.studioAiJobAdHint;
 
     return Container(
       margin: EdgeInsets.only(bottom: context.appSpacing.paddingDefault),
@@ -84,7 +85,7 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
         children: [
           Row(
             children: [
-              const StudioPanelHeading('Tailor with AI'),
+              StudioPanelHeading(context.l10n.studioAiCardTitle),
               const HGap.small(),
               const _BetaBadge(),
             ],
@@ -92,10 +93,8 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
           const VGap.tiny(),
           Text(
             widget.hasApiKey
-                ? 'Paste the job ad here to select and rewrite this CV for '
-                      'it.'
-                : 'Bring your own API key in Settings, then paste a job ad '
-                      'here to select and rewrite this CV for it.',
+                ? context.l10n.studioAiCardBody
+                : context.l10n.studioAiCardBodyNoKey,
             style: context.appTypography.bodySmall,
           ),
           const VGap.small(),
@@ -123,9 +122,9 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
                     size: kdTailorIconSize,
                   ),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                  constraints: BoxConstraints(),
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  tooltip: 'Clear job description',
+                  tooltip: context.l10n.studioAiClearJobDescription,
                   onPressed: widget.onClear,
                 ),
               const SizedBox(width: 4),
@@ -139,7 +138,9 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
                 color: _editing
                     ? kcPrimaryColor
                     : Theme.of(context).colorScheme.onSurfaceVariant,
-                tooltip: _editing ? 'Done' : 'Edit job description',
+                tooltip: _editing
+                    ? context.l10n.commonDone
+                    : context.l10n.studioAiEditJobDescription,
                 onPressed: _toggleEditing,
               ),
             ],
@@ -168,17 +169,17 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
               if (widget.hasApiKey)
                 FilledButton(
                   onPressed: widget.canRun ? widget.onRun : null,
-                  child: const Text('Tailor with AI'),
+                  child: Text(context.l10n.studioAiCardTitle),
                 )
               else
                 FilledButton.tonal(
                   onPressed: widget.onOpenSettings,
-                  child: const Text('Set up in Settings'),
+                  child: Text(context.l10n.studioAiSetUpInSettings),
                 ),
               if (widget.hasUndo)
                 TextButton(
                   onPressed: widget.onUndo,
-                  child: const Text('Undo AI changes'),
+                  child: Text(context.l10n.studioAiUndo),
                 ),
             ],
           ),
@@ -189,8 +190,7 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
             // the one a user would have already dismissed the warning
             // for.
             Text(
-              'AI-written. Check every rewritten bullet against what you '
-              'actually did.',
+              context.l10n.studioAiWarning,
               style: context.appTypography.bodySmall.copyWith(
                 color: kcErrorColor,
               ),
@@ -221,7 +221,7 @@ class _BetaBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        'BETA',
+        context.l10n.studioAiBeta,
         style: context.appTypography.caption.copyWith(
           color: context.appPalette.warning,
           fontWeight: FontWeight.w700,

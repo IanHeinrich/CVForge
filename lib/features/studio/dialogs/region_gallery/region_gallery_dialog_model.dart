@@ -1,3 +1,6 @@
+import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/services/localization_service.dart';
+import 'package:cv_forge/l10n/generated/app_localizations.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:stacked/stacked.dart';
 
@@ -31,24 +34,22 @@ class RegionGalleryDialogModel extends BaseViewModel {
   /// [RegionGalleryDialogData] so the two call sites cannot word the same
   /// decision differently — which is exactly what happened while Settings
   /// had a picker of its own.
+  /// This model has no BuildContext, so its copy comes from the
+  /// locator-registered service rather than an inherited widget.
+  AppLocalizations get strings => locator<LocalizationService>().strings;
+
   String get title => switch (data.context) {
-    RegionGalleryContext.draft => 'Choose a region',
-    RegionGalleryContext.appDefault => 'Default region',
+    RegionGalleryContext.draft => strings.studioRegionPickerTitle,
+    RegionGalleryContext.appDefault => strings.studioRegionPickerDefaultTitle,
   };
 
   String get introText => switch (data.context) {
-    RegionGalleryContext.draft =>
-      'Conventions differ by market. This changes how this CV is built — '
-          'page size, expected length, and the guidance below. It never '
-          'changes what your Vault stores.',
-    RegionGalleryContext.appDefault =>
-      'Sets the region every new CV starts with. Changing it never touches '
-          'a CV you have already created — switch those individually from '
-          'Studio.',
+    RegionGalleryContext.draft => strings.studioRegionPickerBody,
+    RegionGalleryContext.appDefault => strings.studioRegionPickerDefaultBody,
   };
 
   String get confirmLabel => switch (data.context) {
-    RegionGalleryContext.draft => 'Use this region',
-    RegionGalleryContext.appDefault => 'Set as default',
+    RegionGalleryContext.draft => strings.studioRegionPickerUse,
+    RegionGalleryContext.appDefault => strings.studioRegionPickerSetDefault,
   };
 }

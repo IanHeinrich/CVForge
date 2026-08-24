@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 /// One selectable chip in an [AppChipGroupSelector] group.
@@ -106,7 +107,7 @@ class _GroupHeading extends StatelessWidget {
             // chip group, not a different one, so it should read the same
             // rather than inventing "Select all".
             child: Text(
-              'Add all ($unselectedCount)',
+              context.l10n.commonAddAll(unselectedCount),
               style: context.appTypography.caption,
             ),
           ),
@@ -114,7 +115,7 @@ class _GroupHeading extends StatelessWidget {
           TextButton(
             onPressed: group.onSelectNone,
             child: Text(
-              'Remove all ($selectedCount)',
+              context.l10n.commonRemoveAll(selectedCount),
               style: context.appTypography.caption,
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -32,10 +33,10 @@ class StudioSectionEditorRouter extends StatelessWidget {
     // empty state covers both rather than trusting that invariant to hold
     // everywhere forever.
     if (type == null || !viewModel.sectionHasData(type)) {
-      return const AppEmptyState(
+      return AppEmptyState(
         icon: RemixIcons.list_check_2,
-        title: 'Nothing selected',
-        message: 'Choose a section on the left to edit its content.',
+        title: context.l10n.studioNoSectionSelectedTitle,
+        message: context.l10n.studioNoSectionSelectedBody,
       );
     }
 

@@ -7,6 +7,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -34,13 +35,13 @@ class BackupSettingsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Manual backup', style: context.appTypography.titleMedium),
+          Text(
+            context.l10n.settingsBackupTitle,
+            style: context.appTypography.titleMedium,
+          ),
           const VGap.tiny(),
           Text(
-            'Export your whole Vault and every CV as one JSON file, or '
-            'restore from a previous export. Restoring replaces '
-            'everything currently on this device. Your current data '
-            'downloads as a backup first.',
+            context.l10n.settingsBackupBody,
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
@@ -62,7 +63,7 @@ class BackupSettingsCard extends StatelessWidget {
                     : viewModel.exportBackup,
                 child: viewModel.isExporting
                     ? const ButtonSpinner()
-                    : const Text('Export backup'),
+                    : Text(context.l10n.settingsBackupExport),
               ),
               OutlinedButton(
                 onPressed: viewModel.isImporting
@@ -70,7 +71,7 @@ class BackupSettingsCard extends StatelessWidget {
                     : viewModel.importBackup,
                 child: viewModel.isImporting
                     ? const ButtonSpinner()
-                    : const Text('Import backup'),
+                    : Text(context.l10n.settingsBackupImport),
               ),
             ],
           ),
@@ -91,7 +92,7 @@ class BackupSettingsCard extends StatelessWidget {
           // "export first, then a destructive action replaces everything"
           // is already the established framing.
           Text(
-            'Danger zone',
+            context.l10n.settingsDangerZone,
             style: context.appTypography.bodySmall.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -107,7 +108,7 @@ class BackupSettingsCard extends StatelessWidget {
               RemixIcons.delete_bin_line,
               size: context.appIconSize.small,
             ),
-            label: const Text('Clear Vault'),
+            label: Text(context.l10n.settingsClearVault),
           ),
         ],
       ),
@@ -136,17 +137,19 @@ class _BackupStatusLine extends StatelessWidget {
     if (last == null) {
       icon = RemixIcons.time_line;
       color = Theme.of(context).colorScheme.onSurfaceVariant;
-      message = 'Never backed up';
+      message = context.l10n.settingsBackupNever;
     } else if (hasChangesSinceBackup) {
       icon = RemixIcons.error_warning_line;
       color = context.appPalette.warning;
-      message =
-          'Last backed up ${formatRelativeTime(last)}, and you have '
-          'changes since then';
+      message = context.l10n.settingsBackupLastWithChanges(
+        formatRelativeTime(context.l10n, last),
+      );
     } else {
       icon = RemixIcons.checkbox_circle_line;
       color = context.appPalette.success;
-      message = 'Last backed up ${formatRelativeTime(last)}';
+      message = context.l10n.settingsBackupLast(
+        formatRelativeTime(context.l10n, last),
+      );
     }
 
     return Row(

@@ -6,6 +6,8 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -86,7 +88,7 @@ class StudioDocumentBar extends StatelessWidget {
                     // the setup group and pins Export to the edge.
                     Expanded(
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: _Identity(viewModel: viewModel),
                       ),
                     ),
@@ -95,7 +97,7 @@ class StudioDocumentBar extends StatelessWidget {
                     const HGap.small(),
                     Expanded(
                       child: Align(
-                        alignment: Alignment.centerRight,
+                        alignment: AlignmentDirectional.centerEnd,
                         child: _OutputControls(viewModel: viewModel),
                       ),
                     ),
@@ -209,7 +211,7 @@ class _SetupControls extends StatelessWidget {
           // beside it. The flags appear in the picker and in Settings,
           // where there is room to show all of them.
           icon: Icon(RemixIcons.earth_line, size: context.appIconSize.small),
-          label: viewModel.region.preset.displayName,
+          label: viewModel.region.displayName(context.l10n),
           labelMaxWidth: compact ? _compactLabelMaxWidth : null,
         ),
       ],
@@ -246,7 +248,9 @@ class _OutputControls extends StatelessWidget {
             ),
           )
         : Icon(RemixIcons.download_line, size: context.appIconSize.medium);
-    final exportTooltip = viewModel.isExporting ? 'Exporting…' : 'Export PDF';
+    final exportTooltip = viewModel.isExporting
+        ? context.l10n.studioExporting
+        : context.l10n.studioExportPdf;
 
     if (compact) {
       return Row(
@@ -322,7 +326,7 @@ class _Identity extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          tooltip: 'Back to your ${preset.documentNoun.pluralCapitalized}',
+          tooltip: context.l10n.studioBackToDrafts(preset.documentNoun.name),
           icon: Icon(
             RemixIcons.arrow_left_line,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -337,7 +341,9 @@ class _Identity extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Edit ${preset.documentNoun.capitalized} details',
+          tooltip: context.l10n.studioEditDetailsTooltip(
+            preset.documentNoun.name,
+          ),
           icon: Icon(
             RemixIcons.edit_line,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -468,7 +474,7 @@ class _PageCountBadge extends StatelessWidget {
           ],
           if (!iconOnly)
             Text(
-              count == 1 ? '1 page' : '$count pages',
+              context.l10n.studioPageCount(count),
               style: isWarning
                   ? context.appTypography.caption.copyWith(
                       color: context.appPalette.warning,

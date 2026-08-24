@@ -6,6 +6,7 @@ import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -124,15 +125,13 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
       FlutterErrorDetails(
         exception: error,
         library: 'cv_forge',
-        context: ErrorDescription('rasterizing the Studio preview'),
+        context: ErrorDescription(context.l10n.studioPreviewErrorContext),
       ),
     );
-    return const AppEmptyState(
+    return AppEmptyState(
       icon: RemixIcons.error_warning_line,
       title: "Couldn't render the preview",
-      message:
-          'The Export PDF button above uses the same PDF generation and may '
-          'still work — try it, or reload the page.',
+      message: context.l10n.studioPreviewErrorBody,
     );
   }
 
@@ -155,21 +154,21 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
     switch (viewModel.previewState) {
       case StudioPreviewState.vaultEmpty:
         return StudioEmptyPreview(
-          title: 'Nothing to preview yet',
-          message: 'Add something to your Vault, then come back to build a CV.',
-          actionLabel: 'Go to Vault',
+          title: context.l10n.studioPreviewEmptyTitle,
+          message: context.l10n.studioPreviewEmptyBody,
+          actionLabel: context.l10n.studioPreviewGoToVault,
           onAction: viewModel.goToVault,
         );
       case StudioPreviewState.nothingSelected:
         return StudioEmptyPreview(
-          title: 'Nothing selected yet',
-          message:
-              'Your Vault has ${viewModel.vaultItemCount} items, but none '
-              'are included in this CV.',
+          title: context.l10n.studioPreviewNothingSelectedTitle,
+          message: context.l10n.studioPreviewNothingSelectedBody(
+            viewModel.vaultItemCount,
+          ),
           // Same "Add all" wording as every other bulk-include action in
           // Studio (per-category and per-bullet) — this is that same
           // action at the widest scope, not a different one.
-          actionLabel: 'Add all',
+          actionLabel: context.l10n.studioPreviewAddAll,
           onAction: viewModel.includeEverything,
         );
       case StudioPreviewState.ready:

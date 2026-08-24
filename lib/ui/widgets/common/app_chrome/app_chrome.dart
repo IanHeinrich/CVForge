@@ -3,6 +3,7 @@ import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/drive_sync_indicator/drive_sync_indicator.dart';
@@ -36,41 +37,48 @@ class _NavDestination {
 ///
 /// A function rather than a top-level `const`, since the drafts
 /// destination's label follows `AppSettings.defaultRegion`'s document noun
-/// ("CVs" for a UK default, "Résumés" for a US one), read straight off the
-/// locator — this file is deliberately modelless (see [AppChrome]'s class
-/// doc), so there's no ViewModel to hold it as reactive state instead.
-List<_NavDestination> _workspaceDestinations() => [
-  const _NavDestination(
+/// ("CVs" for a UK default, "Résumés" for a US one) — read straight off the
+/// locator, since this file is deliberately modelless (see [AppChrome]'s
+/// class doc) and has no ViewModel to hold it as reactive state instead.
+///
+/// The noun picks an ICU `select` branch rather than being interpolated
+/// into a translated frame: a language with grammatical gender or case
+/// cannot have a foreign noun dropped into its sentence, so each branch is
+/// authored whole.
+List<_NavDestination> _workspaceDestinations(BuildContext context) => [
+  _NavDestination(
     section: AppSection.vault,
     icon: RemixIcons.safe_line,
     selectedIcon: RemixIcons.safe_fill,
-    label: 'Vault',
+    label: context.l10n.appNavVault,
   ),
   _NavDestination(
     section: AppSection.drafts,
     icon: RemixIcons.file_text_line,
     selectedIcon: RemixIcons.file_text_fill,
-    label: locator<SettingsService>()
-        .settings
-        .preferences
-        .defaultRegion
-        .preset
-        .documentNoun
-        .pluralCapitalized,
+    label: context.l10n.appNavDrafts(
+      locator<SettingsService>()
+          .settings
+          .preferences
+          .defaultRegion
+          .preset
+          .documentNoun
+          .name,
+    ),
   ),
-  const _NavDestination(
+  _NavDestination(
     section: AppSection.analyzer,
     icon: RemixIcons.file_search_line,
     selectedIcon: RemixIcons.file_search_fill,
-    label: 'ATS Check',
+    label: context.l10n.appNavAnalyzer,
   ),
 ];
 
-const _settingsDestination = _NavDestination(
+_NavDestination _settingsDestination(BuildContext context) => _NavDestination(
   section: AppSection.settings,
   icon: RemixIcons.settings_line,
   selectedIcon: RemixIcons.settings_fill,
-  label: 'Settings',
+  label: context.l10n.appNavSettings,
 );
 
 /// The top-level sections of the app.
@@ -212,7 +220,7 @@ class _RailChrome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final destinations = _workspaceDestinations();
+    final destinations = _workspaceDestinations(context);
     return Scaffold(
       body: Row(
         // Row's own default cross-axis alignment is center, which gives
@@ -280,11 +288,11 @@ class _RailChrome extends StatelessWidget {
                       // position depending on whether it's showing.
                       const DriveSyncIndicator(),
                       IconButton(
-                        tooltip: _settingsDestination.label,
+                        tooltip: _settingsDestination(context).label,
                         icon: Icon(
                           section == AppSection.settings
-                              ? _settingsDestination.selectedIcon
-                              : _settingsDestination.icon,
+                              ? _settingsDestination(context).selectedIcon
+                              : _settingsDestination(context).icon,
                           color: section == AppSection.settings
                               ? kcPrimaryColor
                               : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -320,14 +328,14 @@ class _MobileChrome extends StatelessWidget {
   final ValueChanged<AppSection> onSelect;
   final Widget child;
 
-  List<_NavDestination> get _destinations => [
-    ..._workspaceDestinations(),
-    _settingsDestination,
+  List<_NavDestination> _destinationsFor(BuildContext context) => [
+    ..._workspaceDestinations(context),
+    _settingsDestination(context),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final destinations = _destinations;
+    final destinations = _destinationsFor(context);
     return Scaffold(
       // Same loose-constraint issue as `_RailChrome`'s `Row` (see its
       // comment) — `SizedBox.expand` is this widget's equivalent fix for

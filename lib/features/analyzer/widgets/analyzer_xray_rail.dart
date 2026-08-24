@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -35,10 +36,10 @@ class AnalyzerXrayRail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (findings.isEmpty) {
-      return const AppEmptyState(
+      return AppEmptyState(
         icon: RemixIcons.checkbox_circle_line,
-        title: 'No issues found',
-        message: 'Nothing in this PDF matched a known ATS parsing problem.',
+        title: context.l10n.analyzerXrayNoIssuesTitle,
+        message: context.l10n.analyzerXrayNoIssuesBody,
       );
     }
 
@@ -60,7 +61,10 @@ class AnalyzerXrayRail extends StatelessWidget {
         ],
         if (documentLevel.isNotEmpty) ...[
           if (located.isNotEmpty) const VGap.medium(),
-          Text('Document-level', style: context.appTypography.caption),
+          Text(
+            context.l10n.analyzerXrayDocumentLevel,
+            style: context.appTypography.caption,
+          ),
           const VGap.small(),
           for (final finding in documentLevel) ...[
             AtsFindingCard(finding: finding),

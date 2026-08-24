@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 /// The chrome shared by every dialog in the app — rounded dark card,
@@ -16,7 +17,7 @@ class AppDialogScaffold extends StatelessWidget {
     required this.onCancel,
     required this.onConfirm,
     required this.confirmLabel,
-    this.cancelLabel = 'Cancel',
+    this.cancelLabel,
     this.destructive = false,
     this.maxWidth,
   });
@@ -31,7 +32,10 @@ class AppDialogScaffold extends StatelessWidget {
   final VoidCallback? onCancel;
   final VoidCallback? onConfirm;
   final String confirmLabel;
-  final String cancelLabel;
+
+  /// Null means the standard "Cancel" label — see
+  /// [AppDeleteIconButton.tooltip] for why this isn't a constructor default.
+  final String? cancelLabel;
 
   /// True for an irreversible action (e.g. delete) — the confirm button
   /// uses [kcErrorColor] instead of the theme's default filled-button
@@ -79,7 +83,10 @@ class AppDialogScaffold extends StatelessWidget {
           spacing: context.appSpacing.gapSmall,
           overflowSpacing: context.appSpacing.gapSmall,
           children: [
-            TextButton(onPressed: onCancel, child: Text(cancelLabel)),
+            TextButton(
+              onPressed: onCancel,
+              child: Text(cancelLabel ?? context.l10n.commonCancel),
+            ),
             FilledButton(
               style: destructive
                   ? FilledButton.styleFrom(backgroundColor: kcErrorColor)

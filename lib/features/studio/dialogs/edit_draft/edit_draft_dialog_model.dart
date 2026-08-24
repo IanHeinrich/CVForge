@@ -23,13 +23,20 @@ class EditDraftDialogModel extends BaseViewModel {
   /// The global default rather than the draft being edited's own region:
   /// [EditDraftDialogData] carries no region, and a name/notes editor isn't
   /// worth plumbing one through for.
+  /// Which document noun the user's default region uses — `cv` or
+  /// `resume` — as an ICU `select` branch id, not a display word.
+  ///
+  /// Deliberately not an inflected English string any more: a translated
+  /// sentence cannot have a foreign noun interpolated into it and stay
+  /// grammatical, so each message spells out its own branches. See
+  /// CLAUDE.md's Localization section.
   String get documentNoun => locator<SettingsService>()
       .settings
       .preferences
       .defaultRegion
       .preset
       .documentNoun
-      .capitalized;
+      .name;
 
   bool _nameTouched = false;
 

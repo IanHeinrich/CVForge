@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -11,9 +12,9 @@ class ProjectsSectionEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => EntityBulletSectionEditor(
-    title: 'Projects',
+    title: context.l10n.vaultSectionProjects,
     items: viewModel.projects,
-    untitledLabel: 'Untitled project',
+    untitledLabel: context.l10n.vaultUntitledProject,
     idOf: (p) => p.id,
     titleOf: (p) => p.title,
     subtitleOf: (p) => p.link,

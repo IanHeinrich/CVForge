@@ -19,6 +19,7 @@ void main() {
     setUp(() {
       vaultService = getAndRegisterVaultService();
       dialogService = getAndRegisterDialogService();
+      getAndRegisterLocalizationService();
       when(vaultService.vault).thenReturn(CvVault.empty());
     });
     tearDown(() => locator.reset());

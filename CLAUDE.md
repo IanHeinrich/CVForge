@@ -245,6 +245,122 @@ of which config is active.
   `copyWith`, `fromJson`), since that code won't compile/exist until
   generation has run.
 
+## Localization (i18n)
+
+Every user-facing string lives in `lib/l10n/app_en.arb`. A string literal in a
+`Text(...)`, `label:`, `hintText:`, `tooltip:`, or a dialog
+`title:`/`description:` under `lib/features/**` or `lib/ui/**` is a bug.
+
+### The UI's language and the document's language are different axes
+
+The app chrome is localized. **The CV this app produces is not** — it is
+written in English regardless of what language the user reads the interface
+in, because someone applying across borders routinely needs an English CV
+while reading a German UI. Nothing the UI locale does may reach:
+
+- `lib/models/render/cv_composer.dart` — section titles, and the `'Present'`
+  marker (capitalized deliberately for ATS regex matching)
+- all of `lib/templates/**`
+- `YearMonth.monthName` and the Vault month pickers it feeds. The picker looks
+  like an obvious localization target and is not: it selects a value that gets
+  *printed*, in English, so showing "Mär" where the CV will say "Mar" would
+  break the invariant that getter's doc exists to protect.
+
+This is a separate future feature, not an oversight. Region is a third axis
+again — see `RegionProfile`'s own note on region ≠ locale.
+
+### Also deliberately not localized
+
+Storage keys and any persisted enum `.name`; JSON/schema field names; route
+paths; `Exception.toString()` bodies (localize the *ViewModel switch* that
+maps a failure to user copy, not the exception — `SettingsViewModel.
+connectionTestErrorMessage` is the pattern); every `promptLabel` and all LLM
+prompt text, which is English because the model is instructed in English and
+translating it changes model behaviour; backup filenames; and brand names
+(`ksAppTitle`, `LlmProvider.displayName`, `RegionPreset.localName` — the
+market's own word for the document, whose entire purpose is to not be
+translated).
+
+### Three access paths, and only three
+
+| Where | How |
+|---|---|
+| Views / Widgets | `context.l10n.someKey` (`lib/ui/common/l10n_extensions.dart`) |
+| ViewModels / Services | inject `LocalizationService`, read `.strings` |
+| Enum labels | an extension *method* taking `AppLocalizations` |
+
+Never cache a localized string in a ViewModel field — always a getter, so a
+locale change is picked up on the next build with no `listenableServices`
+plumbing.
+
+**Enum label extensions live in `lib/ui/common/l10n/`, never on the model**,
+because `AppLocalizations` imports Flutter and `lib/models/` must not. The
+enum stays put; only its label moves.
+
+### Key naming
+
+`<area><Surface><Slug>` in lowerCamelCase — e.g. `settingsRegionCardTitle`,
+`atsFindingNoTextLayerTitle`, `vaultHobbyCount`.
+
+- **Name by location and role, never by English words.** When copy changes,
+  edit the ARB *value*; never rename the key. A rename is a delete + add to
+  every locale and every translation tool.
+- **Never de-duplicate by English text.** Two identical English strings in two
+  features get two keys — "Change" in Settings and "Change" in Studio can
+  legitimately translate differently. Only strings whose owning *file* is in
+  `lib/ui/common/` or `lib/ui/widgets/common/` share a `common*` key. Sharing
+  follows code ownership, not string equality.
+- **One key = one complete rendered phrase.** Never concatenate two keys into
+  a sentence, and never interpolate a translated noun into a translated frame
+  — a language with gender or case cannot inflect it. Use ICU `select` over
+  the whole frame instead.
+- **Keep the ARB alphabetically sorted.** Since keys are area-prefixed,
+  alphabetical order *is* grouped-by-area order, which keeps merge conflicts
+  local while several sweep PRs are in flight.
+- `@description` is mandatory (the empty `@key` slot is build-enforced by
+  `required-resource-attributes: true`). It must say *where the string
+  appears* and any constraint on it — never restate the English.
+- Every placeholder needs an explicit `type` and an `example`. An untyped
+  placeholder silently becomes `Object` and breaks `plural`/`select`.
+
+### Codegen
+
+`flutter gen-l10n` is **not** part of `stacked generate`, and `flutter test`
+does not run it either — which is why the generated output under
+`lib/l10n/generated/` is committed like every other generated file here. The
+full recipe:
+
+```bash
+flutter gen-l10n && stacked generate && dart format .
+```
+
+gen_l10n formats its own output, so the generated l10n cannot break
+`dart format --set-exit-if-changed`; the trailing `dart format .` is for the
+`stacked generate` output.
+
+### Directional layout
+
+Use `EdgeInsetsDirectional`/`AlignmentDirectional` in `lib/ui/**` and
+`lib/features/**`. `CrossAxisAlignment.start` is already direction-aware and
+needs no change. `lib/templates/**` is exempt — it renders the PDF, which is
+always LTR, and `package:pdf` has no `Directionality` inheritance anyway.
+
+### While extracting strings
+
+**A sweep PR changes zero rendered characters.** The ARB's English value is a
+character-for-character copy of the literal it replaces, so the 7 golden
+baselines stay valid and the diff is provably behaviour-preserving. Copy
+improvements are a separate PR.
+
+**The app ships `en` and `es`.** Both `lib/l10n/app_en.arb` and
+`lib/l10n/app_es.arb` must stay complete: `flutter gen-l10n` does *not* fail
+on a missing key — it silently falls back to the English value — so
+`lib/l10n/untranslated_messages.json` is the only signal, and it must stay
+`{}`. It is committed for exactly that reason.
+
+That also means a new string is now **two** edits, not one. While `en` was the
+only locale a not-yet-extracted string was invisible; it isn't any more.
+
 ## Testing: outside-in only
 
 This project follows Stacked's outside-in testing approach. Test through the

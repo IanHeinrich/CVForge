@@ -1,5 +1,6 @@
-import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -24,10 +25,10 @@ class StudioTabbedLayout extends StatelessWidget {
       length: 2,
       child: Column(
         children: [
-          const TabBar(
+          TabBar(
             tabs: [
-              Tab(text: 'Configure'),
-              Tab(text: 'Preview'),
+              Tab(text: context.l10n.studioTabConfigure),
+              Tab(text: context.l10n.studioTabPreview),
             ],
           ),
           Expanded(
@@ -59,7 +60,7 @@ class _ConfigureDrillDown extends StatelessWidget {
         Row(
           children: [
             IconButton(
-              tooltip: 'Back to sections',
+              tooltip: context.l10n.studioBackToSections,
               icon: Icon(
                 RemixIcons.arrow_left_line,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -67,7 +68,7 @@ class _ConfigureDrillDown extends StatelessWidget {
               onPressed: () => viewModel.selectSection(null),
             ),
             Text(
-              openSection.displayLabel,
+              openSection.displayLabel(context.l10n),
               style: context.appTypography.titleSmall,
             ),
           ],

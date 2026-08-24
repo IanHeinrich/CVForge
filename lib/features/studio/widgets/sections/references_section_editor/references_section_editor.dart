@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -13,13 +14,13 @@ class ReferencesSectionEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     return StudioFieldOverrideCard(
       key: const ValueKey('studio_references_editor'),
-      label: 'References',
+      label: context.l10n.vaultBasicsReferences,
       vaultValue: viewModel.vaultReferencesNote,
       hasOverride: viewModel.hasReferencesOverride,
       effectiveValue: viewModel.referencesText,
       onChanged: viewModel.setReferencesOverride,
       onRevert: viewModel.revertReferencesToVault,
-      emptyVaultMessage: 'No references note in your Vault yet.',
+      emptyVaultMessage: context.l10n.studioNoReferences,
     );
   }
 }

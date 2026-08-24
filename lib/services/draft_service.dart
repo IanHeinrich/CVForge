@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
@@ -86,6 +87,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     final templateId = _templateRegistry.defaultTemplate.id;
     return CvDraft.empty(
       id: _uuid.v4(),
+      name: locator<LocalizationService>().strings.draftDefaultName,
       templateId: templateId,
       region: region,
     ).copyWith(
@@ -318,7 +320,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     final newId = _uuid.v4();
     final copy = source.copyWith(
       id: newId,
-      name: '${source.name} (copy)',
+      name: locator<LocalizationService>().strings.draftCopySuffix(source.name),
       updatedAt: DateTime.now(),
     );
     _drafts.value = _sortedByRecency([..._drafts.value, copy]);

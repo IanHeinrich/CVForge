@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -46,7 +47,7 @@ class AiAssistantKeyHelp extends StatelessWidget {
           // the card's provider dropdown sits directly above this, so the
           // help must visibly answer for whichever provider is selected.
           title: Text(
-            'How do I get a ${provider.displayName} API key?',
+            context.l10n.settingsAiHelpTitle(provider.displayName),
             style: context.appTypography.bodySmall,
           ),
           leading: Icon(
@@ -68,7 +69,9 @@ class AiAssistantKeyHelp extends StatelessWidget {
             const VGap.small(),
             _LinkButton(
               icon: RemixIcons.external_link_line,
-              label: 'Open ${provider.displayName} key settings',
+              label: context.l10n.settingsAiHelpOpenKeySettings(
+                provider.displayName,
+              ),
               url: provider.apiKeyConsoleUrl,
             ),
             const VGap.medium(),
@@ -76,7 +79,7 @@ class AiAssistantKeyHelp extends StatelessWidget {
             const VGap.small(),
             _LinkButton(
               icon: RemixIcons.wallet_line,
-              label: 'Open billing & spend limits',
+              label: context.l10n.settingsAiHelpOpenBilling,
               url: provider.billingConsoleUrl,
             ),
           ],
@@ -102,7 +105,7 @@ class _NumberedStep extends StatelessWidget {
           // rather than under their own number.
           width: context.appSpacing.paddingPanel,
           child: Text(
-            '$number.',
+            context.l10n.settingsAiHelpStepNumber(number),
             style: context.appTypography.bodySmall.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -120,12 +123,12 @@ class _NumberedStep extends StatelessWidget {
 class _SpendWarning extends StatelessWidget {
   const _SpendWarning();
 
-  static const _points = [
-    'Turn OFF auto top-up / auto-reload. Left on, a runaway or leaked key '
-        'can recharge itself indefinitely.',
-    'Set a hard monthly spend cap, as low as you are willing to pay.',
-    'Use a key created only for CVForge, so you can revoke it without '
-        'breaking anything else.',
+  /// Built from context rather than held as a `const` list, since each
+  /// point is now a localized lookup.
+  static List<String> _pointsFor(BuildContext context) => [
+    context.l10n.settingsAiHelpNoAutoTopUp,
+    context.l10n.settingsAiHelpSpendCap,
+    context.l10n.settingsAiHelpDedicatedKey,
   ];
 
   @override
@@ -151,7 +154,7 @@ class _SpendWarning extends StatelessWidget {
               ),
               const HGap.small(),
               Text(
-                'Protect yourself from surprise bills',
+                context.l10n.settingsAiHelpProtectTitle,
                 style: context.appTypography.bodySmall.copyWith(
                   color: context.appPalette.warning,
                 ),
@@ -159,7 +162,7 @@ class _SpendWarning extends StatelessWidget {
             ],
           ),
           const VGap.tiny(),
-          for (final point in _points)
+          for (final point in _pointsFor(context))
             Padding(
               padding: EdgeInsets.only(bottom: context.appSpacing.gapTiny),
               child: Row(

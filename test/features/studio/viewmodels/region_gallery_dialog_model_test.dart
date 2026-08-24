@@ -1,3 +1,5 @@
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
+import 'package:cv_forge/l10n/generated/app_localizations_en.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_model.dart';
@@ -7,6 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/test_helpers.dart';
 
 void main() {
+  // The real English localizations, so this also proves every moved
+  // label actually resolves to a message.
+  final l10n = AppLocalizationsEn();
+
   group('RegionGalleryDialogModel Tests -', () {
     setUp(() => registerServices());
     tearDown(() => locator.reset());
@@ -75,17 +81,15 @@ void main() {
           'localName': preset.localName,
           'lengthNote': preset.lengthNote,
           'toneNote': preset.toneNote,
-          'page label': preset.page.displayLabel,
-          'date label': preset.dateStyle.displayLabel,
-          'noun lower': preset.documentNoun.lower,
-          'noun capitalized': preset.documentNoun.capitalized,
-          'noun plural': preset.documentNoun.plural,
-          'noun pluralCapitalized': preset.documentNoun.pluralCapitalized,
-          'photo displayLabel': preset.photo.displayLabel,
+          'page label': preset.page.displayLabel(l10n),
+          'date label': preset.dateStyle.displayLabel(l10n),
+          'photo displayLabel': preset.photo.displayLabel(l10n),
           'photo promptLabel': preset.photo.promptLabel,
-          'personalDetails displayLabel': preset.personalDetails.displayLabel,
+          'personalDetails displayLabel': preset.personalDetails.displayLabel(
+            l10n,
+          ),
           'personalDetails promptLabel': preset.personalDetails.promptLabel,
-          'spelling displayLabel': preset.spelling.displayLabel,
+          'spelling displayLabel': preset.spelling.displayLabel(l10n),
           'spelling promptLabel': preset.spelling.promptLabel,
         }.entries) {
           expect(entry.value, isNotEmpty, reason: '$why ${entry.key}');

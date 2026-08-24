@@ -1,4 +1,6 @@
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/ui/common/l10n/region_labels.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/services/ai_assistant_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -6,7 +8,6 @@ import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
-import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:stacked/stacked.dart';
 
 /// [AiAssistantRunDialog]'s state machine. `confirm` shows what's about to be
@@ -47,7 +48,9 @@ class AiAssistantRunDialogModel extends BaseViewModel {
   /// Named on the confirm screen so the region choice is visible before the
   /// run, not just inferable from the output — it steers length, spelling,
   /// and tone.
-  String get regionDisplayName => _draftService.draft.region.preset.displayName;
+  String get regionDisplayName => _draftService.draft.region.displayName(
+    locator<LocalizationService>().strings,
+  );
 
   /// Same stored-id-may-be-stale fallback, resolved in the one place that
   /// owns it — see [SettingsService.selectedAiAssistantModel].
@@ -59,26 +62,22 @@ class AiAssistantRunDialogModel extends BaseViewModel {
   String? get errorMessage {
     final error = _error;
     if (error == null) return null;
-    if (error is! LlmException) return 'Something went wrong — try again.';
+    final strings = locator<LocalizationService>().strings;
+    if (error is! LlmException) return strings.studioAiErrorGeneric;
     return switch (error.failure) {
-      LlmFailure.noKey => 'Add an AI Assistant API key in Settings first.',
-      LlmFailure.unauthorized =>
-        'Your API key was rejected — check it in Settings.',
-      LlmFailure.rateLimited =>
-        'Your API account is rate limited — try again in a moment.',
-      LlmFailure.overloaded =>
-        "$providerDisplayName's API is temporarily unavailable — try "
-            'again shortly.',
-      LlmFailure.network =>
-        "Couldn't reach $providerDisplayName — check your connection.",
-      LlmFailure.timeout => 'The request timed out — try again.',
-      LlmFailure.refusal =>
-        'The model declined to answer — try rephrasing the job '
-            'description.',
-      LlmFailure.invalidRequest =>
-        "$providerDisplayName rejected the request. That's a bug in "
-            'CVForge, not your input.',
-      LlmFailure.malformedResponse => 'Got an unexpected response — try again.',
+      LlmFailure.noKey => strings.studioAiErrorNoKey,
+      LlmFailure.unauthorized => strings.studioAiErrorUnauthorized,
+      LlmFailure.rateLimited => strings.studioAiErrorRateLimited,
+      LlmFailure.overloaded => strings.studioAiErrorOverloaded(
+        providerDisplayName,
+      ),
+      LlmFailure.network => strings.studioAiErrorNetwork(providerDisplayName),
+      LlmFailure.timeout => strings.studioAiErrorTimeout,
+      LlmFailure.refusal => strings.studioAiErrorRefusal,
+      LlmFailure.invalidRequest => strings.studioAiErrorInvalidRequest(
+        providerDisplayName,
+      ),
+      LlmFailure.malformedResponse => strings.studioAiErrorMalformedResponse,
     };
   }
 

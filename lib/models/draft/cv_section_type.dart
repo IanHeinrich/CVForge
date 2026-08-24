@@ -15,20 +15,7 @@ enum CvSectionType {
   publications,
 }
 
-/// UI-facing label for Studio's section-visibility toggles. Deliberately
-/// separate from the titles `CvComposer` bakes into a `ResolvedSection` —
-/// today they read the same, but "what a picker calls this section" and
-/// "what's printed on the page" are different concerns that happen to
-/// agree, not one written in terms of the other.
-extension CvSectionTypeLabel on CvSectionType {
-  String get displayLabel => switch (this) {
-    CvSectionType.summary => 'Professional summary',
-    CvSectionType.skills => 'Skills',
-    CvSectionType.experience => 'Work history',
-    CvSectionType.projects => 'Projects',
-    CvSectionType.education => 'Education',
-    CvSectionType.hobbies => 'Hobbies and interests',
-    CvSectionType.references => 'References',
-    CvSectionType.publications => 'Publications',
-  };
-}
+/// The picker label for a section moved to
+/// `lib/ui/common/l10n/model_labels.dart` — it needs `AppLocalizations`,
+/// and this library must stay free of Flutter imports. What `CvComposer`
+/// prints on the page is a separate concern that stays English.

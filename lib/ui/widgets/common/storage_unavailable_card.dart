@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -19,14 +20,13 @@ class StorageUnavailableCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppEmptyState(
       icon: RemixIcons.error_warning_line,
-      title: "CVForge couldn't load your data",
-      message:
-          'Local storage is unavailable in this browser or browsing '
-          'mode. CVForge keeps everything on your device, so it needs '
-          'access to it to work. Try a normal (non-private) browsing '
-          'window, or a different browser.',
+      title: context.l10n.chromeStorageUnavailableTitle,
+      message: context.l10n.chromeStorageUnavailableBody,
       actions: [
-        FilledButton(onPressed: onRetry, child: const Text('Try again')),
+        FilledButton(
+          onPressed: onRetry,
+          child: Text(context.l10n.commonTryAgain),
+        ),
       ],
     );
   }

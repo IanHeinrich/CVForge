@@ -8,6 +8,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -39,14 +40,13 @@ class DriveSettingsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Google Drive', style: context.appTypography.titleMedium),
+          Text(
+            context.l10n.settingsDriveTitle,
+            style: context.appTypography.titleMedium,
+          ),
           const VGap.tiny(),
           Text(
-            'Sign in with Google to keep your Vault and every CV synced to '
-            'your own Google Drive. Sign in again on another browser and '
-            "they'll all be there. CVForge never sees or stores your "
-            'Google credentials, only a single hidden file this app '
-            'creates for itself.',
+            context.l10n.settingsDriveBody,
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
@@ -60,8 +60,8 @@ class DriveSettingsCard extends StatelessWidget {
     final status = viewModel.driveSyncStatus;
     return switch (status) {
       DriveSyncDisconnected() => _disconnected(context),
-      DriveSyncConnecting() => const [
-        _StatusLine(icon: null, label: 'Connecting…'),
+      DriveSyncConnecting() => [
+        _StatusLine(icon: null, label: context.l10n.settingsDriveConnecting),
       ],
       DriveSyncIdle() => _connected(
         context,
@@ -108,7 +108,7 @@ class DriveSettingsCard extends StatelessWidget {
       onPressed: viewModel.isDriveConnecting ? null : viewModel.connectDrive,
       child: viewModel.isDriveConnecting
           ? const ButtonSpinner()
-          : const Text('Connect Google Drive'),
+          : Text(context.l10n.settingsDriveConnect),
     ),
   ];
 
@@ -121,19 +121,21 @@ class DriveSettingsCard extends StatelessWidget {
     bool merged = false,
   }) {
     final statusLabel = syncing
-        ? 'Syncing…'
+        ? context.l10n.settingsDriveSyncing
         : pending
-        ? 'Waiting to sync…'
+        ? context.l10n.settingsDriveWaiting
         : merged
-        ? 'Merged changes from your other device'
+        ? context.l10n.settingsDriveMerged
         : lastSyncedAt == null
-        ? 'Not yet synced'
-        : 'Last synced ${formatRelativeTime(lastSyncedAt)}';
+        ? context.l10n.settingsDriveNotYetSynced
+        : context.l10n.settingsDriveLastSynced(
+            formatRelativeTime(context.l10n, lastSyncedAt),
+          );
     return [
       _StatusLine(
         icon: syncing || pending ? null : RemixIcons.checkbox_circle_line,
         color: syncing || pending ? null : context.appPalette.success,
-        label: 'Connected as $email',
+        label: context.l10n.settingsDriveConnectedAs(email),
       ),
       const VGap.tiny(),
       Text(
@@ -153,11 +155,11 @@ class DriveSettingsCard extends StatelessWidget {
                 : viewModel.syncDriveNow,
             child: viewModel.isDriveSyncingNow
                 ? const ButtonSpinner()
-                : const Text('Sync now'),
+                : Text(context.l10n.settingsDriveSyncNow),
           ),
           TextButton(
             onPressed: viewModel.disconnectDrive,
-            child: const Text('Disconnect'),
+            child: Text(context.l10n.commonDisconnect),
           ),
         ],
       ),
@@ -168,7 +170,7 @@ class DriveSettingsCard extends StatelessWidget {
     _StatusLine(
       icon: RemixIcons.error_warning_line,
       color: context.appPalette.warning,
-      label: 'Connected as $email. Reconnect to keep syncing.',
+      label: context.l10n.settingsDriveReconnectPrompt(email),
     ),
     const VGap.small(),
     Wrap(
@@ -181,11 +183,11 @@ class DriveSettingsCard extends StatelessWidget {
               : viewModel.connectDrive,
           child: viewModel.isDriveConnecting
               ? const ButtonSpinner()
-              : const Text('Reconnect'),
+              : Text(context.l10n.settingsDriveReconnect),
         ),
         TextButton(
           onPressed: viewModel.disconnectDrive,
-          child: const Text('Disconnect'),
+          child: Text(context.l10n.commonDisconnect),
         ),
       ],
     ),
@@ -195,7 +197,7 @@ class DriveSettingsCard extends StatelessWidget {
     _StatusLine(
       icon: RemixIcons.error_warning_line,
       color: kcErrorColor,
-      label: 'Connected as $email',
+      label: context.l10n.settingsDriveConnectedAs(email),
     ),
     const VGap.tiny(),
     Text(
@@ -213,11 +215,11 @@ class DriveSettingsCard extends StatelessWidget {
               : viewModel.syncDriveNow,
           child: viewModel.isDriveSyncingNow
               ? const ButtonSpinner()
-              : const Text('Retry'),
+              : Text(context.l10n.commonRetry),
         ),
         TextButton(
           onPressed: viewModel.disconnectDrive,
-          child: const Text('Disconnect'),
+          child: Text(context.l10n.commonDisconnect),
         ),
       ],
     ),

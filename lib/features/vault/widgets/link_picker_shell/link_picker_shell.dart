@@ -3,6 +3,7 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -176,7 +177,7 @@ class _LinkPickerShellState extends State<LinkPickerShell> {
                         RemixIcons.close_line,
                         size: context.appIconSize.medium,
                       ),
-                      tooltip: 'Clear search',
+                      tooltip: context.l10n.commonClearSearch,
                       onPressed: () {
                         _controller.clear();
                         _onQueryChanged('');

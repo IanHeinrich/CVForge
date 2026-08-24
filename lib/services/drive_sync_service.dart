@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/backup/cv_backup_merge.dart';
 import 'package:cv_forge/models/drive/drive_file_snapshot.dart';
@@ -57,6 +58,7 @@ class DriveSyncService with ListenableServiceMixin {
   }
 
   final _auth = locator<GoogleAuthService>();
+  final _localizationService = locator<LocalizationService>();
   final _api = locator<DriveApiClientService>();
   final _vault = locator<VaultService>();
   final _drafts = locator<DraftService>();
@@ -303,9 +305,10 @@ class DriveSyncService with ListenableServiceMixin {
 
   Future<String> _fetchEmailOrFallback(String token) async {
     try {
-      return await _api.fetchAccountEmail(token) ?? 'your Google account';
+      return await _api.fetchAccountEmail(token) ??
+          _localizationService.strings.driveSyncAccountFallback;
     } on DriveApiException {
-      return 'your Google account';
+      return _localizationService.strings.driveSyncAccountFallback;
     }
   }
 
@@ -517,7 +520,7 @@ class DriveSyncService with ListenableServiceMixin {
     } on FormatException {
       _status.value = DriveSyncStatus.error(
         accountEmail: email,
-        message: "Drive's copy looked corrupted. Left this device as is.",
+        message: _localizationService.strings.driveSyncErrorCorrupted,
       );
     }
   }
@@ -554,9 +557,7 @@ class DriveSyncService with ListenableServiceMixin {
         !bundlesAreMergeable(local, remote)) {
       _status.value = DriveSyncStatus.error(
         accountEmail: email,
-        message:
-            'Another device is running a newer version of CVForge. '
-            'Update this device to sync again.',
+        message: _localizationService.strings.driveSyncErrorNewerVersion,
       );
       return;
     }
@@ -684,7 +685,7 @@ class DriveSyncService with ListenableServiceMixin {
     } on FormatException {
       _status.value = DriveSyncStatus.error(
         accountEmail: email,
-        message: "Drive's copy looked corrupted. Left this device as is.",
+        message: _localizationService.strings.driveSyncErrorCorrupted,
       );
     }
   }
@@ -830,19 +831,15 @@ class DriveSyncService with ListenableServiceMixin {
       ),
       DriveApiFailure.notFound => DriveSyncStatus.error(
         accountEmail: email,
-        message:
-            'Your CVForge file on Drive is gone. Syncing again will '
-            'recreate it.',
+        message: _localizationService.strings.driveSyncErrorFileGone,
       ),
       DriveApiFailure.network => DriveSyncStatus.error(
         accountEmail: email,
-        message: "Couldn't reach Google Drive. Saved on this device.",
+        message: _localizationService.strings.driveSyncErrorNetwork,
       ),
       DriveApiFailure.unknown => DriveSyncStatus.error(
         accountEmail: email,
-        message:
-            'Something went wrong syncing to Drive. Saved on this '
-            'device.',
+        message: _localizationService.strings.driveSyncErrorUnknown,
       ),
     };
   }
