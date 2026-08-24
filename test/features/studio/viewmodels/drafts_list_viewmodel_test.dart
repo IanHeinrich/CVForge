@@ -88,6 +88,66 @@ void main() {
       expect(model.templateName('compact'), 'Compact');
     });
 
+    group('sorting and search -', () {
+      /// Deliberately not in `DraftService` order, so a passing
+      /// `recentlyUpdated` assertion can only mean the ViewModel left the
+      /// service's ordering alone rather than happening to re-derive it.
+      List<CvDraft> unsortedDrafts() => [
+        draftWith(id: 'b', name: 'Globex'),
+        draftWith(id: 'a', name: 'Acme'),
+        draftWith(id: 'c', name: ''),
+      ];
+
+      test('defaults to the order DraftService hands back', () {
+        when(draftService.drafts).thenReturn(unsortedDrafts());
+
+        final model = DraftsListViewModel();
+
+        expect(model.sortOrder, DraftSortOrder.recentlyUpdated);
+        expect(model.filteredDrafts.map((d) => d.id), ['b', 'a', 'c']);
+      });
+
+      test('nameAtoZ sorts on the name a card actually displays', () {
+        when(draftService.drafts).thenReturn(unsortedDrafts());
+
+        final model = DraftsListViewModel();
+        model.setSortOrder(DraftSortOrder.nameAtoZ);
+
+        // The untitled draft sorts under "Untitled CV", not under the
+        // empty string — otherwise it would lead the list while showing a
+        // label starting with U.
+        expect(model.displayName(model.drafts.last), 'Untitled CV');
+        expect(model.filteredDrafts.map((d) => d.id), ['a', 'b', 'c']);
+      });
+
+      test('search and sort compose', () {
+        when(templateRegistry.byId(any)).thenReturn(const CompactTemplate());
+        when(draftService.drafts).thenReturn([
+          draftWith(id: 'b', name: 'Globex platform'),
+          draftWith(id: 'a', name: 'Acme platform'),
+          draftWith(id: 'c', name: 'Initech'),
+        ]);
+
+        final model = DraftsListViewModel();
+        model.setQuery('platform');
+        model.setSortOrder(DraftSortOrder.nameAtoZ);
+
+        expect(model.filteredDrafts.map((d) => d.id), ['a', 'b']);
+        expect(model.hasNoSearchResults, isFalse);
+      });
+
+      test('a query matching nothing reports hasNoSearchResults', () {
+        when(templateRegistry.byId(any)).thenReturn(const CompactTemplate());
+        when(draftService.drafts).thenReturn(unsortedDrafts());
+
+        final model = DraftsListViewModel();
+        model.setQuery('nothing matches this');
+
+        expect(model.filteredDrafts, isEmpty);
+        expect(model.hasNoSearchResults, isTrue);
+      });
+    });
+
     group('createDraft -', () {
       test(
         'confirming creates a draft via the default template and opens it',

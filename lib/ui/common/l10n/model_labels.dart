@@ -102,3 +102,28 @@ extension RegionSpellingLabel on RegionSpelling {
     RegionSpelling.enAu => l10n.spellingEnAu,
   };
 }
+
+/// A template's name and description, keyed by [CvTemplate.id].
+///
+/// Id-keyed rather than an extension on `CvTemplate`, because a template is
+/// a class rather than an enum — there is no exhaustive `switch` the
+/// compiler can check. `template_registry_service_test` covers the gap by
+/// asserting every registered template resolves to both, so adding a
+/// template without adding its copy fails a test rather than shipping a
+/// blank card.
+///
+/// The strings live here for the same reason the enum labels do: they need
+/// [AppLocalizations], and the template libraries stay free of Flutter.
+String templateDisplayName(AppLocalizations l10n, String id) => switch (id) {
+  'compact' => l10n.templateNameCompact,
+  'classic_centered' => l10n.templateNameClassicCentered,
+  'photo_header' => l10n.templateNamePhotoHeader,
+  _ => id,
+};
+
+String templateDescriptionFor(AppLocalizations l10n, String id) => switch (id) {
+  'compact' => l10n.templateDescriptionCompact,
+  'classic_centered' => l10n.templateDescriptionClassicCentered,
+  'photo_header' => l10n.templateDescriptionPhotoHeader,
+  _ => '',
+};

@@ -342,6 +342,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String commonRelativeHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String commonRelativeOnDate(DateTime date) {
     final intl.DateFormat dateDateFormat = intl.DateFormat(
       'dd/MM/yyyy',
@@ -353,7 +364,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get commonRelativeToday => 'today';
+  String get commonRelativeUnderAnHour => '< 1 hour ago';
 
   @override
   String get commonRelativeYesterday => 'yesterday';
@@ -1420,6 +1431,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get studioDraftTailoredMarker => 'Tailored to a job ad';
+
+  @override
   String studioDraftUntitled(String noun) {
     String _temp0 = intl.Intl.selectLogic(noun, {
       'cv': 'Untitled CV',
@@ -1430,14 +1444,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String studioDraftUpdated(DateTime timestamp) {
+  String studioDraftUpdated(String relative) {
+    return 'Updated $relative';
+  }
+
+  @override
+  String studioDraftUpdatedExact(DateTime timestamp) {
     final intl.DateFormat timestampDateFormat = intl.DateFormat(
       'dd/MM/yyyy HH:mm',
       localeName,
     );
     final String timestampString = timestampDateFormat.format(timestamp);
 
-    return 'Updated $timestampString';
+    return '$timestampString';
   }
 
   @override
@@ -1724,6 +1743,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioSkillsTitle => 'Skills';
 
   @override
+  String get studioSortLabel => 'Sort';
+
+  @override
+  String get studioSortNameAtoZ => 'Name A–Z';
+
+  @override
+  String get studioSortRecentlyUpdated => 'Recently updated';
+
+  @override
   String get studioTabConfigure => 'Configure';
 
   @override
@@ -1743,10 +1771,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Revert to Vault — tailored for this CV';
 
   @override
+  String get studioTemplateCurrent => 'Current';
+
+  @override
   String get studioTemplatePickerTitle => 'Choose a template';
 
   @override
   String get studioTemplatePickerUse => 'Use this template';
+
+  @override
+  String get templateDescriptionClassicCentered =>
+      'Centred headings and a justified summary, with whitespace in place of section rules.';
+
+  @override
+  String get templateDescriptionCompact =>
+      'A plain single column, tightly set — the most content per page.';
+
+  @override
+  String get templateDescriptionPhotoHeader =>
+      'A tinted header band around your Vault photo. Expected in DACH, common in southern Europe; in the US and UK a photo invites rejection.';
+
+  @override
+  String get templateNameClassicCentered => 'Traditional';
+
+  @override
+  String get templateNameCompact => 'Compact';
+
+  @override
+  String get templateNamePhotoHeader => 'Modern with photo';
 
   @override
   String get templateTagAcademic => 'Academic';

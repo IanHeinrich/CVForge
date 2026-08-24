@@ -518,17 +518,23 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 day ago} other{{count} days ago}}'**
   String commonRelativeDaysAgo(int count);
 
+  /// Relative timestamp for 1-23 hours ago, used mid-sentence. Past 24 hours the app switches to yesterday / N days ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour ago} other{{count} hours ago}}'**
+  String commonRelativeHoursAgo(int count);
+
   /// Absolute fallback for a timestamp older than about a month, used mid-sentence — e.g. 'Last backup: on 23/08/2026'. The day/month/year order is pinned deliberately and should follow the locale's own convention.
   ///
   /// In en, this message translates to:
   /// **'on {date}'**
   String commonRelativeOnDate(DateTime date);
 
-  /// Relative timestamp, used mid-sentence after a label like 'Last backup:' — e.g. 'Last backup: today'. Lowercase on purpose.
+  /// Relative timestamp for anything less than an hour old, used mid-sentence after a label like 'Updated'. Deliberately terse — it renders into caption-width slots and a spelled-out form ellipsised on the narrowest of them.
   ///
   /// In en, this message translates to:
-  /// **'today'**
-  String get commonRelativeToday;
+  /// **'< 1 hour ago'**
+  String get commonRelativeUnderAnHour;
 
   /// Relative timestamp for the previous day, used mid-sentence. Lowercase on purpose.
   ///
@@ -2180,17 +2186,29 @@ abstract class AppLocalizations {
   /// **'{noun, select, cv{Search CVs…} resume{Search résumés…} other{Search documents…}}'**
   String studioDraftsSearch(String noun);
 
+  /// Marker on a CV card showing it has a job description saved against it, so the AI Assistant has something to tailor to.
+  ///
+  /// In en, this message translates to:
+  /// **'Tailored to a job ad'**
+  String get studioDraftTailoredMarker;
+
   /// Shown on a CV card when the CV has no name yet.
   ///
   /// In en, this message translates to:
   /// **'{noun, select, cv{Untitled CV} resume{Untitled Résumé} other{Untitled Document}}'**
   String studioDraftUntitled(String noun);
 
-  /// CV card line showing when the CV was last edited.
+  /// CV card line showing when the CV was last edited. {relative} is an already-formatted lowercase phrase like "< 1 hour ago" or "3 days ago", read as the tail of this sentence.
   ///
   /// In en, this message translates to:
-  /// **'Updated {timestamp}'**
-  String studioDraftUpdated(DateTime timestamp);
+  /// **'Updated {relative}'**
+  String studioDraftUpdated(String relative);
+
+  /// Tooltip on a CV card's "Updated" line, giving the exact timestamp the relative phrase approximates. Order and separators should follow the locale's own convention.
+  ///
+  /// In en, this message translates to:
+  /// **'{timestamp}'**
+  String studioDraftUpdatedExact(DateTime timestamp);
 
   /// Studio tooltip on the button opening the rename dialog.
   ///
@@ -2570,6 +2588,24 @@ abstract class AppLocalizations {
   /// **'Skills'**
   String get studioSkillsTitle;
 
+  /// Tooltip on the button that opens the CV list's sort menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get studioSortLabel;
+
+  /// CV list sort option: alphabetical by name. Use the target language's own alphabet range convention (e.g. 'A–Z').
+  ///
+  /// In en, this message translates to:
+  /// **'Name A–Z'**
+  String get studioSortNameAtoZ;
+
+  /// CV list sort option: most recently edited first.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently updated'**
+  String get studioSortRecentlyUpdated;
+
   /// Studio narrow-layout tab showing the section editors.
   ///
   /// In en, this message translates to:
@@ -2606,6 +2642,12 @@ abstract class AppLocalizations {
   /// **'Revert to Vault — tailored for this CV'**
   String get studioTailoringReverted;
 
+  /// Marker in the template picker on the template the CV currently uses, distinguishing it from the one being considered.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get studioTemplateCurrent;
+
   /// Title of the dialog for picking the CV's visual template.
   ///
   /// In en, this message translates to:
@@ -2617,6 +2659,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use this template'**
   String get studioTemplatePickerUse;
+
+  /// Template description in the picker, for the traditional layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Centred headings and a justified summary, with whitespace in place of section rules.'**
+  String get templateDescriptionClassicCentered;
+
+  /// Template description in the picker, for the compact layout.
+  ///
+  /// In en, this message translates to:
+  /// **'A plain single column, tightly set — the most content per page.'**
+  String get templateDescriptionCompact;
+
+  /// Template description in the picker, for the photo layout. The market warning is load-bearing — a registry test asserts a photo-tagged template states it, so it must survive translation.
+  ///
+  /// In en, this message translates to:
+  /// **'A tinted header band around your Vault photo. Expected in DACH, common in southern Europe; in the US and UK a photo invites rejection.'**
+  String get templateDescriptionPhotoHeader;
+
+  /// Template name shown in the template picker: a conservative centred layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional'**
+  String get templateNameClassicCentered;
+
+  /// Template name shown in the template picker: a dense single-column layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get templateNameCompact;
+
+  /// Template name shown in the template picker: the layout that prints the Vault photograph.
+  ///
+  /// In en, this message translates to:
+  /// **'Modern with photo'**
+  String get templateNamePhotoHeader;
 
   /// Template tag: suited to academic CVs, which run longer and list publications.
   ///

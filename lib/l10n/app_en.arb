@@ -422,6 +422,16 @@
       }
     }
   },
+  "commonRelativeHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@commonRelativeHoursAgo": {
+    "description": "Relative timestamp for 1-23 hours ago, used mid-sentence. Past 24 hours the app switches to yesterday / N days ago.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "commonRelativeOnDate": "on {date}",
   "@commonRelativeOnDate": {
     "description": "Absolute fallback for a timestamp older than about a month, used mid-sentence — e.g. 'Last backup: on 23/08/2026'. The day/month/year order is pinned deliberately and should follow the locale's own convention.",
@@ -434,9 +444,9 @@
       }
     }
   },
-  "commonRelativeToday": "today",
-  "@commonRelativeToday": {
-    "description": "Relative timestamp, used mid-sentence after a label like 'Last backup:' — e.g. 'Last backup: today'. Lowercase on purpose."
+  "commonRelativeUnderAnHour": "< 1 hour ago",
+  "@commonRelativeUnderAnHour": {
+    "description": "Relative timestamp for anything less than an hour old, used mid-sentence after a label like 'Updated'. Deliberately terse — it renders into caption-width slots and a spelled-out form ellipsised on the narrowest of them."
   },
   "commonRelativeYesterday": "yesterday",
   "@commonRelativeYesterday": {
@@ -1804,6 +1814,10 @@
       }
     }
   },
+  "studioDraftTailoredMarker": "Tailored to a job ad",
+  "@studioDraftTailoredMarker": {
+    "description": "Marker on a CV card showing it has a job description saved against it, so the AI Assistant has something to tailor to."
+  },
   "studioDraftUntitled": "{noun, select, cv{Untitled CV} resume{Untitled Résumé} other{Untitled Document}}",
   "@studioDraftUntitled": {
     "description": "Shown on a CV card when the CV has no name yet.",
@@ -1814,9 +1828,19 @@
       }
     }
   },
-  "studioDraftUpdated": "Updated {timestamp}",
+  "studioDraftUpdated": "Updated {relative}",
   "@studioDraftUpdated": {
-    "description": "CV card line showing when the CV was last edited.",
+    "description": "CV card line showing when the CV was last edited. {relative} is an already-formatted lowercase phrase like \"< 1 hour ago\" or \"3 days ago\", read as the tail of this sentence.",
+    "placeholders": {
+      "relative": {
+        "type": "String",
+        "example": "3 hours ago"
+      }
+    }
+  },
+  "studioDraftUpdatedExact": "{timestamp}",
+  "@studioDraftUpdatedExact": {
+    "description": "Tooltip on a CV card's \"Updated\" line, giving the exact timestamp the relative phrase approximates. Order and separators should follow the locale's own convention.",
     "placeholders": {
       "timestamp": {
         "type": "DateTime",
@@ -2184,6 +2208,18 @@
   "@studioSkillsTitle": {
     "description": "Studio skill selector heading."
   },
+  "studioSortLabel": "Sort",
+  "@studioSortLabel": {
+    "description": "Tooltip on the button that opens the CV list's sort menu."
+  },
+  "studioSortNameAtoZ": "Name A–Z",
+  "@studioSortNameAtoZ": {
+    "description": "CV list sort option: alphabetical by name. Use the target language's own alphabet range convention (e.g. 'A–Z')."
+  },
+  "studioSortRecentlyUpdated": "Recently updated",
+  "@studioSortRecentlyUpdated": {
+    "description": "CV list sort option: most recently edited first."
+  },
   "studioTabConfigure": "Configure",
   "@studioTabConfigure": {
     "description": "Studio narrow-layout tab showing the section editors."
@@ -2208,6 +2244,10 @@
   "@studioTailoringReverted": {
     "description": "Studio tooltip on text that has been edited for this CV only; the action restores the Vault's original wording."
   },
+  "studioTemplateCurrent": "Current",
+  "@studioTemplateCurrent": {
+    "description": "Marker in the template picker on the template the CV currently uses, distinguishing it from the one being considered."
+  },
   "studioTemplatePickerTitle": "Choose a template",
   "@studioTemplatePickerTitle": {
     "description": "Title of the dialog for picking the CV's visual template."
@@ -2215,6 +2255,30 @@
   "studioTemplatePickerUse": "Use this template",
   "@studioTemplatePickerUse": {
     "description": "Template picker confirm button."
+  },
+  "templateDescriptionClassicCentered": "Centred headings and a justified summary, with whitespace in place of section rules.",
+  "@templateDescriptionClassicCentered": {
+    "description": "Template description in the picker, for the traditional layout."
+  },
+  "templateDescriptionCompact": "A plain single column, tightly set — the most content per page.",
+  "@templateDescriptionCompact": {
+    "description": "Template description in the picker, for the compact layout."
+  },
+  "templateDescriptionPhotoHeader": "A tinted header band around your Vault photo. Expected in DACH, common in southern Europe; in the US and UK a photo invites rejection.",
+  "@templateDescriptionPhotoHeader": {
+    "description": "Template description in the picker, for the photo layout. The market warning is load-bearing — a registry test asserts a photo-tagged template states it, so it must survive translation."
+  },
+  "templateNameClassicCentered": "Traditional",
+  "@templateNameClassicCentered": {
+    "description": "Template name shown in the template picker: a conservative centred layout."
+  },
+  "templateNameCompact": "Compact",
+  "@templateNameCompact": {
+    "description": "Template name shown in the template picker: a dense single-column layout."
+  },
+  "templateNamePhotoHeader": "Modern with photo",
+  "@templateNamePhotoHeader": {
+    "description": "Template name shown in the template picker: the layout that prints the Vault photograph."
   },
   "templateTagAcademic": "Academic",
   "@templateTagAcademic": {

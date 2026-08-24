@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:cv_forge/app/app.dialogs.dart';
+import 'package:cv_forge/l10n/generated/app_localizations.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
@@ -18,6 +20,28 @@ import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:pdf/pdf.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+
+/// The orders the CVs list can be sorted in. Presentation state only — see
+/// [DraftsListViewModel.sortOrder] for why this never reaches
+/// [DraftService].
+///
+/// No "newest first": [CvDraft] has no `createdAt`, so creation order isn't
+/// recoverable without a schema change.
+enum DraftSortOrder {
+  recentlyUpdated,
+  nameAtoZ;
+
+  /// Shown on the sort control itself, so the active order is readable
+  /// without opening the menu.
+  ///
+  /// A method rather than a `const` constructor field: a localized string
+  /// is not a compile-time constant. Same reason the other display labels
+  /// on this app take the localizations rather than holding them.
+  String label(AppLocalizations l10n) => switch (this) {
+    DraftSortOrder.recentlyUpdated => l10n.studioSortRecentlyUpdated,
+    DraftSortOrder.nameAtoZ => l10n.studioSortNameAtoZ,
+  };
+}
 
 /// Studio's landing page: every saved CV, with create/open/rename/
 /// duplicate/delete. Opening or creating a draft hands off to
@@ -84,7 +108,30 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
       .name;
 
   String templateName(String templateId) =>
-      _templateRegistry.byId(templateId).displayName;
+      templateDisplayName(_localizationService.strings, templateId);
+
+  /// What a card actually shows as this draft's title, falling back to
+  /// "Untitled CV"/"Untitled Résumé" per the draft's own region. Read by
+  /// both the card and [DraftSortOrder.nameAtoZ], so an untitled draft
+  /// can't sort under one string while displaying another.
+  String displayName(CvDraft draft) => draft.name.isEmpty
+      ? _localizationService.strings.studioDraftUntitled(
+          draft.region.preset.documentNoun.name,
+        )
+      : draft.name;
+
+  /// Presentation state, not persisted — deliberately kept off
+  /// [DraftService], whose own recency sort is applied at every write and
+  /// is load-bearing for backup byte-stability (see `_sortedByRecency`).
+  /// Sorting is a property of this view, not of stored data.
+  DraftSortOrder _sortOrder = DraftSortOrder.recentlyUpdated;
+  DraftSortOrder get sortOrder => _sortOrder;
+
+  void setSortOrder(DraftSortOrder value) {
+    if (value == _sortOrder) return;
+    _sortOrder = value;
+    notifyListeners();
+  }
 
   /// Presentation state, not persisted — same call as `StudioSkillSelector.
   /// _query`. Filters by name, notes, or template name so "cover letter" or
@@ -99,12 +146,25 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   List<CvDraft> get filteredDrafts {
-    if (_query.isEmpty) return drafts;
-    return drafts.where((draft) {
-      if (draft.name.toLowerCase().contains(_query)) return true;
-      if (draft.notes.toLowerCase().contains(_query)) return true;
-      return templateName(draft.templateId).toLowerCase().contains(_query);
-    }).toList();
+    final matching = _query.isEmpty
+        ? drafts
+        : drafts.where((draft) {
+            if (draft.name.toLowerCase().contains(_query)) return true;
+            if (draft.notes.toLowerCase().contains(_query)) return true;
+            return templateName(
+              draft.templateId,
+            ).toLowerCase().contains(_query);
+          }).toList();
+    if (_sortOrder == DraftSortOrder.recentlyUpdated) return matching;
+    // `id` breaks ties for the same reason `DraftService._sortedByRecency`
+    // does: `List.sort` isn't stable in Dart, so two drafts sharing a name
+    // would otherwise swap places between rebuilds.
+    return [...matching]..sort((a, b) {
+      final byName = displayName(
+        a,
+      ).toLowerCase().compareTo(displayName(b).toLowerCase());
+      return byName != 0 ? byName : a.id.compareTo(b.id);
+    });
   }
 
   /// Distinct from [isEmpty] — that one means no draft exists at all (and

@@ -27,13 +27,6 @@ class ClassicCenteredTemplate implements CvTemplate {
   // the gallery now that grouping under a tag heading doesn't supply
   // that context for it. `id` is unchanged — it's the persisted
   // per-draft template reference, not user-facing.
-  @override
-  String get displayName => 'Traditional';
-
-  @override
-  String get description =>
-      'A centered, whitespace-led single-column layout with a two-row '
-      'entry header and a justified summary paragraph.';
 
   @override
   CvDesignTokens get tokens => classicCenteredTokens;

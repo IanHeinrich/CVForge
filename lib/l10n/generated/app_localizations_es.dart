@@ -349,6 +349,17 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String commonRelativeHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'hace $count horas',
+      one: 'hace 1 hora',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String commonRelativeOnDate(DateTime date) {
     final intl.DateFormat dateDateFormat = intl.DateFormat(
       'dd/MM/yyyy',
@@ -360,7 +371,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get commonRelativeToday => 'hoy';
+  String get commonRelativeUnderAnHour => 'hace < 1 hora';
 
   @override
   String get commonRelativeYesterday => 'ayer';
@@ -1434,6 +1445,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get studioDraftTailoredMarker => 'Adaptado a una oferta';
+
+  @override
   String studioDraftUntitled(String noun) {
     String _temp0 = intl.Intl.selectLogic(noun, {
       'cv': 'CV sin título',
@@ -1444,14 +1458,19 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String studioDraftUpdated(DateTime timestamp) {
+  String studioDraftUpdated(String relative) {
+    return 'Actualizado $relative';
+  }
+
+  @override
+  String studioDraftUpdatedExact(DateTime timestamp) {
     final intl.DateFormat timestampDateFormat = intl.DateFormat(
       'dd/MM/yyyy HH:mm',
       localeName,
     );
     final String timestampString = timestampDateFormat.format(timestamp);
 
-    return 'Actualizado $timestampString';
+    return '$timestampString';
   }
 
   @override
@@ -1745,6 +1764,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioSkillsTitle => 'Habilidades';
 
   @override
+  String get studioSortLabel => 'Ordenar';
+
+  @override
+  String get studioSortNameAtoZ => 'Nombre A–Z';
+
+  @override
+  String get studioSortRecentlyUpdated => 'Actualizados recientemente';
+
+  @override
   String get studioTabConfigure => 'Configurar';
 
   @override
@@ -1764,10 +1792,34 @@ class AppLocalizationsEs extends AppLocalizations {
       'Volver a la Bóveda — adaptado para este CV';
 
   @override
+  String get studioTemplateCurrent => 'Actual';
+
+  @override
   String get studioTemplatePickerTitle => 'Elige una plantilla';
 
   @override
   String get studioTemplatePickerUse => 'Usar esta plantilla';
+
+  @override
+  String get templateDescriptionClassicCentered =>
+      'Encabezados centrados y un perfil justificado, con espacios en blanco en lugar de líneas divisorias.';
+
+  @override
+  String get templateDescriptionCompact =>
+      'Una sola columna sencilla, con composición ajustada — el máximo contenido por página.';
+
+  @override
+  String get templateDescriptionPhotoHeader =>
+      'Una banda de encabezado con color alrededor de la foto de tu Bóveda. Se espera en DACH y es común en el sur de Europa; en EE. UU. y el Reino Unido una foto provoca el descarte.';
+
+  @override
+  String get templateNameClassicCentered => 'Tradicional';
+
+  @override
+  String get templateNameCompact => 'Compacta';
+
+  @override
+  String get templateNamePhotoHeader => 'Moderna con foto';
 
   @override
   String get templateTagAcademic => 'Académico';

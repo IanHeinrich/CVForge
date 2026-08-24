@@ -9,6 +9,8 @@ import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/l10n/region_labels.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
+
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -193,7 +195,7 @@ class _SetupControls extends StatelessWidget {
             RemixIcons.layout_grid_line,
             size: context.appIconSize.small,
           ),
-          label: viewModel.template.displayName,
+          label: templateDisplayName(context.l10n, viewModel.template.id),
           labelMaxWidth: compact ? _compactLabelMaxWidth : null,
         ),
         // A button opening a card dialog, not a `DropdownMenu`: region sits

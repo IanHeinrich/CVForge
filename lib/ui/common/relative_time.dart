@@ -1,17 +1,32 @@
 import 'package:cv_forge/l10n/generated/app_localizations.dart';
 
-/// "today" / "yesterday" / "N days ago", falling back to an absolute date
-/// past a month — "47 days ago" stops being a useful unit for something you
-/// may not think about for months at a time. Extracted from
-/// `BackupSettingsCard`'s original private `_formatRelative` once a second
-/// caller ([DriveSettingsCard]/`DriveSyncIndicator`) needed the identical
-/// formatting — see this repo's "state a cross-cutting rationale once" rule.
+/// "< 1 hour ago" / "N hours ago" / "yesterday" / "N days ago", falling
+/// back to an absolute `DD/MM/YYYY` past a month — "47 days ago" stops
+/// being a useful unit for something you may not think about for months at
+/// a time.
 ///
-/// Takes [l10n] rather than reading the locator, so it stays a pure function
-/// of its inputs and every caller makes the dependency visible.
+/// Deliberately terse: these render into caption-width slots (a 200px
+/// drafts card, a settings row), and the spelled-out "less than an hour
+/// ago" was long enough to ellipsise on the narrowest of them.
+///
+/// Hour granularity below a day, because the coarser "today" this replaced
+/// couldn't tell a CV edited a minute ago from one edited at breakfast —
+/// and the hours after an edit are exactly the window in which "when did I
+/// last touch this?" gets asked.
+///
+/// Extracted from `BackupSettingsCard`'s original private `_formatRelative`
+/// once a second caller ([DriveSettingsCard]/`DriveSyncIndicator`) needed
+/// the identical formatting — see this repo's "state a cross-cutting
+/// rationale once" rule. Every caller reads the result as the tail of a
+/// sentence ("Last backed up …", "Updated …"), so each branch has to be a
+/// phrase that completes one.
 String formatRelativeTime(AppLocalizations l10n, DateTime time) {
-  final days = DateTime.now().difference(time).inDays;
-  if (days <= 0) return l10n.commonRelativeToday;
+  final elapsed = DateTime.now().difference(time);
+  // Also catches a timestamp marginally in the future — a drifted clock,
+  // or a write from another tab — which would otherwise count backwards.
+  if (elapsed.inHours < 1) return l10n.commonRelativeUnderAnHour;
+  if (elapsed.inHours < 24) return l10n.commonRelativeHoursAgo(elapsed.inHours);
+  final days = elapsed.inDays;
   if (days == 1) return l10n.commonRelativeYesterday;
   if (days < 30) return l10n.commonRelativeDaysAgo(days);
   return l10n.commonRelativeOnDate(time);

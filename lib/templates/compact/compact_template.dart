@@ -23,14 +23,6 @@ class CompactTemplate implements CvTemplate {
   String get id => 'compact';
 
   @override
-  String get displayName => 'Compact';
-
-  @override
-  String get description =>
-      'A clean, single-column, sans-serif layout built to pass through '
-      'ATS parsers without friction.';
-
-  @override
   CvDesignTokens get tokens => compactTokens;
 
   @override

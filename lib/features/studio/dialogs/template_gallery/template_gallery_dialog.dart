@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -17,11 +18,14 @@ import 'package:cv_forge/templates/cv_template.dart';
 import 'template_gallery_dialog_data.dart';
 import 'template_gallery_dialog_model.dart';
 
-/// The card's ideal width, sized so the thumbnail is actually legible as a
+/// The card's ideal width: wide enough that the thumbnail still reads as a
 /// page — you're picking a visual design, so a stamp-sized render of it
-/// answers nothing. Only ever shrunk from this by [_TemplateCard]'s own
-/// `LayoutBuilder`, on a viewport too narrow to fit even one at full size.
-const _cardWidth = 300.0;
+/// answers nothing — but narrow enough that every registered template fits
+/// on one row of the dialog's 760 max width, so choosing between them
+/// never involves scrolling. Only ever shrunk from this by
+/// [_TemplateCard]'s own `LayoutBuilder`, on a viewport too narrow to fit
+/// even one at full size.
+const _cardWidth = 220.0;
 
 /// A flat, wrapping grid of template cards — not grouped or filtered, see
 /// [TemplateGalleryDialogModel]'s doc comment for why tag-grouping was
@@ -80,6 +84,7 @@ class TemplateGalleryDialog extends StackedView<TemplateGalleryDialogModel> {
                 _TemplateCard(
                   template: template,
                   selected: viewModel.selectedTemplateId == template.id,
+                  current: viewModel.currentTemplateId == template.id,
                   onTap: () => viewModel.selectTemplate(template.id),
                   thumbnailFuture: viewModel.thumbnailFor(template.id),
                   pageAspectRatio: viewModel.pageAspectRatio,
@@ -100,6 +105,7 @@ class _TemplateCard extends StatelessWidget {
   const _TemplateCard({
     required this.template,
     required this.selected,
+    required this.current,
     required this.onTap,
     required this.thumbnailFuture,
     required this.pageAspectRatio,
@@ -107,6 +113,10 @@ class _TemplateCard extends StatelessWidget {
 
   final CvTemplate template;
   final bool selected;
+
+  /// Whether this is the template the draft is on today. Distinct from
+  /// [selected], which is what the confirm button would apply.
+  final bool current;
   final VoidCallback onTap;
   final Future<Uint8List> thumbnailFuture;
 
@@ -119,8 +129,14 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Every tag, not just the ones beyond a "primary" — there's no group
-    // heading conveying that anymore now the gallery is a flat grid.
-    final tags = template.tags.toList();
+    // heading conveying that anymore now the gallery is a flat grid. One
+    // caption line rather than a `Chip` each: three Material chips wrap to
+    // two or three rows at this card width, and carry far more visual
+    // weight than one line of text is worth.
+    final tags = template.tags
+        .map((tag) => tag.displayLabel(context.l10n))
+        .join(' · ');
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(context.appRadius.medium),
@@ -152,64 +168,77 @@ class _TemplateCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Stack(
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(context.appRadius.small),
+                  // AspectRatio, not a fixed height — the slot takes
+                  // the page's own proportions so `BoxFit.cover` fills
+                  // it exactly, with no letterbox band in either
+                  // direction whichever page size the draft uses.
+                  child: AspectRatio(
+                    aspectRatio: pageAspectRatio,
+                    child: PdfPageThumbnail(future: thumbnailFuture),
+                  ),
+                ),
+                const VGap.tiny(),
+                // The check sits in the name row, not over the thumbnail:
+                // there it was a primary-coloured glyph on top of a
+                // rendered white page, barely legible, and redundant with
+                // the border this card already draws when selected. Same
+                // placement `RegionGalleryDialog._RegionListRow` uses.
+                Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        context.appRadius.small,
-                      ),
-                      // AspectRatio, not a fixed height — the slot takes
-                      // the page's own proportions so `BoxFit.cover` fills
-                      // it exactly, with no letterbox band in either
-                      // direction whichever page size the draft uses.
-                      child: AspectRatio(
-                        aspectRatio: pageAspectRatio,
-                        child: PdfPageThumbnail(future: thumbnailFuture),
+                    Expanded(
+                      child: Text(
+                        templateDisplayName(context.l10n, template.id),
+                        style: context.appTypography.bodySmall.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (selected)
-                      Positioned(
-                        top: 6,
-                        right: 6,
-                        child: Icon(
-                          RemixIcons.checkbox_circle_fill,
-                          color: Theme.of(context).colorScheme.primary,
+                    if (current) ...[
+                      const HGap.tiny(),
+                      Text(
+                        context.l10n.studioTemplateCurrent,
+                        style: context.appTypography.caption.copyWith(
+                          color: muted,
                         ),
                       ),
+                    ],
+                    if (selected) ...[
+                      const HGap.tiny(),
+                      Icon(
+                        RemixIcons.checkbox_circle_fill,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: context.appIconSize.medium,
+                      ),
+                    ],
                   ],
                 ),
                 const VGap.tiny(),
+                // Wraps in full, with no line cap: a description is the
+                // only thing on the card that distinguishes two
+                // similar-looking templates, and clipping it withheld
+                // exactly the part that decides the choice — the photo
+                // template's own description ends by warning that a photo
+                // invites a rejection in the US and UK, which is useless
+                // as an ellipsis. Cards in the `Wrap` end up different
+                // heights; that's the cheaper cost, the same call
+                // `RegionGalleryDialog._RegionListRow` makes for its
+                // country list.
                 Text(
-                  template.displayName,
-                  style: context.appTypography.bodySmall.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const VGap.tiny(),
-                Text(
-                  template.description,
-                  style: context.appTypography.caption.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  templateDescriptionFor(context.l10n, template.id),
+                  style: context.appTypography.caption.copyWith(color: muted),
                 ),
                 if (tags.isNotEmpty) ...[
                   const VGap.tiny(),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: [
-                      for (final tag in tags)
-                        Chip(
-                          label: Text(tag.displayLabel(context.l10n)),
-                          labelStyle: context.appTypography.caption,
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                        ),
-                    ],
+                  Text(
+                    tags,
+                    style: context.appTypography.caption.copyWith(color: muted),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ],

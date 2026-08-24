@@ -82,6 +82,11 @@ void main() {
     await screenMatchesGolden(tester, 'drafts_list_view_empty');
   });
 
+  // Every `updatedAt` here is far enough in the past that
+  // `formatRelativeTime` returns its absolute `on DD/MM/YYYY` form rather
+  // than "N days ago", which is what keeps this golden deterministic. A
+  // fixture dated within the last 30 days would render a different string
+  // every day and fail on a schedule.
   testGoldens('DraftsListView - populated', (tester) async {
     when(draftService.drafts).thenReturn([
       CvDraft.empty(
@@ -90,6 +95,7 @@ void main() {
         name: 'Acme — Backend Engineer',
       ).copyWith(
         notes: 'Tailored for the Acme application',
+        targetJobDescription: 'Backend Engineer, Acme — 5+ years Dart…',
         updatedAt: DateTime(2026, 3, 2),
       ),
       CvDraft.empty(
@@ -97,6 +103,13 @@ void main() {
         templateId: 'compact',
         name: 'Globex — Platform Team',
       ).copyWith(updatedAt: DateTime(2026, 2, 18)),
+      // No name and no job ad — covers the "Untitled CV" fallback and the
+      // absence of the tailored marker in the same card.
+      CvDraft.empty(
+        id: 'draft-3',
+        templateId: 'compact',
+        name: '',
+      ).copyWith(updatedAt: DateTime(2026, 1, 9)),
     ]);
 
     await pumpGoldenScreen(tester, const DraftsListView());
