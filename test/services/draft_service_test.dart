@@ -175,6 +175,25 @@ void main() {
       expect(service.activeDraftId, isNull);
     });
 
+    test('deleteDraft drops a draft edited moments earlier, rather than '
+        'letting the still-pending debounced write recreate its storage '
+        'entry after the delete', () async {
+      final service = DraftService();
+      await service.load();
+      final id = service.draft.id;
+      final key = '${StorageBoxes.drafts}/${StorageKeys.draftEntry(id)}';
+
+      // Debounced — the timer is still running when the delete lands.
+      await service.setHeadlineOverride('mid-typing');
+
+      await service.deleteDraft(id);
+      expect(memory.containsKey(key), isFalse);
+
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      expect(memory.containsKey(key), isFalse);
+    });
+
     test(
       'Toggling an experience id includes/excludes it, with its bullets',
       () async {
