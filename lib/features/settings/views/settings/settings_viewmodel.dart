@@ -48,9 +48,8 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   @override
   void initialise() => runBusyFuture(_load(), busyObject: _loadBusyKey);
 
-  // A real `async` wrapper, not `runBusyFuture(_settingsService.load())`
-  // directly — see `VaultViewModel._load`'s doc comment for exactly why a
-  // synchronously-throwing call needs this.
+  // See `VaultViewModel._load` for why these are real `async` wrappers
+  // rather than the service call passed straight to [runBusyFuture].
   Future<void> _load() async => _settingsService.load();
 
   bool get isLoading => busy(_loadBusyKey);
@@ -106,10 +105,6 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> exportBackup() =>
       runBusyFuture(_export(), busyObject: _exportBusyKey);
 
-  // Real `async` wrappers, not the service calls passed to [runBusyFuture]
-  // directly — see `VaultViewModel._load`'s doc comment for why a call
-  // that throws synchronously would otherwise bypass [runBusyFuture]'s
-  // busy/error bookkeeping entirely.
   Future<void> _export() async {
     await _backupService.exportBackup();
     // Only reached on success — a thrown BackupException propagates out
@@ -339,11 +334,6 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
       '\$${model.inputPricePerMTok.toStringAsFixed(2)} in / '
       '\$${model.outputPricePerMTok.toStringAsFixed(2)} out per M tokens';
 
-  // A real `async` wrapper, not `_llmService.testConnection(...)` returned
-  // directly — see `VaultViewModel._load`'s doc comment for exactly why a
-  // synchronously-throwing call needs this: `runBusyFuture` can only catch
-  // a failure inside the `Future` it's given, not one thrown while that
-  // argument is still being evaluated.
   Future<void> _testConnection(String apiKey) async =>
       _llmService.testConnection(selectedAiAssistantProvider.id, apiKey);
 
@@ -412,10 +402,6 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> connectDrive() =>
       runBusyFuture(_connectDrive(), busyObject: _driveConnectBusyKey);
 
-  // Real `async` wrappers, not the service calls passed to [runBusyFuture]
-  // directly — see `VaultViewModel._load`'s doc comment for why a call
-  // that throws synchronously would otherwise escape `runBusyFuture`'s
-  // busy/error bookkeeping entirely.
   Future<void> _connectDrive() async => _driveSyncService.connect();
 
   Future<void> syncDriveNow() =>

@@ -74,7 +74,7 @@ void main() {
       );
     });
 
-    group('AI Assistant mutators (4.4) -', () {
+    group('AI Assistant mutators -', () {
       test(
         'setAiAssistantProvider/setAiAssistantModel update settings',
         () async {

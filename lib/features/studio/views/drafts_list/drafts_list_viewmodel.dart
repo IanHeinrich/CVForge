@@ -42,12 +42,10 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   @override
   void initialise() => runBusyFuture(_load(), busyObject: _loadBusyKey);
 
-  /// A real `async` wrapper, not `runBusyFuture(_vaultService.load())`
-  /// directly — see `StudioViewModel._load`'s doc comment for why: the
-  /// Vault is needed here too now, for each card's thumbnail. Settings
-  /// must be loaded too, since this page's own copy reads
-  /// `AppSettings.defaultRegion` and a deep link straight to this route
-  /// skips `SettingsView`.
+  /// Loads the Vault (each card renders a thumbnail from it) and Settings
+  /// (this page's copy reads `AppSettings.defaultRegion`, and a deep link
+  /// straight here skips `SettingsView`). A real `async` wrapper for the
+  /// reason `VaultViewModel._load` documents.
   Future<void> _load() async {
     await _vaultService.load();
     await _draftService.load();

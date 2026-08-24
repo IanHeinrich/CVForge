@@ -565,7 +565,7 @@ void main() {
       );
     });
 
-    group('applyAiAssistantResult / undoAiAssistantPass (4.5) -', () {
+    group('applyAiAssistantResult / undoAiAssistantPass -', () {
       const result = AiAssistantResult(
         headline: 'Backend Engineer',
         summary: 'Tailored summary.',

@@ -70,9 +70,7 @@ class AnalyzerViewModel extends BaseViewModel {
   Future<void> pickAndAnalyze() =>
       runBusyFuture(_pickAndAnalyze(), busyObject: _analyzeBusyKey);
 
-  // A real `async` wrapper, not `runBusyFuture(_fileUpload.pickPdfFile()...)`
-  // called inline — see `VaultViewModel._load`'s doc comment for exactly
-  // why a call that can throw synchronously needs this indirection.
+  // See `VaultViewModel._load` for why this is a real `async` wrapper.
   Future<void> _pickAndAnalyze() async {
     final bytes = await _fileUpload.pickPdfFile();
     if (bytes == null) return; // user cancelled — not an error
