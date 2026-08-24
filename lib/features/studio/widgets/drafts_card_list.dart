@@ -9,7 +9,6 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
-import 'package:cv_forge/ui/widgets/common/brand_mark/brand_mark.dart';
 import 'package:cv_forge/ui/widgets/common/pdf_page_thumbnail.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:flutter/material.dart';
@@ -298,10 +297,6 @@ class _DraftsEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppEmptyState(
-      // The one placeholder in the app that gets the brand mark: it is the
-      // first thing a new user sees, and there is nothing else on the page
-      // to carry the product. Every other empty state keeps its icon.
-      graphic: const BrandMark(color: kcMediumGrey),
       icon: RemixIcons.file_text_line,
       title: 'No $documentNounPlural yet',
       message:
