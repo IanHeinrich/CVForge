@@ -13,6 +13,9 @@ _CvPreferences _$CvPreferencesFromJson(Map<String, dynamic> json) =>
           RegionProfile.uk,
       aiAssistantProviderId: json['aiAssistantProviderId'] as String?,
       aiAssistantModelId: json['aiAssistantModelId'] as String?,
+      aiAssistantConfiguredAt: json['aiAssistantConfiguredAt'] == null
+          ? null
+          : DateTime.parse(json['aiAssistantConfiguredAt'] as String),
       defaultSectionOrder: (json['defaultSectionOrder'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
           .toList(),
@@ -27,6 +30,8 @@ Map<String, dynamic> _$CvPreferencesToJson(_CvPreferences instance) =>
       'defaultRegion': _$RegionProfileEnumMap[instance.defaultRegion]!,
       'aiAssistantProviderId': instance.aiAssistantProviderId,
       'aiAssistantModelId': instance.aiAssistantModelId,
+      'aiAssistantConfiguredAt': instance.aiAssistantConfiguredAt
+          ?.toIso8601String(),
       'defaultSectionOrder': instance.defaultSectionOrder
           ?.map((e) => _$CvSectionTypeEnumMap[e]!)
           .toList(),

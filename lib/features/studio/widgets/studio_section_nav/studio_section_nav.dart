@@ -79,10 +79,13 @@ class StudioSectionNav extends StatelessWidget {
           jobDescription: viewModel.targetJobDescription,
           onChanged: viewModel.setTargetJobDescription,
           onClear: viewModel.clearTargetJobDescription,
-          canRun: viewModel.hasTargetJobDescription,
+          canRun:
+              viewModel.hasAiAssistantKey && viewModel.hasTargetJobDescription,
           onRun: viewModel.tailorWithAi,
           hasUndo: viewModel.hasAiAssistantUndo,
           onUndo: viewModel.undoAiAssistantChanges,
+          hasApiKey: viewModel.hasAiAssistantKey,
+          onOpenSettings: viewModel.goToAiAssistantSettings,
         ),
       ],
     );

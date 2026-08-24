@@ -32,18 +32,28 @@ class AiAssistantConfigCard extends StatefulWidget {
     required this.onRun,
     required this.hasUndo,
     required this.onUndo,
+    required this.hasApiKey,
+    required this.onOpenSettings,
   });
 
   final String jobDescription;
   final Future<void> Function(String value) onChanged;
   final Future<void> Function() onClear;
 
-  /// Whether [onRun] should be enabled — a non-empty job description.
+  /// Whether [onRun] should be enabled — a non-empty job description *and*
+  /// an API key to run it with.
   final bool canRun;
   final VoidCallback onRun;
 
   final bool hasUndo;
   final VoidCallback onUndo;
+
+  /// False swaps the run button for a route into Settings. The key check
+  /// used to happen inside the run dialog, so a user without one wrote a
+  /// job description, opened a modal, and only then read "add an API key
+  /// in Settings first" — an error where an unmet precondition belongs.
+  final bool hasApiKey;
+  final Future<void> Function() onOpenSettings;
 
   @override
   State<AiAssistantConfigCard> createState() => _AiAssistantConfigCardState();
@@ -80,8 +90,11 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
           ),
           const VGap.tiny(),
           Text(
-            'Bring your own API key in Settings, then paste a job ad here '
-            'to select and rewrite this CV for it.',
+            widget.hasApiKey
+                ? 'Paste the job ad here to select and rewrite this CV for '
+                      'it.'
+                : 'Bring your own API key in Settings, then paste a job ad '
+                      'here to select and rewrite this CV for it.',
             style: context.appTypography.bodySmall,
           ),
           const VGap.small(),
@@ -147,10 +160,16 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              FilledButton(
-                onPressed: widget.canRun ? widget.onRun : null,
-                child: const Text('Tailor with AI'),
-              ),
+              if (widget.hasApiKey)
+                FilledButton(
+                  onPressed: widget.canRun ? widget.onRun : null,
+                  child: const Text('Tailor with AI'),
+                )
+              else
+                FilledButton.tonal(
+                  onPressed: widget.onOpenSettings,
+                  child: const Text('Set up in Settings'),
+                ),
               if (widget.hasUndo)
                 TextButton(
                   onPressed: widget.onUndo,

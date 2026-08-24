@@ -171,8 +171,14 @@ void main() {
         expect(await service.apiKeyFor('anthropic'), isNull);
       });
 
-      test('apiKeyFor lazily reloads a remembered key from storage on first '
-          'access, simulating a page reload', () async {
+      test('load rehydrates a remembered key from storage, simulating a page '
+          'reload — and reports it as remembered, not session', () async {
+        when(
+          storage.keysWithPrefix(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyPrefix,
+          ),
+        ).thenAnswer((_) async => [StorageKeys.apiKeyFor('anthropic')]);
         when(storage.read(any, any)).thenAnswer((invocation) async {
           final key = invocation.positionalArguments[1] as String;
           if (key == StorageKeys.apiKeyFor('anthropic')) {
@@ -185,6 +191,91 @@ void main() {
         await freshService.load();
 
         expect(await freshService.apiKeyFor('anthropic'), 'sk-ant-remembered');
+        expect(
+          freshService.apiKeyOriginFor('anthropic'),
+          ApiKeyOrigin.remembered,
+        );
+        // Masked for display, never the key itself.
+        expect(freshService.maskedApiKeyFor('anthropic'), endsWith('ered'));
+      });
+
+      test('a provider with no key reports none, so Settings can tell '
+          '"nothing stored" from "stored but unreadable"', () async {
+        final service = SettingsService();
+        await service.load();
+
+        expect(service.apiKeyOriginFor('gemini'), ApiKeyOrigin.none);
+        expect(service.maskedApiKeyFor('gemini'), isNull);
+      });
+
+      test('a key entered with rememberApiKey off reports session, and '
+          'turning the toggle on promotes it to remembered without the '
+          'user retyping it', () async {
+        when(storage.write(any, any, any)).thenAnswer((_) async {});
+
+        final service = SettingsService();
+        await service.load();
+        await service.setApiKey('anthropic', 'sk-ant-session');
+
+        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.session);
+        verifyNever(
+          storage.write(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyFor('anthropic'),
+            any,
+          ),
+        );
+
+        await service.setRememberApiKey(true);
+
+        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.remembered);
+        verify(
+          storage.write(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyFor('anthropic'),
+            'sk-ant-session',
+          ),
+        ).called(1);
+      });
+
+      test('turning rememberApiKey off deletes every stored key row, not '
+          "just the selected provider's — the toggle is one global flag, "
+          'so leaving another key on disk would contradict it', () async {
+        when(storage.write(any, any, any)).thenAnswer((_) async {});
+        when(storage.delete(any, any)).thenAnswer((_) async {});
+
+        final service = SettingsService();
+        await service.load();
+        await service.setRememberApiKey(true);
+        await service.setApiKey('anthropic', 'sk-ant-test');
+        await service.setApiKey('gemini', 'AIza-test');
+
+        await service.setRememberApiKey(false);
+
+        for (final providerId in ['anthropic', 'gemini']) {
+          verify(
+            storage.delete(
+              StorageBoxes.settings,
+              StorageKeys.apiKeyFor(providerId),
+            ),
+          ).called(1);
+          // Still usable this session — "stop remembering" is not "discard".
+          expect(service.apiKeyOriginFor(providerId), ApiKeyOrigin.session);
+        }
+      });
+
+      test('markAiAssistantConfigured is write-once, so re-testing an '
+          'existing key never moves the date a second device reads', () async {
+        final service = SettingsService();
+        await service.load();
+
+        await service.markAiAssistantConfigured();
+        final first = service.settings.preferences.aiAssistantConfiguredAt;
+        expect(first, isNotNull);
+
+        await service.markAiAssistantConfigured();
+
+        expect(service.settings.preferences.aiAssistantConfiguredAt, first);
       });
     });
   });

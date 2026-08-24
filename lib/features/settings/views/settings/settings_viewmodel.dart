@@ -202,13 +202,12 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   bool get showAiAssistantProviderSelector =>
       _llmProviders.available.length > 1;
 
-  /// Falls back to [LlmProviderRegistry.defaultProvider] when nothing is
-  /// stored, or a stored id no longer resolves (a provider removed between
-  /// releases) — mirrors [LlmProviderRegistry.byId]'s own never-throw
-  /// contract, since a settings read must never crash a build.
-  LlmProvider get selectedAiAssistantProvider => _llmProviders.byId(
-    _settingsService.settings.preferences.aiAssistantProviderId ?? '',
-  );
+  /// Resolved by `SettingsService` — see
+  /// [SettingsService.selectedAiAssistantProvider] for the never-throw
+  /// fallback rules, stated there once rather than in each ViewModel that
+  /// needs them.
+  LlmProvider get selectedAiAssistantProvider =>
+      _settingsService.selectedAiAssistantProvider;
 
   /// Switches the active provider and resets the stored model to that
   /// provider's first option — a model id from the *previous* provider
@@ -229,19 +228,10 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
 
   String get selectedAiAssistantModelId => selectedAiAssistantModel.id;
 
-  /// Falls back to the provider's first model when nothing is stored, or
-  /// when a stored id no longer exists (a model retired between releases,
-  /// or simply belonging to a different provider than the one currently
-  /// selected) — the dropdown must always have a value present in its own
-  /// item list or it throws at build time.
-  LlmModelOption get selectedAiAssistantModel {
-    final storedId = _settingsService.settings.preferences.aiAssistantModelId;
-    final models = selectedAiAssistantProvider.models;
-    return models.firstWhere(
-      (m) => m.id == storedId,
-      orElse: () => models.first,
-    );
-  }
+  /// Resolved by `SettingsService` — see
+  /// [SettingsService.selectedAiAssistantModel] for the stale-id fallback.
+  LlmModelOption get selectedAiAssistantModel =>
+      _settingsService.selectedAiAssistantModel;
 
   Future<void> selectAiAssistantModel(String modelId) async {
     await _settingsService.setAiAssistantModel(modelId);
@@ -250,15 +240,64 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
 
   bool get rememberApiKey => _settingsService.settings.rememberApiKey;
 
-  /// Turning the toggle off deletes the stored key immediately (decision
-  /// 8) rather than waiting for the next write. Only the *current*
-  /// provider's key — switching providers and clearing this toggle for
-  /// one does not touch a key already remembered for the other.
-  Future<void> setRememberApiKey(bool value) async {
-    await _settingsService.setRememberApiKey(value);
-    if (!value) {
-      await _settingsService.clearApiKey(selectedAiAssistantProvider.id);
-    }
+  /// Deleting the stored row is immediate rather than deferred to the next
+  /// write — see [SettingsService.setRememberApiKey], which also explains
+  /// why it applies to every provider.
+  ///
+  /// Turning this off no longer discards the key outright, only its
+  /// persistence: it drops to [ApiKeyOrigin.session] and keeps working
+  /// until the tab reloads, which is what "stop remembering it" plainly
+  /// means. That was indistinguishable from deletion while the card showed
+  /// no key state at all; now that [apiKeyOrigin] is on screen, and
+  /// [removeApiKey] exists as its own explicit action, the honest reading
+  /// of the label is also the safer one.
+  Future<void> setRememberApiKey(bool value) =>
+      _settingsService.setRememberApiKey(value);
+
+  /// Whether the selected provider has a key, and how long it survives —
+  /// the state the card's whole two-mode layout keys off.
+  ApiKeyOrigin get apiKeyOrigin =>
+      _settingsService.apiKeyOriginFor(selectedAiAssistantProvider.id);
+
+  bool get hasApiKey => apiKeyOrigin != ApiKeyOrigin.none;
+
+  /// Bullets plus the key's last four characters, for the configured
+  /// state — see [SettingsService.maskedApiKeyFor].
+  String? get maskedApiKey =>
+      _settingsService.maskedApiKeyFor(selectedAiAssistantProvider.id);
+
+  /// True when this user has set the AI Assistant up before — on another
+  /// device, or on this one before clearing site data — but this browser
+  /// has no key for the selected provider.
+  ///
+  /// `CvPreferences.aiAssistantConfiguredAt` syncs; the key deliberately
+  /// does not (a secret has no business in `CvBackupBundle`, which is also
+  /// the file a backup export downloads). So the second device knows setup
+  /// happened and can say so, instead of showing a blank field that looks
+  /// identical to never having started.
+  bool get wasConfiguredElsewhere =>
+      !hasApiKey &&
+      _settingsService.settings.preferences.aiAssistantConfiguredAt != null;
+
+  /// Confirmed first: neither provider lets a key be read back after
+  /// creation, so removing one here means generating a new one in their
+  /// console — not an undo-able click. Same `confirmDelete` dialog as
+  /// [clearVault] and [disconnectDrive].
+  Future<void> removeApiKey() async {
+    final providerName = selectedAiAssistantProvider.displayName;
+    final response = await _dialogService.showCustomDialog(
+      variant: DialogType.confirmDelete,
+      title: 'Remove your $providerName key?',
+      description:
+          "$providerName won't show you this key again, so you'd need to "
+          'create a new one in their console to use the AI Assistant on '
+          'this device. Your CVs and Vault are not affected.',
+      mainButtonTitle: 'Remove',
+      secondaryButtonTitle: 'Cancel',
+    );
+    if (response?.confirmed != true) return;
+    await _settingsService.clearApiKey(selectedAiAssistantProvider.id);
+    clearConnectionTestResult();
   }
 
   bool get isTestingConnection => busy(_testConnectionBusyKey);
@@ -324,18 +363,36 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> _testConnection(String apiKey) async =>
       _llmService.testConnection(selectedAiAssistantProvider.id, apiKey);
 
-  /// Only stores [apiKey] (in memory always, on disk if
+  /// Tests [typedKey] when the user has entered one, and the already-stored
+  /// key otherwise.
+  ///
+  /// The fallback is the point: in the configured state there is no text
+  /// field to read, so passing the (empty) field's contents made "Test
+  /// connection" fail with `LlmFailure.noKey` for users whose key was
+  /// present and working.
+  ///
+  /// A typed key is only stored (in memory always, on disk if
   /// [rememberApiKey] is on — see `SettingsService.setApiKey`) once the
-  /// connection actually validates it, so a rejected key never lingers.
-  Future<void> testAiAssistantConnection(String apiKey) async {
+  /// connection actually validates it, so a rejected key never lingers or
+  /// overwrites a good one.
+  Future<void> testAiAssistantConnection([String? typedKey]) async {
     _connectionTestSucceeded = false;
+    final providerId = selectedAiAssistantProvider.id;
+    final typed = typedKey?.trim() ?? '';
+    final apiKey = typed.isNotEmpty
+        ? typed
+        : await _settingsService.apiKeyFor(providerId) ?? '';
+
     await runBusyFuture(
       _testConnection(apiKey),
       busyObject: _testConnectionBusyKey,
     );
     if (!hasErrorForKey(_testConnectionBusyKey)) {
       _connectionTestSucceeded = true;
-      await _settingsService.setApiKey(selectedAiAssistantProvider.id, apiKey);
+      if (typed.isNotEmpty) {
+        await _settingsService.setApiKey(providerId, typed);
+      }
+      await _settingsService.markAiAssistantConfigured();
     }
     rebuildUi();
   }

@@ -10,6 +10,8 @@ import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/services/font_service.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/services/llm/llm_provider.dart';
+import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
@@ -162,9 +164,48 @@ MockPdfExportService getAndRegisterPdfExportService() {
   return service;
 }
 
-MockSettingsService getAndRegisterSettingsService() {
+/// Stubs the AI Assistant selection getters to resolve exactly the way the
+/// real [SettingsService] does, rather than returning a mockito `SmartFake`
+/// whose every member throws.
+///
+/// Deliberately `thenAnswer` closures reading `service.settings` at call
+/// time, not values captured at registration: a test that re-stubs
+/// `settings` (to change the stored provider or model id) then gets a
+/// correspondingly different provider back, with no second stub to
+/// remember. Delegating to the real [LlmProviderRegistry] rather than
+/// hardcoding an id keeps that resolution — including the never-throw
+/// fallbacks — from drifting away from production.
+MockSettingsService getAndRegisterSettingsService({
+  ApiKeyOrigin apiKeyOrigin = ApiKeyOrigin.none,
+  String? apiKey,
+}) {
   _removeRegistrationIfExists<SettingsService>();
   final service = MockSettingsService();
+  final providers = LlmProviderRegistry();
+
+  LlmProvider provider() =>
+      providers.byId(service.settings.preferences.aiAssistantProviderId ?? '');
+
+  when(service.selectedAiAssistantProvider).thenAnswer((_) => provider());
+  when(service.selectedAiAssistantModel).thenAnswer((_) {
+    final models = provider().models;
+    final storedId = service.settings.preferences.aiAssistantModelId;
+    return models.firstWhere(
+      (m) => m.id == storedId,
+      orElse: () => models.first,
+    );
+  });
+  when(service.apiKeyOriginFor(any)).thenReturn(apiKeyOrigin);
+  when(service.maskedApiKeyFor(any)).thenReturn(
+    apiKey == null || apiKey.length <= 4
+        ? null
+        : '••••••••${apiKey.substring(apiKey.length - 4)}',
+  );
+  when(service.apiKeyFor(any)).thenAnswer((_) => Future<String?>.value(apiKey));
+  when(
+    service.markAiAssistantConfigured(),
+  ).thenAnswer((_) => Future<void>.value());
+
   locator.registerSingleton<SettingsService>(service);
   return service;
 }

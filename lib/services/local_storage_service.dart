@@ -60,4 +60,20 @@ class LocalStorageService {
     final box = await _box(boxName);
     await box.delete(key);
   }
+
+  /// Every key in [boxName] starting with [prefix]. The one read path that
+  /// isn't "I already know the key I want": `SettingsService` needs to find
+  /// the API key rows it has stored without being told which providers
+  /// exist, since `StorageKeys.apiKeyFor` mints one key per provider id.
+  /// Enumerating beats injecting `LlmProviderRegistry` down here — the row
+  /// naming is already this file's contract, and a provider removed
+  /// between releases still has its row found (and so can still be
+  /// cleared) rather than becoming unreachable.
+  Future<List<String>> keysWithPrefix(String boxName, String prefix) async {
+    final box = await _box(boxName);
+    return box.keys
+        .whereType<String>()
+        .where((key) => key.startsWith(prefix))
+        .toList(growable: false);
+  }
 }

@@ -63,6 +63,9 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   List<ListenableServiceMixin> get listenableServices => [
     _vaultService,
     _draftService,
+    // Added for [hasAiAssistantKey]: adding a key in Settings has to
+    // re-enable "Tailor with AI" here without a reload.
+    _settingsService,
   ];
 
   /// Loads both services on this View's own account — see
@@ -315,6 +318,20 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> clearTargetJobDescription() =>
       _draftService.setTargetJobDescription(null);
+
+  /// Whether the AI Assistant has a key to run with. Gates "Tailor with AI"
+  /// up front instead of letting the run dialog fail with
+  /// `LlmFailure.noKey` — that check happened only after the user had
+  /// written a job description and opened a modal, which is the most
+  /// expensive possible moment to learn the feature was never set up.
+  bool get hasAiAssistantKey =>
+      _settingsService.apiKeyOriginFor(
+        _settingsService.selectedAiAssistantProvider.id,
+      ) !=
+      ApiKeyOrigin.none;
+
+  Future<void> goToAiAssistantSettings() =>
+      _routerService.replaceWith(SettingsViewRoute());
 
   bool _hasAiAssistantUndo = false;
   bool get hasAiAssistantUndo => _hasAiAssistantUndo;

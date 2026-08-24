@@ -11,6 +11,7 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/google_auth_service.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -305,8 +306,11 @@ void main() {
         await model.selectAiAssistantProvider('gemini');
 
         verify(settingsService.setAiAssistantProvider('gemini')).called(1);
+        // Flash, not Flash-Lite: `models.first` *is* the default, so this
+        // asserts the ordering in `GeminiProvider.models` behaviourally,
+        // where a user would actually feel it.
         verify(
-          settingsService.setAiAssistantModel('gemini-3.5-flash-lite'),
+          settingsService.setAiAssistantModel('gemini-3.5-flash'),
         ).called(1);
       });
 
@@ -328,19 +332,18 @@ void main() {
         expect(model.selectedAiAssistantProvider.id, 'anthropic');
       });
 
-      test('setRememberApiKey(false) clears the stored key', () async {
+      test('setRememberApiKey(false) stops persisting the key without '
+          'discarding it — the service reconciles storage, and the key '
+          'stays usable for the rest of the session', () async {
         when(
           settingsService.setRememberApiKey(false),
-        ).thenAnswer((_) => Future<void>.value());
-        when(
-          settingsService.clearApiKey('anthropic'),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = SettingsViewModel();
         await model.setRememberApiKey(false);
 
         verify(settingsService.setRememberApiKey(false)).called(1);
-        verify(settingsService.clearApiKey('anthropic')).called(1);
+        verifyNever(settingsService.clearApiKey(any));
       });
 
       test('setRememberApiKey(true) does not clear the key', () async {
@@ -352,6 +355,124 @@ void main() {
         await model.setRememberApiKey(true);
 
         verifyNever(settingsService.clearApiKey('anthropic'));
+      });
+
+      test('apiKeyOrigin and hasApiKey report what the service holds, so the '
+          'card can tell a stored key from an empty field', () async {
+        final model = SettingsViewModel();
+        expect(model.apiKeyOrigin, ApiKeyOrigin.none);
+        expect(model.hasApiKey, isFalse);
+
+        when(
+          settingsService.apiKeyOriginFor('anthropic'),
+        ).thenReturn(ApiKeyOrigin.remembered);
+
+        expect(model.apiKeyOrigin, ApiKeyOrigin.remembered);
+        expect(model.hasApiKey, isTrue);
+      });
+
+      test('testAiAssistantConnection falls back to the stored key when the '
+          'field is empty — the configured card has no field to read, and '
+          'passing its empty contents used to fail with noKey', () async {
+        when(
+          settingsService.apiKeyFor('anthropic'),
+        ).thenAnswer((_) async => 'sk-ant-stored');
+        when(
+          llmService.testConnection('anthropic', 'sk-ant-stored'),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.testAiAssistantConnection();
+
+        expect(model.connectionTestSucceeded, isTrue);
+        verify(
+          llmService.testConnection('anthropic', 'sk-ant-stored'),
+        ).called(1);
+        // Nothing was typed, so nothing is re-stored over a working key.
+        verifyNever(settingsService.setApiKey(any, any));
+      });
+
+      test('a successful test marks the assistant configured, which is what '
+          'a second device reads to know setup already happened', () async {
+        when(
+          llmService.testConnection('anthropic', 'sk-ant-test'),
+        ).thenAnswer((_) => Future<void>.value());
+        when(
+          settingsService.setApiKey(any, any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.testAiAssistantConnection('sk-ant-test');
+
+        verify(settingsService.markAiAssistantConfigured()).called(1);
+      });
+
+      test(
+        'a failed test marks nothing — a rejected key is not setup',
+        () async {
+          when(
+            llmService.testConnection(any, any),
+          ).thenThrow(const LlmException(LlmFailure.unauthorized));
+
+          final model = SettingsViewModel();
+          await model.testAiAssistantConnection('sk-ant-bad');
+
+          verifyNever(settingsService.markAiAssistantConfigured());
+          verifyNever(settingsService.setApiKey(any, any));
+        },
+      );
+
+      test('wasConfiguredElsewhere is true only when setup happened before '
+          'but this device has no key', () async {
+        final configured = AppSettings.empty();
+        when(settingsService.settings).thenReturn(
+          configured.copyWith(
+            preferences: configured.preferences.copyWith(
+              aiAssistantConfiguredAt: DateTime(2026, 8, 1),
+            ),
+          ),
+        );
+
+        final model = SettingsViewModel();
+        expect(model.wasConfiguredElsewhere, isTrue);
+
+        // Once this device has its own key there's nothing to explain.
+        when(
+          settingsService.apiKeyOriginFor('anthropic'),
+        ).thenReturn(ApiKeyOrigin.remembered);
+        expect(model.wasConfiguredElsewhere, isFalse);
+      });
+
+      test('removeApiKey clears the key only after confirmation', () async {
+        when(
+          settingsService.clearApiKey(any),
+        ).thenAnswer((_) => Future<void>.value());
+        when(
+          dialogService.showCustomDialog(
+            variant: anyNamed('variant'),
+            title: anyNamed('title'),
+            description: anyNamed('description'),
+            mainButtonTitle: anyNamed('mainButtonTitle'),
+            secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+          ),
+        ).thenAnswer((_) async => DialogResponse<dynamic>(confirmed: false));
+
+        final model = SettingsViewModel();
+        await model.removeApiKey();
+        verifyNever(settingsService.clearApiKey(any));
+
+        when(
+          dialogService.showCustomDialog(
+            variant: anyNamed('variant'),
+            title: anyNamed('title'),
+            description: anyNamed('description'),
+            mainButtonTitle: anyNamed('mainButtonTitle'),
+            secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+          ),
+        ).thenAnswer((_) async => DialogResponse<dynamic>(confirmed: true));
+
+        await model.removeApiKey();
+        verify(settingsService.clearApiKey('anthropic')).called(1);
       });
 
       test(

@@ -237,9 +237,8 @@ void main() {
       locator.registerLazySingleton<TemplateRegistryService>(
         TemplateRegistryService.new,
       );
-      when(
-        getAndRegisterSettingsService().settings,
-      ).thenReturn(AppSettings.empty());
+      final settingsService = getAndRegisterSettingsService();
+      when(settingsService.settings).thenReturn(AppSettings.empty());
       final draftService = DraftService();
       await draftService.load();
       await draftService.setExperienceIncluded(experience.id, included: true);
