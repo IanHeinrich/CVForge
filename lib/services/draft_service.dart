@@ -48,9 +48,17 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// different list identity, on every single call.
   List<CvDraft> get drafts => _drafts.value;
 
-  /// [drafts], most recently updated first.
+  /// [drafts], most recently updated first, with [CvDraft.id] breaking
+  /// ties. The tiebreak isn't cosmetic: `List.sort` isn't stable in Dart,
+  /// so without a total order two drafts sharing an `updatedAt` can come
+  /// back in either order between runs — which changes the bytes
+  /// `BackupService.buildBundle` produces without any content changing, and
+  /// Drive sync reads that as an edit to push.
   List<CvDraft> _sortedByRecency(List<CvDraft> drafts) =>
-      [...drafts]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      [...drafts]..sort((a, b) {
+        final byRecency = b.updatedAt.compareTo(a.updatedAt);
+        return byRecency != 0 ? byRecency : a.id.compareTo(b.id);
+      });
 
   final ReactiveValue<String?> _activeDraftId = ReactiveValue<String?>(null);
   String? get activeDraftId => _activeDraftId.value;
@@ -91,14 +99,15 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// `AppSettings.defaultSectionOrder`), else that template's own
   /// suggested order (`CvTemplate.sectionOrder`).
   List<CvSectionType> _seedSectionOrder(String templateId) =>
-      _settings.settings.defaultSectionOrder ??
+      _settings.settings.preferences.defaultSectionOrder ??
       _templateRegistry.byId(templateId).sectionOrder;
 
   /// Same seed-only rationale as [_seedSectionOrder], one field over — the
   /// user's remembered default hidden-sections state (see
   /// `AppSettings.defaultHiddenSections`), else nothing hidden.
   Set<CvSectionType> _seedHiddenSections() =>
-      _settings.settings.defaultHiddenSections ?? const <CvSectionType>{};
+      _settings.settings.preferences.defaultHiddenSections ??
+      const <CvSectionType>{};
 
   /// Ids of drafts that have never had a manual selection made — i.e. a
   /// draft the user just created (or the very first draft a first-time
@@ -211,7 +220,9 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
 
   Future<void> _seedFirstDraft() async {
     await _settings.ready();
-    final first = _emptyDraft(region: _settings.settings.defaultRegion);
+    final first = _emptyDraft(
+      region: _settings.settings.preferences.defaultRegion,
+    );
     _drafts.value = [first];
     _activeDraftId.value = first.id;
     _freshDraftIds.add(first.id);
@@ -252,7 +263,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
           id: id,
           name: name,
           templateId: resolvedTemplateId,
-          region: _settings.settings.defaultRegion,
+          region: _settings.settings.preferences.defaultRegion,
         ).copyWith(
           notes: notes,
           sectionOrder: _seedSectionOrder(resolvedTemplateId),

@@ -38,19 +38,29 @@ external GisTokenClient initTokenClient(JSObject config);
 @JS()
 external void revoke(String accessToken, JSFunction done);
 
-/// Builds the `initTokenClient` config object. [callback] receives the
-/// [GisTokenResponse] on both success and failure — GIS reports a failed
-/// request as an `error` field on the same response shape, never as a
-/// rejected promise or a thrown error, so there's no separate error path
-/// to wire here.
+/// Builds the `initTokenClient` config object.
+///
+/// [callback] receives the [GisTokenResponse] for anything that reached
+/// Google — including a refusal, which arrives as an `error` field on that
+/// same response shape rather than a thrown error or rejected promise.
+///
+/// [errorCallback] is a genuinely separate path, and wiring it is not
+/// optional: GIS reports failures that happen *before* a request reaches
+/// Google — most importantly the browser refusing to open the popup
+/// (`popup_failed_to_open`), which is what happens whenever
+/// `requestAccessToken` is called outside a user gesture — only here.
+/// Without it those requests invoke neither callback and the caller waits
+/// on a completer that will never complete.
 JSObject buildTokenClientConfig({
   required String clientId,
   required String scope,
   required JSFunction callback,
+  required JSFunction errorCallback,
 }) => JSObject()
   ..setProperty('client_id'.toJS, clientId.toJS)
   ..setProperty('scope'.toJS, scope.toJS)
-  ..setProperty('callback'.toJS, callback);
+  ..setProperty('callback'.toJS, callback)
+  ..setProperty('error_callback'.toJS, errorCallback);
 
 /// Builds `requestAccessToken`'s options object. [prompt] is `''` for a
 /// silent renewal attempt (fails rather than showing UI if one would be
@@ -83,4 +93,20 @@ extension type GisTokenResponse._(JSObject _) implements JSObject {
 
   @JS('error_description')
   external String? get errorDescription;
+
+  /// The scopes actually granted, space-delimited. Worth reading back
+  /// rather than assuming: a token can come back fine and still be
+  /// missing `drive.appdata`, which Drive then rejects with a 403 that
+  /// looks identical to an expiry problem from the caller's side.
+  external String? get scope;
+}
+
+/// What `error_callback` receives — a different shape from
+/// [GisTokenResponse], with [type] carrying values like
+/// `'popup_failed_to_open'` or `'popup_closed'`.
+@anonymous
+@JS()
+extension type GisErrorResponse._(JSObject _) implements JSObject {
+  external String? get type;
+  external String? get message;
 }

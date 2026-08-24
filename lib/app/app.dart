@@ -54,8 +54,6 @@ import 'package:cv_forge/services/drive_api_client_service.dart';
 
 import 'package:cv_forge/services/drive_sync_service.dart';
 
-import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict_dialog.dart';
-
 import 'package:cv_forge/ui/views/privacy/privacy_view.dart';
 
 import 'package:cv_forge/ui/views/terms/terms_view.dart';
@@ -118,7 +116,6 @@ import 'package:cv_forge/ui/views/terms/terms_view.dart';
     StackedDialog(classType: CopilotRunDialog),
     StackedDialog(classType: TemplateGalleryDialog),
     StackedDialog(classType: RegionGalleryDialog),
-    StackedDialog(classType: DriveConflictDialog),
     // @stacked-dialog
   ],
 )

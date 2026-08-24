@@ -21,6 +21,9 @@ _CvBackupBundle _$CvBackupBundleFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const <CvDraft>[],
       activeDraftId: json['activeDraftId'] as String?,
+      preferences: json['preferences'] == null
+          ? null
+          : CvPreferences.fromJson(json['preferences'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$CvBackupBundleToJson(_CvBackupBundle instance) =>
@@ -32,4 +35,5 @@ Map<String, dynamic> _$CvBackupBundleToJson(_CvBackupBundle instance) =>
       'vault': instance.vault?.toJson(),
       'drafts': instance.drafts.map((e) => e.toJson()).toList(),
       'activeDraftId': instance.activeDraftId,
+      'preferences': instance.preferences?.toJson(),
     };

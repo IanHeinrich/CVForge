@@ -8,7 +8,6 @@
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app.locator.dart';
-import '../features/settings/dialogs/drive_conflict/drive_conflict_dialog.dart';
 import '../features/studio/dialogs/copilot_run/copilot_run_dialog.dart';
 import '../features/studio/dialogs/edit_draft/edit_draft_dialog.dart';
 import '../features/studio/dialogs/region_gallery/region_gallery_dialog.dart';
@@ -21,7 +20,6 @@ enum DialogType {
   copilotRun,
   templateGallery,
   regionGallery,
-  driveConflict,
 }
 
 void setupDialogUi() {
@@ -38,8 +36,6 @@ void setupDialogUi() {
         TemplateGalleryDialog(request: request, completer: completer),
     DialogType.regionGallery: (context, request, completer) =>
         RegionGalleryDialog(request: request, completer: completer),
-    DialogType.driveConflict: (context, request, completer) =>
-        DriveConflictDialog(request: request, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);

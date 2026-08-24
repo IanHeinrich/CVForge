@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CvBackupBundle {
 
- String get app; int get bundleVersion; DateTime get exportedAt; String get appVersion; CvVault? get vault; List<CvDraft> get drafts; String? get activeDraftId;
+ String get app; int get bundleVersion; DateTime get exportedAt; String get appVersion; CvVault? get vault; List<CvDraft> get drafts; String? get activeDraftId;/// Null only for a bundle written before preferences travelled at
+/// all — treated as "this side has nothing to say about preferences"
+/// by the merge, never as a request to clear them.
+ CvPreferences? get preferences;
 /// Create a copy of CvBackupBundle
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $CvBackupBundleCopyWith<CvBackupBundle> get copyWith => _$CvBackupBundleCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvBackupBundle&&(identical(other.app, app) || other.app == app)&&(identical(other.bundleVersion, bundleVersion) || other.bundleVersion == bundleVersion)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.appVersion, appVersion) || other.appVersion == appVersion)&&(identical(other.vault, vault) || other.vault == vault)&&const DeepCollectionEquality().equals(other.drafts, drafts)&&(identical(other.activeDraftId, activeDraftId) || other.activeDraftId == activeDraftId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvBackupBundle&&(identical(other.app, app) || other.app == app)&&(identical(other.bundleVersion, bundleVersion) || other.bundleVersion == bundleVersion)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.appVersion, appVersion) || other.appVersion == appVersion)&&(identical(other.vault, vault) || other.vault == vault)&&const DeepCollectionEquality().equals(other.drafts, drafts)&&(identical(other.activeDraftId, activeDraftId) || other.activeDraftId == activeDraftId)&&(identical(other.preferences, preferences) || other.preferences == preferences));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,app,bundleVersion,exportedAt,appVersion,vault,const DeepCollectionEquality().hash(drafts),activeDraftId);
+int get hashCode => Object.hash(runtimeType,app,bundleVersion,exportedAt,appVersion,vault,const DeepCollectionEquality().hash(drafts),activeDraftId,preferences);
 
 @override
 String toString() {
-  return 'CvBackupBundle(app: $app, bundleVersion: $bundleVersion, exportedAt: $exportedAt, appVersion: $appVersion, vault: $vault, drafts: $drafts, activeDraftId: $activeDraftId)';
+  return 'CvBackupBundle(app: $app, bundleVersion: $bundleVersion, exportedAt: $exportedAt, appVersion: $appVersion, vault: $vault, drafts: $drafts, activeDraftId: $activeDraftId, preferences: $preferences)';
 }
 
 
@@ -48,11 +51,11 @@ abstract mixin class $CvBackupBundleCopyWith<$Res>  {
   factory $CvBackupBundleCopyWith(CvBackupBundle value, $Res Function(CvBackupBundle) _then) = _$CvBackupBundleCopyWithImpl;
 @useResult
 $Res call({
- String app, int bundleVersion, DateTime exportedAt, String appVersion, CvVault? vault, List<CvDraft> drafts, String? activeDraftId
+ String app, int bundleVersion, DateTime exportedAt, String appVersion, CvVault? vault, List<CvDraft> drafts, String? activeDraftId, CvPreferences? preferences
 });
 
 
-$CvVaultCopyWith<$Res>? get vault;
+$CvVaultCopyWith<$Res>? get vault;$CvPreferencesCopyWith<$Res>? get preferences;
 
 }
 /// @nodoc
@@ -65,7 +68,7 @@ class _$CvBackupBundleCopyWithImpl<$Res>
 
 /// Create a copy of CvBackupBundle
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? app = null,Object? bundleVersion = null,Object? exportedAt = null,Object? appVersion = null,Object? vault = freezed,Object? drafts = null,Object? activeDraftId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? app = null,Object? bundleVersion = null,Object? exportedAt = null,Object? appVersion = null,Object? vault = freezed,Object? drafts = null,Object? activeDraftId = freezed,Object? preferences = freezed,}) {
   return _then(_self.copyWith(
 app: null == app ? _self.app : app // ignore: cast_nullable_to_non_nullable
 as String,bundleVersion: null == bundleVersion ? _self.bundleVersion : bundleVersion // ignore: cast_nullable_to_non_nullable
@@ -74,7 +77,8 @@ as DateTime,appVersion: null == appVersion ? _self.appVersion : appVersion // ig
 as String,vault: freezed == vault ? _self.vault : vault // ignore: cast_nullable_to_non_nullable
 as CvVault?,drafts: null == drafts ? _self.drafts : drafts // ignore: cast_nullable_to_non_nullable
 as List<CvDraft>,activeDraftId: freezed == activeDraftId ? _self.activeDraftId : activeDraftId // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,preferences: freezed == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
+as CvPreferences?,
   ));
 }
 /// Create a copy of CvBackupBundle
@@ -88,6 +92,18 @@ $CvVaultCopyWith<$Res>? get vault {
 
   return $CvVaultCopyWith<$Res>(_self.vault!, (value) {
     return _then(_self.copyWith(vault: value));
+  });
+}/// Create a copy of CvBackupBundle
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CvPreferencesCopyWith<$Res>? get preferences {
+    if (_self.preferences == null) {
+    return null;
+  }
+
+  return $CvPreferencesCopyWith<$Res>(_self.preferences!, (value) {
+    return _then(_self.copyWith(preferences: value));
   });
 }
 }
@@ -171,10 +187,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String app,  int bundleVersion,  DateTime exportedAt,  String appVersion,  CvVault? vault,  List<CvDraft> drafts,  String? activeDraftId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String app,  int bundleVersion,  DateTime exportedAt,  String appVersion,  CvVault? vault,  List<CvDraft> drafts,  String? activeDraftId,  CvPreferences? preferences)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CvBackupBundle() when $default != null:
-return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,_that.vault,_that.drafts,_that.activeDraftId);case _:
+return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,_that.vault,_that.drafts,_that.activeDraftId,_that.preferences);case _:
   return orElse();
 
 }
@@ -192,10 +208,10 @@ return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String app,  int bundleVersion,  DateTime exportedAt,  String appVersion,  CvVault? vault,  List<CvDraft> drafts,  String? activeDraftId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String app,  int bundleVersion,  DateTime exportedAt,  String appVersion,  CvVault? vault,  List<CvDraft> drafts,  String? activeDraftId,  CvPreferences? preferences)  $default,) {final _that = this;
 switch (_that) {
 case _CvBackupBundle():
-return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,_that.vault,_that.drafts,_that.activeDraftId);case _:
+return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,_that.vault,_that.drafts,_that.activeDraftId,_that.preferences);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +228,10 @@ return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String app,  int bundleVersion,  DateTime exportedAt,  String appVersion,  CvVault? vault,  List<CvDraft> drafts,  String? activeDraftId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String app,  int bundleVersion,  DateTime exportedAt,  String appVersion,  CvVault? vault,  List<CvDraft> drafts,  String? activeDraftId,  CvPreferences? preferences)?  $default,) {final _that = this;
 switch (_that) {
 case _CvBackupBundle() when $default != null:
-return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,_that.vault,_that.drafts,_that.activeDraftId);case _:
+return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,_that.vault,_that.drafts,_that.activeDraftId,_that.preferences);case _:
   return null;
 
 }
@@ -227,7 +243,7 @@ return $default(_that.app,_that.bundleVersion,_that.exportedAt,_that.appVersion,
 @JsonSerializable()
 
 class _CvBackupBundle implements CvBackupBundle {
-  const _CvBackupBundle({required this.app, required this.bundleVersion, required this.exportedAt, required this.appVersion, this.vault, final  List<CvDraft> drafts = const <CvDraft>[], this.activeDraftId}): _drafts = drafts;
+  const _CvBackupBundle({required this.app, required this.bundleVersion, required this.exportedAt, required this.appVersion, this.vault, final  List<CvDraft> drafts = const <CvDraft>[], this.activeDraftId, this.preferences}): _drafts = drafts;
   factory _CvBackupBundle.fromJson(Map<String, dynamic> json) => _$CvBackupBundleFromJson(json);
 
 @override final  String app;
@@ -243,6 +259,10 @@ class _CvBackupBundle implements CvBackupBundle {
 }
 
 @override final  String? activeDraftId;
+/// Null only for a bundle written before preferences travelled at
+/// all — treated as "this side has nothing to say about preferences"
+/// by the merge, never as a request to clear them.
+@override final  CvPreferences? preferences;
 
 /// Create a copy of CvBackupBundle
 /// with the given fields replaced by the non-null parameter values.
@@ -257,16 +277,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvBackupBundle&&(identical(other.app, app) || other.app == app)&&(identical(other.bundleVersion, bundleVersion) || other.bundleVersion == bundleVersion)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.appVersion, appVersion) || other.appVersion == appVersion)&&(identical(other.vault, vault) || other.vault == vault)&&const DeepCollectionEquality().equals(other._drafts, _drafts)&&(identical(other.activeDraftId, activeDraftId) || other.activeDraftId == activeDraftId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvBackupBundle&&(identical(other.app, app) || other.app == app)&&(identical(other.bundleVersion, bundleVersion) || other.bundleVersion == bundleVersion)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.appVersion, appVersion) || other.appVersion == appVersion)&&(identical(other.vault, vault) || other.vault == vault)&&const DeepCollectionEquality().equals(other._drafts, _drafts)&&(identical(other.activeDraftId, activeDraftId) || other.activeDraftId == activeDraftId)&&(identical(other.preferences, preferences) || other.preferences == preferences));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,app,bundleVersion,exportedAt,appVersion,vault,const DeepCollectionEquality().hash(_drafts),activeDraftId);
+int get hashCode => Object.hash(runtimeType,app,bundleVersion,exportedAt,appVersion,vault,const DeepCollectionEquality().hash(_drafts),activeDraftId,preferences);
 
 @override
 String toString() {
-  return 'CvBackupBundle(app: $app, bundleVersion: $bundleVersion, exportedAt: $exportedAt, appVersion: $appVersion, vault: $vault, drafts: $drafts, activeDraftId: $activeDraftId)';
+  return 'CvBackupBundle(app: $app, bundleVersion: $bundleVersion, exportedAt: $exportedAt, appVersion: $appVersion, vault: $vault, drafts: $drafts, activeDraftId: $activeDraftId, preferences: $preferences)';
 }
 
 
@@ -277,11 +297,11 @@ abstract mixin class _$CvBackupBundleCopyWith<$Res> implements $CvBackupBundleCo
   factory _$CvBackupBundleCopyWith(_CvBackupBundle value, $Res Function(_CvBackupBundle) _then) = __$CvBackupBundleCopyWithImpl;
 @override @useResult
 $Res call({
- String app, int bundleVersion, DateTime exportedAt, String appVersion, CvVault? vault, List<CvDraft> drafts, String? activeDraftId
+ String app, int bundleVersion, DateTime exportedAt, String appVersion, CvVault? vault, List<CvDraft> drafts, String? activeDraftId, CvPreferences? preferences
 });
 
 
-@override $CvVaultCopyWith<$Res>? get vault;
+@override $CvVaultCopyWith<$Res>? get vault;@override $CvPreferencesCopyWith<$Res>? get preferences;
 
 }
 /// @nodoc
@@ -294,7 +314,7 @@ class __$CvBackupBundleCopyWithImpl<$Res>
 
 /// Create a copy of CvBackupBundle
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? app = null,Object? bundleVersion = null,Object? exportedAt = null,Object? appVersion = null,Object? vault = freezed,Object? drafts = null,Object? activeDraftId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? app = null,Object? bundleVersion = null,Object? exportedAt = null,Object? appVersion = null,Object? vault = freezed,Object? drafts = null,Object? activeDraftId = freezed,Object? preferences = freezed,}) {
   return _then(_CvBackupBundle(
 app: null == app ? _self.app : app // ignore: cast_nullable_to_non_nullable
 as String,bundleVersion: null == bundleVersion ? _self.bundleVersion : bundleVersion // ignore: cast_nullable_to_non_nullable
@@ -303,7 +323,8 @@ as DateTime,appVersion: null == appVersion ? _self.appVersion : appVersion // ig
 as String,vault: freezed == vault ? _self.vault : vault // ignore: cast_nullable_to_non_nullable
 as CvVault?,drafts: null == drafts ? _self._drafts : drafts // ignore: cast_nullable_to_non_nullable
 as List<CvDraft>,activeDraftId: freezed == activeDraftId ? _self.activeDraftId : activeDraftId // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,preferences: freezed == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
+as CvPreferences?,
   ));
 }
 
@@ -318,6 +339,18 @@ $CvVaultCopyWith<$Res>? get vault {
 
   return $CvVaultCopyWith<$Res>(_self.vault!, (value) {
     return _then(_self.copyWith(vault: value));
+  });
+}/// Create a copy of CvBackupBundle
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CvPreferencesCopyWith<$Res>? get preferences {
+    if (_self.preferences == null) {
+    return null;
+  }
+
+  return $CvPreferencesCopyWith<$Res>(_self.preferences!, (value) {
+    return _then(_self.copyWith(preferences: value));
   });
 }
 }

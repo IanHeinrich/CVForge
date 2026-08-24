@@ -39,13 +39,14 @@ sealed class DriveSyncStatus with _$DriveSyncStatus {
   const factory DriveSyncStatus.syncing({required String accountEmail}) =
       DriveSyncSyncing;
 
-  /// Drive moved on since this device's last sync *and* this device has
-  /// unsynced local edits — resolved only by the user, via
-  /// `DriveConflictDialog`. A local safety backup has already been
-  /// downloaded by the time this state is reached (`DriveSyncService.
-  /// _checkForConflict`), so no data is at risk while it's shown.
-  const factory DriveSyncStatus.conflict({required String accountEmail}) =
-      DriveSyncConflict;
+  /// Drive had changed too, and both sides were just reconciled by
+  /// `mergeBackupBundles`. Transient — it settles back to [idle] on a
+  /// timer, and exists only so content arriving mid-session has some
+  /// explanation attached rather than looking like a glitch.
+  const factory DriveSyncStatus.merged({
+    required String accountEmail,
+    DateTime? lastSyncedAt,
+  }) = DriveSyncMerged;
 
   /// Silent token renewal failed — the Google session or grant is gone.
   /// Local saves are unaffected; only Drive sync is paused until the user

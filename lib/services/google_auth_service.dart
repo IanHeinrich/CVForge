@@ -68,7 +68,33 @@ abstract class GoogleAuthService {
   /// grant, the Google session itself has ended, or the grant was
   /// revoked) — a normal, expected outcome that flips
   /// `DriveSyncStatus.needsReauth`, not a thrown failure.
+  ///
+  /// **Renewal needs a live user gesture**, even with `prompt: ''` and a
+  /// grant already in place. GIS renews by opening a popup, and a browser
+  /// refuses that outside a gesture — confirmed from GIS's own
+  /// `error_callback` reporting `popup_failed_to_open` on every page load.
+  /// So this returns `null` whenever the cache is empty and no gesture is
+  /// in flight, which is the normal state immediately after a refresh.
+  /// [tokenOnNextUserGesture] is how a caller recovers from that.
   Future<String?> silentAccessToken();
+
+  /// Loads the GIS client and builds the token client without requesting
+  /// a token — safe to call at page load, where a real request would be
+  /// blocked. Worth doing early: a browser's transient activation lasts
+  /// only a few seconds, so a cold script load inside a gesture handler
+  /// can burn the very activation the request needs.
+  Future<void> warmUp();
+
+  /// Completes with a token minted from the user's next interaction with
+  /// the page, or `null` if that attempt fails too (the grant is gone, so
+  /// only an interactive [connect] can recover).
+  ///
+  /// This is the counterpart to [silentAccessToken]'s gesture
+  /// requirement: after a refresh there is no cached token and no way to
+  /// mint one until the user touches something, so callers arm this and
+  /// carry on rather than declaring the session dead. Repeated calls
+  /// while one is already armed share the same pending attempt.
+  Future<String?> tokenOnNextUserGesture();
 
   /// Requests the `drive.appdata` scope interactively, showing Google's
   /// consent UI if needed. Must be called synchronously from a user

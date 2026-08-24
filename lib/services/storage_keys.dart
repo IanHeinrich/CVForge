@@ -62,4 +62,14 @@ abstract final class StorageKeys {
   static const driveLastSyncedVersion = 'drive_last_synced_version';
   static const driveLastSyncedAt = 'drive_last_synced_at';
   static const driveAccountEmail = 'drive_account_email';
+
+  /// The last bundle this device and Drive agreed on — the common ancestor
+  /// `mergeBackupBundles` needs to tell "the other device added this" from
+  /// "this device deleted it". Unlike its neighbours this is a whole
+  /// serialized bundle, not a scalar: tens of KB, and [StorageBoxes.settings]
+  /// is a non-lazy box, so it loads at boot alongside `app_settings`. That's
+  /// affordable against a Vault of the same order already loading on the
+  /// same path — but it's the row to move to its own lazy box if the bundle
+  /// ever grows past that.
+  static const driveSyncBase = 'drive_sync_base';
 }

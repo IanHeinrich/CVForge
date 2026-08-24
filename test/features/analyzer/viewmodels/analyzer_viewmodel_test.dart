@@ -8,6 +8,7 @@ import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
@@ -37,18 +38,29 @@ void main() {
   tearDown(() => locator.reset());
 
   group('AnalyzerViewModel Tests - documentNoun', () {
-    test('follows SettingsService.settings.defaultRegion (7.5) — no '
-        'region concept of its own, since Analyzer has no draft', () {
-      when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(defaultRegion: RegionProfile.uk),
-      );
-      expect(viewModel.documentNoun, 'CV');
+    test(
+      'follows SettingsService.settings.preferences.defaultRegion (7.5) — no '
+      'region concept of its own, since Analyzer has no draft',
+      () {
+        when(settings.settings).thenReturn(
+          AppSettings.empty().copyWith(
+            preferences: CvPreferences.empty().copyWith(
+              defaultRegion: RegionProfile.uk,
+            ),
+          ),
+        );
+        expect(viewModel.documentNoun, 'CV');
 
-      when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(defaultRegion: RegionProfile.us),
-      );
-      expect(viewModel.documentNoun, 'résumé');
-    });
+        when(settings.settings).thenReturn(
+          AppSettings.empty().copyWith(
+            preferences: CvPreferences.empty().copyWith(
+              defaultRegion: RegionProfile.us,
+            ),
+          ),
+        );
+        expect(viewModel.documentNoun, 'résumé');
+      },
+    );
   });
 
   group('AnalyzerViewModel Tests - pickAndAnalyze', () {

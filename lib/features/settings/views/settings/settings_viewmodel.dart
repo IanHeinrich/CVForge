@@ -1,6 +1,5 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict_dialog_data.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
@@ -79,7 +78,8 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// its own dialog data and this is a plain settings read/write.
   List<RegionProfile> get regions => RegionProfile.values;
 
-  RegionProfile get defaultRegion => _settingsService.settings.defaultRegion;
+  RegionProfile get defaultRegion =>
+      _settingsService.settings.preferences.defaultRegion;
 
   /// Only changes what a *new* CV is created with — see
   /// `SettingsService.setDefaultRegion`'s doc comment.
@@ -188,8 +188,9 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// stored, or a stored id no longer resolves (a provider removed between
   /// releases) — mirrors [LlmProviderRegistry.byId]'s own never-throw
   /// contract, since a settings read must never crash a build.
-  LlmProvider get selectedCopilotProvider =>
-      _llmProviders.byId(_settingsService.settings.copilotProviderId ?? '');
+  LlmProvider get selectedCopilotProvider => _llmProviders.byId(
+    _settingsService.settings.preferences.assistantProviderId ?? '',
+  );
 
   /// Switches the active provider and resets the stored model to that
   /// provider's first option — a model id from the *previous* provider
@@ -198,8 +199,8 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// fallback would paper over a stale id at read time regardless, but
   /// leaving `copilotModelId` actually correct is worth the extra write.
   Future<void> selectCopilotProvider(String providerId) async {
-    await _settingsService.setCopilotProvider(providerId);
-    await _settingsService.setCopilotModel(
+    await _settingsService.setAssistantProvider(providerId);
+    await _settingsService.setAssistantModel(
       _llmProviders.byId(providerId).models.first.id,
     );
     clearConnectionTestResult();
@@ -215,7 +216,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// selected) — the dropdown must always have a value present in its own
   /// item list or it throws at build time.
   LlmModelOption get selectedCopilotModel {
-    final storedId = _settingsService.settings.copilotModelId;
+    final storedId = _settingsService.settings.preferences.assistantModelId;
     final models = selectedCopilotProvider.models;
     return models.firstWhere(
       (m) => m.id == storedId,
@@ -224,7 +225,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   Future<void> selectCopilotModel(String modelId) async {
-    await _settingsService.setCopilotModel(modelId);
+    await _settingsService.setAssistantModel(modelId);
     clearConnectionTestResult();
   }
 
@@ -271,20 +272,20 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     return switch (error.failure) {
       LlmFailure.noKey => 'Enter an API key first.',
       LlmFailure.unauthorized =>
-        'That key was rejected — check it and try again.',
+        'That key was rejected. Check it and try again.',
       LlmFailure.rateLimited =>
-        'Your API account is rate limited — try again in a moment.',
+        'Your API account is rate limited. Try again in a moment.',
       LlmFailure.overloaded =>
-        "$providerName's API is temporarily unavailable — try again "
+        "$providerName's API is temporarily unavailable. Try again "
             'shortly.',
       LlmFailure.network =>
-        "Couldn't reach $providerName — check your connection.",
-      LlmFailure.timeout => 'The request timed out — try again.',
+        "Couldn't reach $providerName. Check your connection.",
+      LlmFailure.timeout => 'The request timed out. Try again.',
       LlmFailure.refusal => 'The connection check was refused.',
       LlmFailure.invalidRequest =>
         "$providerName rejected the request. That's a bug in CVForge, not "
             'your key.',
-      LlmFailure.malformedResponse => 'Got an unexpected response — try again.',
+      LlmFailure.malformedResponse => 'Got an unexpected response. Try again.',
     };
   }
 
@@ -342,10 +343,10 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     return switch (error.failure) {
       GoogleAuthFailure.notConfigured => 'Google Drive sync is not set up.',
       GoogleAuthFailure.scriptLoadFailed =>
-        "Couldn't reach Google — check your connection and try again.",
+        "Couldn't reach Google. Check your connection and try again.",
       GoogleAuthFailure.cancelledOrBlocked => 'Connection cancelled.',
       GoogleAuthFailure.unknown =>
-        "Couldn't connect to Google Drive — try again.",
+        "Couldn't connect to Google Drive. Try again.",
     };
   }
 
@@ -372,48 +373,13 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
       variant: DialogType.confirmDelete,
       title: 'Disconnect Google Drive?',
       description:
-          'Your Vault and CVs stay exactly as they are on this device — '
-          'this only stops syncing them to Drive. You can reconnect any '
+          'Your Vault and CVs stay exactly as they are on this device. '
+          'This only stops syncing them to Drive. You can reconnect any '
           'time.',
       mainButtonTitle: 'Disconnect',
       secondaryButtonTitle: 'Cancel',
     );
     if (response?.confirmed != true) return;
     await _driveSyncService.disconnect();
-  }
-
-  /// Opens `DriveConflictDialog` and applies the user's choice. A no-op
-  /// if the status has already moved past `conflict` by the time this
-  /// runs (e.g. `DriveSyncService` losing the token mid-dialog) — nothing
-  /// left to resolve.
-  Future<void> resolveDriveConflict() async {
-    final status = driveSyncStatus;
-    if (status is! DriveSyncConflict) return;
-    final response = await _dialogService
-        .showCustomDialog<bool, DriveConflictDialogData>(
-          variant: DialogType.driveConflict,
-          data: DriveConflictDialogData(
-            accountEmail: status.accountEmail,
-            localUpdatedAt: _mostRecentLocalUpdate(),
-            remoteModifiedAt: _driveSyncService.conflictRemoteModifiedAt,
-          ),
-        );
-    final keepLocal = response?.data;
-    if (response?.confirmed == true && keepLocal != null) {
-      await _driveSyncService.resolveConflict(keepLocal: keepLocal);
-    }
-  }
-
-  /// The later of the Vault's own `updatedAt` and every Draft's —
-  /// `DriveConflictDialog`'s "This device — N days ago" copy, the same
-  /// timestamp source `hasChangesSinceBackup` already reads.
-  DateTime? _mostRecentLocalUpdate() {
-    DateTime? latest = _vaultService.vault.updatedAt;
-    for (final draft in _draftService.drafts) {
-      if (latest == null || draft.updatedAt.isAfter(latest)) {
-        latest = draft.updatedAt;
-      }
-    }
-    return latest;
   }
 }

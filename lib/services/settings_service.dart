@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
 import 'package:cv_forge/services/storage_keys.dart';
@@ -35,16 +36,39 @@ class SettingsService
   /// underlying future via [ready].
   Future<void> load() => ready();
 
-  Future<void> setCopilotProvider(String? providerId) async {
-    await ready();
-    _settings.value = _settings.value.copyWith(copilotProviderId: providerId);
+  /// Every portable-preference mutator routes through here so
+  /// [CvPreferences.updatedAt] is stamped in exactly one place — it's the
+  /// tie-break when two devices have both changed their settings, and a
+  /// mutator that forgot to stamp it would silently always lose.
+  void _setPreferences(CvPreferences Function(CvPreferences current) update) {
+    _settings.value = _settings.value.copyWith(
+      preferences: update(
+        _settings.value.preferences,
+      ).copyWith(updatedAt: DateTime.now()),
+    );
     scheduleWrite(_settings.value);
   }
 
-  Future<void> setCopilotModel(String? modelId) async {
+  Future<void> setAssistantProvider(String? providerId) async {
     await ready();
-    _settings.value = _settings.value.copyWith(copilotModelId: modelId);
-    scheduleWrite(_settings.value);
+    _setPreferences((p) => p.copyWith(assistantProviderId: providerId));
+  }
+
+  Future<void> setAssistantModel(String? modelId) async {
+    await ready();
+    _setPreferences((p) => p.copyWith(assistantModelId: modelId));
+  }
+
+  /// Replaces the portable half wholesale — the apply path for a Drive
+  /// sync or a backup import. Keeps the incoming [CvPreferences.updatedAt]
+  /// rather than stamping now, for the same reason `VaultService.
+  /// replaceAll` preserves the vault's: adopting someone else's state
+  /// isn't an edit, and re-stamping would rig the next tie-break.
+  Future<void> replacePreferences(CvPreferences preferences) async {
+    await ready();
+    await persistNow(_settings.value);
+    _settings.value = _settings.value.copyWith(preferences: preferences);
+    await persistImmediately(_settings.value);
   }
 
   Future<void> setLastBackupAt(DateTime value) async {
@@ -60,14 +84,13 @@ class SettingsService
   }
 
   /// Only the default a *new* draft is created with (`DraftService.
-  /// createDraft`'s own `_settings.settings.defaultRegion` read) — never
+  /// createDraft`'s own `_settings.settings.preferences.defaultRegion` read) — never
   /// touches any existing draft's own `CvDraft.region`, the same way
   /// changing [setDefaultSectionSettings] never rewrites a draft already
   /// created from the old default.
   Future<void> setDefaultRegion(RegionProfile region) async {
     await ready();
-    _settings.value = _settings.value.copyWith(defaultRegion: region);
-    scheduleWrite(_settings.value);
+    _setPreferences((p) => p.copyWith(defaultRegion: region));
   }
 
   /// Sets the remembered default section order and hidden-sections state
@@ -81,11 +104,12 @@ class SettingsService
     required Set<CvSectionType> hiddenSections,
   }) async {
     await ready();
-    _settings.value = _settings.value.copyWith(
-      defaultSectionOrder: order,
-      defaultHiddenSections: hiddenSections,
+    _setPreferences(
+      (p) => p.copyWith(
+        defaultSectionOrder: order,
+        defaultHiddenSections: hiddenSections,
+      ),
     );
-    scheduleWrite(_settings.value);
   }
 
   /// In-memory only — never reactive, since a key changing never needs to

@@ -15,26 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppSettings {
 
- int get schemaVersion; RegionProfile get defaultRegion; String? get copilotProviderId; String? get copilotModelId; bool get rememberApiKey;/// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-/// draft with, set via the "Save as my default" action in Studio.
-/// Null means no default has ever been saved — a new draft then falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`. Never
-/// re-resolved against an existing draft; it only ever seeds a draft
-/// at creation time. Saved and reset together with
-/// [defaultHiddenSections] by the same Studio action, so the two
-/// fields never drift apart from each other, but kept as two fields
-/// rather than one combined value — same shape as `CvDraft.sectionOrder`
-/// / `CvDraft.hiddenSections` being separate fields there too.
- List<CvSectionType>? get defaultSectionOrder;/// Same seed-only rationale as [defaultSectionOrder], one field over
-/// for `CvDraft.hiddenSections` — which sections a brand-new draft
-/// starts with hidden. Null means no default has been saved, so a new
-/// draft starts with nothing hidden (`CvDraft.hiddenSections`'s own
-/// default).
- Set<CvSectionType>? get defaultHiddenSections;/// When `BackupService.exportBackup` last completed, set by
-/// `SettingsViewModel.exportBackup` — null means never. Never included
-/// in a backup bundle by construction (see this class's own doc
-/// comment on why `CvBackupBundle` has no `AppSettings` field at all),
-/// so there is no stale-timestamp-on-restore case to guard against.
+ int get schemaVersion; CvPreferences get preferences;/// Whether to persist the API key to storage rather than keep it for
+/// the session only. Per-device by definition — see [CvPreferences].
+ bool get rememberApiKey;/// When `BackupService.exportBackup` last completed on *this* device,
+/// set by `SettingsViewModel.exportBackup` — null means never.
  DateTime? get lastBackupAt;
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -48,16 +32,16 @@ $AppSettingsCopyWith<AppSettings> get copyWith => _$AppSettingsCopyWithImpl<AppS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.copilotProviderId, copilotProviderId) || other.copilotProviderId == copilotProviderId)&&(identical(other.copilotModelId, copilotModelId) || other.copilotModelId == copilotModelId)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&const DeepCollectionEquality().equals(other.defaultSectionOrder, defaultSectionOrder)&&const DeepCollectionEquality().equals(other.defaultHiddenSections, defaultHiddenSections)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,defaultRegion,copilotProviderId,copilotModelId,rememberApiKey,const DeepCollectionEquality().hash(defaultSectionOrder),const DeepCollectionEquality().hash(defaultHiddenSections),lastBackupAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,rememberApiKey,lastBackupAt);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, defaultRegion: $defaultRegion, copilotProviderId: $copilotProviderId, copilotModelId: $copilotModelId, rememberApiKey: $rememberApiKey, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections, lastBackupAt: $lastBackupAt)';
+  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, rememberApiKey: $rememberApiKey, lastBackupAt: $lastBackupAt)';
 }
 
 
@@ -68,11 +52,11 @@ abstract mixin class $AppSettingsCopyWith<$Res>  {
   factory $AppSettingsCopyWith(AppSettings value, $Res Function(AppSettings) _then) = _$AppSettingsCopyWithImpl;
 @useResult
 $Res call({
- int schemaVersion, RegionProfile defaultRegion, String? copilotProviderId, String? copilotModelId, bool rememberApiKey, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections, DateTime? lastBackupAt
+ int schemaVersion, CvPreferences preferences, bool rememberApiKey, DateTime? lastBackupAt
 });
 
 
-
+$CvPreferencesCopyWith<$Res> get preferences;
 
 }
 /// @nodoc
@@ -85,20 +69,25 @@ class _$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? defaultRegion = null,Object? copilotProviderId = freezed,Object? copilotModelId = freezed,Object? rememberApiKey = null,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,Object? lastBackupAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? preferences = null,Object? rememberApiKey = null,Object? lastBackupAt = freezed,}) {
   return _then(_self.copyWith(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
-as int,defaultRegion: null == defaultRegion ? _self.defaultRegion : defaultRegion // ignore: cast_nullable_to_non_nullable
-as RegionProfile,copilotProviderId: freezed == copilotProviderId ? _self.copilotProviderId : copilotProviderId // ignore: cast_nullable_to_non_nullable
-as String?,copilotModelId: freezed == copilotModelId ? _self.copilotModelId : copilotModelId // ignore: cast_nullable_to_non_nullable
-as String?,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
-as bool,defaultSectionOrder: freezed == defaultSectionOrder ? _self.defaultSectionOrder : defaultSectionOrder // ignore: cast_nullable_to_non_nullable
-as List<CvSectionType>?,defaultHiddenSections: freezed == defaultHiddenSections ? _self.defaultHiddenSections : defaultHiddenSections // ignore: cast_nullable_to_non_nullable
-as Set<CvSectionType>?,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
+as int,preferences: null == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
+as CvPreferences,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
+as bool,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
-
+/// Create a copy of AppSettings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CvPreferencesCopyWith<$Res> get preferences {
+  
+  return $CvPreferencesCopyWith<$Res>(_self.preferences, (value) {
+    return _then(_self.copyWith(preferences: value));
+  });
+}
 }
 
 
@@ -180,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  DateTime? lastBackupAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  bool rememberApiKey,  DateTime? lastBackupAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that.lastBackupAt);case _:
   return orElse();
 
 }
@@ -201,10 +190,10 @@ return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  DateTime? lastBackupAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  bool rememberApiKey,  DateTime? lastBackupAt)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings():
-return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that.lastBackupAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -221,10 +210,10 @@ return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  RegionProfile defaultRegion,  String? copilotProviderId,  String? copilotModelId,  bool rememberApiKey,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  DateTime? lastBackupAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  CvPreferences preferences,  bool rememberApiKey,  DateTime? lastBackupAt)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,_that.copilotModelId,_that.rememberApiKey,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that.lastBackupAt);case _:
   return null;
 
 }
@@ -236,67 +225,16 @@ return $default(_that.schemaVersion,_that.defaultRegion,_that.copilotProviderId,
 @JsonSerializable()
 
 class _AppSettings implements AppSettings {
-  const _AppSettings({required this.schemaVersion, this.defaultRegion = RegionProfile.uk, this.copilotProviderId, this.copilotModelId, this.rememberApiKey = false, final  List<CvSectionType>? defaultSectionOrder, final  Set<CvSectionType>? defaultHiddenSections, this.lastBackupAt}): _defaultSectionOrder = defaultSectionOrder,_defaultHiddenSections = defaultHiddenSections;
+  const _AppSettings({required this.schemaVersion, required this.preferences, this.rememberApiKey = false, this.lastBackupAt});
   factory _AppSettings.fromJson(Map<String, dynamic> json) => _$AppSettingsFromJson(json);
 
 @override final  int schemaVersion;
-@override@JsonKey() final  RegionProfile defaultRegion;
-@override final  String? copilotProviderId;
-@override final  String? copilotModelId;
+@override final  CvPreferences preferences;
+/// Whether to persist the API key to storage rather than keep it for
+/// the session only. Per-device by definition — see [CvPreferences].
 @override@JsonKey() final  bool rememberApiKey;
-/// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-/// draft with, set via the "Save as my default" action in Studio.
-/// Null means no default has ever been saved — a new draft then falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`. Never
-/// re-resolved against an existing draft; it only ever seeds a draft
-/// at creation time. Saved and reset together with
-/// [defaultHiddenSections] by the same Studio action, so the two
-/// fields never drift apart from each other, but kept as two fields
-/// rather than one combined value — same shape as `CvDraft.sectionOrder`
-/// / `CvDraft.hiddenSections` being separate fields there too.
- final  List<CvSectionType>? _defaultSectionOrder;
-/// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-/// draft with, set via the "Save as my default" action in Studio.
-/// Null means no default has ever been saved — a new draft then falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`. Never
-/// re-resolved against an existing draft; it only ever seeds a draft
-/// at creation time. Saved and reset together with
-/// [defaultHiddenSections] by the same Studio action, so the two
-/// fields never drift apart from each other, but kept as two fields
-/// rather than one combined value — same shape as `CvDraft.sectionOrder`
-/// / `CvDraft.hiddenSections` being separate fields there too.
-@override List<CvSectionType>? get defaultSectionOrder {
-  final value = _defaultSectionOrder;
-  if (value == null) return null;
-  if (_defaultSectionOrder is EqualUnmodifiableListView) return _defaultSectionOrder;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(value);
-}
-
-/// Same seed-only rationale as [defaultSectionOrder], one field over
-/// for `CvDraft.hiddenSections` — which sections a brand-new draft
-/// starts with hidden. Null means no default has been saved, so a new
-/// draft starts with nothing hidden (`CvDraft.hiddenSections`'s own
-/// default).
- final  Set<CvSectionType>? _defaultHiddenSections;
-/// Same seed-only rationale as [defaultSectionOrder], one field over
-/// for `CvDraft.hiddenSections` — which sections a brand-new draft
-/// starts with hidden. Null means no default has been saved, so a new
-/// draft starts with nothing hidden (`CvDraft.hiddenSections`'s own
-/// default).
-@override Set<CvSectionType>? get defaultHiddenSections {
-  final value = _defaultHiddenSections;
-  if (value == null) return null;
-  if (_defaultHiddenSections is EqualUnmodifiableSetView) return _defaultHiddenSections;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableSetView(value);
-}
-
-/// When `BackupService.exportBackup` last completed, set by
-/// `SettingsViewModel.exportBackup` — null means never. Never included
-/// in a backup bundle by construction (see this class's own doc
-/// comment on why `CvBackupBundle` has no `AppSettings` field at all),
-/// so there is no stale-timestamp-on-restore case to guard against.
+/// When `BackupService.exportBackup` last completed on *this* device,
+/// set by `SettingsViewModel.exportBackup` — null means never.
 @override final  DateTime? lastBackupAt;
 
 /// Create a copy of AppSettings
@@ -312,16 +250,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.copilotProviderId, copilotProviderId) || other.copilotProviderId == copilotProviderId)&&(identical(other.copilotModelId, copilotModelId) || other.copilotModelId == copilotModelId)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&const DeepCollectionEquality().equals(other._defaultSectionOrder, _defaultSectionOrder)&&const DeepCollectionEquality().equals(other._defaultHiddenSections, _defaultHiddenSections)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,defaultRegion,copilotProviderId,copilotModelId,rememberApiKey,const DeepCollectionEquality().hash(_defaultSectionOrder),const DeepCollectionEquality().hash(_defaultHiddenSections),lastBackupAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,rememberApiKey,lastBackupAt);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, defaultRegion: $defaultRegion, copilotProviderId: $copilotProviderId, copilotModelId: $copilotModelId, rememberApiKey: $rememberApiKey, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections, lastBackupAt: $lastBackupAt)';
+  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, rememberApiKey: $rememberApiKey, lastBackupAt: $lastBackupAt)';
 }
 
 
@@ -332,11 +270,11 @@ abstract mixin class _$AppSettingsCopyWith<$Res> implements $AppSettingsCopyWith
   factory _$AppSettingsCopyWith(_AppSettings value, $Res Function(_AppSettings) _then) = __$AppSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- int schemaVersion, RegionProfile defaultRegion, String? copilotProviderId, String? copilotModelId, bool rememberApiKey, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections, DateTime? lastBackupAt
+ int schemaVersion, CvPreferences preferences, bool rememberApiKey, DateTime? lastBackupAt
 });
 
 
-
+@override $CvPreferencesCopyWith<$Res> get preferences;
 
 }
 /// @nodoc
@@ -349,21 +287,26 @@ class __$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? defaultRegion = null,Object? copilotProviderId = freezed,Object? copilotModelId = freezed,Object? rememberApiKey = null,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,Object? lastBackupAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? preferences = null,Object? rememberApiKey = null,Object? lastBackupAt = freezed,}) {
   return _then(_AppSettings(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
-as int,defaultRegion: null == defaultRegion ? _self.defaultRegion : defaultRegion // ignore: cast_nullable_to_non_nullable
-as RegionProfile,copilotProviderId: freezed == copilotProviderId ? _self.copilotProviderId : copilotProviderId // ignore: cast_nullable_to_non_nullable
-as String?,copilotModelId: freezed == copilotModelId ? _self.copilotModelId : copilotModelId // ignore: cast_nullable_to_non_nullable
-as String?,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
-as bool,defaultSectionOrder: freezed == defaultSectionOrder ? _self._defaultSectionOrder : defaultSectionOrder // ignore: cast_nullable_to_non_nullable
-as List<CvSectionType>?,defaultHiddenSections: freezed == defaultHiddenSections ? _self._defaultHiddenSections : defaultHiddenSections // ignore: cast_nullable_to_non_nullable
-as Set<CvSectionType>?,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
+as int,preferences: null == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
+as CvPreferences,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
+as bool,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
 
-
+/// Create a copy of AppSettings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CvPreferencesCopyWith<$Res> get preferences {
+  
+  return $CvPreferencesCopyWith<$Res>(_self.preferences, (value) {
+    return _then(_self.copyWith(preferences: value));
+  });
+}
 }
 
 // dart format on

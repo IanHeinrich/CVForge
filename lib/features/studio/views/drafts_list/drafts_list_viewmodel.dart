@@ -68,11 +68,16 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   /// `AppChrome`'s nav label and `SettingsViewModel`'s replace-data copy
   /// read, so this page's own "New CV" button and empty state never say
   /// something the sidebar tab it lives under disagrees with.
-  String get documentNoun =>
-      _settingsService.settings.defaultRegion.preset.documentNounCapitalized;
+  String get documentNoun => _settingsService
+      .settings
+      .preferences
+      .defaultRegion
+      .preset
+      .documentNounCapitalized;
 
   String get documentNounPlural => _settingsService
       .settings
+      .preferences
       .defaultRegion
       .preset
       .documentNounPluralCapitalized;

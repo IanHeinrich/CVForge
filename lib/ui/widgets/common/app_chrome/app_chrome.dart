@@ -5,6 +5,7 @@ import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/widgets/common/drive_sync_indicator/drive_sync_indicator.dart';
 import 'package:cv_forge/ui/widgets/common/storage_unavailable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -51,6 +52,7 @@ List<_NavDestination> _workspaceDestinations() => [
     selectedIcon: RemixIcons.file_text_fill,
     label: locator<SettingsService>()
         .settings
+        .preferences
         .defaultRegion
         .preset
         .documentNounPluralCapitalized,
@@ -270,17 +272,28 @@ class _RailChrome extends StatelessWidget {
                   padding: EdgeInsets.symmetric(
                     vertical: context.appSpacing.paddingDefault,
                   ),
-                  child: IconButton(
-                    tooltip: _settingsDestination.label,
-                    icon: Icon(
-                      section == AppSection.settings
-                          ? _settingsDestination.selectedIcon
-                          : _settingsDestination.icon,
-                      color: section == AppSection.settings
-                          ? kcPrimaryColor
-                          : kcLightGrey,
-                    ),
-                    onPressed: () => onSelect(AppSection.settings),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Renders nothing at all when Drive sync isn't
+                      // configured or has never been connected — see its
+                      // own doc comment. Sits above Settings rather than
+                      // below so it never shifts the settings button's
+                      // position depending on whether it's showing.
+                      const DriveSyncIndicator(),
+                      IconButton(
+                        tooltip: _settingsDestination.label,
+                        icon: Icon(
+                          section == AppSection.settings
+                              ? _settingsDestination.selectedIcon
+                              : _settingsDestination.icon,
+                          color: section == AppSection.settings
+                              ? kcPrimaryColor
+                              : kcLightGrey,
+                        ),
+                        onPressed: () => onSelect(AppSection.settings),
+                      ),
+                    ],
                   ),
                 ),
               ),

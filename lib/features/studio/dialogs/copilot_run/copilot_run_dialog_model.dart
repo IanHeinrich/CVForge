@@ -43,15 +43,16 @@ class CopilotRunDialogModel extends BaseViewModel {
   /// Falls back to [LlmProviderRegistry.defaultProvider] the same way
   /// `SettingsViewModel.selectedCopilotProvider` does — a settings read
   /// must never crash this dialog's build.
-  LlmProvider get _provider =>
-      _providerRegistry.byId(_settingsService.settings.copilotProviderId ?? '');
+  LlmProvider get _provider => _providerRegistry.byId(
+    _settingsService.settings.preferences.assistantProviderId ?? '',
+  );
 
   String get providerDisplayName => _provider.displayName;
 
   /// Same stored-id-may-be-stale fallback as
   /// `SettingsViewModel.selectedCopilotModel`.
   String get _modelId {
-    final storedId = _settingsService.settings.copilotModelId;
+    final storedId = _settingsService.settings.preferences.assistantModelId;
     final models = _provider.models;
     return models
         .firstWhere((m) => m.id == storedId, orElse: () => models.first)
@@ -66,7 +67,7 @@ class CopilotRunDialogModel extends BaseViewModel {
     if (error == null) return null;
     if (error is! LlmException) return 'Something went wrong — try again.';
     return switch (error.failure) {
-      LlmFailure.noKey => 'Add a Copilot API key in Settings first.',
+      LlmFailure.noKey => 'Add an AI Assistant API key in Settings first.',
       LlmFailure.unauthorized =>
         'Your API key was rejected — check it in Settings.',
       LlmFailure.rateLimited =>

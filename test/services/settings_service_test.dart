@@ -24,8 +24,8 @@ void main() {
       await service.load();
 
       expect(service.settings.schemaVersion, 1);
-      expect(service.settings.defaultRegion, RegionProfile.uk);
-      expect(service.settings.copilotProviderId, isNull);
+      expect(service.settings.preferences.defaultRegion, RegionProfile.uk);
+      expect(service.settings.preferences.assistantProviderId, isNull);
       expect(service.settings.rememberApiKey, isFalse);
     });
 
@@ -76,17 +76,17 @@ void main() {
     });
 
     group('Copilot mutators (4.4) -', () {
-      test('setCopilotProvider/setCopilotModel update settings', () async {
+      test('setAssistantProvider/setAssistantModel update settings', () async {
         when(storage.read(any, any)).thenAnswer((_) async => null);
 
         final service = SettingsService();
         await service.load();
 
-        await service.setCopilotProvider('anthropic');
-        await service.setCopilotModel('claude-opus-5');
+        await service.setAssistantProvider('anthropic');
+        await service.setAssistantModel('claude-opus-5');
 
-        expect(service.settings.copilotProviderId, 'anthropic');
-        expect(service.settings.copilotModelId, 'claude-opus-5');
+        expect(service.settings.preferences.assistantProviderId, 'anthropic');
+        expect(service.settings.preferences.assistantModelId, 'claude-opus-5');
       });
 
       test('setRememberApiKey updates settings', () async {
