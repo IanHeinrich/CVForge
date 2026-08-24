@@ -95,6 +95,12 @@ CvPreferences? _mergePreferences(
       remote.aiAssistantModelId,
       pr,
     ),
+    aiAssistantConfiguredAt: _pick(
+      b.aiAssistantConfiguredAt,
+      local.aiAssistantConfiguredAt,
+      remote.aiAssistantConfiguredAt,
+      pr,
+    ),
     defaultSectionOrder: _pick(
       b.defaultSectionOrder,
       local.defaultSectionOrder,

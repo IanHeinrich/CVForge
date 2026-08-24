@@ -40,32 +40,38 @@ class GeminiProvider implements LlmProvider {
   /// new API keys (redirected to `gemini-3.5-flash-lite`), so a model list
   /// pulled once from `ListModels` is not enough to trust; only models
   /// actually exercised against `generateContent` belong here.
+  ///
+  /// **Order is the default.** `models.first` is what a newly-selected
+  /// provider gets written into `CvPreferences.aiAssistantModelId`, what
+  /// `SettingsService.selectedAiAssistantModel` falls back to for a stale
+  /// stored id, and the order the Settings dropdown renders — so Flash
+  /// leading this list is the whole mechanism by which it is the default,
+  /// not a cosmetic choice.
   @override
   List<LlmModelOption> get models => const [
     LlmModelOption(
-      id: 'gemini-3.5-flash-lite',
-      label: 'Gemini 3.5 Flash-Lite',
-      // Pricing not yet re-checked for the 3.5 generation. Carrying
-      // 2.5 Flash-Lite's rate forward as the closest known tier; treat
-      // as provisional until confirmed against Google's pricing page for
-      // the 3.5 models specifically.
-      inputPricePerMTok: 0.10,
-      outputPricePerMTok: 0.40,
-    ),
-    LlmModelOption(
       id: 'gemini-3.5-flash',
       label: 'Gemini 3.5 Flash',
-      // Confirmed working via a real `generateContent` request (a real
-      // `finishReason: "STOP"` response, `modelVersion:
-      // "gemini-3.5-flash"`) — added because comparing Anthropic's
-      // models against Flash-*Lite* specifically isn't a fair quality
-      // comparison between providers, it's a fair comparison between a
-      // full model and the cheapest possible tier of the other. Same
-      // provisional-pricing caveat as Flash-Lite above: carrying 2.5
-      // Flash's confirmed rate forward, not re-checked for the 3.5
+      // The default, and confirmed working via a real `generateContent`
+      // request (a real `finishReason: "STOP"` response, `modelVersion:
+      // "gemini-3.5-flash"`). Flash-Lite led this list until it was
+      // pointed out that defaulting to the cheapest possible tier judges
+      // the whole feature — and Gemini against Anthropic — on the weakest
+      // model either provider offers. Pricing is provisional: carrying
+      // 2.5 Flash's confirmed rate forward, not re-checked for the 3.5
       // generation specifically.
       inputPricePerMTok: 0.30,
       outputPricePerMTok: 2.50,
+    ),
+    LlmModelOption(
+      id: 'gemini-3.5-flash-lite',
+      label: 'Gemini 3.5 Flash-Lite',
+      // The cheaper opt-in, roughly a sixth of Flash's output rate. Same
+      // provisional-pricing caveat as Flash above: carrying 2.5
+      // Flash-Lite's rate forward as the closest known tier, not
+      // re-checked for the 3.5 generation.
+      inputPricePerMTok: 0.10,
+      outputPricePerMTok: 0.40,
     ),
   ];
 

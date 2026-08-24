@@ -26,7 +26,6 @@ void main() {
       expect(service.settings.schemaVersion, 1);
       expect(service.settings.preferences.defaultRegion, RegionProfile.uk);
       expect(service.settings.preferences.aiAssistantProviderId, isNull);
-      expect(service.settings.rememberApiKey, isFalse);
     });
 
     test('When the stored payload has an unrecognised schemaVersion, falls '
@@ -98,55 +97,48 @@ void main() {
         },
       );
 
-      test('setRememberApiKey updates settings', () async {
+      test('setApiKey always persists — there is no "remember" opt-in, so '
+          'a validated key survives a reload by default', () async {
         when(storage.read(any, any)).thenAnswer((_) async => null);
+        when(
+          storage.write(any, any, any),
+        ).thenAnswer((_) => Future<void>.value());
 
         final service = SettingsService();
         await service.load();
-        expect(service.settings.rememberApiKey, isFalse);
 
-        await service.setRememberApiKey(true);
-        expect(service.settings.rememberApiKey, isTrue);
+        await service.setApiKey('anthropic', 'sk-ant-test');
+
+        verify(
+          storage.write(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyFor('anthropic'),
+            'sk-ant-test',
+          ),
+        ).called(1);
+        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.remembered);
       });
 
-      test(
-        'setApiKey with rememberApiKey false keeps the key in memory only',
-        () async {
-          when(storage.read(any, any)).thenAnswer((_) async => null);
+      test('a failed write leaves the key usable for this session and says '
+          'so, rather than throwing out of the button that just reported '
+          'a successful connection', () async {
+        when(storage.read(any, any)).thenAnswer((_) async => null);
+        when(
+          storage.write(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyFor('anthropic'),
+            any,
+          ),
+        ).thenThrow(Exception('IndexedDB unavailable'));
 
-          final service = SettingsService();
-          await service.load();
+        final service = SettingsService();
+        await service.load();
 
-          await service.setApiKey('anthropic', 'sk-ant-test');
+        await service.setApiKey('anthropic', 'sk-ant-test');
 
-          verifyNever(storage.write(any, any, any));
-          expect(await service.apiKeyFor('anthropic'), 'sk-ant-test');
-        },
-      );
-
-      test(
-        'setApiKey with rememberApiKey true also persists the key',
-        () async {
-          when(storage.read(any, any)).thenAnswer((_) async => null);
-          when(
-            storage.write(any, any, any),
-          ).thenAnswer((_) => Future<void>.value());
-
-          final service = SettingsService();
-          await service.load();
-          await service.setRememberApiKey(true);
-
-          await service.setApiKey('anthropic', 'sk-ant-test');
-
-          verify(
-            storage.write(
-              StorageBoxes.settings,
-              StorageKeys.apiKeyFor('anthropic'),
-              'sk-ant-test',
-            ),
-          ).called(1);
-        },
-      );
+        expect(await service.apiKeyFor('anthropic'), 'sk-ant-test');
+        expect(service.apiKeyOriginFor('anthropic'), ApiKeyOrigin.session);
+      });
 
       test('clearApiKey deletes the stored row immediately', () async {
         when(storage.read(any, any)).thenAnswer((_) async => null);
@@ -157,7 +149,6 @@ void main() {
 
         final service = SettingsService();
         await service.load();
-        await service.setRememberApiKey(true);
         await service.setApiKey('anthropic', 'sk-ant-test');
 
         await service.clearApiKey('anthropic');
@@ -171,8 +162,14 @@ void main() {
         expect(await service.apiKeyFor('anthropic'), isNull);
       });
 
-      test('apiKeyFor lazily reloads a remembered key from storage on first '
-          'access, simulating a page reload', () async {
+      test('load rehydrates a remembered key from storage, simulating a page '
+          'reload — and reports it as remembered, not session', () async {
+        when(
+          storage.keysWithPrefix(
+            StorageBoxes.settings,
+            StorageKeys.apiKeyPrefix,
+          ),
+        ).thenAnswer((_) async => [StorageKeys.apiKeyFor('anthropic')]);
         when(storage.read(any, any)).thenAnswer((invocation) async {
           final key = invocation.positionalArguments[1] as String;
           if (key == StorageKeys.apiKeyFor('anthropic')) {
@@ -185,6 +182,35 @@ void main() {
         await freshService.load();
 
         expect(await freshService.apiKeyFor('anthropic'), 'sk-ant-remembered');
+        expect(
+          freshService.apiKeyOriginFor('anthropic'),
+          ApiKeyOrigin.remembered,
+        );
+        // Masked for display, never the key itself.
+        expect(freshService.maskedApiKeyFor('anthropic'), endsWith('ered'));
+      });
+
+      test('a provider with no key reports none, so Settings can tell '
+          '"nothing stored" from "stored but unreadable"', () async {
+        final service = SettingsService();
+        await service.load();
+
+        expect(service.apiKeyOriginFor('gemini'), ApiKeyOrigin.none);
+        expect(service.maskedApiKeyFor('gemini'), isNull);
+      });
+
+      test('markAiAssistantConfigured is write-once, so re-testing an '
+          'existing key never moves the date a second device reads', () async {
+        final service = SettingsService();
+        await service.load();
+
+        await service.markAiAssistantConfigured();
+        final first = service.settings.preferences.aiAssistantConfiguredAt;
+        expect(first, isNotNull);
+
+        await service.markAiAssistantConfigured();
+
+        expect(service.settings.preferences.aiAssistantConfiguredAt, first);
       });
     });
   });

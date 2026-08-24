@@ -58,9 +58,8 @@ void main() {
       locator.registerLazySingleton<TemplateRegistryService>(
         TemplateRegistryService.new,
       );
-      when(
-        getAndRegisterSettingsService().settings,
-      ).thenReturn(AppSettings.empty());
+      final settingsService = getAndRegisterSettingsService();
+      when(settingsService.settings).thenReturn(AppSettings.empty());
 
       vaultService = VaultService();
       locator.registerSingleton<VaultService>(vaultService);

@@ -4,7 +4,6 @@ import 'package:cv_forge/services/ai_assistant_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
-import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
@@ -29,10 +28,6 @@ class AiAssistantRunDialogModel extends BaseViewModel {
   final _draftService = locator<DraftService>();
   final _aiAssistantService = locator<AiAssistantService>();
 
-  /// Not locator-registered — see `LlmService`'s own doc comment for why
-  /// (stateless, deterministic, nothing else needs one injected).
-  final _providerRegistry = LlmProviderRegistry();
-
   AiAssistantRunPhase _phase = AiAssistantRunPhase.confirm;
   AiAssistantRunPhase get phase => _phase;
 
@@ -41,12 +36,11 @@ class AiAssistantRunDialogModel extends BaseViewModel {
 
   Object? _error;
 
-  /// Falls back to [LlmProviderRegistry.defaultProvider] the same way
-  /// `SettingsViewModel.selectedAiAssistantProvider` does — a settings read
-  /// must never crash this dialog's build.
-  LlmProvider get _provider => _providerRegistry.byId(
-    _settingsService.settings.preferences.aiAssistantProviderId ?? '',
-  );
+  /// Resolved by `SettingsService` — see
+  /// [SettingsService.selectedAiAssistantProvider] for the never-throw
+  /// fallback, which matters here because a settings read must never crash
+  /// this dialog's build.
+  LlmProvider get _provider => _settingsService.selectedAiAssistantProvider;
 
   String get providerDisplayName => _provider.displayName;
 
@@ -55,15 +49,9 @@ class AiAssistantRunDialogModel extends BaseViewModel {
   /// and tone.
   String get regionDisplayName => _draftService.draft.region.preset.displayName;
 
-  /// Same stored-id-may-be-stale fallback as
-  /// `SettingsViewModel.selectedAiAssistantModel`.
-  String get _modelId {
-    final storedId = _settingsService.settings.preferences.aiAssistantModelId;
-    final models = _provider.models;
-    return models
-        .firstWhere((m) => m.id == storedId, orElse: () => models.first)
-        .id;
-  }
+  /// Same stored-id-may-be-stale fallback, resolved in the one place that
+  /// owns it — see [SettingsService.selectedAiAssistantModel].
+  String get _modelId => _settingsService.selectedAiAssistantModel.id;
 
   /// Mirrors `SettingsViewModel.connectionTestErrorMessage`'s per-failure
   /// copy — this dialog surfaces the same failure vocabulary as the

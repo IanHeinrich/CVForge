@@ -39,7 +39,21 @@ abstract final class StorageKeys {
   /// A remembered AI Assistant API key's own row, one per provider — never a
   /// field on [AppSettings] (see that model's doc comment). Kept in the
   /// same [StorageBoxes.settings] box `SettingsService` already owns.
-  static String apiKeyFor(String providerId) => 'api_key_$providerId';
+  static String apiKeyFor(String providerId) => '$apiKeyPrefix$providerId';
+
+  /// [apiKeyFor]'s prefix on its own, so `SettingsService` can find every
+  /// remembered key at load via `LocalStorageService.keysWithPrefix`
+  /// without being told which providers exist. Kept beside the builder it
+  /// belongs to — the two must never drift.
+  static const apiKeyPrefix = 'api_key_';
+
+  /// The provider id encoded in an [apiKeyFor] row, or null if [key] isn't
+  /// one. The inverse of [apiKeyFor], defined here so the encoding is
+  /// described in exactly one place.
+  static String? providerIdFromApiKey(String key) =>
+      key.startsWith(apiKeyPrefix) && key.length > apiKeyPrefix.length
+      ? key.substring(apiKeyPrefix.length)
+      : null;
 
   /// The pre-pass [CvDraft] snapshot an AI Assistant tailoring pass writes
   /// before applying its result — a distinct prefix from [draftEntry], not

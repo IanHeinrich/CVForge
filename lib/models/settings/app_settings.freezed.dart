@@ -15,9 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppSettings {
 
- int get schemaVersion; CvPreferences get preferences;/// Whether to persist the API key to storage rather than keep it for
-/// the session only. Per-device by definition — see [CvPreferences].
- bool get rememberApiKey;/// When `BackupService.exportBackup` last completed on *this* device,
+ int get schemaVersion; CvPreferences get preferences;/// When `BackupService.exportBackup` last completed on *this* device,
 /// set by `SettingsViewModel.exportBackup` — null means never.
  DateTime? get lastBackupAt;
 /// Create a copy of AppSettings
@@ -32,16 +30,16 @@ $AppSettingsCopyWith<AppSettings> get copyWith => _$AppSettingsCopyWithImpl<AppS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,rememberApiKey,lastBackupAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,lastBackupAt);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, rememberApiKey: $rememberApiKey, lastBackupAt: $lastBackupAt)';
+  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, lastBackupAt: $lastBackupAt)';
 }
 
 
@@ -52,7 +50,7 @@ abstract mixin class $AppSettingsCopyWith<$Res>  {
   factory $AppSettingsCopyWith(AppSettings value, $Res Function(AppSettings) _then) = _$AppSettingsCopyWithImpl;
 @useResult
 $Res call({
- int schemaVersion, CvPreferences preferences, bool rememberApiKey, DateTime? lastBackupAt
+ int schemaVersion, CvPreferences preferences, DateTime? lastBackupAt
 });
 
 
@@ -69,12 +67,11 @@ class _$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? preferences = null,Object? rememberApiKey = null,Object? lastBackupAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? preferences = null,Object? lastBackupAt = freezed,}) {
   return _then(_self.copyWith(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,preferences: null == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
-as CvPreferences,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
-as bool,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
+as CvPreferences,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
@@ -169,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  bool rememberApiKey,  DateTime? lastBackupAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _:
   return orElse();
 
 }
@@ -190,10 +187,10 @@ return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  bool rememberApiKey,  DateTime? lastBackupAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings():
-return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +207,10 @@ return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  CvPreferences preferences,  bool rememberApiKey,  DateTime? lastBackupAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _:
   return null;
 
 }
@@ -225,14 +222,11 @@ return $default(_that.schemaVersion,_that.preferences,_that.rememberApiKey,_that
 @JsonSerializable()
 
 class _AppSettings implements AppSettings {
-  const _AppSettings({required this.schemaVersion, required this.preferences, this.rememberApiKey = false, this.lastBackupAt});
+  const _AppSettings({required this.schemaVersion, required this.preferences, this.lastBackupAt});
   factory _AppSettings.fromJson(Map<String, dynamic> json) => _$AppSettingsFromJson(json);
 
 @override final  int schemaVersion;
 @override final  CvPreferences preferences;
-/// Whether to persist the API key to storage rather than keep it for
-/// the session only. Per-device by definition — see [CvPreferences].
-@override@JsonKey() final  bool rememberApiKey;
 /// When `BackupService.exportBackup` last completed on *this* device,
 /// set by `SettingsViewModel.exportBackup` — null means never.
 @override final  DateTime? lastBackupAt;
@@ -250,16 +244,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.rememberApiKey, rememberApiKey) || other.rememberApiKey == rememberApiKey)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,rememberApiKey,lastBackupAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,lastBackupAt);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, rememberApiKey: $rememberApiKey, lastBackupAt: $lastBackupAt)';
+  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, lastBackupAt: $lastBackupAt)';
 }
 
 
@@ -270,7 +264,7 @@ abstract mixin class _$AppSettingsCopyWith<$Res> implements $AppSettingsCopyWith
   factory _$AppSettingsCopyWith(_AppSettings value, $Res Function(_AppSettings) _then) = __$AppSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- int schemaVersion, CvPreferences preferences, bool rememberApiKey, DateTime? lastBackupAt
+ int schemaVersion, CvPreferences preferences, DateTime? lastBackupAt
 });
 
 
@@ -287,12 +281,11 @@ class __$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? preferences = null,Object? rememberApiKey = null,Object? lastBackupAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? preferences = null,Object? lastBackupAt = freezed,}) {
   return _then(_AppSettings(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,preferences: null == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
-as CvPreferences,rememberApiKey: null == rememberApiKey ? _self.rememberApiKey : rememberApiKey // ignore: cast_nullable_to_non_nullable
-as bool,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
+as CvPreferences,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
