@@ -18,9 +18,14 @@ import 'package:remixicon/remixicon.dart';
 ///
 /// Reads `SettingsService` directly rather than taking a ViewModel: it is
 /// shared chrome hosted by `AppChrome`, which several unrelated
-/// ViewModels sit under. Rebuilds come from the `ListenableBuilder` around
-/// `MaterialApp` in `main.dart`, which already rebuilds on every
-/// `SettingsService` notification.
+/// ViewModels sit under.
+///
+/// Listens to that service itself rather than relying on the
+/// `ListenableBuilder` around `MaterialApp` in `main.dart`. That one only
+/// reliably repaints this button when the resolved `ThemeData` actually
+/// changes — and two of the six transitions in the cycle don't change it:
+/// on a dark device, Dark → Match device (and back) renders identically,
+/// so the glyph would stay a moon while the stored mode had moved on.
 class ThemeModeToggle extends StatelessWidget {
   const ThemeModeToggle({super.key});
 
@@ -49,6 +54,13 @@ class ThemeModeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsService = locator<SettingsService>();
+    return ListenableBuilder(
+      listenable: settingsService,
+      builder: (context, _) => _button(context, settingsService),
+    );
+  }
+
+  Widget _button(BuildContext context, SettingsService settingsService) {
     final mode = settingsService.settings.themeMode;
     final next = _next(mode);
 
