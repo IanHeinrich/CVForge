@@ -77,7 +77,7 @@ ResolvedCv _fixtureCv({String bulletText = 'Delivered a standard result.'}) =>
 
 void main() {
   // rootBundle.load needs a real binding, not just the default test one
-  // `test()` gets for free — this is what P1.6's flagged unknown ("does
+  // `test()` gets for free — this is what the flagged unknown ("does
   // rootBundle resolve declared assets under flutter_test?") resolves to.
   TestWidgetsFlutterBinding.ensureInitialized();
 
