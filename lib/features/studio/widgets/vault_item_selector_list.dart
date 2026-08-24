@@ -34,7 +34,7 @@ class SelectorItem {
     this.bullets = const [],
     this.onAddAllBullets,
     this.onRemoveAllBullets,
-    this.tailorable,
+    this.tailorables = const [],
   });
 
   final String id;
@@ -61,12 +61,14 @@ class SelectorItem {
   /// behaving differently, which is what this pairs up.
   final VoidCallback? onRemoveAllBullets;
 
-  /// Non-null only for entries with a manually-rewritable prose field —
-  /// a bullet's own text, or an education entry's `details`. Null for
-  /// everything else (skills, hobbies, the top-level experience/project/
-  /// education rows themselves) — see the `sections/` editors' call
-  /// sites for which is which.
-  final TailorableField? tailorable;
+  /// The editable text fields this row owns, rendered one
+  /// [_TailorableFieldRow] each beneath it, in order.
+  ///
+  /// A bullet has at most one (its own text, which doubles as the row's
+  /// title — see [_BulletRow]). An entity row can have several: an
+  /// education entry carries its qualification, grade and details. Empty
+  /// for a row whose every printed field is Vault-sourced.
+  final List<TailorableField> tailorables;
 }
 
 /// A titled checkbox list for one Vault collection (experiences, projects,
@@ -79,7 +81,8 @@ class SelectorItem {
 /// `_expandedIds` is pure presentation state, not draft data, matching
 /// `_SkillBulletLinkPicker`'s rationale for the same pattern in Vault.
 /// `_editingTextIds` is the same idea one field over, for which
-/// [SelectorItem.tailorable] row currently has its inline editor open.
+/// [SelectorItem.tailorables] entry currently has its inline editor open
+/// — keyed `'<itemId>_<index>'`, since one row can own several fields.
 class VaultItemSelectorList extends StatefulWidget {
   const VaultItemSelectorList({
     super.key,
@@ -174,22 +177,27 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                 editingTextIds: _editingTextIds,
                 onToggleEditingText: (id) => _toggleId(_editingTextIds, id),
               ),
-            // Education's `details` has no row of its own to hang off, so
-            // it gets a dedicated row here. A bullet's text uses its own
-            // checkbox row's title instead — see `_BulletSublist`.
-            if (item.selected && item.tailorable != null)
-              Padding(
-                key: ValueKey('tailor_${item.id}'),
-                padding: EdgeInsets.only(
-                  left: context.appSpacing.paddingDefault,
-                  bottom: context.appSpacing.paddingTight,
+            // An entity's own printed fields — a role title, an education
+            // entry's qualification/grade/details — have no checkbox row of
+            // their own to hang off, so they get dedicated rows here. A
+            // bullet's text uses its own checkbox row's title instead — see
+            // `_BulletSublist`. Keyed per field rather than per item, or
+            // opening one would open all of them.
+            if (item.selected)
+              for (final (index, field) in item.tailorables.indexed)
+                Padding(
+                  key: ValueKey('tailor_${item.id}_$index'),
+                  padding: EdgeInsets.only(
+                    left: context.appSpacing.paddingDefault,
+                    bottom: context.appSpacing.paddingTight,
+                  ),
+                  child: _TailorableFieldRow(
+                    field: field,
+                    editing: _editingTextIds.contains('${item.id}_$index'),
+                    onToggleEdit: () =>
+                        _toggleId(_editingTextIds, '${item.id}_$index'),
+                  ),
                 ),
-                child: _TailorableFieldRow(
-                  field: item.tailorable!,
-                  editing: _editingTextIds.contains(item.id),
-                  onToggleEdit: () => _toggleId(_editingTextIds, item.id),
-                ),
-              ),
           ],
         ],
       ),
@@ -218,7 +226,7 @@ class _BulletSublist extends StatelessWidget {
     final selectedCount = item.bullets.where((b) => b.selected).length;
     final unselectedCount = item.bullets.length - selectedCount;
     final tailoredCount = item.bullets
-        .where((b) => b.tailorable?.hasOverride ?? false)
+        .where((b) => b.tailorables.any((f) => f.hasOverride))
         .length;
     final countLabel = tailoredCount > 0
         ? context.l10n.studioBulletsSelectedTailored(
@@ -314,7 +322,7 @@ class _BulletRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tailorable = bullet.tailorable;
+    final tailorable = bullet.tailorables.firstOrNull;
     return TailoringHighlight(
       active: editing,
       child: Column(
@@ -363,9 +371,10 @@ class _BulletRow extends StatelessWidget {
   }
 }
 
-/// Education's collapsed `details` row: preview text (or an empty-state
-/// prompt when there's nothing yet) plus the edit affordance, expanding to
-/// [InlineTextOverrideEditor] beneath it while editing.
+/// One entity-owned field's collapsed row: its label and preview text (or
+/// an empty-state prompt when there's nothing yet) plus the edit
+/// affordance, expanding to [InlineTextOverrideEditor] beneath it while
+/// editing.
 class _TailorableFieldRow extends StatelessWidget {
   const _TailorableFieldRow({
     required this.field,
@@ -392,8 +401,28 @@ class _TailorableFieldRow extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    hasText ? field.effectiveText : (field.emptyMessage ?? ''),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        // Several of these rows can sit under one entry
+                        // (an education entry owns three), so each needs
+                        // to say which field it is. Null for a row that
+                        // is the only one on its entry.
+                        if (field.fieldLabel case final label?)
+                          TextSpan(
+                            text: '$label  ',
+                            style: context.appTypography.caption.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        TextSpan(
+                          text: hasText
+                              ? field.effectiveText
+                              : (field.emptyMessage ?? ''),
+                        ),
+                      ],
+                    ),
                     // One line while editing: the box directly below
                     // is already showing this text in full.
                     maxLines: editing ? 1 : 2,

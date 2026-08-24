@@ -21,6 +21,25 @@ part 'cv_draft.g.dart';
 /// normal, not an error — [CvComposer] silently drops them. There is no
 /// referential integrity enforced anywhere, by design: deleting a Vault
 /// entry must never require touching every draft that might reference it.
+///
+/// ## The override layer
+///
+/// The `*Override(s)` fields below are the single answer to "what does
+/// this draft say that the Vault doesn't". Three things write into them —
+/// the user typing in Studio, an AI tailoring pass, and a translation pass
+/// — and none of them is distinguishable from the others afterwards. That
+/// is deliberate: one layer means one revert idiom, one composer lookup
+/// per field, and one place a newly-overridable field has to be added.
+///
+/// The set of fields that are overridable is therefore also the set a
+/// translation may rewrite, and that boundary is a product decision rather
+/// than an oversight. Deliberately absent, and to stay absent: `fullName`,
+/// `email`, `phone`, every `location`, `ProfileLink.label`,
+/// `Experience.company`, `Education.institution`, and `Publication`'s
+/// `title`/`citation`/`link`. Employers, institutions and published paper
+/// titles are citable proper nouns — a reader who cannot look them up
+/// cannot verify the document, and verifiability is the one property a CV
+/// cannot trade away.
 @freezed
 abstract class CvDraft with _$CvDraft {
   const factory CvDraft({
@@ -109,15 +128,57 @@ abstract class CvDraft with _$CvDraft {
     /// over, for `ContactBasics.headline`.
     String? headlineOverride,
 
+    /// Drops the headline from this draft entirely, independently of
+    /// [headlineOverride] — which is preserved while hidden, so toggling
+    /// back restores the edit rather than losing it.
+    ///
+    /// A bool rather than a ninth [CvSectionType]: [hiddenSections] drives
+    /// the reorderable section list and `CvComposer`'s section walk, but
+    /// the headline sits in the header block, has no heading of its own
+    /// and cannot be reordered. In that enum it would show up in Studio's
+    /// section nav as a draggable row that renders nothing.
+    @Default(false) bool hideHeadline,
+
     /// Same null-means-inherit rationale as [tailoredSummary], one field
     /// over, for `CvVault.referencesNote`.
     String? referencesOverride,
 
     /// educationId -> rewritten `Education.details` text. Same
     /// null-means-inherit rationale as [bulletOverrides], one entity type
-    /// over — only `details` is prose; qualification/institution/grade/
-    /// year stay Vault-sourced, never overridable here.
+    /// over.
     @Default(<String, String>{}) Map<String, String> educationDetailsOverrides,
+
+    /// experienceId -> rewritten `Experience.role`.
+    @Default(<String, String>{}) Map<String, String> roleOverrides,
+
+    /// projectId -> rewritten `Project.title`.
+    @Default(<String, String>{}) Map<String, String> projectTitleOverrides,
+
+    /// skillId -> rewritten `Skill.label`.
+    @Default(<String, String>{}) Map<String, String> skillLabelOverrides,
+
+    /// skillCategoryId -> rewritten `SkillCategory.name`.
+    @Default(<String, String>{}) Map<String, String> skillCategoryNameOverrides,
+
+    /// hobbyId -> rewritten `HobbyItem.text`.
+    @Default(<String, String>{}) Map<String, String> hobbyOverrides,
+
+    /// educationId -> rewritten `Education.qualification`.
+    @Default(<String, String>{})
+    Map<String, String> educationQualificationOverrides,
+
+    /// educationId -> rewritten `Education.grade`.
+    @Default(<String, String>{}) Map<String, String> educationGradeOverrides,
+
+    /// The language this draft was last translated into, or null if it
+    /// never has been.
+    ///
+    /// Pure provenance — it changes nothing about how the draft renders,
+    /// since a translation is stored as ordinary overrides above and is
+    /// indistinguishable from a hand edit once written. It exists so
+    /// Studio can offer "remove translation", and can tell the user their
+    /// translation is stale once [documentLanguage] moves away from it.
+    DocumentLanguage? translatedTo,
 
     /// The job ad this draft is being tailored for — a persisted field, not
     /// a modal's transient text, so an AI Assistant pass can be re-run and

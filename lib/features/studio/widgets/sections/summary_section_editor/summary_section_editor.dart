@@ -26,6 +26,9 @@ class SummarySectionEditor extends StatelessWidget {
           onChanged: viewModel.setHeadlineOverride,
           onRevert: viewModel.revertHeadlineToVault,
           emptyVaultMessage: context.l10n.studioNoHeadline,
+          includeLabel: context.l10n.studioHeadlineInclude,
+          included: viewModel.includeHeadline,
+          onToggleInclude: viewModel.toggleHeadline,
         ),
         StudioFieldOverrideCard(
           key: const ValueKey('studio_summary_editor'),

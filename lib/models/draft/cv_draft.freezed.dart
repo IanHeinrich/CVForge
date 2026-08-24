@@ -57,13 +57,36 @@ mixin _$CvDraft {
 /// doesn't need to be scoped per experience/project.
  Map<String, String> get bulletOverrides;/// Same null-means-inherit rationale as [tailoredSummary], one field
 /// over, for `ContactBasics.headline`.
- String? get headlineOverride;/// Same null-means-inherit rationale as [tailoredSummary], one field
+ String? get headlineOverride;/// Drops the headline from this draft entirely, independently of
+/// [headlineOverride] — which is preserved while hidden, so toggling
+/// back restores the edit rather than losing it.
+///
+/// A bool rather than a ninth [CvSectionType]: [hiddenSections] drives
+/// the reorderable section list and `CvComposer`'s section walk, but
+/// the headline sits in the header block, has no heading of its own
+/// and cannot be reordered. In that enum it would show up in Studio's
+/// section nav as a draggable row that renders nothing.
+ bool get hideHeadline;/// Same null-means-inherit rationale as [tailoredSummary], one field
 /// over, for `CvVault.referencesNote`.
  String? get referencesOverride;/// educationId -> rewritten `Education.details` text. Same
 /// null-means-inherit rationale as [bulletOverrides], one entity type
-/// over — only `details` is prose; qualification/institution/grade/
-/// year stay Vault-sourced, never overridable here.
- Map<String, String> get educationDetailsOverrides;/// The job ad this draft is being tailored for — a persisted field, not
+/// over.
+ Map<String, String> get educationDetailsOverrides;/// experienceId -> rewritten `Experience.role`.
+ Map<String, String> get roleOverrides;/// projectId -> rewritten `Project.title`.
+ Map<String, String> get projectTitleOverrides;/// skillId -> rewritten `Skill.label`.
+ Map<String, String> get skillLabelOverrides;/// skillCategoryId -> rewritten `SkillCategory.name`.
+ Map<String, String> get skillCategoryNameOverrides;/// hobbyId -> rewritten `HobbyItem.text`.
+ Map<String, String> get hobbyOverrides;/// educationId -> rewritten `Education.qualification`.
+ Map<String, String> get educationQualificationOverrides;/// educationId -> rewritten `Education.grade`.
+ Map<String, String> get educationGradeOverrides;/// The language this draft was last translated into, or null if it
+/// never has been.
+///
+/// Pure provenance — it changes nothing about how the draft renders,
+/// since a translation is stored as ordinary overrides above and is
+/// indistinguishable from a hand edit once written. It exists so
+/// Studio can offer "remove translation", and can tell the user their
+/// translation is stale once [documentLanguage] moves away from it.
+ DocumentLanguage? get translatedTo;/// The job ad this draft is being tailored for — a persisted field, not
 /// a modal's transient text, so an AI Assistant pass can be re-run and
 /// refined against the same ad. Null means no ad has been entered yet;
 /// distinct from [notes], which is the user's own application tracking
@@ -81,16 +104,16 @@ $CvDraftCopyWith<CvDraft> get copyWith => _$CvDraftCopyWithImpl<CvDraft>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.region, region) || other.region == region)&&(identical(other.documentLanguage, documentLanguage) || other.documentLanguage == documentLanguage)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.experienceIds, experienceIds)&&const DeepCollectionEquality().equals(other.bulletIds, bulletIds)&&const DeepCollectionEquality().equals(other.projectIds, projectIds)&&const DeepCollectionEquality().equals(other.projectBulletIds, projectBulletIds)&&const DeepCollectionEquality().equals(other.skillIds, skillIds)&&const DeepCollectionEquality().equals(other.educationIds, educationIds)&&const DeepCollectionEquality().equals(other.hobbyIds, hobbyIds)&&const DeepCollectionEquality().equals(other.publicationIds, publicationIds)&&const DeepCollectionEquality().equals(other.publicationBulletIds, publicationBulletIds)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&const DeepCollectionEquality().equals(other.sectionOrder, sectionOrder)&&(identical(other.tailoredSummary, tailoredSummary) || other.tailoredSummary == tailoredSummary)&&const DeepCollectionEquality().equals(other.bulletOverrides, bulletOverrides)&&(identical(other.headlineOverride, headlineOverride) || other.headlineOverride == headlineOverride)&&(identical(other.referencesOverride, referencesOverride) || other.referencesOverride == referencesOverride)&&const DeepCollectionEquality().equals(other.educationDetailsOverrides, educationDetailsOverrides)&&(identical(other.targetJobDescription, targetJobDescription) || other.targetJobDescription == targetJobDescription)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.region, region) || other.region == region)&&(identical(other.documentLanguage, documentLanguage) || other.documentLanguage == documentLanguage)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.experienceIds, experienceIds)&&const DeepCollectionEquality().equals(other.bulletIds, bulletIds)&&const DeepCollectionEquality().equals(other.projectIds, projectIds)&&const DeepCollectionEquality().equals(other.projectBulletIds, projectBulletIds)&&const DeepCollectionEquality().equals(other.skillIds, skillIds)&&const DeepCollectionEquality().equals(other.educationIds, educationIds)&&const DeepCollectionEquality().equals(other.hobbyIds, hobbyIds)&&const DeepCollectionEquality().equals(other.publicationIds, publicationIds)&&const DeepCollectionEquality().equals(other.publicationBulletIds, publicationBulletIds)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&const DeepCollectionEquality().equals(other.sectionOrder, sectionOrder)&&(identical(other.tailoredSummary, tailoredSummary) || other.tailoredSummary == tailoredSummary)&&const DeepCollectionEquality().equals(other.bulletOverrides, bulletOverrides)&&(identical(other.headlineOverride, headlineOverride) || other.headlineOverride == headlineOverride)&&(identical(other.hideHeadline, hideHeadline) || other.hideHeadline == hideHeadline)&&(identical(other.referencesOverride, referencesOverride) || other.referencesOverride == referencesOverride)&&const DeepCollectionEquality().equals(other.educationDetailsOverrides, educationDetailsOverrides)&&const DeepCollectionEquality().equals(other.roleOverrides, roleOverrides)&&const DeepCollectionEquality().equals(other.projectTitleOverrides, projectTitleOverrides)&&const DeepCollectionEquality().equals(other.skillLabelOverrides, skillLabelOverrides)&&const DeepCollectionEquality().equals(other.skillCategoryNameOverrides, skillCategoryNameOverrides)&&const DeepCollectionEquality().equals(other.hobbyOverrides, hobbyOverrides)&&const DeepCollectionEquality().equals(other.educationQualificationOverrides, educationQualificationOverrides)&&const DeepCollectionEquality().equals(other.educationGradeOverrides, educationGradeOverrides)&&(identical(other.translatedTo, translatedTo) || other.translatedTo == translatedTo)&&(identical(other.targetJobDescription, targetJobDescription) || other.targetJobDescription == targetJobDescription)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,schemaVersion,id,name,templateId,region,documentLanguage,notes,const DeepCollectionEquality().hash(experienceIds),const DeepCollectionEquality().hash(bulletIds),const DeepCollectionEquality().hash(projectIds),const DeepCollectionEquality().hash(projectBulletIds),const DeepCollectionEquality().hash(skillIds),const DeepCollectionEquality().hash(educationIds),const DeepCollectionEquality().hash(hobbyIds),const DeepCollectionEquality().hash(publicationIds),const DeepCollectionEquality().hash(publicationBulletIds),const DeepCollectionEquality().hash(hiddenSections),const DeepCollectionEquality().hash(sectionOrder),tailoredSummary,const DeepCollectionEquality().hash(bulletOverrides),headlineOverride,referencesOverride,const DeepCollectionEquality().hash(educationDetailsOverrides),targetJobDescription,updatedAt]);
+int get hashCode => Object.hashAll([runtimeType,schemaVersion,id,name,templateId,region,documentLanguage,notes,const DeepCollectionEquality().hash(experienceIds),const DeepCollectionEquality().hash(bulletIds),const DeepCollectionEquality().hash(projectIds),const DeepCollectionEquality().hash(projectBulletIds),const DeepCollectionEquality().hash(skillIds),const DeepCollectionEquality().hash(educationIds),const DeepCollectionEquality().hash(hobbyIds),const DeepCollectionEquality().hash(publicationIds),const DeepCollectionEquality().hash(publicationBulletIds),const DeepCollectionEquality().hash(hiddenSections),const DeepCollectionEquality().hash(sectionOrder),tailoredSummary,const DeepCollectionEquality().hash(bulletOverrides),headlineOverride,hideHeadline,referencesOverride,const DeepCollectionEquality().hash(educationDetailsOverrides),const DeepCollectionEquality().hash(roleOverrides),const DeepCollectionEquality().hash(projectTitleOverrides),const DeepCollectionEquality().hash(skillLabelOverrides),const DeepCollectionEquality().hash(skillCategoryNameOverrides),const DeepCollectionEquality().hash(hobbyOverrides),const DeepCollectionEquality().hash(educationQualificationOverrides),const DeepCollectionEquality().hash(educationGradeOverrides),translatedTo,targetJobDescription,updatedAt]);
 
 @override
 String toString() {
-  return 'CvDraft(schemaVersion: $schemaVersion, id: $id, name: $name, templateId: $templateId, region: $region, documentLanguage: $documentLanguage, notes: $notes, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, hiddenSections: $hiddenSections, sectionOrder: $sectionOrder, tailoredSummary: $tailoredSummary, bulletOverrides: $bulletOverrides, headlineOverride: $headlineOverride, referencesOverride: $referencesOverride, educationDetailsOverrides: $educationDetailsOverrides, targetJobDescription: $targetJobDescription, updatedAt: $updatedAt)';
+  return 'CvDraft(schemaVersion: $schemaVersion, id: $id, name: $name, templateId: $templateId, region: $region, documentLanguage: $documentLanguage, notes: $notes, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, hiddenSections: $hiddenSections, sectionOrder: $sectionOrder, tailoredSummary: $tailoredSummary, bulletOverrides: $bulletOverrides, headlineOverride: $headlineOverride, hideHeadline: $hideHeadline, referencesOverride: $referencesOverride, educationDetailsOverrides: $educationDetailsOverrides, roleOverrides: $roleOverrides, projectTitleOverrides: $projectTitleOverrides, skillLabelOverrides: $skillLabelOverrides, skillCategoryNameOverrides: $skillCategoryNameOverrides, hobbyOverrides: $hobbyOverrides, educationQualificationOverrides: $educationQualificationOverrides, educationGradeOverrides: $educationGradeOverrides, translatedTo: $translatedTo, targetJobDescription: $targetJobDescription, updatedAt: $updatedAt)';
 }
 
 
@@ -101,7 +124,7 @@ abstract mixin class $CvDraftCopyWith<$Res>  {
   factory $CvDraftCopyWith(CvDraft value, $Res Function(CvDraft) _then) = _$CvDraftCopyWithImpl;
 @useResult
 $Res call({
- int schemaVersion, String id, String name, String templateId, RegionProfile region, DocumentLanguage documentLanguage, String notes, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Set<CvSectionType> hiddenSections, List<CvSectionType> sectionOrder, String? tailoredSummary, Map<String, String> bulletOverrides, String? headlineOverride, String? referencesOverride, Map<String, String> educationDetailsOverrides, String? targetJobDescription, DateTime updatedAt
+ int schemaVersion, String id, String name, String templateId, RegionProfile region, DocumentLanguage documentLanguage, String notes, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Set<CvSectionType> hiddenSections, List<CvSectionType> sectionOrder, String? tailoredSummary, Map<String, String> bulletOverrides, String? headlineOverride, bool hideHeadline, String? referencesOverride, Map<String, String> educationDetailsOverrides, Map<String, String> roleOverrides, Map<String, String> projectTitleOverrides, Map<String, String> skillLabelOverrides, Map<String, String> skillCategoryNameOverrides, Map<String, String> hobbyOverrides, Map<String, String> educationQualificationOverrides, Map<String, String> educationGradeOverrides, DocumentLanguage? translatedTo, String? targetJobDescription, DateTime updatedAt
 });
 
 
@@ -118,7 +141,7 @@ class _$CvDraftCopyWithImpl<$Res>
 
 /// Create a copy of CvDraft
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? id = null,Object? name = null,Object? templateId = null,Object? region = null,Object? documentLanguage = null,Object? notes = null,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? hiddenSections = null,Object? sectionOrder = null,Object? tailoredSummary = freezed,Object? bulletOverrides = null,Object? headlineOverride = freezed,Object? referencesOverride = freezed,Object? educationDetailsOverrides = null,Object? targetJobDescription = freezed,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? id = null,Object? name = null,Object? templateId = null,Object? region = null,Object? documentLanguage = null,Object? notes = null,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? hiddenSections = null,Object? sectionOrder = null,Object? tailoredSummary = freezed,Object? bulletOverrides = null,Object? headlineOverride = freezed,Object? hideHeadline = null,Object? referencesOverride = freezed,Object? educationDetailsOverrides = null,Object? roleOverrides = null,Object? projectTitleOverrides = null,Object? skillLabelOverrides = null,Object? skillCategoryNameOverrides = null,Object? hobbyOverrides = null,Object? educationQualificationOverrides = null,Object? educationGradeOverrides = null,Object? translatedTo = freezed,Object? targetJobDescription = freezed,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
@@ -141,9 +164,18 @@ as Set<CvSectionType>,sectionOrder: null == sectionOrder ? _self.sectionOrder : 
 as List<CvSectionType>,tailoredSummary: freezed == tailoredSummary ? _self.tailoredSummary : tailoredSummary // ignore: cast_nullable_to_non_nullable
 as String?,bulletOverrides: null == bulletOverrides ? _self.bulletOverrides : bulletOverrides // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,headlineOverride: freezed == headlineOverride ? _self.headlineOverride : headlineOverride // ignore: cast_nullable_to_non_nullable
-as String?,referencesOverride: freezed == referencesOverride ? _self.referencesOverride : referencesOverride // ignore: cast_nullable_to_non_nullable
+as String?,hideHeadline: null == hideHeadline ? _self.hideHeadline : hideHeadline // ignore: cast_nullable_to_non_nullable
+as bool,referencesOverride: freezed == referencesOverride ? _self.referencesOverride : referencesOverride // ignore: cast_nullable_to_non_nullable
 as String?,educationDetailsOverrides: null == educationDetailsOverrides ? _self.educationDetailsOverrides : educationDetailsOverrides // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,targetJobDescription: freezed == targetJobDescription ? _self.targetJobDescription : targetJobDescription // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,roleOverrides: null == roleOverrides ? _self.roleOverrides : roleOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,projectTitleOverrides: null == projectTitleOverrides ? _self.projectTitleOverrides : projectTitleOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,skillLabelOverrides: null == skillLabelOverrides ? _self.skillLabelOverrides : skillLabelOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,skillCategoryNameOverrides: null == skillCategoryNameOverrides ? _self.skillCategoryNameOverrides : skillCategoryNameOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,hobbyOverrides: null == hobbyOverrides ? _self.hobbyOverrides : hobbyOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,educationQualificationOverrides: null == educationQualificationOverrides ? _self.educationQualificationOverrides : educationQualificationOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,educationGradeOverrides: null == educationGradeOverrides ? _self.educationGradeOverrides : educationGradeOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,translatedTo: freezed == translatedTo ? _self.translatedTo : translatedTo // ignore: cast_nullable_to_non_nullable
+as DocumentLanguage?,targetJobDescription: freezed == targetJobDescription ? _self.targetJobDescription : targetJobDescription // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -230,10 +262,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  String id,  String name,  String templateId,  RegionProfile region,  DocumentLanguage documentLanguage,  String notes,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Set<CvSectionType> hiddenSections,  List<CvSectionType> sectionOrder,  String? tailoredSummary,  Map<String, String> bulletOverrides,  String? headlineOverride,  String? referencesOverride,  Map<String, String> educationDetailsOverrides,  String? targetJobDescription,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  String id,  String name,  String templateId,  RegionProfile region,  DocumentLanguage documentLanguage,  String notes,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Set<CvSectionType> hiddenSections,  List<CvSectionType> sectionOrder,  String? tailoredSummary,  Map<String, String> bulletOverrides,  String? headlineOverride,  bool hideHeadline,  String? referencesOverride,  Map<String, String> educationDetailsOverrides,  Map<String, String> roleOverrides,  Map<String, String> projectTitleOverrides,  Map<String, String> skillLabelOverrides,  Map<String, String> skillCategoryNameOverrides,  Map<String, String> hobbyOverrides,  Map<String, String> educationQualificationOverrides,  Map<String, String> educationGradeOverrides,  DocumentLanguage? translatedTo,  String? targetJobDescription,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CvDraft() when $default != null:
-return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.region,_that.documentLanguage,_that.notes,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.publicationIds,_that.publicationBulletIds,_that.hiddenSections,_that.sectionOrder,_that.tailoredSummary,_that.bulletOverrides,_that.headlineOverride,_that.referencesOverride,_that.educationDetailsOverrides,_that.targetJobDescription,_that.updatedAt);case _:
+return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.region,_that.documentLanguage,_that.notes,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.publicationIds,_that.publicationBulletIds,_that.hiddenSections,_that.sectionOrder,_that.tailoredSummary,_that.bulletOverrides,_that.headlineOverride,_that.hideHeadline,_that.referencesOverride,_that.educationDetailsOverrides,_that.roleOverrides,_that.projectTitleOverrides,_that.skillLabelOverrides,_that.skillCategoryNameOverrides,_that.hobbyOverrides,_that.educationQualificationOverrides,_that.educationGradeOverrides,_that.translatedTo,_that.targetJobDescription,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -251,10 +283,10 @@ return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.r
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  String id,  String name,  String templateId,  RegionProfile region,  DocumentLanguage documentLanguage,  String notes,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Set<CvSectionType> hiddenSections,  List<CvSectionType> sectionOrder,  String? tailoredSummary,  Map<String, String> bulletOverrides,  String? headlineOverride,  String? referencesOverride,  Map<String, String> educationDetailsOverrides,  String? targetJobDescription,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  String id,  String name,  String templateId,  RegionProfile region,  DocumentLanguage documentLanguage,  String notes,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Set<CvSectionType> hiddenSections,  List<CvSectionType> sectionOrder,  String? tailoredSummary,  Map<String, String> bulletOverrides,  String? headlineOverride,  bool hideHeadline,  String? referencesOverride,  Map<String, String> educationDetailsOverrides,  Map<String, String> roleOverrides,  Map<String, String> projectTitleOverrides,  Map<String, String> skillLabelOverrides,  Map<String, String> skillCategoryNameOverrides,  Map<String, String> hobbyOverrides,  Map<String, String> educationQualificationOverrides,  Map<String, String> educationGradeOverrides,  DocumentLanguage? translatedTo,  String? targetJobDescription,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _CvDraft():
-return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.region,_that.documentLanguage,_that.notes,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.publicationIds,_that.publicationBulletIds,_that.hiddenSections,_that.sectionOrder,_that.tailoredSummary,_that.bulletOverrides,_that.headlineOverride,_that.referencesOverride,_that.educationDetailsOverrides,_that.targetJobDescription,_that.updatedAt);case _:
+return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.region,_that.documentLanguage,_that.notes,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.publicationIds,_that.publicationBulletIds,_that.hiddenSections,_that.sectionOrder,_that.tailoredSummary,_that.bulletOverrides,_that.headlineOverride,_that.hideHeadline,_that.referencesOverride,_that.educationDetailsOverrides,_that.roleOverrides,_that.projectTitleOverrides,_that.skillLabelOverrides,_that.skillCategoryNameOverrides,_that.hobbyOverrides,_that.educationQualificationOverrides,_that.educationGradeOverrides,_that.translatedTo,_that.targetJobDescription,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -271,10 +303,10 @@ return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.r
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  String id,  String name,  String templateId,  RegionProfile region,  DocumentLanguage documentLanguage,  String notes,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Set<CvSectionType> hiddenSections,  List<CvSectionType> sectionOrder,  String? tailoredSummary,  Map<String, String> bulletOverrides,  String? headlineOverride,  String? referencesOverride,  Map<String, String> educationDetailsOverrides,  String? targetJobDescription,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  String id,  String name,  String templateId,  RegionProfile region,  DocumentLanguage documentLanguage,  String notes,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Set<CvSectionType> hiddenSections,  List<CvSectionType> sectionOrder,  String? tailoredSummary,  Map<String, String> bulletOverrides,  String? headlineOverride,  bool hideHeadline,  String? referencesOverride,  Map<String, String> educationDetailsOverrides,  Map<String, String> roleOverrides,  Map<String, String> projectTitleOverrides,  Map<String, String> skillLabelOverrides,  Map<String, String> skillCategoryNameOverrides,  Map<String, String> hobbyOverrides,  Map<String, String> educationQualificationOverrides,  Map<String, String> educationGradeOverrides,  DocumentLanguage? translatedTo,  String? targetJobDescription,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CvDraft() when $default != null:
-return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.region,_that.documentLanguage,_that.notes,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.publicationIds,_that.publicationBulletIds,_that.hiddenSections,_that.sectionOrder,_that.tailoredSummary,_that.bulletOverrides,_that.headlineOverride,_that.referencesOverride,_that.educationDetailsOverrides,_that.targetJobDescription,_that.updatedAt);case _:
+return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.region,_that.documentLanguage,_that.notes,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.publicationIds,_that.publicationBulletIds,_that.hiddenSections,_that.sectionOrder,_that.tailoredSummary,_that.bulletOverrides,_that.headlineOverride,_that.hideHeadline,_that.referencesOverride,_that.educationDetailsOverrides,_that.roleOverrides,_that.projectTitleOverrides,_that.skillLabelOverrides,_that.skillCategoryNameOverrides,_that.hobbyOverrides,_that.educationQualificationOverrides,_that.educationGradeOverrides,_that.translatedTo,_that.targetJobDescription,_that.updatedAt);case _:
   return null;
 
 }
@@ -286,7 +318,7 @@ return $default(_that.schemaVersion,_that.id,_that.name,_that.templateId,_that.r
 @JsonSerializable()
 
 class _CvDraft implements CvDraft {
-  const _CvDraft({required this.schemaVersion, required this.id, required this.name, required this.templateId, this.region = RegionProfile.uk, this.documentLanguage = DocumentLanguage.enGb, this.notes = '', final  List<String> experienceIds = const <String>[], final  Map<String, List<String>> bulletIds = const <String, List<String>>{}, final  List<String> projectIds = const <String>[], final  Map<String, List<String>> projectBulletIds = const <String, List<String>>{}, final  List<String> skillIds = const <String>[], final  List<String> educationIds = const <String>[], final  List<String> hobbyIds = const <String>[], final  List<String> publicationIds = const <String>[], final  Map<String, List<String>> publicationBulletIds = const <String, List<String>>{}, final  Set<CvSectionType> hiddenSections = const <CvSectionType>{}, final  List<CvSectionType> sectionOrder = const <CvSectionType>[CvSectionType.summary, CvSectionType.skills, CvSectionType.experience, CvSectionType.projects, CvSectionType.education, CvSectionType.hobbies, CvSectionType.references, CvSectionType.publications], this.tailoredSummary, final  Map<String, String> bulletOverrides = const <String, String>{}, this.headlineOverride, this.referencesOverride, final  Map<String, String> educationDetailsOverrides = const <String, String>{}, this.targetJobDescription, required this.updatedAt}): _experienceIds = experienceIds,_bulletIds = bulletIds,_projectIds = projectIds,_projectBulletIds = projectBulletIds,_skillIds = skillIds,_educationIds = educationIds,_hobbyIds = hobbyIds,_publicationIds = publicationIds,_publicationBulletIds = publicationBulletIds,_hiddenSections = hiddenSections,_sectionOrder = sectionOrder,_bulletOverrides = bulletOverrides,_educationDetailsOverrides = educationDetailsOverrides;
+  const _CvDraft({required this.schemaVersion, required this.id, required this.name, required this.templateId, this.region = RegionProfile.uk, this.documentLanguage = DocumentLanguage.enGb, this.notes = '', final  List<String> experienceIds = const <String>[], final  Map<String, List<String>> bulletIds = const <String, List<String>>{}, final  List<String> projectIds = const <String>[], final  Map<String, List<String>> projectBulletIds = const <String, List<String>>{}, final  List<String> skillIds = const <String>[], final  List<String> educationIds = const <String>[], final  List<String> hobbyIds = const <String>[], final  List<String> publicationIds = const <String>[], final  Map<String, List<String>> publicationBulletIds = const <String, List<String>>{}, final  Set<CvSectionType> hiddenSections = const <CvSectionType>{}, final  List<CvSectionType> sectionOrder = const <CvSectionType>[CvSectionType.summary, CvSectionType.skills, CvSectionType.experience, CvSectionType.projects, CvSectionType.education, CvSectionType.hobbies, CvSectionType.references, CvSectionType.publications], this.tailoredSummary, final  Map<String, String> bulletOverrides = const <String, String>{}, this.headlineOverride, this.hideHeadline = false, this.referencesOverride, final  Map<String, String> educationDetailsOverrides = const <String, String>{}, final  Map<String, String> roleOverrides = const <String, String>{}, final  Map<String, String> projectTitleOverrides = const <String, String>{}, final  Map<String, String> skillLabelOverrides = const <String, String>{}, final  Map<String, String> skillCategoryNameOverrides = const <String, String>{}, final  Map<String, String> hobbyOverrides = const <String, String>{}, final  Map<String, String> educationQualificationOverrides = const <String, String>{}, final  Map<String, String> educationGradeOverrides = const <String, String>{}, this.translatedTo, this.targetJobDescription, required this.updatedAt}): _experienceIds = experienceIds,_bulletIds = bulletIds,_projectIds = projectIds,_projectBulletIds = projectBulletIds,_skillIds = skillIds,_educationIds = educationIds,_hobbyIds = hobbyIds,_publicationIds = publicationIds,_publicationBulletIds = publicationBulletIds,_hiddenSections = hiddenSections,_sectionOrder = sectionOrder,_bulletOverrides = bulletOverrides,_educationDetailsOverrides = educationDetailsOverrides,_roleOverrides = roleOverrides,_projectTitleOverrides = projectTitleOverrides,_skillLabelOverrides = skillLabelOverrides,_skillCategoryNameOverrides = skillCategoryNameOverrides,_hobbyOverrides = hobbyOverrides,_educationQualificationOverrides = educationQualificationOverrides,_educationGradeOverrides = educationGradeOverrides;
   factory _CvDraft.fromJson(Map<String, dynamic> json) => _$CvDraftFromJson(json);
 
 @override final  int schemaVersion;
@@ -444,24 +476,104 @@ class _CvDraft implements CvDraft {
 /// Same null-means-inherit rationale as [tailoredSummary], one field
 /// over, for `ContactBasics.headline`.
 @override final  String? headlineOverride;
+/// Drops the headline from this draft entirely, independently of
+/// [headlineOverride] — which is preserved while hidden, so toggling
+/// back restores the edit rather than losing it.
+///
+/// A bool rather than a ninth [CvSectionType]: [hiddenSections] drives
+/// the reorderable section list and `CvComposer`'s section walk, but
+/// the headline sits in the header block, has no heading of its own
+/// and cannot be reordered. In that enum it would show up in Studio's
+/// section nav as a draggable row that renders nothing.
+@override@JsonKey() final  bool hideHeadline;
 /// Same null-means-inherit rationale as [tailoredSummary], one field
 /// over, for `CvVault.referencesNote`.
 @override final  String? referencesOverride;
 /// educationId -> rewritten `Education.details` text. Same
 /// null-means-inherit rationale as [bulletOverrides], one entity type
-/// over — only `details` is prose; qualification/institution/grade/
-/// year stay Vault-sourced, never overridable here.
+/// over.
  final  Map<String, String> _educationDetailsOverrides;
 /// educationId -> rewritten `Education.details` text. Same
 /// null-means-inherit rationale as [bulletOverrides], one entity type
-/// over — only `details` is prose; qualification/institution/grade/
-/// year stay Vault-sourced, never overridable here.
+/// over.
 @override@JsonKey() Map<String, String> get educationDetailsOverrides {
   if (_educationDetailsOverrides is EqualUnmodifiableMapView) return _educationDetailsOverrides;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_educationDetailsOverrides);
 }
 
+/// experienceId -> rewritten `Experience.role`.
+ final  Map<String, String> _roleOverrides;
+/// experienceId -> rewritten `Experience.role`.
+@override@JsonKey() Map<String, String> get roleOverrides {
+  if (_roleOverrides is EqualUnmodifiableMapView) return _roleOverrides;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_roleOverrides);
+}
+
+/// projectId -> rewritten `Project.title`.
+ final  Map<String, String> _projectTitleOverrides;
+/// projectId -> rewritten `Project.title`.
+@override@JsonKey() Map<String, String> get projectTitleOverrides {
+  if (_projectTitleOverrides is EqualUnmodifiableMapView) return _projectTitleOverrides;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_projectTitleOverrides);
+}
+
+/// skillId -> rewritten `Skill.label`.
+ final  Map<String, String> _skillLabelOverrides;
+/// skillId -> rewritten `Skill.label`.
+@override@JsonKey() Map<String, String> get skillLabelOverrides {
+  if (_skillLabelOverrides is EqualUnmodifiableMapView) return _skillLabelOverrides;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_skillLabelOverrides);
+}
+
+/// skillCategoryId -> rewritten `SkillCategory.name`.
+ final  Map<String, String> _skillCategoryNameOverrides;
+/// skillCategoryId -> rewritten `SkillCategory.name`.
+@override@JsonKey() Map<String, String> get skillCategoryNameOverrides {
+  if (_skillCategoryNameOverrides is EqualUnmodifiableMapView) return _skillCategoryNameOverrides;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_skillCategoryNameOverrides);
+}
+
+/// hobbyId -> rewritten `HobbyItem.text`.
+ final  Map<String, String> _hobbyOverrides;
+/// hobbyId -> rewritten `HobbyItem.text`.
+@override@JsonKey() Map<String, String> get hobbyOverrides {
+  if (_hobbyOverrides is EqualUnmodifiableMapView) return _hobbyOverrides;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_hobbyOverrides);
+}
+
+/// educationId -> rewritten `Education.qualification`.
+ final  Map<String, String> _educationQualificationOverrides;
+/// educationId -> rewritten `Education.qualification`.
+@override@JsonKey() Map<String, String> get educationQualificationOverrides {
+  if (_educationQualificationOverrides is EqualUnmodifiableMapView) return _educationQualificationOverrides;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_educationQualificationOverrides);
+}
+
+/// educationId -> rewritten `Education.grade`.
+ final  Map<String, String> _educationGradeOverrides;
+/// educationId -> rewritten `Education.grade`.
+@override@JsonKey() Map<String, String> get educationGradeOverrides {
+  if (_educationGradeOverrides is EqualUnmodifiableMapView) return _educationGradeOverrides;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_educationGradeOverrides);
+}
+
+/// The language this draft was last translated into, or null if it
+/// never has been.
+///
+/// Pure provenance — it changes nothing about how the draft renders,
+/// since a translation is stored as ordinary overrides above and is
+/// indistinguishable from a hand edit once written. It exists so
+/// Studio can offer "remove translation", and can tell the user their
+/// translation is stale once [documentLanguage] moves away from it.
+@override final  DocumentLanguage? translatedTo;
 /// The job ad this draft is being tailored for — a persisted field, not
 /// a modal's transient text, so an AI Assistant pass can be re-run and
 /// refined against the same ad. Null means no ad has been entered yet;
@@ -483,16 +595,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.region, region) || other.region == region)&&(identical(other.documentLanguage, documentLanguage) || other.documentLanguage == documentLanguage)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other._experienceIds, _experienceIds)&&const DeepCollectionEquality().equals(other._bulletIds, _bulletIds)&&const DeepCollectionEquality().equals(other._projectIds, _projectIds)&&const DeepCollectionEquality().equals(other._projectBulletIds, _projectBulletIds)&&const DeepCollectionEquality().equals(other._skillIds, _skillIds)&&const DeepCollectionEquality().equals(other._educationIds, _educationIds)&&const DeepCollectionEquality().equals(other._hobbyIds, _hobbyIds)&&const DeepCollectionEquality().equals(other._publicationIds, _publicationIds)&&const DeepCollectionEquality().equals(other._publicationBulletIds, _publicationBulletIds)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&const DeepCollectionEquality().equals(other._sectionOrder, _sectionOrder)&&(identical(other.tailoredSummary, tailoredSummary) || other.tailoredSummary == tailoredSummary)&&const DeepCollectionEquality().equals(other._bulletOverrides, _bulletOverrides)&&(identical(other.headlineOverride, headlineOverride) || other.headlineOverride == headlineOverride)&&(identical(other.referencesOverride, referencesOverride) || other.referencesOverride == referencesOverride)&&const DeepCollectionEquality().equals(other._educationDetailsOverrides, _educationDetailsOverrides)&&(identical(other.targetJobDescription, targetJobDescription) || other.targetJobDescription == targetJobDescription)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.region, region) || other.region == region)&&(identical(other.documentLanguage, documentLanguage) || other.documentLanguage == documentLanguage)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other._experienceIds, _experienceIds)&&const DeepCollectionEquality().equals(other._bulletIds, _bulletIds)&&const DeepCollectionEquality().equals(other._projectIds, _projectIds)&&const DeepCollectionEquality().equals(other._projectBulletIds, _projectBulletIds)&&const DeepCollectionEquality().equals(other._skillIds, _skillIds)&&const DeepCollectionEquality().equals(other._educationIds, _educationIds)&&const DeepCollectionEquality().equals(other._hobbyIds, _hobbyIds)&&const DeepCollectionEquality().equals(other._publicationIds, _publicationIds)&&const DeepCollectionEquality().equals(other._publicationBulletIds, _publicationBulletIds)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&const DeepCollectionEquality().equals(other._sectionOrder, _sectionOrder)&&(identical(other.tailoredSummary, tailoredSummary) || other.tailoredSummary == tailoredSummary)&&const DeepCollectionEquality().equals(other._bulletOverrides, _bulletOverrides)&&(identical(other.headlineOverride, headlineOverride) || other.headlineOverride == headlineOverride)&&(identical(other.hideHeadline, hideHeadline) || other.hideHeadline == hideHeadline)&&(identical(other.referencesOverride, referencesOverride) || other.referencesOverride == referencesOverride)&&const DeepCollectionEquality().equals(other._educationDetailsOverrides, _educationDetailsOverrides)&&const DeepCollectionEquality().equals(other._roleOverrides, _roleOverrides)&&const DeepCollectionEquality().equals(other._projectTitleOverrides, _projectTitleOverrides)&&const DeepCollectionEquality().equals(other._skillLabelOverrides, _skillLabelOverrides)&&const DeepCollectionEquality().equals(other._skillCategoryNameOverrides, _skillCategoryNameOverrides)&&const DeepCollectionEquality().equals(other._hobbyOverrides, _hobbyOverrides)&&const DeepCollectionEquality().equals(other._educationQualificationOverrides, _educationQualificationOverrides)&&const DeepCollectionEquality().equals(other._educationGradeOverrides, _educationGradeOverrides)&&(identical(other.translatedTo, translatedTo) || other.translatedTo == translatedTo)&&(identical(other.targetJobDescription, targetJobDescription) || other.targetJobDescription == targetJobDescription)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,schemaVersion,id,name,templateId,region,documentLanguage,notes,const DeepCollectionEquality().hash(_experienceIds),const DeepCollectionEquality().hash(_bulletIds),const DeepCollectionEquality().hash(_projectIds),const DeepCollectionEquality().hash(_projectBulletIds),const DeepCollectionEquality().hash(_skillIds),const DeepCollectionEquality().hash(_educationIds),const DeepCollectionEquality().hash(_hobbyIds),const DeepCollectionEquality().hash(_publicationIds),const DeepCollectionEquality().hash(_publicationBulletIds),const DeepCollectionEquality().hash(_hiddenSections),const DeepCollectionEquality().hash(_sectionOrder),tailoredSummary,const DeepCollectionEquality().hash(_bulletOverrides),headlineOverride,referencesOverride,const DeepCollectionEquality().hash(_educationDetailsOverrides),targetJobDescription,updatedAt]);
+int get hashCode => Object.hashAll([runtimeType,schemaVersion,id,name,templateId,region,documentLanguage,notes,const DeepCollectionEquality().hash(_experienceIds),const DeepCollectionEquality().hash(_bulletIds),const DeepCollectionEquality().hash(_projectIds),const DeepCollectionEquality().hash(_projectBulletIds),const DeepCollectionEquality().hash(_skillIds),const DeepCollectionEquality().hash(_educationIds),const DeepCollectionEquality().hash(_hobbyIds),const DeepCollectionEquality().hash(_publicationIds),const DeepCollectionEquality().hash(_publicationBulletIds),const DeepCollectionEquality().hash(_hiddenSections),const DeepCollectionEquality().hash(_sectionOrder),tailoredSummary,const DeepCollectionEquality().hash(_bulletOverrides),headlineOverride,hideHeadline,referencesOverride,const DeepCollectionEquality().hash(_educationDetailsOverrides),const DeepCollectionEquality().hash(_roleOverrides),const DeepCollectionEquality().hash(_projectTitleOverrides),const DeepCollectionEquality().hash(_skillLabelOverrides),const DeepCollectionEquality().hash(_skillCategoryNameOverrides),const DeepCollectionEquality().hash(_hobbyOverrides),const DeepCollectionEquality().hash(_educationQualificationOverrides),const DeepCollectionEquality().hash(_educationGradeOverrides),translatedTo,targetJobDescription,updatedAt]);
 
 @override
 String toString() {
-  return 'CvDraft(schemaVersion: $schemaVersion, id: $id, name: $name, templateId: $templateId, region: $region, documentLanguage: $documentLanguage, notes: $notes, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, hiddenSections: $hiddenSections, sectionOrder: $sectionOrder, tailoredSummary: $tailoredSummary, bulletOverrides: $bulletOverrides, headlineOverride: $headlineOverride, referencesOverride: $referencesOverride, educationDetailsOverrides: $educationDetailsOverrides, targetJobDescription: $targetJobDescription, updatedAt: $updatedAt)';
+  return 'CvDraft(schemaVersion: $schemaVersion, id: $id, name: $name, templateId: $templateId, region: $region, documentLanguage: $documentLanguage, notes: $notes, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, hiddenSections: $hiddenSections, sectionOrder: $sectionOrder, tailoredSummary: $tailoredSummary, bulletOverrides: $bulletOverrides, headlineOverride: $headlineOverride, hideHeadline: $hideHeadline, referencesOverride: $referencesOverride, educationDetailsOverrides: $educationDetailsOverrides, roleOverrides: $roleOverrides, projectTitleOverrides: $projectTitleOverrides, skillLabelOverrides: $skillLabelOverrides, skillCategoryNameOverrides: $skillCategoryNameOverrides, hobbyOverrides: $hobbyOverrides, educationQualificationOverrides: $educationQualificationOverrides, educationGradeOverrides: $educationGradeOverrides, translatedTo: $translatedTo, targetJobDescription: $targetJobDescription, updatedAt: $updatedAt)';
 }
 
 
@@ -503,7 +615,7 @@ abstract mixin class _$CvDraftCopyWith<$Res> implements $CvDraftCopyWith<$Res> {
   factory _$CvDraftCopyWith(_CvDraft value, $Res Function(_CvDraft) _then) = __$CvDraftCopyWithImpl;
 @override @useResult
 $Res call({
- int schemaVersion, String id, String name, String templateId, RegionProfile region, DocumentLanguage documentLanguage, String notes, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Set<CvSectionType> hiddenSections, List<CvSectionType> sectionOrder, String? tailoredSummary, Map<String, String> bulletOverrides, String? headlineOverride, String? referencesOverride, Map<String, String> educationDetailsOverrides, String? targetJobDescription, DateTime updatedAt
+ int schemaVersion, String id, String name, String templateId, RegionProfile region, DocumentLanguage documentLanguage, String notes, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Set<CvSectionType> hiddenSections, List<CvSectionType> sectionOrder, String? tailoredSummary, Map<String, String> bulletOverrides, String? headlineOverride, bool hideHeadline, String? referencesOverride, Map<String, String> educationDetailsOverrides, Map<String, String> roleOverrides, Map<String, String> projectTitleOverrides, Map<String, String> skillLabelOverrides, Map<String, String> skillCategoryNameOverrides, Map<String, String> hobbyOverrides, Map<String, String> educationQualificationOverrides, Map<String, String> educationGradeOverrides, DocumentLanguage? translatedTo, String? targetJobDescription, DateTime updatedAt
 });
 
 
@@ -520,7 +632,7 @@ class __$CvDraftCopyWithImpl<$Res>
 
 /// Create a copy of CvDraft
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? id = null,Object? name = null,Object? templateId = null,Object? region = null,Object? documentLanguage = null,Object? notes = null,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? hiddenSections = null,Object? sectionOrder = null,Object? tailoredSummary = freezed,Object? bulletOverrides = null,Object? headlineOverride = freezed,Object? referencesOverride = freezed,Object? educationDetailsOverrides = null,Object? targetJobDescription = freezed,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? id = null,Object? name = null,Object? templateId = null,Object? region = null,Object? documentLanguage = null,Object? notes = null,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? hiddenSections = null,Object? sectionOrder = null,Object? tailoredSummary = freezed,Object? bulletOverrides = null,Object? headlineOverride = freezed,Object? hideHeadline = null,Object? referencesOverride = freezed,Object? educationDetailsOverrides = null,Object? roleOverrides = null,Object? projectTitleOverrides = null,Object? skillLabelOverrides = null,Object? skillCategoryNameOverrides = null,Object? hobbyOverrides = null,Object? educationQualificationOverrides = null,Object? educationGradeOverrides = null,Object? translatedTo = freezed,Object? targetJobDescription = freezed,Object? updatedAt = null,}) {
   return _then(_CvDraft(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
@@ -543,9 +655,18 @@ as Set<CvSectionType>,sectionOrder: null == sectionOrder ? _self._sectionOrder :
 as List<CvSectionType>,tailoredSummary: freezed == tailoredSummary ? _self.tailoredSummary : tailoredSummary // ignore: cast_nullable_to_non_nullable
 as String?,bulletOverrides: null == bulletOverrides ? _self._bulletOverrides : bulletOverrides // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,headlineOverride: freezed == headlineOverride ? _self.headlineOverride : headlineOverride // ignore: cast_nullable_to_non_nullable
-as String?,referencesOverride: freezed == referencesOverride ? _self.referencesOverride : referencesOverride // ignore: cast_nullable_to_non_nullable
+as String?,hideHeadline: null == hideHeadline ? _self.hideHeadline : hideHeadline // ignore: cast_nullable_to_non_nullable
+as bool,referencesOverride: freezed == referencesOverride ? _self.referencesOverride : referencesOverride // ignore: cast_nullable_to_non_nullable
 as String?,educationDetailsOverrides: null == educationDetailsOverrides ? _self._educationDetailsOverrides : educationDetailsOverrides // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,targetJobDescription: freezed == targetJobDescription ? _self.targetJobDescription : targetJobDescription // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,roleOverrides: null == roleOverrides ? _self._roleOverrides : roleOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,projectTitleOverrides: null == projectTitleOverrides ? _self._projectTitleOverrides : projectTitleOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,skillLabelOverrides: null == skillLabelOverrides ? _self._skillLabelOverrides : skillLabelOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,skillCategoryNameOverrides: null == skillCategoryNameOverrides ? _self._skillCategoryNameOverrides : skillCategoryNameOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,hobbyOverrides: null == hobbyOverrides ? _self._hobbyOverrides : hobbyOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,educationQualificationOverrides: null == educationQualificationOverrides ? _self._educationQualificationOverrides : educationQualificationOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,educationGradeOverrides: null == educationGradeOverrides ? _self._educationGradeOverrides : educationGradeOverrides // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,translatedTo: freezed == translatedTo ? _self.translatedTo : translatedTo // ignore: cast_nullable_to_non_nullable
+as DocumentLanguage?,targetJobDescription: freezed == targetJobDescription ? _self.targetJobDescription : targetJobDescription // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));

@@ -43,6 +43,10 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
     required this.hasBulletOverride,
     required this.onSetBulletOverride,
     required this.onRevertBulletOverride,
+    this.titleFieldLabel,
+    this.hasTitleOverride,
+    this.onSetTitleOverride,
+    this.onRevertTitleOverride,
   });
 
   final String title;
@@ -75,6 +79,15 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
   onSetBulletOverride;
   final Future<void> Function(String bulletId) onRevertBulletOverride;
 
+  /// The entity's own printed title (a role, a project name) as an
+  /// editable field. All four are supplied together or not at all —
+  /// publications pass none, since a paper's title is a citable proper
+  /// noun that must stay exactly as published.
+  final String? titleFieldLabel;
+  final bool Function(String id)? hasTitleOverride;
+  final Future<void> Function(T item, String value)? onSetTitleOverride;
+  final Future<void> Function(String id)? onRevertTitleOverride;
+
   @override
   Widget build(BuildContext context) {
     return VaultItemSelectorList(
@@ -93,6 +106,16 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
             onToggle: () => onToggle(item),
             onAddAllBullets: () => onAddAllBullets(item),
             onRemoveAllBullets: () => onRemoveAllBullets(item),
+            tailorables: [
+              if (onSetTitleOverride case final setTitle?)
+                TailorableField(
+                  hasOverride: hasTitleOverride!(idOf(item)),
+                  effectiveText: titleOf(item),
+                  fieldLabel: titleFieldLabel,
+                  onChanged: (value) => setTitle(item, value),
+                  onRevert: () => onRevertTitleOverride!(idOf(item)),
+                ),
+            ],
             bullets: [
               for (final bullet in bulletsOf(item))
                 SelectorItem(
@@ -104,13 +127,15 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
                   ),
                   selected: isBulletIncluded(item, bullet),
                   onToggle: () => onToggleBullet(item, bullet),
-                  tailorable: TailorableField(
-                    hasOverride: hasBulletOverride(bullet.id),
-                    effectiveText: bulletText(bullet),
-                    fieldLabel: bullet.label,
-                    onChanged: (value) => onSetBulletOverride(bullet, value),
-                    onRevert: () => onRevertBulletOverride(bullet.id),
-                  ),
+                  tailorables: [
+                    TailorableField(
+                      hasOverride: hasBulletOverride(bullet.id),
+                      effectiveText: bulletText(bullet),
+                      fieldLabel: bullet.label,
+                      onChanged: (value) => onSetBulletOverride(bullet, value),
+                      onRevert: () => onRevertBulletOverride(bullet.id),
+                    ),
+                  ],
                 ),
             ],
           ),

@@ -458,6 +458,12 @@ abstract class AppLocalizations {
   /// **'Add all ({count})'**
   String commonAddAll(int count);
 
+  /// Badge beside a feature's heading marking it as early/unstable. Shared by every beta feature (AI tailoring, translation) - one statement about the app's confidence, so it lives in the common namespace rather than per-feature.
+  ///
+  /// In en, this message translates to:
+  /// **'BETA'**
+  String get commonBeta;
+
   /// Default label for the dismiss button on every dialog. Closes without applying changes.
   ///
   /// In en, this message translates to:
@@ -1904,12 +1910,6 @@ abstract class AppLocalizations {
   /// **'US English'**
   String get spellingEnUs;
 
-  /// Badge marking the AI Assistant as an unfinished feature. Widely understood in English; keep if recognised in the target market.
-  ///
-  /// In en, this message translates to:
-  /// **'BETA'**
-  String get studioAiBeta;
-
   /// Studio AI card body when an API key is configured.
   ///
   /// In en, this message translates to:
@@ -2270,6 +2270,54 @@ abstract class AppLocalizations {
   /// **'Export PDF'**
   String get studioExportPdf;
 
+  /// Studio, Education editor — label on the collapsed row for an entry's free-text details, distinguishing it from the qualification and grade rows beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get studioFieldDetails;
+
+  /// Studio, Education editor — label on the collapsed row for an entry's grade or classification.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get studioFieldGrade;
+
+  /// Studio, Projects editor — label on the collapsed row for a project's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Project title'**
+  String get studioFieldProjectTitle;
+
+  /// Studio, Education editor — label on the collapsed row for an entry's qualification or degree name.
+  ///
+  /// In en, this message translates to:
+  /// **'Qualification'**
+  String get studioFieldQualification;
+
+  /// Studio, Experience editor — label on the collapsed row for a position's job title.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get studioFieldRole;
+
+  /// Studio, Skills editor — label on the collapsed row for one skill's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill'**
+  String get studioFieldSkill;
+
+  /// Studio, Skills editor — label on the collapsed row for a skill category's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get studioFieldSkillCategory;
+
+  /// Studio, Summary editor — checkbox controlling whether the headline line under the name prints on this CV at all. Separate from editing its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Include headline'**
+  String get studioHeadlineInclude;
+
   /// Studio, one bullet shown with its optional label prefix.
   ///
   /// In en, this message translates to:
@@ -2293,6 +2341,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No details in your Vault yet.'**
   String get studioNoEducationDetails;
+
+  /// Studio, Education editor — placeholder on the grade row when the Vault entry has no grade recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'No grade in your Vault yet.'**
+  String get studioNoGrade;
 
   /// Studio empty state when the Vault has no headline to draw from.
   ///
@@ -2635,6 +2689,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use this template'**
   String get studioTemplatePickerUse;
+
+  /// Studio, Translate card body when an API key is configured.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewrite everything this CV prints into its document language, leaving your Vault in the language you wrote it.'**
+  String get studioTranslateCardBody;
+
+  /// Studio, Translate card body when no AI provider key is set up yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating a CV uses the same AI provider as tailoring. Add a key in Settings to turn it on.'**
+  String get studioTranslateCardBodyNoKey;
+
+  /// Studio, Translate card status when the draft's document language has changed since it was translated, so the translation no longer matches.
+  ///
+  /// In en, this message translates to:
+  /// **'Translated into {translated}, but this CV is now set to {current}.'**
+  String studioTranslateCardStale(String translated, String current);
+
+  /// Studio, Translate card line naming the language a run would translate into, taken from the draft's own document language.
+  ///
+  /// In en, this message translates to:
+  /// **'This CV\'s language is {language}.'**
+  String studioTranslateCardTarget(String language);
+
+  /// Studio, Translate card heading and the button that starts a run.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate'**
+  String get studioTranslateCardTitle;
+
+  /// Studio, Translate card status once a translation has been applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Translated into {language}.'**
+  String studioTranslateCardTranslated(String language);
+
+  /// Studio, Translate confirm dialog — states the target language and what will and won't be rewritten. Named first because rewriting a career history into another language is a large, surprising change.
+  ///
+  /// In en, this message translates to:
+  /// **'Every line this CV prints will be rewritten into {language} — job titles, bullet points, skills and section content. Employers, schools and publication titles are left exactly as they are.'**
+  String studioTranslateDialogLanguageNote(String language);
+
+  /// Studio, Translate confirm dialog — extra warning shown only when a translation already exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This CV already has a translation. Running again replaces it.'**
+  String get studioTranslateDialogReplaceNote;
+
+  /// Studio, Translate run dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate this CV'**
+  String get studioTranslateDialogTitle;
+
+  /// Studio, Translate error for an unclassified failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t translate this CV — try again.'**
+  String get studioTranslateErrorGeneric;
+
+  /// Studio, Translate error for LlmFailure.invalidRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'{provider} rejected the request. This CV may be too long to translate in one pass.'**
+  String studioTranslateErrorInvalidRequest(String provider);
+
+  /// Studio, Translate error for LlmFailure.malformedResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'The translation came back in a form CVForge couldn\'t read — try again.'**
+  String get studioTranslateErrorMalformedResponse;
+
+  /// Studio, Translate error for LlmFailure.network.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach {provider} — check your connection and try again.'**
+  String studioTranslateErrorNetwork(String provider);
+
+  /// Studio, Translate error for LlmFailure.noKey.
+  ///
+  /// In en, this message translates to:
+  /// **'No API key set up yet — add one in Settings.'**
+  String get studioTranslateErrorNoKey;
+
+  /// Studio, Translate error for LlmFailure.overloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'{provider} is busy right now — try again in a moment.'**
+  String studioTranslateErrorOverloaded(String provider);
+
+  /// Studio, Translate error for LlmFailure.rateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve hit your provider\'s rate limit — wait a moment and try again.'**
+  String get studioTranslateErrorRateLimited;
+
+  /// Studio, Translate error for LlmFailure.refusal.
+  ///
+  /// In en, this message translates to:
+  /// **'The provider declined to translate this CV.'**
+  String get studioTranslateErrorRefusal;
+
+  /// Studio, Translate error for LlmFailure.timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The translation took too long and timed out — try again.'**
+  String get studioTranslateErrorTimeout;
+
+  /// Studio, Translate error for LlmFailure.unauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Your API key was rejected — check it in Settings.'**
+  String get studioTranslateErrorUnauthorized;
+
+  /// Studio, Translate dialog heading on the error screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation failed'**
+  String get studioTranslateFailedTitle;
+
+  /// Studio, Translate card button restoring the CV to how it read before it was translated. Destructive: it also discards anything edited by hand since.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove translation'**
+  String get studioTranslateRemove;
+
+  /// Studio, confirmation before removing a translation — an override records no provenance, so a hand edit made after translating cannot be told apart from the translation and is restored with it.
+  ///
+  /// In en, this message translates to:
+  /// **'This restores every line to how it read before translating, including anything you\'ve edited since. Remove it?'**
+  String get studioTranslateRemoveConfirm;
+
+  /// Studio, Translate dialog result screen — how many individual strings came back translated. Lines the model left alone were already in the target language or are names that should not be translated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Translated 1 line.} other{Translated {count} lines.}}'**
+  String studioTranslateResultBody(int count);
+
+  /// Studio, Translate card button when a translation already exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate again'**
+  String get studioTranslateRunAgain;
+
+  /// Studio, Translate dialog body while the request is in flight.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating every line this CV prints. This can take a few minutes.'**
+  String get studioTranslateRunningBody;
+
+  /// Studio, Translate dialog heading while the request is in flight.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating your CV'**
+  String get studioTranslateRunningTitle;
+
+  /// Studio, Translate card note on run order. The two passes share one override layer, so tailoring after translating puts English back on the page.
+  ///
+  /// In en, this message translates to:
+  /// **'Tailor before translating — a tailoring pass rewrites in English and would undo this.'**
+  String get studioTranslateTailorFirst;
+
+  /// Studio, Translate card standing warning once a translation is applied. Permanent rather than dismissible, matching studioAiWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine-translated. Have a fluent speaker read it before you send it.'**
+  String get studioTranslateWarning;
 
   /// Template description in the picker, for the traditional layout.
   ///

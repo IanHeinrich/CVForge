@@ -1,5 +1,6 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/ui/common/l10n/document_language_labels.dart';
 import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/app/app.router.dart';
@@ -425,6 +426,52 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     await _refreshAiAssistantUndoState();
   }
 
+  // Translation. Shares the AI Assistant's provider/key setup — hence
+  // [hasAiAssistantKey] rather than a second key check — and nothing else.
+
+  /// The language a translation run would produce, named on the card so
+  /// the choice is visible where the action is, not only in the document
+  /// bar where it was made.
+  String get translationTargetLanguage =>
+      _draft.documentLanguage.displayLabel(_localizationService.strings);
+
+  /// The language this draft was last translated into, or null if never.
+  String? get translatedLanguage =>
+      _draft.translatedTo?.displayLabel(_localizationService.strings);
+
+  /// Whether the applied translation is for a language this CV is no
+  /// longer set to — the user changed the document language afterwards, so
+  /// what prints is a translation into the wrong one.
+  bool get isTranslationStale {
+    final translated = _draft.translatedTo;
+    return translated != null && translated != _draft.documentLanguage;
+  }
+
+  /// Opens [CvTranslationRunDialog], which drives the whole pass on its
+  /// own — confirm, run, apply — exactly as [tailorWithAi] does.
+  Future<void> translateCv() async {
+    await _dialogService.showCustomDialog(variant: DialogType.cvTranslationRun);
+    notifyListeners();
+  }
+
+  /// Restores the draft to its pre-translation state.
+  ///
+  /// Confirmed first because it is lossier than it looks: an override
+  /// records no provenance, so anything hand-edited after the pass is
+  /// indistinguishable from the translation and goes back with it.
+  Future<void> removeTranslation() async {
+    final strings = _localizationService.strings;
+    final response = await _dialogService.showDialog(
+      title: strings.studioTranslateRemove,
+      description: strings.studioTranslateRemoveConfirm,
+      buttonTitle: strings.commonRemove,
+      cancelTitle: strings.commonCancel,
+    );
+    if (response?.confirmed != true) return;
+    await _draftService.removeCvTranslation();
+    notifyListeners();
+  }
+
   Future<void> undoAiAssistantChanges() async {
     await _draftService.undoAiAssistantPass();
     await _refreshAiAssistantUndoState();
@@ -471,6 +518,14 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> setHeadlineOverride(String value) =>
       _headlineOverride.set(value);
   Future<void> revertHeadlineToVault() => _headlineOverride.revert();
+
+  /// Whether the headline prints at all. Independent of the override
+  /// above, which survives being hidden so toggling back restores the
+  /// edit rather than discarding it.
+  bool get includeHeadline => !_draft.hideHeadline;
+
+  Future<void> toggleHeadline() =>
+      _draftService.setHeadlineHidden(includeHeadline);
 
   String? get vaultSummary => _vault.basics.summary;
   late final _summaryOverride = _TextOverride(
@@ -675,6 +730,103 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> revertBulletOverride(String bulletId) =>
       _draftService.setBulletOverride(bulletId, null);
 
+  // The entity-title overrides below are the same wiring as [bulletText],
+  // one per field that prints. They exist so a draft can shorten a job
+  // title or drop a market's untranslatable jargon for one application
+  // without editing the Vault, which would change every other draft.
+
+  _TextOverride _roleOverride(Experience entry) => _TextOverride(
+    vaultValue: () => entry.role,
+    draftValue: () => _draft.roleOverrides[entry.id],
+    setOverride: (value) => _draftService.setRoleOverride(entry.id, value),
+  );
+
+  String roleText(Experience entry) => _roleOverride(entry).text;
+
+  bool hasRoleOverride(String experienceId) =>
+      _draft.roleOverrides.containsKey(experienceId);
+
+  Future<void> setRoleOverride(Experience entry, String value) =>
+      _roleOverride(entry).set(value);
+
+  Future<void> revertRoleOverride(String experienceId) =>
+      _draftService.setRoleOverride(experienceId, null);
+
+  _TextOverride _projectTitleOverride(Project entry) => _TextOverride(
+    vaultValue: () => entry.title,
+    draftValue: () => _draft.projectTitleOverrides[entry.id],
+    setOverride: (value) =>
+        _draftService.setProjectTitleOverride(entry.id, value),
+  );
+
+  String projectTitleText(Project entry) => _projectTitleOverride(entry).text;
+
+  bool hasProjectTitleOverride(String projectId) =>
+      _draft.projectTitleOverrides.containsKey(projectId);
+
+  Future<void> setProjectTitleOverride(Project entry, String value) =>
+      _projectTitleOverride(entry).set(value);
+
+  Future<void> revertProjectTitleOverride(String projectId) =>
+      _draftService.setProjectTitleOverride(projectId, null);
+
+  _TextOverride _skillLabelOverride(Skill entry) => _TextOverride(
+    vaultValue: () => entry.label,
+    draftValue: () => _draft.skillLabelOverrides[entry.id],
+    setOverride: (value) =>
+        _draftService.setSkillLabelOverride(entry.id, value),
+  );
+
+  String skillLabelText(Skill entry) => _skillLabelOverride(entry).text;
+
+  bool hasSkillLabelOverride(String skillId) =>
+      _draft.skillLabelOverrides.containsKey(skillId);
+
+  Future<void> setSkillLabelOverride(Skill entry, String value) =>
+      _skillLabelOverride(entry).set(value);
+
+  Future<void> revertSkillLabelOverride(String skillId) =>
+      _draftService.setSkillLabelOverride(skillId, null);
+
+  _TextOverride _skillCategoryNameOverride(SkillCategory entry) =>
+      _TextOverride(
+        vaultValue: () => entry.name,
+        draftValue: () => _draft.skillCategoryNameOverrides[entry.id],
+        setOverride: (value) =>
+            _draftService.setSkillCategoryNameOverride(entry.id, value),
+      );
+
+  String skillCategoryNameText(SkillCategory entry) =>
+      _skillCategoryNameOverride(entry).text;
+
+  bool hasSkillCategoryNameOverride(String categoryId) =>
+      _draft.skillCategoryNameOverrides.containsKey(categoryId);
+
+  Future<void> setSkillCategoryNameOverride(
+    SkillCategory entry,
+    String value,
+  ) => _skillCategoryNameOverride(entry).set(value);
+
+  Future<void> revertSkillCategoryNameOverride(String categoryId) =>
+      _draftService.setSkillCategoryNameOverride(categoryId, null);
+
+  _TextOverride _hobbyOverride(HobbyItem entry) => _TextOverride(
+    vaultValue: () => entry.text,
+    draftValue: () => _draft.hobbyOverrides[entry.id],
+    setOverride: (value) => _draftService.setHobbyOverride(entry.id, value),
+  );
+
+  String hobbyText(HobbyItem entry) => _hobbyOverride(entry).text;
+
+  bool hasHobbyOverride(String hobbyId) =>
+      _draft.hobbyOverrides.containsKey(hobbyId);
+
+  Future<void> setHobbyOverride(HobbyItem entry, String value) =>
+      _hobbyOverride(entry).set(value);
+
+  Future<void> revertHobbyOverride(String hobbyId) =>
+      _draftService.setHobbyOverride(hobbyId, null);
+
   late final _skillSelection = _Selection<Skill>(
     items: () => _allSkills,
     idOf: (s) => s.id,
@@ -788,8 +940,9 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> removeAllEducation() => _educationSelection.removeAll();
 
-  /// Same shape as [bulletText] — only [Education.details] is prose, so
-  /// that's the only field an override map exists for.
+  /// Same shape as [bulletText]. [Education.institution] and `year` have
+  /// no counterpart here deliberately — see [CvDraft]'s override-layer
+  /// doc for which fields stay Vault-sourced and why.
   _TextOverride _educationDetailsOverride(Education entry) => _TextOverride(
     vaultValue: () => entry.details,
     draftValue: () => _draft.educationDetailsOverrides[entry.id],
@@ -808,6 +961,47 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> revertEducationDetailsOverride(String educationId) =>
       _draftService.setEducationDetailsOverride(educationId, null);
+
+  _TextOverride _educationQualificationOverride(Education entry) =>
+      _TextOverride(
+        vaultValue: () => entry.qualification,
+        draftValue: () => _draft.educationQualificationOverrides[entry.id],
+        setOverride: (value) =>
+            _draftService.setEducationQualificationOverride(entry.id, value),
+      );
+
+  String educationQualificationText(Education entry) =>
+      _educationQualificationOverride(entry).text;
+
+  bool hasEducationQualificationOverride(String educationId) =>
+      _draft.educationQualificationOverrides.containsKey(educationId);
+
+  Future<void> setEducationQualificationOverride(
+    Education entry,
+    String value,
+  ) => _educationQualificationOverride(entry).set(value);
+
+  Future<void> revertEducationQualificationOverride(String educationId) =>
+      _draftService.setEducationQualificationOverride(educationId, null);
+
+  _TextOverride _educationGradeOverride(Education entry) => _TextOverride(
+    vaultValue: () => entry.grade,
+    draftValue: () => _draft.educationGradeOverrides[entry.id],
+    setOverride: (value) =>
+        _draftService.setEducationGradeOverride(entry.id, value),
+  );
+
+  String educationGradeText(Education entry) =>
+      _educationGradeOverride(entry).text;
+
+  bool hasEducationGradeOverride(String educationId) =>
+      _draft.educationGradeOverrides.containsKey(educationId);
+
+  Future<void> setEducationGradeOverride(Education entry, String value) =>
+      _educationGradeOverride(entry).set(value);
+
+  Future<void> revertEducationGradeOverride(String educationId) =>
+      _draftService.setEducationGradeOverride(educationId, null);
 
   late final _hobbySelection = _Selection<HobbyItem>(
     items: () => _vault.hobbies,

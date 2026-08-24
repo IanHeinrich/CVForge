@@ -12,6 +12,8 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/studio_panel_heading.dart';
+import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
+import 'package:cv_forge/features/studio/widgets/tailoring_controls.dart';
 
 /// Caps the filter field's width so it doesn't stretch to fill the panel
 /// on wide monitors — matches `DraftsCardList`'s own search field.
@@ -37,10 +39,71 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
   final _filterController = TextEditingController();
   String _query = '';
 
+  /// Which skill, or which category name, currently has its rename editor
+  /// open — one at a time, and presentation state like [_query]. A chip is
+  /// a selection control, so renaming happens in an editor below the group
+  /// rather than inside the chip itself.
+  String? _editingSkillId;
+  String? _editingCategoryId;
+
+  void _editSkill(String? id) => setState(() {
+    _editingSkillId = _editingSkillId == id ? null : id;
+    _editingCategoryId = null;
+  });
+
+  void _editCategory(String? id) => setState(() {
+    _editingCategoryId = _editingCategoryId == id ? null : id;
+    _editingSkillId = null;
+  });
+
   @override
   void dispose() {
     _filterController.dispose();
     super.dispose();
+  }
+
+  /// The rename editor for whichever of [category]'s own name or
+  /// [skills] is currently open, or null when nothing in this group is
+  /// being renamed.
+  ///
+  /// Rendered through `AppChipGroup.footer` so it sits under the group it
+  /// belongs to while that widget stays stateless — see
+  /// `AppChipGroupItem.onEdit`.
+  Widget? _buildRenameEditor(
+    BuildContext context,
+    StudioViewModel viewModel,
+    SkillCategory category,
+    List<Skill> skills,
+  ) {
+    if (_editingCategoryId == category.id) {
+      return InlineTextOverrideEditor(
+        field: TailorableField(
+          hasOverride: viewModel.hasSkillCategoryNameOverride(category.id),
+          effectiveText: viewModel.skillCategoryNameText(category),
+          fieldLabel: context.l10n.studioFieldSkillCategory,
+          onChanged: (value) =>
+              viewModel.setSkillCategoryNameOverride(category, value),
+          onRevert: () =>
+              viewModel.revertSkillCategoryNameOverride(category.id),
+        ),
+        onDone: () => _editCategory(null),
+      );
+    }
+
+    for (final skill in skills) {
+      if (_editingSkillId != skill.id) continue;
+      return InlineTextOverrideEditor(
+        field: TailorableField(
+          hasOverride: viewModel.hasSkillLabelOverride(skill.id),
+          effectiveText: viewModel.skillLabelText(skill),
+          fieldLabel: context.l10n.studioFieldSkill,
+          onChanged: (value) => viewModel.setSkillLabelOverride(skill, value),
+          onRevert: () => viewModel.revertSkillLabelOverride(skill.id),
+        ),
+        onDone: () => _editSkill(null),
+      );
+    }
+    return null;
   }
 
   /// Skills within [category] matching the current filter — the category
@@ -140,15 +203,29 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                 if (_matchingSkills(category) case final skills
                     when skills.isNotEmpty)
                   AppChipGroup(
-                    label: category.displayName(context.l10n),
+                    label: viewModel.skillCategoryNameText(category).isEmpty
+                        ? category.displayName(context.l10n)
+                        : viewModel.skillCategoryNameText(category),
+                    onEditLabel: () => _editCategory(category.id),
+                    footer: _buildRenameEditor(
+                      context,
+                      viewModel,
+                      category,
+                      skills,
+                    ),
                     items: [
                       for (final skill in skills)
                         AppChipGroupItem(
                           id: skill.id,
-                          label: skill.label,
+                          label: viewModel.skillLabelText(skill),
                           selected: viewModel.isSkillIncluded(skill.id),
                           onToggle: (_) => viewModel.toggleSkill(skill),
                           tooltip: _evidenceTooltip(viewModel, skill),
+                          // Only a skill that actually prints is worth
+                          // renaming for this CV.
+                          onEdit: viewModel.isSkillIncluded(skill.id)
+                              ? () => _editSkill(skill.id)
+                              : null,
                         ),
                     ],
                     // Hidden while filtering — it'd otherwise add/remove

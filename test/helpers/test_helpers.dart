@@ -33,6 +33,7 @@ import 'package:cv_forge/services/google_auth_service.dart';
 import 'package:cv_forge/l10n/generated/app_localizations_en.dart';
 import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/services/profile_photo_service.dart';
+import 'package:cv_forge/services/cv_translation_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -66,6 +67,7 @@ import 'test_helpers.mocks.dart';
     MockSpec<GoogleAuthService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<LocalizationService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<ProfilePhotoService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<CvTranslationService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -92,6 +94,7 @@ void registerServices() {
   getAndRegisterGoogleAuthService();
   getAndRegisterLocalizationService();
   getAndRegisterProfilePhotoService();
+  getAndRegisterCvTranslationService();
   // @stacked-mock-register
 }
 
@@ -320,6 +323,13 @@ MockProfilePhotoService getAndRegisterProfilePhotoService() {
   _removeRegistrationIfExists<ProfilePhotoService>();
   final service = MockProfilePhotoService();
   locator.registerSingleton<ProfilePhotoService>(service);
+  return service;
+}
+
+MockCvTranslationService getAndRegisterCvTranslationService() {
+  _removeRegistrationIfExists<CvTranslationService>();
+  final service = MockCvTranslationService();
+  locator.registerSingleton<CvTranslationService>(service);
   return service;
 }
 // @stacked-mock-create
