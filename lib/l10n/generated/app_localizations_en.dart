@@ -454,12 +454,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driveSyncSyncing => 'Syncing to Google Drive…';
 
   @override
-  String get legalBackToApp => 'Back to CVForge';
-
-  @override
-  String get legalEffectiveDate => 'Effective 23 August 2026';
-
-  @override
   String get localeDisplayName => 'English';
 
   @override
@@ -489,67 +483,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photoStanceProhibited => 'No — an automatic rejection';
-
-  @override
-  String get privacyAiBody =>
-      'If you use the optional AI Assistant, the relevant CV content and job description are sent directly from your browser to the AI provider you choose (Anthropic or Google), using an API key you supply yourself. This call never passes through any CVForge server, and the key is stored only in your browser.';
-
-  @override
-  String get privacyAiTitle => 'AI-assisted tailoring';
-
-  @override
-  String get privacyContactBody =>
-      'Questions about this policy: heinrich-development-support@googlegroups.com';
-
-  @override
-  String get privacyContactTitle => 'Contact';
-
-  @override
-  String get privacyControlBody =>
-      'Export your whole Vault and every CV as a JSON file at any time from Settings, or clear your Vault entirely. Uninstalling/clearing this site\'s data in your browser removes everything CVForge ever stored locally.';
-
-  @override
-  String get privacyControlTitle => 'Your control over your data';
-
-  @override
-  String get privacyDriveDisconnect =>
-      'You can disconnect at any time from Settings, which stops syncing immediately. Disconnecting does not delete the file already on Drive. You can remove it yourself from your Google Account\'s \"Third-party apps & services\" page at myaccount.google.com, which also fully revokes CVForge\'s access.';
-
-  @override
-  String get privacyDriveEmail =>
-      'CVForge also reads your Google account email address (via the same connection) purely to show which account is connected in Settings. That address is kept only in your browser\'s local storage, never transmitted anywhere else.';
-
-  @override
-  String get privacyDriveFile =>
-      'That file is a copy of your Vault and CVs, letting you recover them by signing in again on another browser. It is readable only by CVForge acting on your own Google account. CVForge\'s developer has no access to it, and no other app can read it either.';
-
-  @override
-  String get privacyDriveScope =>
-      'If you choose to connect Google Drive, CVForge requests exactly one Google OAuth scope: `drive.appdata`. This scope only grants access to a single hidden file CVForge creates for itself in your Drive. It cannot see, list, or touch any other file in your Google Drive.';
-
-  @override
-  String get privacyDriveTitle => 'Google Drive sync';
-
-  @override
-  String get privacyIntro =>
-      'CVForge doesn\'t have a server. It\'s a static web app that runs entirely in your browser, and this policy exists to explain exactly what that means for your data.';
-
-  @override
-  String get privacyNoTrackingBody =>
-      'No analytics, no tracking scripts, no advertising, no cookies beyond what your browser itself uses to keep you signed in to Google. Nothing about your usage of CVForge is collected or sold.';
-
-  @override
-  String get privacyNoTrackingTitle => 'What CVForge doesn\'t do';
-
-  @override
-  String get privacyStorageBody =>
-      'Your Vault (career history) and every CV you build are stored only in your browser\'s local storage (IndexedDB), on your own device. CVForge\'s developer cannot see, access, or receive this data. There is no backend for it to be sent to.';
-
-  @override
-  String get privacyStorageTitle => 'What CVForge stores, and where';
-
-  @override
-  String get privacyTitle => 'Privacy Policy';
 
   @override
   String get regionAnzConvention1 =>
@@ -1820,69 +1753,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get templateTagTwoColumn => 'Two-column';
-
-  @override
-  String get termsAcceptableUseBody =>
-      'Don\'t use CVForge to violate the law, or to abuse any third-party API (Google\'s or an AI provider\'s) beyond that provider\'s own acceptable-use terms.';
-
-  @override
-  String get termsAcceptableUseTitle => 'Acceptable use';
-
-  @override
-  String get termsAsIsBody =>
-      'CVForge is provided free of charge, \"as is\" and \"as available\", with no warranty of any kind, express or implied. That includes no guarantee it will always be available or error-free. It\'s hosted on GitHub Pages with no uptime commitment.';
-
-  @override
-  String get termsAsIsTitle => 'The app, as-is';
-
-  @override
-  String get termsChangesBody =>
-      'These terms may be updated from time to time; the current version always lives at this page.';
-
-  @override
-  String get termsChangesTitle => 'Changes';
-
-  @override
-  String get termsContactBody =>
-      'heinrich-development-support@googlegroups.com';
-
-  @override
-  String get termsContactTitle => 'Contact';
-
-  @override
-  String get termsIntro =>
-      'CVForge is a free, source-available personal project, not a company or a paid product. These terms are intentionally short.';
-
-  @override
-  String get termsLiabilityBody =>
-      'To the fullest extent permitted by law, CVForge\'s developer is not liable for any damages arising from your use of the app, including lost data.';
-
-  @override
-  String get termsLiabilityTitle => 'Limitation of liability';
-
-  @override
-  String get termsOpenSourceBody =>
-      'CVForge is source-available on GitHub. See the repository\'s own license file for the exact terms governing the code itself.';
-
-  @override
-  String get termsOpenSourceTitle => 'Open source';
-
-  @override
-  String get termsThirdPartyBody =>
-      'If you use the AI Assistant or Google Drive sync, you are also bound by that provider\'s own terms: Anthropic\'s, Google\'s Gemini API terms, or Google\'s own Terms of Service for your Drive account. CVForge has no control over, and no responsibility for, those providers\' services.';
-
-  @override
-  String get termsThirdPartyTitle => 'Third-party services';
-
-  @override
-  String get termsTitle => 'Terms of Service';
-
-  @override
-  String get termsYourDataBody =>
-      'Because CVForge stores your Vault and CVs only in your own browser (and, if you choose to enable it, your own Google Drive), you are responsible for keeping your own backups. Clearing your browser\'s site data, or disconnecting Drive sync incorrectly, can result in permanent data loss that CVForge cannot recover on your behalf.';
-
-  @override
-  String get termsYourDataTitle => 'Your data, your responsibility';
 
   @override
   String get themeModeDark => 'Dark';

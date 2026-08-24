@@ -462,12 +462,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get driveSyncSyncing => 'Sincronizando con Google Drive…';
 
   @override
-  String get legalBackToApp => 'Volver a CVForge';
-
-  @override
-  String get legalEffectiveDate => 'Vigente desde el 23 de agosto de 2026';
-
-  @override
   String get localeDisplayName => 'Español';
 
   @override
@@ -497,67 +491,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get photoStanceProhibited => 'No — motivo de descarte automático';
-
-  @override
-  String get privacyAiBody =>
-      'Si usas el Asistente de IA opcional, el contenido relevante de tu CV y la descripción del puesto se envían directamente desde tu navegador al proveedor de IA que elijas (Anthropic o Google), usando una clave de API que tú mismo proporcionas. Esta llamada nunca pasa por ningún servidor de CVForge, y la clave se guarda solo en tu navegador.';
-
-  @override
-  String get privacyAiTitle => 'Adaptación asistida por IA';
-
-  @override
-  String get privacyContactBody =>
-      'Consultas sobre esta política: heinrich-development-support@googlegroups.com';
-
-  @override
-  String get privacyContactTitle => 'Contacto';
-
-  @override
-  String get privacyControlBody =>
-      'Exporta toda tu Bóveda y cada CV como un archivo JSON cuando quieras desde Configuración, o borra tu Bóveda por completo. Desinstalar o borrar los datos de este sitio en tu navegador elimina todo lo que CVForge haya guardado localmente.';
-
-  @override
-  String get privacyControlTitle => 'Tu control sobre tus datos';
-
-  @override
-  String get privacyDriveDisconnect =>
-      'Puedes desconectarte en cualquier momento desde Configuración, lo que detiene la sincronización de inmediato. Desconectarte no elimina el archivo que ya está en Drive. Puedes eliminarlo tú mismo desde la página \"Aplicaciones y servicios de terceros\" de tu Cuenta de Google, en myaccount.google.com, lo que además revoca por completo el acceso de CVForge.';
-
-  @override
-  String get privacyDriveEmail =>
-      'CVForge también lee la dirección de correo de tu cuenta de Google (mediante la misma conexión) únicamente para mostrar qué cuenta está conectada en Configuración. Esa dirección se guarda solo en el almacenamiento local de tu navegador y nunca se transmite a ningún otro lugar.';
-
-  @override
-  String get privacyDriveFile =>
-      'Ese archivo es una copia de tu Bóveda y tus CV, y te permite recuperarlos iniciando sesión de nuevo en otro navegador. Solo puede leerlo CVForge actuando en nombre de tu propia cuenta de Google. Quien desarrolla CVForge no tiene acceso a él, y ninguna otra aplicación puede leerlo.';
-
-  @override
-  String get privacyDriveScope =>
-      'Si decides conectar Google Drive, CVForge solicita exactamente un permiso de OAuth de Google: `drive.appdata`. Ese permiso solo da acceso a un único archivo oculto que CVForge crea para sí mismo en tu Drive. No puede ver, listar ni tocar ningún otro archivo de tu Google Drive.';
-
-  @override
-  String get privacyDriveTitle => 'Sincronización con Google Drive';
-
-  @override
-  String get privacyIntro =>
-      'CVForge no tiene servidor. Es una aplicación web estática que se ejecuta por completo en tu navegador, y esta política existe para explicar exactamente qué significa eso para tus datos.';
-
-  @override
-  String get privacyNoTrackingBody =>
-      'Sin analíticas, sin scripts de rastreo, sin publicidad y sin cookies más allá de las que use tu propio navegador para mantener tu sesión de Google iniciada. No se recopila ni se vende nada sobre tu uso de CVForge.';
-
-  @override
-  String get privacyNoTrackingTitle => 'Qué no hace CVForge';
-
-  @override
-  String get privacyStorageBody =>
-      'Tu Bóveda (tu historial profesional) y cada CV que armes se guardan únicamente en el almacenamiento local de tu navegador (IndexedDB), en tu propio dispositivo. Quien desarrolla CVForge no puede ver, consultar ni recibir estos datos. No hay ningún servidor al que puedan enviarse.';
-
-  @override
-  String get privacyStorageTitle => 'Qué guarda CVForge, y dónde';
-
-  @override
-  String get privacyTitle => 'Política de privacidad';
 
   @override
   String get regionAnzConvention1 =>
@@ -1841,69 +1774,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get templateTagTwoColumn => 'Dos columnas';
-
-  @override
-  String get termsAcceptableUseBody =>
-      'No uses CVForge para infringir la ley ni para abusar de ninguna API de terceros (la de Google o la de un proveedor de IA) más allá de los términos de uso aceptable de ese proveedor.';
-
-  @override
-  String get termsAcceptableUseTitle => 'Uso aceptable';
-
-  @override
-  String get termsAsIsBody =>
-      'CVForge se ofrece de forma gratuita, \"tal cual\" y \"según disponibilidad\", sin garantía de ningún tipo, expresa o implícita. Eso incluye que no se garantiza que esté siempre disponible ni libre de errores. Se aloja en GitHub Pages, sin ningún compromiso de disponibilidad.';
-
-  @override
-  String get termsAsIsTitle => 'La aplicación, tal cual';
-
-  @override
-  String get termsChangesBody =>
-      'Estos términos pueden actualizarse cada cierto tiempo; la versión vigente siempre estará en esta página.';
-
-  @override
-  String get termsChangesTitle => 'Cambios';
-
-  @override
-  String get termsContactBody =>
-      'heinrich-development-support@googlegroups.com';
-
-  @override
-  String get termsContactTitle => 'Contacto';
-
-  @override
-  String get termsIntro =>
-      'CVForge es un proyecto personal gratuito y de código disponible, no una empresa ni un producto de pago. Estos términos son deliberadamente breves.';
-
-  @override
-  String get termsLiabilityBody =>
-      'En la máxima medida permitida por la ley, quien desarrolla CVForge no será responsable de daño alguno derivado de tu uso de la aplicación, incluida la pérdida de datos.';
-
-  @override
-  String get termsLiabilityTitle => 'Limitación de responsabilidad';
-
-  @override
-  String get termsOpenSourceBody =>
-      'El código de CVForge está disponible en GitHub. Consulta el archivo de licencia del repositorio para conocer los términos exactos que rigen el código en sí.';
-
-  @override
-  String get termsOpenSourceTitle => 'Código abierto';
-
-  @override
-  String get termsThirdPartyBody =>
-      'Si usas el Asistente de IA o la sincronización con Google Drive, también quedas sujeto a los términos del proveedor correspondiente: los de Anthropic, los de la API de Gemini de Google, o los propios Términos del Servicio de Google para tu cuenta de Drive. CVForge no tiene control ni responsabilidad alguna sobre los servicios de esos proveedores.';
-
-  @override
-  String get termsThirdPartyTitle => 'Servicios de terceros';
-
-  @override
-  String get termsTitle => 'Términos del servicio';
-
-  @override
-  String get termsYourDataBody =>
-      'Dado que CVForge guarda tu Bóveda y tus CV únicamente en tu propio navegador (y, si decides activarlo, en tu propio Google Drive), eres responsable de mantener tus propias copias de seguridad. Borrar los datos del sitio en tu navegador, o desconectar mal la sincronización con Drive, puede provocar una pérdida permanente de datos que CVForge no puede recuperar por ti.';
-
-  @override
-  String get termsYourDataTitle => 'Tus datos, tu responsabilidad';
 
   @override
   String get themeModeDark => 'Oscuro';

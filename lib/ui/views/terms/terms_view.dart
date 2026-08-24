@@ -1,6 +1,5 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
-import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -42,43 +41,71 @@ class TermsView extends StackedView<TermsViewModel> {
                     onPressed: () =>
                         locator<RouterService>().replaceWithVaultView(),
                     icon: const Icon(Icons.arrow_back, size: 16),
-                    label: Text(context.l10n.legalBackToApp),
+                    label: const Text('Back to CVForge'),
                   ),
                   const VGap.medium(),
                   Text(
-                    context.l10n.termsTitle,
+                    'Terms of Service',
                     style: context.appTypography.titleMedium,
                   ),
                   const VGap.tiny(),
                   Text(
-                    context.l10n.legalEffectiveDate,
+                    'Effective 23 August 2026',
                     style: context.appTypography.caption,
                   ),
                   const VGap.medium(),
-                  ..._section(context, null, [context.l10n.termsIntro]),
-                  ..._section(context, context.l10n.termsAsIsTitle, [
-                    context.l10n.termsAsIsBody,
+                  ..._section(context, null, [
+                    'CVForge is a free, source-available personal '
+                        'project, not a company or a paid product. These '
+                        'terms are intentionally short.',
                   ]),
-                  ..._section(context, context.l10n.termsYourDataTitle, [
-                    context.l10n.termsYourDataBody,
+                  ..._section(context, 'The app, as-is', [
+                    'CVForge is provided free of charge, "as is" and "as '
+                        'available", with no warranty of any kind, '
+                        'express or implied. That includes no guarantee '
+                        'it will always be available or error-free. '
+                        "It's hosted on GitHub Pages with no uptime "
+                        'commitment.',
                   ]),
-                  ..._section(context, context.l10n.termsThirdPartyTitle, [
-                    context.l10n.termsThirdPartyBody,
+                  ..._section(context, 'Your data, your responsibility', [
+                    'Because CVForge stores your Vault and CVs only in '
+                        'your own browser (and, if you choose to enable '
+                        'it, your own Google Drive), you are responsible '
+                        'for keeping your own backups. Clearing your '
+                        "browser's site data, or disconnecting Drive "
+                        'sync incorrectly, can result in permanent data '
+                        'loss that CVForge cannot recover on your behalf.',
                   ]),
-                  ..._section(context, context.l10n.termsAcceptableUseTitle, [
-                    context.l10n.termsAcceptableUseBody,
+                  ..._section(context, 'Third-party services', [
+                    'If you use the AI Assistant or Google Drive sync, '
+                        "you are also bound by that provider's own terms: "
+                        "Anthropic's, Google's Gemini API terms, or "
+                        "Google's own Terms of Service for your Drive "
+                        'account. CVForge has no control over, and no '
+                        "responsibility for, those providers' services.",
                   ]),
-                  ..._section(context, context.l10n.termsOpenSourceTitle, [
-                    context.l10n.termsOpenSourceBody,
+                  ..._section(context, 'Acceptable use', [
+                    "Don't use CVForge to violate the law, or to abuse "
+                        "any third-party API (Google's or an AI "
+                        "provider's) beyond that provider's own "
+                        'acceptable-use terms.',
                   ]),
-                  ..._section(context, context.l10n.termsLiabilityTitle, [
-                    context.l10n.termsLiabilityBody,
+                  ..._section(context, 'Open source', [
+                    'CVForge is source-available on GitHub. See the '
+                        "repository's own license file for the exact "
+                        'terms governing the code itself.',
                   ]),
-                  ..._section(context, context.l10n.termsChangesTitle, [
-                    context.l10n.termsChangesBody,
+                  ..._section(context, 'Limitation of liability', [
+                    "To the fullest extent permitted by law, CVForge's "
+                        'developer is not liable for any damages arising '
+                        'from your use of the app, including lost data.',
                   ]),
-                  ..._section(context, context.l10n.termsContactTitle, [
-                    context.l10n.termsContactBody,
+                  ..._section(context, 'Changes', [
+                    'These terms may be updated from time to time; the '
+                        'current version always lives at this page.',
+                  ]),
+                  ..._section(context, 'Contact', [
+                    'heinrich-development-support@googlegroups.com',
                   ]),
                 ],
               ),
