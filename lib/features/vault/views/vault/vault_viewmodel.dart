@@ -1,7 +1,15 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
+import 'package:cv_forge/models/draft/cv_draft.dart';
+import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/draft/vault_selection.dart';
+import 'package:cv_forge/models/render/cv_composer.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
+import 'package:cv_forge/services/template_registry_service.dart';
+import 'package:cv_forge/templates/cv_template.dart';
+import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
@@ -60,6 +68,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     : _invalidUrlNoticePending = cameFromInvalidUrl;
 
   final _vaultService = locator<VaultService>();
+  final _templateRegistry = locator<TemplateRegistryService>();
   final _localizationService = locator<LocalizationService>();
   final _dialogService = locator<DialogService>();
   final _fileUpload = locator<FileUploadService>();
@@ -226,6 +235,95 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
         documentDefaults.copyWith(region: selected),
       );
     }
+  }
+
+  /// The template a new CV starts on. Falls back to the registry's own
+  /// default when none has been chosen, so this getter always names a real
+  /// template for the panel to show — `null` is a state the *stored* value
+  /// has and the UI never does.
+  CvTemplate get defaultTemplate => _templateRegistry.byId(
+    documentDefaults.templateId ?? _templateRegistry.defaultTemplate.id,
+  );
+
+  /// Opens the same gallery Studio's per-CV template button opens, for the
+  /// same reason [openDefaultRegionPicker] shares the region one.
+  ///
+  /// The thumbnails are rendered from the user's own Vault with everything
+  /// selected, not from placeholder content — picking a template is a
+  /// visual decision, and the whole value of the gallery is seeing your
+  /// own CV in it. That composed draft is a throwaway and is never
+  /// persisted; the Vault has no draft of its own, which is exactly why
+  /// [VaultSelection] exists as a shared projection rather than as more
+  /// inline code here.
+  Future<void> openDefaultTemplatePicker() async {
+    final region = documentDefaults.region;
+    final previewDraft = VaultSelection.everythingIn(vault).applyTo(
+      CvDraft.empty(
+        id: 'vault-default-preview',
+        templateId: defaultTemplate.id,
+        region: region,
+        documentLanguage: documentDefaults.language,
+      ),
+    );
+    final response = await _dialogService
+        .showCustomDialog<String, TemplateGalleryDialogData>(
+          variant: DialogType.templateGallery,
+          data: TemplateGalleryDialogData(
+            currentTemplateId: defaultTemplate.id,
+            cv: CvComposer.compose(
+              vault,
+              previewDraft,
+              region: region,
+              language: documentDefaults.language,
+              sectionOrder: defaultSectionOrder,
+            ),
+            pageFormat: region.preset.page.toPdfPageFormat,
+          ),
+        );
+    final selectedId = response?.data;
+    if (response?.confirmed == true && selectedId != null) {
+      await _vaultService.setDocumentDefaults(
+        documentDefaults.copyWith(templateId: selectedId),
+      );
+    }
+  }
+
+  /// The order a new CV's sections start in — the saved default if there
+  /// is one, else the default template's own suggestion. Always complete,
+  /// so the panel lists every section rather than silently omitting one
+  /// added since this was last saved.
+  List<CvSectionType> get defaultSectionOrder => completeSectionOrder(
+    documentDefaults.sectionOrder ?? defaultTemplate.sectionOrder,
+  );
+
+  bool isDefaultSectionHidden(CvSectionType type) =>
+      documentDefaults.hiddenSections?.contains(type) ?? false;
+
+  /// Unlike Studio's list, which shows only the sections the open draft has
+  /// data for, this one lists every section: a default is being set for
+  /// CVs that do not exist yet, so "has data" has nothing to answer to.
+  /// Both indices are therefore positions in the full list.
+  Future<void> reorderDefaultSections(int oldIndex, int newIndex) async {
+    final order = [...defaultSectionOrder];
+    order.insert(newIndex, order.removeAt(oldIndex));
+    await _vaultService.setDocumentDefaults(
+      documentDefaults.copyWith(sectionOrder: order),
+    );
+  }
+
+  Future<void> toggleDefaultSectionHidden(CvSectionType type) async {
+    final hidden = {...?documentDefaults.hiddenSections};
+    if (!hidden.remove(type)) hidden.add(type);
+    await _vaultService.setDocumentDefaults(
+      // The order is written alongside it even when untouched: until now it
+      // may only have been implied by the template, and leaving it null
+      // while hiding a section would let a later template change silently
+      // reorder a list the user has already curated.
+      documentDefaults.copyWith(
+        hiddenSections: hidden,
+        sectionOrder: defaultSectionOrder,
+      ),
+    );
   }
 
   Future<void> updateBasics(ContactBasics basics) =>

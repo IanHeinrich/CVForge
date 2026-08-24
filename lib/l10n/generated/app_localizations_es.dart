@@ -1685,13 +1685,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Restaurar mi configuración guardada';
 
   @override
-  String get studioSectionsSavedDefault =>
-      'Se guardó este orden y esta selección de secciones como tu configuración predeterminada';
-
-  @override
-  String get studioSectionsSaveDefault => 'Guardar como predeterminado';
-
-  @override
   String get studioSectionsTitle => 'Secciones';
 
   @override
@@ -1996,6 +1989,20 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Región';
+
+  @override
+  String get vaultCvDefaultsSectionsHelp =>
+      'Qué secciones incluye un CV nuevo y en qué orden se imprimen. Arrastra para reordenar.';
+
+  @override
+  String get vaultCvDefaultsSectionsLabel => 'Secciones';
+
+  @override
+  String get vaultCvDefaultsTemplateHelp =>
+      'El diseño con el que empieza un CV nuevo: su composición, su tipografía y si se imprime una foto.';
+
+  @override
+  String get vaultCvDefaultsTemplateLabel => 'Plantilla';
 
   @override
   String get vaultDeleteCategoryBody =>

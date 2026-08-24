@@ -2480,18 +2480,6 @@ abstract class AppLocalizations {
   /// **'Reset to my saved default'**
   String get studioSectionsResetDefault;
 
-  /// Studio confirmation after saving the current section arrangement as the default for new CVs.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved this order and section selection as your default'**
-  String get studioSectionsSavedDefault;
-
-  /// Studio button that remembers the current section arrangement for new CVs.
-  ///
-  /// In en, this message translates to:
-  /// **'Save as my default'**
-  String get studioSectionsSaveDefault;
-
   /// Studio heading above the reorderable list of CV sections.
   ///
   /// In en, this message translates to:
@@ -3019,6 +3007,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Region'**
   String get vaultCvDefaultsRegionLabel;
+
+  /// Help text under the default section list in the Vault's CV defaults panel. Deliberately does not repeat that existing CVs are untouched — the panel's intro says that once, for all five rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sections a new CV includes, and the order they print in. Drag to reorder.'**
+  String get vaultCvDefaultsSectionsHelp;
+
+  /// Label for the default section-order list in the Vault's CV defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get vaultCvDefaultsSectionsLabel;
+
+  /// Help text under the default-template row of the Vault's CV defaults panel. Names the photo specifically: whether one is printed is a property of the template and of nothing else, and the region picker sends people here expecting a photo to be a setting.
+  ///
+  /// In en, this message translates to:
+  /// **'The design a new CV starts with — its layout, its type, and whether a photo is printed.'**
+  String get vaultCvDefaultsTemplateHelp;
+
+  /// Label for the default-template row of the Vault's CV defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get vaultCvDefaultsTemplateLabel;
 
   /// Confirmation dialog body for deleting a skill category.
   ///

@@ -730,48 +730,6 @@ void main() {
         },
       );
 
-      test('saveSectionSettingsAsDefault copies the draft\'s effective '
-          'section order AND hidden-sections state into SettingsService, '
-          'together', () async {
-        when(vaultService.vault).thenReturn(CvVault.empty());
-        when(draftService.draft).thenReturn(
-          draftWith(
-            sectionOrder: const [
-              CvSectionType.education,
-              CvSectionType.experience,
-              CvSectionType.skills,
-              CvSectionType.projects,
-              CvSectionType.summary,
-              CvSectionType.hobbies,
-              CvSectionType.references,
-              CvSectionType.publications,
-            ],
-            hiddenSections: {CvSectionType.hobbies},
-          ),
-        );
-        when(
-          vaultService.setDocumentDefaults(any),
-        ).thenAnswer((_) => Future<void>.value());
-
-        final model = StudioViewModel();
-        await model.saveSectionSettingsAsDefault();
-
-        final saved =
-            verify(vaultService.setDocumentDefaults(captureAny)).captured.single
-                as DocumentDefaults;
-        expect(saved.sectionOrder, [
-          CvSectionType.education,
-          CvSectionType.experience,
-          CvSectionType.skills,
-          CvSectionType.projects,
-          CvSectionType.summary,
-          CvSectionType.hobbies,
-          CvSectionType.references,
-          CvSectionType.publications,
-        ]);
-        expect(saved.hiddenSections, {CvSectionType.hobbies});
-      });
-
       test("resetSectionSettings hands DraftService the Vault's defaults, "
           'rather than having it reach for them itself', () async {
         const defaults = DocumentDefaults(

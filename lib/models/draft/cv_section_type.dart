@@ -15,6 +15,22 @@ enum CvSectionType {
   publications,
 }
 
+/// [order] with any [CvSectionType] case missing from it appended at the
+/// end, in enum-declaration order.
+///
+/// Guards against a section type shipping after a stored order was last
+/// written, so a new one isn't silently dropped from the printed CV
+/// forever. Two things store an order and both need this: a draft
+/// (`CvDraft.effectiveSectionOrder`) and the Vault's default
+/// (`DocumentDefaults.sectionOrder`). Adding a ninth section is exactly
+/// the moment a second, forgotten copy of this rule would be discovered
+/// the hard way, so there is only one.
+List<CvSectionType> completeSectionOrder(List<CvSectionType> order) => [
+  ...order,
+  for (final type in CvSectionType.values)
+    if (!order.contains(type)) type,
+];
+
 /// The picker label for a section moved to
 /// `lib/ui/common/l10n/model_labels.dart` — it needs `AppLocalizations`,
 /// and this library must stay free of Flutter imports. What `CvComposer`

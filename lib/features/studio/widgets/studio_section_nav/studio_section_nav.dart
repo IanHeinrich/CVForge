@@ -39,25 +39,12 @@ class StudioSectionNav extends StatelessWidget {
         const VGap.tiny(),
         _SectionList(viewModel: viewModel),
         const VGap.medium(),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: () async {
-              await viewModel.saveSectionSettingsAsDefault();
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.l10n.studioSectionsSavedDefault),
-                ),
-              );
-            },
-            child: Text(context.l10n.studioSectionsSaveDefault),
-          ),
-        ),
-        const VGap.small(),
-        // A quieter, visually distinct row rather than a second purple
-        // text button next to "Save" — this one discards the current
-        // draft's order/hidden-section customisation, "Save" doesn't.
+        // The matching "save this arrangement as my default" button used
+        // to sit above this one. Authoring the default now happens in the
+        // Vault's CV defaults panel, alongside the default region,
+        // language and template — see `DocumentDefaults`. This row stays,
+        // because discarding *this draft's* customisation is a fact about
+        // the draft rather than about the defaults.
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
