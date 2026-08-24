@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
+import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/cv_photo.dart';
+import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -300,6 +303,61 @@ void main() {
           final firstBullet = bullets.single as Map<String, dynamic>;
           expect(firstBullet['label'], 'Impact');
           expect(firstBullet['text'], 'Did a thing');
+        },
+      );
+
+      test('A photo survives the write/read round trip through storage — '
+          'this is the same serialization Drive sync and JSON export both '
+          'ride, so a photo that did not round-trip here would not sync '
+          'either', () async {
+        const photo = CvPhoto(
+          jpegBase64: 'AQIDBAU=',
+          widthPx: 420,
+          heightPx: 540,
+        );
+        final service = VaultService();
+        await service.load();
+
+        await service.updateBasics(
+          ContactBasics.empty().copyWith(fullName: 'Ada', photo: photo),
+        );
+        await service.flushPendingWrites();
+
+        final captured = verify(
+          storage.write(
+            StorageBoxes.vault,
+            StorageKeys.vaultProfile,
+            captureAny,
+          ),
+        ).captured;
+        final raw = captured.last as String;
+
+        // The nested object shape, not a stringified instance — the same
+        // `explicit_to_json` guarantee the test above establishes for
+        // experiences.
+        final decoded = jsonDecode(raw) as Map<String, dynamic>;
+        final basics = decoded['basics'] as Map<String, dynamic>;
+        final written = basics['photo'] as Map<String, dynamic>;
+        expect(written['jpegBase64'], photo.jpegBase64);
+        expect(written['widthPx'], 420);
+        expect(written['heightPx'], 540);
+
+        // And back, which is what a reload (or a Drive download) does.
+        expect(CvVault.fromJson(decoded).basics.photo, photo);
+      });
+
+      test(
+        'A Vault holding only a photo does not read as empty — the '
+        'empty state offers "Load example CV", which would replace it',
+        () async {
+          const photo = CvPhoto(jpegBase64: 'AQ==', widthPx: 1, heightPx: 1);
+
+          final vault = CvVault.empty().copyWith(
+            basics: ContactBasics.empty().copyWith(photo: photo),
+          );
+
+          expect(vault.isEmpty, isFalse);
+          expect(CvVault.empty().isEmpty, isTrue);
         },
       );
 

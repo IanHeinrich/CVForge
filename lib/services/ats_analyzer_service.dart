@@ -72,6 +72,30 @@ class AtsAnalyzerService {
   /// regardless of which block a run actually belongs to. This is *not*
   /// a claim about `pdf.js`'s own reading order, which tracks the content
   /// stream faithfully.
+  ///
+  /// A wide gap on its own is not enough, because the commonest CV idiom
+  /// there is — an entry title with its date range right-aligned on the
+  /// same line — produces one. Merging *that* pair left-to-right yields
+  /// the correct reading ("BSc Computer Science at Leeds" then "2015"),
+  /// so flagging it is a false positive; every template this app ships
+  /// used to trip it, `compact` included, which is the default and is
+  /// tagged ATS-safe.
+  ///
+  /// Two things have to be true together for a gap to be dismissed, and
+  /// both were measured against real exports rather than reasoned about:
+  ///
+  ///  - the right-hand run ends flush with the page's rightmost text edge,
+  ///    which is what "right-aligned trailing value" means and what every
+  ///    date on every template does (measured: 0.0pt from the edge);
+  ///  - something else on the page crosses the gap, so it is a hole in
+  ///    ordinary text area rather than a gutter running down a column
+  ///    boundary (measured: 3 other lines cross it; a genuine two-column
+  ///    fixture has none).
+  ///
+  /// Requiring both keeps this conservative — it errs toward reporting.
+  /// A sidebar whose one line happens to reach the right margin is still
+  /// caught through its other lines, since a finding is emitted per
+  /// crushed line.
   List<AtsFinding> _checkColumnCrush(AtsExtractedDocument document) {
     final findings = <AtsFinding>[];
     final byPage = <int, List<(int, AtsTextNode)>>{};
@@ -87,6 +111,10 @@ class AtsAnalyzerService {
               b.$2.transform.baselineY.compareTo(a.$2.transform.baselineY),
         );
 
+      // Group into lines first, then judge gaps — deciding whether a gap
+      // is a corridor needs every other line on the page, so the lines
+      // cannot be evaluated as they are found.
+      final lines = <List<(int, AtsTextNode)>>[];
       var i = 0;
       while (i < nodes.length) {
         final lineY = nodes[i].$2.transform.baselineY;
@@ -101,52 +129,88 @@ class AtsAnalyzerService {
           j++;
         }
         i = j;
-
-        if (line.length < 2) continue;
         line.sort(
           (a, b) =>
               a.$2.transform.baselineX.compareTo(b.$2.transform.baselineX),
         );
+        lines.add(line);
+      }
+
+      final pageRightEdge = nodes
+          .map((n) => n.$2.transform.baselineX + n.$2.width)
+          .reduce((a, b) => a > b ? a : b);
+
+      for (var l = 0; l < lines.length; l++) {
+        final line = lines[l];
+        if (line.length < 2) continue;
 
         for (var k = 0; k < line.length - 1; k++) {
           final (leftIndex, left) = line[k];
           final (rightIndex, right) = line[k + 1];
-          final gap =
-              right.transform.baselineX -
-              (left.transform.baselineX + left.width);
-          if (gap > _columnGapThreshold) {
-            findings.add(
-              AtsFinding(
-                category: AtsFindingCategory.columnCrush,
-                severity: AtsFindingSeverity.warning,
-                title: 'Possible multi-column layout',
-                message:
-                    '"${_truncate(left.str)}" and "${_truncate(right.str)}" '
-                    'sit on the same line with a wide gap between them. A '
-                    'text extractor that reads by position rather than by '
-                    'the document\'s own structure may merge these into '
-                    'one run, e.g. "${_truncate(left.str)}'
-                    '${_truncate(right.str)}".',
-                pageIndex: entry.key,
-                evidence: [
-                  AtsFindingEvidence(
-                    pageIndex: entry.key,
-                    nodeIndex: leftIndex,
-                  ),
-                  AtsFindingEvidence(
-                    pageIndex: entry.key,
-                    nodeIndex: rightIndex,
-                  ),
-                ],
-                evidenceShape: AtsEvidenceShape.span,
-              ),
-            );
-            break; // one finding per crushed line is enough signal
+          final leftEnd = left.transform.baselineX + left.width;
+          final gap = right.transform.baselineX - leftEnd;
+          if (gap <= _columnGapThreshold) continue;
+          if (_isRightAlignedTrailingValue(
+            lines,
+            line: l,
+            right: right,
+            corridorX: leftEnd + gap / 2,
+            pageRightEdge: pageRightEdge,
+          )) {
+            continue;
           }
+
+          findings.add(
+            AtsFinding(
+              category: AtsFindingCategory.columnCrush,
+              severity: AtsFindingSeverity.warning,
+              title: 'Possible multi-column layout',
+              message:
+                  '"${_truncate(left.str)}" and "${_truncate(right.str)}" '
+                  'sit on the same line with a wide gap between them. A '
+                  'text extractor that reads by position rather than by '
+                  'the document\'s own structure may merge these into '
+                  'one run, e.g. "${_truncate(left.str)}'
+                  '${_truncate(right.str)}".',
+              pageIndex: entry.key,
+              evidence: [
+                AtsFindingEvidence(pageIndex: entry.key, nodeIndex: leftIndex),
+                AtsFindingEvidence(pageIndex: entry.key, nodeIndex: rightIndex),
+              ],
+              evidenceShape: AtsEvidenceShape.span,
+            ),
+          );
+          break; // one finding per crushed line is enough signal
         }
       }
     }
     return findings;
+  }
+
+  /// Whether this gap is an entry title with a right-aligned date after
+  /// it, rather than a column boundary. See [_checkColumnCrush] for the
+  /// measurements behind the two conditions.
+  bool _isRightAlignedTrailingValue(
+    List<List<(int, AtsTextNode)>> lines, {
+    required int line,
+    required AtsTextNode right,
+    required double corridorX,
+    required double pageRightEdge,
+  }) {
+    final endsAtMargin =
+        (pageRightEdge - (right.transform.baselineX + right.width)).abs() <=
+        _rightAlignTolerance;
+    if (!endsAtMargin) return false;
+
+    for (var i = 0; i < lines.length; i++) {
+      if (i == line) continue;
+      final crosses = lines[i].any((n) {
+        final start = n.$2.transform.baselineX;
+        return start < corridorX && corridorX < start + n.$2.width;
+      });
+      if (crosses) return true;
+    }
+    return false;
   }
 
   List<AtsFinding> _checkGarbledText(AtsExtractedDocument document) {
@@ -357,6 +421,11 @@ class AtsAnalyzerService {
   /// tolerance above: a column gutter's width is a page-layout decision,
   /// not a text-size one.
   static const _columnGapThreshold = 60.0;
+
+  /// How close a run's end has to be to the page's rightmost text edge to
+  /// count as right-aligned. Measured at 0.0pt on this app's own exports;
+  /// the allowance is for extractor rounding, not for near-misses.
+  static const _rightAlignTolerance = 2.0;
 
   bool _isPua(int codeUnit) => codeUnit >= 0xE000 && codeUnit <= 0xF8FF;
 

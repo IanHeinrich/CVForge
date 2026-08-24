@@ -8,72 +8,85 @@ import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:mockito/mockito.dart';
 
 import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
 
-ResolvedCv _fixtureCv({String bulletText = 'Delivered a standard result.'}) =>
-    ResolvedCv(
-      header: const ResolvedHeader(
-        fullName: 'Jordan Ellery',
-        headline: 'Senior Software Engineer',
-        email: 'jordan.ellery@example.com',
-        phone: '+44 7700 900123',
-        location: 'Manchester',
-        links: [
-          ResolvedLink(label: 'LinkedIn', url: 'linkedin.com/in/jordanellery'),
-        ],
-      ),
-      sections: [
-        const ResolvedSection.summary(
-          title: 'Summary',
-          text: 'Experienced engineer.',
-        ),
-        ResolvedSection.experience(
-          title: 'Experience',
-          groups: [
-            ResolvedCompanyGroup(
-              company: 'Acme',
-              location: 'London',
-              positions: [
-                ResolvedPosition(
-                  role: 'Engineer',
-                  dateRange: '01/2020 - current',
-                  bullets: [ResolvedBullet(text: bulletText)],
-                ),
-              ],
-            ),
-          ],
-        ),
-        const ResolvedSection.skills(
-          title: 'Skills',
-          groups: [
-            ResolvedSkillGroup(category: 'Languages', skills: ['Dart']),
-          ],
-        ),
-        const ResolvedSection.education(
-          title: 'Education',
-          items: [
-            ResolvedQualification(
-              qualification: 'BSc Computing',
-              institution: 'Leeds',
-              yearLabel: '2018',
-            ),
-          ],
-        ),
-        const ResolvedSection.publications(
-          title: 'Publications',
-          items: [
-            ResolvedPublication(
-              title: 'A Study of Things',
-              citation: 'Ellery, J. (2024). Journal of Examples, 1(1), 1–2.',
-              link: 'doi.org/10.1234/example',
+/// A tiny real JPEG, built rather than checked in as a binary fixture —
+/// `pw.MemoryImage` parses the header for the dimensions, so this has to
+/// be a genuine image and not a few arbitrary bytes.
+String _fixturePhotoBase64() {
+  final image = img.Image(width: 35, height: 45);
+  img.fill(image, color: img.ColorRgb8(120, 90, 70));
+  return base64Encode(img.encodeJpg(image));
+}
+
+ResolvedCv _fixtureCv({
+  String bulletText = 'Delivered a standard result.',
+  String? photoJpegBase64,
+}) => ResolvedCv(
+  header: ResolvedHeader(
+    fullName: 'Jordan Ellery',
+    headline: 'Senior Software Engineer',
+    email: 'jordan.ellery@example.com',
+    phone: '+44 7700 900123',
+    location: 'Manchester',
+    links: const [
+      ResolvedLink(label: 'LinkedIn', url: 'linkedin.com/in/jordanellery'),
+    ],
+    photoJpegBase64: photoJpegBase64,
+  ),
+  sections: [
+    const ResolvedSection.summary(
+      title: 'Summary',
+      text: 'Experienced engineer.',
+    ),
+    ResolvedSection.experience(
+      title: 'Experience',
+      groups: [
+        ResolvedCompanyGroup(
+          company: 'Acme',
+          location: 'London',
+          positions: [
+            ResolvedPosition(
+              role: 'Engineer',
+              dateRange: '01/2020 - current',
+              bullets: [ResolvedBullet(text: bulletText)],
             ),
           ],
         ),
       ],
-    );
+    ),
+    const ResolvedSection.skills(
+      title: 'Skills',
+      groups: [
+        ResolvedSkillGroup(category: 'Languages', skills: ['Dart']),
+      ],
+    ),
+    const ResolvedSection.education(
+      title: 'Education',
+      items: [
+        ResolvedQualification(
+          qualification: 'BSc Computing',
+          institution: 'Leeds',
+          yearLabel: '2018',
+        ),
+      ],
+    ),
+    const ResolvedSection.publications(
+      title: 'Publications',
+      items: [
+        ResolvedPublication(
+          title: 'A Study of Things',
+          citation: 'Ellery, J. (2024). Journal of Examples, 1(1), 1–2.',
+          link: 'doi.org/10.1234/example',
+        ),
+      ],
+    ),
+  ],
+);
 
 void main() {
   // rootBundle.load needs a real binding, not just the default test one
@@ -326,6 +339,57 @@ void main() {
 
         expect(bytes, isNotEmpty);
         expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+      });
+    });
+
+    group('photo_header -', () {
+      test('renders with a photo, and still embeds a CID font via '
+          'Identity-H with a ToUnicode CMap — the photograph must not cost '
+          'the text layer an ATS reads', () async {
+        final service = PdfExportService();
+
+        final bytes = await service.render(
+          cv: _fixtureCv(photoJpegBase64: _fixturePhotoBase64()),
+          templateId: 'photo_header',
+          compress: false,
+        );
+
+        final content = latin1.decode(bytes);
+        expect(content, contains('/Identity-H'));
+        expect(content, contains('/ToUnicode'));
+        // The photo really did make it in, rather than the header
+        // silently falling back to the text-only branch.
+        expect(content, contains('/DCTDecode'));
+      });
+
+      test('renders without a photo rather than throwing or reserving an '
+          'empty box — a Vault with no photo yet must still export', () async {
+        final service = PdfExportService();
+
+        final bytes = await service.render(
+          cv: _fixtureCv(),
+          templateId: 'photo_header',
+          compress: false,
+        );
+
+        expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+        expect(latin1.decode(bytes), isNot(contains('/DCTDecode')));
+      });
+
+      test('keeps the name as extractable text beside the image, not baked '
+          'into it', () async {
+        final service = PdfExportService();
+
+        final bytes = await service.render(
+          cv: _fixtureCv(photoJpegBase64: _fixturePhotoBase64()),
+          templateId: 'photo_header',
+          compress: false,
+        );
+
+        // The PDF's own metadata dictionary, which recruiter platforms
+        // read on upload — proof the header is real text, since it is
+        // taken from the same ResolvedHeader the page draws.
+        expect(latin1.decode(bytes), contains('Jordan Ellery'));
       });
     });
   });

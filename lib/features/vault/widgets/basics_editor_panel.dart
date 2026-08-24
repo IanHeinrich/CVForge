@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
+import 'photo_editor_field/photo_editor_field.dart';
 import 'vault_editor_panel_scaffold.dart';
 import 'vault_section_heading.dart';
 import 'package:cv_forge/ui/widgets/common/app_delete_icon_button/app_delete_icon_button.dart';
@@ -20,6 +21,10 @@ class BasicsEditorPanel extends StatelessWidget {
     required this.onAddLink,
     required this.onLinkChanged,
     required this.onLinkDeleted,
+    required this.onPickPhoto,
+    required this.onRemovePhoto,
+    this.photoBusy = false,
+    this.photoError,
   });
 
   final ContactBasics basics;
@@ -31,12 +36,28 @@ class BasicsEditorPanel extends StatelessWidget {
   final ValueChanged<ProfileLink> onLinkChanged;
   final ValueChanged<String> onLinkDeleted;
 
+  /// The photo has its own pair of callbacks rather than going through
+  /// [onChanged] because picking one is asynchronous and opens a dialog —
+  /// see [PhotoEditorField].
+  final VoidCallback onPickPhoto;
+  final VoidCallback onRemovePhoto;
+  final bool photoBusy;
+  final String? photoError;
+
   @override
   Widget build(BuildContext context) {
     return VaultEditorPanelScaffold(
       title: 'Basics',
       onClose: onClose,
       children: [
+        PhotoEditorField(
+          photo: basics.photo,
+          onPick: onPickPhoto,
+          onRemove: onRemovePhoto,
+          busy: photoBusy,
+          errorText: photoError,
+        ),
+        const VGap.medium(),
         AppTextField(
           label: 'Full name',
           initialValue: basics.fullName,

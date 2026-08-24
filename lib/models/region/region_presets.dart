@@ -137,9 +137,8 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
         'verifiable facts over adjectives.',
     conventions: [
       'Around two thirds of German-speaking employers still expect a '
-          'professional headshot, top right. CVForge does not add one; a '
-          'template that renders a photo is planned, and until then it has '
-          'to be added to the exported PDF by hand.',
+          'professional headshot, top right. Upload one in the Vault and '
+          'choose a template that includes one; the rest leave it off.',
       'Date and place of birth, nationality, and sometimes marital status '
           'are traditional in the personal-details block, and CVForge has '
           'no field for any of them. Younger and international employers '

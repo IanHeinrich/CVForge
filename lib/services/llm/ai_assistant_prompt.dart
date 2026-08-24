@@ -122,12 +122,15 @@ String aiAssistantSystemPromptFor(RegionProfile region) =>
     '$aiAssistantSystemPrompt\n${_regionBlock(region)}';
 
 /// The closing paragraph is load-bearing, not boilerplate. Several regions
-/// expect a photograph, a date of birth, or a work-rights line, and the
-/// Vault has a field for none of them — so describing those conventions to
-/// a model that is also allowed to rewrite bullets is, without this, an
-/// invitation to invent one. The per-stance `promptLabel`s carry the same
-/// guard inline; this restates it once for the conventions list, which is
-/// free text and cannot.
+/// expect a date of birth or a work-rights line, and the Vault has a field
+/// for neither — so describing those conventions to a model that is also
+/// allowed to rewrite bullets is, without this, an invitation to invent
+/// one. A photograph is the one such convention CVForge does now satisfy,
+/// but it satisfies it by rendering `ContactBasics.photo`, not by anything
+/// the assistant writes, so the instruction is the same: don't put one in
+/// the text. The per-stance `promptLabel`s carry the same guard inline;
+/// this restates it once for the conventions list, which is free text and
+/// cannot.
 String _regionBlock(RegionProfile region) {
   final preset = region.preset;
   final conventions = preset.conventions.map((c) => '- $c').join('\n');
@@ -150,9 +153,9 @@ $conventions
 
 These conventions govern selection and phrasing only. They never license
 inventing anything: the rewriting rules above apply in full and are not
-relaxed by any convention here. Where a convention calls for something the
-Vault does not contain — a photograph, a date of birth, a language
-certification, a work-rights statement — do not add, describe, or imply it.
+relaxed by any convention here. Where a convention calls for something you
+have not been given — a date of birth, a language certification, a
+work-rights statement, a photograph — do not add, describe, or imply it.
 Record it in `keywordGaps` instead.
 ''';
 }

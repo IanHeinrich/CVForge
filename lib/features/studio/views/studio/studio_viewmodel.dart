@@ -280,6 +280,32 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
         '${preset.lengthNote} Try trimming content, or a denser template.';
   }
 
+  /// Set when the chosen template prints a photograph into a market that
+  /// doesn't want one — the one place `RegionPhotoStance` reaches beyond
+  /// advice into something the app says unprompted.
+  ///
+  /// Advisory, never a block: plenty of legitimate reasons exist to send a
+  /// photo CV anywhere, and the user picked this template deliberately.
+  /// Only fires for `prohibited`/`discouraged`; `optional` is a genuine
+  /// choice and warning about it would be noise.
+  ///
+  /// Nothing here checks whether the Vault actually holds a photo. The
+  /// mismatch worth flagging is the *intent* — a template chosen to print
+  /// one, aimed at a market that rejects them — and staying silent until
+  /// the photo is uploaded would surface the warning at the moment it is
+  /// least useful.
+  String? get photoRegionWarning {
+    if (!template.tags.contains(TemplateTag.photo)) return null;
+    final preset = region.preset;
+    return switch (preset.photo) {
+      RegionPhotoStance.prohibited || RegionPhotoStance.discouraged =>
+        'This template prints a photo, and ${preset.displayName} '
+            'expects none — ${preset.photo.displayLabel.toLowerCase()}. '
+            'Switch template, or change region.',
+      RegionPhotoStance.optional || RegionPhotoStance.expected => null,
+    };
+  }
+
   Future<void> goToVault() => _routerService.replaceWith(VaultViewRoute());
 
   Future<void> goToDrafts() =>

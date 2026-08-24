@@ -49,6 +49,10 @@ class VaultEditorPanelRouter extends StatelessWidget {
           onAddLink: viewModel.addProfileLink,
           onLinkChanged: viewModel.updateProfileLink,
           onLinkDeleted: viewModel.deleteProfileLink,
+          onPickPhoto: viewModel.pickPhoto,
+          onRemovePhoto: viewModel.removePhoto,
+          photoBusy: viewModel.photoBusy,
+          photoError: viewModel.photoError,
         );
 
       case VaultEditorTarget.experience:

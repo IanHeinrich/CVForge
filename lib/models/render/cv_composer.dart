@@ -36,6 +36,7 @@ abstract final class CvComposer {
         for (final link in vault.basics.links)
           ResolvedLink(label: link.label, url: link.url),
       ],
+      photoJpegBase64: vault.basics.photo?.jpegBase64,
     );
 
     final sections = <ResolvedSection>[];

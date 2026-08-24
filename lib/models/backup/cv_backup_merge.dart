@@ -253,6 +253,7 @@ ContactBasics _mergeBasics(
   phone: _pick(base.phone, local.phone, remote.phone, pr),
   location: _pick(base.location, local.location, remote.location, pr),
   summary: _pick(base.summary, local.summary, remote.summary, pr),
+  photo: _pick(base.photo, local.photo, remote.photo, pr),
   links: base.links.mergeThreeWay(
     local.links,
     remote.links,
