@@ -13,13 +13,20 @@ mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
   Duration get fast;
   Duration get camera;
   Duration get layout;
+  Duration get iconSwap;
 
   @override
-  AppMotion copyWith({Duration? fast, Duration? camera, Duration? layout}) {
+  AppMotion copyWith({
+    Duration? fast,
+    Duration? camera,
+    Duration? layout,
+    Duration? iconSwap,
+  }) {
     return AppMotion(
       fast: fast ?? this.fast,
       camera: camera ?? this.camera,
       layout: layout ?? this.layout,
+      iconSwap: iconSwap ?? this.iconSwap,
     );
   }
 
@@ -30,6 +37,7 @@ mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
       fast: t < 0.5 ? fast : other.fast,
       camera: t < 0.5 ? camera : other.camera,
       layout: t < 0.5 ? layout : other.layout,
+      iconSwap: t < 0.5 ? iconSwap : other.iconSwap,
     );
   }
 
@@ -40,7 +48,8 @@ mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
             other is AppMotion &&
             const DeepCollectionEquality().equals(fast, other.fast) &&
             const DeepCollectionEquality().equals(camera, other.camera) &&
-            const DeepCollectionEquality().equals(layout, other.layout));
+            const DeepCollectionEquality().equals(layout, other.layout) &&
+            const DeepCollectionEquality().equals(iconSwap, other.iconSwap));
   }
 
   @override
@@ -50,6 +59,7 @@ mixin _$AppMotionTailorMixin on ThemeExtension<AppMotion> {
       const DeepCollectionEquality().hash(fast),
       const DeepCollectionEquality().hash(camera),
       const DeepCollectionEquality().hash(layout),
+      const DeepCollectionEquality().hash(iconSwap),
     );
   }
 }
@@ -64,4 +74,10 @@ extension AppMotionBuildContextProps on BuildContext {
   /// A panel/column reflow — `VaultViewDesktop`'s card-list/editor split
   /// easing its width and alignment when the editor opens or closes.
   Duration get layout => appMotion.layout;
+
+  /// One glyph turning and fading into another in place, as
+  /// `ThemeModeToggle`'s sun/moon/monitor does. Slower than [fast], which
+  /// is short enough that a rotation reads as a flicker, and unrelated to
+  /// [layout]/[camera] — nothing is being laid out or panned.
+  Duration get iconSwap => appMotion.iconSwap;
 }

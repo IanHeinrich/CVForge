@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -142,7 +141,7 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
               dense: true,
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,
-              activeColor: kcPrimaryColor,
+              activeColor: Theme.of(context).colorScheme.primary,
               title: Text(
                 item.title,
                 style: TextStyle(
@@ -315,7 +314,7 @@ class _BulletRow extends StatelessWidget {
               right: context.appSpacing.paddingTight,
             ),
             controlAffinity: ListTileControlAffinity.leading,
-            activeColor: kcPrimaryColor,
+            activeColor: Theme.of(context).colorScheme.primary,
             title: Text(
               bullet.title,
               style: context.appTypography.bodySmall,

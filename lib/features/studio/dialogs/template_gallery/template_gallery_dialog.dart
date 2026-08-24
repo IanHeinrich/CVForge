@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -142,7 +141,9 @@ class _TemplateCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(context.appRadius.medium),
               border: Border.all(
-                color: selected ? kcPrimaryColor : Colors.transparent,
+                color: selected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -165,12 +166,12 @@ class _TemplateCard extends StatelessWidget {
                       ),
                     ),
                     if (selected)
-                      const Positioned(
+                      Positioned(
                         top: 6,
                         right: 6,
                         child: Icon(
                           RemixIcons.checkbox_circle_fill,
-                          color: kcPrimaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                   ],

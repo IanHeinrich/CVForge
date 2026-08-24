@@ -71,6 +71,7 @@
          same colour and there is no flash at handover. Matches manifest.json's
          background_color. */
       background-color: #101114;
+      color-scheme: dark light;
       height: 100vh;
       width: 100vw;
       position: fixed;
@@ -110,6 +111,22 @@
       width: 170px;
       height: 170px;
       color: #FFFFFF;
+    }
+
+    /* The stored theme lives in IndexedDB, which a boot-time stylesheet cannot
+       read — so the splash can only follow the OS, and a user on an explicit
+       Light override with a dark OS still gets one dark frame. Following
+       prefers-color-scheme is what removes the flash for everyone else,
+       including every Match-device user. kcSurfaceSunkenLight/kcOnSurfaceLight;
+       see lib/ui/common/app_colors.dart. */
+    @media (prefers-color-scheme: light) {
+      body {
+        background-color: #E9EBF0;
+      }
+
+      .splash-mark {
+        color: #14161A;
+      }
     }
 
     /* The hammer is the mark's own — 40x20 head, 60 haft, untouched. Everything

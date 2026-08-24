@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -150,7 +149,7 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
           Text(
             viewModel.errorMessage ?? 'Something went wrong.',
             style: context.appTypography.bodySmall.copyWith(
-              color: kcErrorColor,
+              color: Theme.of(context).colorScheme.error,
             ),
           ),
         ];

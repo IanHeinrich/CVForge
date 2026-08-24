@@ -346,6 +346,10 @@ class _SparksPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
+      // The one place still reading the constant rather than
+      // `colorScheme.primary`: a painter has no `BuildContext`, and the
+      // brand accent is deliberately the same value in both themes (see
+      // `app_colors.dart`), so threading a colour in would buy nothing.
       ..color = kcPrimaryColor
       ..strokeWidth = 8 * scale
       ..strokeCap = StrokeCap.round
