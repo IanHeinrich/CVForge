@@ -126,7 +126,16 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'updatedAt': instance.updatedAt.toIso8601String(),
 };
 
-const _$RegionProfileEnumMap = {RegionProfile.uk: 'uk', RegionProfile.us: 'us'};
+const _$RegionProfileEnumMap = {
+  RegionProfile.uk: 'uk',
+  RegionProfile.us: 'us',
+  RegionProfile.anz: 'anz',
+  RegionProfile.dach: 'dach',
+  RegionProfile.nordics: 'nordics',
+  RegionProfile.europe: 'europe',
+  RegionProfile.latamLetter: 'latamLetter',
+  RegionProfile.latamA4: 'latamA4',
+};
 
 const _$CvSectionTypeEnumMap = {
   CvSectionType.summary: 'summary',

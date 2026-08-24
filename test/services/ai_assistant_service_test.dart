@@ -4,6 +4,7 @@ import 'package:cv_forge/models/llm/llm_json_response.dart';
 import 'package:cv_forge/models/llm/llm_usage.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/ai_assistant_service.dart';
 import 'package:cv_forge/services/llm/ai_assistant_prompt.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,6 +69,7 @@ void main() {
       final result = await service.runTailoringPass(
         vault: vault,
         jobDescription: 'We need a backend engineer.',
+        region: RegionProfile.uk,
         providerId: 'anthropic',
         modelId: 'claude-sonnet-5',
         apiKey: 'sk-test',
@@ -90,13 +92,56 @@ void main() {
       expect(captured[0], 'anthropic');
       expect(captured[1], 'claude-sonnet-5');
       expect(captured[2], 'sk-test');
-      expect(captured[3], aiAssistantSystemPrompt);
+      // The region block is appended to the base prompt, never spliced
+      // into it — so the base survives verbatim as a stable prefix.
+      final systemPrompt = captured[3] as String;
+      expect(systemPrompt, startsWith(aiAssistantSystemPrompt));
+      expect(systemPrompt, contains('UK & Ireland'));
+      expect(systemPrompt, contains('British English'));
       final userContent = captured[4] as String;
       expect(userContent, contains('We need a backend engineer.'));
       expect(userContent, contains('Backend Engineer')); // the headline
       expect(userContent, isNot(contains('Should never be sent')));
       expect(userContent, isNot(contains('should-never-be-sent@example.com')));
       expect(captured[5], isA<JsonSchema>());
+    });
+
+    test('the region block follows the draft region, and closes with the '
+        'clause that stops a convention becoming an invitation to '
+        'invent', () {
+      for (final region in RegionProfile.values) {
+        final prompt = aiAssistantSystemPromptFor(region);
+        final preset = region.preset;
+
+        expect(prompt, startsWith(aiAssistantSystemPrompt));
+        expect(prompt, contains(preset.displayName));
+        expect(prompt, contains(preset.coverage));
+        expect(prompt, contains(preset.localName));
+        expect(prompt, contains(preset.spelling.promptLabel));
+        expect(prompt, contains(preset.photo.promptLabel));
+        expect(prompt, contains(preset.personalDetails.promptLabel));
+        for (final convention in preset.conventions) {
+          expect(prompt, contains(convention), reason: region.name);
+        }
+
+        // Without this the DACH/LatAm photo and date-of-birth conventions
+        // read as instructions to supply what the Vault cannot hold.
+        expect(
+          prompt,
+          contains('do not add, describe, or imply it'),
+          reason: '${region.name} is missing the anti-fabrication clause',
+        );
+      }
+    });
+
+    test('spelling guidance is region-specific rather than boilerplate', () {
+      final uk = aiAssistantSystemPromptFor(RegionProfile.uk);
+      final us = aiAssistantSystemPromptFor(RegionProfile.us);
+
+      expect(uk, contains('British English'));
+      expect(uk, isNot(contains('US English')));
+      expect(us, contains('US English'));
+      expect(us, isNot(contains('British English')));
     });
   });
 }

@@ -2494,6 +2494,7 @@ class MockAiAssistantService extends _i1.Mock
   _i26.Future<_i23.AiAssistantResult> runTailoringPass({
     required _i4.CvVault? vault,
     required String? jobDescription,
+    required _i38.RegionProfile? region,
     required String? providerId,
     required String? modelId,
     required String? apiKey,
@@ -2502,6 +2503,7 @@ class MockAiAssistantService extends _i1.Mock
             Invocation.method(#runTailoringPass, [], {
               #vault: vault,
               #jobDescription: jobDescription,
+              #region: region,
               #providerId: providerId,
               #modelId: modelId,
               #apiKey: apiKey,
@@ -2512,6 +2514,7 @@ class MockAiAssistantService extends _i1.Mock
                 Invocation.method(#runTailoringPass, [], {
                   #vault: vault,
                   #jobDescription: jobDescription,
+                  #region: region,
                   #providerId: providerId,
                   #modelId: modelId,
                   #apiKey: apiKey,
@@ -2525,6 +2528,7 @@ class MockAiAssistantService extends _i1.Mock
                     Invocation.method(#runTailoringPass, [], {
                       #vault: vault,
                       #jobDescription: jobDescription,
+                      #region: region,
                       #providerId: providerId,
                       #modelId: modelId,
                       #apiKey: apiKey,

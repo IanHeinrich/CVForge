@@ -137,11 +137,11 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
         'verifiable facts over adjectives.',
     conventions: [
       'Around two thirds of German-speaking employers still expect a '
-          'professional headshot, top right. cv-forge does not add one — a '
-          'template that renders a photo is planned, and until then you '
-          'would need to add it to the exported PDF yourself.',
+          'professional headshot, top right. CVForge does not add one; a '
+          'template that renders a photo is planned, and until then it has '
+          'to be added to the exported PDF by hand.',
       'Date and place of birth, nationality, and sometimes marital status '
-          'are traditional in the personal-details block, and cv-forge has '
+          'are traditional in the personal-details block, and CVForge has '
           'no field for any of them. Younger and international employers '
           'increasingly omit them: omitting is safe, including is '
           'conventional.',
@@ -254,7 +254,7 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
       'A photograph, date of birth, marital status, and national ID number '
           '(CURP/RFC, Cédula) are common at domestic firms, and deliberately '
           'excluded by multinationals and their local subsidiaries. Match '
-          'the employer, not the country. cv-forge has no field for any of '
+          'the employer, not the country. CVForge has no field for any of '
           'them.',
       'Two to three pages is normal.',
       'Certified language proficiency carries real weight: state TOEFL, '
@@ -290,7 +290,7 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
       'A photograph, date of birth, marital status, and national ID number '
           '(CPF, DNI/CUIL) are common at domestic firms, and deliberately '
           'excluded by multinationals and their local subsidiaries. Match '
-          'the employer, not the country. cv-forge has no field for any of '
+          'the employer, not the country. CVForge has no field for any of '
           'them.',
       'Two to three pages is normal.',
       'Certified language proficiency is a primary screening filter, '
