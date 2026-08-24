@@ -71,6 +71,6 @@ class CvTranslationService {
       userContent: jsonEncode(payload.toJson()),
       schema: buildCvTranslationResponseSchema(payload),
     );
-    return CvTranslationResult.fromLlmResponse(response.data, vault, draft);
+    return CvTranslationResult.fromLlmResponse(response.data, payload);
   }
 }

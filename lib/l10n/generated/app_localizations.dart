@@ -2822,11 +2822,11 @@ abstract class AppLocalizations {
   /// **'This restores every line to how it read before translating, including anything you\'ve edited since. Remove it?'**
   String get studioTranslateRemoveConfirm;
 
-  /// Studio, Translate dialog result screen — how many individual strings came back translated. Lines the model left alone were already in the target language or are names that should not be translated.
+  /// Studio, Translate dialog result screen — how many of the CV's lines came back translated. Shown as a fraction rather than a bare count so a partial pass is visible: lines can be left alone because they were already in the target language, are names that should not be translated, or came back unusable and were discarded.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{Translated 1 line.} other{Translated {count} lines.}}'**
-  String studioTranslateResultBody(int count);
+  /// **'{count, plural, one{Translated 1 of {total} lines.} other{Translated {count} of {total} lines.}}'**
+  String studioTranslateResultBody(int count, int total);
 
   /// Studio, Translate card button when a translation already exists.
   ///

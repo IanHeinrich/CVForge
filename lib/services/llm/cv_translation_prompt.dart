@@ -29,6 +29,17 @@ opaque; they exist so your answer can be matched back up.
 The same shape, with each string translated. Answer only via the provided
 JSON schema.
 
+**Translate each string independently, in place.** Your answer mirrors the
+request key for key: a string that arrived under `summary` comes back under
+`summary`, a string that arrived under the id `abc` inside `bullets` comes
+back under the id `abc` inside `bullets`. Nothing moves between fields.
+
+Never merge several fields into one, and never return the whole document,
+or a running translation of it, inside a single field. Each value you
+return is a translation of that one field and nothing else, and stays
+about as long as the field it came from. A field holding text belonging to
+other fields is discarded on arrival, so the work is wasted.
+
 **Omit any key you are not changing.** No key is required, and an absent
 key means "this text stays exactly as it is". Use that rather than echoing
 a value back unchanged. Two cases where omitting is the correct answer:

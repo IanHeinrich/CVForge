@@ -2392,11 +2392,12 @@
   "@studioTranslateRemoveConfirm": {
     "description": "Studio, confirmation before removing a translation — an override records no provenance, so a hand edit made after translating cannot be told apart from the translation and is restored with it."
   },
-  "studioTranslateResultBody": "{count, plural, one{Translated 1 line.} other{Translated {count} lines.}}",
+  "studioTranslateResultBody": "{count, plural, one{Translated 1 of {total} lines.} other{Translated {count} of {total} lines.}}",
   "@studioTranslateResultBody": {
-    "description": "Studio, Translate dialog result screen — how many individual strings came back translated. Lines the model left alone were already in the target language or are names that should not be translated.",
+    "description": "Studio, Translate dialog result screen — how many of the CV's lines came back translated. Shown as a fraction rather than a bare count so a partial pass is visible: lines can be left alone because they were already in the target language, are names that should not be translated, or came back unusable and were discarded.",
     "placeholders": {
-      "count": { "type": "int", "example": "42" }
+      "count": { "type": "int", "example": "42" },
+      "total": { "type": "int", "example": "61" }
     }
   },
   "studioTranslateRunAgain": "Translate again",

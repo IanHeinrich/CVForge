@@ -1898,12 +1898,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'Esto restaura cada línea a como estaba antes de traducir, incluido lo que hayas editado desde entonces. ¿Quitarla?';
 
   @override
-  String studioTranslateResultBody(int count) {
+  String studioTranslateResultBody(int count, int total) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Se tradujeron $count líneas.',
-      one: 'Se tradujo 1 línea.',
+      other: 'Se tradujeron $count líneas de $total.',
+      one: 'Se tradujo 1 línea de $total.',
     );
     return '$_temp0';
   }
