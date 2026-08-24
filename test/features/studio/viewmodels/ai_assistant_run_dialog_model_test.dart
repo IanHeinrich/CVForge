@@ -1,7 +1,7 @@
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_model.dart';
+import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog_model.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/models/llm/copilot_result.dart';
+import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
@@ -14,11 +14,11 @@ import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
 void main() {
-  group('CopilotRunDialogModel Tests -', () {
+  group('AiAssistantRunDialogModel Tests -', () {
     late MockSettingsService settingsService;
     late MockVaultService vaultService;
     late MockDraftService draftService;
-    late MockCopilotService copilotService;
+    late MockAiAssistantService aiAssistantService;
 
     final vault = CvVault(
       schemaVersion: 1,
@@ -26,7 +26,7 @@ void main() {
       updatedAt: DateTime(2026, 1, 1),
     );
 
-    const emptyResult = CopilotResult(
+    const emptyResult = AiAssistantResult(
       experienceIds: [],
       bulletIds: {},
       projectIds: [],
@@ -47,12 +47,12 @@ void main() {
       settingsService = getAndRegisterSettingsService();
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
-      copilotService = getAndRegisterCopilotService();
+      aiAssistantService = getAndRegisterAiAssistantService();
       when(settingsService.settings).thenReturn(
         AppSettings.empty().copyWith(
           preferences: CvPreferences.empty().copyWith(
-            assistantProviderId: 'anthropic',
-            assistantModelId: 'claude-sonnet-5',
+            aiAssistantProviderId: 'anthropic',
+            aiAssistantModelId: 'claude-sonnet-5',
           ),
         ),
       );
@@ -61,9 +61,9 @@ void main() {
     tearDown(() => locator.reset());
 
     test('starts in the confirm phase', () {
-      final model = CopilotRunDialogModel(jobDescription: 'We need a dev');
+      final model = AiAssistantRunDialogModel(jobDescription: 'We need a dev');
 
-      expect(model.phase, CopilotRunPhase.confirm);
+      expect(model.phase, AiAssistantRunPhase.confirm);
       expect(model.providerDisplayName, 'Claude');
     });
 
@@ -73,7 +73,7 @@ void main() {
         settingsService.apiKeyFor('anthropic'),
       ).thenAnswer((_) async => 'sk-ant-test');
       when(
-        copilotService.runTailoringPass(
+        aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           providerId: anyNamed('providerId'),
@@ -82,16 +82,16 @@ void main() {
         ),
       ).thenAnswer((_) async => emptyResult);
       when(
-        draftService.applyCopilotResult(emptyResult),
+        draftService.applyAiAssistantResult(emptyResult),
       ).thenAnswer((_) async {});
 
-      final model = CopilotRunDialogModel(jobDescription: 'We need a dev');
+      final model = AiAssistantRunDialogModel(jobDescription: 'We need a dev');
       await model.run();
 
-      expect(model.phase, CopilotRunPhase.result);
+      expect(model.phase, AiAssistantRunPhase.result);
       expect(model.result, emptyResult);
       verify(
-        copilotService.runTailoringPass(
+        aiAssistantService.runTailoringPass(
           vault: vault,
           jobDescription: 'We need a dev',
           providerId: 'anthropic',
@@ -99,16 +99,16 @@ void main() {
           apiKey: 'sk-ant-test',
         ),
       ).called(1);
-      verify(draftService.applyCopilotResult(emptyResult)).called(1);
+      verify(draftService.applyAiAssistantResult(emptyResult)).called(1);
     });
 
     test('a stale stored model id falls back to the provider\'s first '
-        'model, same as SettingsViewModel.selectedCopilotModel', () async {
+        'model, same as SettingsViewModel.selectedAiAssistantModel', () async {
       when(settingsService.settings).thenReturn(
         AppSettings.empty().copyWith(
           preferences: CvPreferences.empty().copyWith(
-            assistantProviderId: 'anthropic',
-            assistantModelId: 'not-a-real-model',
+            aiAssistantProviderId: 'anthropic',
+            aiAssistantModelId: 'not-a-real-model',
           ),
         ),
       );
@@ -116,7 +116,7 @@ void main() {
         settingsService.apiKeyFor('anthropic'),
       ).thenAnswer((_) async => 'sk-ant-test');
       when(
-        copilotService.runTailoringPass(
+        aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           providerId: anyNamed('providerId'),
@@ -125,14 +125,14 @@ void main() {
         ),
       ).thenAnswer((_) async => emptyResult);
       when(
-        draftService.applyCopilotResult(emptyResult),
+        draftService.applyAiAssistantResult(emptyResult),
       ).thenAnswer((_) async {});
 
-      final model = CopilotRunDialogModel(jobDescription: 'x');
+      final model = AiAssistantRunDialogModel(jobDescription: 'x');
       await model.run();
 
       final captured = verify(
-        copilotService.runTailoringPass(
+        aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           providerId: anyNamed('providerId'),
@@ -149,7 +149,7 @@ void main() {
         settingsService.apiKeyFor('anthropic'),
       ).thenAnswer((_) async => 'bad-key');
       when(
-        copilotService.runTailoringPass(
+        aiAssistantService.runTailoringPass(
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           providerId: anyNamed('providerId'),
@@ -158,12 +158,12 @@ void main() {
         ),
       ).thenThrow(const LlmException(LlmFailure.unauthorized));
 
-      final model = CopilotRunDialogModel(jobDescription: 'x');
+      final model = AiAssistantRunDialogModel(jobDescription: 'x');
       await model.run();
 
-      expect(model.phase, CopilotRunPhase.error);
+      expect(model.phase, AiAssistantRunPhase.error);
       expect(model.errorMessage, contains('rejected'));
-      verifyNever(draftService.applyCopilotResult(any));
+      verifyNever(draftService.applyAiAssistantResult(any));
     });
   });
 }

@@ -11,8 +11,8 @@ _CvPreferences _$CvPreferencesFromJson(Map<String, dynamic> json) =>
       defaultRegion:
           $enumDecodeNullable(_$RegionProfileEnumMap, json['defaultRegion']) ??
           RegionProfile.uk,
-      assistantProviderId: json['assistantProviderId'] as String?,
-      assistantModelId: json['assistantModelId'] as String?,
+      aiAssistantProviderId: json['aiAssistantProviderId'] as String?,
+      aiAssistantModelId: json['aiAssistantModelId'] as String?,
       defaultSectionOrder: (json['defaultSectionOrder'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
           .toList(),
@@ -25,8 +25,8 @@ _CvPreferences _$CvPreferencesFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CvPreferencesToJson(_CvPreferences instance) =>
     <String, dynamic>{
       'defaultRegion': _$RegionProfileEnumMap[instance.defaultRegion]!,
-      'assistantProviderId': instance.assistantProviderId,
-      'assistantModelId': instance.assistantModelId,
+      'aiAssistantProviderId': instance.aiAssistantProviderId,
+      'aiAssistantModelId': instance.aiAssistantModelId,
       'defaultSectionOrder': instance.defaultSectionOrder
           ?.map((e) => _$CvSectionTypeEnumMap[e]!)
           .toList(),

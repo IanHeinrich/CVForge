@@ -40,9 +40,9 @@ import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_view.dart';
 
 import 'package:cv_forge/services/llm_service.dart';
 
-import 'package:cv_forge/services/copilot_service.dart';
+import 'package:cv_forge/services/ai_assistant_service.dart';
 
-import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog.dart';
+import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog.dart';
 
 import 'package:cv_forge/services/template_thumbnail_service.dart';
 
@@ -101,7 +101,7 @@ import 'package:cv_forge/ui/views/terms/terms_view.dart';
     // and main.dart's manual registration.
     LazySingleton(classType: AtsAnalyzerService),
     LazySingleton(classType: LlmService),
-    LazySingleton(classType: CopilotService),
+    LazySingleton(classType: AiAssistantService),
     LazySingleton(classType: TemplateThumbnailService),
     LazySingleton(classType: DriveApiClientService),
     LazySingleton(classType: DriveSyncService),
@@ -113,7 +113,7 @@ import 'package:cv_forge/ui/views/terms/terms_view.dart';
   dialogs: [
     StackedDialog(classType: ConfirmDeleteDialog),
     StackedDialog(classType: EditDraftDialog),
-    StackedDialog(classType: CopilotRunDialog),
+    StackedDialog(classType: AiAssistantRunDialog),
     StackedDialog(classType: TemplateGalleryDialog),
     StackedDialog(classType: RegionGalleryDialog),
     // @stacked-dialog

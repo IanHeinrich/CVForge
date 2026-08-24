@@ -221,7 +221,7 @@ class DriveSyncService with ListenableServiceMixin {
   /// Waits for the user's next interaction, then syncs.
   ///
   /// A fresh page load holds no access token — they're in-memory only, by
-  /// the same rule that keeps the Copilot key out of storage — and GIS
+  /// the same rule that keeps the AI Assistant key out of storage — and GIS
   /// cannot mint a replacement without a live user gesture: it renews via
   /// a popup, and the browser refuses to open one at load, reporting
   /// `popup_failed_to_open`. Syncing immediately on start therefore fails

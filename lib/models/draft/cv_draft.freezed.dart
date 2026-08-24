@@ -53,7 +53,7 @@ mixin _$CvDraft {
 /// over — only `details` is prose; qualification/institution/grade/
 /// year stay Vault-sourced, never overridable here.
  Map<String, String> get educationDetailsOverrides;/// The job ad this draft is being tailored for — a persisted field, not
-/// a modal's transient text, so a Copilot pass can be re-run and
+/// a modal's transient text, so an AI Assistant pass can be re-run and
 /// refined against the same ad. Null means no ad has been entered yet;
 /// distinct from [notes], which is the user's own application tracking
 /// and is never rendered or sent anywhere.
@@ -439,7 +439,7 @@ class _CvDraft implements CvDraft {
 }
 
 /// The job ad this draft is being tailored for — a persisted field, not
-/// a modal's transient text, so a Copilot pass can be re-run and
+/// a modal's transient text, so an AI Assistant pass can be re-run and
 /// refined against the same ad. Null means no ad has been entered yet;
 /// distinct from [notes], which is the user's own application tracking
 /// and is never rendered or sent anywhere.

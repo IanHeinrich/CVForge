@@ -45,7 +45,7 @@ void main() {
         when(draftService.load()).thenAnswer((_) => Future<void>.value());
         when(draftService.draft).thenReturn(draftWith());
         when(
-          draftService.hasCopilotUndoFor(any),
+          draftService.hasAiAssistantUndoFor(any),
         ).thenAnswer((_) async => false);
 
         final model = StudioViewModel();

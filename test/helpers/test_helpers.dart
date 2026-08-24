@@ -17,7 +17,7 @@ import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:cv_forge/templates/classic_centered/classic_centered_template.dart';
 import 'package:cv_forge/services/llm_service.dart';
-import 'package:cv_forge/services/copilot_service.dart';
+import 'package:cv_forge/services/ai_assistant_service.dart';
 import 'package:cv_forge/services/template_thumbnail_service.dart';
 import 'package:cv_forge/services/drive_api_client_service.dart';
 import 'package:cv_forge/services/drive_sync_service.dart';
@@ -50,7 +50,7 @@ import 'test_helpers.mocks.dart';
     MockSpec<PdfExtractionService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<AtsAnalyzerService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<LlmService>(onMissingStub: OnMissingStub.returnDefault),
-    MockSpec<CopilotService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<AiAssistantService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<TemplateThumbnailService>(
       onMissingStub: OnMissingStub.returnDefault,
     ),
@@ -76,7 +76,7 @@ void registerServices() {
   getAndRegisterPdfExtractionService();
   getAndRegisterAtsAnalyzerService();
   getAndRegisterLlmService();
-  getAndRegisterCopilotService();
+  getAndRegisterAiAssistantService();
   getAndRegisterTemplateThumbnailService();
   getAndRegisterDriveApiClientService();
   getAndRegisterDriveSyncService();
@@ -204,10 +204,10 @@ MockLlmService getAndRegisterLlmService() {
   return service;
 }
 
-MockCopilotService getAndRegisterCopilotService() {
-  _removeRegistrationIfExists<CopilotService>();
-  final service = MockCopilotService();
-  locator.registerSingleton<CopilotService>(service);
+MockAiAssistantService getAndRegisterAiAssistantService() {
+  _removeRegistrationIfExists<AiAssistantService>();
+  final service = MockAiAssistantService();
+  locator.registerSingleton<AiAssistantService>(service);
   return service;
 }
 

@@ -1,7 +1,7 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
-import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_data.dart';
+import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
@@ -87,7 +87,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       await _draftService.openDraft(requestedDraftId!);
     }
     if (_draftService.isFreshDraft) await _selectAllFromVault();
-    await _refreshCopilotUndoState();
+    await _refreshAiAssistantUndoState();
   }
 
   /// A never-before-persisted draft (a first-time user's seeded draft, or
@@ -291,29 +291,29 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> clearTargetJobDescription() =>
       _draftService.setTargetJobDescription(null);
 
-  bool _hasCopilotUndo = false;
-  bool get hasCopilotUndo => _hasCopilotUndo;
+  bool _hasAiAssistantUndo = false;
+  bool get hasAiAssistantUndo => _hasAiAssistantUndo;
 
-  Future<void> _refreshCopilotUndoState() async {
-    _hasCopilotUndo = await _draftService.hasCopilotUndoFor(_draft.id);
+  Future<void> _refreshAiAssistantUndoState() async {
+    _hasAiAssistantUndo = await _draftService.hasAiAssistantUndoFor(_draft.id);
     notifyListeners();
   }
 
-  /// Opens [CopilotRunDialog], which drives the whole pass — confirm, run,
+  /// Opens [AiAssistantRunDialog], which drives the whole pass — confirm, run,
   /// apply, show rationale/keywordGaps — on its own; this just refreshes
-  /// [hasCopilotUndo] afterwards, since a successful run inside the dialog
-  /// already called [DraftService.applyCopilotResult] before returning.
+  /// [hasAiAssistantUndo] afterwards, since a successful run inside the dialog
+  /// already called [DraftService.applyAiAssistantResult] before returning.
   Future<void> tailorWithAi() async {
     await _dialogService.showCustomDialog(
-      variant: DialogType.copilotRun,
-      data: CopilotRunDialogData(jobDescription: targetJobDescription),
+      variant: DialogType.aiAssistantRun,
+      data: AiAssistantRunDialogData(jobDescription: targetJobDescription),
     );
-    await _refreshCopilotUndoState();
+    await _refreshAiAssistantUndoState();
   }
 
-  Future<void> undoCopilotChanges() async {
-    await _draftService.undoCopilotPass();
-    await _refreshCopilotUndoState();
+  Future<void> undoAiAssistantChanges() async {
+    await _draftService.undoAiAssistantPass();
+    await _refreshAiAssistantUndoState();
   }
 
   bool get hasSummary =>

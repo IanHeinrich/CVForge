@@ -4,8 +4,8 @@ import 'package:cv_forge/models/llm/llm_json_response.dart';
 import 'package:cv_forge/models/llm/llm_usage.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
-import 'package:cv_forge/services/copilot_service.dart';
-import 'package:cv_forge/services/llm/copilot_prompt.dart';
+import 'package:cv_forge/services/ai_assistant_service.dart';
+import 'package:cv_forge/services/llm/ai_assistant_prompt.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -13,7 +13,7 @@ import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
 
 void main() {
-  group('CopilotServiceTest -', () {
+  group('AiAssistantServiceTest -', () {
     late MockLlmService llmService;
 
     setUp(() {
@@ -64,7 +64,7 @@ void main() {
         ),
       );
 
-      final service = CopilotService();
+      final service = AiAssistantService();
       final result = await service.runTailoringPass(
         vault: vault,
         jobDescription: 'We need a backend engineer.',
@@ -90,7 +90,7 @@ void main() {
       expect(captured[0], 'anthropic');
       expect(captured[1], 'claude-sonnet-5');
       expect(captured[2], 'sk-test');
-      expect(captured[3], copilotSystemPrompt);
+      expect(captured[3], aiAssistantSystemPrompt);
       final userContent = captured[4] as String;
       expect(userContent, contains('We need a backend engineer.'));
       expect(userContent, contains('Backend Engineer')); // the headline

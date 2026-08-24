@@ -15,7 +15,7 @@ import 'package:cv_forge/models/draft/cv_draft.dart' as _i14;
 import 'package:cv_forge/models/draft/cv_section_type.dart' as _i39;
 import 'package:cv_forge/models/drive/drive_file_snapshot.dart' as _i24;
 import 'package:cv_forge/models/drive/drive_sync_status.dart' as _i60;
-import 'package:cv_forge/models/llm/copilot_result.dart' as _i23;
+import 'package:cv_forge/models/llm/ai_assistant_result.dart' as _i23;
 import 'package:cv_forge/models/llm/json_schema.dart' as _i55;
 import 'package:cv_forge/models/llm/llm_json_response.dart' as _i22;
 import 'package:cv_forge/models/render/region_profile.dart' as _i38;
@@ -35,9 +35,9 @@ import 'package:cv_forge/models/vault/publication.dart' as _i12;
 import 'package:cv_forge/models/vault/skill.dart' as _i9;
 import 'package:cv_forge/models/vault/skill_category.dart' as _i8;
 import 'package:cv_forge/models/vault/year_month.dart' as _i34;
+import 'package:cv_forge/services/ai_assistant_service.dart' as _i56;
 import 'package:cv_forge/services/ats_analyzer_service.dart' as _i53;
 import 'package:cv_forge/services/backup_service.dart' as _i50;
-import 'package:cv_forge/services/copilot_service.dart' as _i56;
 import 'package:cv_forge/services/draft_service.dart' as _i36;
 import 'package:cv_forge/services/drive_api_client_service.dart' as _i58;
 import 'package:cv_forge/services/drive_sync_service.dart' as _i59;
@@ -210,9 +210,9 @@ class _FakeLlmJsonResponse_23 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeCopilotResult_24 extends _i1.SmartFake
-    implements _i23.CopilotResult {
-  _FakeCopilotResult_24(Object parent, Invocation parentInvocation)
+class _FakeAiAssistantResult_24 extends _i1.SmartFake
+    implements _i23.AiAssistantResult {
+  _FakeAiAssistantResult_24(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -1709,27 +1709,27 @@ class MockDraftService extends _i1.Mock implements _i36.DraftService {
           as _i26.Future<void>);
 
   @override
-  _i26.Future<void> applyCopilotResult(_i23.CopilotResult? result) =>
+  _i26.Future<void> applyAiAssistantResult(_i23.AiAssistantResult? result) =>
       (super.noSuchMethod(
-            Invocation.method(#applyCopilotResult, [result]),
+            Invocation.method(#applyAiAssistantResult, [result]),
             returnValue: _i26.Future<void>.value(),
             returnValueForMissingStub: _i26.Future<void>.value(),
           )
           as _i26.Future<void>);
 
   @override
-  _i26.Future<bool> undoCopilotPass() =>
+  _i26.Future<bool> undoAiAssistantPass() =>
       (super.noSuchMethod(
-            Invocation.method(#undoCopilotPass, []),
+            Invocation.method(#undoAiAssistantPass, []),
             returnValue: _i26.Future<bool>.value(false),
             returnValueForMissingStub: _i26.Future<bool>.value(false),
           )
           as _i26.Future<bool>);
 
   @override
-  _i26.Future<bool> hasCopilotUndoFor(String? draftId) =>
+  _i26.Future<bool> hasAiAssistantUndoFor(String? draftId) =>
       (super.noSuchMethod(
-            Invocation.method(#hasCopilotUndoFor, [draftId]),
+            Invocation.method(#hasAiAssistantUndoFor, [draftId]),
             returnValue: _i26.Future<bool>.value(false),
             returnValueForMissingStub: _i26.Future<bool>.value(false),
           )
@@ -2090,18 +2090,18 @@ class MockSettingsService extends _i1.Mock implements _i48.SettingsService {
           as _i26.Future<void>);
 
   @override
-  _i26.Future<void> setAssistantProvider(String? providerId) =>
+  _i26.Future<void> setAiAssistantProvider(String? providerId) =>
       (super.noSuchMethod(
-            Invocation.method(#setAssistantProvider, [providerId]),
+            Invocation.method(#setAiAssistantProvider, [providerId]),
             returnValue: _i26.Future<void>.value(),
             returnValueForMissingStub: _i26.Future<void>.value(),
           )
           as _i26.Future<void>);
 
   @override
-  _i26.Future<void> setAssistantModel(String? modelId) =>
+  _i26.Future<void> setAiAssistantModel(String? modelId) =>
       (super.noSuchMethod(
-            Invocation.method(#setAssistantModel, [modelId]),
+            Invocation.method(#setAiAssistantModel, [modelId]),
             returnValue: _i26.Future<void>.value(),
             returnValueForMissingStub: _i26.Future<void>.value(),
           )
@@ -2485,12 +2485,13 @@ class MockLlmService extends _i1.Mock implements _i54.LlmService {
           as _i26.Future<_i22.LlmJsonResponse>);
 }
 
-/// A class which mocks [CopilotService].
+/// A class which mocks [AiAssistantService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCopilotService extends _i1.Mock implements _i56.CopilotService {
+class MockAiAssistantService extends _i1.Mock
+    implements _i56.AiAssistantService {
   @override
-  _i26.Future<_i23.CopilotResult> runTailoringPass({
+  _i26.Future<_i23.AiAssistantResult> runTailoringPass({
     required _i4.CvVault? vault,
     required String? jobDescription,
     required String? providerId,
@@ -2505,8 +2506,8 @@ class MockCopilotService extends _i1.Mock implements _i56.CopilotService {
               #modelId: modelId,
               #apiKey: apiKey,
             }),
-            returnValue: _i26.Future<_i23.CopilotResult>.value(
-              _FakeCopilotResult_24(
+            returnValue: _i26.Future<_i23.AiAssistantResult>.value(
+              _FakeAiAssistantResult_24(
                 this,
                 Invocation.method(#runTailoringPass, [], {
                   #vault: vault,
@@ -2517,20 +2518,21 @@ class MockCopilotService extends _i1.Mock implements _i56.CopilotService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i26.Future<_i23.CopilotResult>.value(
-              _FakeCopilotResult_24(
-                this,
-                Invocation.method(#runTailoringPass, [], {
-                  #vault: vault,
-                  #jobDescription: jobDescription,
-                  #providerId: providerId,
-                  #modelId: modelId,
-                  #apiKey: apiKey,
-                }),
-              ),
-            ),
+            returnValueForMissingStub:
+                _i26.Future<_i23.AiAssistantResult>.value(
+                  _FakeAiAssistantResult_24(
+                    this,
+                    Invocation.method(#runTailoringPass, [], {
+                      #vault: vault,
+                      #jobDescription: jobDescription,
+                      #providerId: providerId,
+                      #modelId: modelId,
+                      #apiKey: apiKey,
+                    }),
+                  ),
+                ),
           )
-          as _i26.Future<_i23.CopilotResult>);
+          as _i26.Future<_i23.AiAssistantResult>);
 }
 
 /// A class which mocks [TemplateThumbnailService].

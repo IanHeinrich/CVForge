@@ -83,16 +83,16 @@ CvPreferences? _mergePreferences(
       remote.defaultRegion,
       pr,
     ),
-    assistantProviderId: _pick(
-      b.assistantProviderId,
-      local.assistantProviderId,
-      remote.assistantProviderId,
+    aiAssistantProviderId: _pick(
+      b.aiAssistantProviderId,
+      local.aiAssistantProviderId,
+      remote.aiAssistantProviderId,
       pr,
     ),
-    assistantModelId: _pick(
-      b.assistantModelId,
-      local.assistantModelId,
-      remote.assistantModelId,
+    aiAssistantModelId: _pick(
+      b.aiAssistantModelId,
+      local.aiAssistantModelId,
+      remote.aiAssistantModelId,
       pr,
     ),
     defaultSectionOrder: _pick(

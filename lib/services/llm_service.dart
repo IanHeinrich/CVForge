@@ -5,7 +5,7 @@ import 'package:cv_forge/models/llm/llm_json_response.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 
-/// Owns Copilot *policy* — which provider to call, the shared transport,
+/// Owns AI Assistant *policy* — which provider to call, the shared transport,
 /// and nothing about any vendor's wire format. An [LlmProvider]
 /// (resolved through [LlmProviderRegistry]) owns *dialect*; see
 /// `lib/services/llm/llm_provider.dart`'s doc comment for the split.

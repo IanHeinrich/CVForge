@@ -18,7 +18,7 @@ import 'test_helpers.mocks.dart';
 
 /// Shared Vault/Draft test fixtures — previously copy-pasted, in whole or
 /// in part, across `studio_viewmodel_{selection,lifecycle,overrides,
-/// copilot}_test.dart` and `drafts_list_viewmodel_test.dart`. Both
+/// ai_assistant}_test.dart` and `drafts_list_viewmodel_test.dart`. Both
 /// builders below are supersets of every field any of those five copies
 /// used, so a test file only ever needs the subset it actually cares
 /// about; the rest fall back to a harmless empty/default value.

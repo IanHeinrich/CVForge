@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'copilot_result.dart';
+part of 'ai_assistant_result.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -12,26 +12,26 @@ part of 'copilot_result.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$CopilotResult {
+mixin _$AiAssistantResult {
 
  String? get headline; String? get summary; List<String> get experienceIds;/// experienceId -> selected bullet ids, scoped to that experience's
 /// own bullets only — see [fromLlmResponse]'s per-entry validation.
  Map<String, List<String>> get bulletIds; List<String> get projectIds; Map<String, List<String>> get projectBulletIds; List<String> get publicationIds; Map<String, List<String>> get publicationBulletIds;/// bulletId -> rewritten text, flattened across experiences and
 /// projects — legal because bullet ids are globally unique (the same
 /// reasoning as `CvDraft.bulletOverrides`), and it's exactly the shape
-/// `DraftService.applyCopilotResult` needs to hand `CvDraft` directly.
+/// `DraftService.applyAiAssistantResult` needs to hand `CvDraft` directly.
  Map<String, String> get bulletOverrides; List<String> get skillIds; List<String> get educationIds; List<String> get hobbyIds; Set<CvSectionType> get hiddenSections; String get rationale; List<String> get keywordGaps;
-/// Create a copy of CopilotResult
+/// Create a copy of AiAssistantResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$CopilotResultCopyWith<CopilotResult> get copyWith => _$CopilotResultCopyWithImpl<CopilotResult>(this as CopilotResult, _$identity);
+$AiAssistantResultCopyWith<AiAssistantResult> get copyWith => _$AiAssistantResultCopyWithImpl<AiAssistantResult>(this as AiAssistantResult, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CopilotResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other.experienceIds, experienceIds)&&const DeepCollectionEquality().equals(other.bulletIds, bulletIds)&&const DeepCollectionEquality().equals(other.projectIds, projectIds)&&const DeepCollectionEquality().equals(other.projectBulletIds, projectBulletIds)&&const DeepCollectionEquality().equals(other.publicationIds, publicationIds)&&const DeepCollectionEquality().equals(other.publicationBulletIds, publicationBulletIds)&&const DeepCollectionEquality().equals(other.bulletOverrides, bulletOverrides)&&const DeepCollectionEquality().equals(other.skillIds, skillIds)&&const DeepCollectionEquality().equals(other.educationIds, educationIds)&&const DeepCollectionEquality().equals(other.hobbyIds, hobbyIds)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other.keywordGaps, keywordGaps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AiAssistantResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other.experienceIds, experienceIds)&&const DeepCollectionEquality().equals(other.bulletIds, bulletIds)&&const DeepCollectionEquality().equals(other.projectIds, projectIds)&&const DeepCollectionEquality().equals(other.projectBulletIds, projectBulletIds)&&const DeepCollectionEquality().equals(other.publicationIds, publicationIds)&&const DeepCollectionEquality().equals(other.publicationBulletIds, publicationBulletIds)&&const DeepCollectionEquality().equals(other.bulletOverrides, bulletOverrides)&&const DeepCollectionEquality().equals(other.skillIds, skillIds)&&const DeepCollectionEquality().equals(other.educationIds, educationIds)&&const DeepCollectionEquality().equals(other.hobbyIds, hobbyIds)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other.keywordGaps, keywordGaps));
 }
 
 
@@ -40,15 +40,15 @@ int get hashCode => Object.hash(runtimeType,headline,summary,const DeepCollectio
 
 @override
 String toString() {
-  return 'CopilotResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
+  return 'AiAssistantResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $CopilotResultCopyWith<$Res>  {
-  factory $CopilotResultCopyWith(CopilotResult value, $Res Function(CopilotResult) _then) = _$CopilotResultCopyWithImpl;
+abstract mixin class $AiAssistantResultCopyWith<$Res>  {
+  factory $AiAssistantResultCopyWith(AiAssistantResult value, $Res Function(AiAssistantResult) _then) = _$AiAssistantResultCopyWithImpl;
 @useResult
 $Res call({
  String? headline, String? summary, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Map<String, String> bulletOverrides, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, Set<CvSectionType> hiddenSections, String rationale, List<String> keywordGaps
@@ -59,14 +59,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$CopilotResultCopyWithImpl<$Res>
-    implements $CopilotResultCopyWith<$Res> {
-  _$CopilotResultCopyWithImpl(this._self, this._then);
+class _$AiAssistantResultCopyWithImpl<$Res>
+    implements $AiAssistantResultCopyWith<$Res> {
+  _$AiAssistantResultCopyWithImpl(this._self, this._then);
 
-  final CopilotResult _self;
-  final $Res Function(CopilotResult) _then;
+  final AiAssistantResult _self;
+  final $Res Function(AiAssistantResult) _then;
 
-/// Create a copy of CopilotResult
+/// Create a copy of AiAssistantResult
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? headline = freezed,Object? summary = freezed,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? bulletOverrides = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? hiddenSections = null,Object? rationale = null,Object? keywordGaps = null,}) {
   return _then(_self.copyWith(
@@ -92,8 +92,8 @@ as List<String>,
 }
 
 
-/// Adds pattern-matching-related methods to [CopilotResult].
-extension CopilotResultPatterns on CopilotResult {
+/// Adds pattern-matching-related methods to [AiAssistantResult].
+extension AiAssistantResultPatterns on AiAssistantResult {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -106,10 +106,10 @@ extension CopilotResultPatterns on CopilotResult {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CopilotResult value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AiAssistantResult value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _CopilotResult() when $default != null:
+case _AiAssistantResult() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -128,10 +128,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CopilotResult value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AiAssistantResult value)  $default,){
 final _that = this;
 switch (_that) {
-case _CopilotResult():
+case _AiAssistantResult():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -149,10 +149,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CopilotResult value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AiAssistantResult value)?  $default,){
 final _that = this;
 switch (_that) {
-case _CopilotResult() when $default != null:
+case _AiAssistantResult() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -172,7 +172,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _CopilotResult() when $default != null:
+case _AiAssistantResult() when $default != null:
 return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
   return orElse();
 
@@ -193,7 +193,7 @@ return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)  $default,) {final _that = this;
 switch (_that) {
-case _CopilotResult():
+case _AiAssistantResult():
 return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
   throw StateError('Unexpected subclass');
 
@@ -213,7 +213,7 @@ return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)?  $default,) {final _that = this;
 switch (_that) {
-case _CopilotResult() when $default != null:
+case _AiAssistantResult() when $default != null:
 return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
   return null;
 
@@ -225,8 +225,8 @@ return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds
 /// @nodoc
 
 
-class _CopilotResult implements CopilotResult {
-  const _CopilotResult({this.headline, this.summary, required final  List<String> experienceIds, required final  Map<String, List<String>> bulletIds, required final  List<String> projectIds, required final  Map<String, List<String>> projectBulletIds, required final  List<String> publicationIds, required final  Map<String, List<String>> publicationBulletIds, required final  Map<String, String> bulletOverrides, required final  List<String> skillIds, required final  List<String> educationIds, required final  List<String> hobbyIds, required final  Set<CvSectionType> hiddenSections, required this.rationale, required final  List<String> keywordGaps}): _experienceIds = experienceIds,_bulletIds = bulletIds,_projectIds = projectIds,_projectBulletIds = projectBulletIds,_publicationIds = publicationIds,_publicationBulletIds = publicationBulletIds,_bulletOverrides = bulletOverrides,_skillIds = skillIds,_educationIds = educationIds,_hobbyIds = hobbyIds,_hiddenSections = hiddenSections,_keywordGaps = keywordGaps;
+class _AiAssistantResult implements AiAssistantResult {
+  const _AiAssistantResult({this.headline, this.summary, required final  List<String> experienceIds, required final  Map<String, List<String>> bulletIds, required final  List<String> projectIds, required final  Map<String, List<String>> projectBulletIds, required final  List<String> publicationIds, required final  Map<String, List<String>> publicationBulletIds, required final  Map<String, String> bulletOverrides, required final  List<String> skillIds, required final  List<String> educationIds, required final  List<String> hobbyIds, required final  Set<CvSectionType> hiddenSections, required this.rationale, required final  List<String> keywordGaps}): _experienceIds = experienceIds,_bulletIds = bulletIds,_projectIds = projectIds,_projectBulletIds = projectBulletIds,_publicationIds = publicationIds,_publicationBulletIds = publicationBulletIds,_bulletOverrides = bulletOverrides,_skillIds = skillIds,_educationIds = educationIds,_hobbyIds = hobbyIds,_hiddenSections = hiddenSections,_keywordGaps = keywordGaps;
   
 
 @override final  String? headline;
@@ -280,12 +280,12 @@ class _CopilotResult implements CopilotResult {
 /// bulletId -> rewritten text, flattened across experiences and
 /// projects — legal because bullet ids are globally unique (the same
 /// reasoning as `CvDraft.bulletOverrides`), and it's exactly the shape
-/// `DraftService.applyCopilotResult` needs to hand `CvDraft` directly.
+/// `DraftService.applyAiAssistantResult` needs to hand `CvDraft` directly.
  final  Map<String, String> _bulletOverrides;
 /// bulletId -> rewritten text, flattened across experiences and
 /// projects — legal because bullet ids are globally unique (the same
 /// reasoning as `CvDraft.bulletOverrides`), and it's exactly the shape
-/// `DraftService.applyCopilotResult` needs to hand `CvDraft` directly.
+/// `DraftService.applyAiAssistantResult` needs to hand `CvDraft` directly.
 @override Map<String, String> get bulletOverrides {
   if (_bulletOverrides is EqualUnmodifiableMapView) return _bulletOverrides;
   // ignore: implicit_dynamic_type
@@ -329,17 +329,17 @@ class _CopilotResult implements CopilotResult {
 }
 
 
-/// Create a copy of CopilotResult
+/// Create a copy of AiAssistantResult
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$CopilotResultCopyWith<_CopilotResult> get copyWith => __$CopilotResultCopyWithImpl<_CopilotResult>(this, _$identity);
+_$AiAssistantResultCopyWith<_AiAssistantResult> get copyWith => __$AiAssistantResultCopyWithImpl<_AiAssistantResult>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CopilotResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other._experienceIds, _experienceIds)&&const DeepCollectionEquality().equals(other._bulletIds, _bulletIds)&&const DeepCollectionEquality().equals(other._projectIds, _projectIds)&&const DeepCollectionEquality().equals(other._projectBulletIds, _projectBulletIds)&&const DeepCollectionEquality().equals(other._publicationIds, _publicationIds)&&const DeepCollectionEquality().equals(other._publicationBulletIds, _publicationBulletIds)&&const DeepCollectionEquality().equals(other._bulletOverrides, _bulletOverrides)&&const DeepCollectionEquality().equals(other._skillIds, _skillIds)&&const DeepCollectionEquality().equals(other._educationIds, _educationIds)&&const DeepCollectionEquality().equals(other._hobbyIds, _hobbyIds)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other._keywordGaps, _keywordGaps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AiAssistantResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other._experienceIds, _experienceIds)&&const DeepCollectionEquality().equals(other._bulletIds, _bulletIds)&&const DeepCollectionEquality().equals(other._projectIds, _projectIds)&&const DeepCollectionEquality().equals(other._projectBulletIds, _projectBulletIds)&&const DeepCollectionEquality().equals(other._publicationIds, _publicationIds)&&const DeepCollectionEquality().equals(other._publicationBulletIds, _publicationBulletIds)&&const DeepCollectionEquality().equals(other._bulletOverrides, _bulletOverrides)&&const DeepCollectionEquality().equals(other._skillIds, _skillIds)&&const DeepCollectionEquality().equals(other._educationIds, _educationIds)&&const DeepCollectionEquality().equals(other._hobbyIds, _hobbyIds)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other._keywordGaps, _keywordGaps));
 }
 
 
@@ -348,15 +348,15 @@ int get hashCode => Object.hash(runtimeType,headline,summary,const DeepCollectio
 
 @override
 String toString() {
-  return 'CopilotResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
+  return 'AiAssistantResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$CopilotResultCopyWith<$Res> implements $CopilotResultCopyWith<$Res> {
-  factory _$CopilotResultCopyWith(_CopilotResult value, $Res Function(_CopilotResult) _then) = __$CopilotResultCopyWithImpl;
+abstract mixin class _$AiAssistantResultCopyWith<$Res> implements $AiAssistantResultCopyWith<$Res> {
+  factory _$AiAssistantResultCopyWith(_AiAssistantResult value, $Res Function(_AiAssistantResult) _then) = __$AiAssistantResultCopyWithImpl;
 @override @useResult
 $Res call({
  String? headline, String? summary, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Map<String, String> bulletOverrides, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, Set<CvSectionType> hiddenSections, String rationale, List<String> keywordGaps
@@ -367,17 +367,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$CopilotResultCopyWithImpl<$Res>
-    implements _$CopilotResultCopyWith<$Res> {
-  __$CopilotResultCopyWithImpl(this._self, this._then);
+class __$AiAssistantResultCopyWithImpl<$Res>
+    implements _$AiAssistantResultCopyWith<$Res> {
+  __$AiAssistantResultCopyWithImpl(this._self, this._then);
 
-  final _CopilotResult _self;
-  final $Res Function(_CopilotResult) _then;
+  final _AiAssistantResult _self;
+  final $Res Function(_AiAssistantResult) _then;
 
-/// Create a copy of CopilotResult
+/// Create a copy of AiAssistantResult
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? headline = freezed,Object? summary = freezed,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? bulletOverrides = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? hiddenSections = null,Object? rationale = null,Object? keywordGaps = null,}) {
-  return _then(_CopilotResult(
+  return _then(_AiAssistantResult(
 headline: freezed == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
 as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
 as String?,experienceIds: null == experienceIds ? _self._experienceIds : experienceIds // ignore: cast_nullable_to_non_nullable

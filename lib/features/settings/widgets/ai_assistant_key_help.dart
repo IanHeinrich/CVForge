@@ -10,7 +10,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 
-/// The "How do I get an API key?" disclosure inside [CopilotSettingsCard] —
+/// The "How do I get an API key?" disclosure inside [AiAssistantSettingsCard] —
 /// per-provider setup steps, real links into that provider's console, and
 /// the spend advice a BYOK app owes anyone about to paste a billable
 /// credential into it.
@@ -21,8 +21,8 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 /// dismissed to reach that field. The existing dialogs in this app are
 /// decisions (confirm delete) and pickers (template gallery), which is a
 /// different job.
-class CopilotKeyHelp extends StatelessWidget {
-  const CopilotKeyHelp({super.key, required this.provider});
+class AiAssistantKeyHelp extends StatelessWidget {
+  const AiAssistantKeyHelp({super.key, required this.provider});
 
   final LlmProvider provider;
 

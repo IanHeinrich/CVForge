@@ -10,7 +10,7 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'package:cv_forge/features/settings/widgets/backup_settings_card.dart';
-import 'package:cv_forge/features/settings/widgets/copilot_settings_card.dart';
+import 'package:cv_forge/features/settings/widgets/ai_assistant_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/drive_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/region_settings_card.dart';
 import 'settings_viewmodel.dart';
@@ -62,7 +62,7 @@ class SettingsView extends StackedView<SettingsViewModel> {
                 ],
                 BackupSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
-                CopilotSettingsCard(viewModel: viewModel),
+                AiAssistantSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
                 const _LegalLinks(),
               ],

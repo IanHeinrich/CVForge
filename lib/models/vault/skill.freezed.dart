@@ -17,7 +17,7 @@ mixin _$Skill {
 
  String get id; String get label;/// [CvBullet] ids this skill was demonstrated in — bullet
 /// granularity, not experience granularity, because that's the unit a
-/// future Copilot actually rewrites (see `CvDraft.bulletOverrides`);
+/// future AI Assistant actually rewrites (see `CvDraft.bulletOverrides`);
 /// grounding at the job level would leave it guessing which of a job's
 /// several bullets a given skill applies to. Bullet ids are already
 /// globally unique (`Uuid` from `VaultService`), so a flat list here
@@ -226,7 +226,7 @@ class _Skill implements Skill {
 @override final  String label;
 /// [CvBullet] ids this skill was demonstrated in — bullet
 /// granularity, not experience granularity, because that's the unit a
-/// future Copilot actually rewrites (see `CvDraft.bulletOverrides`);
+/// future AI Assistant actually rewrites (see `CvDraft.bulletOverrides`);
 /// grounding at the job level would leave it guessing which of a job's
 /// several bullets a given skill applies to. Bullet ids are already
 /// globally unique (`Uuid` from `VaultService`), so a flat list here
@@ -235,7 +235,7 @@ class _Skill implements Skill {
  final  List<String> _linkedBulletIds;
 /// [CvBullet] ids this skill was demonstrated in — bullet
 /// granularity, not experience granularity, because that's the unit a
-/// future Copilot actually rewrites (see `CvDraft.bulletOverrides`);
+/// future AI Assistant actually rewrites (see `CvDraft.bulletOverrides`);
 /// grounding at the job level would leave it guessing which of a job's
 /// several bullets a given skill applies to. Bullet ids are already
 /// globally unique (`Uuid` from `VaultService`), so a flat list here

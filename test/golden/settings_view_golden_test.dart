@@ -21,7 +21,7 @@ void main() {
     registerServices();
     final settingsService = locator<SettingsService>() as MockSettingsService;
     when(settingsService.load()).thenAnswer((_) => Future<void>.value());
-    // CopilotSettingsCard (4.4) reads `settings` on every build.
+    // AiAssistantSettingsCard (4.4) reads `settings` on every build.
     when(settingsService.settings).thenReturn(AppSettings.empty());
   });
   tearDown(() => locator.reset());

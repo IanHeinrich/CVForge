@@ -49,7 +49,7 @@ class BackupService {
   /// Provenance only, never branched on — a small hardcoded literal rather
   /// than a `package_info_plus` dependency, since nothing reads this back.
   /// Keep it in sync with `pubspec.yaml`'s `version:` at each bump.
-  static const _appVersion = '2.14.0';
+  static const _appVersion = '2.14.1';
 
   /// The current Vault + every Draft as one envelope — also the payload
   /// `DriveSyncService` pushes to Drive, so a local JSON export and a

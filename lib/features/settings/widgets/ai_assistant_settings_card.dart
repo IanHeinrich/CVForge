@@ -9,27 +9,28 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
-import 'package:cv_forge/features/settings/widgets/copilot_key_help.dart';
+import 'package:cv_forge/features/settings/widgets/ai_assistant_key_help.dart';
 
 /// Caps the API key field's width: a secret this short (and
 /// `obscureText`, which buys nothing from extra width) doesn't need the
 /// full ~1,000px content measure the card would otherwise stretch it to.
 const _apiKeyFieldMaxWidth = 360.0;
 
-/// Copilot connection setup — pick a provider (once more than one is
+/// AI Assistant connection setup — pick a provider (once more than one is
 /// registered), enter a key, pick a model, test the connection. Same
 /// block-card frame as [BackupSettingsCard]; the surrounding scroll and
 /// page padding belong to `SettingsView`.
-class CopilotSettingsCard extends StatefulWidget {
-  const CopilotSettingsCard({super.key, required this.viewModel});
+class AiAssistantSettingsCard extends StatefulWidget {
+  const AiAssistantSettingsCard({super.key, required this.viewModel});
 
   final SettingsViewModel viewModel;
 
   @override
-  State<CopilotSettingsCard> createState() => _CopilotSettingsCardState();
+  State<AiAssistantSettingsCard> createState() =>
+      _AiAssistantSettingsCardState();
 }
 
-class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
+class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
   final _apiKeyController = TextEditingController();
 
   @override
@@ -59,13 +60,13 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
-          if (viewModel.showCopilotProviderSelector) ...[
+          if (viewModel.showAiAssistantProviderSelector) ...[
             DropdownButtonFormField<String>(
-              initialValue: viewModel.selectedCopilotProvider.id,
+              initialValue: viewModel.selectedAiAssistantProvider.id,
               isExpanded: true,
               decoration: const InputDecoration(labelText: 'Provider'),
               items: [
-                for (final provider in viewModel.copilotProviders)
+                for (final provider in viewModel.aiAssistantProviders)
                   DropdownMenuItem(
                     value: provider.id,
                     child: Text(provider.displayName),
@@ -77,7 +78,7 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
                 // the new one — clear it rather than leave a stale value
                 // sitting in the field.
                 _apiKeyController.clear();
-                viewModel.selectCopilotProvider(providerId);
+                viewModel.selectAiAssistantProvider(providerId);
               },
             ),
             const VGap.small(),
@@ -90,7 +91,7 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
               onChanged: (_) => viewModel.clearConnectionTestResult(),
               decoration: InputDecoration(
                 labelText:
-                    '${viewModel.selectedCopilotProvider.displayName} '
+                    '${viewModel.selectedAiAssistantProvider.displayName} '
                     'API key',
                 hintText: 'Paste your API key',
               ),
@@ -126,34 +127,36 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           // that field, and this is what unsticks them. Kept above the
           // model dropdown so the price caption stays adjacent to the
           // dropdown it describes.
-          CopilotKeyHelp(provider: viewModel.selectedCopilotProvider),
+          AiAssistantKeyHelp(provider: viewModel.selectedAiAssistantProvider),
           const VGap.small(),
           DropdownButtonFormField<String>(
-            initialValue: viewModel.selectedCopilotModelId,
+            initialValue: viewModel.selectedAiAssistantModelId,
             isExpanded: true,
             decoration: const InputDecoration(labelText: 'Model'),
             items: [
-              for (final model in viewModel.copilotModels)
+              for (final model in viewModel.aiAssistantModels)
                 DropdownMenuItem(value: model.id, child: Text(model.label)),
             ],
             onChanged: (modelId) {
-              if (modelId != null) viewModel.selectCopilotModel(modelId);
+              if (modelId != null) viewModel.selectAiAssistantModel(modelId);
             },
           ),
           const VGap.tiny(),
           Text(
             // "Provider's rate" up front — the price table is the
             // provider's own, not something CVForge charges.
-            "${viewModel.selectedCopilotProvider.displayName}'s own rate, "
+            "${viewModel.selectedAiAssistantProvider.displayName}'s own rate, "
             'not billed by CVForge: '
-            '${viewModel.priceLabelFor(viewModel.selectedCopilotModel)}',
+            '${viewModel.priceLabelFor(viewModel.selectedAiAssistantModel)}',
             style: context.appTypography.caption.copyWith(color: kcLightGrey),
           ),
           const VGap.medium(),
           FilledButton(
             onPressed: viewModel.isTestingConnection
                 ? null
-                : () => viewModel.testCopilotConnection(_apiKeyController.text),
+                : () => viewModel.testAiAssistantConnection(
+                    _apiKeyController.text,
+                  ),
             child: viewModel.isTestingConnection
                 ? const ButtonSpinner()
                 : const Text('Test connection'),
@@ -181,7 +184,7 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
 
 /// The connection test's success/error state, distinguished by colour and
 /// icon rather than plain body text indistinguishable from any other line
-/// in the card. [CopilotSettingsCard] clears this (via
+/// in the card. [AiAssistantSettingsCard] clears this (via
 /// [SettingsViewModel.clearConnectionTestResult]) the moment the provider,
 /// model, or key changes, so it can't go stale either.
 class _ConnectionResultBanner extends StatelessWidget {

@@ -13,7 +13,7 @@ import 'package:cv_forge/app/app.locator.dart';
 
 /// Owns device-scoped [AppSettings] — same single-aggregate,
 /// [PersistedStoreMixin] shape as `VaultService`, plus (from 4.4) a
-/// per-provider Copilot API key kept deliberately off the [AppSettings]
+/// per-provider AI Assistant API key kept deliberately off the [AppSettings]
 /// model itself (see that model's doc comment for why).
 class SettingsService
     with ListenableServiceMixin, PersistedStoreMixin<AppSettings> {
@@ -49,14 +49,14 @@ class SettingsService
     scheduleWrite(_settings.value);
   }
 
-  Future<void> setAssistantProvider(String? providerId) async {
+  Future<void> setAiAssistantProvider(String? providerId) async {
     await ready();
-    _setPreferences((p) => p.copyWith(assistantProviderId: providerId));
+    _setPreferences((p) => p.copyWith(aiAssistantProviderId: providerId));
   }
 
-  Future<void> setAssistantModel(String? modelId) async {
+  Future<void> setAiAssistantModel(String? modelId) async {
     await ready();
-    _setPreferences((p) => p.copyWith(assistantModelId: modelId));
+    _setPreferences((p) => p.copyWith(aiAssistantModelId: modelId));
   }
 
   /// Replaces the portable half wholesale — the apply path for a Drive

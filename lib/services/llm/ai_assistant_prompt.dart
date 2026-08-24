@@ -1,4 +1,4 @@
-/// The Copilot tailoring pass's system prompt — deliberately asymmetric:
+/// The AI Assistant tailoring pass's system prompt — deliberately asymmetric:
 /// aggressive on selection, conservative on rewriting, because the two
 /// jobs carry opposite risk. Selection is enum-constrained so it cannot
 /// fabricate — the
@@ -9,7 +9,7 @@
 ///
 /// A first draft, meant to be iterated against real model output rather
 /// than treated as frozen.
-const String copilotSystemPrompt = '''
+const String aiAssistantSystemPrompt = '''
 You are a CV tailoring assistant. You will be given a candidate's full
 career history (the "Vault") and a target job description. Your job is to
 select which parts of the Vault belong on a CV for this specific role, and

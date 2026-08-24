@@ -6,11 +6,11 @@ import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
-import 'package:cv_forge/services/llm/copilot_response_schema.dart';
+import 'package:cv_forge/services/llm/ai_assistant_response_schema.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('buildCopilotResponseSchema -', () {
+  group('buildAiAssistantResponseSchema -', () {
     test('the enum for a given experience is scoped to that experience\'s '
         'own bullet ids, not a flat list of every bullet in the Vault — '
         'the fix for the array-of-objects shape\'s original bug', () {
@@ -38,7 +38,7 @@ void main() {
         ],
       );
 
-      final schema = buildCopilotResponseSchema(vault) as JsonSchemaObject;
+      final schema = buildAiAssistantResponseSchema(vault) as JsonSchemaObject;
       final experiences = schema.properties['experiences'] as JsonSchemaObject;
       final expA = experiences.properties['exp-a'] as JsonSchemaObject;
       final bulletIdsSchema = expA.properties['bulletIds'] as JsonSchemaArray;
@@ -76,7 +76,7 @@ void main() {
         ],
       );
 
-      final schema = buildCopilotResponseSchema(vault) as JsonSchemaObject;
+      final schema = buildAiAssistantResponseSchema(vault) as JsonSchemaObject;
       final skillIds = schema.properties['skillIds'] as JsonSchemaArray;
       final values = (skillIds.items as JsonSchemaStringEnum).values;
 
@@ -88,7 +88,7 @@ void main() {
         'override" without needing a null type the schema AST doesn\'t '
         'support', () {
       final schema =
-          buildCopilotResponseSchema(CvVault.empty()) as JsonSchemaObject;
+          buildAiAssistantResponseSchema(CvVault.empty()) as JsonSchemaObject;
 
       expect(
         schema.required,
@@ -110,7 +110,7 @@ void main() {
 
     test('hiddenSections enumerates every CvSectionType name', () {
       final schema =
-          buildCopilotResponseSchema(CvVault.empty()) as JsonSchemaObject;
+          buildAiAssistantResponseSchema(CvVault.empty()) as JsonSchemaObject;
       final hiddenSections =
           schema.properties['hiddenSections'] as JsonSchemaArray;
       final values = (hiddenSections.items as JsonSchemaStringEnum).values;
