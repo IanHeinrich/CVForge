@@ -97,7 +97,9 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
             child: SingleChildScrollView(
               child: Text(
                 _jobDescription,
-                style: const TextStyle(color: kcLightGrey),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ),

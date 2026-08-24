@@ -3,6 +3,7 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -106,7 +107,9 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
                   maxLines: _editing ? 1 : 3,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: hasDescription ? kcLightGrey : kcMediumGrey,
+                    color: hasDescription
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : context.appPalette.placeholder,
                     fontStyle: hasDescription
                         ? FontStyle.normal
                         : FontStyle.italic,
@@ -121,7 +124,7 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
                   ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  color: kcLightGrey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   tooltip: 'Clear job description',
                   onPressed: widget.onClear,
                 ),
@@ -133,7 +136,9 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                color: _editing ? kcPrimaryColor : kcLightGrey,
+                color: _editing
+                    ? kcPrimaryColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 tooltip: _editing ? 'Done' : 'Edit job description',
                 onPressed: _toggleEditing,
               ),
@@ -209,14 +214,16 @@ class _BetaBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: kcWarningColor.withValues(alpha: 0.16),
+        color: context.appPalette.warning.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(context.appRadius.small),
-        border: Border.all(color: kcWarningColor.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: context.appPalette.warning.withValues(alpha: 0.5),
+        ),
       ),
       child: Text(
         'BETA',
         style: context.appTypography.caption.copyWith(
-          color: kcWarningColor,
+          color: context.appPalette.warning,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.5,
         ),

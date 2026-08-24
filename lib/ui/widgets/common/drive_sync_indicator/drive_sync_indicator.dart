@@ -4,6 +4,7 @@ import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/relative_time.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -29,7 +30,7 @@ class DriveSyncIndicator extends StackedView<DriveSyncIndicatorModel> {
     Widget? child,
   ) {
     if (!viewModel.isAvailable) return const SizedBox.shrink();
-    final glyph = _glyphFor(viewModel.status);
+    final glyph = _glyphFor(context, viewModel.status);
     if (glyph == null) return const SizedBox.shrink();
 
     return Tooltip(
@@ -41,38 +42,41 @@ class DriveSyncIndicator extends StackedView<DriveSyncIndicatorModel> {
     );
   }
 
-  _Glyph? _glyphFor(DriveSyncStatus status) {
+  _Glyph? _glyphFor(BuildContext context, DriveSyncStatus status) {
     return switch (status) {
       DriveSyncDisconnected() || DriveSyncConnecting() => null,
       DriveSyncIdle(:final lastSyncedAt) => _Glyph(
         tooltip: lastSyncedAt == null
             ? 'Synced to Google Drive'
             : 'Synced to Google Drive · ${formatRelativeTime(lastSyncedAt)}',
-        icon: const _StatusIcon(
+        icon: _StatusIcon(
           icon: RemixIcons.cloud_fill,
-          color: kcSuccessColor,
+          color: context.appPalette.success,
         ),
       ),
-      DriveSyncPending() => const _Glyph(
+      DriveSyncPending() => _Glyph(
         tooltip: 'Waiting to sync to Google Drive…',
-        icon: _StatusIcon(icon: RemixIcons.cloud_line, color: kcLightGrey),
+        icon: _StatusIcon(
+          icon: RemixIcons.cloud_line,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       DriveSyncSyncing() => const _Glyph(
         tooltip: 'Syncing to Google Drive…',
         icon: _SyncingIcon(),
       ),
-      DriveSyncMerged() => const _Glyph(
+      DriveSyncMerged() => _Glyph(
         tooltip: 'Merged changes from your other device',
         icon: _StatusIcon(
           icon: RemixIcons.git_merge_line,
-          color: kcSuccessColor,
+          color: context.appPalette.success,
         ),
       ),
-      DriveSyncNeedsReauth() => const _Glyph(
+      DriveSyncNeedsReauth() => _Glyph(
         tooltip: 'Reconnect Google Drive in Settings to keep syncing',
         icon: _StatusIcon(
           icon: RemixIcons.error_warning_line,
-          color: kcWarningColor,
+          color: context.appPalette.warning,
         ),
       ),
       DriveSyncErrorState(:final message) => _Glyph(
@@ -123,9 +127,9 @@ class _SyncingIcon extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: const CircularProgressIndicator(
+      child: CircularProgressIndicator(
         strokeWidth: 2,
-        color: kcLightGrey,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }

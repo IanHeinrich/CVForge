@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'tokens/app_icon_size.dart';
 import 'tokens/app_motion.dart';
+import 'tokens/app_palette.dart';
 import 'tokens/app_radius.dart';
 import 'tokens/app_spacing.dart';
 import 'tokens/app_typography.dart';
@@ -38,6 +39,13 @@ ThemeData buildAppTheme() {
       ).copyWith(
         primary: kcPrimaryColor,
         onPrimary: kcWhite,
+        // This app's foregrounds are neutral; the seed derives
+        // purple-tinted ones (#E8E0E8/#CCC4CE). Pinned so Material-default
+        // widgets and this app's own widgets read the same two values
+        // instead of two near-identical palettes side by side, and so a
+        // future light theme changes them here, not at every call site.
+        onSurface: kcWhite,
+        onSurfaceVariant: kcLightGrey,
         error: kcErrorColor,
         onError: kcWhite,
         surfaceContainerLowest: kcSurfaceSunken,
@@ -70,6 +78,7 @@ ThemeData buildAppTheme() {
       appTypography,
       appMotion,
       appIconSize,
+      appPalette,
     ],
     // Cards (`AppSummaryCard`, drafts/template gallery cards) wrap a plain
     // `InkWell` with no `overlayColor` of its own, so they fall through to

@@ -5,6 +5,7 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -167,7 +168,9 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
             // rejected key didn't stick.
             Text(
               'Your key is saved only if the connection test succeeds.',
-              style: context.appTypography.caption.copyWith(color: kcLightGrey),
+              style: context.appTypography.caption.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             if (_replacing) ...[
               const VGap.tiny(),
@@ -194,7 +197,7 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
           // transparency.
           _StatusLine(
             icon: RemixIcons.information_line,
-            color: kcLightGrey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             message:
                 'Your key is saved on this device, unencrypted in this '
                 "browser's storage — the same as your Vault and CVs. "
@@ -232,7 +235,9 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
             "${viewModel.selectedAiAssistantProvider.displayName}'s own rate, "
             'not billed by CVForge: '
             '${viewModel.priceLabelFor(viewModel.selectedAiAssistantModel)}',
-            style: context.appTypography.caption.copyWith(color: kcLightGrey),
+            style: context.appTypography.caption.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const VGap.medium(),
           FilledButton(
@@ -255,9 +260,9 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
             ),
           ] else if (viewModel.connectionTestSucceeded) ...[
             const VGap.small(),
-            const _StatusLine(
+            _StatusLine(
               icon: RemixIcons.checkbox_circle_line,
-              color: kcSuccessColor,
+              color: context.appPalette.success,
               message: 'Connected.',
             ),
           ],
@@ -285,19 +290,19 @@ class _KeyStatusLine extends StatelessWidget {
     return switch (viewModel.apiKeyOrigin) {
       ApiKeyOrigin.remembered => _StatusLine(
         icon: RemixIcons.checkbox_circle_line,
-        color: kcSuccessColor,
+        color: context.appPalette.success,
         message: 'Your $providerName key is saved on this device.',
       ),
       ApiKeyOrigin.session => _StatusLine(
         icon: RemixIcons.time_line,
-        color: kcWarningColor,
+        color: context.appPalette.warning,
         message:
             'Your $providerName key is set for this session only. It will '
             'be gone when you reload the page.',
       ),
       ApiKeyOrigin.none => _StatusLine(
         icon: RemixIcons.information_line,
-        color: kcMediumGrey,
+        color: context.appPalette.placeholder,
         message: 'No $providerName key yet. The AI Assistant is off.',
       ),
     };
@@ -328,7 +333,9 @@ class _StoredKeyRow extends StatelessWidget {
       children: [
         Text(
           '$providerName API key',
-          style: context.appTypography.caption.copyWith(color: kcLightGrey),
+          style: context.appTypography.caption.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const VGap.tiny(),
         Text(maskedKey ?? '••••••••', style: context.appTypography.bodySmall),
@@ -365,7 +372,7 @@ class _SetUpElsewhereNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return _StatusLine(
       icon: RemixIcons.device_line,
-      color: kcLightGrey,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
       message:
           'You set the AI Assistant up on another device. Your CVs synced, '
           'but your key stayed there on purpose — paste your $providerName '

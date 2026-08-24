@@ -6,6 +6,7 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -91,7 +92,9 @@ class BackupSettingsCard extends StatelessWidget {
           // is already the established framing.
           Text(
             'Danger zone',
-            style: context.appTypography.bodySmall.copyWith(color: kcLightGrey),
+            style: context.appTypography.bodySmall.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const VGap.tiny(),
           OutlinedButton.icon(
@@ -132,17 +135,17 @@ class _BackupStatusLine extends StatelessWidget {
     final String message;
     if (last == null) {
       icon = RemixIcons.time_line;
-      color = kcLightGrey;
+      color = Theme.of(context).colorScheme.onSurfaceVariant;
       message = 'Never backed up';
     } else if (hasChangesSinceBackup) {
       icon = RemixIcons.error_warning_line;
-      color = kcWarningColor;
+      color = context.appPalette.warning;
       message =
           'Last backed up ${formatRelativeTime(last)}, and you have '
           'changes since then';
     } else {
       icon = RemixIcons.checkbox_circle_line;
-      color = kcSuccessColor;
+      color = context.appPalette.success;
       message = 'Last backed up ${formatRelativeTime(last)}';
     }
 

@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -64,7 +63,7 @@ class AppEmptyState extends StatelessWidget {
                 Icon(
                   icon,
                   size: context.appIconSize.xLarge,
-                  color: kcLightGrey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
             const VGap.medium(),
             Text(
@@ -80,7 +79,9 @@ class AppEmptyState extends StatelessWidget {
               child: Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: kcLightGrey),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             if (actions.isNotEmpty) ...[

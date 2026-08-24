@@ -47,14 +47,14 @@ class _StartupLoading extends StatelessWidget {
         // same mark on the same ground, so the handover from the loading
         // page to the first Flutter frame doesn't swap one brand for
         // another mid-load.
-        const BrandMark(color: kcWhite),
+        BrandMark(color: Theme.of(context).colorScheme.onSurface),
         const VGap.medium(),
-        const Text(
+        Text(
           ksAppTitle,
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w900,
-            color: kcWhite,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const VGap.medium(),

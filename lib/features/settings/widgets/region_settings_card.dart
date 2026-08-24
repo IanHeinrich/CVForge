@@ -1,5 +1,4 @@
 import 'package:cv_forge/models/region/region_presets.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -60,7 +59,7 @@ class RegionSettingsCard extends StatelessWidget {
                     Text(
                       preset.displayName,
                       style: context.appTypography.bodySmall.copyWith(
-                        color: kcWhite,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -69,7 +68,7 @@ class RegionSettingsCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.appTypography.caption.copyWith(
-                        color: kcLightGrey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

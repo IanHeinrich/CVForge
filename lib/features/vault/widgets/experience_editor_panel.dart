@@ -121,9 +121,9 @@ class ExperienceEditorPanel extends StatelessWidget {
               end: (checked ?? false) ? null : experience.end,
             ),
           ),
-          title: const Text(
+          title: Text(
             'I currently work here',
-            style: TextStyle(color: kcWhite),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           activeColor: kcPrimaryColor,
           contentPadding: EdgeInsets.zero,

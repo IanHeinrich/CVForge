@@ -243,7 +243,10 @@ class _BrandMarkLoaderState extends State<BrandMarkLoader>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.color ?? IconTheme.of(context).color ?? kcWhite;
+    final color =
+        widget.color ??
+        IconTheme.of(context).color ??
+        Theme.of(context).colorScheme.onSurface;
     final reduceMotion = _reduceMotion;
 
     return Semantics(

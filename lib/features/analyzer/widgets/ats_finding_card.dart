@@ -93,7 +93,7 @@ class AtsFindingCard extends StatelessWidget {
                       Text(
                         label,
                         style: context.appTypography.caption.copyWith(
-                          color: kcLightGrey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -159,21 +159,23 @@ class _StepControls extends StatelessWidget {
             RemixIcons.arrow_left_s_line,
             size: context.appIconSize.medium,
           ),
-          color: kcLightGrey,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
           onPressed: stepIndex > 0 ? () => onStep?.call(stepIndex - 1) : null,
         ),
         Text(
           '${stepIndex + 1} of $total',
-          style: context.appTypography.caption.copyWith(color: kcLightGrey),
+          style: context.appTypography.caption.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         IconButton(
           icon: Icon(
             RemixIcons.arrow_right_s_line,
             size: context.appIconSize.medium,
           ),
-          color: kcLightGrey,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
           onPressed: stepIndex < total - 1

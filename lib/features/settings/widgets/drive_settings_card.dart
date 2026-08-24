@@ -7,6 +7,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/button_spinner/button_spinner.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -131,13 +132,15 @@ class DriveSettingsCard extends StatelessWidget {
     return [
       _StatusLine(
         icon: syncing || pending ? null : RemixIcons.checkbox_circle_line,
-        color: syncing || pending ? null : kcSuccessColor,
+        color: syncing || pending ? null : context.appPalette.success,
         label: 'Connected as $email',
       ),
       const VGap.tiny(),
       Text(
         statusLabel,
-        style: context.appTypography.caption.copyWith(color: kcLightGrey),
+        style: context.appTypography.caption.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       const VGap.small(),
       Wrap(
@@ -164,7 +167,7 @@ class DriveSettingsCard extends StatelessWidget {
   List<Widget> _needsReauth(BuildContext context, String email) => [
     _StatusLine(
       icon: RemixIcons.error_warning_line,
-      color: kcWarningColor,
+      color: context.appPalette.warning,
       label: 'Connected as $email. Reconnect to keep syncing.',
     ),
     const VGap.small(),

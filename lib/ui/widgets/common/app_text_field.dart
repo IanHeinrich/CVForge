@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cv_forge/ui/common/app_colors.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 /// A text field that pushes edits to the ViewModel debounced while typing,
@@ -114,11 +114,11 @@ class _AppTextFieldState extends State<AppTextField> {
       minLines: widget.minLines,
       keyboardType: widget.keyboardType,
       onChanged: _handleChanged,
-      style: const TextStyle(color: kcWhite),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: widget.label,
         hintText: widget.hint,
-        hintStyle: const TextStyle(color: kcMediumGrey),
+        hintStyle: TextStyle(color: context.appPalette.placeholder),
         errorText: widget.errorText,
       ),
     );

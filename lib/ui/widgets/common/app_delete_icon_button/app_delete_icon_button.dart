@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -19,7 +18,10 @@ class AppDeleteIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(RemixIcons.delete_bin_line, color: kcLightGrey),
+      icon: Icon(
+        RemixIcons.delete_bin_line,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
       onPressed: onPressed,
       tooltip: tooltip,
     );

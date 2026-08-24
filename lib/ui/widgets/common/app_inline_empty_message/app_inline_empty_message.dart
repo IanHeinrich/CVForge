@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +14,10 @@ class AppInlineEmptyMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
-      child: Text(message, style: const TextStyle(color: kcLightGrey)),
+      child: Text(
+        message,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
     );
   }
 }

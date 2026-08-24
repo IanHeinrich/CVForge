@@ -9,9 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Supplies usePathUrlStrategy, replacing the discontinued
+  # url_strategy package.
+  flutter_web_plugins:
+    sdk: flutter
   stacked: ^3.4.0
   stacked_services: ^1.1.0
-  url_strategy: ^0.3.0
   responsive_builder: ^0.7.0
   flutter_animate: ^4.1.1+1
   pdf: ^3.13.0

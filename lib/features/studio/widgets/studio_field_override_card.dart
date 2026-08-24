@@ -1,6 +1,6 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 import 'studio_panel_heading.dart';
@@ -110,7 +110,9 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
                   maxLines: _editing ? 1 : 3,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: hasAnyValue ? kcLightGrey : kcMediumGrey,
+                    color: hasAnyValue
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : context.appPalette.placeholder,
                     fontStyle: hasAnyValue
                         ? FontStyle.normal
                         : FontStyle.italic,

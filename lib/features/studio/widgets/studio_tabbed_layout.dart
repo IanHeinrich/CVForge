@@ -1,5 +1,4 @@
 import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -61,7 +60,10 @@ class _ConfigureDrillDown extends StatelessWidget {
           children: [
             IconButton(
               tooltip: 'Back to sections',
-              icon: const Icon(RemixIcons.arrow_left_line, color: kcLightGrey),
+              icon: Icon(
+                RemixIcons.arrow_left_line,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               onPressed: () => viewModel.selectSection(null),
             ),
             Text(

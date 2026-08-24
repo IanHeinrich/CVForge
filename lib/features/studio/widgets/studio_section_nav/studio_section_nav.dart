@@ -6,6 +6,7 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -66,11 +67,13 @@ class StudioSectionNav extends StatelessWidget {
             icon: Icon(
               RemixIcons.arrow_go_back_line,
               size: context.appIconSize.tiny,
-              color: kcLightGrey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             label: Text(
               'Reset to my saved default',
-              style: context.appTypography.caption.copyWith(color: kcLightGrey),
+              style: context.appTypography.caption.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ),
@@ -144,7 +147,9 @@ class _SectionList extends StatelessWidget {
                     ),
                     child: Text(
                       type.displayLabel,
-                      style: const TextStyle(color: kcWhite),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -160,7 +165,7 @@ class _SectionList extends StatelessWidget {
                 ),
                 child: Icon(
                   RemixIcons.draggable,
-                  color: kcMediumGrey,
+                  color: context.appPalette.placeholder,
                   size: context.appIconSize.medium,
                 ),
               ),

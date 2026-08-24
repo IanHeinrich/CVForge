@@ -1,11 +1,11 @@
 import 'package:cv_forge/models/region/region_presets.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -237,10 +237,13 @@ class _OutputControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final exportIcon = viewModel.isExporting
-        ? const SizedBox(
+        ? SizedBox(
             width: 16,
             height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2, color: kcWhite),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           )
         : Icon(RemixIcons.download_line, size: context.appIconSize.medium);
     final exportTooltip = viewModel.isExporting ? 'Exporting…' : 'Export PDF';
@@ -320,7 +323,10 @@ class _Identity extends StatelessWidget {
       children: [
         IconButton(
           tooltip: 'Back to your ${preset.documentNoun.pluralCapitalized}',
-          icon: const Icon(RemixIcons.arrow_left_line, color: kcLightGrey),
+          icon: Icon(
+            RemixIcons.arrow_left_line,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           onPressed: viewModel.goToDrafts,
         ),
         Flexible(
@@ -332,7 +338,10 @@ class _Identity extends StatelessWidget {
         ),
         IconButton(
           tooltip: 'Edit ${preset.documentNoun.capitalized} details',
-          icon: const Icon(RemixIcons.edit_line, color: kcLightGrey),
+          icon: Icon(
+            RemixIcons.edit_line,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           onPressed: viewModel.editDraftDetails,
         ),
       ],
@@ -385,7 +394,7 @@ class _BarButton extends StatelessWidget {
                 child: label,
               ),
         style: OutlinedButton.styleFrom(
-          foregroundColor: kcWhite,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           side: BorderSide(color: Theme.of(context).colorScheme.outline),
           padding: EdgeInsets.symmetric(
             horizontal: context.appSpacing.paddingCompact,
@@ -437,11 +446,13 @@ class _PageCountBadge extends StatelessWidget {
           : EdgeInsets.symmetric(horizontal: context.appSpacing.paddingCompact),
       decoration: BoxDecoration(
         color: isWarning
-            ? kcWarningColor.withValues(alpha: 0.08)
+            ? context.appPalette.warning.withValues(alpha: 0.08)
             : Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(context.appRadius.medium),
         border: isWarning
-            ? Border.all(color: kcWarningColor.withValues(alpha: 0.4))
+            ? Border.all(
+                color: context.appPalette.warning.withValues(alpha: 0.4),
+              )
             : null,
       ),
       child: Row(
@@ -451,7 +462,7 @@ class _PageCountBadge extends StatelessWidget {
             Icon(
               RemixIcons.error_warning_line,
               size: context.appIconSize.small,
-              color: kcWarningColor,
+              color: context.appPalette.warning,
             ),
             if (!iconOnly) const HGap.tiny(),
           ],
@@ -460,7 +471,7 @@ class _PageCountBadge extends StatelessWidget {
               count == 1 ? '1 page' : '$count pages',
               style: isWarning
                   ? context.appTypography.caption.copyWith(
-                      color: kcWarningColor,
+                      color: context.appPalette.warning,
                     )
                   : context.appTypography.caption,
             ),
