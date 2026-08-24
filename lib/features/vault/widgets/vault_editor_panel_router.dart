@@ -46,9 +46,15 @@ class VaultEditorPanelRouter extends StatelessWidget {
           defaults: viewModel.documentDefaults,
           documentNoun:
               viewModel.documentDefaults.region.preset.documentNoun.name,
+          templateId: viewModel.defaultTemplate.id,
+          sectionOrder: viewModel.defaultSectionOrder,
+          isSectionHidden: viewModel.isDefaultSectionHidden,
           onClose: viewModel.closeEditor,
           onChangeRegion: viewModel.openDefaultRegionPicker,
+          onChangeTemplate: viewModel.openDefaultTemplatePicker,
           onLanguageChanged: viewModel.setDocumentLanguage,
+          onReorderSections: viewModel.reorderDefaultSections,
+          onToggleSectionHidden: viewModel.toggleDefaultSectionHidden,
         );
 
       case VaultEditorTarget.basics:

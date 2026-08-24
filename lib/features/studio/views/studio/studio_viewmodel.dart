@@ -10,6 +10,7 @@ import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_d
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
 import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
+import 'package:cv_forge/models/draft/vault_selection.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
@@ -104,28 +105,17 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   /// that becomes the real, persisted selection and this never runs again
   /// for that draft (see [DraftService.isFreshDraft]).
   Future<void> _selectAllFromVault() async {
-    final vault = _vaultService.vault;
+    final selection = VaultSelection.everythingIn(_vaultService.vault);
     await _draftService.selectAllFromVault(
-      experienceIds: [for (final e in vault.experiences) e.id],
-      bulletIds: {
-        for (final e in vault.experiences)
-          e.id: [for (final b in e.bullets) b.id],
-      },
-      projectIds: [for (final p in vault.projects) p.id],
-      projectBulletIds: {
-        for (final p in vault.projects) p.id: [for (final b in p.bullets) b.id],
-      },
-      skillIds: [
-        for (final category in vault.skillCategories)
-          for (final skill in category.skills) skill.id,
-      ],
-      educationIds: [for (final e in vault.education) e.id],
-      hobbyIds: [for (final h in vault.hobbies) h.id],
-      publicationIds: [for (final p in vault.publications) p.id],
-      publicationBulletIds: {
-        for (final p in vault.publications)
-          p.id: [for (final b in p.bullets) b.id],
-      },
+      experienceIds: selection.experienceIds,
+      bulletIds: selection.bulletIds,
+      projectIds: selection.projectIds,
+      projectBulletIds: selection.projectBulletIds,
+      skillIds: selection.skillIds,
+      educationIds: selection.educationIds,
+      hobbyIds: selection.hobbyIds,
+      publicationIds: selection.publicationIds,
+      publicationBulletIds: selection.publicationBulletIds,
     );
   }
 
@@ -598,17 +588,6 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     visible.insert(newIndex, moved);
     await _draftService.setSectionOrder([...visible, ...invisible]);
   }
-
-  /// Copies this draft's current [sectionOrder] and hidden-sections state
-  /// into [DocumentDefaults] so the next brand-new draft starts with
-  /// both — a one-shot copy, never a standing link back to this draft.
-  Future<void> saveSectionSettingsAsDefault() =>
-      _vaultService.setDocumentDefaults(
-        _vaultService.vault.documentDefaults.copyWith(
-          sectionOrder: sectionOrder,
-          hiddenSections: _draft.hiddenSections,
-        ),
-      );
 
   /// Resets this draft's order and hidden-sections state back to the
   /// user's saved default (or, if they've never saved one, the active

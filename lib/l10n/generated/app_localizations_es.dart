@@ -409,9 +409,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonTryAgain => 'Intentar de nuevo';
 
   @override
-  String get dateStyleMonYyyy => 'Mes AAAA (p. ej. jun 2023)';
-
-  @override
   String get documentLanguageDaName => 'Dansk';
 
   @override
@@ -586,7 +583,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionDachConvention1 =>
-      'Alrededor de dos tercios de los empleadores de habla alemana siguen esperando una foto profesional, arriba a la derecha. CVForge no la agrega; hay prevista una plantilla que incluya foto y, hasta entonces, hay que añadirla a mano al PDF exportado.';
+      'Alrededor de dos tercios de los empleadores de habla alemana siguen esperando una foto profesional, arriba a la derecha. Súbela en la Bóveda y elige una plantilla que la incluya; las demás la omiten.';
 
   @override
   String get regionDachConvention2 =>
@@ -671,7 +668,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionLatamA4Convention3 =>
-      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CPF, DNI/CUIL) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge no tiene ningún campo para ellos.';
+      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CPF, DNI/CUIL) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge incluye la fotografía cuando la plantilla la admite; no tiene campo para el resto.';
 
   @override
   String get regionLatamA4Convention4 => 'Dos o tres páginas es lo normal.';
@@ -711,7 +708,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionLatamLetterConvention3 =>
-      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CURP/RFC, Cédula) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge no tiene ningún campo para ellos.';
+      'La fotografía, la fecha de nacimiento, el estado civil y el número de identificación (CURP/RFC, Cédula) son habituales en las empresas locales, y se excluyen deliberadamente en las multinacionales y sus filiales. Guíate por el empleador, no por el país. CVForge incluye la fotografía cuando la plantilla la admite; no tiene campo para el resto.';
 
   @override
   String get regionLatamLetterConvention4 => 'Dos o tres páginas es lo normal.';
@@ -764,7 +761,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionNordicsConvention6 =>
-      'Los CV en inglés se aceptan ampliamente; usa ortografía británica.';
+      'Los CV en inglés se aceptan ampliamente; si escribes en inglés, usa ortografía británica.';
 
   @override
   String get regionNordicsCoverage => 'Suecia, Noruega, Dinamarca, Finlandia';
@@ -1661,9 +1658,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Aún no hay nada seleccionado';
 
   @override
-  String get studioRegionDates => 'Fechas';
-
-  @override
   String studioRegionDetailRow(String label) {
     return '$label: ';
   }
@@ -1716,13 +1710,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get studioSectionsResetDefault =>
       'Restaurar mi configuración guardada';
-
-  @override
-  String get studioSectionsSavedDefault =>
-      'Se guardó este orden y esta selección de secciones como tu configuración predeterminada';
-
-  @override
-  String get studioSectionsSaveDefault => 'Guardar como predeterminado';
 
   @override
   String get studioSectionsTitle => 'Secciones';
@@ -2145,10 +2132,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionHelp =>
-      'Define el tamaño de página, el formato de las fechas y las recomendaciones que sigue el Asistente de IA. No el idioma: eso está en la fila de abajo.';
+      'Define el tamaño de página, la extensión esperada y las recomendaciones que sigue el Asistente de IA. No el idioma: eso está en la fila de abajo.';
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Región';
+
+  @override
+  String get vaultCvDefaultsSectionsHelp =>
+      'Qué secciones incluye un CV nuevo y en qué orden se imprimen. Arrastra para reordenar.';
+
+  @override
+  String get vaultCvDefaultsSectionsLabel => 'Secciones';
+
+  @override
+  String get vaultCvDefaultsTemplateHelp =>
+      'El diseño con el que empieza un CV nuevo: su composición, su tipografía y si se imprime una foto.';
+
+  @override
+  String get vaultCvDefaultsTemplateLabel => 'Plantilla';
 
   @override
   String get vaultDeleteCategoryBody =>

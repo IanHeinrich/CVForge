@@ -113,9 +113,9 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
           'permanent resident", "482 visa". Recruiters filter on this first.',
       'Include a dedicated "Referees" section with two named referees, or '
           'state that details are available on request.',
-      'Australian spelling: organised, centre, analyse. Be consistent — '
-          'some sectors accept -ize, but mixing the two is what gets '
-          'noticed.',
+      'If writing in English, use Australian spelling: organised, '
+          'centre, analyse. Be consistent — some sectors accept -ize, '
+          'but mixing the two is what gets noticed.',
       'Give more context per role than a US résumé would: company scope, '
           'reporting lines, team size, budget.',
     ],
@@ -183,7 +183,8 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
           'personal heroics.',
       'State Scandinavian language proficiency explicitly with a level '
           '("Swedish — B2"). It moves the needle.',
-      'English CVs are widely accepted; use British spelling.',
+      'English CVs are widely accepted; if you write in English, use '
+          'British spelling.',
     ],
   ),
 
@@ -255,8 +256,8 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
       'A photograph, date of birth, marital status, and national ID number '
           '(CURP/RFC, Cédula) are common at domestic firms, and deliberately '
           'excluded by multinationals and their local subsidiaries. Match '
-          'the employer, not the country. CVForge has no field for any of '
-          'them.',
+          'the employer, not the country. CVForge renders a photograph '
+          'when the template supports one; it has no field for the rest.',
       'Two to three pages is normal.',
       'Certified language proficiency carries real weight: state TOEFL, '
           'IELTS, or DELE scores with the date taken.',
@@ -291,8 +292,8 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
       'A photograph, date of birth, marital status, and national ID number '
           '(CPF, DNI/CUIL) are common at domestic firms, and deliberately '
           'excluded by multinationals and their local subsidiaries. Match '
-          'the employer, not the country. CVForge has no field for any of '
-          'them.',
+          'the employer, not the country. CVForge renders a photograph '
+          'when the template supports one; it has no field for the rest.',
       'Two to three pages is normal.',
       'Certified language proficiency is a primary screening filter, '
           'especially in Brazil: state TOEFL, IELTS, DELE, or CELPE-Bras '

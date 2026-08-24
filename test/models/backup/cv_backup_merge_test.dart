@@ -767,6 +767,22 @@ void main() {
       expect(merged.language, DocumentLanguage.de);
     });
 
+    test('a default template picked on one device survives, and merges '
+        'independently of the language picked on the other', () {
+      final local = _v(
+        documentDefaults: const DocumentDefaults(templateId: 'photo_header'),
+        at: _t1,
+      );
+      final remote = _v(
+        documentDefaults: const DocumentDefaults(language: DocumentLanguage.de),
+        at: _t1,
+      );
+
+      final merged = mergedDefaults(local, remote)!;
+      expect(merged.templateId, 'photo_header');
+      expect(merged.language, DocumentLanguage.de);
+    });
+
     test('the same default changed on both sides goes to the later vault', () {
       final local = _v(
         documentDefaults: const DocumentDefaults(language: DocumentLanguage.de),

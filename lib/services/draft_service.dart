@@ -274,7 +274,13 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   }) async {
     await ready();
     final id = _uuid.v4();
-    final resolvedTemplateId = templateId ?? draft.templateId;
+    // An explicit argument wins, then the user's saved default, then the
+    // open draft's template. That last one is the pre-defaults behaviour
+    // and stays as the fallback: with no default ever chosen, inheriting
+    // from the draft in front of you beats resetting to the registry's
+    // first entry.
+    final resolvedTemplateId =
+        templateId ?? defaults.templateId ?? draft.templateId;
     final created =
         CvDraft.empty(
           id: id,

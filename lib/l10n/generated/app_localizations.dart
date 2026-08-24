@@ -602,12 +602,6 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get commonTryAgain;
 
-  /// How dates are written on the CV. The pattern letters and the example should be rewritten to show the same format using the target language's own month abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'Mon YYYY (e.g. Jun 2023)'**
-  String get dateStyleMonYyyy;
-
   /// Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
   ///
   /// In en, this message translates to:
@@ -917,7 +911,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'Around two thirds of German-speaking employers still expect a professional headshot, top right. CVForge does not add one; a template that renders a photo is planned, and until then it has to be added to the exported PDF by hand.'**
+  /// **'Around two thirds of German-speaking employers still expect a professional headshot, top right. Upload one in the Vault and choose a template that includes one; the rest leave it off.'**
   String get regionDachConvention1;
 
   /// Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1049,7 +1043,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.'**
+  /// **'A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.'**
   String get regionLatamA4Convention3;
 
   /// Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1115,7 +1109,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.'**
+  /// **'A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.'**
   String get regionLatamLetterConvention3;
 
   /// Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1199,7 +1193,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'English CVs are widely accepted; use British spelling.'**
+  /// **'English CVs are widely accepted; if you write in English, use British spelling.'**
   String get regionNordicsConvention6;
 
   /// Region picker: which countries the NORDICS grouping covers. Use each country's own name in the target language.
@@ -2444,12 +2438,6 @@ abstract class AppLocalizations {
   /// **'Nothing selected yet'**
   String get studioPreviewNothingSelectedTitle;
 
-  /// Region detail row label — how dates are formatted on a CV in this market.
-  ///
-  /// In en, this message translates to:
-  /// **'Dates'**
-  String get studioRegionDates;
-
   /// Region detail row prefix, putting the label before its value on one line.
   ///
   /// In en, this message translates to:
@@ -2545,18 +2533,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset to my saved default'**
   String get studioSectionsResetDefault;
-
-  /// Studio confirmation after saving the current section arrangement as the default for new CVs.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved this order and section selection as your default'**
-  String get studioSectionsSavedDefault;
-
-  /// Studio button that remembers the current section arrangement for new CVs.
-  ///
-  /// In en, this message translates to:
-  /// **'Save as my default'**
-  String get studioSectionsSaveDefault;
 
   /// Studio heading above the reorderable list of CV sections.
   ///
@@ -3242,10 +3218,10 @@ abstract class AppLocalizations {
   /// **'{noun, select, resume{Résumé defaults} other{CV defaults}}'**
   String vaultCvDefaultsPanelTitle(String noun);
 
-  /// Help text under the region row of the Vault's document-defaults panel, naming what region actually changes.
+  /// Help text under the region row of the Vault's CV defaults panel. Lists only what a reader can actually observe changing. It deliberately does not mention dates: region owns the date's *shape* (RegionDateStyle) and the language owns its words, but every preset resolves to the same shape, so naming it promised a difference that does not exist.
   ///
   /// In en, this message translates to:
-  /// **'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.'**
+  /// **'Sets the page size, the expected length, and the advice the AI Assistant follows. Not the language — that is the row below.'**
   String get vaultCvDefaultsRegionHelp;
 
   /// Label on the region row of the Vault's document-defaults panel.
@@ -3253,6 +3229,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Region'**
   String get vaultCvDefaultsRegionLabel;
+
+  /// Help text under the default section list in the Vault's CV defaults panel. Deliberately does not repeat that existing CVs are untouched — the panel's intro says that once, for all five rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sections a new CV includes, and the order they print in. Drag to reorder.'**
+  String get vaultCvDefaultsSectionsHelp;
+
+  /// Label for the default section-order list in the Vault's CV defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get vaultCvDefaultsSectionsLabel;
+
+  /// Help text under the default-template row of the Vault's CV defaults panel. Names the photo specifically: whether one is printed is a property of the template and of nothing else, and the region picker sends people here expecting a photo to be a setting.
+  ///
+  /// In en, this message translates to:
+  /// **'The design a new CV starts with — its layout, its type, and whether a photo is printed.'**
+  String get vaultCvDefaultsTemplateHelp;
+
+  /// Label for the default-template row of the Vault's CV defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get vaultCvDefaultsTemplateLabel;
 
   /// Confirmation dialog body for deleting a skill category.
   ///

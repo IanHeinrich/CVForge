@@ -1,14 +1,18 @@
 import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/ui/common/l10n/document_language_labels.dart';
 import 'package:cv_forge/ui/common/l10n/region_labels.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
+import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import '../vault_editor_panel_scaffold.dart';
 
@@ -16,19 +20,32 @@ import '../vault_editor_panel_scaffold.dart';
 /// surface, sitting in the same right-hand panel every career-content card
 /// opens into.
 ///
-/// Region opens the shared gallery rather than a control of its own, the
-/// same way Studio's per-CV region button does: choosing a market carries
-/// a page of consequences worth explaining, and one surface with two entry
-/// points cannot drift on how it explains them. Language is a plain
-/// dropdown, because choosing one carries none.
+/// Region and template each open the shared gallery rather than a control
+/// of their own, the same way Studio's per-CV buttons do: both choices
+/// carry a page of consequences worth explaining or showing, and one
+/// surface with two entry points cannot drift on how it presents them.
+/// Language is a plain dropdown, because choosing one carries neither.
+///
+/// The section list is the odd one out and is built here rather than
+/// shared with Studio's. They look alike but answer different questions:
+/// Studio arranges the sections *this draft has data for*, and this
+/// arranges every section, for CVs that do not exist yet. Sharing the
+/// widget would mean threading a "has data" predicate that is always true
+/// on one side, which is how one list ends up quietly serving neither.
 class DocumentDefaultsEditorPanel extends StatelessWidget {
   const DocumentDefaultsEditorPanel({
     super.key,
     required this.defaults,
     required this.documentNoun,
+    required this.templateId,
+    required this.sectionOrder,
+    required this.isSectionHidden,
     required this.onClose,
     required this.onChangeRegion,
+    required this.onChangeTemplate,
     required this.onLanguageChanged,
+    required this.onReorderSections,
+    required this.onToggleSectionHidden,
   });
 
   final DocumentDefaults defaults;
@@ -36,9 +53,19 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
   /// `cv` or `resume` — an ICU `select` branch id, not a display word.
   final String documentNoun;
 
+  /// Resolved by the ViewModel, so this is always a template that exists —
+  /// see `VaultViewModel.defaultTemplate`.
+  final String templateId;
+
+  final List<CvSectionType> sectionOrder;
+  final bool Function(CvSectionType) isSectionHidden;
+
   final VoidCallback onClose;
   final VoidCallback onChangeRegion;
+  final VoidCallback onChangeTemplate;
   final ValueChanged<DocumentLanguage> onLanguageChanged;
+  final void Function(int oldIndex, int newIndex) onReorderSections;
+  final ValueChanged<CvSectionType> onToggleSectionHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +129,117 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
             if (language != null) onLanguageChanged(language);
           },
         ),
+        const VGap.medium(),
+
+        _FieldLabel(
+          label: context.l10n.vaultCvDefaultsTemplateLabel,
+          help: context.l10n.vaultCvDefaultsTemplateHelp,
+        ),
+        const VGap.tiny(),
+        Row(
+          children: [
+            Icon(
+              RemixIcons.layout_2_line,
+              size: context.appIconSize.large,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const HGap.small(),
+            Expanded(
+              child: Text(
+                templateDisplayName(context.l10n, templateId),
+                style: context.appTypography.titleSmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const HGap.small(),
+            OutlinedButton(
+              onPressed: onChangeTemplate,
+              child: Text(context.l10n.vaultCvDefaultsChange),
+            ),
+          ],
+        ),
+        const VGap.medium(),
+
+        _FieldLabel(
+          label: context.l10n.vaultCvDefaultsSectionsLabel,
+          help: context.l10n.vaultCvDefaultsSectionsHelp,
+        ),
+        const VGap.tiny(),
+        _DefaultSectionList(
+          sectionOrder: sectionOrder,
+          isSectionHidden: isSectionHidden,
+          onReorder: onReorderSections,
+          onToggleHidden: onToggleSectionHidden,
+        ),
       ],
+    );
+  }
+}
+
+/// Every section, in default order, each with a drag handle and a "include
+/// by default" checkbox.
+///
+/// Shrink-wrapped with physics disabled because the panel scaffold already
+/// scrolls — a nested scrollable here would strand the rows below it, the
+/// same reason `RegionGalleryDialog` gives for not adding one of its own.
+class _DefaultSectionList extends StatelessWidget {
+  const _DefaultSectionList({
+    required this.sectionOrder,
+    required this.isSectionHidden,
+    required this.onReorder,
+    required this.onToggleHidden,
+  });
+
+  final List<CvSectionType> sectionOrder;
+  final bool Function(CvSectionType) isSectionHidden;
+  final void Function(int oldIndex, int newIndex) onReorder;
+  final ValueChanged<CvSectionType> onToggleHidden;
+
+  @override
+  Widget build(BuildContext context) {
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      buildDefaultDragHandles: false,
+      itemCount: sectionOrder.length,
+      onReorderItem: onReorder,
+      itemBuilder: (context, index) {
+        final type = sectionOrder[index];
+        return Row(
+          key: ValueKey('default_section_${type.name}'),
+          children: [
+            // Matches Studio's own section list: the compact density is
+            // what lets the longest labels sit on one line.
+            Checkbox(
+              value: !isSectionHidden(type),
+              onChanged: (_) => onToggleHidden(type),
+              activeColor: Theme.of(context).colorScheme.primary,
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            Expanded(
+              child: Text(
+                type.displayLabel(context.l10n),
+                style: context.appTypography.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            ReorderableDragStartListener(
+              index: index,
+              child: Padding(
+                padding: EdgeInsetsDirectional.all(context.appSpacing.gapTiny),
+                child: Icon(
+                  RemixIcons.draggable,
+                  size: context.appIconSize.tiny,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

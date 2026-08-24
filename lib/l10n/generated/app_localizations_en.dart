@@ -402,9 +402,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonTryAgain => 'Try again';
 
   @override
-  String get dateStyleMonYyyy => 'Mon YYYY (e.g. Jun 2023)';
-
-  @override
   String get documentLanguageDaName => 'Dansk';
 
   @override
@@ -578,7 +575,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionDachConvention1 =>
-      'Around two thirds of German-speaking employers still expect a professional headshot, top right. CVForge does not add one; a template that renders a photo is planned, and until then it has to be added to the exported PDF by hand.';
+      'Around two thirds of German-speaking employers still expect a professional headshot, top right. Upload one in the Vault and choose a template that includes one; the rest leave it off.';
 
   @override
   String get regionDachConvention2 =>
@@ -663,7 +660,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionLatamA4Convention3 =>
-      'A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.';
+      'A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.';
 
   @override
   String get regionLatamA4Convention4 => 'Two to three pages is normal.';
@@ -703,7 +700,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionLatamLetterConvention3 =>
-      'A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.';
+      'A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.';
 
   @override
   String get regionLatamLetterConvention4 => 'Two to three pages is normal.';
@@ -756,7 +753,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionNordicsConvention6 =>
-      'English CVs are widely accepted; use British spelling.';
+      'English CVs are widely accepted; if you write in English, use British spelling.';
 
   @override
   String get regionNordicsCoverage => 'Sweden, Norway, Denmark, Finland';
@@ -1641,9 +1638,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioPreviewNothingSelectedTitle => 'Nothing selected yet';
 
   @override
-  String get studioRegionDates => 'Dates';
-
-  @override
   String studioRegionDetailRow(String label) {
     return '$label: ';
   }
@@ -1695,13 +1689,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioSectionsResetDefault => 'Reset to my saved default';
-
-  @override
-  String get studioSectionsSavedDefault =>
-      'Saved this order and section selection as your default';
-
-  @override
-  String get studioSectionsSaveDefault => 'Save as my default';
 
   @override
   String get studioSectionsTitle => 'Sections';
@@ -2123,10 +2110,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionHelp =>
-      'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.';
+      'Sets the page size, the expected length, and the advice the AI Assistant follows. Not the language — that is the row below.';
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Region';
+
+  @override
+  String get vaultCvDefaultsSectionsHelp =>
+      'Which sections a new CV includes, and the order they print in. Drag to reorder.';
+
+  @override
+  String get vaultCvDefaultsSectionsLabel => 'Sections';
+
+  @override
+  String get vaultCvDefaultsTemplateHelp =>
+      'The design a new CV starts with — its layout, its type, and whether a photo is printed.';
+
+  @override
+  String get vaultCvDefaultsTemplateLabel => 'Template';
 
   @override
   String get vaultDeleteCategoryBody =>

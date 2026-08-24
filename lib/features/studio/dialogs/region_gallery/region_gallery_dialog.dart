@@ -275,12 +275,6 @@ class _RegionDetail extends StatelessWidget {
           ),
           const VGap.tiny(),
           _DetailRow(
-            icon: RemixIcons.calendar_line,
-            label: context.l10n.studioRegionDates,
-            value: preset.dateStyle.displayLabel(context.l10n),
-          ),
-          const VGap.tiny(),
-          _DetailRow(
             icon: RemixIcons.text,
             label: context.l10n.studioRegionLocalName,
             value: preset.localName,

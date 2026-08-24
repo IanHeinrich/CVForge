@@ -14,6 +14,7 @@ _DocumentDefaults _$DocumentDefaultsFromJson(Map<String, dynamic> json) =>
       language:
           $enumDecodeNullable(_$DocumentLanguageEnumMap, json['language']) ??
           DocumentLanguage.enGb,
+      templateId: json['templateId'] as String?,
       sectionOrder: (json['sectionOrder'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
           .toList(),
@@ -26,6 +27,7 @@ Map<String, dynamic> _$DocumentDefaultsToJson(_DocumentDefaults instance) =>
     <String, dynamic>{
       'region': _$RegionProfileEnumMap[instance.region]!,
       'language': _$DocumentLanguageEnumMap[instance.language]!,
+      'templateId': instance.templateId,
       'sectionOrder': instance.sectionOrder
           ?.map((e) => _$CvSectionTypeEnumMap[e]!)
           .toList(),

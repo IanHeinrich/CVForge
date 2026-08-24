@@ -1,5 +1,4 @@
 {
-  "@@locale": "en",
   "analyzerAnalyzingBody": "Reading the PDF and checking for ATS parsing issues.",
   "@analyzerAnalyzingBody": {
     "description": "ATS check, body text shown while processing."
@@ -498,10 +497,6 @@
   "@commonTryAgain": {
     "description": "Button on the full-page card shown when local storage could not be read at all. Retries loading."
   },
-  "dateStyleMonYyyy": "Mon YYYY (e.g. Jun 2023)",
-  "@dateStyleMonYyyy": {
-    "description": "How dates are written on the CV. The pattern letters and the example should be rewritten to show the same format using the target language's own month abbreviation."
-  },
   "documentLanguageDaName": "Dansk",
   "@documentLanguageDaName": {
     "description": "Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
@@ -638,6 +633,7 @@
   "@driveSyncSyncing": {
     "description": "Tooltip on the sync status icon while an upload is in flight."
   },
+  "@@locale": "en",
   "localeDisplayName": "English",
   "@localeDisplayName": {
     "description": "This locale's own name, in this locale (an autonym). Shown in the Settings language picker. NEVER translate this into another language — it is what lets someone who landed in a language they cannot read find their way back."
@@ -718,7 +714,7 @@
   "@regionAnzToneNote": {
     "description": "Region picker: how achievements should be framed in the ANZ market."
   },
-  "regionDachConvention1": "Around two thirds of German-speaking employers still expect a professional headshot, top right. CVForge does not add one; a template that renders a photo is planned, and until then it has to be added to the exported PDF by hand.",
+  "regionDachConvention1": "Around two thirds of German-speaking employers still expect a professional headshot, top right. Upload one in the Vault and choose a template that includes one; the rest leave it off.",
   "@regionDachConvention1": {
     "description": "Region picker: one of the DACH market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -806,7 +802,7 @@
   "@regionLatamA4Convention2": {
     "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionLatamA4Convention3": "A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.",
+  "regionLatamA4Convention3": "A photograph, date of birth, marital status, and national ID number (CPF, DNI/CUIL) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.",
   "@regionLatamA4Convention3": {
     "description": "Region picker: one of the LATAMA4 market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -850,7 +846,7 @@
   "@regionLatamLetterConvention2": {
     "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionLatamLetterConvention3": "A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge has no field for any of them.",
+  "regionLatamLetterConvention3": "A photograph, date of birth, marital status, and national ID number (CURP/RFC, Cédula) are common at domestic firms, and deliberately excluded by multinationals and their local subsidiaries. Match the employer, not the country. CVForge renders a photograph when the template supports one; it has no field for the rest.",
   "@regionLatamLetterConvention3": {
     "description": "Region picker: one of the LATAMLETTER market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -906,7 +902,7 @@
   "@regionNordicsConvention5": {
     "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionNordicsConvention6": "English CVs are widely accepted; use British spelling.",
+  "regionNordicsConvention6": "English CVs are widely accepted; if you write in English, use British spelling.",
   "@regionNordicsConvention6": {
     "description": "Region picker: one of the NORDICS market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -2090,10 +2086,6 @@
   "@studioPreviewNothingSelectedTitle": {
     "description": "Studio preview pane empty state when the Vault has content but none is included in this CV."
   },
-  "studioRegionDates": "Dates",
-  "@studioRegionDates": {
-    "description": "Region detail row label — how dates are formatted on a CV in this market."
-  },
   "studioRegionDetailRow": "{label}: ",
   "@studioRegionDetailRow": {
     "description": "Region detail row prefix, putting the label before its value on one line.",
@@ -2163,14 +2155,6 @@
   "studioSectionsResetDefault": "Reset to my saved default",
   "@studioSectionsResetDefault": {
     "description": "Studio button that restores the saved default section arrangement."
-  },
-  "studioSectionsSavedDefault": "Saved this order and section selection as your default",
-  "@studioSectionsSavedDefault": {
-    "description": "Studio confirmation after saving the current section arrangement as the default for new CVs."
-  },
-  "studioSectionsSaveDefault": "Save as my default",
-  "@studioSectionsSaveDefault": {
-    "description": "Studio button that remembers the current section arrangement for new CVs."
   },
   "studioSectionsTitle": "Sections",
   "@studioSectionsTitle": {
@@ -2703,13 +2687,29 @@
       }
     }
   },
-  "vaultCvDefaultsRegionHelp": "Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.",
+  "vaultCvDefaultsRegionHelp": "Sets the page size, the expected length, and the advice the AI Assistant follows. Not the language — that is the row below.",
   "@vaultCvDefaultsRegionHelp": {
-    "description": "Help text under the region row of the Vault's document-defaults panel, naming what region actually changes."
+    "description": "Help text under the region row of the Vault's CV defaults panel. Lists only what a reader can actually observe changing. It deliberately does not mention dates: region owns the date's *shape* (RegionDateStyle) and the language owns its words, but every preset resolves to the same shape, so naming it promised a difference that does not exist."
   },
   "vaultCvDefaultsRegionLabel": "Region",
   "@vaultCvDefaultsRegionLabel": {
     "description": "Label on the region row of the Vault's document-defaults panel."
+  },
+  "vaultCvDefaultsSectionsHelp": "Which sections a new CV includes, and the order they print in. Drag to reorder.",
+  "@vaultCvDefaultsSectionsHelp": {
+    "description": "Help text under the default section list in the Vault's CV defaults panel. Deliberately does not repeat that existing CVs are untouched — the panel's intro says that once, for all five rows."
+  },
+  "vaultCvDefaultsSectionsLabel": "Sections",
+  "@vaultCvDefaultsSectionsLabel": {
+    "description": "Label for the default section-order list in the Vault's CV defaults panel."
+  },
+  "vaultCvDefaultsTemplateHelp": "The design a new CV starts with — its layout, its type, and whether a photo is printed.",
+  "@vaultCvDefaultsTemplateHelp": {
+    "description": "Help text under the default-template row of the Vault's CV defaults panel. Names the photo specifically: whether one is printed is a property of the template and of nothing else, and the region picker sends people here expecting a photo to be a setting."
+  },
+  "vaultCvDefaultsTemplateLabel": "Template",
+  "@vaultCvDefaultsTemplateLabel": {
+    "description": "Label for the default-template row of the Vault's CV defaults panel."
   },
   "vaultDeleteCategoryBody": "This removes it and all of its skills.",
   "@vaultDeleteCategoryBody": {
