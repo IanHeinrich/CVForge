@@ -9,12 +9,11 @@ import 'package:stacked/stacked.dart';
 import 'template_gallery_dialog_data.dart';
 
 /// Backs [TemplateGalleryDialog] — a flat grid, not grouped by
-/// [TemplateTag]. Grouping under tag headings was tried and dropped: with
-/// two templates it produced one card per group and a
-/// mostly-empty dialog, which only gets worse rather than better once a
-/// tag applies to most templates. [TemplateTag] still exists — each
-/// card shows its own tags as chips, still useful at a glance — it just
-/// no longer drives layout.
+/// [TemplateTag]. Grouping under tag headings was tried and dropped: it
+/// produced roughly one card per group and a mostly-empty dialog, which
+/// only gets worse rather than better once a tag applies to most
+/// templates. [TemplateTag] still exists — each card lists its own tags,
+/// still useful at a glance — it just no longer drives layout.
 class TemplateGalleryDialogModel extends BaseViewModel {
   TemplateGalleryDialogModel({required this.data})
     : _selectedId = data.currentTemplateId;
@@ -26,6 +25,12 @@ class TemplateGalleryDialogModel extends BaseViewModel {
 
   String _selectedId;
   String get selectedTemplateId => _selectedId;
+
+  /// The template the draft is actually using right now, as opposed to
+  /// [selectedTemplateId] — which starts equal to it, but diverges the
+  /// moment a card is tapped. The card marks it so picking a different
+  /// one doesn't lose track of what you'd be switching away from.
+  String get currentTemplateId => data.currentTemplateId;
 
   void selectTemplate(String templateId) {
     if (_selectedId == templateId) return;

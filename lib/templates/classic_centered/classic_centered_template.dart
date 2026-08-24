@@ -32,8 +32,8 @@ class ClassicCenteredTemplate implements CvTemplate {
 
   @override
   String get description =>
-      'A centered, whitespace-led single-column layout with a two-row '
-      'entry header and a justified summary paragraph.';
+      'Centred headings and a justified summary, with whitespace in '
+      'place of section rules.';
 
   @override
   CvDesignTokens get tokens => classicCenteredTokens;

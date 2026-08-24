@@ -53,8 +53,8 @@ class TemplateThumbnailService {
   final _cache = <String, _CacheEntry>{};
 
   /// Low `dpi` — this is a card-sized thumbnail, not a working preview —
-  /// keeps the fifteen-template gallery-open cost small even though
-  /// nothing here is debounced.
+  /// so opening the gallery stays cheap even though it renders every
+  /// registered template at once and nothing here is debounced.
   static const _thumbnailDpi = 48.0;
 
   /// Renders (or returns the cached raster for) [templateId]'s first page
