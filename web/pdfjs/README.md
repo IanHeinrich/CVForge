@@ -2,8 +2,8 @@
 
 `pdf.min.mjs` and `pdf.worker.min.mjs` are the stock Mozilla `pdf.js`
 5.7.284 build (see `web/index.html`'s `dartPdfJsBaseUrl` and
-`third_party/printing/README.md` for why this is vendored locally instead
-of loaded from `unpkg.com`), with one hand-applied patch on top.
+`docs/printing-fork.md` for why this is vendored locally instead of
+loaded from `unpkg.com`), with one hand-applied patch on top.
 
 ## Patch: `Map.prototype.getOrInsertComputed` polyfill
 

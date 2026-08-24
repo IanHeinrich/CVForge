@@ -22,8 +22,8 @@ import 'pdfjs_bindings.dart' as pdfjs;
 /// uses, for the same reason).
 ///
 /// `pdf.js` 5.7.284 is already vendored at `web/pdfjs/` and loaded lazily
-/// by the vendored `printing` package (see `third_party/printing/lib/
-/// printing_web.dart`) via a dynamic `import()` parked on
+/// by the `printing` package (see its `lib/printing_web.dart`) via a
+/// dynamic `import()` parked on
 /// `window.pdfjsLib`. This service reuses exactly that module rather than
 /// vendoring a second copy, and coexists with `printing`'s own init:
 /// `importModule`'s import-map memoization means whichever of the two
