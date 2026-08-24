@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/app_strings.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/brand_mark/brand_mark.dart';
 import 'package:cv_forge/ui/widgets/common/storage_unavailable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -42,6 +43,12 @@ class _StartupLoading extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Picks up where web/index.html's splash leaves off: that shows the
+        // same mark on the same ground, so the handover from the loading
+        // page to the first Flutter frame doesn't swap one brand for
+        // another mid-load.
+        const BrandMark(color: kcWhite),
+        const VGap.medium(),
         const Text(
           ksAppTitle,
           style: TextStyle(

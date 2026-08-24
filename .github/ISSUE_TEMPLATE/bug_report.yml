@@ -1,0 +1,70 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report.
+
+        **Please do not paste your Vault contents here.** Everything in
+        CVForge is stored locally, so your data is real. A redacted
+        screenshot, or a JSON export with the personal details removed, is
+        plenty.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the Vault
+        2. Add a role with no end date
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where in the app?
+      options:
+        - Vault
+        - Studio (building a CV)
+        - PDF export or preview
+        - ATS Check
+        - Tailor with AI
+        - Google Drive sync
+        - Settings / backup
+        - Somewhere else, or not sure
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Chrome 141 on Windows 11
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown in Settings. Skip it if you built from source.
+      placeholder: "2.14.1"
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console output
+      description: Anything red in DevTools. Optional, but usually the fastest route to a fix.
+      render: text

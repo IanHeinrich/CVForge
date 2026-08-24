@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192"
+     fill="none" stroke="currentColor" stroke-width="16"
+     stroke-linecap="round" stroke-linejoin="round">
+  <title>CVForge small mark</title>
+  <!-- The 24px-and-below optical size of cvforge-mark.svg. Identical outer
+       contour and the same page-into-anvil morph; three things come off because
+       they close into a blob at this stroke weight, verified by rendering at
+       16/20/24/32:
+       - the hammer (two shapes survive 16px, three do not);
+       - the scallop in the base;
+       - the lower-left pocket, so the anvil's face line runs the full width of
+         the page and the page's bottom-left corner reads as the anvil's foot.
+       The page keeps all three rules, at a lighter weight than the contour.
+       This is why the two files are not one file with a stroke-width swap: edit
+       the detail mark first, then bring the change across by hand. The horn's
+       single-cubic underside is load-bearing there too, for the same reason. -->
+  <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
+           C150 116 120 130 104 154
+           H134 V176 H44 V154 H74
+           C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
+  <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
+  <path d="M100 100 H20"/>
+  <g stroke-width="10">
+    <path d="M34 54 H78"/>
+    <path d="M34 69 H86"/>
+    <path d="M34 84 H86"/>
+  </g>
+</svg>

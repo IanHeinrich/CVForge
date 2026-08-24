@@ -1,7 +1,7 @@
 name: cv_forge
-description: "CV Forge - resume/CV builder web app"
+description: "CVForge - resume/CV builder web app"
 publish_to: 'none'
-version: 2.14.1
+version: 2.15.0
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
@@ -29,6 +29,7 @@ dependencies:
   url_launcher: ^6.3.0
   web: ^1.1.1
   crypto: ^3.0.0
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   build_runner: ^2.4.5
@@ -58,4 +59,8 @@ flutter:
   # needed for a Flutter TextStyle(fontFamily: ...) that no longer exists.
   assets:
     - assets/fonts/
+    # The brand marks, rendered in-app by BrandMark. SVG rather than PNG so
+    # the mark takes a theme colour and stays crisp at any size; see
+    # assets/brand/README.md for which file is which.
+    - assets/brand/
 

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192"
+     fill="none" stroke="currentColor" stroke-width="12"
+     stroke-linecap="round" stroke-linejoin="round">
+  <title>CVForge detail mark</title>
+  <!-- One closed contour, as in the original (whose page and anvil are also a
+       single path). The page's left edge is the leftmost thing in the mark and
+       its bottom-left corner runs down into the anvil's waist, so the sheet
+       becomes the anvil rather than sitting on it. The right edge steps out
+       into the face and horn. Fold is top-left: the hammer owns the top-right.
+       Three shapes are easy to lose and worth knowing before editing:
+       - The horn's underside and the body's right side are ONE cubic, from the
+         horn tip straight down to the waist. Splitting them into two curves
+         puts a shoulder at the join, and a shoulder only works if it is a hard
+         corner; anything in between reads as a dent in the underside.
+       - The page's bottom edge sits well above the base, or its corner reads as
+         a second foot beside the base.
+       - The base's scallop is a shallow arc, not a semicircle, which at this
+         base height would punch through and split the base in two. -->
+  <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
+           C150 116 120 130 104 154
+           H134 V176 H104 A26 26 0 0 0 72 176 H44 V154 H74
+           C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
+  <!-- Fold flap. -->
+  <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
+  <!-- The anvil's face line and left side, drawn across the page. These are what
+       separate the anvil from the sheet it is made of; the pocket they leave at
+       the lower left is the page showing through, as in the original. -->
+  <path d="M100 100 H60 V118 C60 126 58 130 56 132"/>
+  <!-- Page rules carry a lighter weight than the contour. They are texture, not
+       structure; at the contour's weight they read as bars and crowd the page. -->
+  <g stroke-width="8">
+    <path d="M34 54 H78"/>
+    <path d="M34 70 H86"/>
+    <path d="M34 86 H86"/>
+  </g>
+  <!-- Hammer, mid-strike. Solid head so it reads as mass rather than a second
+       outlined box; haft kept longer than the head so the pair does not
+       collapse into a checkmark. Dropped from the small mark. -->
+  <g transform="translate(134 68) rotate(35)">
+    <rect x="-20" y="-10" width="40" height="20" rx="4" fill="currentColor" stroke="none"/>
+    <path d="M0 -10 V-60"/>
+  </g>
+</svg>

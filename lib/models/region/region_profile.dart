@@ -6,8 +6,8 @@
 /// region picker's advice pane, and the AI Assistant's tailoring prompt.
 /// Nothing here is ever printed inside the produced document.
 ///
-/// [RegionProfile] is a plain enum and stays one — settled, with reasoning,
-/// in `docs/ux/7.5-template-region-scaling.md`.
+/// [RegionProfile] is a plain enum and stays one: the per-region data lives
+/// on [RegionPreset], so this only ever needs to be a stable identifier.
 ///
 /// Declaration order is the region picker's display order: curated rather
 /// than alphabetical, with the two original regions first.
