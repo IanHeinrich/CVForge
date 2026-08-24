@@ -25,54 +25,43 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
   await setupLocator(stackedRouter: stackedRouter);
-  // Registered here, not through app.dart's @StackedApp dependencies list
-  // like every other service — see PdfExtractionService's doc comment for
-  // why importing package:web there would break the whole VM-run test
-  // suite. main.dart is never imported by a test, so this is the only
-  // place package:web can safely enter the compilation graph.
+  // Registered by hand rather than through app.dart's @StackedApp list —
+  // see PdfExtractionService's doc comment. main.dart is never imported by
+  // a test, so it is the only safe entry point for package:web.
   locator.registerLazySingleton<PdfExtractionService>(
     PdfExtractionServiceWeb.new,
   );
-  // Same reasoning and the same manual-registration mechanism as
-  // PdfExtractionService above: GoogleAuthServiceWeb imports
-  // dart:js_interop (via gis_bindings.dart), which doesn't compile under
-  // the Dart VM, so it can't go through app.dart's normal
-  // @StackedApp(dependencies: [...]) list.
+  // Same reasoning as PdfExtractionService above: GoogleAuthServiceWeb
+  // reaches dart:js_interop, which doesn't compile under the Dart VM.
   locator.registerLazySingleton<GoogleAuthService>(GoogleAuthServiceWeb.new);
   setupDialogUi();
   // Both DateFormat and gen-l10n's own DateTime placeholders throw for any
   // locale whose date symbols haven't been loaded, so this has to happen
   // before the first frame regardless of which locale wins below.
   await initializeDateFormatting();
-  // Awaited, unlike DriveSyncService below, because the alternative is
-  // painting the first frame in the browser's language and then visibly
-  // correcting it. This is one local IndexedDB row, not a network round trip.
+  // Awaited — one local IndexedDB row, against painting the first frame in
+  // the browser's language and then visibly correcting it.
   //
-  // Guarded because ready() rethrows: LocalStorageService documents IndexedDB
-  // being genuinely unavailable (Firefox strict privacy mode), and an
-  // uncaught throw here would mean runApp is never reached — a white screen
-  // for exactly those users. They fall back to the browser's language, and
-  // the existing storage-unavailable banner is what tells them why.
+  // Guarded because ready() rethrows, and IndexedDB really can be
+  // unavailable (Firefox strict privacy mode): an uncaught throw here
+  // means runApp is never reached, a white screen for exactly those users.
+  // They fall back to the browser's language and see the existing
+  // storage-unavailable banner.
   try {
     await locator<SettingsService>().load();
   } catch (_) {}
   await locator<LocalizationService>().initialise();
-  // Resumes a previously-connected Drive sync session (if any) and arms
-  // autosave for the whole app session, regardless of which route the
-  // user lands on first — see DriveSyncService.start's doc comment for
-  // why this can't wait for StartupView. Not awaited: a no-op when never
-  // connected, and otherwise best-effort — the first paint shouldn't
-  // block on a network round trip to Drive.
+  // Arms autosave for the whole session whatever route the user lands on
+  // — see DriveSyncService.start for why this can't wait for StartupView.
+  // Not awaited: the first paint shouldn't block on a Drive round trip.
   unawaited(locator<DriveSyncService>().start());
-  // Awaited, unlike the Drive resume above, because the very first frame
-  // depends on it: `SettingsService.settings` reports the default theme
-  // until this resolves, so a user who chose Light would see a dark frame
-  // and a flip. `unawaited` would only narrow that window, not close it.
+  // Awaited because the first frame depends on it: `settings` reports the
+  // default theme until this resolves, so a user who chose Light sees a
+  // dark frame and a flip. `unawaited` would narrow that, not close it.
   //
-  // Swallowing the failure is safe rather than lazy — `PersistedStoreMixin.
-  // ready` resets its memoized future when the load throws, so
-  // `SettingsViewModel`'s own load re-attempts and surfaces the problem as
-  // `StorageUnavailableCard`. What is lost by losing here is the theme
+  // Swallowing the failure is safe: `PersistedStoreMixin.ready` resets its
+  // memoized future on throw, so `SettingsViewModel` re-attempts and
+  // surfaces `StorageUnavailableCard`. All that is lost here is the theme
   // reverting to its default, and this is a read, so the project's
   // never-fire-and-forget-a-write rule doesn't apply.
   try {
@@ -89,10 +78,9 @@ class MainApp extends StatefulWidget {
 }
 
 /// A [WidgetsBindingObserver] so [didChangeAppLifecycleState] fires on
-/// [AppLifecycleState.hidden] — the tab being backgrounded, minimized, or
-/// closed. On web that's the only reliable signal a debounced write is
-/// about to be cut short, so it's the trigger for flushing both services
-/// immediately rather than waiting on their normal timers.
+/// [AppLifecycleState.hidden]. On web that is the only reliable signal a
+/// debounced write is about to be cut short, so it flushes both services
+/// rather than waiting on their timers.
 class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   final _settingsService = locator<SettingsService>();
 
@@ -144,13 +132,10 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           debugShowCheckedModeBanner: false,
-          // `theme` is Flutter's *light* slot. Both are always supplied and
-          // `themeMode` is always explicit: with a non-null `darkTheme`,
-          // omitting `themeMode` silently defaults to `ThemeMode.system`,
-          // which would make light the default on a light-OS machine.
-          // `MaterialApp` resolves `system` against the platform brightness
-          // itself and rebuilds when the OS flips, so nothing here needs to
-          // watch it.
+          // `theme` is Flutter's *light* slot. `themeMode` is always
+          // explicit: with a non-null `darkTheme`, omitting it silently
+          // defaults to `ThemeMode.system`. `MaterialApp` resolves `system`
+          // against platform brightness itself, so nothing here watches it.
           theme: buildAppTheme(brightness: Brightness.light),
           darkTheme: buildAppTheme(),
           themeMode: _settingsService.settings.themeMode.materialThemeMode,

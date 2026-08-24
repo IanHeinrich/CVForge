@@ -25,13 +25,9 @@ const _twoPaneMinWidth = 560.0;
 const _listWidth = 280.0;
 
 /// The region picker: a list of regions beside a pane explaining the
-/// selected one's conventions.
-///
-/// Was a grid of cards, which stopped working once regions carried real
-/// guidance — eight fixed-width cards each needing a paragraph of
-/// conventions is a wall, not a picker. Separating selection from
-/// explanation keeps the list scannable while letting the detail pane say
-/// as much as a region actually needs.
+/// selected one's conventions. Separating selection from explanation keeps
+/// the list scannable while letting the detail pane say as much as a
+/// region needs.
 ///
 /// One dialog serves both Studio's per-CV choice and the Vault's default —
 /// see [RegionGalleryContext]. Its copy comes from the model, so neither

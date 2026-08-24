@@ -1,37 +1,30 @@
 /// A region's document conventions — what that market expects a CV to look
 /// like, how long it should run, and what it is called there.
 ///
-/// Two of [RegionPreset]'s fields reach the renderer ([RegionPreset.page],
-/// [RegionPreset.dateStyle]); the rest are read by the app's own chrome, the
-/// region picker's advice pane, and the AI Assistant's tailoring prompt.
-/// Nothing here is ever printed inside the produced document.
-///
-/// [RegionProfile] is a plain enum and stays one: the per-region data lives
-/// on [RegionPreset], so this only ever needs to be a stable identifier.
+/// Only [RegionPreset.page] and [RegionPreset.dateStyle] reach the renderer;
+/// the rest feed the app's chrome, the picker's advice pane, and the AI
+/// prompt. Nothing here is printed inside the document. The data lives on
+/// [RegionPreset], so this enum is only ever a stable identifier.
 ///
 /// ## Region is not a locale
 ///
-/// A region is the *market a document targets*, and it is independent of both
-/// of the app's language axes:
+/// A region is the *market a document targets*, independent of both language
+/// axes:
 ///
-/// - **The UI locale** — which language the app's own buttons and labels are
-///   drawn in (`LocalizationService`, `CvPreferences.localeTag`). Someone
-///   applying across borders routinely reads a German interface while
-///   preparing a UK application, so the two must not be inferred from each
-///   other in either direction.
-/// - **The document's language** — which language the produced CV is written
-///   in. A German-language CV can target Austria or Switzerland; an
-///   English-language one can target the UK, the US or Singapore. Region
-///   supplies page size, date convention and the tailoring prompt's advice;
-///   it never supplies vocabulary.
+/// - **The UI locale** (`CvPreferences.localeTag`) — someone applying across
+///   borders routinely reads a German interface while preparing a UK
+///   application, so neither may be inferred from the other.
+/// - **The document's language** — a German-language CV can target Austria
+///   or Switzerland. Region supplies page size, date convention and prompt
+///   advice; never vocabulary.
 ///
 /// Region is the coarsest of the three by design: [RegionProfile.dach] groups
-/// Germany, Austria and Switzerland precisely because they share a market's
-/// conventions, and it therefore cannot be used to tell Vienna's *Jän.* from
-/// Berlin's *Jan.* — that is the document language's job, not this enum's.
+/// Germany, Austria and Switzerland because they share market conventions, so
+/// it cannot tell Vienna's *Jän.* from Berlin's *Jan.* — that is the document
+/// language's job.
 ///
-/// Declaration order is the region picker's display order: curated rather
-/// than alphabetical, with the two original regions first.
+/// Declaration order is the picker's display order: curated, not
+/// alphabetical.
 enum RegionProfile { uk, us, anz, dach, nordics, europe, latamLetter, latamA4 }
 
 /// A page-size token, not `package:pdf`'s `PdfPageFormat` directly — this
@@ -41,51 +34,37 @@ enum RegionProfile { uk, us, anz, dach, nordics, europe, latamLetter, latamA4 }
 enum PdfPageFormatToken { a4, letter }
 
 /// `CvComposer._formatDateRange`'s seam — every region renders "Mon YYYY"
-/// today. DACH's gap-free, month-precise chronology is a *content
-/// completeness* convention (see that preset's `conventions`), not a
-/// different date format, so it needs no value here. The switch lives on
-/// this enum rather than on [RegionProfile] directly so a region that
-/// genuinely differs needs one new case in the composer, not a change at
+/// today. On its own enum rather than on [RegionProfile] so a region that
+/// genuinely differs costs one new case in the composer, not a change at
 /// every call site.
 ///
-/// Deliberately **not** shown in the region picker, though it once was. It
-/// decides the date's *shape*, never its words — which month name gets
-/// printed comes from `DocumentLanguage`. With one case in this enum the
-/// row read identically under all eight regions while carrying a worked
-/// example in a language the region does not choose, so it claimed the
-/// document language's ground and told the reader nothing about the
-/// decision they were making. Add it back only if a second case ever makes
-/// it a real difference between regions.
+/// **Not** shown in the region picker: it decides the date's shape, never
+/// its words, which come from `DocumentLanguage`. With one case the row
+/// read identically under all eight regions while claiming the document
+/// language's ground. Surface it if a second case ever appears.
 enum RegionDateStyle { monYyyy }
 
 /// What the app's own chrome calls the document.
 ///
-/// Deliberately a closed two-value set rather than a per-region string. The
-/// chrome's sentence frames are English, so a market's own term would read
-/// as a bug in them — "No Lebensläufe yet", "Upload a PDF Lebenslauf" — and
-/// because `AppChrome` and `AnalyzerViewModel` read the *global default*
-/// region, that would leak well outside Studio. [RegionPreset.localName]
-/// carries the local term for the two surfaces where it belongs.
+/// A closed two-value set, not a per-region string: the chrome's sentence
+/// frames are English, so a market's own term reads as a bug in them — "No
+/// Lebensläufe yet" — and `AppChrome` reads the *global default* region, so
+/// it would leak well outside Studio. [RegionPreset.localName] carries the
+/// local term where it belongs.
 ///
-/// All four forms are stated rather than derived. The `+ 's'` /
-/// `substring(0, 1).toUpperCase()` derivation this replaced happened to be
-/// correct for every noun then in the table, but that was a property of the
-/// nouns, not of the code.
+/// All four forms are stated rather than derived: a `+ 's'` rule is a
+/// property of the nouns currently in the table, not of the code.
 enum RegionDocumentNoun { cv, resume }
 
-/// Whether this market expects a photograph on the document.
+/// Whether this market expects a photograph.
 ///
-/// Advice, plus exactly one consequence: `StudioViewModel`'s
-/// `photoRegionWarning` reads it to flag a photo-printing template aimed
-/// at a market that rejects photographs. It never changes what is
-/// rendered.
+/// Advice plus exactly one consequence: `StudioViewModel
+/// .photoRegionWarning` flags a photo-printing template aimed at a market
+/// that rejects them. It never changes what is rendered.
 ///
-/// Whether a photo appears is a property of the chosen template (see
-/// `TemplateTag.photo`), never of the region — a region that silently
-/// added or removed one would change the document out from under the
-/// user. Do not wire this into `CvComposer`, which passes
-/// `ContactBasics.photo` through unconditionally and lets the template
-/// decide.
+/// Whether a photo appears is a property of the template (`TemplateTag
+/// .photo`), never the region — do not wire this into `CvComposer`, which
+/// passes `ContactBasics.photo` through and lets the template decide.
 enum RegionPhotoStance { prohibited, discouraged, optional, expected }
 
 /// How much personal data (date of birth, nationality, marital status,
@@ -94,29 +73,21 @@ enum RegionPhotoStance { prohibited, discouraged, optional, expected }
 /// acts on this.
 enum RegionPersonalDetailsStance { omit, minimal, traditional }
 
-/// Which English spelling convention this market reads as native.
-///
-/// Surfaced as advice and fed to the AI Assistant's prompt. cv-forge never
-/// bulk-rewrites stored Vault text on its own — but a bullet the assistant
-/// chooses to rewrite will come back in the target region's spelling, since
-/// that sits inside the rewrite envelope it already has. `TailorableField`'s
-/// revert control is the escape hatch.
+/// Which English spelling convention this market reads as native. Advice,
+/// and fed to the AI prompt — nothing bulk-rewrites stored Vault text, but
+/// a bullet the assistant rewrites comes back in the region's spelling.
+/// `TailorableField`'s revert control is the escape hatch.
 enum RegionSpelling { enGb, enUs, enAu }
 
 /// One region's concrete document conventions.
 ///
-/// Deliberately a hand-written `const` class rather than `@freezed`, against
-/// CLAUDE.md's default. This is a compile-time lookup table, not a data
-/// model: never constructed at runtime (only `const` entries in a `const`
-/// map), never serialised (persistence keys on [RegionProfile]'s own name —
-/// see `regionPresets`), and with no consumer for `copyWith`/`==`/
-/// `hashCode`. Freezing it would add a generated file to regenerate on every
-/// field addition and buy nothing. `AiAssistantVaultPayload` is the existing
-/// precedent for this carve-out.
+/// A hand-written `const` class rather than `@freezed`, against CLAUDE.md's
+/// default: a compile-time lookup table, never constructed at runtime, never
+/// serialised (persistence keys on [RegionProfile]'s name), and with no
+/// consumer for `copyWith`/`==`. `AiAssistantVaultPayload` is the precedent.
 ///
-/// Every field here has at least one named reader. A field with no reader
-/// does not belong on this class — that discipline predates this expansion
-/// and survives it.
+/// Every field here has at least one named reader; one without does not
+/// belong on this class.
 class RegionPreset {
   const RegionPreset({
     required this.displayName,
@@ -137,17 +108,15 @@ class RegionPreset {
 
   final String displayName;
 
-  /// Which countries this preset actually covers, as a plain list —
-  /// "Sweden, Norway, Denmark, Finland". Rendered directly under
-  /// [displayName] in the picker and in Settings' summary row, and fed to
-  /// the AI prompt so the model knows the target countries rather than
-  /// inferring them from a label.
+  /// Which countries this preset covers — "Sweden, Norway, Denmark,
+  /// Finland". Shown under [displayName] and fed to the AI prompt, so the
+  /// model isn't inferring the countries from a label.
   final String coverage;
 
   /// The region's flags as emoji, representative country first, at most
-  /// four. Rendered by `RegionFlagStack`, never concatenated into one
-  /// string — four glyphs in a row overflow both the picker's leading mark
-  /// and `StudioDocumentBar`'s icon slot.
+  /// four. Rendered by `RegionFlagStack`, never concatenated — four glyphs
+  /// in a row overflow the picker's leading mark and the document bar's
+  /// icon slot.
   final List<String> flags;
 
   final PdfPageFormatToken page;
@@ -158,18 +127,15 @@ class RegionPreset {
   final RegionDocumentNoun documentNoun;
 
   /// What the market itself calls the document — "Lebenslauf", "Hoja de
-  /// Vida". Shown only in the region picker's detail pane and fed to the AI
-  /// prompt; never used in app chrome. Equal to [documentNoun]'s English
-  /// form wherever the two coincide.
+  /// Vida". The picker's detail pane and the AI prompt only, never chrome.
   final String localName;
 
   final RegionDateStyle dateStyle;
 
   /// The page count past which `StudioViewModel.pageCountWarning` goes
-  /// amber. The *typical* maximum, not a hard cap — nothing is blocked. A
-  /// region whose executives run longer than its mid-career candidates is
-  /// set to the mid-career number, since that is the common case the
-  /// warning exists for; [lengthNote] carries the exception.
+  /// amber. Typical, not a cap — nothing is blocked. Set to the mid-career
+  /// number where a market's executives run longer; [lengthNote] carries
+  /// the exception.
   final int typicalMaxPages;
 
   /// A sentence or two on expected length, shown in the picker, in the
@@ -180,36 +146,27 @@ class RegionPreset {
   final RegionPersonalDetailsStance personalDetails;
   final RegionSpelling spelling;
 
-  /// How this market expects achievements to be framed — the US's
-  /// quantified ROI, the Nordics' team-first register, Australasia's
-  /// context-rich detail. Per-region prose rather than an enum: no two
-  /// regions share one.
+  /// How this market expects achievements to be framed. Per-region prose
+  /// rather than an enum, because no two regions share one.
   final String toneNote;
 
-  /// The region's conventions as standalone bullets, rendered as a list in
-  /// the picker's detail pane and joined into the AI prompt's region block.
-  /// Each entry is a complete sentence that reads correctly on its own —
-  /// they appear in two very different surfaces and neither adds connecting
+  /// The region's conventions as standalone bullets — a list in the
+  /// picker's detail pane, and joined into the AI prompt's region block.
+  /// Each must be a complete sentence: neither surface adds connecting
   /// prose.
   final List<String> conventions;
 }
 
-/// The instruction-register version of each stance, for the AI Assistant's
-/// region block. Its short display counterpart now lives in
-/// `lib/ui/common/l10n/model_labels.dart`: two consumers with genuinely
-/// different registers, so one shared string would be wrong in both — and
-/// now they are two files as well as two strings, because only one of them
-/// is translated. These stay English; the model is instructed in English,
-/// and translating a prompt changes its behaviour.
+/// The instruction-register version of each stance, for the AI prompt. The
+/// short display counterpart lives in `lib/ui/common/l10n/model_labels
+/// .dart` — two consumers with different registers, and only one of them
+/// translated. These stay English; the model is instructed in English.
 ///
-/// The stances describing something the Vault cannot hold carry their own
-/// anti-fabrication guard inline — telling a model a date of birth is
-/// expected, while handing it a Vault with no field for one, is otherwise
-/// an invitation to invent it. The photo stances are phrased so they hold
-/// whether or not a photo has been uploaded: the assistant produces text
-/// and never touches `ContactBasics.photo`, so "CVForge handles it" is the
-/// accurate instruction either way, and no `hasPhoto` flag has to be
-/// threaded through `aiAssistantSystemPromptFor` to keep it true.
+/// Stances describing something the Vault cannot hold carry an inline
+/// anti-fabrication guard: telling a model a date of birth is expected,
+/// while handing it a Vault with no field for one, invites invention. The
+/// photo stances hold whether or not a photo was uploaded, so no `hasPhoto`
+/// flag has to reach `aiAssistantSystemPromptFor`.
 extension RegionPhotoStancePrompt on RegionPhotoStance {
   String get promptLabel => switch (this) {
     RegionPhotoStance.prohibited =>

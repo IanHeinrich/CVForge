@@ -15,35 +15,26 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CvDraft {
 
- int get schemaVersion; String get id; String get name; String get templateId; RegionProfile get region;/// The language this CV is written in — the value that actually
-/// renders, as opposed to `DocumentDefaults.language`, which only
-/// seeded it.
+ int get schemaVersion; String get id; String get name; String get templateId; RegionProfile get region;/// The language this CV is written in — the value that renders, where
+/// `DocumentDefaults.language` only seeded it.
 ///
-/// Per-draft rather than per-Vault because a draft is one application
-/// to one employer: applying to a firm in Munich and a firm in London
-/// from the same career history needs two languages at once. Snapshot
-/// at creation, never re-resolved, exactly like [region].
-///
-/// Independent of the app's own UI locale, which never reaches the
-/// document — see [DocumentLanguage].
- DocumentLanguage get documentLanguage;/// Free-text, for the user's own tracking ("tailored for the Acme
-/// Backend role, applied 2026-08-19") — never rendered into the CV
-/// itself.
- String get notes; List<String> get experienceIds;/// experienceId -> ordered bulletIds included for that experience.
-/// A missing key means no bullets are shown for that experience — this
-/// map is populated by the service layer when an experience is added
-/// to a draft, not inferred here.
+/// Per-draft because a draft is one application to one employer:
+/// Munich and London from one career history need two languages at
+/// once. Snapshot at creation and never re-resolved, like [region].
+/// Independent of the UI locale — see [DocumentLanguage].
+ DocumentLanguage get documentLanguage;/// Free-text for the user's own tracking — never rendered.
+ String get notes; List<String> get experienceIds;/// experienceId -> ordered bulletIds included. A missing key means no
+/// bullets are shown; the service layer populates this when an
+/// experience is added, and nothing is inferred here.
  Map<String, List<String>> get bulletIds; List<String> get projectIds;/// Same shape and rationale as [bulletIds], one level over for
 /// [Project] bullets instead of [Experience] bullets.
  Map<String, List<String>> get projectBulletIds; List<String> get skillIds; List<String> get educationIds; List<String> get hobbyIds; List<String> get publicationIds;/// Same shape and rationale as [bulletIds]/[projectBulletIds], one
 /// entity type over for [Publication] bullets.
- Map<String, List<String>> get publicationBulletIds; Set<CvSectionType> get hiddenSections;/// This draft's own print order — reorderable per-draft in Studio
-/// (drag handles in the "Sections" list). Distinct from
-/// `CvTemplate.sectionOrder`, which is only a seed suggestion
-/// consulted once, when a brand-new draft is constructed (see
-/// `DraftService.createDraft`) — switching a draft's template
-/// afterwards never touches this field. Read [effectiveSectionOrder],
-/// not this field directly, anywhere the order is consumed.
+ Map<String, List<String>> get publicationBulletIds; Set<CvSectionType> get hiddenSections;/// This draft's own print order, reorderable in Studio. Distinct from
+/// `CvTemplate.sectionOrder`, which only seeds a brand-new draft —
+/// switching template afterwards never touches this. Read
+/// [effectiveSectionOrder], never this field, wherever order is
+/// consumed.
  List<CvSectionType> get sectionOrder;/// A draft-only rewrite of the Vault's professional summary — null
 /// means "inherit the Vault's", never "omit" (the Summary section
 /// checkbox is what omits it). `CvComposer` prefers this over the
@@ -81,16 +72,13 @@ mixin _$CvDraft {
  Map<String, String> get educationGradeOverrides;/// The language this draft was last translated into, or null if it
 /// never has been.
 ///
-/// Pure provenance — it changes nothing about how the draft renders,
-/// since a translation is stored as ordinary overrides above and is
-/// indistinguishable from a hand edit once written. It exists so
-/// Studio can offer "remove translation", and can tell the user their
-/// translation is stale once [documentLanguage] moves away from it.
- DocumentLanguage? get translatedTo;/// The job ad this draft is being tailored for — a persisted field, not
-/// a modal's transient text, so an AI Assistant pass can be re-run and
-/// refined against the same ad. Null means no ad has been entered yet;
-/// distinct from [notes], which is the user's own application tracking
-/// and is never rendered or sent anywhere.
+/// Pure provenance — a translation is stored as ordinary overrides
+/// and is indistinguishable from a hand edit, so this changes nothing
+/// about rendering. It exists so Studio can offer "remove translation"
+/// and can say when one has gone stale.
+ DocumentLanguage? get translatedTo;/// The job ad this draft is tailored for. Persisted rather than a
+/// modal's transient text, so an AI pass can be re-run against the
+/// same ad. Distinct from [notes], which is never sent anywhere.
  String? get targetJobDescription; DateTime get updatedAt;
 /// Create a copy of CvDraft
 /// with the given fields replaced by the non-null parameter values.
@@ -326,21 +314,15 @@ class _CvDraft implements CvDraft {
 @override final  String name;
 @override final  String templateId;
 @override@JsonKey() final  RegionProfile region;
-/// The language this CV is written in — the value that actually
-/// renders, as opposed to `DocumentDefaults.language`, which only
-/// seeded it.
+/// The language this CV is written in — the value that renders, where
+/// `DocumentDefaults.language` only seeded it.
 ///
-/// Per-draft rather than per-Vault because a draft is one application
-/// to one employer: applying to a firm in Munich and a firm in London
-/// from the same career history needs two languages at once. Snapshot
-/// at creation, never re-resolved, exactly like [region].
-///
-/// Independent of the app's own UI locale, which never reaches the
-/// document — see [DocumentLanguage].
+/// Per-draft because a draft is one application to one employer:
+/// Munich and London from one career history need two languages at
+/// once. Snapshot at creation and never re-resolved, like [region].
+/// Independent of the UI locale — see [DocumentLanguage].
 @override@JsonKey() final  DocumentLanguage documentLanguage;
-/// Free-text, for the user's own tracking ("tailored for the Acme
-/// Backend role, applied 2026-08-19") — never rendered into the CV
-/// itself.
+/// Free-text for the user's own tracking — never rendered.
 @override@JsonKey() final  String notes;
  final  List<String> _experienceIds;
 @override@JsonKey() List<String> get experienceIds {
@@ -349,15 +331,13 @@ class _CvDraft implements CvDraft {
   return EqualUnmodifiableListView(_experienceIds);
 }
 
-/// experienceId -> ordered bulletIds included for that experience.
-/// A missing key means no bullets are shown for that experience — this
-/// map is populated by the service layer when an experience is added
-/// to a draft, not inferred here.
+/// experienceId -> ordered bulletIds included. A missing key means no
+/// bullets are shown; the service layer populates this when an
+/// experience is added, and nothing is inferred here.
  final  Map<String, List<String>> _bulletIds;
-/// experienceId -> ordered bulletIds included for that experience.
-/// A missing key means no bullets are shown for that experience — this
-/// map is populated by the service layer when an experience is added
-/// to a draft, not inferred here.
+/// experienceId -> ordered bulletIds included. A missing key means no
+/// bullets are shown; the service layer populates this when an
+/// experience is added, and nothing is inferred here.
 @override@JsonKey() Map<String, List<String>> get bulletIds {
   if (_bulletIds is EqualUnmodifiableMapView) return _bulletIds;
   // ignore: implicit_dynamic_type
@@ -428,21 +408,17 @@ class _CvDraft implements CvDraft {
   return EqualUnmodifiableSetView(_hiddenSections);
 }
 
-/// This draft's own print order — reorderable per-draft in Studio
-/// (drag handles in the "Sections" list). Distinct from
-/// `CvTemplate.sectionOrder`, which is only a seed suggestion
-/// consulted once, when a brand-new draft is constructed (see
-/// `DraftService.createDraft`) — switching a draft's template
-/// afterwards never touches this field. Read [effectiveSectionOrder],
-/// not this field directly, anywhere the order is consumed.
+/// This draft's own print order, reorderable in Studio. Distinct from
+/// `CvTemplate.sectionOrder`, which only seeds a brand-new draft —
+/// switching template afterwards never touches this. Read
+/// [effectiveSectionOrder], never this field, wherever order is
+/// consumed.
  final  List<CvSectionType> _sectionOrder;
-/// This draft's own print order — reorderable per-draft in Studio
-/// (drag handles in the "Sections" list). Distinct from
-/// `CvTemplate.sectionOrder`, which is only a seed suggestion
-/// consulted once, when a brand-new draft is constructed (see
-/// `DraftService.createDraft`) — switching a draft's template
-/// afterwards never touches this field. Read [effectiveSectionOrder],
-/// not this field directly, anywhere the order is consumed.
+/// This draft's own print order, reorderable in Studio. Distinct from
+/// `CvTemplate.sectionOrder`, which only seeds a brand-new draft —
+/// switching template afterwards never touches this. Read
+/// [effectiveSectionOrder], never this field, wherever order is
+/// consumed.
 @override@JsonKey() List<CvSectionType> get sectionOrder {
   if (_sectionOrder is EqualUnmodifiableListView) return _sectionOrder;
   // ignore: implicit_dynamic_type
@@ -568,17 +544,14 @@ class _CvDraft implements CvDraft {
 /// The language this draft was last translated into, or null if it
 /// never has been.
 ///
-/// Pure provenance — it changes nothing about how the draft renders,
-/// since a translation is stored as ordinary overrides above and is
-/// indistinguishable from a hand edit once written. It exists so
-/// Studio can offer "remove translation", and can tell the user their
-/// translation is stale once [documentLanguage] moves away from it.
+/// Pure provenance — a translation is stored as ordinary overrides
+/// and is indistinguishable from a hand edit, so this changes nothing
+/// about rendering. It exists so Studio can offer "remove translation"
+/// and can say when one has gone stale.
 @override final  DocumentLanguage? translatedTo;
-/// The job ad this draft is being tailored for — a persisted field, not
-/// a modal's transient text, so an AI Assistant pass can be re-run and
-/// refined against the same ad. Null means no ad has been entered yet;
-/// distinct from [notes], which is the user's own application tracking
-/// and is never rendered or sent anywhere.
+/// The job ad this draft is tailored for. Persisted rather than a
+/// modal's transient text, so an AI pass can be re-run against the
+/// same ad. Distinct from [notes], which is never sent anywhere.
 @override final  String? targetJobDescription;
 @override final  DateTime updatedAt;
 

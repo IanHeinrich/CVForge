@@ -5,27 +5,13 @@ part 'cv_preferences.g.dart';
 
 /// The slice of [AppSettings] that follows the user between devices.
 ///
-/// Split out as its own type rather than syncing [AppSettings] wholesale,
-/// because that guarantee needs to be structural. A secret must not be
-/// reachable from anything that crosses the network, and "we remembered
-/// not to add one" is a weaker promise than "this type has five fields and
-/// none of them is a credential". `CvBackupBundle` carries this, never
-/// [AppSettings], so a future field added there cannot start travelling by
-/// accident.
+/// A separate type rather than syncing [AppSettings] wholesale, so that
+/// "nothing secret crosses the network" is structural: `CvBackupBundle`
+/// carries this, never [AppSettings].
 ///
-/// Deliberately excluded, and none of these are oversights:
-/// - **the API key** — a secret, and it isn't even a field on
-///   [AppSettings]; it lives in its own storage row.
-/// - **`lastBackupAt`** — a fact about one device ("*this* browser
-///   exported recently"). Syncing it would have a second device claim a
-///   download it never made.
-/// - **anything that shapes the produced CV** — the default region, the
-///   document language, and the default section layout all live on
-///   `CvVault.documentDefaults` instead. They travel with the career
-///   content they shape rather than with the app's settings, because the
-///   question that sorts the two is "does this change the CV?" and these
-///   do. What is left here is the AI Assistant's setup and the language
-///   the *app* is drawn in, neither of which reaches a document.
+/// Excluded: the API key (a secret, in its own storage row); `lastBackupAt`
+/// (a fact about one device); and anything that shapes the produced CV,
+/// which lives on `CvVault.documentDefaults` instead.
 @freezed
 abstract class CvPreferences with _$CvPreferences {
   const factory CvPreferences({
@@ -33,48 +19,27 @@ abstract class CvPreferences with _$CvPreferences {
     String? aiAssistantModelId,
 
     /// When an AI Assistant connection test first succeeded on *any*
-    /// device — the one piece of AI Assistant setup that can safely travel,
-    /// and the reason the key itself doesn't need to.
-    ///
-    /// A key is a secret, so it stays on the device that has it (see this
-    /// class' exclusion list). But "you have already set this up
-    /// somewhere" is not a secret, and without it a second device is
-    /// indistinguishable from a brand-new user: it shows an empty box with
-    /// no hint that the missing piece is a key the user already owns.
-    /// Settings reads this to say so, and to prompt for the key rather
-    /// than for the whole setup.
+    /// device. Lets a second device prompt for just the key rather than
+    /// the whole setup, without the key itself having to travel.
     ///
     /// Never cleared by removing a key — it records that setup happened,
-    /// not that this device is currently configured. [ApiKeyOrigin] is the
-    /// authority on the latter.
+    /// not that this device is configured. [ApiKeyOrigin] owns the latter.
     DateTime? aiAssistantConfiguredAt,
 
-    /// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
-    /// Null — the default — means "follow the browser's own locale", and is
-    /// what a user who never opens the language picker keeps.
+    /// The UI language as a BCP-47 tag; null means "follow the browser's
+    /// own locale", so only an *explicit* choice ever syncs.
     ///
-    /// That default is why this belongs here rather than in [AppSettings]:
-    /// only an *explicit* choice ever travels between devices. Someone who
-    /// never picks a language syncs nothing, and each browser goes on
-    /// following itself. A language is a fact about the person, not about
-    /// the device the way `lastBackupAt` is.
+    /// A tag rather than an enum, so adding a language is one new `.arb`
+    /// file. `LocalizationService` validates it on read and falls back to
+    /// the platform locale for a language this build no longer ships.
     ///
-    /// A tag rather than an enum so that adding a supported language is
-    /// exactly one new `.arb` file, with nothing here to keep in lockstep.
-    /// `LocalizationService` validates it on read and falls back to the
-    /// platform locale if it names a language this build no longer ships.
-    ///
-    /// Only ever the language of the app's *chrome*, and never the
-    /// language the CV is written in — that is `DocumentLanguage`, which
-    /// lives on the Vault and the draft precisely so the two cannot be
-    /// confused. Someone reading a Spanish interface while preparing an
-    /// English CV is the ordinary case, not an edge one.
+    /// Never the language the CV is written in — that is
+    /// `DocumentLanguage`, which owns the distinction.
     String? localeTag,
 
     /// When any field above last changed — the tie-break when two devices
-    /// have both edited their preferences since they last agreed. These
-    /// are flat scalars with no ids to merge by, so unlike the Vault there
-    /// is nothing finer to fall back on.
+    /// have both edited since they last agreed. Flat scalars with no ids,
+    /// so unlike the Vault there is nothing finer to merge by.
     required DateTime updatedAt,
   }) = _CvPreferences;
 

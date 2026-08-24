@@ -3,28 +3,25 @@ import 'dart:typed_data';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_text_node.dart';
 
-/// Which stage of [PdfExtractionService.extract] failed — mirrors
-/// [PdfExportStage]'s precedent so the UI can show different recovery copy
-/// per failure mode.
+/// Which stage of [PdfExtractionService.extract] failed, so the UI can
+/// show recovery copy per mode. Mirrors [PdfExportStage].
 enum PdfExtractionFailure {
-  /// The `pdf.js` module itself failed to load — a network/deployment
-  /// problem, not a problem with the user's file.
+  /// The `pdf.js` module failed to load — a network/deployment problem,
+  /// not a problem with the user's file.
   moduleLoadFailed,
 
   /// `getDocument()` rejected — corrupt, encrypted, or not a PDF at all.
   invalidPdf,
 
-  /// The document is a pure XFA form. Confirmed against the vendored
-  /// bundle: `getTextContent()` follows a completely different,
-  /// geometry-free code path for these, so there is nothing the real
-  /// implementation can hand `AtsAnalyzerService` — surfaced as a
-  /// distinct failure rather than silently returning zero nodes.
+  /// A pure XFA form. Confirmed against the vendored bundle:
+  /// `getTextContent()` takes a geometry-free path for these, so there is
+  /// nothing to hand `AtsAnalyzerService` — hence a distinct failure
+  /// rather than silently returning zero nodes.
   unsupportedXfa,
 }
 
-/// Wraps whatever [PdfExtractionService.extract]'s failing stage threw,
-/// tagged with [failure] so callers can classify it without inspecting the
-/// underlying exception.
+/// Wraps whatever the failing stage threw, tagged with [failure] so
+/// callers classify it without inspecting the underlying exception.
 class PdfExtractionException implements Exception {
   const PdfExtractionException(this.failure, this.cause);
 
@@ -36,36 +33,24 @@ class PdfExtractionException implements Exception {
       'PdfExtractionException(failure: $failure, cause: $cause)';
 }
 
-/// Marshals `pdf.js` output into an [AtsExtractedDocument] — deliberately
-/// dumb, no analysis logic (that lives in `AtsAnalyzerService`, pure Dart
-/// and fully VM-testable).
+/// Marshals `pdf.js` output into an [AtsExtractedDocument] — no analysis
+/// logic, which lives in the pure-Dart `AtsAnalyzerService`.
 ///
-/// This is an abstract interface, not a concrete class, for a reason
-/// specific to this one service: the real implementation
-/// (`PdfExtractionServiceWeb`) imports `package:web`/`dart:js_interop`,
-/// and `package:web` does not compile under the Dart VM at all — not "is
-/// untested there," a genuine compile failure. Every other service in
-/// `lib/services/` is registered as its own concrete type via
-/// `LazySingleton(classType: X)` in `app.dart`, which `stacked_generator`
-/// bakes into the single, centrally-generated `app.locator.dart` —
-/// imported by nearly every test file. Registering `PdfExtractionServiceWeb`
-/// there directly would pull `package:web` into that same central file's
-/// compilation unit and break the *entire* VM-run test suite, not just
-/// this feature's — confirmed the hard way; see `main.dart`'s manual
-/// registration and its doc comment for how this service is wired instead.
-/// `AtsAnalyzerService` has no such problem (pure Dart) and is registered
-/// normally.
+/// An abstract interface rather than a concrete class because
+/// `PdfExtractionServiceWeb` imports `package:web`, which does not compile
+/// under the Dart VM at all. Registering it through `app.dart` would pull
+/// that import into the centrally-generated `app.locator.dart` and break
+/// the *entire* VM-run test suite — so `main.dart` registers it by hand.
 abstract class PdfExtractionService {
   Future<AtsExtractedDocument> extract(Uint8List bytes);
 
-  /// The page-space → pixel-space transform for one page at [dpi] — call
-  /// with the same [dpi] passed to `Printing.raster(bytes, [pageIndex],
-  /// dpi)` so the two agree on scale. A separate call from [extract]
-  /// deliberately: this is a per-page-you're-about-to-render cost, not a
-  /// once-per-document one, and re-derives the transform via `pdf.js`'s
-  /// own `getViewport()` rather than rescaling a cached value, since a
-  /// cached page-space matrix combined with an assumed rescale factor is
-  /// one more place a sign or scale error could hide.
+  /// The page-space → pixel-space transform for one page at [dpi]. Pass
+  /// the same [dpi] as `Printing.raster`, so the two agree on scale.
+  ///
+  /// Separate from [extract] because it is a per-page-about-to-render
+  /// cost, and it re-derives via `pdf.js`'s own `getViewport()` rather
+  /// than rescaling a cached matrix — one less place a sign or scale
+  /// error can hide.
   Future<AtsTextMatrix> getPageViewportTransform(
     Uint8List bytes, {
     required int pageIndex,

@@ -21,21 +21,17 @@ import 'analyzer_xray_rail.dart';
 import 'ats_xray_painter.dart';
 
 /// The X-Ray overlay: a rasterized page backdrop with severity-styled
-/// evidence boxes, paired with [AnalyzerXrayRail] as the feature's primary
-/// view — findings and the page render together in one view rather than
-/// two tabs cross-referenced by a "Show in X-Ray" jump action, since a
+/// evidence boxes, paired with [AnalyzerXrayRail]. Findings and the page
+/// render together rather than in two cross-referenced tabs, since a
 /// findings list with no way to see *where* each problem is defeats the
 /// point of a visual overlay.
 ///
-/// Desktop gets a side-by-side split (rail | page); mobile/tablet share a
-/// tabbed layout — the `StudioViewDesktop`/`.compact` precedent, but
-/// inlined as two builder methods on one `State` rather than two widget
-/// classes: the split shares camera/selection/page state and callbacks
-/// deeply enough that passing all of it across a widget boundary would be
-/// pure boilerplate for no reuse benefit (unlike Studio's panes, which
-/// are genuinely independent). Page loading ([XrayPageLoader]) and camera
-/// math/animation ([XrayCameraController]) are their own classes; this
-/// `State` owns selection, page-navigation, and hover/hit-testing.
+/// Desktop splits rail | page; mobile and tablet share a tabbed layout.
+/// Both are builder methods on this one `State` rather than two widget
+/// classes — they share camera, selection and page state deeply enough
+/// that a widget boundary would be pure boilerplate. [XrayPageLoader] and
+/// [XrayCameraController] are separate; this `State` owns selection,
+/// page navigation, and hover/hit-testing.
 class AnalyzerXrayPanel extends StatefulWidget {
   const AnalyzerXrayPanel({super.key, required this.viewModel});
 
@@ -63,9 +59,7 @@ class _FrameSingle extends _FrameRequest {
   final int nodeIndex;
 }
 
-/// Back to the whole-page fit — requested on deselecting a finding, so the
-/// camera doesn't stay zoomed in on wherever the (now-cleared) selection
-/// used to be.
+/// Back to the whole-page fit, on deselecting a finding.
 class _FrameFit extends _FrameRequest {
   const _FrameFit();
 }

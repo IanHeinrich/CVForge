@@ -13,11 +13,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// [CircularProgressIndicator] is the better tool: a full strike cycle takes
 /// [_cycle], so a short wait shows an arbitrary fragment of a swing.
 ///
-/// This is the same animation as the pre-Flutter splash in `web/index.html`,
-/// which is where the swing's geometry is worked out and commented in full.
-/// Both are driven from the same numbers, so a change to one wants the same
-/// change to the other; they are separate because that one has to run before
-/// any Dart does.
+/// The same animation as the pre-Flutter splash in `web/index.html`, which
+/// works out the swing's geometry in full. Both use the same numbers, so a
+/// change to one wants the same change to the other; they are separate
+/// because that one has to run before any Dart does.
 class BrandMarkLoader extends StatefulWidget {
   const BrandMarkLoader({
     super.key,

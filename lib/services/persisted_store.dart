@@ -6,30 +6,18 @@ import 'package:stacked/stacked.dart';
 /// Shared plumbing behind every service that persists an aggregate to
 /// [LocalStorageService] with a debounced write and a surfaced (never
 /// swallowed) persistence failure. Mixed into `VaultService` and
-/// `DraftService` — see either for the concrete shape; this file owns
-/// only the mechanism common to both:
+/// `DraftService`; this file owns only the mechanism common to both.
 ///
-/// - An idempotent [ready] load, safe to call from every read/write
-///   method — see [ready]'s own doc comment for exactly why its
-///   failure-reset has to be wired the way it is.
-/// - A short debounced write via [scheduleWrite], so rapid successive
-///   edits (typing, toggling checkboxes) collapse into one storage write
-///   instead of one per keystroke.
-/// - [persistNow], which always writes whichever value [scheduleWrite]
-///   was most recently called for, not necessarily whatever the mixing-in
-///   service considers "current" by the time it runs — so flushing after
-///   the service has moved on to something else mid-debounce can never
-///   silently drop the pending write.
-/// - [persistError], surfaced rather than swallowed on a write failure,
-///   per this project's "never fire-and-forget a write of user data"
-///   rule.
-/// - [quarantine], for a payload that fails to parse on load: written
-///   aside under a timestamped key rather than discarded, so one corrupt
-///   entry never blocks the rest of what's in storage from loading.
+/// [ready] is idempotent and safe to call from every read and write.
+/// [scheduleWrite] collapses rapid edits into one storage write.
+/// [persistNow] flushes whichever value [scheduleWrite] was most recently
+/// called for, so a flush after the service has moved on can never drop
+/// the pending write. [persistError] is surfaced per this project's "never
+/// fire-and-forget a write of user data" rule, and [quarantine] sets a
+/// corrupt payload aside so it can't block the rest of storage.
 mixin PersistedStoreMixin<T> {
-  /// The mixing-in service's own [LocalStorageService] — typically just
-  /// `locator<LocalStorageService>()` handed back through a getter, since
-  /// a mixin can't declare its own constructor-injected fields.
+  /// The mixing-in service's own [LocalStorageService], through a getter
+  /// because a mixin cannot declare constructor-injected fields.
   LocalStorageService get storage;
 
   final ReactiveValue<Object?> _persistError = ReactiveValue<Object?>(null);
@@ -38,25 +26,21 @@ mixin PersistedStoreMixin<T> {
   /// next successful one.
   Object? get persistError => _persistError.value;
 
-  /// A direct setter, for a mixing-in service that persists a *second*
-  /// aggregate this mixin doesn't know about (e.g. `DraftService`'s
-  /// `DraftIndex`) alongside the [T] this mixin manages, and needs to
-  /// report that write's own success/failure through the same
+  /// For a service persisting a *second* aggregate this mixin doesn't know
+  /// about (`DraftService`'s `DraftIndex`), reporting through the same
   /// [persistError] its callers already watch.
   set persistError(Object? value) => _persistError.value = value;
 
-  /// The underlying reactive value backing [persistError] — exposed (not
-  /// just the unwrapped getter) so the mixing-in service's constructor can
-  /// list it in `listenToReactiveValues` alongside its own reactive state.
+  /// The reactive value behind [persistError], exposed so the mixing-in
+  /// service can list it in `listenToReactiveValues`.
   ReactiveValue<Object?> get persistErrorNotifier => _persistError;
 
   Future<void>? _readyFuture;
   Timer? _writeDebounce;
   T? _pendingWrite;
 
-  /// The real (possibly slow, possibly failing) initial load: reads
-  /// storage, migrates/quarantines as needed, and populates whatever
-  /// reactive state the mixing-in service exposes.
+  /// The initial load: read storage, migrate or quarantine as needed, and
+  /// populate the mixing-in service's reactive state.
   Future<void> loadFromStorage();
 
   /// Serializes and writes [value] under this store's own key(s).
@@ -65,16 +49,15 @@ mixin PersistedStoreMixin<T> {
   /// itself.
   Future<void> writeToStorage(T value);
 
-  /// [loadFromStorage] failing (storage genuinely unavailable) must not
-  /// poison every subsequent call. The reset is chained via
-  /// [Future.catchError] rather than written inside [loadFromStorage]'s
-  /// own `catch` block, because [Future] callbacks always run in a later
-  /// microtask — so this reset is guaranteed to fire after the `??=`
-  /// below has assigned to [_readyFuture]. A reset inside
-  /// [loadFromStorage] itself has no such guarantee: a call that throws
-  /// synchronously (never true of real storage, but true of some test
-  /// doubles) would run the reset before the `??=` assignment exists to
-  /// clobber, so the reset fires first and is immediately overwritten.
+  /// A failed [loadFromStorage] must not poison every later call, so
+  /// [_readyFuture] resets on failure.
+  ///
+  /// The reset is chained through [Future.catchError] rather than written
+  /// in [loadFromStorage]'s own `catch`, because [Future] callbacks run in
+  /// a later microtask and so are guaranteed to fire *after* the `??=`
+  /// assigns. Inside [loadFromStorage] there is no such guarantee: a
+  /// synchronous throw (some test doubles) resets before the assignment
+  /// exists, and is immediately overwritten by it.
   Future<void> ready() => _readyFuture ??= loadFromStorage().catchError((
     Object error,
     StackTrace stackTrace,
@@ -94,13 +77,11 @@ mixin PersistedStoreMixin<T> {
     });
   }
 
-  /// Flushes whichever write [scheduleWrite] is currently debouncing,
-  /// bypassing the timer. Writes whichever value [scheduleWrite] was most
-  /// recently called for, not [fallback] — [fallback] only covers the case
-  /// where nothing is actually pending, where writing it again costs
-  /// nothing. This is what keeps a flush from writing the wrong thing once
-  /// "current" has moved on (e.g. the active draft switching) while a
-  /// write was still in flight.
+  /// Flushes the debounced write, bypassing the timer. Writes whichever
+  /// value [scheduleWrite] last received, not [fallback] — [fallback] only
+  /// covers "nothing pending", where rewriting it costs nothing. That is
+  /// what keeps a flush from writing the wrong thing once "current" has
+  /// moved on, e.g. the active draft switching mid-write.
   Future<void> persistNow(T fallback) async {
     _writeDebounce?.cancel();
     _writeDebounce = null;
@@ -109,14 +90,11 @@ mixin PersistedStoreMixin<T> {
     await persistImmediately(target);
   }
 
-  /// Writes [value] unconditionally — used for a direct, deliberate write
-  /// (e.g. a newly created entity) that has nothing to do with whatever
-  /// [scheduleWrite] might separately be debouncing for a *different*
-  /// value, so it must not cancel that pending write or consult
-  /// [_pendingWrite]. [persistNow] and the debounce timer both funnel
-  /// through this for the try/catch + [persistError] bookkeeping, but
-  /// call this directly only for a write that is itself the whole point
-  /// of the call, not a flush of something else.
+  /// Writes [value] unconditionally, without cancelling or consulting a
+  /// debounce that may be pending for a *different* value. [persistNow]
+  /// and the debounce timer funnel through here for the try/catch and
+  /// [persistError] bookkeeping — call it directly only for a write that
+  /// is itself the point, never as a flush of something else.
   Future<void> persistImmediately(T value) async {
     try {
       await writeToStorage(value);
@@ -126,10 +104,8 @@ mixin PersistedStoreMixin<T> {
     }
   }
 
-  /// Writes [raw] — a payload that failed to parse — aside under a
-  /// timestamped key derived from [originalKey], so a corrupt entry is
-  /// preserved for inspection rather than silently discarded, and never
-  /// collides with a real key on a later write.
+  /// Sets a payload that failed to parse aside under a timestamped key, so
+  /// it is preserved for inspection and can never collide with a real key.
   Future<void> quarantine(String box, String originalKey, String raw) async {
     final key =
         '${originalKey}_corrupt_${DateTime.now().millisecondsSinceEpoch}';
@@ -138,11 +114,9 @@ mixin PersistedStoreMixin<T> {
 }
 
 /// Throws a [FormatException] unless [json]'s `schemaVersion` is exactly
-/// [expected] — an unknown version is treated the same as corruption
-/// (quarantine + fall back) rather than risking a `fromJson` call silently
-/// misinterpreting a future, differently-shaped payload. Shared by every
-/// migrate-on-load path; [entity] only changes the exception's message
-/// (e.g. "vault", "draft", "draft index").
+/// [expected]. An unknown version is treated as corruption rather than
+/// risking `fromJson` misreading a future, differently-shaped payload.
+/// [entity] only changes the message.
 void requireSchemaVersion(
   Map<String, dynamic> json,
   String entity, {
