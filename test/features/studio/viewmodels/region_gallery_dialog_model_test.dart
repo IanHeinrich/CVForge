@@ -13,8 +13,12 @@ void main() {
 
     RegionGalleryDialogModel buildModel({
       RegionProfile currentRegion = RegionProfile.uk,
+      RegionGalleryContext context = RegionGalleryContext.draft,
     }) => RegionGalleryDialogModel(
-      data: RegionGalleryDialogData(currentRegion: currentRegion),
+      data: RegionGalleryDialogData(
+        currentRegion: currentRegion,
+        context: context,
+      ),
     );
 
     test('starts with the current region already selected', () {
@@ -97,6 +101,22 @@ void main() {
           expect(convention, isNotEmpty, reason: '$why has a blank convention');
         }
       }
+    });
+
+    test('copy differs between the two entry points, so neither words the '
+        'same decision its own way', () {
+      final draft = buildModel(context: RegionGalleryContext.draft);
+      final appDefault = buildModel(context: RegionGalleryContext.appDefault);
+
+      for (final model in [draft, appDefault]) {
+        expect(model.title, isNotEmpty);
+        expect(model.introText, isNotEmpty);
+        expect(model.confirmLabel, isNotEmpty);
+      }
+
+      expect(draft.title, isNot(appDefault.title));
+      expect(draft.introText, isNot(appDefault.introText));
+      expect(draft.confirmLabel, isNot(appDefault.confirmLabel));
     });
   });
 }

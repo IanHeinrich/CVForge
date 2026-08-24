@@ -172,7 +172,10 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     final response = await _dialogService
         .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
           variant: DialogType.regionGallery,
-          data: RegionGalleryDialogData(currentRegion: region),
+          data: RegionGalleryDialogData(
+            currentRegion: region,
+            context: RegionGalleryContext.draft,
+          ),
         );
     final selected = response?.data;
     if (response?.confirmed == true && selected != null) {

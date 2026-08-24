@@ -1,5 +1,8 @@
+import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
+import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
@@ -509,6 +512,65 @@ void main() {
         await model.disconnectDrive();
 
         verify(driveSyncService.disconnect()).called(1);
+      });
+    });
+
+    group('default region -', () {
+      void stubPicker(DialogResponse<RegionProfile>? response) {
+        when(
+          dialogService
+              .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
+                variant: anyNamed('variant'),
+                data: anyNamed('data'),
+              ),
+        ).thenAnswer((_) async => response);
+      }
+
+      test('openDefaultRegionPicker opens the shared picker in its '
+          'appDefault context, seeded with the current default', () async {
+        stubPicker(DialogResponse<RegionProfile>(confirmed: false));
+
+        final model = SettingsViewModel();
+        await model.openDefaultRegionPicker();
+
+        final data =
+            verify(
+                  dialogService
+                      .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
+                        variant: DialogType.regionGallery,
+                        data: captureAnyNamed('data'),
+                      ),
+                ).captured.single
+                as RegionGalleryDialogData;
+
+        expect(data.context, RegionGalleryContext.appDefault);
+        expect(data.currentRegion, model.defaultRegion);
+      });
+
+      test('a confirmed selection becomes the new default', () async {
+        stubPicker(
+          DialogResponse<RegionProfile>(
+            confirmed: true,
+            data: RegionProfile.dach,
+          ),
+        );
+        when(
+          settingsService.setDefaultRegion(any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = SettingsViewModel();
+        await model.openDefaultRegionPicker();
+
+        verify(settingsService.setDefaultRegion(RegionProfile.dach)).called(1);
+      });
+
+      test('cancelling leaves the default alone', () async {
+        stubPicker(DialogResponse<RegionProfile>(confirmed: false));
+
+        final model = SettingsViewModel();
+        await model.openDefaultRegionPicker();
+
+        verifyNever(settingsService.setDefaultRegion(any));
       });
     });
   });
