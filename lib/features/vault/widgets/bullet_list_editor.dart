@@ -221,9 +221,9 @@ class _BulletSkillLinkPicker extends StatefulWidget {
 
 class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
   /// A value no real category id can equal — Vault ids come from `Uuid`,
-  /// never a ` `-prefixed string. Used only as the "+ New category"
+  /// never a `\u0000`-prefixed string. Used only as the "+ New category"
   /// dropdown item's value, matched via [_isNewCategoryMode]'s logic.
-  static const _newCategorySentinel = ' __new_category__';
+  static const _newCategorySentinel = '\u0000__new_category__';
 
   String _query = '';
 

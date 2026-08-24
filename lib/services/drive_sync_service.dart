@@ -199,12 +199,6 @@ class DriveSyncService with ListenableServiceMixin {
         ? null
         : DateTime.tryParse(storedSyncedAt);
     await _loadBase();
-    // Not `idle` — that would claim "last synced N ago" from persisted
-    // state while the token request below is still in flight, and this
-    // runs unawaited from main.dart. If minting a token then fails, the
-    // user sees a confident "synced" flip to "reconnect" several seconds
-    // later with nothing in between to explain it. `syncing` keeps the
-    // account on screen and is the truth: we're finding out.
     // Honest as it stands: [lastSyncedAt] really is when this device last
     // synced, and nothing is in flight to contradict it. The reconcile
     // below deliberately waits for a user gesture rather than running now

@@ -159,10 +159,8 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
         // order is showing anyway (see `AtsXrayPainter._paintFlowLines`).
         _selectedFinding = null;
         _stepIndex = 0;
-        // Reset to the whole-page fit — reading order is meant to be read
-        // start to finish, which only makes sense from the same zoomed-out
-        // view every time, not from wherever a prior selection happened to
-        // leave the camera.
+        // Reading order is meant to be read start to finish, which only
+        // makes sense from the same zoomed-out view every time.
         _pendingFrame = const _FrameFit();
         _fittedViewport = null;
       }
@@ -173,9 +171,6 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
     setState(() {
       _selectedFinding = null;
       _stepIndex = 0;
-      // Back to the whole page — otherwise the camera stays zoomed in on
-      // wherever the (now-cleared) selection used to be, with nothing
-      // left on screen to explain why.
       _pendingFrame = const _FrameFit();
       _fittedViewport = null;
     });

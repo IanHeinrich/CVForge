@@ -83,7 +83,7 @@ class ClassicCenteredTemplate implements CvTemplate {
       pw.MultiPage(
         pageFormat: format,
         margin: tokens.pageMargins,
-        build: (context) => buildClassicCenteredPdfContent(
+        build: (context) => const ClassicCenteredPdfRenderer().build(
           cv,
           tokens,
           fonts,

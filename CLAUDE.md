@@ -119,7 +119,11 @@ Two non-feature layers sit alongside these:
   only place Vault and Draft data are joined.
 - `lib/templates/` — the single-renderer boundary. `design/` holds
   framework-agnostic tokens plus one `pdf`-only adapter
-  (`cv_design_tokens_pdf.dart`); each template owns one pdf renderer.
+  (`cv_design_tokens_pdf.dart`). `design/cv_pdf_renderer.dart`'s
+  `CvPdfRenderer` owns the walk from `ResolvedCv` to a flat widget list;
+  a template subclasses it and overrides presentation only — section
+  heading, body alignment, and each entry type's header widget. A
+  template must not reimplement that walk.
   Studio's live preview rasterizes that same PDF via `printing.PdfPreview`
   rather than maintaining a second, hand-built Flutter render tree
   alongside it — preview and export are the same bytes, so they can't
@@ -144,11 +148,11 @@ Two non-feature layers sit alongside these:
   recursively (section→entries, entry→bullets, company→positions) via
   `pw.Inseparable` to glue a heading to just its first item so a page
   break can never strand a title without any of its body, while still
-  letting later items split freely. A future template's renderer must
-  route every heading+items group through this helper rather than
-  building its own nested `pw.Column`, or it will silently reintroduce
-  both the stranded-title and mid-entry-split bugs this exists to
-  prevent.
+  letting later items split freely. `CvPdfRenderer` is what routes every
+  heading+items group through that helper, which is why a template
+  supplies widgets rather than structure — a renderer that builds its own
+  nested `pw.Column` silently reintroduces both the stranded-title and
+  mid-entry-split bugs this exists to prevent.
 
 ### How to scaffold into a feature slice
 

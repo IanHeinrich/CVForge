@@ -59,7 +59,7 @@ class CompactTemplate implements CvTemplate {
       pw.MultiPage(
         pageFormat: format,
         margin: tokens.pageMargins,
-        build: (context) => buildCompactPdfContent(
+        build: (context) => const CompactPdfRenderer().build(
           cv,
           tokens,
           fonts,

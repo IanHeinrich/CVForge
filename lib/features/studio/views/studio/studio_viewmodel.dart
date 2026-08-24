@@ -833,8 +833,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 /// Backs every `isXIncluded`/`toggleX`/`unselectedX`/`addAllX` quartet
 /// above — experiences, projects, skills, education, and hobbies are all
 /// "a flat list of ids, toggled by id against [DraftService]" with only
-/// the Vault collection and the setter differing, so one generic class
-/// replaces five near-identical copies.
+/// the Vault collection and the setter differing.
 ///
 /// [items] and [selectedIds] are closures re-evaluated on every call, not
 /// values captured once — the ViewModel's own `_vault`/`_draft` getters
@@ -876,8 +875,6 @@ class _Selection<T> {
     }
   }
 
-  /// The inverse of [addAll], with the same sequential-await requirement
-  /// and for the same reason.
   Future<void> removeAll() async {
     for (final item in selected) {
       await toggle(item);
@@ -932,8 +929,6 @@ class _BulletSelection {
     }
   }
 
-  /// The inverse of [addAll], with the same sequential-await requirement
-  /// and for the same reason.
   Future<void> removeAll(String ownerId, List<CvBullet> allBullets) async {
     for (final bullet in allBullets) {
       if (isIncluded(ownerId, bullet.id)) {

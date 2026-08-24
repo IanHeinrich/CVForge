@@ -331,9 +331,15 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// Deletes a draft. If it was active, another draft (arbitrarily, the
   /// first remaining) becomes active, or [activeDraftId] becomes null if
   /// none are left.
+  ///
+  /// Flushes any pending debounced write first, for the mirror of
+  /// [replaceAll]'s reason: a write still sitting on its timer would
+  /// otherwise fire *after* the storage entry is deleted below and
+  /// recreate it, leaving a `draft_<id>` entry no index references.
   Future<void> deleteDraft(String id) async {
     await ready();
     if (!_drafts.value.any((d) => d.id == id)) return;
+    await persistNow(draft);
     _drafts.value = _drafts.value.where((d) => d.id != id).toList();
     _freshDraftIds.remove(id);
     if (_activeDraftId.value == id) {
@@ -648,13 +654,13 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     _setDraft((d) => d.copyWith(targetJobDescription: jobDescription));
   }
 
-  /// Applies an AI Assistant tailoring pass ([result]) as a single draft update
-  /// and a single persisted write — not N calls through the individual
-  /// setters above, which produced a real "select all only selected one
-  /// bullet" bug at ten times this scale when tried. Like
-  /// [createDraft]/[updateDraftDetails], this is a deliberate, infrequent
-  /// action rather than continuous typing, so it persists immediately
-  /// instead of going through the debounce.
+  /// Applies an AI Assistant tailoring pass ([result]) as a single draft
+  /// update and a single persisted write, not N calls through the
+  /// individual setters above — each of those reads the draft fresh, so a
+  /// batch of them applied in sequence would have every call but the last
+  /// overwritten. Like [createDraft]/[updateDraftDetails], this is a
+  /// deliberate, infrequent action rather than continuous typing, so it
+  /// persists immediately instead of going through the debounce.
   ///
   /// Writes the pre-pass draft to a distinct storage key first (see
   /// [StorageKeys.aiAssistantUndoFor]) so [undoAiAssistantPass] can restore it —

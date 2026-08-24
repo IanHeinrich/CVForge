@@ -1,0 +1,9 @@
+# Dart sources are stored with LF in the repo whatever platform they were
+# written on. Without this, bullet_list_editor.dart went in with CRLF and
+# git classified it as binary — no reviewable diff on GitHub, and grep and
+# ripgrep skipped it.
+*.dart text
+
+# Golden baselines are compared byte-for-byte; never let eol conversion
+# near them.
+*.png binary
