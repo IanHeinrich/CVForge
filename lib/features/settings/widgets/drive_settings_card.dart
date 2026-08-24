@@ -1,5 +1,4 @@
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/relative_time.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
@@ -99,7 +98,7 @@ class DriveSettingsCard extends StatelessWidget {
     if (viewModel.driveConnectErrorMessage != null) ...[
       _StatusLine(
         icon: RemixIcons.error_warning_line,
-        color: kcErrorColor,
+        color: Theme.of(context).colorScheme.error,
         label: viewModel.driveConnectErrorMessage!,
       ),
       const VGap.small(),
@@ -196,13 +195,15 @@ class DriveSettingsCard extends StatelessWidget {
   List<Widget> _error(BuildContext context, String email, String message) => [
     _StatusLine(
       icon: RemixIcons.error_warning_line,
-      color: kcErrorColor,
+      color: Theme.of(context).colorScheme.error,
       label: context.l10n.settingsDriveConnectedAs(email),
     ),
     const VGap.tiny(),
     Text(
       message,
-      style: context.appTypography.bodySmall.copyWith(color: kcErrorColor),
+      style: context.appTypography.bodySmall.copyWith(
+        color: Theme.of(context).colorScheme.error,
+      ),
     ),
     const VGap.small(),
     Wrap(

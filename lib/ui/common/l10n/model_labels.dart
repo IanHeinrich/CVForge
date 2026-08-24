@@ -52,6 +52,7 @@ extension TemplateTagLabel on TemplateTag {
     TemplateTag.compact => l10n.templateTagCompact,
     TemplateTag.traditional => l10n.templateTagTraditional,
     TemplateTag.modern => l10n.templateTagModern,
+    TemplateTag.photo => l10n.templateTagPhoto,
   };
 }
 

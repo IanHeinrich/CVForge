@@ -1049,6 +1049,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAiTitle => 'AI Assistant';
 
   @override
+  String get settingsAppearanceBody =>
+      'Applies to CVForge\'s own interface. Your CV always renders on white paper, whichever theme you pick.';
+
+  @override
+  String get settingsAppearanceTitle => 'Appearance';
+
+  @override
   String get settingsBackupBody =>
       'Export your whole Vault and every CV as one JSON file, or restore from a previous export. Restoring replaces everything currently on this device. Your current data downloads as a backup first.';
 
@@ -1565,6 +1572,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String studioPhotoRegionWarning(String stance, String region) {
+    String _temp0 = intl.Intl.selectLogic(stance, {
+      'prohibited':
+          'This template prints a photo, and $region expects none — an automatic rejection. Switch template, or change region.',
+      'discouraged':
+          'This template prints a photo, and $region expects none — strongly discouraged. Switch template, or change region.',
+      'other':
+          'This template prints a photo, and $region expects none. Switch template, or change region.',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get studioPreviewAddAll => 'Add all';
 
   @override
@@ -1741,6 +1761,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get templateTagModern => 'Modern';
 
   @override
+  String get templateTagPhoto => 'Photo';
+
+  @override
   String get templateTagTraditional => 'Traditional';
 
   @override
@@ -1808,6 +1831,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get termsYourDataTitle => 'Your data, your responsibility';
+
+  @override
+  String get themeModeDark => 'Dark';
+
+  @override
+  String get themeModeLight => 'Light';
+
+  @override
+  String get themeModeSystem => 'Match device';
+
+  @override
+  String themeToggleTooltip(String current, String next) {
+    return 'Theme: $current — switch to $next';
+  }
 
   @override
   String get vaultAddBasics => 'Add your basics';
@@ -1929,6 +1966,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultConfirmDeleteFallbackTitle => 'Delete this?';
+
+  @override
+  String get vaultCropPhotoBody =>
+      'Drag the frame to choose what appears. The shape is fixed to the 35 × 45 mm size European CVs expect.';
+
+  @override
+  String get vaultCropPhotoConfirm => 'Use this photo';
+
+  @override
+  String get vaultCropPhotoSaving => 'Saving…';
+
+  @override
+  String get vaultCropPhotoTitle => 'Position your photo';
 
   @override
   String get vaultDeleteCategoryBody =>
@@ -2073,6 +2123,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultPersistError => 'Your last change couldn\'t be saved.';
+
+  @override
+  String get vaultPhotoAdd => 'Add photo';
+
+  @override
+  String get vaultPhotoErrorPrepareFailed =>
+      'That photo couldn\'t be prepared. Try a different image.';
+
+  @override
+  String get vaultPhotoErrorUnreadable =>
+      'That file couldn\'t be read as an image. Try a JPEG or PNG.';
+
+  @override
+  String get vaultPhotoHelpInUse =>
+      'Used by templates that include a photo. Others ignore it.';
+
+  @override
+  String get vaultPhotoHelpOptional =>
+      'Optional. Only used by templates that include a photo — expected in DACH, best left off for the US and UK.';
+
+  @override
+  String get vaultPhotoLoading => 'Loading…';
+
+  @override
+  String get vaultPhotoRemove => 'Remove';
+
+  @override
+  String get vaultPhotoReplace => 'Replace';
+
+  @override
+  String get vaultPhotoTitle => 'Photo';
 
   @override
   String get vaultProjectLink => 'Link (optional)';

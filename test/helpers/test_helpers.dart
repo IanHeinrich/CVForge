@@ -18,6 +18,7 @@ import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/templates/compact/compact_template.dart';
+import 'package:cv_forge/templates/photo_header/photo_header_template.dart';
 import 'package:cv_forge/templates/classic_centered/classic_centered_template.dart';
 import 'package:cv_forge/services/llm_service.dart';
 import 'package:cv_forge/services/ai_assistant_service.dart';
@@ -31,6 +32,7 @@ import 'package:cv_forge/services/drive_sync_service.dart';
 import 'package:cv_forge/services/google_auth_service.dart';
 import 'package:cv_forge/l10n/generated/app_localizations_en.dart';
 import 'package:cv_forge/services/localization_service.dart';
+import 'package:cv_forge/services/profile_photo_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -63,6 +65,7 @@ import 'test_helpers.mocks.dart';
     MockSpec<DriveSyncService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<GoogleAuthService>(onMissingStub: OnMissingStub.returnDefault),
     MockSpec<LocalizationService>(onMissingStub: OnMissingStub.returnDefault),
+    MockSpec<ProfilePhotoService>(onMissingStub: OnMissingStub.returnDefault),
     // @stacked-mock-spec
   ],
 )
@@ -88,6 +91,7 @@ void registerServices() {
   getAndRegisterDriveSyncService();
   getAndRegisterGoogleAuthService();
   getAndRegisterLocalizationService();
+  getAndRegisterProfilePhotoService();
   // @stacked-mock-register
 }
 
@@ -142,7 +146,15 @@ MockFileDownloadService getAndRegisterFileDownloadService() {
 MockTemplateRegistryService getAndRegisterTemplateRegistryService() {
   _removeRegistrationIfExists<TemplateRegistryService>();
   final service = MockTemplateRegistryService();
-  const templates = [CompactTemplate(), ClassicCenteredTemplate()];
+  // Real templates, in the real registry's order — a mock returning
+  // stand-ins would not exercise `TemplateTag`, which is what
+  // `StudioViewModel.photoRegionWarning` reads. Keep this list in step
+  // with `TemplateRegistryService._templates`.
+  const templates = [
+    CompactTemplate(),
+    ClassicCenteredTemplate(),
+    PhotoHeaderTemplate(),
+  ];
   when(service.defaultTemplate).thenReturn(templates.first);
   when(service.available).thenReturn(templates);
   when(service.byId(any)).thenAnswer(
@@ -301,6 +313,13 @@ MockLocalizationService getAndRegisterLocalizationService() {
   when(service.resolvedLocale).thenReturn(const Locale('en'));
   when(service.selectedLocale).thenReturn(null);
   locator.registerSingleton<LocalizationService>(service);
+  return service;
+}
+
+MockProfilePhotoService getAndRegisterProfilePhotoService() {
+  _removeRegistrationIfExists<ProfilePhotoService>();
+  final service = MockProfilePhotoService();
+  locator.registerSingleton<ProfilePhotoService>(service);
   return service;
 }
 // @stacked-mock-create

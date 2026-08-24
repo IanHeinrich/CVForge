@@ -17,7 +17,14 @@ mixin _$AppSettings {
 
  int get schemaVersion; CvPreferences get preferences;/// When `BackupService.exportBackup` last completed on *this* device,
 /// set by `SettingsViewModel.exportBackup` — null means never.
- DateTime? get lastBackupAt;
+ DateTime? get lastBackupAt;/// Which chrome theme this browser renders in.
+///
+/// Device-scoped for the same reason as [lastBackupAt]: it is a fact
+/// about *this* screen, not about the person. Syncing it would have a
+/// laptop in a bright room adopt the theme chosen on a phone at night,
+/// and [AppThemeMode.system] — the default — is by definition a
+/// property of the device it is read on.
+ AppThemeMode get themeMode;
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +37,16 @@ $AppSettingsCopyWith<AppSettings> get copyWith => _$AppSettingsCopyWithImpl<AppS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt)&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,lastBackupAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,lastBackupAt,themeMode);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, lastBackupAt: $lastBackupAt)';
+  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, lastBackupAt: $lastBackupAt, themeMode: $themeMode)';
 }
 
 
@@ -50,7 +57,7 @@ abstract mixin class $AppSettingsCopyWith<$Res>  {
   factory $AppSettingsCopyWith(AppSettings value, $Res Function(AppSettings) _then) = _$AppSettingsCopyWithImpl;
 @useResult
 $Res call({
- int schemaVersion, CvPreferences preferences, DateTime? lastBackupAt
+ int schemaVersion, CvPreferences preferences, DateTime? lastBackupAt, AppThemeMode themeMode
 });
 
 
@@ -67,12 +74,13 @@ class _$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? preferences = null,Object? lastBackupAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? preferences = null,Object? lastBackupAt = freezed,Object? themeMode = null,}) {
   return _then(_self.copyWith(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,preferences: null == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
 as CvPreferences,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
+as AppThemeMode,
   ));
 }
 /// Create a copy of AppSettings
@@ -166,10 +174,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt,  AppThemeMode themeMode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt,_that.themeMode);case _:
   return orElse();
 
 }
@@ -187,10 +195,10 @@ return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt,  AppThemeMode themeMode)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings():
-return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt,_that.themeMode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -207,10 +215,10 @@ return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  CvPreferences preferences,  DateTime? lastBackupAt,  AppThemeMode themeMode)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _:
+return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt,_that.themeMode);case _:
   return null;
 
 }
@@ -222,7 +230,7 @@ return $default(_that.schemaVersion,_that.preferences,_that.lastBackupAt);case _
 @JsonSerializable()
 
 class _AppSettings implements AppSettings {
-  const _AppSettings({required this.schemaVersion, required this.preferences, this.lastBackupAt});
+  const _AppSettings({required this.schemaVersion, required this.preferences, this.lastBackupAt, this.themeMode = AppThemeMode.system});
   factory _AppSettings.fromJson(Map<String, dynamic> json) => _$AppSettingsFromJson(json);
 
 @override final  int schemaVersion;
@@ -230,6 +238,14 @@ class _AppSettings implements AppSettings {
 /// When `BackupService.exportBackup` last completed on *this* device,
 /// set by `SettingsViewModel.exportBackup` — null means never.
 @override final  DateTime? lastBackupAt;
+/// Which chrome theme this browser renders in.
+///
+/// Device-scoped for the same reason as [lastBackupAt]: it is a fact
+/// about *this* screen, not about the person. Syncing it would have a
+/// laptop in a bright room adopt the theme chosen on a phone at night,
+/// and [AppThemeMode.system] — the default — is by definition a
+/// property of the device it is read on.
+@override@JsonKey() final  AppThemeMode themeMode;
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -244,16 +260,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.preferences, preferences) || other.preferences == preferences)&&(identical(other.lastBackupAt, lastBackupAt) || other.lastBackupAt == lastBackupAt)&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,lastBackupAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,preferences,lastBackupAt,themeMode);
 
 @override
 String toString() {
-  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, lastBackupAt: $lastBackupAt)';
+  return 'AppSettings(schemaVersion: $schemaVersion, preferences: $preferences, lastBackupAt: $lastBackupAt, themeMode: $themeMode)';
 }
 
 
@@ -264,7 +280,7 @@ abstract mixin class _$AppSettingsCopyWith<$Res> implements $AppSettingsCopyWith
   factory _$AppSettingsCopyWith(_AppSettings value, $Res Function(_AppSettings) _then) = __$AppSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- int schemaVersion, CvPreferences preferences, DateTime? lastBackupAt
+ int schemaVersion, CvPreferences preferences, DateTime? lastBackupAt, AppThemeMode themeMode
 });
 
 
@@ -281,12 +297,13 @@ class __$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? preferences = null,Object? lastBackupAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? preferences = null,Object? lastBackupAt = freezed,Object? themeMode = null,}) {
   return _then(_AppSettings(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,preferences: null == preferences ? _self.preferences : preferences // ignore: cast_nullable_to_non_nullable
 as CvPreferences,lastBackupAt: freezed == lastBackupAt ? _self.lastBackupAt : lastBackupAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
+as AppThemeMode,
   ));
 }
 

@@ -36,6 +36,7 @@ abstract final class CvComposer {
         for (final link in vault.basics.links)
           ResolvedLink(label: link.label, url: link.url),
       ],
+      photoJpegBase64: vault.basics.photo?.jpegBase64,
     );
 
     final sections = <ResolvedSection>[];
@@ -76,65 +77,59 @@ abstract final class CvComposer {
   ) {
     final byId = {for (final e in vault.experiences) e.id: e};
 
-    // Each group's internal position order comes from draft.experienceIds
-    // (a promotion's roles are entered oldest-first, so that stays as-is),
-    // but the GROUPS themselves are sorted reverse-chronological below —
-    // there's no manual drag-reorder UI for group order, so trusting
-    // toggle-on order for the group sequence would scramble the CV
-    // unpredictably. An
-    // experience with no companyGroupId is simply the only member of its
-    // own group, which renders identically to a one-position group, so
-    // there's no separate ungrouped code path.
-    final groups = <ResolvedCompanyGroup>[];
-    final mostRecentByGroup = <int>[];
-    final groupIndexByKey = <String, int>{};
-
+    // Both the groups and the roles within a group are sorted
+    // reverse-chronologically rather than left in draft.experienceIds
+    // order. That order starts as the vault's own insertion order and is
+    // then shuffled by toggle-on order, neither of which has any
+    // relationship to when a role was held, and there is no drag-reorder
+    // UI to give it one. An experience with no companyGroupId is simply
+    // the only member of its own group, which renders identically to a
+    // one-position group, so there's no separate ungrouped code path.
+    final grouped = <String, List<Experience>>{};
     for (final expId in draft.experienceIds) {
       final experience = byId[expId];
       if (experience == null) continue; // dangling id — silently dropped
-
-      final position = ResolvedPosition(
-        role: experience.role,
-        dateRange: _formatDateRange(experience, region),
-        bullets: _resolveBullets(
-          experience.bullets,
-          draft.bulletIds[experience.id] ?? const <String>[],
-          draft.bulletOverrides,
-        ),
-      );
-
       final key = experience.companyGroupId ?? 'ungrouped:$expId';
-      final recency = _recencyKey(experience);
-      final existingIndex = groupIndexByKey[key];
-      if (existingIndex != null) {
-        final existing = groups[existingIndex];
-        groups[existingIndex] = existing.copyWith(
-          positions: [...existing.positions, position],
-        );
-        if (recency > mostRecentByGroup[existingIndex]) {
-          mostRecentByGroup[existingIndex] = recency;
-        }
-      } else {
-        groupIndexByKey[key] = groups.length;
-        groups.add(
-          ResolvedCompanyGroup(
-            company: experience.company,
-            location: experience.location,
-            positions: [position],
-          ),
-        );
-        mostRecentByGroup.add(recency);
-      }
+      (grouped[key] ??= <Experience>[]).add(experience);
     }
 
-    if (groups.isEmpty) return null;
+    if (grouped.isEmpty) return null;
 
-    final order = List<int>.generate(groups.length, (i) => i)
-      ..sort((a, b) => mostRecentByGroup[b].compareTo(mostRecentByGroup[a]));
+    final members = grouped.values.toList();
+    for (final roles in members) {
+      roles.sort((a, b) => _recencyKey(b).compareTo(_recencyKey(a)));
+    }
+    // A group sorts by its most recent role, which after the sort above is
+    // its first.
+    members.sort(
+      (a, b) => _recencyKey(b.first).compareTo(_recencyKey(a.first)),
+    );
 
     return ResolvedSection.experience(
       title: 'Experience',
-      groups: [for (final i in order) groups[i]],
+      groups: [
+        for (final roles in members)
+          ResolvedCompanyGroup(
+            // Taken from the most recent role. A group's members share a
+            // company by construction, but each carries its own location
+            // field and they can legitimately differ (the same employer,
+            // a different office).
+            company: roles.first.company,
+            location: roles.first.location,
+            positions: [
+              for (final experience in roles)
+                ResolvedPosition(
+                  role: experience.role,
+                  dateRange: _formatDateRange(experience, region),
+                  bullets: _resolveBullets(
+                    experience.bullets,
+                    draft.bulletIds[experience.id] ?? const <String>[],
+                    draft.bulletOverrides,
+                  ),
+                ),
+            ],
+          ),
+      ],
     );
   }
 

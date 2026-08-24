@@ -45,14 +45,23 @@ enum RegionDocumentNoun { cv, resume }
 
 /// Whether this market expects a photograph on the document.
 ///
-/// Advice only. No template renders a photo and `ContactBasics` has no
-/// field for one — deferred deliberately, see 7.5. Do not wire this into
-/// `CvComposer`.
+/// Advice, plus exactly one consequence: `StudioViewModel`'s
+/// `photoRegionWarning` reads it to flag a photo-printing template aimed
+/// at a market that rejects photographs. It never changes what is
+/// rendered.
+///
+/// Whether a photo appears is a property of the chosen template (see
+/// `TemplateTag.photo`), never of the region — a region that silently
+/// added or removed one would change the document out from under the
+/// user. Do not wire this into `CvComposer`, which passes
+/// `ContactBasics.photo` through unconditionally and lets the template
+/// decide.
 enum RegionPhotoStance { prohibited, discouraged, optional, expected }
 
 /// How much personal data (date of birth, nationality, marital status,
-/// national ID) this market conventionally expects. Advice only, same
-/// caveat as [RegionPhotoStance].
+/// national ID) this market conventionally expects. Advice only — unlike
+/// [RegionPhotoStance] the Vault has no field for any of it, so nothing
+/// acts on this.
 enum RegionPersonalDetailsStance { omit, minimal, traditional }
 
 /// Which English spelling convention this market reads as native.
@@ -164,9 +173,13 @@ class RegionPreset {
 /// and translating a prompt changes its behaviour.
 ///
 /// The stances describing something the Vault cannot hold carry their own
-/// anti-fabrication guard inline — telling a model a photograph is expected,
-/// while handing it a Vault with no photo field, is otherwise an invitation
-/// to invent one.
+/// anti-fabrication guard inline — telling a model a date of birth is
+/// expected, while handing it a Vault with no field for one, is otherwise
+/// an invitation to invent it. The photo stances are phrased so they hold
+/// whether or not a photo has been uploaded: the assistant produces text
+/// and never touches `ContactBasics.photo`, so "CVForge handles it" is the
+/// accurate instruction either way, and no `hasPhoto` flag has to be
+/// threaded through `aiAssistantSystemPromptFor` to keep it true.
 extension RegionPhotoStancePrompt on RegionPhotoStance {
   String get promptLabel => switch (this) {
     RegionPhotoStance.prohibited =>
@@ -176,11 +189,13 @@ extension RegionPhotoStancePrompt on RegionPhotoStance {
       'No photograph. Equality law here makes one a liability for the '
           'employer as well as the candidate. Do not suggest adding one.',
     RegionPhotoStance.optional =>
-      'A photograph is optional here. Do not suggest adding one the '
-          'candidate has not already provided.',
+      'A photograph is optional here. CVForge renders it itself when the '
+          'chosen template supports one — never add, describe, or imply '
+          'one in the text you produce.',
     RegionPhotoStance.expected =>
-      'A professional photograph is conventional here, but the Vault '
-          'contains none — do not invent, describe, or imply one.',
+      'A professional photograph is conventional here. CVForge renders it '
+          'itself when the chosen template supports one — never add, '
+          'describe, or imply one in the text you produce.',
   };
 }
 

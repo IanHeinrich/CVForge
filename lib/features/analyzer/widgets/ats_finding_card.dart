@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -15,7 +14,7 @@ import 'ats_finding_severity_style.dart';
 /// uses — dark container, [context.appRadius.medium] — rather than
 /// inventing a new card shape for this feature.
 ///
-/// `kcPrimaryColor` is reserved for chrome selection state, so it isn't
+/// `colorScheme.primary` is reserved for chrome selection state, so it isn't
 /// repurposed here as a fourth severity tone — [selected] uses it anyway,
 /// deliberately: this is the one place in the analyzer feature where
 /// "chrome selection state" and "this card is selected" are the same
@@ -68,7 +67,10 @@ class AtsFindingCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: radius,
             border: selected
-                ? Border.all(color: kcPrimaryColor, width: 2)
+                ? Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  )
                 : null,
           ),
           child: Row(

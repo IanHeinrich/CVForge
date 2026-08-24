@@ -63,7 +63,11 @@ void main() {
     test('templates exposes every registered template, in registry order', () {
       final model = buildModel();
 
-      expect(model.templates.map((t) => t.id), ['compact', 'classic_centered']);
+      expect(model.templates.map((t) => t.id), [
+        'compact',
+        'classic_centered',
+        'photo_header',
+      ]);
     });
 
     test('thumbnailFor caches: the underlying service is only asked once '

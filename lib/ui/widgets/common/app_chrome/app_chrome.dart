@@ -2,12 +2,12 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/settings_service.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/drive_sync_indicator/drive_sync_indicator.dart';
 import 'package:cv_forge/ui/widgets/common/storage_unavailable_card.dart';
+import 'package:cv_forge/ui/widgets/common/theme_mode_toggle/theme_mode_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -99,9 +99,10 @@ _NavDestination _settingsDestination(BuildContext context) => _NavDestination(
 enum AppSection { vault, drafts, analyzer, studio, settings }
 
 /// The shared shell every top-level View wraps itself in: a left nav rail
-/// (Vault / CVs or Résumés, per `AppSettings.defaultRegion`) over the dark
-/// scaffold backdrop (`buildAppTheme()`'s
-/// `kcSurfaceSunken`), with [child] filling the rest.
+/// (Vault / CVs or Résumés, per `AppSettings.defaultRegion`) over the
+/// scaffold backdrop (`buildAppTheme()`'s `scaffoldBackgroundColor`, which
+/// is the sunken tier of whichever theme is active), with [child] filling
+/// the rest.
 ///
 /// Deliberately modelless — it holds no state, and navigation is a single
 /// direct call to [RouterService] rather than routed through a
@@ -136,9 +137,10 @@ class AppChrome extends StatelessWidget {
       return AppChrome(
         key: key,
         currentSection: section,
-        child: const Center(
-          child: CircularProgressIndicator(color: kcPrimaryColor),
-        ),
+        // No explicit colour: a static factory has no `BuildContext`, and
+        // Material already defaults this to `colorScheme.primary` — the
+        // value the old hardcoded constant was pinning it to anyway.
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
     if (hasError) {
@@ -253,8 +255,12 @@ class _RailChrome extends StatelessWidget {
             // selected; Material's pill behind them adds a second, weaker
             // signal in a colour that belongs to nothing else here.
             useIndicator: false,
-            selectedIconTheme: const IconThemeData(color: kcPrimaryColor),
-            selectedLabelTextStyle: const TextStyle(color: kcPrimaryColor),
+            selectedIconTheme: IconThemeData(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            selectedLabelTextStyle: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+            ),
             unselectedIconTheme: IconThemeData(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -287,6 +293,11 @@ class _RailChrome extends StatelessWidget {
                       // below so it never shifts the settings button's
                       // position depending on whether it's showing.
                       const DriveSyncIndicator(),
+                      // Between the indicator and Settings, not below it:
+                      // this always renders, so it can't shift the settings
+                      // button the way the conditionally-rendered indicator
+                      // above would if it sat lower.
+                      const ThemeModeToggle(),
                       IconButton(
                         tooltip: _settingsDestination(context).label,
                         icon: Icon(
@@ -294,7 +305,7 @@ class _RailChrome extends StatelessWidget {
                               ? _settingsDestination(context).selectedIcon
                               : _settingsDestination(context).icon,
                           color: section == AppSection.settings
-                              ? kcPrimaryColor
+                              ? Theme.of(context).colorScheme.primary
                               : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () => onSelect(AppSection.settings),
@@ -344,18 +355,24 @@ class _MobileChrome extends StatelessWidget {
       // the screen instead of at its true bottom.
       body: SizedBox.expand(child: child),
       bottomNavigationBar: DecoratedBox(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: kcBorderColor)),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
         ),
         child: NavigationBar(
           selectedIndex: destinations.indexWhere((d) => d.section == section),
           onDestinationSelected: (index) =>
               onSelect(destinations[index].section),
-          indicatorColor: kcPrimaryColor.withValues(alpha: 0.18),
+          indicatorColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.18),
           labelTextStyle: WidgetStateProperty.resolveWith(
             (states) => context.appTypography.caption.copyWith(
               color: states.contains(WidgetState.selected)
-                  ? kcPrimaryColor
+                  ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
@@ -366,7 +383,10 @@ class _MobileChrome extends StatelessWidget {
                   d.icon,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                selectedIcon: Icon(d.selectedIcon, color: kcPrimaryColor),
+                selectedIcon: Icon(
+                  d.selectedIcon,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 label: d.label,
               ),
           ],

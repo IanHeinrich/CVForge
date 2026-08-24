@@ -2,7 +2,6 @@ import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
@@ -128,7 +127,7 @@ class ExperienceEditorPanel extends StatelessWidget {
             context.l10n.vaultExperienceCurrent,
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
-          activeColor: kcPrimaryColor,
+          activeColor: Theme.of(context).colorScheme.primary,
           contentPadding: EdgeInsets.zero,
           controlAffinity: ListTileControlAffinity.leading,
         ),

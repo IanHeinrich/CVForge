@@ -24,6 +24,7 @@ import '../services/llm_service.dart';
 import '../services/local_storage_service.dart';
 import '../services/localization_service.dart';
 import '../services/pdf_export_service.dart';
+import '../services/profile_photo_service.dart';
 import '../services/settings_service.dart';
 import '../services/template_registry_service.dart';
 import '../services/template_thumbnail_service.dart';
@@ -63,6 +64,7 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => DriveApiClientService());
   locator.registerLazySingleton(() => DriveSyncService());
   locator.registerLazySingleton(() => LocalizationService());
+  locator.registerLazySingleton(() => ProfilePhotoService());
   if (stackedRouter == null) {
     throw Exception(
       'Stacked is building to use the Router (Navigator 2.0) navigation but no stackedRouter is supplied. Pass the stackedRouter to the setupLocator function in main.dart',

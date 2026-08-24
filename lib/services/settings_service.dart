@@ -4,6 +4,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/settings/app_theme_mode.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
 import 'package:cv_forge/services/llm/llm_provider_registry.dart';
@@ -107,6 +108,17 @@ class SettingsService
   Future<void> setLastBackupAt(DateTime value) async {
     await ready();
     _settings.value = _settings.value.copyWith(lastBackupAt: value);
+    scheduleWrite(_settings.value);
+  }
+
+  /// Deliberately not routed through [_setPreferences]. The theme is
+  /// device-scoped (see [AppSettings.themeMode]), and stamping
+  /// [CvPreferences.updatedAt] for it would let a device that only changed
+  /// its theme win an unrelated preferences tie-break and overwrite
+  /// another device's region or section defaults.
+  Future<void> setThemeMode(AppThemeMode mode) async {
+    await ready();
+    _settings.value = _settings.value.copyWith(themeMode: mode);
     scheduleWrite(_settings.value);
   }
 

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cv_forge/models/settings/app_theme_mode.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 
 part 'app_settings.freezed.dart';
@@ -27,6 +28,15 @@ abstract class AppSettings with _$AppSettings {
     /// When `BackupService.exportBackup` last completed on *this* device,
     /// set by `SettingsViewModel.exportBackup` — null means never.
     DateTime? lastBackupAt,
+
+    /// Which chrome theme this browser renders in.
+    ///
+    /// Device-scoped for the same reason as [lastBackupAt]: it is a fact
+    /// about *this* screen, not about the person. Syncing it would have a
+    /// laptop in a bright room adopt the theme chosen on a phone at night,
+    /// and [AppThemeMode.system] — the default — is by definition a
+    /// property of the device it is read on.
+    @Default(AppThemeMode.system) AppThemeMode themeMode,
   }) = _AppSettings;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) =>

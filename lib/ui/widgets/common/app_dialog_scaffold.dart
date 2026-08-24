@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -38,7 +37,7 @@ class AppDialogScaffold extends StatelessWidget {
   final String? cancelLabel;
 
   /// True for an irreversible action (e.g. delete) — the confirm button
-  /// uses [kcErrorColor] instead of the theme's default filled-button
+  /// uses `colorScheme.error` instead of the theme's default filled-button
   /// color, so the button itself signals the risk.
   final bool destructive;
 
@@ -89,7 +88,9 @@ class AppDialogScaffold extends StatelessWidget {
             ),
             FilledButton(
               style: destructive
-                  ? FilledButton.styleFrom(backgroundColor: kcErrorColor)
+                  ? FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                    )
                   : null,
               onPressed: onConfirm,
               child: Text(confirmLabel),

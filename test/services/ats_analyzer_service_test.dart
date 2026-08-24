@@ -201,6 +201,90 @@ void main() {
       );
     });
 
+    test('an entry title with its date range right-aligned on the same line '
+        'is NOT flagged — merging that pair left-to-right yields the '
+        'correct reading, and every template this app ships produces it', () {
+      // Geometry lifted from a real `photo_header` export: body prose
+      // reaching x~530 above and below, and two entry lines whose date
+      // sits hard against the right margin.
+      final result = service.analyze(
+        _doc(
+          nodes: [
+            for (var i = 0; i < 6; i++)
+              _node(
+                str:
+                    'Backend engineer with nine years building payment '
+                    'systems that stay up.',
+                x: 57,
+                y: 700.0 - i * 16.3,
+                width: 473,
+                fontSize: 12,
+              ),
+            // The crushed-looking pair: a short title, then the date
+            // right-aligned to the same margin the prose reaches.
+            _node(
+              str: 'BSc Computer Science at University of Leeds',
+              x: 57,
+              y: 560,
+              width: 268,
+              fontSize: 12,
+            ),
+            _node(str: '2015', x: 513, y: 560, width: 25, fontSize: 12),
+          ],
+        ),
+      );
+
+      expect(
+        result.findings.where(
+          (f) => f.category == AtsFindingCategory.columnCrush,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('a genuine sidebar still flags even when a full-width name above '
+        'it crosses the gutter — one crossing line does not make a '
+        'corridor into body text', () {
+      final result = service.analyze(
+        _doc(
+          nodes: [
+            // Full-width name across the top, crossing the gutter at x~300.
+            _node(
+              str: 'Jordan Alex Rivera',
+              x: 57,
+              y: 760,
+              width: 460,
+              fontSize: 16,
+            ),
+            // Two columns beneath: nothing crosses x~300 again.
+            for (var i = 0; i < 8; i++) ...[
+              _node(
+                str: 'Left column line',
+                x: 57,
+                y: 720.0 - i * 14,
+                width: 150,
+                fontSize: 11,
+              ),
+              _node(
+                str: 'Right column line',
+                x: 340,
+                y: 720.0 - i * 14,
+                width: 170,
+                fontSize: 11,
+              ),
+            ],
+          ],
+        ),
+      );
+
+      expect(
+        result.findings.where(
+          (f) => f.category == AtsFindingCategory.columnCrush,
+        ),
+        isNotEmpty,
+      );
+    });
+
     test('two words on the same line with a normal word gap is not flagged '
         'as a crush', () {
       final result = service.analyze(

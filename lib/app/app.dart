@@ -60,6 +60,10 @@ import 'package:cv_forge/ui/views/terms/terms_view.dart';
 
 import 'package:cv_forge/services/localization_service.dart';
 
+import 'package:cv_forge/services/profile_photo_service.dart';
+
+import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -108,6 +112,7 @@ import 'package:cv_forge/services/localization_service.dart';
     LazySingleton(classType: DriveApiClientService),
     LazySingleton(classType: DriveSyncService),
     LazySingleton(classType: LocalizationService),
+    LazySingleton(classType: ProfilePhotoService),
     // @stacked-service
   ],
   bottomsheets: [
@@ -119,6 +124,7 @@ import 'package:cv_forge/services/localization_service.dart';
     StackedDialog(classType: AiAssistantRunDialog),
     StackedDialog(classType: TemplateGalleryDialog),
     StackedDialog(classType: RegionGalleryDialog),
+    StackedDialog(classType: CropPhotoDialog),
     // @stacked-dialog
   ],
 )

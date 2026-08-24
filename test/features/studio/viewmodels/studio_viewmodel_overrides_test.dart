@@ -496,5 +496,67 @@ void main() {
         expect(warning, contains('template'));
       });
     });
+
+    group('photoRegionWarning -', () {
+      StudioViewModel modelFor(RegionProfile region, String templateId) {
+        when(vaultService.vault).thenReturn(vaultWith());
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(region: region, templateId: templateId));
+        return StudioViewModel();
+      }
+
+      test('silent for a template that prints no photo, whatever the '
+          'region — the other two templates ignore the Vault photo, so '
+          'there is nothing to warn about', () {
+        for (final region in RegionProfile.values) {
+          expect(
+            modelFor(region, 'compact').photoRegionWarning,
+            isNull,
+            reason: region.name,
+          );
+          expect(
+            modelFor(region, 'classic_centered').photoRegionWarning,
+            isNull,
+            reason: region.name,
+          );
+        }
+      });
+
+      test('speaks for exactly the regions that reject a photograph, and '
+          'stays quiet where one is optional or expected', () {
+        for (final region in RegionProfile.values) {
+          final rejects = switch (region.preset.photo) {
+            RegionPhotoStance.prohibited ||
+            RegionPhotoStance.discouraged => true,
+            RegionPhotoStance.optional || RegionPhotoStance.expected => false,
+          };
+          expect(
+            modelFor(region, 'photo_header').photoRegionWarning,
+            rejects ? isNotNull : isNull,
+            reason: region.name,
+          );
+        }
+      });
+
+      test('names the region and says what to do about it, rather than '
+          'just flagging that something is wrong', () {
+        final warning = modelFor(
+          RegionProfile.us,
+          'photo_header',
+        ).photoRegionWarning;
+
+        expect(warning, contains(RegionProfile.us.preset.displayName));
+        expect(warning, contains('template'));
+        expect(warning, contains('region'));
+      });
+
+      test('stays quiet for DACH, the market this template exists for', () {
+        expect(
+          modelFor(RegionProfile.dach, 'photo_header').photoRegionWarning,
+          isNull,
+        );
+      });
+    });
   });
 }

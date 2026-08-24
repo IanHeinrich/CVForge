@@ -1300,6 +1300,14 @@
   "@settingsAiTitle": {
     "description": "Settings, AI card heading. An optional feature that tailors a CV to a job description using the user's own API key."
   },
+  "settingsAppearanceBody": "Applies to CVForge's own interface. Your CV always renders on white paper, whichever theme you pick.",
+  "@settingsAppearanceBody": {
+    "description": "Settings, appearance card body. Stresses that the theme is chrome-only and never affects the exported PDF."
+  },
+  "settingsAppearanceTitle": "Appearance",
+  "@settingsAppearanceTitle": {
+    "description": "Settings, appearance card heading — light/dark theme choice."
+  },
   "settingsBackupBody": "Export your whole Vault and every CV as one JSON file, or restore from a previous export. Restoring replaces everything currently on this device. Your current data downloads as a backup first.",
   "@settingsBackupBody": {
     "description": "Settings, backup card body explaining export and import."
@@ -1976,6 +1984,20 @@
       }
     }
   },
+  "studioPhotoRegionWarning": "{stance, select, prohibited{This template prints a photo, and {region} expects none — an automatic rejection. Switch template, or change region.} discouraged{This template prints a photo, and {region} expects none — strongly discouraged. Switch template, or change region.} other{This template prints a photo, and {region} expects none. Switch template, or change region.}}",
+  "@studioPhotoRegionWarning": {
+    "description": "Studio warning when a photo-printing template is paired with a market that rejects photographs. Each branch is a complete sentence rather than a stance label dropped into a frame, so it stays grammatical in any language.",
+    "placeholders": {
+      "stance": {
+        "type": "String",
+        "example": "prohibited"
+      },
+      "region": {
+        "type": "String",
+        "example": "UK & Ireland"
+      }
+    }
+  },
   "studioPreviewAddAll": "Add all",
   "@studioPreviewAddAll": {
     "description": "Studio preview pane button that includes every Vault item in this CV."
@@ -2210,6 +2232,10 @@
   "@templateTagModern": {
     "description": "Template tag: a contemporary layout."
   },
+  "templateTagPhoto": "Photo",
+  "@templateTagPhoto": {
+    "description": "Template tag: this layout prints the profile photograph from the Vault."
+  },
   "templateTagTraditional": "Traditional",
   "@templateTagTraditional": {
     "description": "Template tag: a conservative, conventional layout."
@@ -2289,6 +2315,32 @@
   "termsYourDataTitle": "Your data, your responsibility",
   "@termsYourDataTitle": {
     "description": "Terms page, section heading."
+  },
+  "themeModeDark": "Dark",
+  "@themeModeDark": {
+    "description": "Theme option: always use the dark theme."
+  },
+  "themeModeLight": "Light",
+  "@themeModeLight": {
+    "description": "Theme option: always use the light theme."
+  },
+  "themeModeSystem": "Match device",
+  "@themeModeSystem": {
+    "description": "Theme option: follow the operating system's light/dark setting."
+  },
+  "themeToggleTooltip": "Theme: {current} — switch to {next}",
+  "@themeToggleTooltip": {
+    "description": "Tooltip on the theme cycle button, naming the current theme and the one a click moves to. Both values are already-translated theme option names.",
+    "placeholders": {
+      "current": {
+        "type": "String",
+        "example": "Dark"
+      },
+      "next": {
+        "type": "String",
+        "example": "Match device"
+      }
+    }
   },
   "vaultAddBasics": "Add your basics",
   "@vaultAddBasics": {
@@ -2449,6 +2501,22 @@
   "vaultConfirmDeleteFallbackTitle": "Delete this?",
   "@vaultConfirmDeleteFallbackTitle": {
     "description": "Fallback title for the delete-confirmation dialog when a caller supplies none. Callers normally pass something specific."
+  },
+  "vaultCropPhotoBody": "Drag the frame to choose what appears. The shape is fixed to the 35 × 45 mm size European CVs expect.",
+  "@vaultCropPhotoBody": {
+    "description": "Crop dialog body. 35 × 45 mm is the standard European CV photo size — keep the measurement."
+  },
+  "vaultCropPhotoConfirm": "Use this photo",
+  "@vaultCropPhotoConfirm": {
+    "description": "Crop dialog, button that accepts the current crop."
+  },
+  "vaultCropPhotoSaving": "Saving…",
+  "@vaultCropPhotoSaving": {
+    "description": "Crop dialog, button label while the cropped photograph is being encoded and stored."
+  },
+  "vaultCropPhotoTitle": "Position your photo",
+  "@vaultCropPhotoTitle": {
+    "description": "Title of the dialog for cropping a profile photograph to the required aspect ratio."
   },
   "vaultDeleteCategoryBody": "This removes it and all of its skills.",
   "@vaultDeleteCategoryBody": {
@@ -2631,6 +2699,42 @@
   "vaultPersistError": "Your last change couldn't be saved.",
   "@vaultPersistError": {
     "description": "Vault banner shown when a write to local storage failed."
+  },
+  "vaultPhotoAdd": "Add photo",
+  "@vaultPhotoAdd": {
+    "description": "Vault basics, button that opens the file picker to choose a profile photograph."
+  },
+  "vaultPhotoErrorPrepareFailed": "That photo couldn't be prepared. Try a different image.",
+  "@vaultPhotoErrorPrepareFailed": {
+    "description": "Vault error when a decoded image failed to resize or re-encode for storage."
+  },
+  "vaultPhotoErrorUnreadable": "That file couldn't be read as an image. Try a JPEG or PNG.",
+  "@vaultPhotoErrorUnreadable": {
+    "description": "Vault error when the chosen file could not be decoded as an image. JPEG and PNG are format names."
+  },
+  "vaultPhotoHelpInUse": "Used by templates that include a photo. Others ignore it.",
+  "@vaultPhotoHelpInUse": {
+    "description": "Vault basics, help text under the photo field once a photo has been added."
+  },
+  "vaultPhotoHelpOptional": "Optional. Only used by templates that include a photo — expected in DACH, best left off for the US and UK.",
+  "@vaultPhotoHelpOptional": {
+    "description": "Vault basics, help text under the photo field when no photo is set. 'DACH' is the German-speaking market grouping used elsewhere in the app."
+  },
+  "vaultPhotoLoading": "Loading…",
+  "@vaultPhotoLoading": {
+    "description": "Vault basics, shown while the stored photo is being decoded for display."
+  },
+  "vaultPhotoRemove": "Remove",
+  "@vaultPhotoRemove": {
+    "description": "Vault basics, button that deletes the stored profile photograph."
+  },
+  "vaultPhotoReplace": "Replace",
+  "@vaultPhotoReplace": {
+    "description": "Vault basics, button that swaps the existing profile photograph for a new one."
+  },
+  "vaultPhotoTitle": "Photo",
+  "@vaultPhotoTitle": {
+    "description": "Vault basics, heading for the optional profile photograph."
   },
   "vaultProjectLink": "Link (optional)",
   "@vaultProjectLink": {

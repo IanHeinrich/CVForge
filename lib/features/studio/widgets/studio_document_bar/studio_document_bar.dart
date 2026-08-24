@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_warning_surface.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
@@ -256,10 +257,18 @@ class _OutputControls extends StatelessWidget {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // The neutral page count stays hidden here (see [compact]), but a
-          // warning is actionable rather than informational, so it earns
-          // the width — and costs none in the ordinary case, because it
-          // only exists when there is something to say.
+          // Both badges are warnings, and a warning is actionable rather
+          // than informational, so each earns the width here — and costs
+          // none in the ordinary case, because neither exists unless there
+          // is something to say. (The *neutral* page count, by contrast,
+          // stays hidden in this layout — see [compact].)
+          if (viewModel.photoRegionWarning != null) ...[
+            _PhotoRegionBadge(
+              warning: viewModel.photoRegionWarning!,
+              height: StudioDocumentBar._controlHeight,
+            ),
+            const HGap.tiny(),
+          ],
           if (viewModel.pageCountWarning != null) ...[
             _PageCountBadge(
               count: viewModel.pageCount!,
@@ -291,6 +300,13 @@ class _OutputControls extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (viewModel.photoRegionWarning != null) ...[
+          _PhotoRegionBadge(
+            warning: viewModel.photoRegionWarning!,
+            height: StudioDocumentBar._controlHeight,
+          ),
+          const HGap.tiny(),
+        ],
         if (viewModel.pageCount != null) ...[
           _PageCountBadge(
             count: viewModel.pageCount!,
@@ -438,54 +454,91 @@ class _PageCountBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isWarning = warning != null;
+    final width = iconOnly ? height : null;
+    final padding = iconOnly
+        ? EdgeInsets.zero
+        : EdgeInsets.symmetric(horizontal: context.appSpacing.paddingCompact);
 
-    // Lifted from `_SpendWarning` in `ai_assistant_key_help.dart` so the
-    // app's two amber surfaces match. A third one should promote this to a
-    // shared widget — it's a colour treatment rather than a scale value, so
-    // it doesn't belong in `tokens/`.
-    final badge = Container(
-      height: height,
-      width: iconOnly ? height : null,
-      alignment: Alignment.center,
-      padding: iconOnly
-          ? EdgeInsets.zero
-          : EdgeInsets.symmetric(horizontal: context.appSpacing.paddingCompact),
-      decoration: BoxDecoration(
-        color: isWarning
-            ? context.appPalette.warning.withValues(alpha: 0.08)
-            : Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(context.appRadius.medium),
-        border: isWarning
-            ? Border.all(
-                color: context.appPalette.warning.withValues(alpha: 0.4),
-              )
-            : null,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isWarning) ...[
-            Icon(
-              RemixIcons.error_warning_line,
-              size: context.appIconSize.small,
-              color: context.appPalette.warning,
-            ),
-            if (!iconOnly) const HGap.tiny(),
-          ],
-          if (!iconOnly)
-            Text(
-              context.l10n.studioPageCount(count),
-              style: isWarning
-                  ? context.appTypography.caption.copyWith(
-                      color: context.appPalette.warning,
-                    )
-                  : context.appTypography.caption,
-            ),
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isWarning) ...[
+          AppWarningSurface.icon(context),
+          if (!iconOnly) const HGap.tiny(),
         ],
-      ),
+        if (!iconOnly)
+          Text(
+            context.l10n.studioPageCount(count),
+            style: isWarning
+                ? context.appTypography.caption.copyWith(
+                    color: context.appPalette.warning,
+                  )
+                : context.appTypography.caption,
+          ),
+      ],
     );
 
+    if (!isWarning) {
+      return Container(
+        height: height,
+        width: width,
+        alignment: Alignment.center,
+        padding: padding,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(context.appRadius.medium),
+        ),
+        child: content,
+      );
+    }
+
     // Long-press reaches the message on touch, where there is no hover.
-    return isWarning ? Tooltip(message: warning!, child: badge) : badge;
+    return Tooltip(
+      message: warning!,
+      child: AppWarningSurface(
+        height: height,
+        width: width,
+        alignment: Alignment.center,
+        padding: padding,
+        radius: context.appRadius.medium,
+        child: content,
+      ),
+    );
+  }
+}
+
+/// Flags a photo template aimed at a market that doesn't want one.
+///
+/// Icon-only in both layouts, unlike [_PageCountBadge]: there is no
+/// neutral value to show here, so the badge exists only when there is
+/// something wrong, and the sentence explaining it is longer than any
+/// label that would fit a bar control.
+///
+/// The judgement itself lives on `StudioViewModel.photoRegionWarning`;
+/// this only renders what it decided.
+class _PhotoRegionBadge extends StatelessWidget {
+  const _PhotoRegionBadge({required this.warning, required this.height});
+
+  final String warning;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    // Long-press reaches the message on touch, where there is no hover —
+    // same reason as [_PageCountBadge].
+    return Tooltip(
+      message: warning,
+      child: AppWarningSurface(
+        height: height,
+        width: height,
+        alignment: Alignment.center,
+        radius: context.appRadius.medium,
+        child: Icon(
+          RemixIcons.user_line,
+          size: context.appIconSize.small,
+          color: context.appPalette.warning,
+        ),
+      ),
+    );
   }
 }

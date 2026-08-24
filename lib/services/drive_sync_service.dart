@@ -446,7 +446,22 @@ class DriveSyncService with ListenableServiceMixin {
       // re-fail on every subsequent edit (each one re-arms these timers).
       // Only a manual "Sync now" or reconnecting should attempt again.
       if (status is DriveSyncNeedsReauth) return;
-      if (!_isDirty) return;
+      // Nothing portable actually changed — a device-scoped write like
+      // `SettingsService.setThemeMode` or `setLastBackupAt` still notifies
+      // this service and still arms the timers, because neither side knows
+      // which half of `AppSettings` moved. Settle back to idle rather than
+      // returning: leaving `pending` set would strand the rail's indicator
+      // on "waiting to sync" until the next real edit.
+      if (!_isDirty) {
+        final email = _accountEmail;
+        if (email != null) {
+          _status.value = DriveSyncStatus.idle(
+            accountEmail: email,
+            lastSyncedAt: _lastSyncedAt,
+          );
+        }
+        return;
+      }
       await _push();
     });
   }

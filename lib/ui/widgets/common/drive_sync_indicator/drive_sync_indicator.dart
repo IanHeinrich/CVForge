@@ -1,7 +1,6 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/relative_time.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
@@ -84,9 +83,9 @@ class DriveSyncIndicator extends StackedView<DriveSyncIndicatorModel> {
       ),
       DriveSyncErrorState(:final message) => _Glyph(
         tooltip: message,
-        icon: const _StatusIcon(
+        icon: _StatusIcon(
           icon: RemixIcons.cloud_off_line,
-          color: kcErrorColor,
+          color: Theme.of(context).colorScheme.error,
         ),
       ),
     };

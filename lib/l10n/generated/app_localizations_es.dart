@@ -1059,6 +1059,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsAiTitle => 'Asistente de IA';
 
   @override
+  String get settingsAppearanceBody =>
+      'Se aplica a la interfaz de CVForge. Tu CV siempre se genera sobre papel blanco, sea cual sea el tema que elijas.';
+
+  @override
+  String get settingsAppearanceTitle => 'Apariencia';
+
+  @override
   String get settingsBackupBody =>
       'Exporta toda tu Bóveda y cada CV en un solo archivo JSON, o restaura desde una exportación anterior. Restaurar reemplaza todo lo que hay actualmente en este dispositivo. Tus datos actuales se descargan primero como copia de seguridad.';
 
@@ -1583,6 +1590,19 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String studioPhotoRegionWarning(String stance, String region) {
+    String _temp0 = intl.Intl.selectLogic(stance, {
+      'prohibited':
+          'Esta plantilla imprime una foto, y $region no espera ninguna — motivo de descarte automático. Cambia de plantilla o de región.',
+      'discouraged':
+          'Esta plantilla imprime una foto, y $region no espera ninguna — se desaconseja firmemente. Cambia de plantilla o de región.',
+      'other':
+          'Esta plantilla imprime una foto, y $region no espera ninguna. Cambia de plantilla o de región.',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get studioPreviewAddAll => 'Agregar todo';
 
   @override
@@ -1762,6 +1782,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get templateTagModern => 'Moderno';
 
   @override
+  String get templateTagPhoto => 'Foto';
+
+  @override
   String get templateTagTraditional => 'Tradicional';
 
   @override
@@ -1829,6 +1852,20 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get termsYourDataTitle => 'Tus datos, tu responsabilidad';
+
+  @override
+  String get themeModeDark => 'Oscuro';
+
+  @override
+  String get themeModeLight => 'Claro';
+
+  @override
+  String get themeModeSystem => 'Según el dispositivo';
+
+  @override
+  String themeToggleTooltip(String current, String next) {
+    return 'Tema: $current — cambiar a $next';
+  }
 
   @override
   String get vaultAddBasics => 'Agrega tus datos básicos';
@@ -1951,6 +1988,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultConfirmDeleteFallbackTitle => '¿Eliminar esto?';
+
+  @override
+  String get vaultCropPhotoBody =>
+      'Arrastra el marco para elegir qué se ve. La forma está fijada al tamaño de 35 × 45 mm que esperan los CV europeos.';
+
+  @override
+  String get vaultCropPhotoConfirm => 'Usar esta foto';
+
+  @override
+  String get vaultCropPhotoSaving => 'Guardando…';
+
+  @override
+  String get vaultCropPhotoTitle => 'Encuadra tu foto';
 
   @override
   String get vaultDeleteCategoryBody =>
@@ -2095,6 +2145,37 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultPersistError => 'No se pudo guardar tu último cambio.';
+
+  @override
+  String get vaultPhotoAdd => 'Agregar foto';
+
+  @override
+  String get vaultPhotoErrorPrepareFailed =>
+      'No se pudo preparar esa foto. Prueba con otra imagen.';
+
+  @override
+  String get vaultPhotoErrorUnreadable =>
+      'No se pudo leer ese archivo como imagen. Prueba con un JPEG o PNG.';
+
+  @override
+  String get vaultPhotoHelpInUse =>
+      'La usan las plantillas que incluyen foto. Las demás la ignoran.';
+
+  @override
+  String get vaultPhotoHelpOptional =>
+      'Opcional. Solo la usan las plantillas que incluyen foto — se espera en DACH, y es mejor omitirla para EE. UU. y el Reino Unido.';
+
+  @override
+  String get vaultPhotoLoading => 'Cargando…';
+
+  @override
+  String get vaultPhotoRemove => 'Quitar';
+
+  @override
+  String get vaultPhotoReplace => 'Reemplazar';
+
+  @override
+  String get vaultPhotoTitle => 'Foto';
 
   @override
   String get vaultProjectLink => 'Enlace (opcional)';

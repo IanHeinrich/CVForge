@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -125,7 +124,7 @@ class _SectionList extends StatelessWidget {
             Checkbox(
               value: !viewModel.isSectionHidden(type),
               onChanged: (_) => viewModel.toggleSectionHidden(type),
-              activeColor: kcPrimaryColor,
+              activeColor: Theme.of(context).colorScheme.primary,
               visualDensity: VisualDensity.compact,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),

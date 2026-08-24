@@ -28,6 +28,17 @@ abstract class ResolvedHeader with _$ResolvedHeader {
     required String phone,
     required String location,
     @Default(<ResolvedLink>[]) List<ResolvedLink> links,
+
+    /// The Vault photo's JPEG bytes, base64-encoded — carried as the raw
+    /// scalar rather than as `CvPhoto` so this file keeps its "templates
+    /// never see a Vault type" boundary, and as a `String` rather than
+    /// `Uint8List` so [ResolvedHeader] keeps value equality (see
+    /// [CvPhoto]'s doc comment for what depends on that).
+    ///
+    /// Always populated when the Vault holds a photo, whatever the draft's
+    /// template — deciding whether to print it is the template's job, not
+    /// the composer's.
+    String? photoJpegBase64,
   }) = _ResolvedHeader;
 }
 

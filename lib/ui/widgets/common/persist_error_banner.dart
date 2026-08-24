@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -26,19 +25,20 @@ class PersistErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final error = Theme.of(context).colorScheme.error;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: context.appSpacing.paddingDefault,
         vertical: context.appSpacing.paddingCompact,
       ),
       decoration: BoxDecoration(
-        color: kcErrorColor.withValues(alpha: 0.15),
+        color: error.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(context.appRadius.medium),
-        border: Border.all(color: kcErrorColor),
+        border: Border.all(color: error),
       ),
       child: Row(
         children: [
-          const Icon(RemixIcons.error_warning_line, color: kcErrorColor),
+          Icon(RemixIcons.error_warning_line, color: error),
           const HGap.small(),
           Expanded(
             child: Text(

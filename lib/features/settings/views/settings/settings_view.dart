@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import 'package:cv_forge/features/settings/widgets/appearance_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/backup_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/ai_assistant_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/drive_settings_card.dart';
@@ -50,6 +51,8 @@ class SettingsView extends StackedView<SettingsViewModel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                AppearanceSettingsCard(viewModel: viewModel),
+                const VGap.medium(),
                 RegionSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
                 if (viewModel.showLanguageSelector) ...[

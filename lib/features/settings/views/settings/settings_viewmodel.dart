@@ -7,6 +7,7 @@ import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
+import 'package:cv_forge/models/settings/app_theme_mode.dart';
 import 'package:cv_forge/services/backup_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/drive_sync_service.dart';
@@ -80,6 +81,12 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
 
   RegionProfile get defaultRegion =>
       _settingsService.settings.preferences.defaultRegion;
+
+  /// Device-scoped, unlike [defaultRegion] — see [AppSettings.themeMode].
+  AppThemeMode get themeMode => _settingsService.settings.themeMode;
+
+  Future<void> setThemeMode(AppThemeMode mode) =>
+      _settingsService.setThemeMode(mode);
 
   /// Opens the same picker Studio's per-CV region button opens, in its
   /// `appDefault` context — one region surface with two entry points

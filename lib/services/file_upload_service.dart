@@ -18,6 +18,17 @@ class FileUploadService {
   Future<Uint8List?> pickPdfFile() =>
       _pickFile(const XTypeGroup(label: 'PDF', extensions: ['pdf']));
 
+  /// Opens the platform's file picker restricted to still-image formats,
+  /// returning the picked file's bytes, or `null` if the user cancelled.
+  /// The extension filter is a convenience, not a guarantee — what the
+  /// bytes actually are is `ProfilePhotoService.prepareForCrop`'s problem.
+  Future<Uint8List?> pickImageFile() => _pickFile(
+    const XTypeGroup(
+      label: 'Image',
+      extensions: ['png', 'jpg', 'jpeg', 'webp'],
+    ),
+  );
+
   Future<Uint8List?> _pickFile(XTypeGroup group) async {
     final file = await openFile(acceptedTypeGroups: [group]);
     if (file == null) return null;

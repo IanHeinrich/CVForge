@@ -1634,6 +1634,18 @@ abstract class AppLocalizations {
   /// **'AI Assistant'**
   String get settingsAiTitle;
 
+  /// Settings, appearance card body. Stresses that the theme is chrome-only and never affects the exported PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to CVForge\'s own interface. Your CV always renders on white paper, whichever theme you pick.'**
+  String get settingsAppearanceBody;
+
+  /// Settings, appearance card heading — light/dark theme choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearanceTitle;
+
   /// Settings, backup card body explaining export and import.
   ///
   /// In en, this message translates to:
@@ -2324,6 +2336,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 page} other{{count} pages}}'**
   String studioPageCount(int count);
 
+  /// Studio warning when a photo-printing template is paired with a market that rejects photographs. Each branch is a complete sentence rather than a stance label dropped into a frame, so it stays grammatical in any language.
+  ///
+  /// In en, this message translates to:
+  /// **'{stance, select, prohibited{This template prints a photo, and {region} expects none — an automatic rejection. Switch template, or change region.} discouraged{This template prints a photo, and {region} expects none — strongly discouraged. Switch template, or change region.} other{This template prints a photo, and {region} expects none. Switch template, or change region.}}'**
+  String studioPhotoRegionWarning(String stance, String region);
+
   /// Studio preview pane button that includes every Vault item in this CV.
   ///
   /// In en, this message translates to:
@@ -2624,6 +2642,12 @@ abstract class AppLocalizations {
   /// **'Modern'**
   String get templateTagModern;
 
+  /// Template tag: this layout prints the profile photograph from the Vault.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get templateTagPhoto;
+
   /// Template tag: a conservative, conventional layout.
   ///
   /// In en, this message translates to:
@@ -2743,6 +2767,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your data, your responsibility'**
   String get termsYourDataTitle;
+
+  /// Theme option: always use the dark theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeModeDark;
+
+  /// Theme option: always use the light theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeModeLight;
+
+  /// Theme option: follow the operating system's light/dark setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Match device'**
+  String get themeModeSystem;
+
+  /// Tooltip on the theme cycle button, naming the current theme and the one a click moves to. Both values are already-translated theme option names.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme: {current} — switch to {next}'**
+  String themeToggleTooltip(String current, String next);
 
   /// Vault action shown when no personal details have been entered yet.
   ///
@@ -2965,6 +3013,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete this?'**
   String get vaultConfirmDeleteFallbackTitle;
+
+  /// Crop dialog body. 35 × 45 mm is the standard European CV photo size — keep the measurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag the frame to choose what appears. The shape is fixed to the 35 × 45 mm size European CVs expect.'**
+  String get vaultCropPhotoBody;
+
+  /// Crop dialog, button that accepts the current crop.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this photo'**
+  String get vaultCropPhotoConfirm;
+
+  /// Crop dialog, button label while the cropped photograph is being encoded and stored.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get vaultCropPhotoSaving;
+
+  /// Title of the dialog for cropping a profile photograph to the required aspect ratio.
+  ///
+  /// In en, this message translates to:
+  /// **'Position your photo'**
+  String get vaultCropPhotoTitle;
 
   /// Confirmation dialog body for deleting a skill category.
   ///
@@ -3229,6 +3301,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your last change couldn\'t be saved.'**
   String get vaultPersistError;
+
+  /// Vault basics, button that opens the file picker to choose a profile photograph.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get vaultPhotoAdd;
+
+  /// Vault error when a decoded image failed to resize or re-encode for storage.
+  ///
+  /// In en, this message translates to:
+  /// **'That photo couldn\'t be prepared. Try a different image.'**
+  String get vaultPhotoErrorPrepareFailed;
+
+  /// Vault error when the chosen file could not be decoded as an image. JPEG and PNG are format names.
+  ///
+  /// In en, this message translates to:
+  /// **'That file couldn\'t be read as an image. Try a JPEG or PNG.'**
+  String get vaultPhotoErrorUnreadable;
+
+  /// Vault basics, help text under the photo field once a photo has been added.
+  ///
+  /// In en, this message translates to:
+  /// **'Used by templates that include a photo. Others ignore it.'**
+  String get vaultPhotoHelpInUse;
+
+  /// Vault basics, help text under the photo field when no photo is set. 'DACH' is the German-speaking market grouping used elsewhere in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Only used by templates that include a photo — expected in DACH, best left off for the US and UK.'**
+  String get vaultPhotoHelpOptional;
+
+  /// Vault basics, shown while the stored photo is being decoded for display.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get vaultPhotoLoading;
+
+  /// Vault basics, button that deletes the stored profile photograph.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get vaultPhotoRemove;
+
+  /// Vault basics, button that swaps the existing profile photograph for a new one.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get vaultPhotoReplace;
+
+  /// Vault basics, heading for the optional profile photograph.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get vaultPhotoTitle;
 
   /// Vault project form field label for a URL showing the project.
   ///

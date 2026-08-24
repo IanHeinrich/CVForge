@@ -1,5 +1,4 @@
 import 'package:cv_forge/models/region/region_presets.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -205,7 +204,7 @@ class _RegionListRow extends StatelessWidget {
                 const HGap.small(),
                 Icon(
                   RemixIcons.checkbox_circle_fill,
-                  color: kcPrimaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                   size: context.appIconSize.medium,
                 ),
               ],

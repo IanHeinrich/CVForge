@@ -45,6 +45,10 @@ abstract class CvVault with _$CvVault {
 extension CvVaultEmptiness on CvVault {
   bool get isEmpty =>
       basics.fullName.trim().isEmpty &&
+      // A photo counts as content, because the empty state it gates offers
+      // "Load example CV" — which goes through `replaceAll` and would
+      // silently discard a photo uploaded before anything was typed.
+      basics.photo == null &&
       experiences.isEmpty &&
       skillCategories.isEmpty &&
       projects.isEmpty &&
