@@ -29,8 +29,8 @@ part 'cv_preferences.g.dart';
 abstract class CvPreferences with _$CvPreferences {
   const factory CvPreferences({
     @Default(RegionProfile.uk) RegionProfile defaultRegion,
-    String? assistantProviderId,
-    String? assistantModelId,
+    String? aiAssistantProviderId,
+    String? aiAssistantModelId,
 
     /// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
     /// draft with, set via the "Save as my default" action in Studio.

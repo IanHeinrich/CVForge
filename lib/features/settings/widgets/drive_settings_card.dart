@@ -14,7 +14,7 @@ import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dar
 
 /// Google Drive sync setup — connect, see live status, sync now, resolve
 /// a conflict, disconnect. Same block-card frame as [BackupSettingsCard]/
-/// [CopilotSettingsCard], placed above [BackupSettingsCard] in
+/// [AiAssistantSettingsCard], placed above [BackupSettingsCard] in
 /// `SettingsView` since it's the more seamless of the two save paths once
 /// connected. Returns an empty widget entirely (not just a disabled
 /// state) when [SettingsViewModel.isDriveAvailable] is false — no

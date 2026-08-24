@@ -12,7 +12,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 
 /// A card for backup export/import — one of Settings' cards, stacked by
-/// `SettingsView` alongside [CopilotSettingsCard]. Dark container,
+/// `SettingsView` alongside [AiAssistantSettingsCard]. Dark container,
 /// [context.appRadius.medium] — the same block-card frame
 /// `AtsFindingCard` uses, so a second card-shaped feature doesn't invent
 /// its own. `SettingsView` owns the outer scroll/page padding — this

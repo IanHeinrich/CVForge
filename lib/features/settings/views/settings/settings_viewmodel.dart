@@ -17,7 +17,7 @@ import 'package:cv_forge/services/vault_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-/// Settings' content: backup export/import and Copilot connection setup.
+/// Settings' content: backup export/import and AI Assistant connection setup.
 /// `implements Initialisable`, loads via a keyed `runBusyFuture`
 /// (mirroring `DraftsListViewModel`, not Vault's unkeyed variant), renders
 /// `StorageUnavailableCard` on failure via `AppChrome.gated`.
@@ -175,57 +175,59 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     rebuildUi();
   }
 
-  static const _testConnectionBusyKey = 'settings_test_copilot_connection';
+  static const _testConnectionBusyKey = 'settings_test_ai_assistant_connection';
 
   /// Every registered provider, for the provider selector. Only shown by
   /// the UI once there's more than one to choose between — see
-  /// [showCopilotProviderSelector].
-  List<LlmProvider> get copilotProviders => _llmProviders.available;
+  /// [showAiAssistantProviderSelector].
+  List<LlmProvider> get aiAssistantProviders => _llmProviders.available;
 
-  bool get showCopilotProviderSelector => _llmProviders.available.length > 1;
+  bool get showAiAssistantProviderSelector =>
+      _llmProviders.available.length > 1;
 
   /// Falls back to [LlmProviderRegistry.defaultProvider] when nothing is
   /// stored, or a stored id no longer resolves (a provider removed between
   /// releases) — mirrors [LlmProviderRegistry.byId]'s own never-throw
   /// contract, since a settings read must never crash a build.
-  LlmProvider get selectedCopilotProvider => _llmProviders.byId(
-    _settingsService.settings.preferences.assistantProviderId ?? '',
+  LlmProvider get selectedAiAssistantProvider => _llmProviders.byId(
+    _settingsService.settings.preferences.aiAssistantProviderId ?? '',
   );
 
   /// Switches the active provider and resets the stored model to that
   /// provider's first option — a model id from the *previous* provider
-  /// would otherwise sit in `AppSettings.copilotModelId` pointing at
-  /// nothing meaningful for the new one. [selectedCopilotModel]'s own
+  /// would otherwise sit in `CvPreferences.aiAssistantModelId` pointing at
+  /// nothing meaningful for the new one. [selectedAiAssistantModel]'s own
   /// fallback would paper over a stale id at read time regardless, but
-  /// leaving `copilotModelId` actually correct is worth the extra write.
-  Future<void> selectCopilotProvider(String providerId) async {
-    await _settingsService.setAssistantProvider(providerId);
-    await _settingsService.setAssistantModel(
+  /// leaving `aiAssistantModelId` actually correct is worth the extra write.
+  Future<void> selectAiAssistantProvider(String providerId) async {
+    await _settingsService.setAiAssistantProvider(providerId);
+    await _settingsService.setAiAssistantModel(
       _llmProviders.byId(providerId).models.first.id,
     );
     clearConnectionTestResult();
   }
 
-  List<LlmModelOption> get copilotModels => selectedCopilotProvider.models;
+  List<LlmModelOption> get aiAssistantModels =>
+      selectedAiAssistantProvider.models;
 
-  String get selectedCopilotModelId => selectedCopilotModel.id;
+  String get selectedAiAssistantModelId => selectedAiAssistantModel.id;
 
   /// Falls back to the provider's first model when nothing is stored, or
   /// when a stored id no longer exists (a model retired between releases,
   /// or simply belonging to a different provider than the one currently
   /// selected) — the dropdown must always have a value present in its own
   /// item list or it throws at build time.
-  LlmModelOption get selectedCopilotModel {
-    final storedId = _settingsService.settings.preferences.assistantModelId;
-    final models = selectedCopilotProvider.models;
+  LlmModelOption get selectedAiAssistantModel {
+    final storedId = _settingsService.settings.preferences.aiAssistantModelId;
+    final models = selectedAiAssistantProvider.models;
     return models.firstWhere(
       (m) => m.id == storedId,
       orElse: () => models.first,
     );
   }
 
-  Future<void> selectCopilotModel(String modelId) async {
-    await _settingsService.setAssistantModel(modelId);
+  Future<void> selectAiAssistantModel(String modelId) async {
+    await _settingsService.setAiAssistantModel(modelId);
     clearConnectionTestResult();
   }
 
@@ -238,7 +240,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> setRememberApiKey(bool value) async {
     await _settingsService.setRememberApiKey(value);
     if (!value) {
-      await _settingsService.clearApiKey(selectedCopilotProvider.id);
+      await _settingsService.clearApiKey(selectedAiAssistantProvider.id);
     }
   }
 
@@ -249,7 +251,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
 
   /// Called whenever something the last connection test result no longer
   /// describes changes — the provider, the model, or the key field itself
-  /// (see `CopilotSettingsCard`'s api key `onChanged`). Without this, a
+  /// (see `AiAssistantSettingsCard`'s api key `onChanged`). Without this, a
   /// stale "Connected." (or stale error) from a previous key/provider
   /// stays shown indefinitely.
   void clearConnectionTestResult() {
@@ -268,7 +270,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   String? get connectionTestErrorMessage {
     final error = this.error(_testConnectionBusyKey);
     if (error is! LlmException) return null;
-    final providerName = selectedCopilotProvider.displayName;
+    final providerName = selectedAiAssistantProvider.displayName;
     return switch (error.failure) {
       LlmFailure.noKey => 'Enter an API key first.',
       LlmFailure.unauthorized =>
@@ -303,12 +305,12 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   // a failure inside the `Future` it's given, not one thrown while that
   // argument is still being evaluated.
   Future<void> _testConnection(String apiKey) async =>
-      _llmService.testConnection(selectedCopilotProvider.id, apiKey);
+      _llmService.testConnection(selectedAiAssistantProvider.id, apiKey);
 
   /// Only stores [apiKey] (in memory always, on disk if
   /// [rememberApiKey] is on — see `SettingsService.setApiKey`) once the
   /// connection actually validates it, so a rejected key never lingers.
-  Future<void> testCopilotConnection(String apiKey) async {
+  Future<void> testAiAssistantConnection(String apiKey) async {
     _connectionTestSucceeded = false;
     await runBusyFuture(
       _testConnection(apiKey),
@@ -316,7 +318,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     );
     if (!hasErrorForKey(_testConnectionBusyKey)) {
       _connectionTestSucceeded = true;
-      await _settingsService.setApiKey(selectedCopilotProvider.id, apiKey);
+      await _settingsService.setApiKey(selectedAiAssistantProvider.id, apiKey);
     }
     rebuildUi();
   }

@@ -7,7 +7,7 @@ import 'package:cv_forge/models/render/resolved_cv.dart';
 /// [request.data](https://pub.dev/documentation/stacked_services/latest/stacked_services/DialogRequest-class.html).
 /// Not a domain model — a transport shape between `StudioViewModel` (which
 /// already owns [cv]/[pageFormat]/the active template id) and this dialog,
-/// the same role `CopilotRunDialogData` plays for its own dialog.
+/// the same role `AiAssistantRunDialogData` plays for its own dialog.
 class TemplateGalleryDialogData {
   const TemplateGalleryDialogData({
     required this.currentTemplateId,

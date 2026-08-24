@@ -13,7 +13,7 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
   const StudioViewDesktop({super.key});
 
   /// Fixed — the nav only ever holds eight section labels plus the
-  /// Copilot card and defaults controls beneath them, none of which
+  /// AI Assistant card and defaults controls beneath them, none of which
   /// benefit from more width. Extra window width goes to the editor
   /// column instead: it takes the surplus, and the preview caps itself
   /// at printed width regardless of how much space it's handed. 300, not

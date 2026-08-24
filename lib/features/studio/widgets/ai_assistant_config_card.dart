@@ -10,7 +10,7 @@ import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
 import 'tailoring_controls.dart';
 
-/// The persistent Copilot card in `StudioSectionNav`: the job ad this
+/// The persistent AI Assistant card in `StudioSectionNav`: the job ad this
 /// draft is being tailored for, the "Tailor with AI" action, and "Undo AI
 /// changes" while a pass is applied.
 ///
@@ -22,8 +22,8 @@ import 'tailoring_controls.dart';
 /// lower-level pieces ([TailorableField], [InlineTextOverrideEditor])
 /// instead, with a plain pencil/clear pair rather than that Vault-specific
 /// copy.
-class CopilotConfigCard extends StatefulWidget {
-  const CopilotConfigCard({
+class AiAssistantConfigCard extends StatefulWidget {
+  const AiAssistantConfigCard({
     super.key,
     required this.jobDescription,
     required this.onChanged,
@@ -46,10 +46,10 @@ class CopilotConfigCard extends StatefulWidget {
   final VoidCallback onUndo;
 
   @override
-  State<CopilotConfigCard> createState() => _CopilotConfigCardState();
+  State<AiAssistantConfigCard> createState() => _AiAssistantConfigCardState();
 }
 
-class _CopilotConfigCardState extends State<CopilotConfigCard> {
+class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
   bool _editing = false;
 
   void _toggleEditing() => setState(() => _editing = !_editing);
@@ -178,7 +178,7 @@ class _CopilotConfigCardState extends State<CopilotConfigCard> {
   }
 }
 
-/// A small stylised "BETA" tag next to the card's heading — Copilot
+/// A small stylised "BETA" tag next to the card's heading — AI Assistant
 /// tailoring is functional but not yet held to the same bar as the rest of
 /// the app, and this flags that inline rather than only in release notes
 /// nobody reads before hitting "Tailor with AI".

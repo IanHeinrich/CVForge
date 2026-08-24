@@ -1,6 +1,6 @@
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/models/llm/copilot_result.dart';
-import 'package:cv_forge/services/copilot_service.dart';
+import 'package:cv_forge/models/llm/ai_assistant_result.dart';
+import 'package:cv_forge/services/ai_assistant_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
@@ -9,50 +9,50 @@ import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:stacked/stacked.dart';
 
-/// [CopilotRunDialog]'s state machine. `confirm` shows what's about to be
+/// [AiAssistantRunDialog]'s state machine. `confirm` shows what's about to be
 /// sent and to whom; `running` is the request in flight; `result` is a
 /// successfully-applied pass' rationale/keywordGaps; `error` is a failed
 /// pass, offering a retry. There is no separate "apply" step after
-/// `result` — [run] already wrote it via [DraftService.applyCopilotResult]
+/// `result` — [run] already wrote it via [DraftService.applyAiAssistantResult]
 /// by the time this phase is reached: the per-field `TailorableField`
 /// revert controls are the review surface, not a second one here.
-enum CopilotRunPhase { confirm, running, result, error }
+enum AiAssistantRunPhase { confirm, running, result, error }
 
-class CopilotRunDialogModel extends BaseViewModel {
-  CopilotRunDialogModel({required this.jobDescription});
+class AiAssistantRunDialogModel extends BaseViewModel {
+  AiAssistantRunDialogModel({required this.jobDescription});
 
   final String jobDescription;
 
   final _settingsService = locator<SettingsService>();
   final _vaultService = locator<VaultService>();
   final _draftService = locator<DraftService>();
-  final _copilotService = locator<CopilotService>();
+  final _aiAssistantService = locator<AiAssistantService>();
 
   /// Not locator-registered — see `LlmService`'s own doc comment for why
   /// (stateless, deterministic, nothing else needs one injected).
   final _providerRegistry = LlmProviderRegistry();
 
-  CopilotRunPhase _phase = CopilotRunPhase.confirm;
-  CopilotRunPhase get phase => _phase;
+  AiAssistantRunPhase _phase = AiAssistantRunPhase.confirm;
+  AiAssistantRunPhase get phase => _phase;
 
-  CopilotResult? _result;
-  CopilotResult? get result => _result;
+  AiAssistantResult? _result;
+  AiAssistantResult? get result => _result;
 
   Object? _error;
 
   /// Falls back to [LlmProviderRegistry.defaultProvider] the same way
-  /// `SettingsViewModel.selectedCopilotProvider` does — a settings read
+  /// `SettingsViewModel.selectedAiAssistantProvider` does — a settings read
   /// must never crash this dialog's build.
   LlmProvider get _provider => _providerRegistry.byId(
-    _settingsService.settings.preferences.assistantProviderId ?? '',
+    _settingsService.settings.preferences.aiAssistantProviderId ?? '',
   );
 
   String get providerDisplayName => _provider.displayName;
 
   /// Same stored-id-may-be-stale fallback as
-  /// `SettingsViewModel.selectedCopilotModel`.
+  /// `SettingsViewModel.selectedAiAssistantModel`.
   String get _modelId {
-    final storedId = _settingsService.settings.preferences.assistantModelId;
+    final storedId = _settingsService.settings.preferences.aiAssistantModelId;
     final models = _provider.models;
     return models
         .firstWhere((m) => m.id == storedId, orElse: () => models.first)
@@ -89,24 +89,24 @@ class CopilotRunDialogModel extends BaseViewModel {
   }
 
   Future<void> run() async {
-    _phase = CopilotRunPhase.running;
+    _phase = AiAssistantRunPhase.running;
     _error = null;
     notifyListeners();
     try {
       final apiKey = await _settingsService.apiKeyFor(_provider.id) ?? '';
-      final result = await _copilotService.runTailoringPass(
+      final result = await _aiAssistantService.runTailoringPass(
         vault: _vaultService.vault,
         jobDescription: jobDescription,
         providerId: _provider.id,
         modelId: _modelId,
         apiKey: apiKey,
       );
-      await _draftService.applyCopilotResult(result);
+      await _draftService.applyAiAssistantResult(result);
       _result = result;
-      _phase = CopilotRunPhase.result;
+      _phase = AiAssistantRunPhase.result;
     } catch (e) {
       _error = e;
-      _phase = CopilotRunPhase.error;
+      _phase = AiAssistantRunPhase.error;
     }
     notifyListeners();
   }

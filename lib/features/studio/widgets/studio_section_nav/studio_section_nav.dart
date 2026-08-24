@@ -10,12 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
-import 'package:cv_forge/features/studio/widgets/copilot_config_card.dart';
+import 'package:cv_forge/features/studio/widgets/ai_assistant_config_card.dart';
 import 'package:cv_forge/features/studio/widgets/studio_panel_heading.dart';
 
 /// The persistent left-hand (desktop) / nav step (compact drill-down)
 /// column: which sections are visible and in what order, which one the
-/// editor pane is showing, the Copilot card, and the per-draft section
+/// editor pane is showing, the AI Assistant card, and the per-draft section
 /// defaults. Short and fixed by design.
 class StudioSectionNav extends StatelessWidget {
   const StudioSectionNav({super.key, required this.viewModel});
@@ -75,14 +75,14 @@ class StudioSectionNav extends StatelessWidget {
           ),
         ),
         const VGap.medium(),
-        CopilotConfigCard(
+        AiAssistantConfigCard(
           jobDescription: viewModel.targetJobDescription,
           onChanged: viewModel.setTargetJobDescription,
           onClear: viewModel.clearTargetJobDescription,
           canRun: viewModel.hasTargetJobDescription,
           onRun: viewModel.tailorWithAi,
-          hasUndo: viewModel.hasCopilotUndo,
-          onUndo: viewModel.undoCopilotChanges,
+          hasUndo: viewModel.hasAiAssistantUndo,
+          onUndo: viewModel.undoAiAssistantChanges,
         ),
       ],
     );

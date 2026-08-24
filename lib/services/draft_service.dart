@@ -5,7 +5,7 @@ import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
 import 'package:cv_forge/models/identified_list.dart';
-import 'package:cv_forge/models/llm/copilot_result.dart';
+import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
@@ -344,7 +344,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     await _localStorage.delete(StorageBoxes.drafts, StorageKeys.draftEntry(id));
     await _localStorage.delete(
       StorageBoxes.drafts,
-      StorageKeys.copilotUndoFor(id),
+      StorageKeys.aiAssistantUndoFor(id),
     );
     await _persistIndex();
   }
@@ -648,7 +648,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     _setDraft((d) => d.copyWith(targetJobDescription: jobDescription));
   }
 
-  /// Applies a Copilot tailoring pass ([result]) as a single draft update
+  /// Applies an AI Assistant tailoring pass ([result]) as a single draft update
   /// and a single persisted write — not N calls through the individual
   /// setters above, which produced a real "select all only selected one
   /// bullet" bug at ten times this scale when tried. Like
@@ -657,7 +657,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// instead of going through the debounce.
   ///
   /// Writes the pre-pass draft to a distinct storage key first (see
-  /// [StorageKeys.copilotUndoFor]) so [undoCopilotPass] can restore it —
+  /// [StorageKeys.aiAssistantUndoFor]) so [undoAiAssistantPass] can restore it —
   /// superseded by the next pass, never accumulated, and routed through
   /// the same [persistImmediately] bookkeeping as every other write in
   /// this class so a failed snapshot surfaces via [persistError] rather
@@ -665,7 +665,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// (`result.headline`/`result.summary`) means "the model chose not to
   /// touch this", so the existing override is left alone rather than
   /// cleared.
-  Future<void> applyCopilotResult(CopilotResult result) async {
+  Future<void> applyAiAssistantResult(AiAssistantResult result) async {
     await ready();
     final id = _activeDraftId.value;
     if (id == null) return;
@@ -675,7 +675,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     await _persistAux(
       () => _localStorage.write(
         StorageBoxes.drafts,
-        StorageKeys.copilotUndoFor(id),
+        StorageKeys.aiAssistantUndoFor(id),
         jsonEncode(current.toJson()),
       ),
     );
@@ -704,17 +704,17 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   }
 
   /// Restores the active draft to how it was immediately before the most
-  /// recent [applyCopilotResult] call, and clears the snapshot — a second
+  /// recent [applyAiAssistantResult] call, and clears the snapshot — a second
   /// call without an intervening pass is a no-op. Returns whether a
   /// snapshot actually existed and was restored, so the caller knows
   /// whether anything happened.
-  Future<bool> undoCopilotPass() async {
+  Future<bool> undoAiAssistantPass() async {
     await ready();
     final id = _activeDraftId.value;
     if (id == null) return false;
     final raw = await _localStorage.read(
       StorageBoxes.drafts,
-      StorageKeys.copilotUndoFor(id),
+      StorageKeys.aiAssistantUndoFor(id),
     );
     if (raw == null) return false;
 
@@ -726,7 +726,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     } catch (_) {
       await _localStorage.delete(
         StorageBoxes.drafts,
-        StorageKeys.copilotUndoFor(id),
+        StorageKeys.aiAssistantUndoFor(id),
       );
       return false;
     }
@@ -737,22 +737,22 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     await persistImmediately(restored);
     await _localStorage.delete(
       StorageBoxes.drafts,
-      StorageKeys.copilotUndoFor(id),
+      StorageKeys.aiAssistantUndoFor(id),
     );
     return true;
   }
 
-  /// Whether [draftId] has a pending Copilot undo snapshot — the Studio UI
+  /// Whether [draftId] has a pending AI Assistant undo snapshot — the Studio UI
   /// reads this to decide whether to show "Undo AI changes" at all. Not
   /// tracked as in-memory reactive state (unlike [isFreshDraft]): a
   /// snapshot's existence is storage state that must survive a reload, so
   /// it's checked directly rather than cached in a field that would just
   /// be wrong until the next write.
-  Future<bool> hasCopilotUndoFor(String draftId) async {
+  Future<bool> hasAiAssistantUndoFor(String draftId) async {
     await ready();
     final raw = await _localStorage.read(
       StorageBoxes.drafts,
-      StorageKeys.copilotUndoFor(draftId),
+      StorageKeys.aiAssistantUndoFor(draftId),
     );
     return raw != null;
   }
@@ -857,7 +857,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   }
 
   /// Writes something other than the [CvDraft] this mixin manages (a
-  /// Copilot undo snapshot, the [DraftIndex]) through the same
+  /// AI Assistant undo snapshot, the [DraftIndex]) through the same
   /// try/catch-and-surface-via-[persistError] bookkeeping
   /// [PersistedStoreMixin.persistImmediately] gives the primary write —
   /// so a failure here is never silently swallowed either.

@@ -1,5 +1,5 @@
 import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/models/llm/copilot_result.dart';
+import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
@@ -66,13 +66,13 @@ CvVault _fixtureVault() => CvVault(
 );
 
 void main() {
-  group('CopilotResult.fromLlmResponse -', () {
+  group('AiAssistantResult.fromLlmResponse -', () {
     late CvVault vault;
 
     setUp(() => vault = _fixtureVault());
 
     test('a fully valid response is applied as-is', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'headline': 'Senior Backend Engineer',
         'summary': 'Tailored.',
         'experiences': {
@@ -127,7 +127,7 @@ void main() {
     });
 
     test('an experience id that does not exist in the Vault is dropped', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'experiences': {
           'exp-hallucinated': {
             'bulletIds': ['bullet-a1'],
@@ -151,7 +151,7 @@ void main() {
     test('a bullet id belonging to a different experience is dropped, not '
         'attached to the wrong one — the exact class of error the '
         'per-entry enum scoping exists to prevent', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'experiences': {
           'exp-a': {
             // bullet-b1 belongs to exp-b, not exp-a.
@@ -177,7 +177,7 @@ void main() {
 
     test('a bullet id belonging to a different entity is dropped from a '
         'publication too, not just experiences/projects', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'experiences': <String, dynamic>{},
         'projects': <String, dynamic>{},
         'publications': {
@@ -203,7 +203,7 @@ void main() {
     });
 
     test('unknown skill/education/hobby ids are dropped', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'experiences': <String, dynamic>{},
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
@@ -222,7 +222,7 @@ void main() {
 
     test('a publications entry keyed by an id not in the Vault is ignored, '
         'not a crash', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'experiences': <String, dynamic>{},
         'projects': <String, dynamic>{},
         'publications': {
@@ -244,7 +244,7 @@ void main() {
     });
 
     test('an invalid hiddenSections name is dropped rather than throwing', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'experiences': <String, dynamic>{},
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
@@ -260,7 +260,7 @@ void main() {
     });
 
     test('wrong-typed fields are treated as absent rather than crashing', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'headline': 42, // not a string
         'experiences': 'not a map',
         'projects': <String, dynamic>{},
@@ -283,7 +283,7 @@ void main() {
     test('an experience key present with an empty bulletIds selection is '
         'still "included", matching CvDraft.bulletIds\' own '
         'key-exists-means-included convention', () {
-      final result = CopilotResult.fromLlmResponse({
+      final result = AiAssistantResult.fromLlmResponse({
         'experiences': {
           'exp-a': {'bulletIds': <String>[], 'rewrites': <String>[]},
         },

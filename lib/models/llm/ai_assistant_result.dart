@@ -3,12 +3,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 
-part 'copilot_result.freezed.dart';
+part 'ai_assistant_result.freezed.dart';
 
-/// A Copilot tailoring pass's response, parsed and validated against
+/// An AI Assistant tailoring pass's response, parsed and validated against
 /// [CvVault] rather than trusted as-is.
 ///
-/// [buildCopilotResponseSchema]'s `enum` constraints make a hallucinated id
+/// [buildAiAssistantResponseSchema]'s `enum` constraints make a hallucinated id
 /// structurally impossible on a provider that honours them — but that
 /// guarantee doesn't hold for every provider (Gemini has no
 /// `additionalProperties`-style key-closure mechanism at all; see
@@ -21,8 +21,8 @@ part 'copilot_result.freezed.dart';
 /// ids are normal, not an error" rule [CvDraft] already applies everywhere
 /// else — never a crash, never a thrown exception.
 @freezed
-abstract class CopilotResult with _$CopilotResult {
-  const factory CopilotResult({
+abstract class AiAssistantResult with _$AiAssistantResult {
+  const factory AiAssistantResult({
     String? headline,
     String? summary,
     required List<String> experienceIds,
@@ -38,7 +38,7 @@ abstract class CopilotResult with _$CopilotResult {
     /// bulletId -> rewritten text, flattened across experiences and
     /// projects — legal because bullet ids are globally unique (the same
     /// reasoning as `CvDraft.bulletOverrides`), and it's exactly the shape
-    /// `DraftService.applyCopilotResult` needs to hand `CvDraft` directly.
+    /// `DraftService.applyAiAssistantResult` needs to hand `CvDraft` directly.
     required Map<String, String> bulletOverrides,
     required List<String> skillIds,
     required List<String> educationIds,
@@ -46,9 +46,9 @@ abstract class CopilotResult with _$CopilotResult {
     required Set<CvSectionType> hiddenSections,
     required String rationale,
     required List<String> keywordGaps,
-  }) = _CopilotResult;
+  }) = _AiAssistantResult;
 
-  factory CopilotResult.fromLlmResponse(
+  factory AiAssistantResult.fromLlmResponse(
     Map<String, dynamic> json,
     CvVault vault,
   ) {
@@ -110,7 +110,7 @@ abstract class CopilotResult with _$CopilotResult {
       }
     }
 
-    return CopilotResult(
+    return AiAssistantResult(
       headline: _asString(json['headline']),
       summary: _asString(json['summary']),
       experienceIds: [
@@ -146,7 +146,7 @@ abstract class CopilotResult with _$CopilotResult {
 }
 
 /// Shared by the `experiences` and `projects` branches of
-/// [CopilotResult.fromLlmResponse]: reads [entry]'s `bulletIds`/`rewrites`,
+/// [AiAssistantResult.fromLlmResponse]: reads [entry]'s `bulletIds`/`rewrites`,
 /// keeping only ids that are actually in [validBulletIds] — the
 /// per-experience/per-project scoping that stops a rewrite meant for one
 /// entry's bullet from being applied to another's.

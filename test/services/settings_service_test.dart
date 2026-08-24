@@ -25,7 +25,7 @@ void main() {
 
       expect(service.settings.schemaVersion, 1);
       expect(service.settings.preferences.defaultRegion, RegionProfile.uk);
-      expect(service.settings.preferences.assistantProviderId, isNull);
+      expect(service.settings.preferences.aiAssistantProviderId, isNull);
       expect(service.settings.rememberApiKey, isFalse);
     });
 
@@ -75,19 +75,28 @@ void main() {
       );
     });
 
-    group('Copilot mutators (4.4) -', () {
-      test('setAssistantProvider/setAssistantModel update settings', () async {
-        when(storage.read(any, any)).thenAnswer((_) async => null);
+    group('AI Assistant mutators (4.4) -', () {
+      test(
+        'setAiAssistantProvider/setAiAssistantModel update settings',
+        () async {
+          when(storage.read(any, any)).thenAnswer((_) async => null);
 
-        final service = SettingsService();
-        await service.load();
+          final service = SettingsService();
+          await service.load();
 
-        await service.setAssistantProvider('anthropic');
-        await service.setAssistantModel('claude-opus-5');
+          await service.setAiAssistantProvider('anthropic');
+          await service.setAiAssistantModel('claude-opus-5');
 
-        expect(service.settings.preferences.assistantProviderId, 'anthropic');
-        expect(service.settings.preferences.assistantModelId, 'claude-opus-5');
-      });
+          expect(
+            service.settings.preferences.aiAssistantProviderId,
+            'anthropic',
+          );
+          expect(
+            service.settings.preferences.aiAssistantModelId,
+            'claude-opus-5',
+          );
+        },
+      );
 
       test('setRememberApiKey updates settings', () async {
         when(storage.read(any, any)).thenAnswer((_) async => null);

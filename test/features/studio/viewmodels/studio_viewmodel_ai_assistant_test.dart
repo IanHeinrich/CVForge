@@ -1,6 +1,6 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_data.dart';
+import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog_data.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -11,7 +11,7 @@ import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
 void main() {
-  group('StudioViewModel Tests - Copilot -', () {
+  group('StudioViewModel Tests - AI Assistant -', () {
     late MockVaultService vaultService;
     late MockDraftService draftService;
     late MockDialogService dialogService;
@@ -26,7 +26,9 @@ void main() {
       dialogService = getAndRegisterDialogService();
       when(vaultService.vault).thenReturn(vaultWith());
       when(draftService.draft).thenReturn(draftWith());
-      when(draftService.hasCopilotUndoFor(any)).thenAnswer((_) async => false);
+      when(
+        draftService.hasAiAssistantUndoFor(any),
+      ).thenAnswer((_) async => false);
     });
     tearDown(() => locator.reset());
 
@@ -86,23 +88,23 @@ void main() {
       verify(draftService.setTargetJobDescription(null)).called(1);
     });
 
-    test('hasCopilotUndo reflects DraftService.hasCopilotUndoFor once '
+    test('hasAiAssistantUndo reflects DraftService.hasAiAssistantUndoFor once '
         'loaded', () async {
       when(vaultService.load()).thenAnswer((_) => Future<void>.value());
       when(draftService.load()).thenAnswer((_) => Future<void>.value());
       when(
-        draftService.hasCopilotUndoFor('current'),
+        draftService.hasAiAssistantUndoFor('current'),
       ).thenAnswer((_) async => true);
 
       final model = StudioViewModel();
       model.initialise();
       await pumpEventQueue();
 
-      expect(model.hasCopilotUndo, isTrue);
+      expect(model.hasAiAssistantUndo, isTrue);
     });
 
-    test('tailorWithAi opens the copilot_run dialog with the current job '
-        'description, then refreshes hasCopilotUndo', () async {
+    test('tailorWithAi opens the ai_assistant_run dialog with the current job '
+        'description, then refreshes hasAiAssistantUndo', () async {
       when(
         draftService.draft,
       ).thenReturn(draftWith(targetJobDescription: 'We need a backend dev'));
@@ -113,7 +115,7 @@ void main() {
         ),
       ).thenAnswer((_) async => DialogResponse(confirmed: true));
       when(
-        draftService.hasCopilotUndoFor('current'),
+        draftService.hasAiAssistantUndoFor('current'),
       ).thenAnswer((_) async => true);
 
       final model = StudioViewModel();
@@ -125,26 +127,26 @@ void main() {
           data: captureAnyNamed('data'),
         ),
       ).captured;
-      expect(captured[0], DialogType.copilotRun);
+      expect(captured[0], DialogType.aiAssistantRun);
       expect(
-        (captured[1] as CopilotRunDialogData).jobDescription,
+        (captured[1] as AiAssistantRunDialogData).jobDescription,
         'We need a backend dev',
       );
-      expect(model.hasCopilotUndo, isTrue);
+      expect(model.hasAiAssistantUndo, isTrue);
     });
 
-    test('undoCopilotChanges delegates to DraftService and refreshes '
-        'hasCopilotUndo', () async {
-      when(draftService.undoCopilotPass()).thenAnswer((_) async => true);
+    test('undoAiAssistantChanges delegates to DraftService and refreshes '
+        'hasAiAssistantUndo', () async {
+      when(draftService.undoAiAssistantPass()).thenAnswer((_) async => true);
       when(
-        draftService.hasCopilotUndoFor('current'),
+        draftService.hasAiAssistantUndoFor('current'),
       ).thenAnswer((_) async => false);
 
       final model = StudioViewModel();
-      await model.undoCopilotChanges();
+      await model.undoAiAssistantChanges();
 
-      verify(draftService.undoCopilotPass()).called(1);
-      expect(model.hasCopilotUndo, isFalse);
+      verify(draftService.undoAiAssistantPass()).called(1);
+      expect(model.hasAiAssistantUndo, isFalse);
     });
   });
 }

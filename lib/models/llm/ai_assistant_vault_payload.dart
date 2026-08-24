@@ -15,11 +15,11 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 /// [toJson] is enough (mirrors how [LlmProvider] implementations
 /// hand-build their own request maps rather than serializing a typed
 /// model).
-class CopilotVaultPayload {
-  const CopilotVaultPayload._(this._json);
+class AiAssistantVaultPayload {
+  const AiAssistantVaultPayload._(this._json);
 
-  factory CopilotVaultPayload.from(CvVault vault) {
-    return CopilotVaultPayload._({
+  factory AiAssistantVaultPayload.from(CvVault vault) {
+    return AiAssistantVaultPayload._({
       if (vault.basics.headline.isNotEmpty) 'headline': vault.basics.headline,
       if (vault.basics.summary != null && vault.basics.summary!.isNotEmpty)
         'summary': vault.basics.summary,
@@ -68,7 +68,7 @@ class CopilotVaultPayload {
                   'id': s.id,
                   'label': s.label,
                   // Bullets this skill is already evidenced by — see
-                  // `copilotSystemPrompt`'s guidance on how this should
+                  // `aiAssistantSystemPrompt`'s guidance on how this should
                   // factor into selection. Omitted rather than sent as
                   // `[]` for a skill with no links.
                   if (s.linkedBulletIds.isNotEmpty)

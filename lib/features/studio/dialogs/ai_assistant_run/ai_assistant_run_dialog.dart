@@ -8,53 +8,54 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-import 'copilot_run_dialog_data.dart';
-import 'copilot_run_dialog_model.dart';
+import 'ai_assistant_run_dialog_data.dart';
+import 'ai_assistant_run_dialog_model.dart';
 
-/// The Copilot tailoring pass' run dialog: confirm what's about to be sent
+/// The AI Assistant tailoring pass' run dialog: confirm what's about to be sent
 /// and to whom, run, then show the rationale and `keywordGaps` once
-/// applied. See [CopilotRunPhase] for the state machine this renders.
-class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
+/// applied. See [AiAssistantRunPhase] for the state machine this renders.
+class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
   final DialogRequest request;
   final Function(DialogResponse) completer;
 
-  const CopilotRunDialog({
+  const AiAssistantRunDialog({
     super.key,
     required this.request,
     required this.completer,
   });
 
   String get _jobDescription =>
-      (request.data as CopilotRunDialogData).jobDescription;
+      (request.data as AiAssistantRunDialogData).jobDescription;
 
   @override
   Widget builder(
     BuildContext context,
-    CopilotRunDialogModel viewModel,
+    AiAssistantRunDialogModel viewModel,
     Widget? child,
   ) {
     return AppDialogScaffold(
       title: 'Tailor with AI',
       maxWidth: 480,
-      cancelLabel: viewModel.phase == CopilotRunPhase.result
+      cancelLabel: viewModel.phase == AiAssistantRunPhase.result
           ? 'Close'
           : 'Cancel',
       confirmLabel: switch (viewModel.phase) {
-        CopilotRunPhase.confirm => 'Run',
-        CopilotRunPhase.running => 'Running…',
-        CopilotRunPhase.result => 'Done',
-        CopilotRunPhase.error => 'Try again',
+        AiAssistantRunPhase.confirm => 'Run',
+        AiAssistantRunPhase.running => 'Running…',
+        AiAssistantRunPhase.result => 'Done',
+        AiAssistantRunPhase.error => 'Try again',
       },
       // Blocked while running rather than left dismissible — closing
       // mid-flight would abandon a callback into a disposed ViewModel
       // once the request eventually completes.
-      onCancel: viewModel.phase == CopilotRunPhase.running
+      onCancel: viewModel.phase == AiAssistantRunPhase.running
           ? null
           : () => completer(DialogResponse(confirmed: false)),
       onConfirm: switch (viewModel.phase) {
-        CopilotRunPhase.confirm || CopilotRunPhase.error => viewModel.run,
-        CopilotRunPhase.running => null,
-        CopilotRunPhase.result => () => completer(
+        AiAssistantRunPhase.confirm ||
+        AiAssistantRunPhase.error => viewModel.run,
+        AiAssistantRunPhase.running => null,
+        AiAssistantRunPhase.result => () => completer(
           DialogResponse(confirmed: true),
         ),
       },
@@ -62,9 +63,12 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
     );
   }
 
-  List<Widget> _body(BuildContext context, CopilotRunDialogModel viewModel) {
+  List<Widget> _body(
+    BuildContext context,
+    AiAssistantRunDialogModel viewModel,
+  ) {
     switch (viewModel.phase) {
-      case CopilotRunPhase.confirm:
+      case AiAssistantRunPhase.confirm:
         return [
           Text(
             'This sends the job description below and your CV content — '
@@ -92,7 +96,7 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
           ),
         ];
 
-      case CopilotRunPhase.running:
+      case AiAssistantRunPhase.running:
         return [
           Padding(
             padding: EdgeInsets.symmetric(
@@ -109,7 +113,7 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
           ),
         ];
 
-      case CopilotRunPhase.result:
+      case AiAssistantRunPhase.result:
         final result = viewModel.result!;
         return [
           Text('Rationale', style: context.appTypography.titleSmall),
@@ -127,7 +131,7 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
           ],
         ];
 
-      case CopilotRunPhase.error:
+      case AiAssistantRunPhase.error:
         return [
           Text(
             viewModel.errorMessage ?? 'Something went wrong.',
@@ -140,6 +144,6 @@ class CopilotRunDialog extends StackedView<CopilotRunDialogModel> {
   }
 
   @override
-  CopilotRunDialogModel viewModelBuilder(BuildContext context) =>
-      CopilotRunDialogModel(jobDescription: _jobDescription);
+  AiAssistantRunDialogModel viewModelBuilder(BuildContext context) =>
+      AiAssistantRunDialogModel(jobDescription: _jobDescription);
 }

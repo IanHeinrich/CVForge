@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/models/llm/copilot_result.dart';
-import 'package:cv_forge/models/llm/copilot_vault_payload.dart';
+import 'package:cv_forge/models/llm/ai_assistant_result.dart';
+import 'package:cv_forge/models/llm/ai_assistant_vault_payload.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
-import 'package:cv_forge/services/llm/copilot_prompt.dart';
-import 'package:cv_forge/services/llm/copilot_response_schema.dart';
+import 'package:cv_forge/services/llm/ai_assistant_prompt.dart';
+import 'package:cv_forge/services/llm/ai_assistant_response_schema.dart';
 import 'package:cv_forge/services/llm_service.dart';
 
-/// Runs a Copilot tailoring pass: builds the PII-stripped request and the
+/// Runs an AI Assistant tailoring pass: builds the PII-stripped request and the
 /// per-Vault response schema, calls [LlmService], and
 /// validates the result against [vault] before handing it back.
 ///
@@ -17,11 +17,11 @@ import 'package:cv_forge/services/llm_service.dart';
 /// whichever ViewModel drives the tailoring dialog), the same way
 /// [LlmService] itself doesn't know or care who's calling it. Keeping
 /// that resolution logic in exactly one place avoids a second copy of
-/// `selectedCopilotModel`'s stored-id-may-be-stale fallback.
-class CopilotService {
+/// `selectedAiAssistantModel`'s stored-id-may-be-stale fallback.
+class AiAssistantService {
   final _llmService = locator<LlmService>();
 
-  Future<CopilotResult> runTailoringPass({
+  Future<AiAssistantResult> runTailoringPass({
     required CvVault vault,
     required String jobDescription,
     required String providerId,
@@ -32,13 +32,13 @@ class CopilotService {
       providerId: providerId,
       modelId: modelId,
       apiKey: apiKey,
-      systemPrompt: copilotSystemPrompt,
+      systemPrompt: aiAssistantSystemPrompt,
       userContent: jsonEncode({
         'jobDescription': jobDescription,
-        'vault': CopilotVaultPayload.from(vault).toJson(),
+        'vault': AiAssistantVaultPayload.from(vault).toJson(),
       }),
-      schema: buildCopilotResponseSchema(vault),
+      schema: buildAiAssistantResponseSchema(vault),
     );
-    return CopilotResult.fromLlmResponse(response.data, vault);
+    return AiAssistantResult.fromLlmResponse(response.data, vault);
   }
 }

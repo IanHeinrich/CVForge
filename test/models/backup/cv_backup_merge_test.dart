@@ -83,7 +83,7 @@ CvPreferences _prefs({
   DateTime? at,
 }) => CvPreferences(
   defaultRegion: region,
-  assistantProviderId: providerId,
+  aiAssistantProviderId: providerId,
   updatedAt: at ?? _t0,
 );
 
@@ -612,7 +612,7 @@ void main() {
 
       final merged = mergedPrefs(local, remote)!;
       expect(merged.defaultRegion, RegionProfile.us);
-      expect(merged.assistantProviderId, 'anthropic');
+      expect(merged.aiAssistantProviderId, 'anthropic');
     });
 
     test('the same preference changed on both sides goes to the later one', () {
@@ -624,8 +624,8 @@ void main() {
         _v(),
         preferences: _prefs(providerId: 'google', at: _t2),
       );
-      expect(mergedPrefs(local, remote)?.assistantProviderId, 'google');
-      expect(mergedPrefs(remote, local)?.assistantProviderId, 'google');
+      expect(mergedPrefs(local, remote)?.aiAssistantProviderId, 'google');
+      expect(mergedPrefs(remote, local)?.aiAssistantProviderId, 'google');
     });
 
     test('a side with no preferences at all means "nothing to say", never '

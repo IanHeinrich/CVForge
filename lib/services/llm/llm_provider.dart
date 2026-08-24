@@ -8,7 +8,7 @@ import 'package:cv_forge/models/llm/llm_model_option.dart';
 /// response shape, and failure vocabulary all vary per provider; an
 /// [LlmProvider] implementation owns translating all four into the one
 /// shape [LlmService] understands. Deliberately narrow: one method for
-/// the Copilot's one kind of call. Streaming, tool use, multi-turn, and
+/// the AI Assistant's one kind of call. Streaming, tool use, multi-turn, and
 /// per-provider prompt tuning are the next provider's problem, informed
 /// by a real second provider, not a guess made now.
 ///
@@ -16,7 +16,7 @@ import 'package:cv_forge/models/llm/llm_model_option.dart';
 /// `CvTemplate`'s shape in `TemplateRegistryService` — the shared [Dio]
 /// instance is passed in per call by [LlmService], never held here.
 abstract interface class LlmProvider {
-  /// Persisted (as `AppSettings.copilotProviderId`) — never rename once
+  /// Persisted (as `CvPreferences.aiAssistantProviderId`) — never rename once
   /// shipped, or every device that remembered a provider choice silently
   /// falls back to [LlmProviderRegistry.defaultProvider] on next load.
   String get id;

@@ -2,7 +2,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/llm/json_schema.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 
-/// Builds the per-request [JsonSchema] a Copilot tailoring pass must answer
+/// Builds the per-request [JsonSchema] an AI Assistant tailoring pass must answer
 /// in, generated fresh from [vault] on every call so every id referenced
 /// anywhere in the schema is one this exact Vault actually has. It's an
 /// id-keyed object rather than an array so that's legal under
@@ -13,8 +13,8 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 /// null type (see its own doc comment on staying inside every provider's
 /// dialect intersection), so "the model chose not to rewrite this" is
 /// expressed as "the key is simply absent from the response", which is
-/// exactly [CopilotResult]'s null-means-inherit reading of them anyway.
-JsonSchema buildCopilotResponseSchema(CvVault vault) {
+/// exactly [AiAssistantResult]'s null-means-inherit reading of them anyway.
+JsonSchema buildAiAssistantResponseSchema(CvVault vault) {
   return JsonSchema.object(
     properties: {
       'headline': const JsonSchema.string(),

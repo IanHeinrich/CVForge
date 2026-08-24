@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/models/llm/copilot_result.dart';
+import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
@@ -546,8 +546,8 @@ void main() {
       );
     });
 
-    group('applyCopilotResult / undoCopilotPass (4.5) -', () {
-      const result = CopilotResult(
+    group('applyAiAssistantResult / undoAiAssistantPass (4.5) -', () {
+      const result = AiAssistantResult(
         headline: 'Backend Engineer',
         summary: 'Tailored summary.',
         experienceIds: ['exp-1'],
@@ -573,7 +573,7 @@ void main() {
         await service.load();
         final id = service.draft.id;
 
-        await service.applyCopilotResult(result);
+        await service.applyAiAssistantResult(result);
 
         expect(service.draft.headlineOverride, 'Backend Engineer');
         expect(service.draft.tailoredSummary, 'Tailored summary.');
@@ -588,11 +588,11 @@ void main() {
         expect(service.draft.hiddenSections, {CvSectionType.hobbies});
         expect(
           memory.containsKey(
-            '${StorageBoxes.drafts}/${StorageKeys.copilotUndoFor(id)}',
+            '${StorageBoxes.drafts}/${StorageKeys.aiAssistantUndoFor(id)}',
           ),
           isTrue,
         );
-        expect(await service.hasCopilotUndoFor(id), isTrue);
+        expect(await service.hasAiAssistantUndoFor(id), isTrue);
       });
 
       test('a null headline/summary in the result leaves any existing '
@@ -601,48 +601,48 @@ void main() {
         await service.load();
         await service.setHeadlineOverride('Manually set headline');
 
-        await service.applyCopilotResult(
+        await service.applyAiAssistantResult(
           result.copyWith(headline: null, summary: null),
         );
 
         expect(service.draft.headlineOverride, 'Manually set headline');
       });
 
-      test('undoCopilotPass restores the pre-pass draft exactly and clears '
+      test('undoAiAssistantPass restores the pre-pass draft exactly and clears '
           'the snapshot', () async {
         final service = DraftService();
         await service.load();
         final id = service.draft.id;
         final before = service.draft;
 
-        await service.applyCopilotResult(result);
-        final restored = await service.undoCopilotPass();
+        await service.applyAiAssistantResult(result);
+        final restored = await service.undoAiAssistantPass();
 
         expect(restored, isTrue);
         expect(service.draft.headlineOverride, before.headlineOverride);
         expect(service.draft.experienceIds, before.experienceIds);
         expect(service.draft.bulletOverrides, before.bulletOverrides);
-        expect(await service.hasCopilotUndoFor(id), isFalse);
+        expect(await service.hasAiAssistantUndoFor(id), isFalse);
       });
 
-      test('undoCopilotPass is a no-op when no pass has run', () async {
+      test('undoAiAssistantPass is a no-op when no pass has run', () async {
         final service = DraftService();
         await service.load();
 
-        expect(await service.undoCopilotPass(), isFalse);
+        expect(await service.undoAiAssistantPass(), isFalse);
       });
 
       test('deleting a draft clears its undo snapshot too', () async {
         final service = DraftService();
         await service.load();
         final id = service.draft.id;
-        await service.applyCopilotResult(result);
+        await service.applyAiAssistantResult(result);
 
         await service.deleteDraft(id);
 
         expect(
           memory.containsKey(
-            '${StorageBoxes.drafts}/${StorageKeys.copilotUndoFor(id)}',
+            '${StorageBoxes.drafts}/${StorageKeys.aiAssistantUndoFor(id)}',
           ),
           isFalse,
         );

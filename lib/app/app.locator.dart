@@ -11,9 +11,9 @@ import 'package:stacked_services/src/dialog/dialog_service.dart';
 import 'package:stacked_services/src/navigation/router_service.dart';
 import 'package:stacked_shared/stacked_shared.dart';
 
+import '../services/ai_assistant_service.dart';
 import '../services/ats_analyzer_service.dart';
 import '../services/backup_service.dart';
-import '../services/copilot_service.dart';
 import '../services/draft_service.dart';
 import '../services/drive_api_client_service.dart';
 import '../services/drive_sync_service.dart';
@@ -57,7 +57,7 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => FileUploadService());
   locator.registerLazySingleton(() => AtsAnalyzerService());
   locator.registerLazySingleton(() => LlmService());
-  locator.registerLazySingleton(() => CopilotService());
+  locator.registerLazySingleton(() => AiAssistantService());
   locator.registerLazySingleton(() => TemplateThumbnailService());
   locator.registerLazySingleton(() => DriveApiClientService());
   locator.registerLazySingleton(() => DriveSyncService());

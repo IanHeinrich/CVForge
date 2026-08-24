@@ -36,25 +36,26 @@ abstract final class StorageKeys {
   /// [draftIndex] or a quarantined-payload key.
   static String draftEntry(String draftId) => 'draft_$draftId';
 
-  /// A remembered Copilot API key's own row, one per provider — never a
+  /// A remembered AI Assistant API key's own row, one per provider — never a
   /// field on [AppSettings] (see that model's doc comment). Kept in the
   /// same [StorageBoxes.settings] box `SettingsService` already owns.
   static String apiKeyFor(String providerId) => 'api_key_$providerId';
 
-  /// The pre-pass [CvDraft] snapshot a Copilot tailoring pass writes
+  /// The pre-pass [CvDraft] snapshot an AI Assistant tailoring pass writes
   /// before applying its result — a distinct prefix from [draftEntry], not
   /// a suffix on it, so nothing that enumerates drafts by scanning
   /// `draft_*` keys ever sees it. Kept in [StorageBoxes.drafts] alongside
   /// the draft it belongs to; superseded by the next pass, cleared when
   /// the draft is deleted.
-  static String copilotUndoFor(String draftId) => 'copilot_undo_$draftId';
+  static String aiAssistantUndoFor(String draftId) =>
+      'ai_assistant_undo_$draftId';
 
   /// `DriveSyncService`'s own bookkeeping rows — kept in
   /// [StorageBoxes.settings] alongside [appSettings] rather than a new
   /// box, since they're device-scoped preferences in exactly the same
   /// sense. Never the access token itself (that's in-memory only, the
   /// same rule `apiKeyFor`'s doc comment already establishes for the
-  /// Copilot key) and never reachable through [AppSettings] or
+  /// AI Assistant key) and never reachable through [AppSettings] or
   /// [CvBackupBundle], for the same "no secret-adjacent state in a
   /// serialized model" reasoning.
   static const driveEnabled = 'drive_enabled';

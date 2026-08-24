@@ -10,7 +10,7 @@ import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dar
 
 /// A card for the default region every *new* CV is created with — one of
 /// Settings' cards, stacked by `SettingsView` alongside
-/// [BackupSettingsCard]/[CopilotSettingsCard]. Same dark-container,
+/// [BackupSettingsCard]/[AiAssistantSettingsCard]. Same dark-container,
 /// `context.appRadius.medium` frame those use. Deliberately a plain chip
 /// row rather than `RegionGalleryDialog`'s bigger per-draft picker cards —
 /// this is a background default a user sets once, not a per-document

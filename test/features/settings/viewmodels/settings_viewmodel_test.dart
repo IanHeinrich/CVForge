@@ -273,54 +273,56 @@ void main() {
       });
     });
 
-    group('copilot connection (4.4) -', () {
-      test('selectCopilotModel persists just the model id, leaving the '
+    group('AI Assistant connection (4.4) -', () {
+      test('selectAiAssistantModel persists just the model id, leaving the '
           'current provider selection alone', () async {
         when(
-          settingsService.setAssistantModel(any),
+          settingsService.setAiAssistantModel(any),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = SettingsViewModel();
-        await model.selectCopilotModel('claude-sonnet-5');
+        await model.selectAiAssistantModel('claude-sonnet-5');
 
-        verify(settingsService.setAssistantModel('claude-sonnet-5')).called(1);
-        verifyNever(settingsService.setAssistantProvider(any));
+        verify(
+          settingsService.setAiAssistantModel('claude-sonnet-5'),
+        ).called(1);
+        verifyNever(settingsService.setAiAssistantProvider(any));
       });
 
-      test('selectCopilotProvider persists the provider and resets the '
+      test('selectAiAssistantProvider persists the provider and resets the '
           'model to that provider\'s first option', () async {
         when(
-          settingsService.setAssistantProvider(any),
+          settingsService.setAiAssistantProvider(any),
         ).thenAnswer((_) => Future<void>.value());
         when(
-          settingsService.setAssistantModel(any),
+          settingsService.setAiAssistantModel(any),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = SettingsViewModel();
-        await model.selectCopilotProvider('gemini');
+        await model.selectAiAssistantProvider('gemini');
 
-        verify(settingsService.setAssistantProvider('gemini')).called(1);
+        verify(settingsService.setAiAssistantProvider('gemini')).called(1);
         verify(
-          settingsService.setAssistantModel('gemini-3.5-flash-lite'),
+          settingsService.setAiAssistantModel('gemini-3.5-flash-lite'),
         ).called(1);
       });
 
-      test('showCopilotProviderSelector is true once more than one '
+      test('showAiAssistantProviderSelector is true once more than one '
           'provider is registered', () {
         final model = SettingsViewModel();
 
-        expect(model.showCopilotProviderSelector, isTrue);
-        expect(model.copilotProviders.map((p) => p.id), [
+        expect(model.showAiAssistantProviderSelector, isTrue);
+        expect(model.aiAssistantProviders.map((p) => p.id), [
           'gemini',
           'anthropic',
         ]);
       });
 
-      test('selectedCopilotProvider falls back to the default provider '
+      test('selectedAiAssistantProvider falls back to the default provider '
           'when nothing is stored', () {
         final model = SettingsViewModel();
 
-        expect(model.selectedCopilotProvider.id, 'anthropic');
+        expect(model.selectedAiAssistantProvider.id, 'anthropic');
       });
 
       test('setRememberApiKey(false) clears the stored key', () async {
@@ -350,7 +352,7 @@ void main() {
       });
 
       test(
-        'testCopilotConnection success stores the key and clears any error',
+        'testAiAssistantConnection success stores the key and clears any error',
         () async {
           when(
             llmService.testConnection('anthropic', 'sk-ant-test'),
@@ -360,7 +362,7 @@ void main() {
           ).thenAnswer((_) => Future<void>.value());
 
           final model = SettingsViewModel();
-          await model.testCopilotConnection('sk-ant-test');
+          await model.testAiAssistantConnection('sk-ant-test');
 
           expect(model.connectionTestSucceeded, isTrue);
           expect(model.connectionTestErrorMessage, isNull);
@@ -371,14 +373,14 @@ void main() {
         },
       );
 
-      test('testCopilotConnection failure surfaces distinct copy per '
+      test('testAiAssistantConnection failure surfaces distinct copy per '
           'LlmFailure and never stores the rejected key', () async {
         when(
           llmService.testConnection('anthropic', 'bad-key'),
         ).thenThrow(const LlmException(LlmFailure.unauthorized));
 
         final model = SettingsViewModel();
-        await model.testCopilotConnection('bad-key');
+        await model.testAiAssistantConnection('bad-key');
 
         expect(model.connectionTestSucceeded, isFalse);
         expect(model.connectionTestErrorMessage, isNotNull);
@@ -395,7 +397,7 @@ void main() {
           settingsService.setApiKey('anthropic', 'sk-ant-test'),
         ).thenAnswer((_) => Future<void>.value());
         final model = SettingsViewModel();
-        await model.testCopilotConnection('sk-ant-test');
+        await model.testAiAssistantConnection('sk-ant-test');
         expect(model.connectionTestSucceeded, isTrue);
 
         model.clearConnectionTestResult();
@@ -404,13 +406,13 @@ void main() {
       });
 
       test(
-        'selectCopilotProvider clears a stale connection test result',
+        'selectAiAssistantProvider clears a stale connection test result',
         () async {
           when(
-            settingsService.setAssistantProvider(any),
+            settingsService.setAiAssistantProvider(any),
           ).thenAnswer((_) => Future<void>.value());
           when(
-            settingsService.setAssistantModel(any),
+            settingsService.setAiAssistantModel(any),
           ).thenAnswer((_) => Future<void>.value());
           when(
             llmService.testConnection('anthropic', 'sk-ant-test'),
@@ -419,10 +421,10 @@ void main() {
             settingsService.setApiKey('anthropic', 'sk-ant-test'),
           ).thenAnswer((_) => Future<void>.value());
           final model = SettingsViewModel();
-          await model.testCopilotConnection('sk-ant-test');
+          await model.testAiAssistantConnection('sk-ant-test');
           expect(model.connectionTestSucceeded, isTrue);
 
-          await model.selectCopilotProvider('gemini');
+          await model.selectAiAssistantProvider('gemini');
 
           expect(model.connectionTestSucceeded, isFalse);
         },

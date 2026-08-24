@@ -27,7 +27,7 @@ class LlmProviderRegistry {
   ];
 
   /// Falls back to [defaultProvider] for an unknown id — never throws, so
-  /// a stored `copilotProviderId` from a since-removed provider still
+  /// a stored `aiAssistantProviderId` from a since-removed provider still
   /// resolves to something usable.
   LlmProvider byId(String id) =>
       _providers.firstWhere((p) => p.id == id, orElse: () => defaultProvider);
