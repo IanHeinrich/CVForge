@@ -1,8 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:cv_forge/models/draft/cv_section_type.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
-
 part 'cv_preferences.freezed.dart';
 part 'cv_preferences.g.dart';
 
@@ -22,10 +19,16 @@ part 'cv_preferences.g.dart';
 /// - **`lastBackupAt`** — a fact about one device ("*this* browser
 ///   exported recently"). Syncing it would have a second device claim a
 ///   download it never made.
+/// - **anything that shapes the produced CV** — the default region, the
+///   document language, and the default section layout all live on
+///   `CvVault.documentDefaults` instead. They travel with the career
+///   content they shape rather than with the app's settings, because the
+///   question that sorts the two is "does this change the CV?" and these
+///   do. What is left here is the AI Assistant's setup and the language
+///   the *app* is drawn in, neither of which reaches a document.
 @freezed
 abstract class CvPreferences with _$CvPreferences {
   const factory CvPreferences({
-    @Default(RegionProfile.uk) RegionProfile defaultRegion,
     String? aiAssistantProviderId,
     String? aiAssistantModelId,
 
@@ -46,24 +49,6 @@ abstract class CvPreferences with _$CvPreferences {
     /// authority on the latter.
     DateTime? aiAssistantConfiguredAt,
 
-    /// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-    /// draft with, set via the "Save as my default" action in Studio.
-    /// Null means no default has ever been saved — a new draft then falls
-    /// back to its chosen template's own `CvTemplate.sectionOrder`. Never
-    /// re-resolved against an existing draft; it only ever seeds a draft
-    /// at creation time. Saved and reset together with
-    /// [defaultHiddenSections] by the same Studio action, so the two
-    /// fields never drift apart, but kept as two fields rather than one
-    /// combined value — same shape as `CvDraft.sectionOrder` /
-    /// `CvDraft.hiddenSections` being separate fields there too.
-    List<CvSectionType>? defaultSectionOrder,
-
-    /// Same seed-only rationale as [defaultSectionOrder], one field over
-    /// for `CvDraft.hiddenSections` — which sections a brand-new draft
-    /// starts with hidden. Null means no default has been saved, so a new
-    /// draft starts with nothing hidden.
-    Set<CvSectionType>? defaultHiddenSections,
-
     /// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
     /// Null — the default — means "follow the browser's own locale", and is
     /// what a user who never opens the language picker keeps.
@@ -71,17 +56,19 @@ abstract class CvPreferences with _$CvPreferences {
     /// That default is why this belongs here rather than in [AppSettings]:
     /// only an *explicit* choice ever travels between devices. Someone who
     /// never picks a language syncs nothing, and each browser goes on
-    /// following itself. A language is a fact about the person, like
-    /// [defaultRegion] — not about the device, like `lastBackupAt`.
+    /// following itself. A language is a fact about the person, not about
+    /// the device the way `lastBackupAt` is.
     ///
     /// A tag rather than an enum so that adding a supported language is
     /// exactly one new `.arb` file, with nothing here to keep in lockstep.
     /// `LocalizationService` validates it on read and falls back to the
     /// platform locale if it names a language this build no longer ships.
     ///
-    /// Only ever the language of the app's *chrome*. The CV itself is
-    /// produced in English regardless — see `CvComposer` for why the
-    /// document's language is a separate axis.
+    /// Only ever the language of the app's *chrome*, and never the
+    /// language the CV is written in — that is `DocumentLanguage`, which
+    /// lives on the Vault and the draft precisely so the two cannot be
+    /// confused. Someone reading a Spanish interface while preparing an
+    /// English CV is the ordinary case, not an edge one.
     String? localeTag,
 
     /// When any field above last changed — the tie-break when two devices

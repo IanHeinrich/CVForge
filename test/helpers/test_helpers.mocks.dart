@@ -4,7 +4,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i31;
-import 'dart:typed_data' as _i45;
+import 'dart:typed_data' as _i47;
 import 'dart:ui' as _i27;
 
 import 'package:cv_forge/l10n/generated/app_localizations.dart' as _i28;
@@ -12,24 +12,26 @@ import 'package:cv_forge/models/ats/ats_analysis_result.dart' as _i23;
 import 'package:cv_forge/models/ats/ats_extracted_document.dart' as _i21;
 import 'package:cv_forge/models/ats/ats_text_node.dart' as _i22;
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart' as _i20;
+import 'package:cv_forge/models/document/document_language.dart' as _i44;
 import 'package:cv_forge/models/draft/cv_draft.dart' as _i14;
-import 'package:cv_forge/models/draft/cv_section_type.dart' as _i43;
+import 'package:cv_forge/models/draft/cv_section_type.dart' as _i45;
 import 'package:cv_forge/models/drive/drive_file_snapshot.dart' as _i26;
-import 'package:cv_forge/models/drive/drive_sync_status.dart' as _i65;
+import 'package:cv_forge/models/drive/drive_sync_status.dart' as _i67;
 import 'package:cv_forge/models/llm/ai_assistant_result.dart' as _i25;
-import 'package:cv_forge/models/llm/json_schema.dart' as _i60;
+import 'package:cv_forge/models/llm/json_schema.dart' as _i62;
 import 'package:cv_forge/models/llm/llm_json_response.dart' as _i24;
 import 'package:cv_forge/models/llm/llm_model_option.dart' as _i19;
-import 'package:cv_forge/models/region/region_profile.dart' as _i42;
-import 'package:cv_forge/models/render/resolved_cv.dart' as _i50;
+import 'package:cv_forge/models/region/region_profile.dart' as _i43;
+import 'package:cv_forge/models/render/resolved_cv.dart' as _i52;
 import 'package:cv_forge/models/settings/app_settings.dart' as _i17;
-import 'package:cv_forge/models/settings/app_theme_mode.dart' as _i54;
-import 'package:cv_forge/models/settings/cv_preferences.dart' as _i53;
-import 'package:cv_forge/models/vault/bullet_owner.dart' as _i39;
-import 'package:cv_forge/models/vault/contact_basics.dart' as _i37;
+import 'package:cv_forge/models/settings/app_theme_mode.dart' as _i56;
+import 'package:cv_forge/models/settings/cv_preferences.dart' as _i55;
+import 'package:cv_forge/models/vault/bullet_owner.dart' as _i40;
+import 'package:cv_forge/models/vault/contact_basics.dart' as _i38;
 import 'package:cv_forge/models/vault/cv_bullet.dart' as _i13;
 import 'package:cv_forge/models/vault/cv_photo.dart' as _i29;
 import 'package:cv_forge/models/vault/cv_vault.dart' as _i4;
+import 'package:cv_forge/models/vault/document_defaults.dart' as _i37;
 import 'package:cv_forge/models/vault/education.dart' as _i10;
 import 'package:cv_forge/models/vault/experience.dart' as _i6;
 import 'package:cv_forge/models/vault/hobby_item.dart' as _i11;
@@ -38,35 +40,35 @@ import 'package:cv_forge/models/vault/project.dart' as _i7;
 import 'package:cv_forge/models/vault/publication.dart' as _i12;
 import 'package:cv_forge/models/vault/skill.dart' as _i9;
 import 'package:cv_forge/models/vault/skill_category.dart' as _i8;
-import 'package:cv_forge/models/vault/year_month.dart' as _i38;
-import 'package:cv_forge/services/ai_assistant_service.dart' as _i61;
-import 'package:cv_forge/services/ats_analyzer_service.dart' as _i58;
-import 'package:cv_forge/services/backup_service.dart' as _i55;
-import 'package:cv_forge/services/draft_service.dart' as _i40;
-import 'package:cv_forge/services/drive_api_client_service.dart' as _i63;
-import 'package:cv_forge/services/drive_sync_service.dart' as _i64;
-import 'package:cv_forge/services/file_download_service.dart' as _i44;
-import 'package:cv_forge/services/file_upload_service.dart' as _i56;
-import 'package:cv_forge/services/font_service.dart' as _i48;
-import 'package:cv_forge/services/google_auth_service.dart' as _i66;
+import 'package:cv_forge/models/vault/year_month.dart' as _i39;
+import 'package:cv_forge/services/ai_assistant_service.dart' as _i63;
+import 'package:cv_forge/services/ats_analyzer_service.dart' as _i60;
+import 'package:cv_forge/services/backup_service.dart' as _i57;
+import 'package:cv_forge/services/draft_service.dart' as _i41;
+import 'package:cv_forge/services/drive_api_client_service.dart' as _i65;
+import 'package:cv_forge/services/drive_sync_service.dart' as _i66;
+import 'package:cv_forge/services/file_download_service.dart' as _i46;
+import 'package:cv_forge/services/file_upload_service.dart' as _i58;
+import 'package:cv_forge/services/font_service.dart' as _i50;
+import 'package:cv_forge/services/google_auth_service.dart' as _i68;
 import 'package:cv_forge/services/llm/llm_provider.dart' as _i18;
-import 'package:cv_forge/services/llm_service.dart' as _i59;
+import 'package:cv_forge/services/llm_service.dart' as _i61;
 import 'package:cv_forge/services/local_storage_service.dart' as _i3;
-import 'package:cv_forge/services/localization_service.dart' as _i67;
-import 'package:cv_forge/services/pdf_export_service.dart' as _i49;
-import 'package:cv_forge/services/pdf_extraction_service.dart' as _i57;
-import 'package:cv_forge/services/profile_photo_service.dart' as _i68;
-import 'package:cv_forge/services/settings_service.dart' as _i52;
-import 'package:cv_forge/services/template_registry_service.dart' as _i47;
-import 'package:cv_forge/services/template_thumbnail_service.dart' as _i62;
+import 'package:cv_forge/services/localization_service.dart' as _i69;
+import 'package:cv_forge/services/pdf_export_service.dart' as _i51;
+import 'package:cv_forge/services/pdf_extraction_service.dart' as _i59;
+import 'package:cv_forge/services/profile_photo_service.dart' as _i70;
+import 'package:cv_forge/services/settings_service.dart' as _i54;
+import 'package:cv_forge/services/template_registry_service.dart' as _i49;
+import 'package:cv_forge/services/template_thumbnail_service.dart' as _i64;
 import 'package:cv_forge/services/vault_service.dart' as _i36;
 import 'package:cv_forge/templates/cv_template.dart' as _i15;
 import 'package:cv_forge/templates/design/cv_font_set.dart' as _i16;
-import 'package:file_saver/file_saver.dart' as _i46;
+import 'package:file_saver/file_saver.dart' as _i48;
 import 'package:flutter/material.dart' as _i32;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i41;
-import 'package:pdf/pdf.dart' as _i51;
+import 'package:mockito/src/dummies.dart' as _i42;
+import 'package:pdf/pdf.dart' as _i53;
 import 'package:stacked/stacked.dart' as _i2;
 import 'package:stacked_services/src/dialog/dialog_service.dart' as _i33;
 import 'package:stacked_services/src/models/overlay_request.dart' as _i34;
@@ -770,7 +772,16 @@ class MockVaultService extends _i1.Mock implements _i36.VaultService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<void> updateBasics(_i37.ContactBasics? basics) =>
+  _i31.Future<void> setDocumentDefaults(_i37.DocumentDefaults? defaults) =>
+      (super.noSuchMethod(
+            Invocation.method(#setDocumentDefaults, [defaults]),
+            returnValue: _i31.Future<void>.value(),
+            returnValueForMissingStub: _i31.Future<void>.value(),
+          )
+          as _i31.Future<void>);
+
+  @override
+  _i31.Future<void> updateBasics(_i38.ContactBasics? basics) =>
       (super.noSuchMethod(
             Invocation.method(#updateBasics, [basics]),
             returnValue: _i31.Future<void>.value(),
@@ -838,8 +849,8 @@ class MockVaultService extends _i1.Mock implements _i36.VaultService {
     required String? role,
     required String? company,
     required String? location,
-    required _i38.YearMonth? start,
-    _i38.YearMonth? end,
+    required _i39.YearMonth? start,
+    _i39.YearMonth? end,
     bool? isCurrent = false,
   }) =>
       (super.noSuchMethod(
@@ -1181,7 +1192,7 @@ class MockVaultService extends _i1.Mock implements _i36.VaultService {
 
   @override
   _i31.Future<_i13.CvBullet> addBullet(
-    _i39.BulletOwner? owner,
+    _i40.BulletOwner? owner,
     String? ownerId, {
     String? label,
     required String? text,
@@ -1217,7 +1228,7 @@ class MockVaultService extends _i1.Mock implements _i36.VaultService {
 
   @override
   _i31.Future<void> updateBullet(
-    _i39.BulletOwner? owner,
+    _i40.BulletOwner? owner,
     String? ownerId,
     _i13.CvBullet? bullet,
   ) =>
@@ -1230,7 +1241,7 @@ class MockVaultService extends _i1.Mock implements _i36.VaultService {
 
   @override
   _i31.Future<void> deleteBullet(
-    _i39.BulletOwner? owner,
+    _i40.BulletOwner? owner,
     String? ownerId,
     String? bulletId,
   ) =>
@@ -1243,7 +1254,7 @@ class MockVaultService extends _i1.Mock implements _i36.VaultService {
 
   @override
   _i31.Future<void> reorderBullets(
-    _i39.BulletOwner? owner,
+    _i40.BulletOwner? owner,
     String? ownerId,
     List<String>? orderedBulletIds,
   ) =>
@@ -1356,7 +1367,7 @@ class MockVaultService extends _i1.Mock implements _i36.VaultService {
 /// A class which mocks [DraftService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDraftService extends _i1.Mock implements _i40.DraftService {
+class MockDraftService extends _i1.Mock implements _i41.DraftService {
   @override
   _i3.LocalStorageService get storage =>
       (super.noSuchMethod(
@@ -1455,30 +1466,34 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
     required String? name,
     String? notes = '',
     String? templateId,
+    _i37.DocumentDefaults? defaults = const _i37.DocumentDefaults(),
   }) =>
       (super.noSuchMethod(
             Invocation.method(#createDraft, [], {
               #name: name,
               #notes: notes,
               #templateId: templateId,
+              #defaults: defaults,
             }),
             returnValue: _i31.Future<String>.value(
-              _i41.dummyValue<String>(
+              _i42.dummyValue<String>(
                 this,
                 Invocation.method(#createDraft, [], {
                   #name: name,
                   #notes: notes,
                   #templateId: templateId,
+                  #defaults: defaults,
                 }),
               ),
             ),
             returnValueForMissingStub: _i31.Future<String>.value(
-              _i41.dummyValue<String>(
+              _i42.dummyValue<String>(
                 this,
                 Invocation.method(#createDraft, [], {
                   #name: name,
                   #notes: notes,
                   #templateId: templateId,
+                  #defaults: defaults,
                 }),
               ),
             ),
@@ -1516,13 +1531,13 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
       (super.noSuchMethod(
             Invocation.method(#duplicateDraft, [id]),
             returnValue: _i31.Future<String>.value(
-              _i41.dummyValue<String>(
+              _i42.dummyValue<String>(
                 this,
                 Invocation.method(#duplicateDraft, [id]),
               ),
             ),
             returnValueForMissingStub: _i31.Future<String>.value(
-              _i41.dummyValue<String>(
+              _i42.dummyValue<String>(
                 this,
                 Invocation.method(#duplicateDraft, [id]),
               ),
@@ -1565,9 +1580,18 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<void> setRegion(_i42.RegionProfile? region) =>
+  _i31.Future<void> setRegion(_i43.RegionProfile? region) =>
       (super.noSuchMethod(
             Invocation.method(#setRegion, [region]),
+            returnValue: _i31.Future<void>.value(),
+            returnValueForMissingStub: _i31.Future<void>.value(),
+          )
+          as _i31.Future<void>);
+
+  @override
+  _i31.Future<void> setDocumentLanguage(_i44.DocumentLanguage? language) =>
+      (super.noSuchMethod(
+            Invocation.method(#setDocumentLanguage, [language]),
             returnValue: _i31.Future<void>.value(),
             returnValueForMissingStub: _i31.Future<void>.value(),
           )
@@ -1703,7 +1727,7 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
 
   @override
   _i31.Future<void> setBulletIds(
-    _i39.BulletOwner? owner,
+    _i40.BulletOwner? owner,
     String? ownerId,
     List<String>? bulletIds,
   ) =>
@@ -1716,7 +1740,7 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
 
   @override
   _i31.Future<void> setSectionHidden(
-    _i43.CvSectionType? type, {
+    _i45.CvSectionType? type, {
     required bool? hidden,
   }) =>
       (super.noSuchMethod(
@@ -1727,7 +1751,7 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<void> setSectionOrder(List<_i43.CvSectionType>? order) =>
+  _i31.Future<void> setSectionOrder(List<_i45.CvSectionType>? order) =>
       (super.noSuchMethod(
             Invocation.method(#setSectionOrder, [order]),
             returnValue: _i31.Future<void>.value(),
@@ -1736,9 +1760,9 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<void> resetSectionSettings() =>
+  _i31.Future<void> resetSectionSettings(_i37.DocumentDefaults? defaults) =>
       (super.noSuchMethod(
-            Invocation.method(#resetSectionSettings, []),
+            Invocation.method(#resetSectionSettings, [defaults]),
             returnValue: _i31.Future<void>.value(),
             returnValueForMissingStub: _i31.Future<void>.value(),
           )
@@ -1921,13 +1945,13 @@ class MockDraftService extends _i1.Mock implements _i40.DraftService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockFileDownloadService extends _i1.Mock
-    implements _i44.FileDownloadService {
+    implements _i46.FileDownloadService {
   @override
   _i31.Future<void> saveFile({
     required String? nameWithoutExtension,
-    required _i45.Uint8List? bytes,
+    required _i47.Uint8List? bytes,
     required String? extension,
-    required _i46.MimeType? mimeType,
+    required _i48.MimeType? mimeType,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#saveFile, [], {
@@ -1946,7 +1970,7 @@ class MockFileDownloadService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTemplateRegistryService extends _i1.Mock
-    implements _i47.TemplateRegistryService {
+    implements _i49.TemplateRegistryService {
   @override
   _i15.CvTemplate get defaultTemplate =>
       (super.noSuchMethod(
@@ -1990,7 +2014,7 @@ class MockTemplateRegistryService extends _i1.Mock
 /// A class which mocks [FontService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFontService extends _i1.Mock implements _i48.FontService {
+class MockFontService extends _i1.Mock implements _i50.FontService {
   @override
   _i31.Future<_i16.CvFontSet> load() =>
       (super.noSuchMethod(
@@ -2017,14 +2041,14 @@ class MockFontService extends _i1.Mock implements _i48.FontService {
 /// A class which mocks [PdfExportService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPdfExportService extends _i1.Mock implements _i49.PdfExportService {
+class MockPdfExportService extends _i1.Mock implements _i51.PdfExportService {
   @override
   _i31.Future<void> export({
-    required _i50.ResolvedCv? cv,
+    required _i52.ResolvedCv? cv,
     required String? templateId,
     required String? fullName,
     required String? draftName,
-    _i51.PdfPageFormat? format = _i51.PdfPageFormat.a4,
+    _i53.PdfPageFormat? format = _i53.PdfPageFormat.a4,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#export, [], {
@@ -2040,10 +2064,10 @@ class MockPdfExportService extends _i1.Mock implements _i49.PdfExportService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<_i45.Uint8List> render({
-    required _i50.ResolvedCv? cv,
+  _i31.Future<_i47.Uint8List> render({
+    required _i52.ResolvedCv? cv,
     required String? templateId,
-    _i51.PdfPageFormat? format = _i51.PdfPageFormat.a4,
+    _i53.PdfPageFormat? format = _i53.PdfPageFormat.a4,
     bool? compress = true,
   }) =>
       (super.noSuchMethod(
@@ -2053,18 +2077,18 @@ class MockPdfExportService extends _i1.Mock implements _i49.PdfExportService {
               #format: format,
               #compress: compress,
             }),
-            returnValue: _i31.Future<_i45.Uint8List>.value(_i45.Uint8List(0)),
-            returnValueForMissingStub: _i31.Future<_i45.Uint8List>.value(
-              _i45.Uint8List(0),
+            returnValue: _i31.Future<_i47.Uint8List>.value(_i47.Uint8List(0)),
+            returnValueForMissingStub: _i31.Future<_i47.Uint8List>.value(
+              _i47.Uint8List(0),
             ),
           )
-          as _i31.Future<_i45.Uint8List>);
+          as _i31.Future<_i47.Uint8List>);
 }
 
 /// A class which mocks [SettingsService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsService extends _i1.Mock implements _i52.SettingsService {
+class MockSettingsService extends _i1.Mock implements _i54.SettingsService {
   @override
   _i3.LocalStorageService get storage =>
       (super.noSuchMethod(
@@ -2183,7 +2207,7 @@ class MockSettingsService extends _i1.Mock implements _i52.SettingsService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<void> replacePreferences(_i53.CvPreferences? preferences) =>
+  _i31.Future<void> replacePreferences(_i55.CvPreferences? preferences) =>
       (super.noSuchMethod(
             Invocation.method(#replacePreferences, [preferences]),
             returnValue: _i31.Future<void>.value(),
@@ -2201,18 +2225,9 @@ class MockSettingsService extends _i1.Mock implements _i52.SettingsService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<void> setThemeMode(_i54.AppThemeMode? mode) =>
+  _i31.Future<void> setThemeMode(_i56.AppThemeMode? mode) =>
       (super.noSuchMethod(
             Invocation.method(#setThemeMode, [mode]),
-            returnValue: _i31.Future<void>.value(),
-            returnValueForMissingStub: _i31.Future<void>.value(),
-          )
-          as _i31.Future<void>);
-
-  @override
-  _i31.Future<void> setDefaultRegion(_i42.RegionProfile? region) =>
-      (super.noSuchMethod(
-            Invocation.method(#setDefaultRegion, [region]),
             returnValue: _i31.Future<void>.value(),
             returnValueForMissingStub: _i31.Future<void>.value(),
           )
@@ -2228,28 +2243,13 @@ class MockSettingsService extends _i1.Mock implements _i52.SettingsService {
           as _i31.Future<void>);
 
   @override
-  _i31.Future<void> setDefaultSectionSettings({
-    required List<_i43.CvSectionType>? order,
-    required Set<_i43.CvSectionType>? hiddenSections,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#setDefaultSectionSettings, [], {
-              #order: order,
-              #hiddenSections: hiddenSections,
-            }),
-            returnValue: _i31.Future<void>.value(),
-            returnValueForMissingStub: _i31.Future<void>.value(),
-          )
-          as _i31.Future<void>);
-
-  @override
-  _i52.ApiKeyOrigin apiKeyOriginFor(String? providerId) =>
+  _i54.ApiKeyOrigin apiKeyOriginFor(String? providerId) =>
       (super.noSuchMethod(
             Invocation.method(#apiKeyOriginFor, [providerId]),
-            returnValue: _i52.ApiKeyOrigin.none,
-            returnValueForMissingStub: _i52.ApiKeyOrigin.none,
+            returnValue: _i54.ApiKeyOrigin.none,
+            returnValueForMissingStub: _i54.ApiKeyOrigin.none,
           )
-          as _i52.ApiKeyOrigin);
+          as _i54.ApiKeyOrigin);
 
   @override
   String? maskedApiKeyFor(String? providerId) =>
@@ -2384,7 +2384,7 @@ class MockSettingsService extends _i1.Mock implements _i52.SettingsService {
 /// A class which mocks [BackupService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBackupService extends _i1.Mock implements _i55.BackupService {
+class MockBackupService extends _i1.Mock implements _i57.BackupService {
   @override
   _i20.CvBackupBundle buildBundle() =>
       (super.noSuchMethod(
@@ -2432,42 +2432,42 @@ class MockBackupService extends _i1.Mock implements _i55.BackupService {
 /// A class which mocks [FileUploadService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFileUploadService extends _i1.Mock implements _i56.FileUploadService {
+class MockFileUploadService extends _i1.Mock implements _i58.FileUploadService {
   @override
-  _i31.Future<_i45.Uint8List?> pickJsonFile() =>
+  _i31.Future<_i47.Uint8List?> pickJsonFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickJsonFile, []),
-            returnValue: _i31.Future<_i45.Uint8List?>.value(),
-            returnValueForMissingStub: _i31.Future<_i45.Uint8List?>.value(),
+            returnValue: _i31.Future<_i47.Uint8List?>.value(),
+            returnValueForMissingStub: _i31.Future<_i47.Uint8List?>.value(),
           )
-          as _i31.Future<_i45.Uint8List?>);
+          as _i31.Future<_i47.Uint8List?>);
 
   @override
-  _i31.Future<_i45.Uint8List?> pickPdfFile() =>
+  _i31.Future<_i47.Uint8List?> pickPdfFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickPdfFile, []),
-            returnValue: _i31.Future<_i45.Uint8List?>.value(),
-            returnValueForMissingStub: _i31.Future<_i45.Uint8List?>.value(),
+            returnValue: _i31.Future<_i47.Uint8List?>.value(),
+            returnValueForMissingStub: _i31.Future<_i47.Uint8List?>.value(),
           )
-          as _i31.Future<_i45.Uint8List?>);
+          as _i31.Future<_i47.Uint8List?>);
 
   @override
-  _i31.Future<_i45.Uint8List?> pickImageFile() =>
+  _i31.Future<_i47.Uint8List?> pickImageFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickImageFile, []),
-            returnValue: _i31.Future<_i45.Uint8List?>.value(),
-            returnValueForMissingStub: _i31.Future<_i45.Uint8List?>.value(),
+            returnValue: _i31.Future<_i47.Uint8List?>.value(),
+            returnValueForMissingStub: _i31.Future<_i47.Uint8List?>.value(),
           )
-          as _i31.Future<_i45.Uint8List?>);
+          as _i31.Future<_i47.Uint8List?>);
 }
 
 /// A class which mocks [PdfExtractionService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPdfExtractionService extends _i1.Mock
-    implements _i57.PdfExtractionService {
+    implements _i59.PdfExtractionService {
   @override
-  _i31.Future<_i21.AtsExtractedDocument> extract(_i45.Uint8List? bytes) =>
+  _i31.Future<_i21.AtsExtractedDocument> extract(_i47.Uint8List? bytes) =>
       (super.noSuchMethod(
             Invocation.method(#extract, [bytes]),
             returnValue: _i31.Future<_i21.AtsExtractedDocument>.value(
@@ -2488,7 +2488,7 @@ class MockPdfExtractionService extends _i1.Mock
 
   @override
   _i31.Future<_i22.AtsTextMatrix> getPageViewportTransform(
-    _i45.Uint8List? bytes, {
+    _i47.Uint8List? bytes, {
     required int? pageIndex,
     required double? dpi,
   }) =>
@@ -2526,7 +2526,7 @@ class MockPdfExtractionService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAtsAnalyzerService extends _i1.Mock
-    implements _i58.AtsAnalyzerService {
+    implements _i60.AtsAnalyzerService {
   @override
   _i23.AtsAnalysisResult analyze(_i21.AtsExtractedDocument? document) =>
       (super.noSuchMethod(
@@ -2546,7 +2546,7 @@ class MockAtsAnalyzerService extends _i1.Mock
 /// A class which mocks [LlmService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLlmService extends _i1.Mock implements _i59.LlmService {
+class MockLlmService extends _i1.Mock implements _i61.LlmService {
   @override
   _i31.Future<void> testConnection(String? providerId, String? apiKey) =>
       (super.noSuchMethod(
@@ -2563,7 +2563,7 @@ class MockLlmService extends _i1.Mock implements _i59.LlmService {
     required String? apiKey,
     required String? systemPrompt,
     required String? userContent,
-    required _i60.JsonSchema? schema,
+    required _i62.JsonSchema? schema,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#completeJson, [], {
@@ -2608,12 +2608,13 @@ class MockLlmService extends _i1.Mock implements _i59.LlmService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAiAssistantService extends _i1.Mock
-    implements _i61.AiAssistantService {
+    implements _i63.AiAssistantService {
   @override
   _i31.Future<_i25.AiAssistantResult> runTailoringPass({
     required _i4.CvVault? vault,
     required String? jobDescription,
-    required _i42.RegionProfile? region,
+    required _i43.RegionProfile? region,
+    required _i44.DocumentLanguage? documentLanguage,
     required String? providerId,
     required String? modelId,
     required String? apiKey,
@@ -2623,6 +2624,7 @@ class MockAiAssistantService extends _i1.Mock
               #vault: vault,
               #jobDescription: jobDescription,
               #region: region,
+              #documentLanguage: documentLanguage,
               #providerId: providerId,
               #modelId: modelId,
               #apiKey: apiKey,
@@ -2634,6 +2636,7 @@ class MockAiAssistantService extends _i1.Mock
                   #vault: vault,
                   #jobDescription: jobDescription,
                   #region: region,
+                  #documentLanguage: documentLanguage,
                   #providerId: providerId,
                   #modelId: modelId,
                   #apiKey: apiKey,
@@ -2648,6 +2651,7 @@ class MockAiAssistantService extends _i1.Mock
                       #vault: vault,
                       #jobDescription: jobDescription,
                       #region: region,
+                      #documentLanguage: documentLanguage,
                       #providerId: providerId,
                       #modelId: modelId,
                       #apiKey: apiKey,
@@ -2662,12 +2666,12 @@ class MockAiAssistantService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTemplateThumbnailService extends _i1.Mock
-    implements _i62.TemplateThumbnailService {
+    implements _i64.TemplateThumbnailService {
   @override
-  _i31.Future<_i45.Uint8List> thumbnail({
-    required _i50.ResolvedCv? cv,
+  _i31.Future<_i47.Uint8List> thumbnail({
+    required _i52.ResolvedCv? cv,
     required String? templateId,
-    required _i51.PdfPageFormat? format,
+    required _i53.PdfPageFormat? format,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#thumbnail, [], {
@@ -2675,19 +2679,19 @@ class MockTemplateThumbnailService extends _i1.Mock
               #templateId: templateId,
               #format: format,
             }),
-            returnValue: _i31.Future<_i45.Uint8List>.value(_i45.Uint8List(0)),
-            returnValueForMissingStub: _i31.Future<_i45.Uint8List>.value(
-              _i45.Uint8List(0),
+            returnValue: _i31.Future<_i47.Uint8List>.value(_i47.Uint8List(0)),
+            returnValueForMissingStub: _i31.Future<_i47.Uint8List>.value(
+              _i47.Uint8List(0),
             ),
           )
-          as _i31.Future<_i45.Uint8List>);
+          as _i31.Future<_i47.Uint8List>);
 }
 
 /// A class which mocks [DriveApiClientService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockDriveApiClientService extends _i1.Mock
-    implements _i63.DriveApiClientService {
+    implements _i65.DriveApiClientService {
   @override
   _i31.Future<String?> fetchAccountEmail(String? accessToken) =>
       (super.noSuchMethod(
@@ -2797,7 +2801,7 @@ class MockDriveApiClientService extends _i1.Mock
 /// A class which mocks [DriveSyncService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDriveSyncService extends _i1.Mock implements _i64.DriveSyncService {
+class MockDriveSyncService extends _i1.Mock implements _i66.DriveSyncService {
   @override
   Duration get idleDebounce =>
       (super.noSuchMethod(
@@ -2841,19 +2845,19 @@ class MockDriveSyncService extends _i1.Mock implements _i64.DriveSyncService {
           as Duration);
 
   @override
-  _i65.DriveSyncStatus get status =>
+  _i67.DriveSyncStatus get status =>
       (super.noSuchMethod(
             Invocation.getter(#status),
-            returnValue: _i41.dummyValue<_i65.DriveSyncStatus>(
+            returnValue: _i42.dummyValue<_i67.DriveSyncStatus>(
               this,
               Invocation.getter(#status),
             ),
-            returnValueForMissingStub: _i41.dummyValue<_i65.DriveSyncStatus>(
+            returnValueForMissingStub: _i42.dummyValue<_i67.DriveSyncStatus>(
               this,
               Invocation.getter(#status),
             ),
           )
-          as _i65.DriveSyncStatus);
+          as _i67.DriveSyncStatus);
 
   @override
   bool get isAvailable =>
@@ -2947,7 +2951,7 @@ class MockDriveSyncService extends _i1.Mock implements _i64.DriveSyncService {
 /// A class which mocks [GoogleAuthService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockGoogleAuthService extends _i1.Mock implements _i66.GoogleAuthService {
+class MockGoogleAuthService extends _i1.Mock implements _i68.GoogleAuthService {
   @override
   bool get isConfigured =>
       (super.noSuchMethod(
@@ -2989,10 +2993,10 @@ class MockGoogleAuthService extends _i1.Mock implements _i66.GoogleAuthService {
       (super.noSuchMethod(
             Invocation.method(#connect, []),
             returnValue: _i31.Future<String>.value(
-              _i41.dummyValue<String>(this, Invocation.method(#connect, [])),
+              _i42.dummyValue<String>(this, Invocation.method(#connect, [])),
             ),
             returnValueForMissingStub: _i31.Future<String>.value(
-              _i41.dummyValue<String>(this, Invocation.method(#connect, [])),
+              _i42.dummyValue<String>(this, Invocation.method(#connect, [])),
             ),
           )
           as _i31.Future<String>);
@@ -3011,7 +3015,7 @@ class MockGoogleAuthService extends _i1.Mock implements _i66.GoogleAuthService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLocalizationService extends _i1.Mock
-    implements _i67.LocalizationService {
+    implements _i69.LocalizationService {
   @override
   _i27.Locale get resolvedLocale =>
       (super.noSuchMethod(
@@ -3105,18 +3109,18 @@ class MockLocalizationService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockProfilePhotoService extends _i1.Mock
-    implements _i68.ProfilePhotoService {
+    implements _i70.ProfilePhotoService {
   @override
-  _i45.Uint8List? prepareForCrop(_i45.Uint8List? original) =>
+  _i47.Uint8List? prepareForCrop(_i47.Uint8List? original) =>
       (super.noSuchMethod(
             Invocation.method(#prepareForCrop, [original]),
             returnValueForMissingStub: null,
           )
-          as _i45.Uint8List?);
+          as _i47.Uint8List?);
 
   @override
   _i29.CvPhoto encodeCrop({
-    required _i45.Uint8List? rgbaBytes,
+    required _i47.Uint8List? rgbaBytes,
     required int? width,
     required int? height,
   }) =>

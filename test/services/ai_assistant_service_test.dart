@@ -4,6 +4,7 @@ import 'package:cv_forge/models/llm/llm_json_response.dart';
 import 'package:cv_forge/models/llm/llm_usage.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/document/document_strings.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/ai_assistant_service.dart';
 import 'package:cv_forge/services/llm/ai_assistant_prompt.dart';
@@ -70,6 +71,7 @@ void main() {
         vault: vault,
         jobDescription: 'We need a backend engineer.',
         region: RegionProfile.uk,
+        documentLanguage: DocumentLanguage.enGb,
         providerId: 'anthropic',
         modelId: 'claude-sonnet-5',
         apiKey: 'sk-test',
@@ -110,7 +112,10 @@ void main() {
         'clause that stops a convention becoming an invitation to '
         'invent', () {
       for (final region in RegionProfile.values) {
-        final prompt = aiAssistantSystemPromptFor(region);
+        final prompt = aiAssistantSystemPromptFor(
+          region,
+          language: DocumentLanguage.enGb,
+        );
         final preset = region.preset;
 
         expect(prompt, startsWith(aiAssistantSystemPrompt));
@@ -135,13 +140,87 @@ void main() {
     });
 
     test('spelling guidance is region-specific rather than boilerplate', () {
-      final uk = aiAssistantSystemPromptFor(RegionProfile.uk);
-      final us = aiAssistantSystemPromptFor(RegionProfile.us);
+      final uk = aiAssistantSystemPromptFor(
+        RegionProfile.uk,
+        language: DocumentLanguage.enGb,
+      );
+      final us = aiAssistantSystemPromptFor(
+        RegionProfile.us,
+        language: DocumentLanguage.enUs,
+      );
 
-      expect(uk, contains('British English'));
-      expect(uk, isNot(contains('US English')));
-      expect(us, contains('US English'));
-      expect(us, isNot(contains('British English')));
+      expect(uk, contains(RegionSpelling.enGb.promptLabel));
+      expect(uk, isNot(contains(RegionSpelling.enUs.promptLabel)));
+      expect(us, contains(RegionSpelling.enUs.promptLabel));
+      expect(us, isNot(contains(RegionSpelling.enGb.promptLabel)));
+    });
+
+    test('spelling guidance is dropped when the document is not in English '
+        '— all three RegionSpelling cases are English, so keeping it would '
+        'tell the model to write German with British spelling', () {
+      final german = aiAssistantSystemPromptFor(
+        RegionProfile.dach,
+        language: DocumentLanguage.de,
+      );
+
+      for (final spelling in RegionSpelling.values) {
+        expect(german, isNot(contains(spelling.promptLabel)));
+      }
+
+      // Still present when the document really is English.
+      expect(
+        aiAssistantSystemPromptFor(
+          RegionProfile.dach,
+          language: DocumentLanguage.enGb,
+        ),
+        contains(RegionSpelling.enGb.promptLabel),
+      );
+    });
+
+    test('the language block names every shipped language in English, and '
+        'keeps the region block ahead of it so the cacheable prefix is '
+        'unchanged', () {
+      for (final language in DocumentLanguage.values) {
+        final prompt = aiAssistantSystemPromptFor(
+          RegionProfile.uk,
+          language: language,
+        );
+
+        expect(prompt, startsWith(aiAssistantSystemPrompt));
+        expect(
+          prompt,
+          contains(language.strings.promptName),
+          reason: language.name,
+        );
+        expect(
+          prompt.indexOf('## Target region'),
+          lessThan(prompt.indexOf('## Document language')),
+          reason: 'region block must stay ahead of the language block',
+        );
+      }
+    });
+
+    test('translation is licensed explicitly, and only translation — the '
+        'rewriting rules above forbid it otherwise, and a model held to '
+        'them literally would refuse or half-comply', () {
+      final prompt = aiAssistantSystemPromptFor(
+        RegionProfile.dach,
+        language: DocumentLanguage.de,
+      );
+
+      expect(prompt, contains('is permitted, and is not inventing'));
+      expect(
+        prompt,
+        contains(
+          'Nothing else about the rewriting rules is '
+          'relaxed',
+        ),
+      );
+      // The anti-fabrication clause the whole prompt rests on survives.
+      expect(prompt, contains('do not add, describe, or imply it'));
+      // Proper nouns must survive a translation, or the reader cannot
+      // match an employer against the organisation that issued it.
+      expect(prompt, contains('Leave proper nouns as they are'));
     });
   });
 }

@@ -41,7 +41,8 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
       'No photograph, date of birth, marital status, or nationality. UK '
           'equality law makes them a liability for the employer as much as '
           'for you.',
-      'British spelling throughout: organised, programme, centre, analyse.',
+      'If writing in English, use British spelling throughout: organised, '
+          'programme, centre, analyse.',
       '"References available on request" at the foot is still expected. Do '
           "not list referees' contact details.",
       'Open with a short personal statement or profile.',
@@ -76,7 +77,8 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
       'Single column. No tables, text boxes, headers, or footers — US '
           'applicant tracking systems are the strictest anywhere and '
           'mis-parse everything else.',
-      'US spelling: organized, program, center, analyze.',
+      'If writing in English, use US spelling: organized, program, '
+          'center, analyze.',
       'Quantify everything you can. An unquantified bullet reads as a job '
           'description rather than an achievement.',
       'Do not add a references line; it is assumed.',

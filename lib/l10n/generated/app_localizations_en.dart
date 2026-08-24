@@ -402,6 +402,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateStyleMonYyyy => 'Mon YYYY (e.g. Jun 2023)';
 
   @override
+  String get documentLanguageDaName => 'Dansk';
+
+  @override
+  String get documentLanguageDeAtName => 'Deutsch (Österreich)';
+
+  @override
+  String get documentLanguageDeName => 'Deutsch';
+
+  @override
+  String get documentLanguageEnAuName => 'English (Australia)';
+
+  @override
+  String get documentLanguageEnGbName => 'English (United Kingdom)';
+
+  @override
+  String get documentLanguageEnUsName => 'English (United States)';
+
+  @override
+  String get documentLanguageEs419Name => 'Español (Latinoamérica)';
+
+  @override
+  String get documentLanguageEsName => 'Español (España)';
+
+  @override
+  String get documentLanguageFiName => 'Suomi';
+
+  @override
+  String get documentLanguageFrCaName => 'Français (Canada)';
+
+  @override
+  String get documentLanguageFrName => 'Français';
+
+  @override
+  String get documentLanguageItName => 'Italiano';
+
+  @override
+  String get documentLanguageNbName => 'Norsk bokmål';
+
+  @override
+  String get documentLanguageNlName => 'Nederlands';
+
+  @override
+  String get documentLanguagePtBrName => 'Português (Brasil)';
+
+  @override
+  String get documentLanguagePtPtName => 'Português (Portugal)';
+
+  @override
+  String get documentLanguageSvName => 'Svenska';
+
+  @override
   String draftCopySuffix(String name) {
     return '$name (copy)';
   }
@@ -502,7 +553,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionAnzConvention5 =>
-      'Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.';
+      'If writing in English, use Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.';
 
   @override
   String get regionAnzConvention6 =>
@@ -728,7 +779,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionUkConvention3 =>
-      'British spelling throughout: organised, programme, centre, analyse.';
+      'If writing in English, use British spelling throughout: organised, programme, centre, analyse.';
 
   @override
   String get regionUkConvention4 =>
@@ -770,7 +821,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionUsConvention4 =>
-      'US spelling: organized, program, center, analyze.';
+      'If writing in English, use US spelling: organized, program, center, analyze.';
 
   @override
   String get regionUsConvention5 =>
@@ -1135,7 +1186,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageCardBody =>
-      'The language CVForge\'s own buttons and labels are shown in. The CV you produce is not translated.';
+      'The language CVForge\'s own buttons and labels are shown in. The language your CV is written in is separate, and lives in the Vault.';
 
   @override
   String get settingsLanguageCardTitle => 'Language';
@@ -1148,16 +1199,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLinkTerms => 'Terms of Service';
-
-  @override
-  String get settingsRegionCardBody =>
-      'The region every new CV starts with. Change it any time for an individual CV from Studio.';
-
-  @override
-  String get settingsRegionCardChange => 'Change';
-
-  @override
-  String get settingsRegionCardTitle => 'Default region';
 
   @override
   String get skillCategoryUnnamed => 'Unnamed category';
@@ -1189,13 +1230,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioAiClearJobDescription => 'Clear job description';
 
   @override
+  String studioAiDialogLanguageNote(String language) {
+    return 'Written in $language — the assistant translates your bullets if your Vault is in another language.';
+  }
+
+  @override
   String studioAiDialogPrivacy(String provider) {
     return 'This sends the job description below and your CV content — not your name, email, phone, or links — to $provider, using your own API key. There is no CVForge server in between. This can take up to a few minutes — the model reasons through your whole Vault before responding.';
   }
 
   @override
   String studioAiDialogRegionNote(String region) {
-    return 'Tailored for $region — the assistant follows that market\'s length, spelling, and tone conventions.';
+    return 'Tailored for $region — the assistant follows that market\'s length and tone conventions.';
   }
 
   @override
@@ -1589,7 +1635,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioRegionPickerBody =>
-      'Conventions differ by market. This changes how this CV is built — page size, expected length, and the guidance below. It never changes what your Vault stores.';
+      'Conventions differ by market. This sets the page size, the expected length, and the guidance below. It does not set the language your CV is written in, and it never rewrites your career content.';
 
   @override
   String get studioRegionPickerDefaultBody =>
@@ -1608,7 +1654,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioRegionPickerUse => 'Use this region';
 
   @override
-  String get studioRegionSpelling => 'Spelling';
+  String get studioRegionSpelling => 'English spelling';
 
   @override
   String get studioRegionTypicalLength => 'Typical length';
@@ -1903,6 +1949,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultCropPhotoTitle => 'Position your photo';
 
   @override
+  String get vaultCvDefaultsCardEmpty => 'Region and language';
+
+  @override
+  String get vaultCvDefaultsChange => 'Change';
+
+  @override
+  String get vaultCvDefaultsLanguageHelp =>
+      'The language your CV is written in — separate from the market above, and from the language CVForge itself is shown in, which you set in Settings.';
+
+  @override
+  String get vaultCvDefaultsLanguageLabel => 'Language';
+
+  @override
+  String get vaultCvDefaultsPanelBody =>
+      'What every new CV starts out as. Changing these never rewrites a CV you have already made — switch those individually from Studio.';
+
+  @override
+  String vaultCvDefaultsPanelTitle(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Résumé defaults',
+      'other': 'CV defaults',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultCvDefaultsRegionHelp =>
+      'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.';
+
+  @override
+  String get vaultCvDefaultsRegionLabel => 'Region';
+
+  @override
   String get vaultDeleteCategoryBody =>
       'This removes it and all of its skills.';
 
@@ -1975,10 +2054,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultExperienceCurrent => 'I currently work here';
 
   @override
-  String get vaultExperienceEndMonth => 'End month';
-
-  @override
-  String get vaultExperienceEndYear => 'End year';
+  String get vaultExperienceEnd => 'End';
 
   @override
   String get vaultExperienceLocation => 'Location';
@@ -1993,10 +2069,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultExperienceRole => 'Role';
 
   @override
-  String get vaultExperienceStartMonth => 'Start month';
-
-  @override
-  String get vaultExperienceStartYear => 'Start year';
+  String get vaultExperienceStart => 'Start';
 
   @override
   String vaultHobbiesCount(int count) {
@@ -2024,6 +2097,42 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vaultInvalidUrlNotice =>
       'That page doesn\'t exist — here\'s your Vault.';
+
+  @override
+  String get vaultMonthApr => 'Apr';
+
+  @override
+  String get vaultMonthAug => 'Aug';
+
+  @override
+  String get vaultMonthDec => 'Dec';
+
+  @override
+  String get vaultMonthFeb => 'Feb';
+
+  @override
+  String get vaultMonthJan => 'Jan';
+
+  @override
+  String get vaultMonthJul => 'Jul';
+
+  @override
+  String get vaultMonthJun => 'Jun';
+
+  @override
+  String get vaultMonthMar => 'Mar';
+
+  @override
+  String get vaultMonthMay => 'May';
+
+  @override
+  String get vaultMonthNov => 'Nov';
+
+  @override
+  String get vaultMonthOct => 'Oct';
+
+  @override
+  String get vaultMonthSep => 'Sep';
 
   @override
   String get vaultNoEducation => 'No education yet.';
@@ -2129,6 +2238,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultSearch => 'Search your Vault…';
 
   @override
+  String get vaultSectionAboutYou => 'About you';
+
+  @override
+  String vaultSectionCvDefaults(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Résumé defaults',
+      'other': 'CV defaults',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get vaultSectionEducation => 'Education';
 
   @override
@@ -2214,13 +2335,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultUntitledRole => 'Untitled role';
 
   @override
-  String get vaultYearInvalid => 'Enter a valid year';
+  String get vaultYearMonthClear => 'Clear';
 
   @override
-  String vaultYearOutOfRange(int min, int max) {
-    return 'Enter a year between $min and $max';
-  }
+  String get vaultYearMonthEmpty => 'Pick a date';
 
   @override
-  String get vaultYearRequired => 'Enter a year';
+  String get vaultYearMonthNextYear => 'Next year';
+
+  @override
+  String get vaultYearMonthNextYears => 'Later years';
+
+  @override
+  String get vaultYearMonthPickYear => 'Choose a year';
+
+  @override
+  String get vaultYearMonthPreviousYear => 'Previous year';
+
+  @override
+  String get vaultYearMonthPreviousYears => 'Earlier years';
 }

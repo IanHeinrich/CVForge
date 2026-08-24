@@ -7,6 +7,7 @@ import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_r
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
@@ -168,6 +169,13 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   RegionProfile get region => _draft.region;
+
+  /// This CV's own language — the value that renders, not the Vault's
+  /// default. See [CvDraft.documentLanguage] for why it is per-draft.
+  DocumentLanguage get documentLanguage => _draft.documentLanguage;
+
+  Future<void> setDocumentLanguage(DocumentLanguage language) =>
+      _draftService.setDocumentLanguage(language);
   Future<void> setRegion(RegionProfile region) =>
       _draftService.setRegion(region);
 
@@ -214,6 +222,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       vault,
       draft,
       region: draft.region,
+      language: draft.documentLanguage,
       sectionOrder: draft.effectiveSectionOrder,
     );
     _composedVault = vault;
@@ -536,19 +545,24 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   /// Copies this draft's current [sectionOrder] and hidden-sections state
-  /// into `AppSettings.defaultSectionOrder`/`AppSettings.defaultHiddenSections`
-  /// so the next brand-new draft starts with both — a one-shot copy, never
-  /// a standing link back to this draft.
+  /// into [DocumentDefaults] so the next brand-new draft starts with
+  /// both — a one-shot copy, never a standing link back to this draft.
   Future<void> saveSectionSettingsAsDefault() =>
-      _settingsService.setDefaultSectionSettings(
-        order: sectionOrder,
-        hiddenSections: _draft.hiddenSections,
+      _vaultService.setDocumentDefaults(
+        _vaultService.vault.documentDefaults.copyWith(
+          sectionOrder: sectionOrder,
+          hiddenSections: _draft.hiddenSections,
+        ),
       );
 
   /// Resets this draft's order and hidden-sections state back to the
   /// user's saved default (or, if they've never saved one, the active
   /// template's own suggested order with nothing hidden).
-  Future<void> resetSectionSettings() => _draftService.resetSectionSettings();
+  ///
+  /// The defaults are passed in rather than read by `DraftService`, which
+  /// stays decoupled from the Vault — see its class doc comment.
+  Future<void> resetSectionSettings() =>
+      _draftService.resetSectionSettings(_vaultService.vault.documentDefaults);
 
   late final _experienceSelection = _Selection<Experience>(
     items: () => _vault.experiences,

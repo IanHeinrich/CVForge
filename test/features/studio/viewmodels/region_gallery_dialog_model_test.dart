@@ -110,17 +110,19 @@ void main() {
     test('copy differs between the two entry points, so neither words the '
         'same decision its own way', () {
       final draft = buildModel(context: RegionGalleryContext.draft);
-      final appDefault = buildModel(context: RegionGalleryContext.appDefault);
+      final vaultDefault = buildModel(
+        context: RegionGalleryContext.vaultDefault,
+      );
 
-      for (final model in [draft, appDefault]) {
+      for (final model in [draft, vaultDefault]) {
         expect(model.title, isNotEmpty);
         expect(model.introText, isNotEmpty);
         expect(model.confirmLabel, isNotEmpty);
       }
 
-      expect(draft.title, isNot(appDefault.title));
-      expect(draft.introText, isNot(appDefault.introText));
-      expect(draft.confirmLabel, isNot(appDefault.confirmLabel));
+      expect(draft.title, isNot(vaultDefault.title));
+      expect(draft.introText, isNot(vaultDefault.introText));
+      expect(draft.confirmLabel, isNot(vaultDefault.confirmLabel));
     });
   });
 }

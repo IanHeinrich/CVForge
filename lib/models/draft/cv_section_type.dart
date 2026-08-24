@@ -18,4 +18,7 @@ enum CvSectionType {
 /// The picker label for a section moved to
 /// `lib/ui/common/l10n/model_labels.dart` — it needs `AppLocalizations`,
 /// and this library must stay free of Flutter imports. What `CvComposer`
-/// prints on the page is a separate concern that stays English.
+/// prints on the page is a separate concern, following the document's own
+/// `DocumentLanguage` rather than the app's locale: a Spanish reader can
+/// pick "Experiencia" from the picker and still print "Experience" on an
+/// English CV.

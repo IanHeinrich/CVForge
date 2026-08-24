@@ -17,10 +17,12 @@ import 'package:cv_forge/services/settings_service.dart';
 /// same locale because [MaterialApp] is handed [resolvedLocale] rather than
 /// being left to resolve one of its own.
 ///
-/// Only ever the *chrome's* language. The CV this app produces is written in
-/// English regardless — see `CvComposer` for why the document's language is a
-/// separate axis, and `YearMonth.monthName` for a picker that deliberately
-/// stays English because it feeds that document.
+/// Only ever the *chrome's* language, and never the document's. A CV
+/// carries its own `DocumentLanguage`, set on the Vault and on each draft
+/// and read only by `CvComposer` — someone reading a Spanish interface
+/// while preparing an English CV is the ordinary case, not an edge one.
+/// Nothing here may reach that axis; the two are kept apart by the import
+/// graph, since `lib/models/document/` cannot see `AppLocalizations`.
 class LocalizationService with ListenableServiceMixin {
   LocalizationService() {
     _settingsService.addListener(_adoptStoredLocale);

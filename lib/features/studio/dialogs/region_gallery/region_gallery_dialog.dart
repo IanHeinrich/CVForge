@@ -33,7 +33,7 @@ const _listWidth = 280.0;
 /// explanation keeps the list scannable while letting the detail pane say
 /// as much as a region actually needs.
 ///
-/// One dialog serves both Studio's per-CV choice and Settings' default —
+/// One dialog serves both Studio's per-CV choice and the Vault's default —
 /// see [RegionGalleryContext]. Its copy comes from the model, so neither
 /// entry point can word the decision its own way.
 class RegionGalleryDialog extends StackedView<RegionGalleryDialogModel> {
@@ -253,7 +253,11 @@ class _RegionDetail extends StatelessWidget {
           ),
           const VGap.tiny(),
           _DetailRow(
-            icon: RemixIcons.translate_2,
+            // Not translate_2, which the document-language control uses.
+            // Region's spelling row is about which English variant a market
+            // reads as native, not about what language the CV is in, and
+            // sharing an icon with the language picker said otherwise.
+            icon: RemixIcons.a_b,
             label: context.l10n.studioRegionSpelling,
             value: preset.spelling.displayLabel(context.l10n),
           ),

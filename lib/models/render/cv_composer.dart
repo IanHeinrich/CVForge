@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/document/document_strings.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
@@ -24,8 +25,12 @@ abstract final class CvComposer {
     CvVault vault,
     CvDraft draft, {
     required RegionProfile region,
+    required DocumentLanguage language,
     required List<CvSectionType> sectionOrder,
   }) {
+    // Resolved once and threaded down, rather than each builder reaching
+    // for the table itself — the same reason [region] is a parameter.
+    final strings = language.strings;
     final header = ResolvedHeader(
       fullName: vault.basics.fullName,
       headline: draft.headlineOverride ?? vault.basics.headline,
@@ -48,14 +53,19 @@ abstract final class CvComposer {
       if (draft.hiddenSections.contains(type)) continue;
 
       final section = switch (type) {
-        CvSectionType.summary => _buildSummary(vault, draft),
-        CvSectionType.skills => _buildSkills(vault, draft),
-        CvSectionType.experience => _buildExperience(vault, draft, region),
-        CvSectionType.projects => _buildProjects(vault, draft),
-        CvSectionType.education => _buildEducation(vault, draft),
-        CvSectionType.hobbies => _buildHobbies(vault, draft),
-        CvSectionType.references => _buildReferences(vault, draft),
-        CvSectionType.publications => _buildPublications(vault, draft),
+        CvSectionType.summary => _buildSummary(vault, draft, strings),
+        CvSectionType.skills => _buildSkills(vault, draft, strings),
+        CvSectionType.experience => _buildExperience(
+          vault,
+          draft,
+          region,
+          language,
+        ),
+        CvSectionType.projects => _buildProjects(vault, draft, strings),
+        CvSectionType.education => _buildEducation(vault, draft, strings),
+        CvSectionType.hobbies => _buildHobbies(vault, draft, strings),
+        CvSectionType.references => _buildReferences(vault, draft, strings),
+        CvSectionType.publications => _buildPublications(vault, draft, strings),
       };
 
       if (section != null) sections.add(section);
@@ -64,16 +74,21 @@ abstract final class CvComposer {
     return ResolvedCv(header: header, sections: sections);
   }
 
-  static ResolvedSection? _buildSummary(CvVault vault, CvDraft draft) {
+  static ResolvedSection? _buildSummary(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
     final text = draft.tailoredSummary ?? vault.basics.summary;
     if (text == null || text.trim().isEmpty) return null;
-    return ResolvedSection.summary(title: 'Professional summary', text: text);
+    return ResolvedSection.summary(title: strings.summary, text: text);
   }
 
   static ResolvedSection? _buildExperience(
     CvVault vault,
     CvDraft draft,
     RegionProfile region,
+    DocumentLanguage language,
   ) {
     final byId = {for (final e in vault.experiences) e.id: e};
 
@@ -106,7 +121,7 @@ abstract final class CvComposer {
     );
 
     return ResolvedSection.experience(
-      title: 'Experience',
+      title: language.strings.experience,
       groups: [
         for (final roles in members)
           ResolvedCompanyGroup(
@@ -120,7 +135,7 @@ abstract final class CvComposer {
               for (final experience in roles)
                 ResolvedPosition(
                   role: experience.role,
-                  dateRange: _formatDateRange(experience, region),
+                  dateRange: _formatDateRange(experience, region, language),
                   bullets: _resolveBullets(
                     experience.bullets,
                     draft.bulletIds[experience.id] ?? const <String>[],
@@ -162,7 +177,11 @@ abstract final class CvComposer {
     ];
   }
 
-  static ResolvedSection? _buildProjects(CvVault vault, CvDraft draft) {
+  static ResolvedSection? _buildProjects(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
     final byId = {for (final p in vault.projects) p.id: p};
     final items = <ResolvedProject>[
       for (final id in draft.projectIds)
@@ -179,10 +198,14 @@ abstract final class CvComposer {
     ];
 
     if (items.isEmpty) return null;
-    return ResolvedSection.projects(title: 'Projects', items: items);
+    return ResolvedSection.projects(title: strings.projects, items: items);
   }
 
-  static ResolvedSection? _buildSkills(CvVault vault, CvDraft draft) {
+  static ResolvedSection? _buildSkills(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
     final selected = draft.skillIds.toSet();
     final groups = <ResolvedSkillGroup>[];
 
@@ -197,10 +220,14 @@ abstract final class CvComposer {
     }
 
     if (groups.isEmpty) return null;
-    return ResolvedSection.skills(title: 'Skills', groups: groups);
+    return ResolvedSection.skills(title: strings.skills, groups: groups);
   }
 
-  static ResolvedSection? _buildEducation(CvVault vault, CvDraft draft) {
+  static ResolvedSection? _buildEducation(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
     final byId = {for (final e in vault.education) e.id: e};
     final items = <ResolvedQualification>[
       for (final id in draft.educationIds)
@@ -223,10 +250,14 @@ abstract final class CvComposer {
     ];
 
     if (items.isEmpty) return null;
-    return ResolvedSection.education(title: 'Education', items: items);
+    return ResolvedSection.education(title: strings.education, items: items);
   }
 
-  static ResolvedSection? _buildHobbies(CvVault vault, CvDraft draft) {
+  static ResolvedSection? _buildHobbies(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
     final byId = {for (final h in vault.hobbies) h.id: h};
     final items = <String>[
       for (final id in draft.hobbyIds)
@@ -234,19 +265,24 @@ abstract final class CvComposer {
     ];
 
     if (items.isEmpty) return null;
-    return ResolvedSection.hobbies(
-      title: 'Hobbies and interests',
-      items: items,
-    );
+    return ResolvedSection.hobbies(title: strings.hobbies, items: items);
   }
 
-  static ResolvedSection? _buildReferences(CvVault vault, CvDraft draft) {
+  static ResolvedSection? _buildReferences(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
     final text = draft.referencesOverride ?? vault.referencesNote;
     if (text == null || text.trim().isEmpty) return null;
-    return ResolvedSection.references(title: 'References', text: text);
+    return ResolvedSection.references(title: strings.references, text: text);
   }
 
-  static ResolvedSection? _buildPublications(CvVault vault, CvDraft draft) {
+  static ResolvedSection? _buildPublications(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
     final byId = {for (final p in vault.publications) p.id: p};
     final items = <ResolvedPublication>[
       for (final id in draft.publicationIds)
@@ -264,22 +300,34 @@ abstract final class CvComposer {
     ];
 
     if (items.isEmpty) return null;
-    return ResolvedSection.publications(title: 'Publications', items: items);
+    return ResolvedSection.publications(
+      title: strings.publications,
+      items: items,
+    );
   }
 
-  static String _formatDateRange(Experience experience, RegionProfile region) {
+  /// The two axes meet here, and they answer different questions:
+  /// [region] picks the date *convention*, [language] the words.
+  static String _formatDateRange(
+    Experience experience,
+    RegionProfile region,
+    DocumentLanguage language,
+  ) {
     // uk and us both resolve to RegionDateStyle.monYyyy today — see
     // RegionPreset's doc comment — but the switch is on that seam, not on
     // RegionProfile directly, so a region with a different convention
     // needs only a new case here, not a new call site.
     switch (region.preset.dateStyle) {
       case RegionDateStyle.monYyyy:
-        final start = experience.start.toMonYyyy();
-        // Capitalized — the ATS-recognized keyword token for an ongoing
-        // role, matched by standard regex date parsers.
-        if (experience.isCurrent) return '$start - Present';
-        final end = experience.end?.toMonYyyy();
-        return end == null ? start : '$start - $end';
+        final start = experience.start.toMonYyyy(language);
+        // Capitalized in every language — the ATS-recognized token for an
+        // ongoing role, matched by regex date parsers reading whatever
+        // language the document is in. See DocumentStrings.present.
+        if (experience.isCurrent) {
+          return '$start$documentDateRangeSeparator${language.strings.present}';
+        }
+        final end = experience.end?.toMonYyyy(language);
+        return end == null ? start : '$start$documentDateRangeSeparator$end';
     }
   }
 }

@@ -14,6 +14,12 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
   region:
       $enumDecodeNullable(_$RegionProfileEnumMap, json['region']) ??
       RegionProfile.uk,
+  documentLanguage:
+      $enumDecodeNullable(
+        _$DocumentLanguageEnumMap,
+        json['documentLanguage'],
+      ) ??
+      DocumentLanguage.enGb,
   notes: json['notes'] as String? ?? '',
   experienceIds:
       (json['experienceIds'] as List<dynamic>?)
@@ -101,6 +107,7 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'name': instance.name,
   'templateId': instance.templateId,
   'region': _$RegionProfileEnumMap[instance.region]!,
+  'documentLanguage': _$DocumentLanguageEnumMap[instance.documentLanguage]!,
   'notes': instance.notes,
   'experienceIds': instance.experienceIds,
   'bulletIds': instance.bulletIds,
@@ -135,6 +142,26 @@ const _$RegionProfileEnumMap = {
   RegionProfile.europe: 'europe',
   RegionProfile.latamLetter: 'latamLetter',
   RegionProfile.latamA4: 'latamA4',
+};
+
+const _$DocumentLanguageEnumMap = {
+  DocumentLanguage.enGb: 'enGb',
+  DocumentLanguage.enUs: 'enUs',
+  DocumentLanguage.enAu: 'enAu',
+  DocumentLanguage.de: 'de',
+  DocumentLanguage.deAt: 'deAt',
+  DocumentLanguage.fr: 'fr',
+  DocumentLanguage.frCa: 'frCa',
+  DocumentLanguage.nl: 'nl',
+  DocumentLanguage.it: 'it',
+  DocumentLanguage.es: 'es',
+  DocumentLanguage.es419: 'es419',
+  DocumentLanguage.ptPt: 'ptPt',
+  DocumentLanguage.ptBr: 'ptBr',
+  DocumentLanguage.sv: 'sv',
+  DocumentLanguage.nb: 'nb',
+  DocumentLanguage.da: 'da',
+  DocumentLanguage.fi: 'fi',
 };
 
 const _$CvSectionTypeEnumMap = {

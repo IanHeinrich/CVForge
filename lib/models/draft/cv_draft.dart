@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 
 import 'cv_section_type.dart';
@@ -28,6 +29,19 @@ abstract class CvDraft with _$CvDraft {
     required String name,
     required String templateId,
     @Default(RegionProfile.uk) RegionProfile region,
+
+    /// The language this CV is written in — the value that actually
+    /// renders, as opposed to `DocumentDefaults.language`, which only
+    /// seeded it.
+    ///
+    /// Per-draft rather than per-Vault because a draft is one application
+    /// to one employer: applying to a firm in Munich and a firm in London
+    /// from the same career history needs two languages at once. Snapshot
+    /// at creation, never re-resolved, exactly like [region].
+    ///
+    /// Independent of the app's own UI locale, which never reaches the
+    /// document — see [DocumentLanguage].
+    @Default(DocumentLanguage.enGb) DocumentLanguage documentLanguage,
 
     /// Free-text, for the user's own tracking ("tailored for the Acme
     /// Backend role, applied 2026-08-19") — never rendered into the CV
@@ -133,13 +147,19 @@ abstract class CvDraft with _$CvDraft {
     /// a localized string and therefore cannot be a constructor default —
     /// `DraftService` supplies it.
     String? name,
+
+    /// Defaulted rather than required because `DraftService._emptyDraft`
+    /// is reached from the *synchronous* `draft` getter, which can never
+    /// await the Vault these normally come from.
     RegionProfile region = RegionProfile.uk,
+    DocumentLanguage documentLanguage = DocumentLanguage.enGb,
   }) => CvDraft(
     schemaVersion: 1,
     id: id,
     name: name ?? '',
     templateId: templateId,
     region: region,
+    documentLanguage: documentLanguage,
     updatedAt: DateTime.now(),
   );
 }

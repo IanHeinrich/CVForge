@@ -1,4 +1,8 @@
 import 'package:cv_forge/app/app.dialogs.dart';
+import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
 import 'package:cv_forge/services/localization_service.dart';
@@ -24,10 +28,17 @@ import 'package:stacked_services/stacked_services.dart';
 
 /// What the right-hand editor panel is currently showing, if anything.
 /// `experience`/`project`/`education` are keyed by id (many possible
-/// cards); `basics`/`skills`/`hobbies` are singletons (exactly one card
-/// each).
+/// cards); `basics`/`skills`/`hobbies`/`documentDefaults` are singletons
+/// (exactly one card each).
 enum VaultEditorTarget {
   none,
+
+  /// The only target that edits configuration rather than career content —
+  /// what every new CV starts out as. It routes through this same panel
+  /// mechanism deliberately: the Vault already has one way to open an
+  /// editor, and a settings surface bolted on beside it would read as
+  /// foreign.
+  documentDefaults,
   basics,
   experience,
   project,
@@ -163,6 +174,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   String? get openId => _openId;
   bool get isEditorOpen => _openTarget != VaultEditorTarget.none;
 
+  void openDocumentDefaultsEditor() =>
+      _open(VaultEditorTarget.documentDefaults);
   void openBasicsEditor() => _open(VaultEditorTarget.basics);
   void openSkillsEditor() => _open(VaultEditorTarget.skills);
   void openHobbiesEditor() => _open(VaultEditorTarget.hobbies);
@@ -183,6 +196,36 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     _openTarget = target;
     _openId = id;
     rebuildUi();
+  }
+
+  DocumentDefaults get documentDefaults => vault.documentDefaults;
+
+  Future<void> setDocumentLanguage(DocumentLanguage language) => _vaultService
+      .setDocumentDefaults(documentDefaults.copyWith(language: language));
+
+  /// Opens the same picker Studio's per-CV region button opens, in its
+  /// `vaultDefault` context — one region surface with two entry points
+  /// rather than two that can drift on wording or on which conventions
+  /// they explain.
+  ///
+  /// Near-identical to `StudioViewModel.openRegionGallery` and left that
+  /// way: they write to different services and pass different contexts, so
+  /// factoring them together would need a home neither ViewModel owns.
+  Future<void> openDefaultRegionPicker() async {
+    final response = await _dialogService
+        .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
+          variant: DialogType.regionGallery,
+          data: RegionGalleryDialogData(
+            currentRegion: documentDefaults.region,
+            context: RegionGalleryContext.vaultDefault,
+          ),
+        );
+    final selected = response?.data;
+    if (response?.confirmed == true && selected != null) {
+      await _vaultService.setDocumentDefaults(
+        documentDefaults.copyWith(region: selected),
+      );
+    }
   }
 
   Future<void> updateBasics(ContactBasics basics) =>
@@ -269,102 +312,6 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> groupExperience(String experienceId, String? withId) =>
       _vaultService.groupExperience(experienceId, withId);
-
-  // Year field validation: a rejected year edit must show an error, not
-  // silently discard the keystroke while the field goes on showing a
-  // value the model never received. The error lives here rather than on
-  // the (stateless) editor panels, per CLAUDE.md's "logic in the
-  // ViewModel" rule; keyed by entity id since several entries' panels can
-  // exist across a session even though only one is open at a time.
-
-  static const _minYear = 1900;
-  static const _maxYear = 2100;
-
-  final Map<String, String> _experienceStartYearErrors = {};
-  final Map<String, String> _experienceEndYearErrors = {};
-  final Map<String, String> _educationYearErrors = {};
-
-  String? experienceStartYearError(String experienceId) =>
-      _experienceStartYearErrors[experienceId];
-  String? experienceEndYearError(String experienceId) =>
-      _experienceEndYearErrors[experienceId];
-  String? educationYearError(String educationId) =>
-      _educationYearErrors[educationId];
-
-  /// Null means valid. [allowEmpty] lets Education's optional year treat
-  /// a blank field as valid too — a start/end year is never optional, so
-  /// callers for those leave it at the default.
-  String? _yearError(String raw, {bool allowEmpty = false}) {
-    final trimmed = raw.trim();
-    final strings = _localizationService.strings;
-    if (trimmed.isEmpty) {
-      return allowEmpty ? null : strings.vaultYearRequired;
-    }
-    final year = int.tryParse(trimmed);
-    if (year == null) return strings.vaultYearInvalid;
-    if (year < _minYear || year > _maxYear) {
-      return _localizationService.strings.vaultYearOutOfRange(
-        _minYear,
-        _maxYear,
-      );
-    }
-    return null;
-  }
-
-  Future<void> updateExperienceStartYear(
-    Experience experience,
-    String raw,
-  ) async {
-    final error = _yearError(raw);
-    if (error != null) {
-      _experienceStartYearErrors[experience.id] = error;
-      rebuildUi();
-      return;
-    }
-    _experienceStartYearErrors.remove(experience.id);
-    await updateExperience(
-      experience.copyWith(
-        start: experience.start.copyWith(year: int.parse(raw.trim())),
-      ),
-    );
-  }
-
-  Future<void> updateExperienceEndYear(
-    Experience experience,
-    String raw,
-  ) async {
-    final error = _yearError(raw);
-    if (error != null) {
-      _experienceEndYearErrors[experience.id] = error;
-      rebuildUi();
-      return;
-    }
-    _experienceEndYearErrors.remove(experience.id);
-    // An entry with no end date yet seeds the year from *now*, not from
-    // start — adopting start's year here produces a plausible-looking but
-    // silently wrong end date the moment only the month gets set
-    // afterwards.
-    final end =
-        experience.end ??
-        YearMonth(year: DateTime.now().year, month: experience.start.month);
-    await updateExperience(
-      experience.copyWith(end: end.copyWith(year: int.parse(raw.trim()))),
-    );
-  }
-
-  Future<void> updateEducationYear(Education education, String raw) async {
-    final error = _yearError(raw, allowEmpty: true);
-    if (error != null) {
-      _educationYearErrors[education.id] = error;
-      rebuildUi();
-      return;
-    }
-    _educationYearErrors.remove(education.id);
-    final trimmed = raw.trim();
-    await updateEducation(
-      education.copyWith(year: trimmed.isEmpty ? null : int.parse(trimmed)),
-    );
-  }
 
   Future<void> deleteExperience(String id) => _confirmDeleteThen(
     title: _localizationService.strings.vaultDeleteExperienceTitle,

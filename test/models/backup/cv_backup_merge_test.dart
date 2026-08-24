@@ -6,7 +6,9 @@ import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_photo.dart';
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/skill.dart';
@@ -44,6 +46,7 @@ CvVault _v({
   List<SkillCategory> skillCategories = const [],
   ContactBasics? basics,
   String? referencesNote,
+  DocumentDefaults? documentDefaults,
   DateTime? at,
 }) => CvVault(
   schemaVersion: 1,
@@ -51,6 +54,7 @@ CvVault _v({
   experiences: experiences,
   skillCategories: skillCategories,
   referencesNote: referencesNote,
+  documentDefaults: documentDefaults ?? const DocumentDefaults(),
   updatedAt: at ?? _t0,
 );
 
@@ -78,15 +82,12 @@ CvBackupBundle _b(
   preferences: preferences,
 );
 
-CvPreferences _prefs({
-  RegionProfile region = RegionProfile.uk,
-  String? providerId,
-  DateTime? at,
-}) => CvPreferences(
-  defaultRegion: region,
-  aiAssistantProviderId: providerId,
-  updatedAt: at ?? _t0,
-);
+CvPreferences _prefs({String? providerId, String? localeTag, DateTime? at}) =>
+    CvPreferences(
+      aiAssistantProviderId: providerId,
+      localeTag: localeTag,
+      updatedAt: at ?? _t0,
+    );
 
 CvVault _mergedVault(
   CvBackupBundle base,
@@ -648,17 +649,27 @@ void main() {
     test('a preference changed on one side only takes that change', () {
       final changed = _b(
         _v(),
-        preferences: _prefs(region: RegionProfile.us, at: _t1),
+        preferences: _prefs(providerId: 'anthropic', at: _t1),
       );
-      expect(mergedPrefs(changed, base)?.defaultRegion, RegionProfile.us);
-      expect(mergedPrefs(base, changed)?.defaultRegion, RegionProfile.us);
+      expect(mergedPrefs(changed, base)?.aiAssistantProviderId, 'anthropic');
+      expect(mergedPrefs(base, changed)?.aiAssistantProviderId, 'anthropic');
+    });
+
+    test('an explicitly chosen UI language survives a sync', () {
+      final chosen = _b(
+        _v(),
+        preferences: _prefs(localeTag: 'es', at: _t1),
+      );
+
+      expect(mergedPrefs(chosen, base)?.localeTag, 'es');
+      expect(mergedPrefs(base, chosen)?.localeTag, 'es');
     });
 
     test('different preferences changed on each side both survive — no id '
         'to merge by, but the fields are independent', () {
       final local = _b(
         _v(),
-        preferences: _prefs(region: RegionProfile.us, at: _t1),
+        preferences: _prefs(localeTag: 'es', at: _t1),
       );
       final remote = _b(
         _v(),
@@ -666,7 +677,7 @@ void main() {
       );
 
       final merged = mergedPrefs(local, remote)!;
-      expect(merged.defaultRegion, RegionProfile.us);
+      expect(merged.localeTag, 'es');
       expect(merged.aiAssistantProviderId, 'anthropic');
     });
 
@@ -687,12 +698,18 @@ void main() {
         '"clear them"', () {
       final withPrefs = _b(
         _v(),
-        preferences: _prefs(region: RegionProfile.us, at: _t1),
+        preferences: _prefs(providerId: 'anthropic', at: _t1),
       );
       final without = _b(_v());
 
-      expect(mergedPrefs(withPrefs, without)?.defaultRegion, RegionProfile.us);
-      expect(mergedPrefs(without, withPrefs)?.defaultRegion, RegionProfile.us);
+      expect(
+        mergedPrefs(withPrefs, without)?.aiAssistantProviderId,
+        'anthropic',
+      );
+      expect(
+        mergedPrefs(without, withPrefs)?.aiAssistantProviderId,
+        'anthropic',
+      );
       expect(
         mergeBackupBundles(
           base: _b(_v()),
@@ -708,10 +725,89 @@ void main() {
       final local = _b(_v(), preferences: _prefs(at: _t2));
       final remote = _b(
         _v(),
-        preferences: _prefs(region: RegionProfile.us, at: _t1),
+        preferences: _prefs(providerId: 'anthropic', at: _t1),
       );
 
       expect(mergedPrefs(local, remote), remote.preferences);
+    });
+  });
+
+  group('mergeBackupBundles - document defaults', () {
+    DocumentDefaults? mergedDefaults(CvVault local, CvVault remote) =>
+        mergeBackupBundles(
+          base: _b(_v()),
+          local: _b(local),
+          remote: _b(remote),
+        ).vault?.documentDefaults;
+
+    test('a default changed on one side only takes that change', () {
+      final changed = _v(
+        documentDefaults: const DocumentDefaults(region: RegionProfile.us),
+        at: _t1,
+      );
+
+      expect(mergedDefaults(changed, _v())?.region, RegionProfile.us);
+      expect(mergedDefaults(_v(), changed)?.region, RegionProfile.us);
+    });
+
+    test('region and language changed on different devices both survive — '
+        'the whole reason these merge field by field rather than as one '
+        'object', () {
+      final local = _v(
+        documentDefaults: const DocumentDefaults(region: RegionProfile.dach),
+        at: _t1,
+      );
+      final remote = _v(
+        documentDefaults: const DocumentDefaults(language: DocumentLanguage.de),
+        at: _t1,
+      );
+
+      final merged = mergedDefaults(local, remote)!;
+      expect(merged.region, RegionProfile.dach);
+      expect(merged.language, DocumentLanguage.de);
+    });
+
+    test('the same default changed on both sides goes to the later vault', () {
+      final local = _v(
+        documentDefaults: const DocumentDefaults(language: DocumentLanguage.de),
+        at: _t1,
+      );
+      final remote = _v(
+        documentDefaults: const DocumentDefaults(language: DocumentLanguage.fr),
+        at: _t2,
+      );
+
+      expect(mergedDefaults(local, remote)?.language, DocumentLanguage.fr);
+      expect(mergedDefaults(remote, local)?.language, DocumentLanguage.fr);
+    });
+
+    test('changing a default lets that device win a contested bullet too — '
+        'a consequence of the defaults living on the Vault, whose own '
+        'updatedAt settles content, not an accident', () {
+      final base = _b(_v(experiences: [_job('a', role: 'Engineer')]));
+      final local = _b(
+        _v(
+          experiences: [_job('a', role: 'Local')],
+          documentDefaults: const DocumentDefaults(
+            language: DocumentLanguage.de,
+          ),
+          at: _t2,
+        ),
+      );
+      final remote = _b(
+        _v(
+          experiences: [_job('a', role: 'Remote')],
+          at: _t1,
+        ),
+      );
+
+      final merged = mergeBackupBundles(
+        base: base,
+        local: local,
+        remote: remote,
+      ).vault!;
+      expect(merged.experiences.single.role, 'Local');
+      expect(merged.documentDefaults.language, DocumentLanguage.de);
     });
   });
 

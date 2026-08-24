@@ -409,6 +409,57 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dateStyleMonYyyy => 'Mes AAAA (p. ej. jun 2023)';
 
   @override
+  String get documentLanguageDaName => 'Dansk';
+
+  @override
+  String get documentLanguageDeAtName => 'Deutsch (Österreich)';
+
+  @override
+  String get documentLanguageDeName => 'Deutsch';
+
+  @override
+  String get documentLanguageEnAuName => 'English (Australia)';
+
+  @override
+  String get documentLanguageEnGbName => 'English (United Kingdom)';
+
+  @override
+  String get documentLanguageEnUsName => 'English (United States)';
+
+  @override
+  String get documentLanguageEs419Name => 'Español (Latinoamérica)';
+
+  @override
+  String get documentLanguageEsName => 'Español (España)';
+
+  @override
+  String get documentLanguageFiName => 'Suomi';
+
+  @override
+  String get documentLanguageFrCaName => 'Français (Canada)';
+
+  @override
+  String get documentLanguageFrName => 'Français';
+
+  @override
+  String get documentLanguageItName => 'Italiano';
+
+  @override
+  String get documentLanguageNbName => 'Norsk bokmål';
+
+  @override
+  String get documentLanguageNlName => 'Nederlands';
+
+  @override
+  String get documentLanguagePtBrName => 'Português (Brasil)';
+
+  @override
+  String get documentLanguagePtPtName => 'Português (Portugal)';
+
+  @override
+  String get documentLanguageSvName => 'Svenska';
+
+  @override
   String draftCopySuffix(String name) {
     return '$name (copia)';
   }
@@ -510,7 +561,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionAnzConvention5 =>
-      'Ortografía australiana: organised, centre, analyse. Sé coherente — algunos sectores aceptan -ize, pero lo que se nota es mezclar ambas.';
+      'Si escribes en inglés, usa ortografía australiana: organised, centre, analyse. Sé coherente: algunos sectores aceptan -ize, pero lo que se nota es mezclar las dos.';
 
   @override
   String get regionAnzConvention6 =>
@@ -736,7 +787,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionUkConvention3 =>
-      'Ortografía británica en todo el documento: organised, programme, centre, analyse.';
+      'Si escribes en inglés, usa ortografía británica en todo el documento: organised, programme, centre, analyse.';
 
   @override
   String get regionUkConvention4 =>
@@ -778,7 +829,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionUsConvention4 =>
-      'Ortografía estadounidense: organized, program, center, analyze.';
+      'Si escribes en inglés, usa ortografía estadounidense: organized, program, center, analyze.';
 
   @override
   String get regionUsConvention5 =>
@@ -1148,7 +1199,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsLanguageCardBody =>
-      'El idioma en que se muestran los botones y las etiquetas de CVForge. El CV que produces no se traduce.';
+      'El idioma en el que se muestran los botones y las etiquetas de CVForge. El idioma en el que está escrito tu CV es aparte y se elige en la Bóveda.';
 
   @override
   String get settingsLanguageCardTitle => 'Idioma';
@@ -1161,16 +1212,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsLinkTerms => 'Términos del servicio';
-
-  @override
-  String get settingsRegionCardBody =>
-      'La región con la que empieza cada CV nuevo. Puedes cambiarla en cualquier momento para un CV concreto desde Studio.';
-
-  @override
-  String get settingsRegionCardChange => 'Cambiar';
-
-  @override
-  String get settingsRegionCardTitle => 'Región predeterminada';
 
   @override
   String get skillCategoryUnnamed => 'Categoría sin nombre';
@@ -1202,13 +1243,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioAiClearJobDescription => 'Borrar la descripción del puesto';
 
   @override
+  String studioAiDialogLanguageNote(String language) {
+    return 'Redactado en $language: el asistente traduce tus viñetas si tu Bóveda está en otro idioma.';
+  }
+
+  @override
   String studioAiDialogPrivacy(String provider) {
     return 'Esto envía la descripción del puesto que está abajo y el contenido de tu CV — no tu nombre, correo, teléfono ni enlaces — a $provider, usando tu propia clave de API. No hay ningún servidor de CVForge de por medio. Puede tardar hasta unos minutos: el modelo razona sobre toda tu Bóveda antes de responder.';
   }
 
   @override
   String studioAiDialogRegionNote(String region) {
-    return 'Adaptado para $region — el asistente sigue las convenciones de extensión, ortografía y tono de ese mercado.';
+    return 'Adaptado para $region: el asistente sigue las convenciones de extensión y tono de ese mercado.';
   }
 
   @override
@@ -1609,11 +1655,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioRegionPickerBody =>
-      'Las convenciones cambian según el mercado. Esto modifica cómo se arma este CV — tamaño de página, extensión esperada y la guía de abajo. Nunca cambia lo que guarda tu Bóveda.';
+      'Las convenciones varían según el mercado. Esto define el tamaño de página, la extensión esperada y las recomendaciones de abajo. No define el idioma en el que está escrito tu CV, y nunca reescribe el contenido de tu carrera.';
 
   @override
   String get studioRegionPickerDefaultBody =>
-      'Define la región con la que empieza cada CV nuevo. Cambiarla nunca afecta un CV que ya hayas creado — esos se cambian individualmente desde Studio.';
+      'Define la región con la que empieza cada CV nuevo. Cambiarla nunca afecta a un CV que ya hayas creado: esos se cambian de uno en uno desde el Estudio.';
 
   @override
   String get studioRegionPickerDefaultTitle => 'Región predeterminada';
@@ -1628,7 +1674,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioRegionPickerUse => 'Usar esta región';
 
   @override
-  String get studioRegionSpelling => 'Ortografía';
+  String get studioRegionSpelling => 'Ortografía del inglés';
 
   @override
   String get studioRegionTypicalLength => 'Extensión habitual';
@@ -1925,6 +1971,39 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultCropPhotoTitle => 'Encuadra tu foto';
 
   @override
+  String get vaultCvDefaultsCardEmpty => 'Región e idioma';
+
+  @override
+  String get vaultCvDefaultsChange => 'Cambiar';
+
+  @override
+  String get vaultCvDefaultsLanguageHelp =>
+      'El idioma en el que está escrito tu CV: es distinto del mercado de arriba y del idioma en el que se muestra CVForge, que se elige en Ajustes.';
+
+  @override
+  String get vaultCvDefaultsLanguageLabel => 'Idioma';
+
+  @override
+  String get vaultCvDefaultsPanelBody =>
+      'Con esto empieza cada CV nuevo. Cambiarlo nunca modifica un CV que ya hayas creado: esos se cambian de uno en uno desde el Estudio.';
+
+  @override
+  String vaultCvDefaultsPanelTitle(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Valores por defecto del résumé',
+      'other': 'Valores por defecto del CV',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultCvDefaultsRegionHelp =>
+      'Define el tamaño de página, el formato de las fechas y las recomendaciones que sigue el Asistente de IA. No el idioma: eso está en la fila de abajo.';
+
+  @override
+  String get vaultCvDefaultsRegionLabel => 'Región';
+
+  @override
   String get vaultDeleteCategoryBody =>
       'Esto la elimina junto con todas sus habilidades.';
 
@@ -1997,10 +2076,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultExperienceCurrent => 'Actualmente trabajo aquí';
 
   @override
-  String get vaultExperienceEndMonth => 'Mes de término';
-
-  @override
-  String get vaultExperienceEndYear => 'Año de término';
+  String get vaultExperienceEnd => 'Fin';
 
   @override
   String get vaultExperienceLocation => 'Ubicación';
@@ -2015,10 +2091,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultExperienceRole => 'Cargo';
 
   @override
-  String get vaultExperienceStartMonth => 'Mes de inicio';
-
-  @override
-  String get vaultExperienceStartYear => 'Año de inicio';
+  String get vaultExperienceStart => 'Inicio';
 
   @override
   String vaultHobbiesCount(int count) {
@@ -2046,6 +2119,42 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get vaultInvalidUrlNotice =>
       'Esa página no existe — aquí está tu Bóveda.';
+
+  @override
+  String get vaultMonthApr => 'abr';
+
+  @override
+  String get vaultMonthAug => 'ago';
+
+  @override
+  String get vaultMonthDec => 'dic';
+
+  @override
+  String get vaultMonthFeb => 'feb';
+
+  @override
+  String get vaultMonthJan => 'ene';
+
+  @override
+  String get vaultMonthJul => 'jul';
+
+  @override
+  String get vaultMonthJun => 'jun';
+
+  @override
+  String get vaultMonthMar => 'mar';
+
+  @override
+  String get vaultMonthMay => 'may';
+
+  @override
+  String get vaultMonthNov => 'nov';
+
+  @override
+  String get vaultMonthOct => 'oct';
+
+  @override
+  String get vaultMonthSep => 'sept';
 
   @override
   String get vaultNoEducation => 'Aún no hay formación académica.';
@@ -2151,6 +2260,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultSearch => 'Busca en tu Bóveda…';
 
   @override
+  String get vaultSectionAboutYou => 'Sobre ti';
+
+  @override
+  String vaultSectionCvDefaults(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Valores por defecto del résumé',
+      'other': 'Valores por defecto del CV',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get vaultSectionEducation => 'Formación académica';
 
   @override
@@ -2238,13 +2359,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultUntitledRole => 'Cargo sin título';
 
   @override
-  String get vaultYearInvalid => 'Ingresa un año válido';
+  String get vaultYearMonthClear => 'Borrar';
 
   @override
-  String vaultYearOutOfRange(int min, int max) {
-    return 'Ingresa un año entre $min y $max';
-  }
+  String get vaultYearMonthEmpty => 'Elige una fecha';
 
   @override
-  String get vaultYearRequired => 'Ingresa un año';
+  String get vaultYearMonthNextYear => 'Año siguiente';
+
+  @override
+  String get vaultYearMonthNextYears => 'Años posteriores';
+
+  @override
+  String get vaultYearMonthPickYear => 'Elegir un año';
+
+  @override
+  String get vaultYearMonthPreviousYear => 'Año anterior';
+
+  @override
+  String get vaultYearMonthPreviousYears => 'Años anteriores';
 }

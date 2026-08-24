@@ -99,13 +99,8 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   /// sentence cannot have a foreign noun interpolated into it and stay
   /// grammatical, so each message spells out its own branches. See
   /// CLAUDE.md's Localization section.
-  String get documentNoun => _settingsService
-      .settings
-      .preferences
-      .defaultRegion
-      .preset
-      .documentNoun
-      .name;
+  String get documentNoun =>
+      _vaultService.vault.documentDefaults.region.preset.documentNoun.name;
 
   String templateName(String templateId) =>
       templateDisplayName(_localizationService.strings, templateId);
@@ -180,6 +175,7 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
     _vaultService.vault,
     draft,
     region: draft.region,
+    language: draft.documentLanguage,
     sectionOrder: draft.effectiveSectionOrder,
   );
 
@@ -234,6 +230,10 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
       name: result.name,
       notes: result.notes,
       templateId: _templateRegistry.defaultTemplate.id,
+      // Supplied here rather than read inside DraftService, which stays
+      // decoupled from VaultService — see its class doc comment. This
+      // ViewModel already holds both.
+      defaults: _vaultService.vault.documentDefaults,
     );
     await _routerService.replaceWith(StudioViewRoute(draftId: id));
   }

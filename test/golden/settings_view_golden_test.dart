@@ -4,6 +4,8 @@ library;
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_view.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
@@ -24,6 +26,12 @@ void main() {
     when(settingsService.load()).thenAnswer((_) => Future<void>.value());
     // AiAssistantSettingsCard reads `settings` on every build.
     when(settingsService.settings).thenReturn(AppSettings.empty());
+    // AppChrome's nav rail reads the Vault's default region for the drafts
+    // tab's "CVs"/"Résumés" label — unstubbed, the mock's dummy CvVault
+    // throws the moment a field is read.
+    when(
+      (locator<VaultService>() as MockVaultService).vault,
+    ).thenReturn(CvVault.empty());
   });
   tearDown(() => locator.reset());
 

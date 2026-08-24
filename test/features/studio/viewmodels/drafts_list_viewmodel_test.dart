@@ -4,6 +4,7 @@ import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_da
 import 'package:cv_forge/features/studio/views/drafts_list/drafts_list_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/templates/compact/compact_template.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -46,6 +47,9 @@ void main() {
       getAndRegisterTemplateThumbnailService();
       getAndRegisterLocalizationService();
       when(settingsService.settings).thenReturn(AppSettings.empty());
+      // The document noun now comes off the Vault, and the mock's dummy
+      // CvVault throws the moment a field is read.
+      when(vaultService.vault).thenReturn(CvVault.empty());
     });
     tearDown(() => locator.reset());
 

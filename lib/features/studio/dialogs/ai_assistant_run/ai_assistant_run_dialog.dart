@@ -81,6 +81,13 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
             style: context.appTypography.bodySmall,
           ),
           const VGap.small(),
+          Text(
+            context.l10n.studioAiDialogLanguageNote(
+              viewModel.documentLanguageDisplayName,
+            ),
+            style: context.appTypography.bodySmall,
+          ),
+          const VGap.small(),
           Container(
             padding: EdgeInsets.all(context.appSpacing.paddingCompact),
             constraints: const BoxConstraints(maxHeight: 160),

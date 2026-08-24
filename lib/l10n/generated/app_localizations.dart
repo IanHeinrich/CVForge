@@ -602,6 +602,108 @@ abstract class AppLocalizations {
   /// **'Mon YYYY (e.g. Jun 2023)'**
   String get dateStyleMonYyyy;
 
+  /// Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Dansk'**
+  String get documentLanguageDaName;
+
+  /// Name of the language a CV can be written in, as Deutsch (Österreich) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Deutsch (Österreich)'**
+  String get documentLanguageDeAtName;
+
+  /// Name of the language a CV can be written in, as Deutsch writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Deutsch'**
+  String get documentLanguageDeName;
+
+  /// Name of the language a CV can be written in, as English (Australia) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'English (Australia)'**
+  String get documentLanguageEnAuName;
+
+  /// Name of the language a CV can be written in, as English (United Kingdom) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'English (United Kingdom)'**
+  String get documentLanguageEnGbName;
+
+  /// Name of the language a CV can be written in, as English (United States) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'English (United States)'**
+  String get documentLanguageEnUsName;
+
+  /// Name of the language a CV can be written in, as Español (Latinoamérica) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Español (Latinoamérica)'**
+  String get documentLanguageEs419Name;
+
+  /// Name of the language a CV can be written in, as Español (España) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Español (España)'**
+  String get documentLanguageEsName;
+
+  /// Name of the language a CV can be written in, as Suomi writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Suomi'**
+  String get documentLanguageFiName;
+
+  /// Name of the language a CV can be written in, as Français (Canada) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Français (Canada)'**
+  String get documentLanguageFrCaName;
+
+  /// Name of the language a CV can be written in, as Français writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Français'**
+  String get documentLanguageFrName;
+
+  /// Name of the language a CV can be written in, as Italiano writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Italiano'**
+  String get documentLanguageItName;
+
+  /// Name of the language a CV can be written in, as Norsk bokmål writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Norsk bokmål'**
+  String get documentLanguageNbName;
+
+  /// Name of the language a CV can be written in, as Nederlands writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Nederlands'**
+  String get documentLanguageNlName;
+
+  /// Name of the language a CV can be written in, as Português (Brasil) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Português (Brasil)'**
+  String get documentLanguagePtBrName;
+
+  /// Name of the language a CV can be written in, as Português (Portugal) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Português (Portugal)'**
+  String get documentLanguagePtPtName;
+
+  /// Name of the language a CV can be written in, as Svenska writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Svenska'**
+  String get documentLanguageSvName;
+
   /// The name given to a duplicated CV, based on the original's name.
   ///
   /// In en, this message translates to:
@@ -773,7 +875,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.'**
+  /// **'If writing in English, use Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.'**
   String get regionAnzConvention5;
 
   /// Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1133,7 +1235,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'British spelling throughout: organised, programme, centre, analyse.'**
+  /// **'If writing in English, use British spelling throughout: organised, programme, centre, analyse.'**
   String get regionUkConvention3;
 
   /// Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1199,7 +1301,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'US spelling: organized, program, center, analyze.'**
+  /// **'If writing in English, use US spelling: organized, program, center, analyze.'**
   String get regionUsConvention4;
 
   /// Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1286,7 +1388,7 @@ abstract class AppLocalizations {
   /// **'Skills'**
   String get sectionLabelSkills;
 
-  /// Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which stays English.
+  /// Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which follows the document's own language, not the app's.
   ///
   /// In en, this message translates to:
   /// **'Professional summary'**
@@ -1748,10 +1850,10 @@ abstract class AppLocalizations {
   /// **'This backup was made by a newer version of CVForge.'**
   String get settingsImportErrorNewerVersion;
 
-  /// Settings, language card, body paragraph. States the app/document language distinction explicitly, because users reasonably assume changing this would translate their CV.
+  /// Settings, language card body. Says what this setting does NOT control — the document's own language, which lives on the Vault — because the two are the app's most confusable pair.
   ///
   /// In en, this message translates to:
-  /// **'The language CVForge\'s own buttons and labels are shown in. The CV you produce is not translated.'**
+  /// **'The language CVForge\'s own buttons and labels are shown in. The language your CV is written in is separate, and lives in the Vault.'**
   String get settingsLanguageCardBody;
 
   /// Settings, language card, section heading. Sits above a one-line body paragraph.
@@ -1777,24 +1879,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms of Service'**
   String get settingsLinkTerms;
-
-  /// Settings, region card body. 'Studio' is this app's name for the CV editor screen.
-  ///
-  /// In en, this message translates to:
-  /// **'The region every new CV starts with. Change it any time for an individual CV from Studio.'**
-  String get settingsRegionCardBody;
-
-  /// Settings, region card button that opens the region picker.
-  ///
-  /// In en, this message translates to:
-  /// **'Change'**
-  String get settingsRegionCardChange;
-
-  /// Settings, region card heading. Region controls CV conventions for a job market (page size, date style, whether a photo is expected), not the app's language.
-  ///
-  /// In en, this message translates to:
-  /// **'Default region'**
-  String get settingsRegionCardTitle;
 
   /// Stands in for a skill category's name while it is still blank. Shown wherever the name is displayed (a chip-group heading, a menu item); the editor field itself still shows the real empty value.
   ///
@@ -1850,16 +1934,22 @@ abstract class AppLocalizations {
   /// **'Clear job description'**
   String get studioAiClearJobDescription;
 
+  /// AI dialog, note naming the language the assistant will write the tailored bullets in. Sits beside the region note. Names it explicitly because translating someone's career history is a larger surprise than a page size if they had not noticed the setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Written in {language} — the assistant translates your bullets if your Vault is in another language.'**
+  String studioAiDialogLanguageNote(String language);
+
   /// AI dialog, privacy note listing exactly what is and is not transmitted. The exclusions matter; keep them explicit.
   ///
   /// In en, this message translates to:
   /// **'This sends the job description below and your CV content — not your name, email, phone, or links — to {provider}, using your own API key. There is no CVForge server in between. This can take up to a few minutes — the model reasons through your whole Vault before responding.'**
   String studioAiDialogPrivacy(String provider);
 
-  /// AI dialog, note naming which regional CV conventions the AI will follow.
+  /// AI dialog, note naming which regional CV conventions the AI will follow. Deliberately no longer mentions spelling: the line directly below names the document's language, and spelling only applies within English — see _languageBlock, which drops the spelling instruction entirely for a non-English document.
   ///
   /// In en, this message translates to:
-  /// **'Tailored for {region} — the assistant follows that market\'s length, spelling, and tone conventions.'**
+  /// **'Tailored for {region} — the assistant follows that market\'s length and tone conventions.'**
   String studioAiDialogRegionNote(String region);
 
   /// Title of the dialog that rewrites a CV against a job description using AI.
@@ -2336,10 +2426,10 @@ abstract class AppLocalizations {
   /// **'Photo'**
   String get studioRegionPhoto;
 
-  /// Region picker body when choosing for one CV.
+  /// Region picker intro, per-CV context. Names what region does NOT do, because market and language are the app's most confusable pair: someone targeting DACH does not necessarily write in German. The old wording said it 'never changes what your Vault stores', which stopped being precise once the Vault started holding the default region itself.
   ///
   /// In en, this message translates to:
-  /// **'Conventions differ by market. This changes how this CV is built — page size, expected length, and the guidance below. It never changes what your Vault stores.'**
+  /// **'Conventions differ by market. This sets the page size, the expected length, and the guidance below. It does not set the language your CV is written in, and it never rewrites your career content.'**
   String get studioRegionPickerBody;
 
   /// Region picker body when setting the default from Settings.
@@ -2372,10 +2462,10 @@ abstract class AppLocalizations {
   /// **'Use this region'**
   String get studioRegionPickerUse;
 
-  /// Region detail row label — which spelling convention this market expects.
+  /// Region detail pane, label for the English spelling variant this market reads as native. Says 'English' deliberately: RegionSpelling has only en-GB/en-US/en-AU cases, so the row means nothing for a CV written in another language, and an unqualified 'Spelling' beside a German document reads as a contradiction.
   ///
   /// In en, this message translates to:
-  /// **'Spelling'**
+  /// **'English spelling'**
   String get studioRegionSpelling;
 
   /// Region detail row label — how many pages a CV usually runs to in this market.
@@ -2894,6 +2984,54 @@ abstract class AppLocalizations {
   /// **'Position your photo'**
   String get vaultCropPhotoTitle;
 
+  /// Fallback title on the Vault's CV defaults card, shown only if the region name is somehow unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Region and language'**
+  String get vaultCvDefaultsCardEmpty;
+
+  /// Button on the region row of the Vault's document-defaults panel, opening the region picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get vaultCvDefaultsChange;
+
+  /// Help text under the document-language row of the Vault's CV defaults panel. Names both of the other two axes explicitly — this is the one place all three meet, and the divide has to be stated rather than inferred.
+  ///
+  /// In en, this message translates to:
+  /// **'The language your CV is written in — separate from the market above, and from the language CVForge itself is shown in, which you set in Settings.'**
+  String get vaultCvDefaultsLanguageHelp;
+
+  /// Label on the document-language row of the Vault's document-defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get vaultCvDefaultsLanguageLabel;
+
+  /// Body text in the Vault's document-defaults editor panel. The second clause is the point: users routinely expect a 'default' to apply retroactively.
+  ///
+  /// In en, this message translates to:
+  /// **'What every new CV starts out as. Changing these never rewrites a CV you have already made — switch those individually from Studio.'**
+  String get vaultCvDefaultsPanelBody;
+
+  /// Title of the Vault editor panel for the document defaults. Same copy as the section heading that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'{noun, select, resume{Résumé defaults} other{CV defaults}}'**
+  String vaultCvDefaultsPanelTitle(String noun);
+
+  /// Help text under the region row of the Vault's document-defaults panel, naming what region actually changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.'**
+  String get vaultCvDefaultsRegionHelp;
+
+  /// Label on the region row of the Vault's document-defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get vaultCvDefaultsRegionLabel;
+
   /// Confirmation dialog body for deleting a skill category.
   ///
   /// In en, this message translates to:
@@ -3032,17 +3170,11 @@ abstract class AppLocalizations {
   /// **'I currently work here'**
   String get vaultExperienceCurrent;
 
-  /// Vault experience form field label for when the role ended.
+  /// Label on the end-date picker in the Vault's experience editor. Only shown when the role is not the current one.
   ///
   /// In en, this message translates to:
-  /// **'End month'**
-  String get vaultExperienceEndMonth;
-
-  /// Vault experience form field label for when the role ended.
-  ///
-  /// In en, this message translates to:
-  /// **'End year'**
-  String get vaultExperienceEndYear;
+  /// **'End'**
+  String get vaultExperienceEnd;
 
   /// Vault experience form field label.
   ///
@@ -3068,17 +3200,11 @@ abstract class AppLocalizations {
   /// **'Role'**
   String get vaultExperienceRole;
 
-  /// Vault experience form field label for when the role began.
+  /// Label on the start-date picker in the Vault's experience editor.
   ///
   /// In en, this message translates to:
-  /// **'Start month'**
-  String get vaultExperienceStartMonth;
-
-  /// Vault experience form field label for when the role began.
-  ///
-  /// In en, this message translates to:
-  /// **'Start year'**
-  String get vaultExperienceStartYear;
+  /// **'Start'**
+  String get vaultExperienceStart;
 
   /// Vault summary card line counting hobbies. English has an irregular plural here (hobby/hobbies); other languages may need different plural categories.
   ///
@@ -3115,6 +3241,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That page doesn\'t exist — here\'s your Vault.'**
   String get vaultInvalidUrlNotice;
+
+  /// Month abbreviation shown in the Vault's year/month picker for April. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Apr'**
+  String get vaultMonthApr;
+
+  /// Month abbreviation shown in the Vault's year/month picker for August. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Aug'**
+  String get vaultMonthAug;
+
+  /// Month abbreviation shown in the Vault's year/month picker for December. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Dec'**
+  String get vaultMonthDec;
+
+  /// Month abbreviation shown in the Vault's year/month picker for February. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Feb'**
+  String get vaultMonthFeb;
+
+  /// Month abbreviation shown in the Vault's year/month picker for January. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Jan'**
+  String get vaultMonthJan;
+
+  /// Month abbreviation shown in the Vault's year/month picker for July. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Jul'**
+  String get vaultMonthJul;
+
+  /// Month abbreviation shown in the Vault's year/month picker for June. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Jun'**
+  String get vaultMonthJun;
+
+  /// Month abbreviation shown in the Vault's year/month picker for March. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Mar'**
+  String get vaultMonthMar;
+
+  /// Month abbreviation shown in the Vault's year/month picker for May. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get vaultMonthMay;
+
+  /// Month abbreviation shown in the Vault's year/month picker for November. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Nov'**
+  String get vaultMonthNov;
+
+  /// Month abbreviation shown in the Vault's year/month picker for October. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct'**
+  String get vaultMonthOct;
+
+  /// Month abbreviation shown in the Vault's year/month picker for September. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sep'**
+  String get vaultMonthSep;
 
   /// Vault empty state for the education section.
   ///
@@ -3299,6 +3497,18 @@ abstract class AppLocalizations {
   /// **'Search your Vault…'**
   String get vaultSearch;
 
+  /// Heading above the Vault's career-content cards (personal details, experience, skills and so on), separating them from the document defaults above.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get vaultSectionAboutYou;
+
+  /// Heading above the Vault's document-defaults card, separating it from the career content below. Follows the default region's document noun. Branch on the noun, not on the language.
+  ///
+  /// In en, this message translates to:
+  /// **'{noun, select, resume{Résumé defaults} other{CV defaults}}'**
+  String vaultSectionCvDefaults(String noun);
+
   /// Vault list section heading for qualifications.
   ///
   /// In en, this message translates to:
@@ -3449,23 +3659,47 @@ abstract class AppLocalizations {
   /// **'Untitled role'**
   String get vaultUntitledRole;
 
-  /// Vault form validation: the year field holds something that is not a number.
+  /// Button in the Vault's year/month picker that removes the chosen date. Only shown where the date is optional — an experience start date never is.
   ///
   /// In en, this message translates to:
-  /// **'Enter a valid year'**
-  String get vaultYearInvalid;
+  /// **'Clear'**
+  String get vaultYearMonthClear;
 
-  /// Vault form validation: the year is a number but outside the accepted range.
+  /// Placeholder in the Vault's year/month field before a date has been chosen.
   ///
   /// In en, this message translates to:
-  /// **'Enter a year between {min} and {max}'**
-  String vaultYearOutOfRange(int min, int max);
+  /// **'Pick a date'**
+  String get vaultYearMonthEmpty;
 
-  /// Vault form validation: the year field was left empty.
+  /// Tooltip on the forward arrow in the Vault's year/month picker.
   ///
   /// In en, this message translates to:
-  /// **'Enter a year'**
-  String get vaultYearRequired;
+  /// **'Next year'**
+  String get vaultYearMonthNextYear;
+
+  /// Tooltip on the forward arrow while the Vault's picker is showing its grid of years.
+  ///
+  /// In en, this message translates to:
+  /// **'Later years'**
+  String get vaultYearMonthNextYears;
+
+  /// Tooltip on the year label in the Vault's year/month picker, which switches the grid from months to years.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a year'**
+  String get vaultYearMonthPickYear;
+
+  /// Tooltip on the back arrow in the Vault's year/month picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous year'**
+  String get vaultYearMonthPreviousYear;
+
+  /// Tooltip on the back arrow while the Vault's picker is showing its grid of years.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier years'**
+  String get vaultYearMonthPreviousYears;
 }
 
 class _AppLocalizationsDelegate

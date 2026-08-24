@@ -14,7 +14,6 @@ import 'package:cv_forge/features/settings/widgets/backup_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/ai_assistant_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/drive_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/language_settings_card.dart';
-import 'package:cv_forge/features/settings/widgets/region_settings_card.dart';
 import 'settings_viewmodel.dart';
 
 /// The only top-level surface that previously had neither a page header
@@ -52,8 +51,6 @@ class SettingsView extends StackedView<SettingsViewModel> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppearanceSettingsCard(viewModel: viewModel),
-                const VGap.medium(),
-                RegionSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
                 if (viewModel.showLanguageSelector) ...[
                   LanguageSettingsCard(viewModel: viewModel),

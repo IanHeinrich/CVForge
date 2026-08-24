@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog_model.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
@@ -82,6 +83,7 @@ void main() {
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           region: anyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -101,6 +103,7 @@ void main() {
           vault: vault,
           jobDescription: 'We need a dev',
           region: anyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
           providerId: 'anthropic',
           modelId: 'claude-sonnet-5',
           apiKey: 'sk-ant-test',
@@ -127,6 +130,7 @@ void main() {
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           region: anyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
           providerId: anyNamed('providerId'),
           modelId: captureAnyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -144,6 +148,7 @@ void main() {
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           region: anyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
           providerId: anyNamed('providerId'),
           modelId: captureAnyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -162,6 +167,7 @@ void main() {
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           region: anyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -189,6 +195,7 @@ void main() {
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           region: anyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -206,6 +213,7 @@ void main() {
           vault: anyNamed('vault'),
           jobDescription: anyNamed('jobDescription'),
           region: captureAnyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
@@ -213,6 +221,51 @@ void main() {
       ).captured.single;
 
       expect(captured, RegionProfile.dach);
+    });
+
+    test("the draft's own document language reaches the service, not the "
+        "Vault's default — the pass tailors one CV, and that CV's language "
+        'is what its bullets have to come back in', () async {
+      when(
+        settingsService.apiKeyFor('anthropic'),
+      ).thenAnswer((_) async => 'sk-ant-test');
+      when(draftService.draft).thenReturn(
+        draftWith(
+          region: RegionProfile.dach,
+          documentLanguage: DocumentLanguage.deAt,
+        ),
+      );
+      when(
+        aiAssistantService.runTailoringPass(
+          vault: anyNamed('vault'),
+          jobDescription: anyNamed('jobDescription'),
+          region: anyNamed('region'),
+          documentLanguage: anyNamed('documentLanguage'),
+          providerId: anyNamed('providerId'),
+          modelId: anyNamed('modelId'),
+          apiKey: anyNamed('apiKey'),
+        ),
+      ).thenAnswer((_) async => emptyResult);
+      when(
+        draftService.applyAiAssistantResult(emptyResult),
+      ).thenAnswer((_) async {});
+
+      final model = AiAssistantRunDialogModel(jobDescription: 'Wir suchen');
+      await model.run();
+
+      final captured = verify(
+        aiAssistantService.runTailoringPass(
+          vault: anyNamed('vault'),
+          jobDescription: anyNamed('jobDescription'),
+          region: anyNamed('region'),
+          documentLanguage: captureAnyNamed('documentLanguage'),
+          providerId: anyNamed('providerId'),
+          modelId: anyNamed('modelId'),
+          apiKey: anyNamed('apiKey'),
+        ),
+      ).captured.single;
+
+      expect(captured, DocumentLanguage.deAt);
     });
   });
 }

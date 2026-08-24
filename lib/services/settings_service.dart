@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/settings/app_theme_mode.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
@@ -122,43 +120,17 @@ class SettingsService
     scheduleWrite(_settings.value);
   }
 
-  /// Only the default a *new* draft is created with (`DraftService.
-  /// createDraft`'s own `_settings.settings.preferences.defaultRegion` read) — never
-  /// touches any existing draft's own `CvDraft.region`, the same way
-  /// changing [setDefaultSectionSettings] never rewrites a draft already
-  /// created from the old default.
-  Future<void> setDefaultRegion(RegionProfile region) async {
-    await ready();
-    _setPreferences((p) => p.copyWith(defaultRegion: region));
-  }
-
-  /// Sets the remembered default section order and hidden-sections state
-  /// together, in one write rather than two separate calls — see
-  /// `AppSettings.defaultSectionOrder`/`defaultHiddenSections` and
-  /// `DraftService.createDraft`'s doc comment. The pair is always saved
-  /// (and reset) together from the same Studio action, so there's no
-  /// legitimate call site that would ever want to update just one.
-  /// The app chrome's language. Null restores "follow the browser", which is
-  /// the default — see [CvPreferences.localeTag] for why an explicit choice
-  /// is the only thing that syncs.
+  /// The app chrome's language. Null restores "follow the browser", which
+  /// is the default — see [CvPreferences.localeTag] for why an explicit
+  /// choice is the only thing that syncs.
   ///
-  /// Never touches what the *document* is written in; that stays English.
+  /// Never touches what the *document* is written in. That is
+  /// `DocumentLanguage`, set on the Vault and on each draft, and the two
+  /// are meant to differ — reading the app in Spanish while writing a CV
+  /// in English is the ordinary case.
   Future<void> setLocaleTag(String? tag) async {
     await ready();
     _setPreferences((p) => p.copyWith(localeTag: tag));
-  }
-
-  Future<void> setDefaultSectionSettings({
-    required List<CvSectionType> order,
-    required Set<CvSectionType> hiddenSections,
-  }) async {
-    await ready();
-    _setPreferences(
-      (p) => p.copyWith(
-        defaultSectionOrder: order,
-        defaultHiddenSections: hiddenSections,
-      ),
-    );
   }
 
   /// The key values themselves: in-memory only, deliberately **not**

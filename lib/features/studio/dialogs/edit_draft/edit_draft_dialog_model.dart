@@ -1,6 +1,6 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
-import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/services/vault_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:stacked/stacked.dart';
 
@@ -17,23 +17,23 @@ class EditDraftDialogModel extends BaseViewModel {
   final TextEditingController nameController;
   final TextEditingController notesController;
 
-  /// `AppSettings.defaultRegion`'s document noun — the same source
-  /// `DraftsListViewModel`/`AppChrome` read, so this dialog's field copy
-  /// never disagrees with the "New CV"/"New Résumé" button that opened it.
-  /// The global default rather than the draft being edited's own region:
-  /// [EditDraftDialogData] carries no region, and a name/notes editor isn't
-  /// worth plumbing one through for.
-  /// Which document noun the user's default region uses — `cv` or
+  /// Which document noun the Vault's default region uses — `cv` or
   /// `resume` — as an ICU `select` branch id, not a display word.
   ///
-  /// Deliberately not an inflected English string any more: a translated
-  /// sentence cannot have a foreign noun interpolated into it and stay
-  /// grammatical, so each message spells out its own branches. See
-  /// CLAUDE.md's Localization section.
-  String get documentNoun => locator<SettingsService>()
-      .settings
-      .preferences
-      .defaultRegion
+  /// The same source `DraftsListViewModel` and `AppChrome` read, so this
+  /// dialog's field copy never disagrees with the "New CV"/"New Résumé"
+  /// button that opened it. The Vault's default rather than the edited
+  /// draft's own region: [EditDraftDialogData] carries no region, and a
+  /// name/notes editor is not worth plumbing one through for.
+  ///
+  /// Deliberately not an inflected English string: a translated sentence
+  /// cannot have a foreign noun interpolated into it and stay grammatical,
+  /// so each message spells out its own branches. See CLAUDE.md's
+  /// Localization section.
+  String get documentNoun => locator<VaultService>()
+      .vault
+      .documentDefaults
+      .region
       .preset
       .documentNoun
       .name;

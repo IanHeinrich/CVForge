@@ -498,6 +498,74 @@
   "@dateStyleMonYyyy": {
     "description": "How dates are written on the CV. The pattern letters and the example should be rewritten to show the same format using the target language's own month abbreviation."
   },
+  "documentLanguageDaName": "Dansk",
+  "@documentLanguageDaName": {
+    "description": "Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageDeAtName": "Deutsch (Österreich)",
+  "@documentLanguageDeAtName": {
+    "description": "Name of the language a CV can be written in, as Deutsch (Österreich) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageDeName": "Deutsch",
+  "@documentLanguageDeName": {
+    "description": "Name of the language a CV can be written in, as Deutsch writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEnAuName": "English (Australia)",
+  "@documentLanguageEnAuName": {
+    "description": "Name of the language a CV can be written in, as English (Australia) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEnGbName": "English (United Kingdom)",
+  "@documentLanguageEnGbName": {
+    "description": "Name of the language a CV can be written in, as English (United Kingdom) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEnUsName": "English (United States)",
+  "@documentLanguageEnUsName": {
+    "description": "Name of the language a CV can be written in, as English (United States) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEs419Name": "Español (Latinoamérica)",
+  "@documentLanguageEs419Name": {
+    "description": "Name of the language a CV can be written in, as Español (Latinoamérica) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEsName": "Español (España)",
+  "@documentLanguageEsName": {
+    "description": "Name of the language a CV can be written in, as Español (España) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageFiName": "Suomi",
+  "@documentLanguageFiName": {
+    "description": "Name of the language a CV can be written in, as Suomi writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageFrCaName": "Français (Canada)",
+  "@documentLanguageFrCaName": {
+    "description": "Name of the language a CV can be written in, as Français (Canada) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageFrName": "Français",
+  "@documentLanguageFrName": {
+    "description": "Name of the language a CV can be written in, as Français writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageItName": "Italiano",
+  "@documentLanguageItName": {
+    "description": "Name of the language a CV can be written in, as Italiano writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageNbName": "Norsk bokmål",
+  "@documentLanguageNbName": {
+    "description": "Name of the language a CV can be written in, as Norsk bokmål writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageNlName": "Nederlands",
+  "@documentLanguageNlName": {
+    "description": "Name of the language a CV can be written in, as Nederlands writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguagePtBrName": "Português (Brasil)",
+  "@documentLanguagePtBrName": {
+    "description": "Name of the language a CV can be written in, as Português (Brasil) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguagePtPtName": "Português (Portugal)",
+  "@documentLanguagePtPtName": {
+    "description": "Name of the language a CV can be written in, as Português (Portugal) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageSvName": "Svenska",
+  "@documentLanguageSvName": {
+    "description": "Name of the language a CV can be written in, as Svenska writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
   "draftCopySuffix": "{name} (copy)",
   "@draftCopySuffix": {
     "description": "The name given to a duplicated CV, based on the original's name.",
@@ -622,7 +690,7 @@
   "@regionAnzConvention4": {
     "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionAnzConvention5": "Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.",
+  "regionAnzConvention5": "If writing in English, use Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.",
   "@regionAnzConvention5": {
     "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -862,7 +930,7 @@
   "@regionUkConvention2": {
     "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionUkConvention3": "British spelling throughout: organised, programme, centre, analyse.",
+  "regionUkConvention3": "If writing in English, use British spelling throughout: organised, programme, centre, analyse.",
   "@regionUkConvention3": {
     "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -906,7 +974,7 @@
   "@regionUsConvention3": {
     "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionUsConvention4": "US spelling: organized, program, center, analyze.",
+  "regionUsConvention4": "If writing in English, use US spelling: organized, program, center, analyze.",
   "@regionUsConvention4": {
     "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -968,7 +1036,7 @@
   },
   "sectionLabelSummary": "Professional summary",
   "@sectionLabelSummary": {
-    "description": "Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which stays English."
+    "description": "Studio's section-visibility picker: the CV's opening paragraph. This is the PICKER's label — deliberately separate from the heading printed on the PDF, which follows the document's own language, not the app's."
   },
   "settingsAiBody": "Bring your own API key to enable AI-assisted tailoring. Your key never leaves this device except to call the provider's API directly. There is no CVForge server.",
   "@settingsAiBody": {
@@ -1426,9 +1494,9 @@
   "@settingsImportErrorNewerVersion": {
     "description": "Settings, error shown when the backup file's schema is newer than this build understands."
   },
-  "settingsLanguageCardBody": "The language CVForge's own buttons and labels are shown in. The CV you produce is not translated.",
+  "settingsLanguageCardBody": "The language CVForge's own buttons and labels are shown in. The language your CV is written in is separate, and lives in the Vault.",
   "@settingsLanguageCardBody": {
-    "description": "Settings, language card, body paragraph. States the app/document language distinction explicitly, because users reasonably assume changing this would translate their CV."
+    "description": "Settings, language card body. Says what this setting does NOT control — the document's own language, which lives on the Vault — because the two are the app's most confusable pair."
   },
   "settingsLanguageCardTitle": "Language",
   "@settingsLanguageCardTitle": {
@@ -1445,18 +1513,6 @@
   "settingsLinkTerms": "Terms of Service",
   "@settingsLinkTerms": {
     "description": "Settings, footer link to the terms of service page."
-  },
-  "settingsRegionCardBody": "The region every new CV starts with. Change it any time for an individual CV from Studio.",
-  "@settingsRegionCardBody": {
-    "description": "Settings, region card body. 'Studio' is this app's name for the CV editor screen."
-  },
-  "settingsRegionCardChange": "Change",
-  "@settingsRegionCardChange": {
-    "description": "Settings, region card button that opens the region picker."
-  },
-  "settingsRegionCardTitle": "Default region",
-  "@settingsRegionCardTitle": {
-    "description": "Settings, region card heading. Region controls CV conventions for a job market (page size, date style, whether a photo is expected), not the app's language."
   },
   "skillCategoryUnnamed": "Unnamed category",
   "@skillCategoryUnnamed": {
@@ -1494,6 +1550,16 @@
   "@studioAiClearJobDescription": {
     "description": "Tooltip on the button that empties the job description field."
   },
+  "studioAiDialogLanguageNote": "Written in {language} — the assistant translates your bullets if your Vault is in another language.",
+  "@studioAiDialogLanguageNote": {
+    "description": "AI dialog, note naming the language the assistant will write the tailored bullets in. Sits beside the region note. Names it explicitly because translating someone's career history is a larger surprise than a page size if they had not noticed the setting.",
+    "placeholders": {
+      "language": {
+        "type": "String",
+        "example": "Brazilian Portuguese"
+      }
+    }
+  },
   "studioAiDialogPrivacy": "This sends the job description below and your CV content — not your name, email, phone, or links — to {provider}, using your own API key. There is no CVForge server in between. This can take up to a few minutes — the model reasons through your whole Vault before responding.",
   "@studioAiDialogPrivacy": {
     "description": "AI dialog, privacy note listing exactly what is and is not transmitted. The exclusions matter; keep them explicit.",
@@ -1504,9 +1570,9 @@
       }
     }
   },
-  "studioAiDialogRegionNote": "Tailored for {region} — the assistant follows that market's length, spelling, and tone conventions.",
+  "studioAiDialogRegionNote": "Tailored for {region} — the assistant follows that market's length and tone conventions.",
   "@studioAiDialogRegionNote": {
-    "description": "AI dialog, note naming which regional CV conventions the AI will follow.",
+    "description": "AI dialog, note naming which regional CV conventions the AI will follow. Deliberately no longer mentions spelling: the line directly below names the document's language, and spelling only applies within English — see _languageBlock, which drops the spelling instruction entirely for a non-English document.",
     "placeholders": {
       "region": {
         "type": "String",
@@ -2018,9 +2084,9 @@
   "@studioRegionPhoto": {
     "description": "Region detail row label — whether a photograph is expected on a CV in this market."
   },
-  "studioRegionPickerBody": "Conventions differ by market. This changes how this CV is built — page size, expected length, and the guidance below. It never changes what your Vault stores.",
+  "studioRegionPickerBody": "Conventions differ by market. This sets the page size, the expected length, and the guidance below. It does not set the language your CV is written in, and it never rewrites your career content.",
   "@studioRegionPickerBody": {
-    "description": "Region picker body when choosing for one CV."
+    "description": "Region picker intro, per-CV context. Names what region does NOT do, because market and language are the app's most confusable pair: someone targeting DACH does not necessarily write in German. The old wording said it 'never changes what your Vault stores', which stopped being precise once the Vault started holding the default region itself."
   },
   "studioRegionPickerDefaultBody": "Sets the region every new CV starts with. Changing it never touches a CV you have already created — switch those individually from Studio.",
   "@studioRegionPickerDefaultBody": {
@@ -2042,9 +2108,9 @@
   "@studioRegionPickerUse": {
     "description": "Region picker confirm button when choosing for one CV."
   },
-  "studioRegionSpelling": "Spelling",
+  "studioRegionSpelling": "English spelling",
   "@studioRegionSpelling": {
-    "description": "Region detail row label — which spelling convention this market expects."
+    "description": "Region detail pane, label for the English spelling variant this market reads as native. Says 'English' deliberately: RegionSpelling has only en-GB/en-US/en-AU cases, so the row means nothing for a CV written in another language, and an unqualified 'Spelling' beside a German document reads as a contradiction."
   },
   "studioRegionTypicalLength": "Typical length",
   "@studioRegionTypicalLength": {
@@ -2434,6 +2500,44 @@
   "@vaultCropPhotoTitle": {
     "description": "Title of the dialog for cropping a profile photograph to the required aspect ratio."
   },
+  "vaultCvDefaultsCardEmpty": "Region and language",
+  "@vaultCvDefaultsCardEmpty": {
+    "description": "Fallback title on the Vault's CV defaults card, shown only if the region name is somehow unavailable."
+  },
+  "vaultCvDefaultsChange": "Change",
+  "@vaultCvDefaultsChange": {
+    "description": "Button on the region row of the Vault's document-defaults panel, opening the region picker."
+  },
+  "vaultCvDefaultsLanguageHelp": "The language your CV is written in — separate from the market above, and from the language CVForge itself is shown in, which you set in Settings.",
+  "@vaultCvDefaultsLanguageHelp": {
+    "description": "Help text under the document-language row of the Vault's CV defaults panel. Names both of the other two axes explicitly — this is the one place all three meet, and the divide has to be stated rather than inferred."
+  },
+  "vaultCvDefaultsLanguageLabel": "Language",
+  "@vaultCvDefaultsLanguageLabel": {
+    "description": "Label on the document-language row of the Vault's document-defaults panel."
+  },
+  "vaultCvDefaultsPanelBody": "What every new CV starts out as. Changing these never rewrites a CV you have already made — switch those individually from Studio.",
+  "@vaultCvDefaultsPanelBody": {
+    "description": "Body text in the Vault's document-defaults editor panel. The second clause is the point: users routinely expect a 'default' to apply retroactively."
+  },
+  "vaultCvDefaultsPanelTitle": "{noun, select, resume{Résumé defaults} other{CV defaults}}",
+  "@vaultCvDefaultsPanelTitle": {
+    "description": "Title of the Vault editor panel for the document defaults. Same copy as the section heading that opens it.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "vaultCvDefaultsRegionHelp": "Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.",
+  "@vaultCvDefaultsRegionHelp": {
+    "description": "Help text under the region row of the Vault's document-defaults panel, naming what region actually changes."
+  },
+  "vaultCvDefaultsRegionLabel": "Region",
+  "@vaultCvDefaultsRegionLabel": {
+    "description": "Label on the region row of the Vault's document-defaults panel."
+  },
   "vaultDeleteCategoryBody": "This removes it and all of its skills.",
   "@vaultDeleteCategoryBody": {
     "description": "Confirmation dialog body for deleting a skill category."
@@ -2526,13 +2630,9 @@
   "@vaultExperienceCurrent": {
     "description": "Vault experience checkbox that marks the role as ongoing and hides the end date fields."
   },
-  "vaultExperienceEndMonth": "End month",
-  "@vaultExperienceEndMonth": {
-    "description": "Vault experience form field label for when the role ended."
-  },
-  "vaultExperienceEndYear": "End year",
-  "@vaultExperienceEndYear": {
-    "description": "Vault experience form field label for when the role ended."
+  "vaultExperienceEnd": "End",
+  "@vaultExperienceEnd": {
+    "description": "Label on the end-date picker in the Vault's experience editor. Only shown when the role is not the current one."
   },
   "vaultExperienceLocation": "Location",
   "@vaultExperienceLocation": {
@@ -2550,13 +2650,9 @@
   "@vaultExperienceRole": {
     "description": "Vault experience form field label — the job title held."
   },
-  "vaultExperienceStartMonth": "Start month",
-  "@vaultExperienceStartMonth": {
-    "description": "Vault experience form field label for when the role began."
-  },
-  "vaultExperienceStartYear": "Start year",
-  "@vaultExperienceStartYear": {
-    "description": "Vault experience form field label for when the role began."
+  "vaultExperienceStart": "Start",
+  "@vaultExperienceStart": {
+    "description": "Label on the start-date picker in the Vault's experience editor."
   },
   "vaultHobbiesCount": "{count, plural, =1{1 hobby} other{{count} hobbies}}",
   "@vaultHobbiesCount": {
@@ -2587,6 +2683,54 @@
   "vaultInvalidUrlNotice": "That page doesn't exist — here's your Vault.",
   "@vaultInvalidUrlNotice": {
     "description": "One-shot notice shown when the user lands on a URL that matches no route and is redirected to the Vault."
+  },
+  "vaultMonthApr": "Apr",
+  "@vaultMonthApr": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for April. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthAug": "Aug",
+  "@vaultMonthAug": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for August. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthDec": "Dec",
+  "@vaultMonthDec": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for December. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthFeb": "Feb",
+  "@vaultMonthFeb": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for February. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthJan": "Jan",
+  "@vaultMonthJan": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for January. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthJul": "Jul",
+  "@vaultMonthJul": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for July. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthJun": "Jun",
+  "@vaultMonthJun": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for June. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthMar": "Mar",
+  "@vaultMonthMar": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for March. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthMay": "May",
+  "@vaultMonthMay": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for May. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthNov": "Nov",
+  "@vaultMonthNov": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for November. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthOct": "Oct",
+  "@vaultMonthOct": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for October. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
+  },
+  "vaultMonthSep": "Sep",
+  "@vaultMonthSep": {
+    "description": "Month abbreviation shown in the Vault's year/month picker for September. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
   },
   "vaultNoEducation": "No education yet.",
   "@vaultNoEducation": {
@@ -2728,6 +2872,20 @@
   "@vaultSearch": {
     "description": "Placeholder in the search field above the Vault's entry list."
   },
+  "vaultSectionAboutYou": "About you",
+  "@vaultSectionAboutYou": {
+    "description": "Heading above the Vault's career-content cards (personal details, experience, skills and so on), separating them from the document defaults above."
+  },
+  "vaultSectionCvDefaults": "{noun, select, resume{Résumé defaults} other{CV defaults}}",
+  "@vaultSectionCvDefaults": {
+    "description": "Heading above the Vault's document-defaults card, separating it from the career content below. Follows the default region's document noun. Branch on the noun, not on the language.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
   "vaultSectionEducation": "Education",
   "@vaultSectionEducation": {
     "description": "Vault list section heading for qualifications."
@@ -2844,26 +3002,32 @@
   "@vaultUntitledRole": {
     "description": "Placeholder shown wherever a job entry is referenced but has no role name filled in yet."
   },
-  "vaultYearInvalid": "Enter a valid year",
-  "@vaultYearInvalid": {
-    "description": "Vault form validation: the year field holds something that is not a number."
+  "vaultYearMonthClear": "Clear",
+  "@vaultYearMonthClear": {
+    "description": "Button in the Vault's year/month picker that removes the chosen date. Only shown where the date is optional — an experience start date never is."
   },
-  "vaultYearOutOfRange": "Enter a year between {min} and {max}",
-  "@vaultYearOutOfRange": {
-    "description": "Vault form validation: the year is a number but outside the accepted range.",
-    "placeholders": {
-      "min": {
-        "type": "int",
-        "example": "1900"
-      },
-      "max": {
-        "type": "int",
-        "example": "2036"
-      }
-    }
+  "vaultYearMonthEmpty": "Pick a date",
+  "@vaultYearMonthEmpty": {
+    "description": "Placeholder in the Vault's year/month field before a date has been chosen."
   },
-  "vaultYearRequired": "Enter a year",
-  "@vaultYearRequired": {
-    "description": "Vault form validation: the year field was left empty."
+  "vaultYearMonthNextYear": "Next year",
+  "@vaultYearMonthNextYear": {
+    "description": "Tooltip on the forward arrow in the Vault's year/month picker."
+  },
+  "vaultYearMonthNextYears": "Later years",
+  "@vaultYearMonthNextYears": {
+    "description": "Tooltip on the forward arrow while the Vault's picker is showing its grid of years."
+  },
+  "vaultYearMonthPickYear": "Choose a year",
+  "@vaultYearMonthPickYear": {
+    "description": "Tooltip on the year label in the Vault's year/month picker, which switches the grid from months to years."
+  },
+  "vaultYearMonthPreviousYear": "Previous year",
+  "@vaultYearMonthPreviousYear": {
+    "description": "Tooltip on the back arrow in the Vault's year/month picker."
+  },
+  "vaultYearMonthPreviousYears": "Earlier years",
+  "@vaultYearMonthPreviousYears": {
+    "description": "Tooltip on the back arrow while the Vault's picker is showing its grid of years."
   }
 }

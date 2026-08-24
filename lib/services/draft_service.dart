@@ -2,16 +2,17 @@ import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/services/localization_service.dart';
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
 import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
 import 'package:cv_forge/services/persisted_store.dart';
-import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:stacked/stacked.dart';
@@ -27,6 +28,17 @@ import 'package:uuid/uuid.dart';
 /// ids, never resolves them. That decoupling is what makes deleting a
 /// Vault entry safe without touching every draft that might reference it
 /// (dangling ids are handled by `CvComposer`, not here).
+///
+/// [DocumentDefaults] now lives on the Vault, and this service still does
+/// not reach for it: [createDraft] and [resetSectionSettings] take it as a
+/// parameter, supplied by callers that already hold both services. Same
+/// move [selectAllFromVault] makes one method over, and for the same
+/// reason — "has no dependency" is a promise the import graph keeps, where
+/// "only reads the harmless parts" would be one a reviewer has to.
+///
+/// That also retired the last read of `SettingsService` here, so this
+/// service now depends on neither store: it holds ids, its own drafts,
+/// and nothing else anyone owns.
 class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   DraftService() {
     listenToReactiveValues([_drafts, _activeDraftId, persistErrorNotifier]);
@@ -34,7 +46,6 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
 
   final _localStorage = locator<LocalStorageService>();
   final _templateRegistry = locator<TemplateRegistryService>();
-  final _settings = locator<SettingsService>();
   final _uuid = const Uuid();
 
   @override
@@ -83,33 +94,33 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// registered template id rather than a stale literal, so
   /// `TemplateRegistryService.byId`'s unknown-id fallback is never the only
   /// thing standing between this draft and a phantom template.
-  CvDraft _emptyDraft({RegionProfile region = RegionProfile.uk}) {
+  CvDraft _emptyDraft({DocumentDefaults defaults = const DocumentDefaults()}) {
     final templateId = _templateRegistry.defaultTemplate.id;
     return CvDraft.empty(
       id: _uuid.v4(),
       name: locator<LocalizationService>().strings.draftDefaultName,
       templateId: templateId,
-      region: region,
+      region: defaults.region,
+      documentLanguage: defaults.language,
     ).copyWith(
-      sectionOrder: _seedSectionOrder(templateId),
-      hiddenSections: _seedHiddenSections(),
+      sectionOrder: _seedSectionOrder(templateId, defaults),
+      hiddenSections: _seedHiddenSections(defaults),
     );
   }
 
   /// The section order a brand-new draft using [templateId] should start
   /// with: the user's remembered default if they've saved one (see
-  /// `AppSettings.defaultSectionOrder`), else that template's own
-  /// suggested order (`CvTemplate.sectionOrder`).
-  List<CvSectionType> _seedSectionOrder(String templateId) =>
-      _settings.settings.preferences.defaultSectionOrder ??
-      _templateRegistry.byId(templateId).sectionOrder;
+  /// [DocumentDefaults.sectionOrder]), else that template's own suggested
+  /// order (`CvTemplate.sectionOrder`).
+  List<CvSectionType> _seedSectionOrder(
+    String templateId,
+    DocumentDefaults defaults,
+  ) => defaults.sectionOrder ?? _templateRegistry.byId(templateId).sectionOrder;
 
-  /// Same seed-only rationale as [_seedSectionOrder], one field over — the
-  /// user's remembered default hidden-sections state (see
-  /// `AppSettings.defaultHiddenSections`), else nothing hidden.
-  Set<CvSectionType> _seedHiddenSections() =>
-      _settings.settings.preferences.defaultHiddenSections ??
-      const <CvSectionType>{};
+  /// Same rationale as [_seedSectionOrder], one field over — the user's
+  /// remembered default hidden-sections state, else nothing hidden.
+  Set<CvSectionType> _seedHiddenSections(DocumentDefaults defaults) =>
+      defaults.hiddenSections ?? const <CvSectionType>{};
 
   /// Ids of drafts that have never had a manual selection made — i.e. a
   /// draft the user just created (or the very first draft a first-time
@@ -221,10 +232,13 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   }
 
   Future<void> _seedFirstDraft() async {
-    await _settings.ready();
-    final first = _emptyDraft(
-      region: _settings.settings.preferences.defaultRegion,
-    );
+    // Deliberately the constructor defaults rather than the Vault's.
+    // This runs on a first-ever launch — when the Vault has never been
+    // written either, so its defaults *are* these — or as recovery after
+    // every stored draft failed to parse. Reaching for VaultService here
+    // would buy nothing and would cost this service its independence from
+    // it (see the class doc comment).
+    final first = _emptyDraft();
     _drafts.value = [first];
     _activeDraftId.value = first.id;
     _freshDraftIds.add(first.id);
@@ -255,9 +269,9 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     required String name,
     String notes = '',
     String? templateId,
+    DocumentDefaults defaults = const DocumentDefaults(),
   }) async {
     await ready();
-    await _settings.ready();
     final id = _uuid.v4();
     final resolvedTemplateId = templateId ?? draft.templateId;
     final created =
@@ -265,11 +279,12 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
           id: id,
           name: name,
           templateId: resolvedTemplateId,
-          region: _settings.settings.preferences.defaultRegion,
+          region: defaults.region,
+          documentLanguage: defaults.language,
         ).copyWith(
           notes: notes,
-          sectionOrder: _seedSectionOrder(resolvedTemplateId),
-          hiddenSections: _seedHiddenSections(),
+          sectionOrder: _seedSectionOrder(resolvedTemplateId, defaults),
+          hiddenSections: _seedHiddenSections(defaults),
         );
     _drafts.value = _sortedByRecency([..._drafts.value, created]);
     _activeDraftId.value = id;
@@ -403,6 +418,14 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   Future<void> setRegion(RegionProfile region) async {
     await ready();
     _setDraft((d) => d.copyWith(region: region));
+  }
+
+  /// Changes what language *this* CV is written in, leaving the Vault's
+  /// default — and every other draft — alone. The independence is the
+  /// point: see [CvDraft.documentLanguage].
+  Future<void> setDocumentLanguage(DocumentLanguage language) async {
+    await ready();
+    _setDraft((d) => d.copyWith(documentLanguage: language));
   }
 
   /// Populates a never-before-persisted draft with everything the caller
@@ -640,13 +663,12 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// [_seedSectionOrder]/[_seedHiddenSections], just applied to an
   /// existing draft instead of a brand-new one, and both fields reset
   /// together in one write so they can't end up half-reset.
-  Future<void> resetSectionSettings() async {
+  Future<void> resetSectionSettings(DocumentDefaults defaults) async {
     await ready();
-    await _settings.ready();
     _setDraft(
       (d) => d.copyWith(
-        sectionOrder: _seedSectionOrder(d.templateId),
-        hiddenSections: _seedHiddenSections(),
+        sectionOrder: _seedSectionOrder(d.templateId, defaults),
+        hiddenSections: _seedHiddenSections(defaults),
       ),
     );
   }

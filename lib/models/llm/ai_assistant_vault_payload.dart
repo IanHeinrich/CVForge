@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 
 /// The Vault content actually sent to an [LlmProvider] for a tailoring
@@ -30,8 +31,14 @@ class AiAssistantVaultPayload {
             'role': e.role,
             'company': e.company,
             'location': e.location,
-            'start': e.start.toMonYyyy(),
-            if (e.end != null) 'end': e.end!.toMonYyyy(),
+            // Pinned to English, and not the draft's own document
+            // language. Everything in a prompt is English by policy —
+            // the model is instructed in English, and translating what it
+            // reads changes how it behaves — so these dates stay English
+            // even when the CV they describe will be printed in German.
+            // See CLAUDE.md's list of what is deliberately not localized.
+            'start': e.start.toMonYyyy(DocumentLanguage.enGb),
+            if (e.end != null) 'end': e.end!.toMonYyyy(DocumentLanguage.enGb),
             'isCurrent': e.isCurrent,
             'bullets': [
               for (final b in e.bullets)

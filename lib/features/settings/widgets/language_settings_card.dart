@@ -16,7 +16,7 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 ///
 /// Deliberately *not* a region setting. Which market a CV targets and which
 /// language its author reads the app in are independent — see
-/// `RegionProfile`'s note on the two being separate axes.
+/// `RegionProfile`'s "Region is not a locale" note.
 class LanguageSettingsCard extends StatelessWidget {
   const LanguageSettingsCard({super.key, required this.viewModel});
 

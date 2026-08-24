@@ -1,4 +1,5 @@
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/ui/common/l10n/document_language_labels.dart';
 import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
@@ -52,6 +53,13 @@ class AiAssistantRunDialogModel extends BaseViewModel {
     locator<LocalizationService>().strings,
   );
 
+  /// Named on the confirm screen for the same reason as
+  /// [regionDisplayName], and rather more urgently: the assistant is about
+  /// to rewrite someone's career history into this language, which is a
+  /// larger surprise than a page size if they had not noticed the setting.
+  String get documentLanguageDisplayName => _draftService.draft.documentLanguage
+      .displayLabel(locator<LocalizationService>().strings);
+
   /// Same stored-id-may-be-stale fallback, resolved in the one place that
   /// owns it — see [SettingsService.selectedAiAssistantModel].
   String get _modelId => _settingsService.selectedAiAssistantModel.id;
@@ -91,6 +99,10 @@ class AiAssistantRunDialogModel extends BaseViewModel {
         vault: _vaultService.vault,
         jobDescription: jobDescription,
         region: _draftService.draft.region,
+        // The draft's own language, not the Vault's default — this pass
+        // tailors one CV, and that CV's language is what its bullets have
+        // to come back in.
+        documentLanguage: _draftService.draft.documentLanguage,
         providerId: _provider.id,
         modelId: _modelId,
         apiKey: apiKey,
