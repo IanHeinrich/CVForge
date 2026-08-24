@@ -1963,7 +1963,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionHelp =>
-      'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.';
+      'Sets the page size, the expected length, and the advice the AI Assistant follows. Not the language — that is the row below.';
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Region';

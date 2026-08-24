@@ -2996,10 +2996,10 @@ abstract class AppLocalizations {
   /// **'{noun, select, resume{Résumé defaults} other{CV defaults}}'**
   String vaultCvDefaultsPanelTitle(String noun);
 
-  /// Help text under the region row of the Vault's document-defaults panel, naming what region actually changes.
+  /// Help text under the region row of the Vault's CV defaults panel. Lists only what a reader can actually observe changing. It deliberately does not mention dates: region owns the date's *shape* (RegionDateStyle) and the language owns its words, but every preset resolves to the same shape, so naming it promised a difference that does not exist.
   ///
   /// In en, this message translates to:
-  /// **'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.'**
+  /// **'Sets the page size, the expected length, and the advice the AI Assistant follows. Not the language — that is the row below.'**
   String get vaultCvDefaultsRegionHelp;
 
   /// Label on the region row of the Vault's document-defaults panel.

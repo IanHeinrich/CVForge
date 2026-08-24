@@ -1985,7 +1985,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionHelp =>
-      'Define el tamaño de página, el formato de las fechas y las recomendaciones que sigue el Asistente de IA. No el idioma: eso está en la fila de abajo.';
+      'Define el tamaño de página, la extensión esperada y las recomendaciones que sigue el Asistente de IA. No el idioma: eso está en la fila de abajo.';
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Región';
