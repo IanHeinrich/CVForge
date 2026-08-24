@@ -16,7 +16,7 @@ class ExperienceSectionEditor extends StatelessWidget {
     items: viewModel.experiences,
     untitledLabel: context.l10n.vaultUntitledRole,
     idOf: (e) => e.id,
-    titleOf: (e) => e.role,
+    titleOf: viewModel.roleText,
     subtitleOf: (e) => e.company,
     bulletsOf: (e) => e.bullets,
     unselectedCount: viewModel.unselectedExperiences.length,
@@ -34,5 +34,9 @@ class ExperienceSectionEditor extends StatelessWidget {
     hasBulletOverride: viewModel.hasBulletOverride,
     onSetBulletOverride: viewModel.setBulletOverride,
     onRevertBulletOverride: viewModel.revertBulletOverride,
+    titleFieldLabel: context.l10n.studioFieldRole,
+    hasTitleOverride: viewModel.hasRoleOverride,
+    onSetTitleOverride: viewModel.setRoleOverride,
+    onRevertTitleOverride: viewModel.revertRoleOverride,
   );
 }

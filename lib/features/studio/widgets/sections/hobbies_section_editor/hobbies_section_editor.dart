@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
+import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
 import 'package:cv_forge/features/studio/widgets/vault_item_selector_list.dart';
 
 /// The [CvSectionType.hobbies] editor.
@@ -22,9 +23,17 @@ class HobbiesSectionEditor extends StatelessWidget {
         for (final hobby in viewModel.hobbies)
           SelectorItem(
             id: hobby.id,
-            title: hobby.text,
+            title: viewModel.hobbyText(hobby),
             selected: viewModel.isHobbyIncluded(hobby.id),
             onToggle: () => viewModel.toggleHobby(hobby),
+            tailorables: [
+              TailorableField(
+                hasOverride: viewModel.hasHobbyOverride(hobby.id),
+                effectiveText: viewModel.hobbyText(hobby),
+                onChanged: (value) => viewModel.setHobbyOverride(hobby, value),
+                onRevert: () => viewModel.revertHobbyOverride(hobby.id),
+              ),
+            ],
           ),
       ],
     );

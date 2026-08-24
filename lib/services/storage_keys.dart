@@ -64,6 +64,14 @@ abstract final class StorageKeys {
   static String aiAssistantUndoFor(String draftId) =>
       'ai_assistant_undo_$draftId';
 
+  /// The same thing for a translation pass, and deliberately a **separate**
+  /// slot rather than a shared one. Each pass restores to the state before
+  /// itself; sharing one key would mean "Undo AI changes" silently undoing
+  /// a translation, or a translation's removal reinstating bullets the
+  /// tailoring pass had dropped.
+  static String cvTranslationUndoFor(String draftId) =>
+      'cv_translation_undo_$draftId';
+
   /// `DriveSyncService`'s own bookkeeping rows — kept in
   /// [StorageBoxes.settings] alongside [appSettings] rather than a new
   /// box, since they're device-scoped preferences in exactly the same

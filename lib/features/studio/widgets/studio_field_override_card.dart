@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,9 @@ class StudioFieldOverrideCard extends StatefulWidget {
     required this.onChanged,
     required this.onRevert,
     required this.emptyVaultMessage,
+    this.includeLabel,
+    this.included,
+    this.onToggleInclude,
   });
 
   /// Heading text, e.g. "Professional summary".
@@ -74,6 +78,17 @@ class StudioFieldOverrideCard extends StatefulWidget {
   /// e.g. "No headline in your Vault yet."
   final String emptyVaultMessage;
 
+  /// An optional "print this at all" checkbox beside the heading, for a
+  /// field with no section checkbox of its own to omit it. All three are
+  /// supplied together or not at all; the summary passes none, since
+  /// hiding it is what its own section checkbox already does.
+  ///
+  /// Deliberately independent of the override — unchecking hides the
+  /// field but keeps any edit, so re-checking restores it.
+  final String? includeLabel;
+  final bool? included;
+  final Future<void> Function()? onToggleInclude;
+
   @override
   State<StudioFieldOverrideCard> createState() =>
       _StudioFieldOverrideCardState();
@@ -98,7 +113,25 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          StudioPanelHeading(widget.label),
+          if (widget.onToggleInclude case final toggle?)
+            Row(
+              children: [
+                Expanded(child: StudioPanelHeading(widget.label)),
+                Semantics(
+                  label: widget.includeLabel,
+                  child: Checkbox(
+                    value: widget.included ?? true,
+                    onChanged: (_) => toggle(),
+                  ),
+                ),
+                Text(
+                  widget.includeLabel!,
+                  style: context.appTypography.caption,
+                ),
+              ],
+            )
+          else
+            StudioPanelHeading(widget.label),
           const VGap.tiny(),
           Row(
             children: [

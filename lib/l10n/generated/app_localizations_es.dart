@@ -311,6 +311,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get commonBeta => 'BETA';
+
+  @override
   String get commonCancel => 'Cancelar';
 
   @override
@@ -1226,9 +1229,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get spellingEnUs => 'Inglés estadounidense';
 
   @override
-  String get studioAiBeta => 'BETA';
-
-  @override
   String get studioAiCardBody =>
       'Pega aquí la oferta de empleo para seleccionar y reescribir este CV en función de ella.';
 
@@ -1537,6 +1537,30 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioExportPdf => 'Exportar PDF';
 
   @override
+  String get studioFieldDetails => 'Detalles';
+
+  @override
+  String get studioFieldGrade => 'Calificación';
+
+  @override
+  String get studioFieldProjectTitle => 'Título del proyecto';
+
+  @override
+  String get studioFieldQualification => 'Titulación';
+
+  @override
+  String get studioFieldRole => 'Puesto';
+
+  @override
+  String get studioFieldSkill => 'Competencia';
+
+  @override
+  String get studioFieldSkillCategory => 'Categoría';
+
+  @override
+  String get studioHeadlineInclude => 'Incluir el titular';
+
+  @override
   String studioItemLabelledText(String label, String text) {
     return '$label: $text';
   }
@@ -1558,6 +1582,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioNoEducationDetails => 'Aún no hay detalles en tu Bóveda.';
+
+  @override
+  String get studioNoGrade => 'Aún no hay calificación en tu Bóveda.';
 
   @override
   String get studioNoHeadline => 'Aún no hay titular en tu Bóveda.';
@@ -1778,6 +1805,126 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioTemplatePickerUse => 'Usar esta plantilla';
+
+  @override
+  String get studioTranslateCardBody =>
+      'Reescribe todo lo que imprime este CV al idioma del documento, dejando tu Bóveda en el idioma en que lo escribiste.';
+
+  @override
+  String get studioTranslateCardBodyNoKey =>
+      'Traducir un CV usa el mismo proveedor de IA que la adaptación. Añade una clave en Ajustes para activarlo.';
+
+  @override
+  String studioTranslateCardStale(String translated, String current) {
+    return 'Traducido a $translated, pero este CV ahora está configurado en $current.';
+  }
+
+  @override
+  String studioTranslateCardTarget(String language) {
+    return 'El idioma de este CV es $language.';
+  }
+
+  @override
+  String get studioTranslateCardTitle => 'Traducir';
+
+  @override
+  String studioTranslateCardTranslated(String language) {
+    return 'Traducido a $language.';
+  }
+
+  @override
+  String studioTranslateDialogLanguageNote(String language) {
+    return 'Cada línea que imprime este CV se reescribirá en $language: puestos, viñetas, competencias y el contenido de las secciones. Los nombres de empresas, centros de estudios y publicaciones se dejan tal cual.';
+  }
+
+  @override
+  String get studioTranslateDialogReplaceNote =>
+      'Este CV ya tiene una traducción. Volver a ejecutarla la reemplaza.';
+
+  @override
+  String get studioTranslateDialogTitle => 'Traducir este CV';
+
+  @override
+  String get studioTranslateErrorGeneric =>
+      'No se pudo traducir este CV: inténtalo de nuevo.';
+
+  @override
+  String studioTranslateErrorInvalidRequest(String provider) {
+    return '$provider rechazó la solicitud. Puede que este CV sea demasiado largo para traducirlo de una vez.';
+  }
+
+  @override
+  String get studioTranslateErrorMalformedResponse =>
+      'La traducción llegó en un formato que CVForge no pudo leer: inténtalo de nuevo.';
+
+  @override
+  String studioTranslateErrorNetwork(String provider) {
+    return 'No se pudo contactar con $provider: revisa tu conexión e inténtalo de nuevo.';
+  }
+
+  @override
+  String get studioTranslateErrorNoKey =>
+      'Aún no hay ninguna clave de API configurada: añade una en Ajustes.';
+
+  @override
+  String studioTranslateErrorOverloaded(String provider) {
+    return '$provider está saturado ahora mismo: inténtalo dentro de un momento.';
+  }
+
+  @override
+  String get studioTranslateErrorRateLimited =>
+      'Has alcanzado el límite de peticiones de tu proveedor: espera un momento e inténtalo de nuevo.';
+
+  @override
+  String get studioTranslateErrorRefusal =>
+      'El proveedor se negó a traducir este CV.';
+
+  @override
+  String get studioTranslateErrorTimeout =>
+      'La traducción tardó demasiado y se agotó el tiempo: inténtalo de nuevo.';
+
+  @override
+  String get studioTranslateErrorUnauthorized =>
+      'Tu clave de API fue rechazada: revísala en Ajustes.';
+
+  @override
+  String get studioTranslateFailedTitle => 'La traducción falló';
+
+  @override
+  String get studioTranslateRemove => 'Quitar la traducción';
+
+  @override
+  String get studioTranslateRemoveConfirm =>
+      'Esto restaura cada línea a como estaba antes de traducir, incluido lo que hayas editado desde entonces. ¿Quitarla?';
+
+  @override
+  String studioTranslateResultBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Se tradujeron $count líneas.',
+      one: 'Se tradujo 1 línea.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioTranslateRunAgain => 'Traducir de nuevo';
+
+  @override
+  String get studioTranslateRunningBody =>
+      'Traduciendo cada línea que imprime este CV. Puede tardar unos minutos.';
+
+  @override
+  String get studioTranslateRunningTitle => 'Traduciendo tu CV';
+
+  @override
+  String get studioTranslateTailorFirst =>
+      'Adapta antes de traducir: una pasada de adaptación reescribe en inglés y deshará esto.';
+
+  @override
+  String get studioTranslateWarning =>
+      'Traducido automáticamente. Pide a alguien con dominio del idioma que lo revise antes de enviarlo.';
 
   @override
   String get templateDescriptionClassicCentered =>

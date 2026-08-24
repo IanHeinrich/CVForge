@@ -1,7 +1,9 @@
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// One selectable chip in an [AppChipGroupSelector] group.
 class AppChipGroupItem {
@@ -11,6 +13,7 @@ class AppChipGroupItem {
     required this.selected,
     required this.onToggle,
     this.tooltip,
+    this.onEdit,
   });
 
   final String id;
@@ -21,6 +24,14 @@ class AppChipGroupItem {
   /// Shown on hover — the Vault's bullet-link picker needs the bullet's
   /// full text under a truncated chip label; skills don't need this.
   final String? tooltip;
+
+  /// Opens an editor for this item's [label]. Null — the default, and
+  /// what both Vault call sites pass — renders no edit affordance at all.
+  ///
+  /// This widget stays stateless: it reports the intent and the caller
+  /// decides what "being edited" looks like, rendering the editor itself
+  /// through [AppChipGroup.footer].
+  final VoidCallback? onEdit;
 }
 
 /// One heading plus [Wrap] of chips in an [AppChipGroupSelector].
@@ -30,6 +41,8 @@ class AppChipGroup {
     required this.items,
     this.onSelectAll,
     this.onSelectNone,
+    this.onEditLabel,
+    this.footer,
   });
 
   final String label;
@@ -45,6 +58,16 @@ class AppChipGroup {
 
   /// Inverse of [onSelectAll], same sequential-await requirement.
   final VoidCallback? onSelectNone;
+
+  /// Opens an editor for this group's [label]. Same
+  /// caller-owns-the-editing-state contract as [AppChipGroupItem.onEdit].
+  final VoidCallback? onEditLabel;
+
+  /// Rendered directly beneath this group's chips — where a caller that
+  /// supplied [onEditLabel] or [AppChipGroupItem.onEdit] puts the editor
+  /// once something is being edited. Keeps the editor attached to the
+  /// group it belongs to without this widget owning any state.
+  final Widget? footer;
 }
 
 /// A `Wrap` of compact [FilterChip]s per group, group name shown once as a
@@ -72,6 +95,7 @@ class AppChipGroupSelector extends StatelessWidget {
             runSpacing: 6,
             children: [for (final item in group.items) _Chip(item: item)],
           ),
+          if (group.footer case final footer?) ...[const VGap.tiny(), footer],
           const VGap.small(),
         ],
       ],
@@ -90,15 +114,24 @@ class _GroupHeading extends StatelessWidget {
     final selectedCount = group.items.length - unselectedCount;
     return Row(
       children: [
-        Expanded(
+        Flexible(
           child: Text(
             group.label,
+            overflow: TextOverflow.ellipsis,
             style: context.appTypography.caption.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
+        if (group.onEditLabel case final onEdit?)
+          IconButton(
+            onPressed: onEdit,
+            visualDensity: VisualDensity.compact,
+            iconSize: context.appIconSize.small,
+            icon: const Icon(RemixIcons.pencil_line),
+          ),
+        const Spacer(),
         if (unselectedCount > 0 && group.onSelectAll != null)
           TextButton(
             onPressed: group.onSelectAll,
@@ -132,7 +165,22 @@ class _Chip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chip = FilterChip(
-      label: Text(item.label, style: context.appTypography.caption),
+      label: item.onEdit == null
+          ? Text(item.label, style: context.appTypography.caption)
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(item.label, style: context.appTypography.caption),
+                const HGap.tiny(),
+                InkWell(
+                  onTap: item.onEdit,
+                  child: Icon(
+                    RemixIcons.pencil_line,
+                    size: context.appIconSize.small,
+                  ),
+                ),
+              ],
+            ),
       visualDensity: VisualDensity.compact,
       selected: item.selected,
       onSelected: item.onToggle,

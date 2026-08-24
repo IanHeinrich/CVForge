@@ -376,6 +376,10 @@
       }
     }
   },
+  "commonBeta": "BETA",
+  "@commonBeta": {
+    "description": "Badge beside a feature's heading marking it as early/unstable. Shared by every beta feature (AI tailoring, translation) - one statement about the app's confidence, so it lives in the common namespace rather than per-feature."
+  },
   "commonCancel": "Cancel",
   "@commonCancel": {
     "description": "Default label for the dismiss button on every dialog. Closes without applying changes."
@@ -1530,10 +1534,6 @@
   "@spellingEnUs": {
     "description": "Region detail: which spelling convention the CV should use."
   },
-  "studioAiBeta": "BETA",
-  "@studioAiBeta": {
-    "description": "Badge marking the AI Assistant as an unfinished feature. Widely understood in English; keep if recognised in the target market."
-  },
   "studioAiCardBody": "Paste the job ad here to select and rewrite this CV for it.",
   "@studioAiCardBody": {
     "description": "Studio AI card body when an API key is configured."
@@ -1926,6 +1926,38 @@
   "@studioExportPdf": {
     "description": "Studio button that generates and downloads the CV as a PDF."
   },
+  "studioFieldDetails": "Details",
+  "@studioFieldDetails": {
+    "description": "Studio, Education editor — label on the collapsed row for an entry's free-text details, distinguishing it from the qualification and grade rows beside it."
+  },
+  "studioFieldGrade": "Grade",
+  "@studioFieldGrade": {
+    "description": "Studio, Education editor — label on the collapsed row for an entry's grade or classification."
+  },
+  "studioFieldProjectTitle": "Project title",
+  "@studioFieldProjectTitle": {
+    "description": "Studio, Projects editor — label on the collapsed row for a project's title."
+  },
+  "studioFieldQualification": "Qualification",
+  "@studioFieldQualification": {
+    "description": "Studio, Education editor — label on the collapsed row for an entry's qualification or degree name."
+  },
+  "studioFieldRole": "Role",
+  "@studioFieldRole": {
+    "description": "Studio, Experience editor — label on the collapsed row for a position's job title."
+  },
+  "studioFieldSkill": "Skill",
+  "@studioFieldSkill": {
+    "description": "Studio, Skills editor — label on the collapsed row for one skill's name."
+  },
+  "studioFieldSkillCategory": "Category",
+  "@studioFieldSkillCategory": {
+    "description": "Studio, Skills editor — label on the collapsed row for a skill category's name."
+  },
+  "studioHeadlineInclude": "Include headline",
+  "@studioHeadlineInclude": {
+    "description": "Studio, Summary editor — checkbox controlling whether the headline line under the name prints on this CV at all. Separate from editing its text."
+  },
   "studioItemLabelledText": "{label}: {text}",
   "@studioItemLabelledText": {
     "description": "Studio, one bullet shown with its optional label prefix.",
@@ -1967,6 +1999,10 @@
   "studioNoEducationDetails": "No details in your Vault yet.",
   "@studioNoEducationDetails": {
     "description": "Studio empty state when an education entry has no detail text to draw from."
+  },
+  "studioNoGrade": "No grade in your Vault yet.",
+  "@studioNoGrade": {
+    "description": "Studio, Education editor — placeholder on the grade row when the Vault entry has no grade recorded."
   },
   "studioNoHeadline": "No headline in your Vault yet.",
   "@studioNoHeadline": {
@@ -2245,6 +2281,143 @@
   "studioTemplatePickerUse": "Use this template",
   "@studioTemplatePickerUse": {
     "description": "Template picker confirm button."
+  },
+  "studioTranslateCardBody": "Rewrite everything this CV prints into its document language, leaving your Vault in the language you wrote it.",
+  "@studioTranslateCardBody": {
+    "description": "Studio, Translate card body when an API key is configured."
+  },
+  "studioTranslateCardBodyNoKey": "Translating a CV uses the same AI provider as tailoring. Add a key in Settings to turn it on.",
+  "@studioTranslateCardBodyNoKey": {
+    "description": "Studio, Translate card body when no AI provider key is set up yet."
+  },
+  "studioTranslateCardStale": "Translated into {translated}, but this CV is now set to {current}.",
+  "@studioTranslateCardStale": {
+    "description": "Studio, Translate card status when the draft's document language has changed since it was translated, so the translation no longer matches.",
+    "placeholders": {
+      "translated": { "type": "String", "example": "Deutsch" },
+      "current": { "type": "String", "example": "Espanol" }
+    }
+  },
+  "studioTranslateCardTarget": "This CV's language is {language}.",
+  "@studioTranslateCardTarget": {
+    "description": "Studio, Translate card line naming the language a run would translate into, taken from the draft's own document language.",
+    "placeholders": {
+      "language": { "type": "String", "example": "Deutsch" }
+    }
+  },
+  "studioTranslateCardTitle": "Translate",
+  "@studioTranslateCardTitle": {
+    "description": "Studio, Translate card heading and the button that starts a run."
+  },
+  "studioTranslateCardTranslated": "Translated into {language}.",
+  "@studioTranslateCardTranslated": {
+    "description": "Studio, Translate card status once a translation has been applied.",
+    "placeholders": {
+      "language": { "type": "String", "example": "Deutsch" }
+    }
+  },
+  "studioTranslateDialogLanguageNote": "Every line this CV prints will be rewritten into {language} — job titles, bullet points, skills and section content. Employers, schools and publication titles are left exactly as they are.",
+  "@studioTranslateDialogLanguageNote": {
+    "description": "Studio, Translate confirm dialog — states the target language and what will and won't be rewritten. Named first because rewriting a career history into another language is a large, surprising change.",
+    "placeholders": {
+      "language": { "type": "String", "example": "Deutsch" }
+    }
+  },
+  "studioTranslateDialogReplaceNote": "This CV already has a translation. Running again replaces it.",
+  "@studioTranslateDialogReplaceNote": {
+    "description": "Studio, Translate confirm dialog — extra warning shown only when a translation already exists."
+  },
+  "studioTranslateDialogTitle": "Translate this CV",
+  "@studioTranslateDialogTitle": {
+    "description": "Studio, Translate run dialog title."
+  },
+  "studioTranslateErrorGeneric": "Couldn't translate this CV — try again.",
+  "@studioTranslateErrorGeneric": {
+    "description": "Studio, Translate error for an unclassified failure."
+  },
+  "studioTranslateErrorInvalidRequest": "{provider} rejected the request. This CV may be too long to translate in one pass.",
+  "@studioTranslateErrorInvalidRequest": {
+    "description": "Studio, Translate error for LlmFailure.invalidRequest.",
+    "placeholders": {
+      "provider": { "type": "String", "example": "Anthropic" }
+    }
+  },
+  "studioTranslateErrorMalformedResponse": "The translation came back in a form CVForge couldn't read — try again.",
+  "@studioTranslateErrorMalformedResponse": {
+    "description": "Studio, Translate error for LlmFailure.malformedResponse."
+  },
+  "studioTranslateErrorNetwork": "Couldn't reach {provider} — check your connection and try again.",
+  "@studioTranslateErrorNetwork": {
+    "description": "Studio, Translate error for LlmFailure.network.",
+    "placeholders": {
+      "provider": { "type": "String", "example": "Anthropic" }
+    }
+  },
+  "studioTranslateErrorNoKey": "No API key set up yet — add one in Settings.",
+  "@studioTranslateErrorNoKey": {
+    "description": "Studio, Translate error for LlmFailure.noKey."
+  },
+  "studioTranslateErrorOverloaded": "{provider} is busy right now — try again in a moment.",
+  "@studioTranslateErrorOverloaded": {
+    "description": "Studio, Translate error for LlmFailure.overloaded.",
+    "placeholders": {
+      "provider": { "type": "String", "example": "Anthropic" }
+    }
+  },
+  "studioTranslateErrorRateLimited": "You've hit your provider's rate limit — wait a moment and try again.",
+  "@studioTranslateErrorRateLimited": {
+    "description": "Studio, Translate error for LlmFailure.rateLimited."
+  },
+  "studioTranslateErrorRefusal": "The provider declined to translate this CV.",
+  "@studioTranslateErrorRefusal": {
+    "description": "Studio, Translate error for LlmFailure.refusal."
+  },
+  "studioTranslateErrorTimeout": "The translation took too long and timed out — try again.",
+  "@studioTranslateErrorTimeout": {
+    "description": "Studio, Translate error for LlmFailure.timeout."
+  },
+  "studioTranslateErrorUnauthorized": "Your API key was rejected — check it in Settings.",
+  "@studioTranslateErrorUnauthorized": {
+    "description": "Studio, Translate error for LlmFailure.unauthorized."
+  },
+  "studioTranslateFailedTitle": "Translation failed",
+  "@studioTranslateFailedTitle": {
+    "description": "Studio, Translate dialog heading on the error screen."
+  },
+  "studioTranslateRemove": "Remove translation",
+  "@studioTranslateRemove": {
+    "description": "Studio, Translate card button restoring the CV to how it read before it was translated. Destructive: it also discards anything edited by hand since."
+  },
+  "studioTranslateRemoveConfirm": "This restores every line to how it read before translating, including anything you've edited since. Remove it?",
+  "@studioTranslateRemoveConfirm": {
+    "description": "Studio, confirmation before removing a translation — an override records no provenance, so a hand edit made after translating cannot be told apart from the translation and is restored with it."
+  },
+  "studioTranslateResultBody": "{count, plural, one{Translated 1 line.} other{Translated {count} lines.}}",
+  "@studioTranslateResultBody": {
+    "description": "Studio, Translate dialog result screen — how many individual strings came back translated. Lines the model left alone were already in the target language or are names that should not be translated.",
+    "placeholders": {
+      "count": { "type": "int", "example": "42" }
+    }
+  },
+  "studioTranslateRunAgain": "Translate again",
+  "@studioTranslateRunAgain": {
+    "description": "Studio, Translate card button when a translation already exists."
+  },
+  "studioTranslateRunningBody": "Translating every line this CV prints. This can take a few minutes.",
+  "@studioTranslateRunningBody": {
+    "description": "Studio, Translate dialog body while the request is in flight."
+  },
+  "studioTranslateRunningTitle": "Translating your CV",
+  "@studioTranslateRunningTitle": {
+    "description": "Studio, Translate dialog heading while the request is in flight."
+  },
+  "studioTranslateTailorFirst": "Tailor before translating — a tailoring pass rewrites in English and would undo this.",
+  "@studioTranslateTailorFirst": {
+    "description": "Studio, Translate card note on run order. The two passes share one override layer, so tailoring after translating puts English back on the page."
+  },
+  "studioTranslateWarning": "Machine-translated. Have a fluent speaker read it before you send it.",
+  "@studioTranslateWarning": {
+    "description": "Studio, Translate card standing warning once a translation is applied. Permanent rather than dismissible, matching studioAiWarning."
   },
   "templateDescriptionClassicCentered": "Centred headings and a justified summary, with whitespace in place of section rules.",
   "@templateDescriptionClassicCentered": {

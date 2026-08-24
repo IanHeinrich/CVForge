@@ -5,6 +5,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
+import 'package:cv_forge/models/llm/cv_translation_result.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -680,6 +681,134 @@ void main() {
         expect(
           memory.containsKey(
             '${StorageBoxes.drafts}/${StorageKeys.aiAssistantUndoFor(id)}',
+          ),
+          isFalse,
+        );
+      });
+    });
+
+    group('applyCvTranslationResult / removeCvTranslation -', () {
+      const translation = CvTranslationResult(
+        headline: 'Leitender Ingenieur',
+        summary: 'Zusammenfassung.',
+        roles: {'exp-1': 'Leitender Ingenieur'},
+        projectTitles: {},
+        skillCategoryNames: {'cat-1': 'Sprachen'},
+        skillLabels: {'skill-1': 'Stakeholder-Management'},
+        educationQualifications: {},
+        educationGrades: {},
+        educationDetails: {},
+        hobbies: {'hobby-1': 'Bouldern'},
+        bullets: {'bullet-1': 'Leitete ein Team von sechs.'},
+      );
+
+      test('writes every override group and records the language it '
+          'translated into', () async {
+        final service = DraftService();
+        await service.load();
+
+        await service.applyCvTranslationResult(
+          translation,
+          DocumentLanguage.de,
+        );
+
+        expect(service.draft.headlineOverride, 'Leitender Ingenieur');
+        expect(service.draft.roleOverrides, {'exp-1': 'Leitender Ingenieur'});
+        expect(service.draft.skillCategoryNameOverrides, {'cat-1': 'Sprachen'});
+        expect(service.draft.skillLabelOverrides, {
+          'skill-1': 'Stakeholder-Management',
+        });
+        expect(service.draft.hobbyOverrides, {'hobby-1': 'Bouldern'});
+        expect(service.draft.bulletOverrides, {
+          'bullet-1': 'Leitete ein Team von sechs.',
+        });
+        expect(service.draft.translatedTo, DocumentLanguage.de);
+      });
+
+      test('replaces rather than merges, so a second pass into another '
+          'language leaves no strings from the first behind', () async {
+        final service = DraftService();
+        await service.load();
+
+        await service.applyCvTranslationResult(
+          translation,
+          DocumentLanguage.de,
+        );
+        await service.applyCvTranslationResult(
+          translation.copyWith(roles: const {'exp-2': 'Ingeniero Senior'}),
+          DocumentLanguage.es,
+        );
+
+        expect(service.draft.roleOverrides, {'exp-2': 'Ingeniero Senior'});
+        expect(service.draft.translatedTo, DocumentLanguage.es);
+      });
+
+      test('snapshots to its own key, never contending with the AI '
+          "Assistant's — otherwise one undo would silently undo the other "
+          'pass', () async {
+        final service = DraftService();
+        await service.load();
+        final id = service.draft.id;
+
+        await service.applyCvTranslationResult(
+          translation,
+          DocumentLanguage.de,
+        );
+
+        expect(await service.hasCvTranslationUndoFor(id), isTrue);
+        expect(await service.hasAiAssistantUndoFor(id), isFalse);
+        expect(
+          memory.containsKey(
+            '${StorageBoxes.drafts}/${StorageKeys.cvTranslationUndoFor(id)}',
+          ),
+          isTrue,
+        );
+      });
+
+      test('removeCvTranslation restores the pre-pass draft and clears '
+          'translatedTo with it', () async {
+        final service = DraftService();
+        await service.load();
+        final id = service.draft.id;
+        await service.setRoleOverride('exp-1', 'Hand-edited role');
+        final before = service.draft;
+
+        await service.applyCvTranslationResult(
+          translation,
+          DocumentLanguage.de,
+        );
+        final restored = await service.removeCvTranslation();
+
+        expect(restored, isTrue);
+        expect(service.draft.roleOverrides, before.roleOverrides);
+        expect(service.draft.headlineOverride, before.headlineOverride);
+        expect(service.draft.translatedTo, isNull);
+        expect(await service.hasCvTranslationUndoFor(id), isFalse);
+      });
+
+      test('removeCvTranslation is a no-op when nothing has been '
+          'translated', () async {
+        final service = DraftService();
+        await service.load();
+
+        expect(await service.removeCvTranslation(), isFalse);
+      });
+
+      test('deleting a draft clears its translation snapshot too, so no '
+          'orphaned row survives it', () async {
+        final service = DraftService();
+        await service.load();
+        final id = service.draft.id;
+
+        await service.applyCvTranslationResult(
+          translation,
+          DocumentLanguage.de,
+        );
+        await service.deleteDraft(id);
+
+        expect(
+          memory.containsKey(
+            '${StorageBoxes.drafts}/${StorageKeys.cvTranslationUndoFor(id)}',
           ),
           isFalse,
         );

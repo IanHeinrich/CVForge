@@ -12,6 +12,7 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/ai_assistant_config_card.dart';
+import 'package:cv_forge/features/studio/widgets/cv_translation_card/cv_translation_card.dart';
 import 'package:cv_forge/features/studio/widgets/studio_panel_heading.dart';
 
 /// The persistent left-hand (desktop) / nav step (compact drill-down)
@@ -86,6 +87,15 @@ class StudioSectionNav extends StatelessWidget {
           hasUndo: viewModel.hasAiAssistantUndo,
           onUndo: viewModel.undoAiAssistantChanges,
           hasApiKey: viewModel.hasAiAssistantKey,
+          onOpenSettings: viewModel.goToAiAssistantSettings,
+        ),
+        CvTranslationCard(
+          targetLanguage: viewModel.translationTargetLanguage,
+          translatedLanguage: viewModel.translatedLanguage,
+          isStale: viewModel.isTranslationStale,
+          hasApiKey: viewModel.hasAiAssistantKey,
+          onRun: viewModel.translateCv,
+          onRemove: viewModel.removeTranslation,
           onOpenSettings: viewModel.goToAiAssistantSettings,
         ),
       ],
