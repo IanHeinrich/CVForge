@@ -42,10 +42,10 @@ class DriveSettingsCard extends StatelessWidget {
           const VGap.tiny(),
           Text(
             'Sign in with Google to keep your Vault and every CV synced to '
-            'your own Google Drive — sign in again on another browser and '
-            "they're all there. CVForge never sees or stores your Google "
-            'credentials; only a single hidden file this app creates for '
-            'itself.',
+            'your own Google Drive. Sign in again on another browser and '
+            "they'll all be there. CVForge never sees or stores your "
+            'Google credentials, only a single hidden file this app '
+            'creates for itself.',
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
@@ -79,7 +79,12 @@ class DriveSettingsCard extends StatelessWidget {
         null,
         syncing: true,
       ),
-      DriveSyncConflict() => _conflict(context, status.accountEmail),
+      DriveSyncMerged() => _connected(
+        context,
+        status.accountEmail,
+        status.lastSyncedAt,
+        merged: true,
+      ),
       DriveSyncNeedsReauth() => _needsReauth(context, status.accountEmail),
       DriveSyncErrorState() => _error(
         context,
@@ -112,11 +117,14 @@ class DriveSettingsCard extends StatelessWidget {
     DateTime? lastSyncedAt, {
     bool pending = false,
     bool syncing = false,
+    bool merged = false,
   }) {
     final statusLabel = syncing
         ? 'Syncing…'
         : pending
         ? 'Waiting to sync…'
+        : merged
+        ? 'Merged changes from your other device'
         : lastSyncedAt == null
         ? 'Not yet synced'
         : 'Last synced ${formatRelativeTime(lastSyncedAt)}';
@@ -153,29 +161,11 @@ class DriveSettingsCard extends StatelessWidget {
     ];
   }
 
-  List<Widget> _conflict(BuildContext context, String email) => [
-    _StatusLine(
-      icon: RemixIcons.error_warning_line,
-      color: kcWarningColor,
-      label: 'This device and Google Drive have both changed',
-    ),
-    const VGap.small(),
-    FilledButton(
-      onPressed: viewModel.resolveDriveConflict,
-      child: const Text('Resolve'),
-    ),
-    const VGap.small(),
-    TextButton(
-      onPressed: viewModel.disconnectDrive,
-      child: const Text('Disconnect'),
-    ),
-  ];
-
   List<Widget> _needsReauth(BuildContext context, String email) => [
     _StatusLine(
       icon: RemixIcons.error_warning_line,
       color: kcWarningColor,
-      label: 'Connected as $email — reconnect to keep syncing',
+      label: 'Connected as $email. Reconnect to keep syncing.',
     ),
     const VGap.small(),
     Wrap(

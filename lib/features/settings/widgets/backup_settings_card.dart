@@ -33,12 +33,12 @@ class BackupSettingsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Backup', style: context.appTypography.titleMedium),
+          Text('Manual backup', style: context.appTypography.titleMedium),
           const VGap.tiny(),
           Text(
             'Export your whole Vault and every CV as one JSON file, or '
             'restore from a previous export. Restoring replaces '
-            'everything currently on this device — your current data '
+            'everything currently on this device. Your current data '
             'downloads as a backup first.',
             style: context.appTypography.bodySmall,
           ),
@@ -138,7 +138,7 @@ class _BackupStatusLine extends StatelessWidget {
       icon = RemixIcons.error_warning_line;
       color = kcWarningColor;
       message =
-          'Last backed up ${formatRelativeTime(last)} — you have '
+          'Last backed up ${formatRelativeTime(last)}, and you have '
           'changes since then';
     } else {
       icon = RemixIcons.checkbox_circle_line;

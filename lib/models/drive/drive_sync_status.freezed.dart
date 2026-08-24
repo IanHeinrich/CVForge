@@ -55,7 +55,7 @@ extension DriveSyncStatusPatterns on DriveSyncStatus {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DriveSyncDisconnected value)?  disconnected,TResult Function( DriveSyncConnecting value)?  connecting,TResult Function( DriveSyncIdle value)?  idle,TResult Function( DriveSyncPending value)?  pending,TResult Function( DriveSyncSyncing value)?  syncing,TResult Function( DriveSyncConflict value)?  conflict,TResult Function( DriveSyncNeedsReauth value)?  needsReauth,TResult Function( DriveSyncErrorState value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DriveSyncDisconnected value)?  disconnected,TResult Function( DriveSyncConnecting value)?  connecting,TResult Function( DriveSyncIdle value)?  idle,TResult Function( DriveSyncPending value)?  pending,TResult Function( DriveSyncSyncing value)?  syncing,TResult Function( DriveSyncMerged value)?  merged,TResult Function( DriveSyncNeedsReauth value)?  needsReauth,TResult Function( DriveSyncErrorState value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case DriveSyncDisconnected() when disconnected != null:
@@ -63,8 +63,8 @@ return disconnected(_that);case DriveSyncConnecting() when connecting != null:
 return connecting(_that);case DriveSyncIdle() when idle != null:
 return idle(_that);case DriveSyncPending() when pending != null:
 return pending(_that);case DriveSyncSyncing() when syncing != null:
-return syncing(_that);case DriveSyncConflict() when conflict != null:
-return conflict(_that);case DriveSyncNeedsReauth() when needsReauth != null:
+return syncing(_that);case DriveSyncMerged() when merged != null:
+return merged(_that);case DriveSyncNeedsReauth() when needsReauth != null:
 return needsReauth(_that);case DriveSyncErrorState() when error != null:
 return error(_that);case _:
   return orElse();
@@ -84,7 +84,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DriveSyncDisconnected value)  disconnected,required TResult Function( DriveSyncConnecting value)  connecting,required TResult Function( DriveSyncIdle value)  idle,required TResult Function( DriveSyncPending value)  pending,required TResult Function( DriveSyncSyncing value)  syncing,required TResult Function( DriveSyncConflict value)  conflict,required TResult Function( DriveSyncNeedsReauth value)  needsReauth,required TResult Function( DriveSyncErrorState value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DriveSyncDisconnected value)  disconnected,required TResult Function( DriveSyncConnecting value)  connecting,required TResult Function( DriveSyncIdle value)  idle,required TResult Function( DriveSyncPending value)  pending,required TResult Function( DriveSyncSyncing value)  syncing,required TResult Function( DriveSyncMerged value)  merged,required TResult Function( DriveSyncNeedsReauth value)  needsReauth,required TResult Function( DriveSyncErrorState value)  error,}){
 final _that = this;
 switch (_that) {
 case DriveSyncDisconnected():
@@ -92,8 +92,8 @@ return disconnected(_that);case DriveSyncConnecting():
 return connecting(_that);case DriveSyncIdle():
 return idle(_that);case DriveSyncPending():
 return pending(_that);case DriveSyncSyncing():
-return syncing(_that);case DriveSyncConflict():
-return conflict(_that);case DriveSyncNeedsReauth():
+return syncing(_that);case DriveSyncMerged():
+return merged(_that);case DriveSyncNeedsReauth():
 return needsReauth(_that);case DriveSyncErrorState():
 return error(_that);}
 }
@@ -109,7 +109,7 @@ return error(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DriveSyncDisconnected value)?  disconnected,TResult? Function( DriveSyncConnecting value)?  connecting,TResult? Function( DriveSyncIdle value)?  idle,TResult? Function( DriveSyncPending value)?  pending,TResult? Function( DriveSyncSyncing value)?  syncing,TResult? Function( DriveSyncConflict value)?  conflict,TResult? Function( DriveSyncNeedsReauth value)?  needsReauth,TResult? Function( DriveSyncErrorState value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DriveSyncDisconnected value)?  disconnected,TResult? Function( DriveSyncConnecting value)?  connecting,TResult? Function( DriveSyncIdle value)?  idle,TResult? Function( DriveSyncPending value)?  pending,TResult? Function( DriveSyncSyncing value)?  syncing,TResult? Function( DriveSyncMerged value)?  merged,TResult? Function( DriveSyncNeedsReauth value)?  needsReauth,TResult? Function( DriveSyncErrorState value)?  error,}){
 final _that = this;
 switch (_that) {
 case DriveSyncDisconnected() when disconnected != null:
@@ -117,8 +117,8 @@ return disconnected(_that);case DriveSyncConnecting() when connecting != null:
 return connecting(_that);case DriveSyncIdle() when idle != null:
 return idle(_that);case DriveSyncPending() when pending != null:
 return pending(_that);case DriveSyncSyncing() when syncing != null:
-return syncing(_that);case DriveSyncConflict() when conflict != null:
-return conflict(_that);case DriveSyncNeedsReauth() when needsReauth != null:
+return syncing(_that);case DriveSyncMerged() when merged != null:
+return merged(_that);case DriveSyncNeedsReauth() when needsReauth != null:
 return needsReauth(_that);case DriveSyncErrorState() when error != null:
 return error(_that);case _:
   return null;
@@ -137,15 +137,15 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  disconnected,TResult Function()?  connecting,TResult Function( String accountEmail,  DateTime? lastSyncedAt)?  idle,TResult Function( String accountEmail)?  pending,TResult Function( String accountEmail)?  syncing,TResult Function( String accountEmail)?  conflict,TResult Function( String accountEmail)?  needsReauth,TResult Function( String accountEmail,  String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  disconnected,TResult Function()?  connecting,TResult Function( String accountEmail,  DateTime? lastSyncedAt)?  idle,TResult Function( String accountEmail)?  pending,TResult Function( String accountEmail)?  syncing,TResult Function( String accountEmail,  DateTime? lastSyncedAt)?  merged,TResult Function( String accountEmail)?  needsReauth,TResult Function( String accountEmail,  String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DriveSyncDisconnected() when disconnected != null:
 return disconnected();case DriveSyncConnecting() when connecting != null:
 return connecting();case DriveSyncIdle() when idle != null:
 return idle(_that.accountEmail,_that.lastSyncedAt);case DriveSyncPending() when pending != null:
 return pending(_that.accountEmail);case DriveSyncSyncing() when syncing != null:
-return syncing(_that.accountEmail);case DriveSyncConflict() when conflict != null:
-return conflict(_that.accountEmail);case DriveSyncNeedsReauth() when needsReauth != null:
+return syncing(_that.accountEmail);case DriveSyncMerged() when merged != null:
+return merged(_that.accountEmail,_that.lastSyncedAt);case DriveSyncNeedsReauth() when needsReauth != null:
 return needsReauth(_that.accountEmail);case DriveSyncErrorState() when error != null:
 return error(_that.accountEmail,_that.message);case _:
   return orElse();
@@ -165,15 +165,15 @@ return error(_that.accountEmail,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  disconnected,required TResult Function()  connecting,required TResult Function( String accountEmail,  DateTime? lastSyncedAt)  idle,required TResult Function( String accountEmail)  pending,required TResult Function( String accountEmail)  syncing,required TResult Function( String accountEmail)  conflict,required TResult Function( String accountEmail)  needsReauth,required TResult Function( String accountEmail,  String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  disconnected,required TResult Function()  connecting,required TResult Function( String accountEmail,  DateTime? lastSyncedAt)  idle,required TResult Function( String accountEmail)  pending,required TResult Function( String accountEmail)  syncing,required TResult Function( String accountEmail,  DateTime? lastSyncedAt)  merged,required TResult Function( String accountEmail)  needsReauth,required TResult Function( String accountEmail,  String message)  error,}) {final _that = this;
 switch (_that) {
 case DriveSyncDisconnected():
 return disconnected();case DriveSyncConnecting():
 return connecting();case DriveSyncIdle():
 return idle(_that.accountEmail,_that.lastSyncedAt);case DriveSyncPending():
 return pending(_that.accountEmail);case DriveSyncSyncing():
-return syncing(_that.accountEmail);case DriveSyncConflict():
-return conflict(_that.accountEmail);case DriveSyncNeedsReauth():
+return syncing(_that.accountEmail);case DriveSyncMerged():
+return merged(_that.accountEmail,_that.lastSyncedAt);case DriveSyncNeedsReauth():
 return needsReauth(_that.accountEmail);case DriveSyncErrorState():
 return error(_that.accountEmail,_that.message);}
 }
@@ -189,15 +189,15 @@ return error(_that.accountEmail,_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  disconnected,TResult? Function()?  connecting,TResult? Function( String accountEmail,  DateTime? lastSyncedAt)?  idle,TResult? Function( String accountEmail)?  pending,TResult? Function( String accountEmail)?  syncing,TResult? Function( String accountEmail)?  conflict,TResult? Function( String accountEmail)?  needsReauth,TResult? Function( String accountEmail,  String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  disconnected,TResult? Function()?  connecting,TResult? Function( String accountEmail,  DateTime? lastSyncedAt)?  idle,TResult? Function( String accountEmail)?  pending,TResult? Function( String accountEmail)?  syncing,TResult? Function( String accountEmail,  DateTime? lastSyncedAt)?  merged,TResult? Function( String accountEmail)?  needsReauth,TResult? Function( String accountEmail,  String message)?  error,}) {final _that = this;
 switch (_that) {
 case DriveSyncDisconnected() when disconnected != null:
 return disconnected();case DriveSyncConnecting() when connecting != null:
 return connecting();case DriveSyncIdle() when idle != null:
 return idle(_that.accountEmail,_that.lastSyncedAt);case DriveSyncPending() when pending != null:
 return pending(_that.accountEmail);case DriveSyncSyncing() when syncing != null:
-return syncing(_that.accountEmail);case DriveSyncConflict() when conflict != null:
-return conflict(_that.accountEmail);case DriveSyncNeedsReauth() when needsReauth != null:
+return syncing(_that.accountEmail);case DriveSyncMerged() when merged != null:
+return merged(_that.accountEmail,_that.lastSyncedAt);case DriveSyncNeedsReauth() when needsReauth != null:
 return needsReauth(_that.accountEmail);case DriveSyncErrorState() when error != null:
 return error(_that.accountEmail,_that.message);case _:
   return null;
@@ -474,43 +474,44 @@ as String,
 /// @nodoc
 
 
-class DriveSyncConflict implements DriveSyncStatus {
-  const DriveSyncConflict({required this.accountEmail});
+class DriveSyncMerged implements DriveSyncStatus {
+  const DriveSyncMerged({required this.accountEmail, this.lastSyncedAt});
   
 
  final  String accountEmail;
+ final  DateTime? lastSyncedAt;
 
 /// Create a copy of DriveSyncStatus
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$DriveSyncConflictCopyWith<DriveSyncConflict> get copyWith => _$DriveSyncConflictCopyWithImpl<DriveSyncConflict>(this, _$identity);
+$DriveSyncMergedCopyWith<DriveSyncMerged> get copyWith => _$DriveSyncMergedCopyWithImpl<DriveSyncMerged>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DriveSyncConflict&&(identical(other.accountEmail, accountEmail) || other.accountEmail == accountEmail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DriveSyncMerged&&(identical(other.accountEmail, accountEmail) || other.accountEmail == accountEmail)&&(identical(other.lastSyncedAt, lastSyncedAt) || other.lastSyncedAt == lastSyncedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,accountEmail);
+int get hashCode => Object.hash(runtimeType,accountEmail,lastSyncedAt);
 
 @override
 String toString() {
-  return 'DriveSyncStatus.conflict(accountEmail: $accountEmail)';
+  return 'DriveSyncStatus.merged(accountEmail: $accountEmail, lastSyncedAt: $lastSyncedAt)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $DriveSyncConflictCopyWith<$Res> implements $DriveSyncStatusCopyWith<$Res> {
-  factory $DriveSyncConflictCopyWith(DriveSyncConflict value, $Res Function(DriveSyncConflict) _then) = _$DriveSyncConflictCopyWithImpl;
+abstract mixin class $DriveSyncMergedCopyWith<$Res> implements $DriveSyncStatusCopyWith<$Res> {
+  factory $DriveSyncMergedCopyWith(DriveSyncMerged value, $Res Function(DriveSyncMerged) _then) = _$DriveSyncMergedCopyWithImpl;
 @useResult
 $Res call({
- String accountEmail
+ String accountEmail, DateTime? lastSyncedAt
 });
 
 
@@ -518,19 +519,20 @@ $Res call({
 
 }
 /// @nodoc
-class _$DriveSyncConflictCopyWithImpl<$Res>
-    implements $DriveSyncConflictCopyWith<$Res> {
-  _$DriveSyncConflictCopyWithImpl(this._self, this._then);
+class _$DriveSyncMergedCopyWithImpl<$Res>
+    implements $DriveSyncMergedCopyWith<$Res> {
+  _$DriveSyncMergedCopyWithImpl(this._self, this._then);
 
-  final DriveSyncConflict _self;
-  final $Res Function(DriveSyncConflict) _then;
+  final DriveSyncMerged _self;
+  final $Res Function(DriveSyncMerged) _then;
 
 /// Create a copy of DriveSyncStatus
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? accountEmail = null,}) {
-  return _then(DriveSyncConflict(
+@pragma('vm:prefer-inline') $Res call({Object? accountEmail = null,Object? lastSyncedAt = freezed,}) {
+  return _then(DriveSyncMerged(
 accountEmail: null == accountEmail ? _self.accountEmail : accountEmail // ignore: cast_nullable_to_non_nullable
-as String,
+as String,lastSyncedAt: freezed == lastSyncedAt ? _self.lastSyncedAt : lastSyncedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

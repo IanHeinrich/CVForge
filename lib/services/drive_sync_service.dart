@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
+import 'package:cv_forge/models/backup/cv_backup_merge.dart';
 import 'package:cv_forge/models/drive/drive_file_snapshot.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/services/backup_service.dart';
@@ -9,6 +12,7 @@ import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/drive_api_client_service.dart';
 import 'package:cv_forge/services/google_auth_service.dart';
 import 'package:cv_forge/services/local_storage_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:stacked/stacked.dart';
@@ -18,27 +22,36 @@ import 'package:stacked/stacked.dart';
 /// everything — see this feature's design doc for the full picture.
 ///
 /// Local-first by design: Hive (via [VaultService]/[DraftService]) stays
-/// the single source of truth the rest of the app reads from. This
-/// service only ever pushes a snapshot of that state to Drive or pulls
-/// one down and replaces it — the same whole-world `CvBackupBundle`
-/// [BackupService.buildBundle]/`applyImport` already establish, reused
-/// verbatim rather than a second serialization path. A failure here is
-/// never fatal to a local save: it surfaces as [DriveSyncStatus.error]/
-/// [DriveSyncStatus.needsReauth] and simply retries later.
+/// the single source of truth the rest of the app reads from. This service
+/// only ever pushes a snapshot of that state to Drive, pulls one down, or
+/// reconciles the two — always through the same whole-world
+/// `CvBackupBundle` [BackupService.buildBundle] already produces for the
+/// JSON export, reused verbatim rather than a second serialization path. A
+/// failure here is never fatal to a local save: it surfaces as
+/// [DriveSyncStatus.error]/[DriveSyncStatus.needsReauth] and retries later.
+///
+/// **Divergence merges, it doesn't prompt.** When Drive has moved on and
+/// this device has its own unsynced edits, [mergeBackupBundles] reconciles
+/// them against [_baseJson] — the last bundle both sides agreed on. Drive
+/// offers no `If-Match` precondition on `files.update`, so a write can
+/// still land between this device reading and writing; merging makes that
+/// self-healing rather than destructive, since the losing device still
+/// holds its edit locally and its own ancestor still predates our write.
 ///
 /// Pure Dart — [GoogleAuthService] is the one dependency that needs
 /// `dart:js_interop`, and only its abstract interface is imported here
 /// (see that class's doc comment), so this service is registered normally
 /// and fully VM-testable.
 class DriveSyncService with ListenableServiceMixin {
-  /// [idleDebounce]/[maxWait] are a test seam — production code always
-  /// uses the defaults. Nothing else needs them injected, so this isn't a
-  /// locator registration, just constructor defaults, the same pattern
-  /// `LlmService({Dio? client})`/`DriveApiClientService({Dio? client})`
-  /// use.
+  /// [idleDebounce]/[maxWait]/[mergedNoticeDuration] are a test seam —
+  /// production code always uses the defaults. Nothing else needs them
+  /// injected, so this isn't a locator registration, just constructor
+  /// defaults, the same pattern `LlmService({Dio? client})`/
+  /// `DriveApiClientService({Dio? client})` use.
   DriveSyncService({
-    this.idleDebounce = const Duration(seconds: 20),
-    this.maxWait = const Duration(minutes: 2),
+    this.idleDebounce = const Duration(seconds: 4),
+    this.maxWait = const Duration(seconds: 30),
+    this.mergedNoticeDuration = const Duration(seconds: 6),
   }) {
     listenToReactiveValues([_status]);
   }
@@ -48,6 +61,7 @@ class DriveSyncService with ListenableServiceMixin {
   final _vault = locator<VaultService>();
   final _drafts = locator<DraftService>();
   final _backup = locator<BackupService>();
+  final _settings = locator<SettingsService>();
   final _localStorage = locator<LocalStorageService>();
 
   /// How long to wait after the *last* local edit before pushing — rapid
@@ -64,6 +78,10 @@ class DriveSyncService with ListenableServiceMixin {
   /// periodically rather than only once the user finally pauses.
   final Duration maxWait;
 
+  /// How long [DriveSyncStatus.merged] stays up before settling back to
+  /// [DriveSyncStatus.idle].
+  final Duration mergedNoticeDuration;
+
   final ReactiveValue<DriveSyncStatus> _status = ReactiveValue<DriveSyncStatus>(
     const DriveSyncStatus.disconnected(),
   );
@@ -76,25 +94,68 @@ class DriveSyncService with ListenableServiceMixin {
   bool get isAvailable => _auth.isConfigured;
 
   bool _listenersAttached = false;
-  bool _dirty = false;
   bool _applyingRemote = false;
+  bool _awaitingGesture = false;
   Timer? _idleTimer;
   Timer? _maxWaitTimer;
+  Timer? _mergedNoticeTimer;
 
   String? _fileId;
   String? _accountEmail;
   int? _lastSyncedVersion;
   DateTime? _lastSyncedAt;
 
-  /// Drive's own `modifiedTime` as of the moment a
-  /// [DriveSyncStatus.conflict] was raised — read by
-  /// `SettingsViewModel.resolveDriveConflict` for `DriveConflictDialog`'s
-  /// "Google Drive — N days ago" copy. Not persisted (a conflict is
-  /// always resolved or abandoned within the same session it's raised
-  /// in) and meaningless outside [DriveSyncStatus.conflict].
-  DateTime? conflictRemoteModifiedAt;
+  /// The last bundle this device and Drive agreed on — the common ancestor
+  /// [mergeBackupBundles] needs, and the baseline [_isDirty] compares
+  /// against. Persisted under [StorageKeys.driveSyncBase], so unlike the
+  /// in-memory signature this replaced it survives a page reload — which
+  /// is what stopped the first sync after every reload misreading itself
+  /// as a conflict.
+  ///
+  /// **Invariant: this is always the exact JSON that is on Drive right
+  /// now** — either the payload just uploaded or the one just downloaded,
+  /// never a post-apply local rebuild. Local rebuilds differ (applying
+  /// prunes blanks and re-sorts drafts), and an ancestor that describes
+  /// something neither side holds turns the next merge's diffs into
+  /// phantom adds and deletes. [_mergeApplyAndPush] is ordered the way it
+  /// is specifically to keep this true.
+  Map<String, dynamic>? _baseJson;
+  String? _baseSignature;
 
   Future<void>? _startFuture;
+
+  /// Chains successive [_push]/[_reconcile] entry points so at most one
+  /// sync operation is ever actually talking to Drive at a time. Without
+  /// this, two independent triggers (say the idle timer and a stale
+  /// max-wait timer, or a manual "Sync now" landing mid-push) could both
+  /// read `_lastSyncedVersion`, both call `updateFile`, and finish out of
+  /// order — the slower one's `_commitSync` then overwrites the faster
+  /// one's already-correct bookkeeping with a stale value. The next
+  /// check would then see Drive's real (newer) `version` disagree with
+  /// that clobbered `_lastSyncedVersion` and misread *this device's own*
+  /// second write as another device's.
+  ///
+  /// Only wraps the true external entry points ([_flush], [syncNow],
+  /// [connect]/[_start]'s call to [_reconcile]) — [_push]'s own fallback
+  /// call to [_reconcile], [_reconcile]'s own call to [_push], and
+  /// [_push]'s call to [_mergeApplyAndPush] call the raw method directly.
+  /// All happen within an already-held lock (nothing else can interleave
+  /// on Dart's single-threaded event loop until the current `await` chain
+  /// yields back to one of the real entry points above), so re-acquiring
+  /// there would deadlock instead of protecting anything.
+  Future<void>? _syncLock;
+
+  Future<void> _runExclusive(Future<void> Function() action) async {
+    final previous = _syncLock;
+    final unlock = Completer<void>();
+    _syncLock = unlock.future;
+    if (previous != null) await previous;
+    try {
+      await action();
+    } finally {
+      unlock.complete();
+    }
+  }
 
   /// Resumes a previously-connected session — called once from
   /// `main.dart`, before `runApp`, so autosave is armed for the whole
@@ -137,12 +198,77 @@ class DriveSyncService with ListenableServiceMixin {
     _lastSyncedAt = storedSyncedAt == null
         ? null
         : DateTime.tryParse(storedSyncedAt);
+    await _loadBase();
+    // Not `idle` — that would claim "last synced N ago" from persisted
+    // state while the token request below is still in flight, and this
+    // runs unawaited from main.dart. If minting a token then fails, the
+    // user sees a confident "synced" flip to "reconnect" several seconds
+    // later with nothing in between to explain it. `syncing` keeps the
+    // account on screen and is the truth: we're finding out.
+    // Honest as it stands: [lastSyncedAt] really is when this device last
+    // synced, and nothing is in flight to contradict it. The reconcile
+    // below deliberately waits for a user gesture rather than running now
+    // — see [_resumeOnGesture].
     _status.value = DriveSyncStatus.idle(
       accountEmail: email,
       lastSyncedAt: _lastSyncedAt,
     );
     _attachListeners();
-    await _reconcile();
+    await _auth.warmUp();
+    unawaited(_resumeOnGesture());
+  }
+
+  /// Waits for the user's next interaction, then syncs.
+  ///
+  /// A fresh page load holds no access token — they're in-memory only, by
+  /// the same rule that keeps the Copilot key out of storage — and GIS
+  /// cannot mint a replacement without a live user gesture: it renews via
+  /// a popup, and the browser refuses to open one at load, reporting
+  /// `popup_failed_to_open`. Syncing immediately on start therefore fails
+  /// every single time and strands the session on "Reconnect" until the
+  /// user visits Settings, despite the grant being perfectly valid.
+  ///
+  /// Waiting costs nothing in practice — the first click or keypress
+  /// arrives within seconds and the whole thing is invisible — and it
+  /// keeps the failure honest: reaching [DriveSyncStatus.needsReauth] now
+  /// means the grant is genuinely gone, not merely unusable this instant.
+  Future<void> _resumeOnGesture() async {
+    if (_awaitingGesture) return;
+    _awaitingGesture = true;
+    try {
+      final token = await _auth.tokenOnNextUserGesture();
+      if (token == null) {
+        final email = _accountEmail;
+        if (email != null) {
+          _status.value = DriveSyncStatus.needsReauth(accountEmail: email);
+        }
+        return;
+      }
+      await _runExclusive(_reconcile);
+    } finally {
+      _awaitingGesture = false;
+    }
+  }
+
+  Future<void> _loadBase() async {
+    final stored = await _localStorage.read(
+      StorageBoxes.settings,
+      StorageKeys.driveSyncBase,
+    );
+    if (stored == null) return;
+    try {
+      final decoded = jsonDecode(stored);
+      if (decoded is Map<String, dynamic>) _setBase(decoded);
+    } on FormatException {
+      // A corrupt ancestor is no worse than none — the no-ancestor path
+      // unions rather than dropping anything, and the next successful
+      // sync rewrites it.
+    }
+  }
+
+  void _setBase(Map<String, dynamic> json) {
+    _baseJson = json;
+    _baseSignature = _contentSignature(json);
   }
 
   /// Interactive connect — must be called synchronously from a user
@@ -178,7 +304,7 @@ class DriveSyncService with ListenableServiceMixin {
       email,
     );
     _attachListeners();
-    await _reconcile();
+    await _runExclusive(_reconcile);
   }
 
   Future<String> _fetchEmailOrFallback(String token) async {
@@ -197,6 +323,8 @@ class DriveSyncService with ListenableServiceMixin {
   /// Drive was left.
   Future<void> disconnect() async {
     _cancelTimers();
+    _mergedNoticeTimer?.cancel();
+    _mergedNoticeTimer = null;
     _detachListeners();
     await _auth.disconnect();
     await _localStorage.delete(StorageBoxes.settings, StorageKeys.driveEnabled);
@@ -213,11 +341,16 @@ class DriveSyncService with ListenableServiceMixin {
       StorageBoxes.settings,
       StorageKeys.driveAccountEmail,
     );
+    await _localStorage.delete(
+      StorageBoxes.settings,
+      StorageKeys.driveSyncBase,
+    );
     _fileId = null;
     _accountEmail = null;
     _lastSyncedVersion = null;
     _lastSyncedAt = null;
-    _dirty = false;
+    _baseJson = null;
+    _baseSignature = null;
     _status.value = const DriveSyncStatus.disconnected();
   }
 
@@ -228,7 +361,7 @@ class DriveSyncService with ListenableServiceMixin {
   Future<void> syncNow() async {
     if (_accountEmail == null) return;
     _cancelTimers();
-    await _reconcile();
+    await _runExclusive(_reconcile);
   }
 
   /// Flushes a pending debounced push immediately, bypassing its timer —
@@ -238,47 +371,14 @@ class DriveSyncService with ListenableServiceMixin {
   /// tab actually closing.
   Future<void> flushPendingWrites() => _flush();
 
-  /// Resolves [DriveSyncStatus.conflict] per the user's choice in
-  /// `DriveConflictDialog`. [keepLocal] pushes this device's data over
-  /// Drive's; `false` discards this device's unsynced edits and pulls
-  /// Drive's copy instead. Either way this is the only place a conflict
-  /// is actually resolved — a fresh mismatch afterwards raises the
-  /// conflict state again rather than silently reusing a stale choice.
-  Future<void> resolveConflict({required bool keepLocal}) async {
-    if (status is! DriveSyncConflict) return;
-    final email = _accountEmail;
-    final fileId = _fileId;
-    if (email == null || fileId == null) return;
-    final token = await _auth.silentAccessToken();
-    if (token == null) {
-      _status.value = DriveSyncStatus.needsReauth(accountEmail: email);
-      return;
-    }
-    _status.value = DriveSyncStatus.syncing(accountEmail: email);
-    try {
-      if (keepLocal) {
-        final updated = await _api.updateFile(
-          token,
-          fileId,
-          _backup.buildBundle().toJson(),
-        );
-        _dirty = false;
-        await _commitSync(email: email, fileId: fileId, snapshot: updated);
-      } else {
-        await _pullAndApply(token, fileId);
-        final meta = await _api.fetchMetadata(token, fileId);
-        _dirty = false;
-        await _commitSync(email: email, fileId: fileId, snapshot: meta);
-      }
-    } on DriveApiException catch (e) {
-      _handleApiError(e, email);
-    }
-  }
-
   void _attachListeners() {
     if (_listenersAttached) return;
     _vault.addListener(_onLocalChange);
     _drafts.addListener(_onLocalChange);
+    // Settings too, since CvPreferences rides in the bundle — without
+    // this, changing your default region would sit unsynced until an
+    // unrelated Vault edit happened to push it.
+    _settings.addListener(_onLocalChange);
     _listenersAttached = true;
   }
 
@@ -286,21 +386,44 @@ class DriveSyncService with ListenableServiceMixin {
     if (!_listenersAttached) return;
     _vault.removeListener(_onLocalChange);
     _drafts.removeListener(_onLocalChange);
+    _settings.removeListener(_onLocalChange);
     _listenersAttached = false;
   }
 
-  /// [VaultService]/[DraftService] notify on every change, including one
-  /// this service caused itself by applying a remote pull — [_applyingRemote]
-  /// is what stops that from being mistaken for a fresh local edit and
-  /// immediately re-queuing a push of the very data that was just pulled.
+  /// Whether local content differs from what Drive currently holds —
+  /// answered by comparing the bundle this device would push against
+  /// [_baseSignature], not by watching timestamps.
+  ///
+  /// Timestamps were the previous signal and were wrong in both
+  /// directions. They said "dirty" for a no-op edit (typing a character
+  /// then deleting it still bumps `updatedAt`), which is why the push path
+  /// needed a *second*, content-based check to avoid pointless writes. And
+  /// they said "clean" whenever this device had never synced — so a fresh
+  /// connect on a browser that already held a Vault took [_reconcile]'s
+  /// silent-adopt branch and replaced that Vault with Drive's, losing it.
+  /// No ancestor now answers "assume divergent", which routes to the merge
+  /// and keeps both sides.
+  ///
+  /// Costs a `buildBundle()` + encode per call rather than three date
+  /// comparisons. Only [_flush] and [_reconcile] call it — a handful of
+  /// times a minute, never on a UI path.
+  bool get _isDirty {
+    final base = _baseSignature;
+    if (base == null) return true;
+    return _contentSignature(_backup.buildBundle().toJson()) != base;
+  }
+
+  /// Arms the debounce/max-wait timers on every local change —
+  /// [_isDirty] (not this callback) is what actually decides whether
+  /// there's anything to push once they fire, so this only needs to
+  /// schedule the check, never track whether one is warranted.
   void _onLocalChange() {
     if (_applyingRemote) return;
-    _dirty = true;
     final email = _accountEmail;
     if (email == null) return;
-    // A conflict/reauth state means "waiting on the user", not "waiting
-    // on the debounce" — don't paper over it with `pending`.
-    if (status is! DriveSyncConflict && status is! DriveSyncNeedsReauth) {
+    // A reauth state means "waiting on the user", not "waiting on the
+    // debounce" — don't paper over it with `pending`.
+    if (status is! DriveSyncNeedsReauth) {
       _status.value = DriveSyncStatus.pending(accountEmail: email);
     }
     _idleTimer?.cancel();
@@ -317,23 +440,35 @@ class DriveSyncService with ListenableServiceMixin {
 
   Future<void> _flush() async {
     _cancelTimers();
-    if (!_dirty) return;
-    await _push();
+    // status and _isDirty are both re-checked *inside* _runExclusive, not
+    // just here — by the time any earlier in-flight sync finishes and
+    // this actually gets to run, that earlier operation may already have
+    // changed either.
+    await _runExclusive(() async {
+      // Reauth means "waiting on the user": automatic retries would just
+      // re-fail on every subsequent edit (each one re-arms these timers).
+      // Only a manual "Sync now" or reconnecting should attempt again.
+      if (status is DriveSyncNeedsReauth) return;
+      if (!_isDirty) return;
+      await _push();
+    });
   }
 
-  /// Pushes the current local state to Drive — but only after confirming
-  /// Drive's own `version` still matches what this device last saw.
-  /// Every real edit funnels through here (the debounce/max-wait timers,
-  /// and [resolveConflict]'s `keepLocal: true` branch both call this or
-  /// its update logic directly), so this is the one place that check
-  /// lives.
+  /// Pushes the current local state to Drive, reconciling first if Drive
+  /// holds content this device hasn't seen. Every real edit funnels
+  /// through here (both timers and [_reconcile]'s dirty branch), so this
+  /// is the one place that check lives.
   Future<void> _push() async {
     final email = _accountEmail;
     if (email == null) return;
     final token = await _auth.silentAccessToken();
     if (token == null) {
-      _status.value = DriveSyncStatus.needsReauth(accountEmail: email);
-      return; // _dirty stays true — nothing was written.
+      // Mid-session expiry (tokens last an hour) lands here, and a
+      // debounce timer is never a user gesture — so wait for one rather
+      // than declaring the session dead. Nothing was written; _isDirty
+      // still reads true, so the retry picks the edit up.
+      unawaited(_resumeOnGesture());
+      return;
     }
     final fileId = _fileId;
     if (fileId == null) {
@@ -346,38 +481,166 @@ class DriveSyncService with ListenableServiceMixin {
     _status.value = DriveSyncStatus.syncing(accountEmail: email);
     try {
       final remote = await _api.fetchMetadata(token, fileId);
-      if (_lastSyncedVersion != null && remote.version != _lastSyncedVersion) {
-        // Another device wrote since our last sync — do not clobber it.
-        await _raiseConflict(email, remote.modifiedTime);
+      // An unknown version is as untrustworthy as a mismatched one: it
+      // means this device has no idea what Drive holds, so writing
+      // straight over it would clobber whatever is there. _isDirty
+      // reaching this path with no ancestor is exactly that case.
+      if (_lastSyncedVersion == null || remote.version != _lastSyncedVersion) {
+        // Drive's counter moved — but Google documents `version` as
+        // reflecting every server-side change, "even those not visible to
+        // the user", so it can move without the content changing. Compare
+        // what Drive actually holds before treating this as divergence.
+        final remoteJson = await _api.downloadFile(token, fileId);
+        if (_contentSignature(remoteJson) != _baseSignature) {
+          await _mergeApplyAndPush(token, fileId, email, remoteJson, remote);
+          return;
+        }
+      }
+      final bundleJson = _backup.buildBundle().toJson();
+      if (_contentSignature(bundleJson) == _baseSignature) {
+        // Dirty enough to get here but identical to what's already on
+        // Drive — nothing to write, just re-record the bookkeeping.
+        await _commitSync(
+          email: email,
+          fileId: fileId,
+          snapshot: remote,
+          base: bundleJson,
+        );
         return;
       }
-      final updated = await _api.updateFile(
-        token,
-        fileId,
-        _backup.buildBundle().toJson(),
+      final updated = await _api.updateFile(token, fileId, bundleJson);
+      await _commitSync(
+        email: email,
+        fileId: fileId,
+        snapshot: updated,
+        base: bundleJson,
       );
-      _dirty = false;
-      await _commitSync(email: email, fileId: fileId, snapshot: updated);
     } on DriveApiException catch (e) {
-      _handleApiError(e, email);
-      // _dirty is deliberately left true — nothing was written, and the
-      // next debounce/max-wait tick, or an explicit "Sync now"/reconnect,
-      // will retry.
+      await _handleApiError(e, email);
+      // Nothing was written — _isDirty still reads true off the unchanged
+      // local content, so the next debounce/max-wait tick, or an explicit
+      // "Sync now"/reconnect, will retry on its own.
+    } on FormatException {
+      _status.value = DriveSyncStatus.error(
+        accountEmail: email,
+        message: "Drive's copy looked corrupted. Left this device as is.",
+      );
+    }
+  }
+
+  /// Reconciles Drive's content with this device's and lands the result on
+  /// both. The ordering here is load-bearing.
+  ///
+  /// Applying *before* pushing, and pushing a rebuild rather than the
+  /// merge output, is what keeps [_baseJson]'s invariant true: applying
+  /// prunes blank entries and re-sorts drafts, so a post-apply
+  /// `buildBundle()` is not byte-identical to what [mergeBackupBundles]
+  /// returned. Uploading the rebuild means the ancestor describes exactly
+  /// what both sides hold. It also fails better — if the upload dies after
+  /// a successful apply, local has the merged content, Drive and the
+  /// ancestor are untouched, and the retry re-merges to the same result
+  /// and pushes once. The reverse order can leave the user staring at
+  /// stale data while Drive has already moved on.
+  Future<void> _mergeApplyAndPush(
+    String token,
+    String fileId,
+    String email,
+    Map<String, dynamic> remoteJson,
+    DriveFileSnapshot remoteMeta,
+  ) async {
+    final local = _backup.buildBundle();
+    final remote = CvBackupBundle.fromJson(remoteJson);
+
+    // The only divergence a merge genuinely can't settle: the other
+    // device is running a build whose data shape this one doesn't know.
+    // "Keep this device's copy" would be actively wrong advice there —
+    // it would push older-schema content over newer — so this asks the
+    // user to update rather than offering a side to discard.
+    if (remote.bundleVersion > BackupService.bundleVersion ||
+        !bundlesAreMergeable(local, remote)) {
+      _status.value = DriveSyncStatus.error(
+        accountEmail: email,
+        message:
+            'Another device is running a newer version of CVForge. '
+            'Update this device to sync again.',
+      );
+      return;
+    }
+
+    final base = _baseJson == null
+        ? _emptyAncestor()
+        : CvBackupBundle.fromJson(_baseJson!);
+    final merged = mergeBackupBundles(base: base, local: local, remote: remote);
+
+    if (_contentSignature(merged.toJson()) == _contentSignature(remoteJson)) {
+      // This device was purely behind — Drive already holds everything
+      // the merge produced, so adopt it without a pointless write back.
+      await _applyBundle(merged);
+      await _commitSync(
+        email: email,
+        fileId: fileId,
+        snapshot: remoteMeta,
+        base: remoteJson,
+      );
+      return;
+    }
+
+    await _applyBundle(merged);
+    final pushJson = _backup.buildBundle().toJson();
+    final updated = await _api.updateFile(token, fileId, pushJson);
+    await _commitSync(
+      email: email,
+      fileId: fileId,
+      snapshot: updated,
+      base: pushJson,
+      merged: true,
+    );
+  }
+
+  /// The ancestor to merge against when this device has never recorded
+  /// one — a brand-new device, or an existing user's first sync after
+  /// [StorageKeys.driveSyncBase] was introduced. Empty means every id on
+  /// both sides reads as an addition, so the merge unions and drops
+  /// nothing: with no ancestor there is no evidence that any absence *is*
+  /// a deletion. The cost is that a delete made before this point can
+  /// come back once; the alternative is discarding a side outright.
+  CvBackupBundle _emptyAncestor() => CvBackupBundle(
+    app: 'cv-forge',
+    bundleVersion: BackupService.bundleVersion,
+    exportedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    appVersion: '',
+  );
+
+  /// Replaces local state with [bundle], suppressing the change
+  /// notifications it causes — otherwise applying Drive's own content
+  /// would look like a local edit and immediately re-arm a push.
+  Future<void> _applyBundle(CvBackupBundle bundle) async {
+    _applyingRemote = true;
+    try {
+      if (bundle.vault != null) await _vault.replaceAll(bundle.vault!);
+      await _drafts.replaceAll(
+        bundle.drafts,
+        activeDraftId: bundle.activeDraftId,
+      );
+      if (bundle.preferences != null) {
+        await _settings.replacePreferences(bundle.preferences!);
+      }
+    } finally {
+      _applyingRemote = false;
     }
   }
 
   /// Runs on every connect, app start (for a previously-connected
   /// device), and manual "Sync now" — finds or creates this feature's
-  /// Drive file, then reconciles local vs. remote per this feature's
-  /// design doc: unchanged → push if dirty; remote moved on + clean →
-  /// apply remote silently; remote moved on + dirty → conflict, after a
-  /// local safety backup.
+  /// Drive file, then reconciles: version unchanged → push if dirty;
+  /// remote moved on + local clean → adopt remote; remote moved on +
+  /// local dirty → delegate to [_push], which merges.
   Future<void> _reconcile() async {
     final email = _accountEmail;
     if (email == null) return;
     final token = await _auth.silentAccessToken();
     if (token == null) {
-      _status.value = DriveSyncStatus.needsReauth(accountEmail: email);
+      unawaited(_resumeOnGesture());
       return;
     }
     _status.value = DriveSyncStatus.syncing(accountEmail: email);
@@ -386,15 +649,13 @@ class DriveSyncService with ListenableServiceMixin {
       if (fileId == null) {
         final existing = await _api.findFile(token);
         if (existing == null) {
-          final created = await _api.createFile(
-            token,
-            _backup.buildBundle().toJson(),
-          );
-          _dirty = false;
+          final bundleJson = _backup.buildBundle().toJson();
+          final created = await _api.createFile(token, bundleJson);
           await _commitSync(
             email: email,
             fileId: created.fileId,
             snapshot: created,
+            base: bundleJson,
           );
           return;
         }
@@ -403,78 +664,98 @@ class DriveSyncService with ListenableServiceMixin {
       }
 
       final remote = await _api.fetchMetadata(token, fileId);
+      final isDirty = _isDirty;
       if (_lastSyncedVersion != null && remote.version == _lastSyncedVersion) {
         _status.value = DriveSyncStatus.idle(
           accountEmail: email,
           lastSyncedAt: _lastSyncedAt,
         );
-        if (_dirty) await _push();
+        if (isDirty) await _push();
         return;
       }
 
-      if (!_dirty) {
-        await _pullAndApply(token, fileId);
-        await _commitSync(email: email, fileId: fileId, snapshot: remote);
+      if (!isDirty) {
+        // Drive moved on and local is byte-identical to the ancestor, so
+        // there is nothing here a merge could add — adopt Drive's copy
+        // directly and skip the round trip. Safe in a way it wasn't when
+        // dirtiness came from timestamps: "not dirty" now genuinely means
+        // "this device holds exactly what Drive last gave it".
+        await _pullAndApply(token, fileId, email, remote);
         return;
       }
 
-      await _raiseConflict(email, remote.modifiedTime);
+      await _push();
     } on DriveApiException catch (e) {
-      _handleApiError(e, email);
+      await _handleApiError(e, email);
     } on FormatException {
       _status.value = DriveSyncStatus.error(
         accountEmail: email,
-        message: "Drive's copy looked corrupted — left this device as is.",
+        message: "Drive's copy looked corrupted. Left this device as is.",
       );
     }
   }
 
-  Future<void> _pullAndApply(String token, String fileId) async {
+  Future<void> _pullAndApply(
+    String token,
+    String fileId,
+    String email,
+    DriveFileSnapshot snapshot,
+  ) async {
     final content = await _api.downloadFile(token, fileId);
-    final bundle = CvBackupBundle.fromJson(content);
-    _applyingRemote = true;
-    try {
-      if (bundle.vault != null) await _vault.replaceAll(bundle.vault!);
-      await _drafts.replaceAll(
-        bundle.drafts,
-        activeDraftId: bundle.activeDraftId,
-      );
-    } finally {
-      _applyingRemote = false;
-    }
+    await _applyBundle(CvBackupBundle.fromJson(content));
+    await _commitSync(
+      email: email,
+      fileId: fileId,
+      snapshot: snapshot,
+      // The downloaded content, not a post-apply rebuild — see _baseJson.
+      base: content,
+    );
   }
 
-  /// A local edit landed *while* Drive's own copy had already moved on —
-  /// the one case this feature can't resolve on its own. Downloads a
-  /// local safety backup first (reusing the exact same
-  /// `BackupService.exportBackup` a manual export uses) so the user's
-  /// current data is on disk somewhere concrete before anything about it
-  /// is even shown as being at risk, then raises the state
-  /// `DriveConflictDialog` renders. [remoteModifiedAt] is cached in
-  /// [conflictRemoteModifiedAt] purely for that dialog's "Google Drive —
-  /// N days ago" copy; it plays no part in resolving the conflict itself.
-  Future<void> _raiseConflict(String email, DateTime remoteModifiedAt) async {
-    try {
-      await _backup.exportBackup();
-    } catch (_) {
-      // Best-effort — still raise the conflict even if the safety
-      // download itself failed. Silently clobbering one side instead
-      // would be worse than a conflict prompt with one fewer safety net.
+  /// A stable content fingerprint for [bundleJson], used both to decide
+  /// whether anything needs writing and to compare Drive's copy against
+  /// the ancestor.
+  ///
+  /// Drops `exportedAt` and `appVersion`: both change without any career
+  /// data changing — the first on literally every build of a bundle, the
+  /// second on every app release — so leaving either in would make every
+  /// device rewrite the file for nothing. Map keys are sorted recursively
+  /// so the fingerprint survives a regenerated `toJson()` reordering
+  /// fields; list order is preserved, since that one *is* content. Hashing
+  /// rather than keeping the JSON means the persisted ancestor's
+  /// signature costs 64 characters instead of the whole bundle.
+  ///
+  /// Copies rather than mutating [bundleJson] in place — callers go on to
+  /// use the same map (`CvBackupBundle.fromJson` needs `exportedAt` back).
+  String _contentSignature(Map<String, dynamic> bundleJson) {
+    final withoutVolatile = Map<String, dynamic>.from(bundleJson)
+      ..remove('exportedAt')
+      ..remove('appVersion');
+    final canonical = jsonEncode(_canonicalize(withoutVolatile));
+    return sha256.convert(utf8.encode(canonical)).toString();
+  }
+
+  Object? _canonicalize(Object? value) {
+    if (value is Map) {
+      final keys = value.keys.map((k) => k.toString()).toList()..sort();
+      return {for (final key in keys) key: _canonicalize(value[key])};
     }
-    conflictRemoteModifiedAt = remoteModifiedAt;
-    _status.value = DriveSyncStatus.conflict(accountEmail: email);
+    if (value is List) return [for (final item in value) _canonicalize(item)];
+    return value;
   }
 
   Future<void> _commitSync({
     required String email,
     required String fileId,
     required DriveFileSnapshot snapshot,
+    required Map<String, dynamic> base,
+    bool merged = false,
   }) async {
-    final version = snapshot.version;
     final syncedAt = DateTime.now();
     _fileId = fileId;
-    _lastSyncedVersion = version;
+    _lastSyncedVersion = snapshot.version;
     _lastSyncedAt = syncedAt;
+    _setBase(base);
     await _localStorage.write(
       StorageBoxes.settings,
       StorageKeys.driveFileId,
@@ -483,28 +764,71 @@ class DriveSyncService with ListenableServiceMixin {
     await _localStorage.write(
       StorageBoxes.settings,
       StorageKeys.driveLastSyncedVersion,
-      version.toString(),
+      snapshot.version.toString(),
     );
     await _localStorage.write(
       StorageBoxes.settings,
       StorageKeys.driveLastSyncedAt,
       syncedAt.toIso8601String(),
     );
+    await _localStorage.write(
+      StorageBoxes.settings,
+      StorageKeys.driveSyncBase,
+      jsonEncode(base),
+    );
+    if (merged) {
+      _showMergedNotice(email, syncedAt);
+      return;
+    }
     _status.value = DriveSyncStatus.idle(
       accountEmail: email,
       lastSyncedAt: syncedAt,
     );
   }
 
-  void _handleApiError(DriveApiException e, String email) {
+  /// Content arriving mid-session with no explanation reads as a glitch,
+  /// so a merge says so briefly before the indicator settles back to idle.
+  void _showMergedNotice(String email, DateTime syncedAt) {
+    _status.value = DriveSyncStatus.merged(
+      accountEmail: email,
+      lastSyncedAt: syncedAt,
+    );
+    _mergedNoticeTimer?.cancel();
+    _mergedNoticeTimer = Timer(mergedNoticeDuration, () {
+      // Anything newer than the notice wins — a pending edit or a fresh
+      // error must not be overwritten just because this timer came due.
+      if (status is! DriveSyncMerged) return;
+      _status.value = DriveSyncStatus.idle(
+        accountEmail: email,
+        lastSyncedAt: syncedAt,
+      );
+    });
+  }
+
+  Future<void> _handleApiError(DriveApiException e, String email) async {
     if (e.failure == DriveApiFailure.notFound) {
       // The Drive-side file is gone (the user disconnected the app from
       // their Google Account settings, which deletes every appDataFolder
-      // file — or deleted it some other way). Forget the cached
-      // id/version so the next sync recreates it from scratch rather
-      // than repeatedly hitting the same 404.
+      // file — or deleted it some other way). Forget everything that
+      // described it, persisted rows included, so the next sync recreates
+      // it from scratch rather than repeatedly hitting the same 404 or
+      // merging against an ancestor for a file that no longer exists.
       _fileId = null;
       _lastSyncedVersion = null;
+      _baseJson = null;
+      _baseSignature = null;
+      await _localStorage.delete(
+        StorageBoxes.settings,
+        StorageKeys.driveFileId,
+      );
+      await _localStorage.delete(
+        StorageBoxes.settings,
+        StorageKeys.driveLastSyncedVersion,
+      );
+      await _localStorage.delete(
+        StorageBoxes.settings,
+        StorageKeys.driveSyncBase,
+      );
     }
     _status.value = switch (e.failure) {
       DriveApiFailure.needsReauth => DriveSyncStatus.needsReauth(
@@ -513,17 +837,17 @@ class DriveSyncService with ListenableServiceMixin {
       DriveApiFailure.notFound => DriveSyncStatus.error(
         accountEmail: email,
         message:
-            'Your CVForge file on Drive is gone — syncing again will '
+            'Your CVForge file on Drive is gone. Syncing again will '
             'recreate it.',
       ),
       DriveApiFailure.network => DriveSyncStatus.error(
         accountEmail: email,
-        message: "Couldn't reach Google Drive — saved on this device.",
+        message: "Couldn't reach Google Drive. Saved on this device.",
       ),
       DriveApiFailure.unknown => DriveSyncStatus.error(
         accountEmail: email,
         message:
-            'Something went wrong syncing to Drive — saved on this '
+            'Something went wrong syncing to Drive. Saved on this '
             'device.',
       ),
     };

@@ -1,8 +1,13 @@
+import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/app/app.router.dart';
+import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_chrome/app_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 import 'package:cv_forge/features/settings/widgets/backup_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/copilot_settings_card.dart';
@@ -58,6 +63,8 @@ class SettingsView extends StackedView<SettingsViewModel> {
                 BackupSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
                 CopilotSettingsCard(viewModel: viewModel),
+                const VGap.medium(),
+                const _LegalLinks(),
               ],
             ),
           ),
@@ -69,4 +76,52 @@ class SettingsView extends StackedView<SettingsViewModel> {
   @override
   SettingsViewModel viewModelBuilder(BuildContext context) =>
       SettingsViewModel();
+}
+
+/// Plain text links to the two legal pages every OAuth-consenting app
+/// needs somewhere reachable in-app, not just off the Google consent
+/// screen — Settings is the natural home, alongside every other
+/// "about this app" surface. Deliberately no card frame: unlike the
+/// cards above, there's no state or action here, just two links.
+class _LegalLinks extends StatelessWidget {
+  const _LegalLinks();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: context.appSpacing.gapMedium,
+      runSpacing: context.appSpacing.gapTiny,
+      children: [
+        _LegalLink(
+          label: 'Privacy Policy',
+          onTap: () => locator<RouterService>().navigateToPrivacyView(),
+        ),
+        _LegalLink(
+          label: 'Terms of Service',
+          onTap: () => locator<RouterService>().navigateToTermsView(),
+        ),
+      ],
+    );
+  }
+}
+
+class _LegalLink extends StatelessWidget {
+  const _LegalLink({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Text(
+        label,
+        style: context.appTypography.caption.copyWith(
+          color: kcLightGrey,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
 }

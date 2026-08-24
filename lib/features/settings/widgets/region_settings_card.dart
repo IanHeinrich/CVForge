@@ -34,9 +34,9 @@ class RegionSettingsCard extends StatelessWidget {
           Text('Default region', style: context.appTypography.titleMedium),
           const VGap.tiny(),
           Text(
-            'Sets the region every new CV starts with — page size, date '
+            'Sets the region every new CV starts with: page size, date '
             'format, and what the document is called. Change it any time '
-            "for an individual CV from Studio; this only affects what's "
+            "for an individual CV from Studio. This only affects what's "
             'picked by default.',
             style: context.appTypography.bodySmall,
           ),
