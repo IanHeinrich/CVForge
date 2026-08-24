@@ -7,6 +7,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -178,7 +179,7 @@ class _RegionListRow extends StatelessWidget {
                     Text(
                       preset.displayName,
                       style: context.appTypography.bodySmall.copyWith(
-                        color: kcWhite,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -191,7 +192,7 @@ class _RegionListRow extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: context.appTypography.caption.copyWith(
-                        color: kcLightGrey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -290,14 +291,14 @@ class _RegionDetail extends StatelessWidget {
                   Text(
                     '• ',
                     style: context.appTypography.caption.copyWith(
-                      color: kcLightGrey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   Expanded(
                     child: Text(
                       convention,
                       style: context.appTypography.caption.copyWith(
-                        color: kcLightGrey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -326,17 +327,25 @@ class _DetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: context.appIconSize.tiny, color: kcMediumGrey),
+        Icon(
+          icon,
+          size: context.appIconSize.tiny,
+          color: context.appPalette.placeholder,
+        ),
         const HGap.tiny(),
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: context.appTypography.caption.copyWith(color: kcLightGrey),
+              style: context.appTypography.caption.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               children: [
                 TextSpan(text: '$label: '),
                 TextSpan(
                   text: value,
-                  style: const TextStyle(color: kcWhite),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),

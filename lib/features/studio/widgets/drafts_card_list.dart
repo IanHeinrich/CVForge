@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -12,6 +11,7 @@ import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:cv_forge/ui/widgets/common/brand_mark/brand_mark.dart';
 import 'package:cv_forge/ui/widgets/common/pdf_page_thumbnail.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -132,7 +132,9 @@ class _NoSearchResults extends StatelessWidget {
       child: Center(
         child: Text(
           'No $documentNounPlural match your search.',
-          style: context.appTypography.bodySmall.copyWith(color: kcLightGrey),
+          style: context.appTypography.bodySmall.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
@@ -206,7 +208,7 @@ class _DraftCard extends StatelessWidget {
                                 '${draft.region.preset.documentNoun.capitalized}'
                           : draft.name,
                       style: context.appTypography.bodySmall.copyWith(
-                        color: kcWhite,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -214,9 +216,9 @@ class _DraftCard extends StatelessWidget {
                     ),
                   ),
                   PopupMenuButton<_DraftCardAction>(
-                    icon: const Icon(
+                    icon: Icon(
                       RemixIcons.more_2_line,
-                      color: kcLightGrey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 18,
                     ),
                     padding: EdgeInsets.zero,
@@ -246,7 +248,7 @@ class _DraftCard extends StatelessWidget {
               Text(
                 templateName,
                 style: context.appTypography.caption.copyWith(
-                  color: kcLightGrey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -259,7 +261,7 @@ class _DraftCard extends StatelessWidget {
               Text(
                 'Updated ${_formatDateTime(draft.updatedAt)}',
                 style: context.appTypography.caption.copyWith(
-                  color: kcLightGrey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               if (draft.notes.isNotEmpty) ...[
@@ -267,7 +269,7 @@ class _DraftCard extends StatelessWidget {
                 Text(
                   draft.notes,
                   style: context.appTypography.caption.copyWith(
-                    color: kcLightGrey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                   maxLines: 2,
@@ -301,7 +303,7 @@ class _DraftsEmptyState extends StatelessWidget {
       // The one placeholder in the app that gets the brand mark: it is the
       // first thing a new user sees, and there is nothing else on the page
       // to carry the product. Every other empty state keeps its icon.
-      graphic: const BrandMark(color: kcMediumGrey),
+      graphic: BrandMark(color: context.appPalette.placeholder),
       icon: RemixIcons.file_text_line,
       title: 'No $documentNounPlural yet',
       message:

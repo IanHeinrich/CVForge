@@ -3,6 +3,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -142,13 +143,18 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,
               activeColor: kcPrimaryColor,
-              title: Text(item.title, style: const TextStyle(color: kcWhite)),
+              title: Text(
+                item.title,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
               subtitle: item.subtitle == null || item.subtitle!.isEmpty
                   ? null
                   : Text(
                       item.subtitle!,
                       style: context.appTypography.caption.copyWith(
-                        color: kcLightGrey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
             ),
@@ -379,7 +385,9 @@ class _TailorableFieldRow extends StatelessWidget {
                     maxLines: editing ? 1 : 2,
                     overflow: TextOverflow.ellipsis,
                     style: context.appTypography.caption.copyWith(
-                      color: hasText ? kcLightGrey : kcMediumGrey,
+                      color: hasText
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                          : context.appPalette.placeholder,
                       fontStyle: hasText ? FontStyle.normal : FontStyle.italic,
                     ),
                   ),

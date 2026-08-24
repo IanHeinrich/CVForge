@@ -5,7 +5,6 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -228,7 +227,9 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                             IconButton(
                               icon: Icon(
                                 RemixIcons.close_line,
-                                color: kcLightGrey,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                                 size: context.appIconSize.medium,
                               ),
                               onPressed: () =>

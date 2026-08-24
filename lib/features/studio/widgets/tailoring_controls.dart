@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:remixicon/remixicon.dart';
@@ -54,7 +55,7 @@ class TailorIconButtons extends StatelessWidget {
             iconSize: kdTailorIconSize,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
-            color: kcLightGrey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             tooltip: 'Revert to Vault — tailored for this CV',
             onPressed: onRevert,
           )
@@ -64,7 +65,7 @@ class TailorIconButtons extends StatelessWidget {
             child: Icon(
               RemixIcons.safe_line,
               size: kdTailorIconSize,
-              color: kcMediumGrey,
+              color: context.appPalette.placeholder,
             ),
           ),
         const SizedBox(width: 4),
@@ -73,7 +74,9 @@ class TailorIconButtons extends StatelessWidget {
           iconSize: kdTailorIconSize,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
-          color: editing ? kcPrimaryColor : kcLightGrey,
+          color: editing
+              ? kcPrimaryColor
+              : Theme.of(context).colorScheme.onSurfaceVariant,
           tooltip: editing ? 'Done' : 'Edit text',
           onPressed: onToggleEdit,
         ),
@@ -183,7 +186,9 @@ class InlineTextOverrideEditor extends StatelessWidget {
             padding: EdgeInsets.only(top: context.appSpacing.paddingHairline),
             child: Text(
               'Only affects this CV.',
-              style: context.appTypography.caption.copyWith(color: kcLightGrey),
+              style: context.appTypography.caption.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],

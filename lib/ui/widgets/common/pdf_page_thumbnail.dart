@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
-
-import 'package:cv_forge/ui/common/app_colors.dart';
 
 /// A rasterised PDF page's loading/failed/ready states, filling whatever
 /// box it's given (typically an [AspectRatio] matching the page's own
@@ -25,8 +24,11 @@ class PdfPageThumbnail extends StatelessWidget {
         future: future,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(
-              child: Icon(RemixIcons.file_paper_2_line, color: kcMediumGrey),
+            return Center(
+              child: Icon(
+                RemixIcons.file_paper_2_line,
+                color: context.appPalette.placeholder,
+              ),
             );
           }
           if (!snapshot.hasData) {

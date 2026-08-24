@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,10 @@ class VaultEditorPanelScaffold extends StatelessWidget {
                 child: Text(title, style: context.appTypography.titleMedium),
               ),
               IconButton(
-                icon: const Icon(RemixIcons.close_line, color: kcLightGrey),
+                icon: Icon(
+                  RemixIcons.close_line,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 onPressed: onClose,
                 tooltip: 'Close',
               ),

@@ -502,12 +502,16 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
               icon: Icon(
                 RemixIcons.route_line,
                 size: context.appIconSize.medium,
-                color: _showFlowLines ? kcPrimaryColor : kcLightGrey,
+                color: _showFlowLines
+                    ? kcPrimaryColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               label: Text(
                 'Reading order',
                 style: context.appTypography.bodySmall.copyWith(
-                  color: _showFlowLines ? kcPrimaryColor : kcLightGrey,
+                  color: _showFlowLines
+                      ? kcPrimaryColor
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -545,7 +549,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
                 return Text(
                   peek?.title ?? '',
                   style: context.appTypography.bodySmall.copyWith(
-                    color: kcLightGrey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 );
               },

@@ -97,13 +97,16 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
   /// this parameter so the two can't silently drift if that ever changes.
   Future<Uint8List> _buildPdf(PdfPageFormat format) {
     final viewModel = widget.viewModel;
-    _renderedCv = viewModel.resolvedCv;
-    _renderedTemplateId = viewModel.template.id;
-    _renderedPageFormat = viewModel.pageFormat;
+    final cv = viewModel.resolvedCv;
+    final templateId = viewModel.template.id;
+    final pageFormat = viewModel.pageFormat;
+    _renderedCv = cv;
+    _renderedTemplateId = templateId;
+    _renderedPageFormat = pageFormat;
     return locator<PdfExportService>().render(
-      cv: viewModel.resolvedCv,
-      templateId: viewModel.template.id,
-      format: viewModel.pageFormat,
+      cv: cv,
+      templateId: templateId,
+      format: pageFormat,
     );
   }
 
@@ -114,6 +117,16 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
   /// export button still works despite this, that's worth telling the user
   /// rather than implying the whole feature is broken.
   Widget _buildPreviewError(BuildContext context, Object error) {
+    // Reported rather than swallowed: the copy below tells the user what to
+    // try, but without this the underlying failure reaches nothing that
+    // could explain *why* the raster failed.
+    FlutterError.reportError(
+      FlutterErrorDetails(
+        exception: error,
+        library: 'cv_forge',
+        context: ErrorDescription('rasterizing the Studio preview'),
+      ),
+    );
     return const AppEmptyState(
       icon: RemixIcons.error_warning_line,
       title: "Couldn't render the preview",

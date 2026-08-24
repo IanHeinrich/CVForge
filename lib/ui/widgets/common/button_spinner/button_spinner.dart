@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 /// The in-button busy indicator, sized to sit inside a [FilledButton] or
@@ -10,10 +9,13 @@ class ButtonSpinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       width: 16,
       height: 16,
-      child: CircularProgressIndicator(strokeWidth: 2, color: kcWhite),
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 }

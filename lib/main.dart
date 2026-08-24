@@ -14,12 +14,12 @@ import 'package:cv_forge/services/pdf_extraction_service_web.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/ui/common/app_strings.dart';
 import 'package:cv_forge/ui/common/app_theme.dart';
-import 'package:url_strategy/url_strategy.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setPathUrlStrategy();
+  usePathUrlStrategy();
   await setupLocator(stackedRouter: stackedRouter);
   // Registered here, not through app.dart's @StackedApp dependencies list
   // like every other service — see PdfExtractionService's doc comment for

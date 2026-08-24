@@ -1,6 +1,5 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -118,7 +117,7 @@ class _LegalLink extends StatelessWidget {
       child: Text(
         label,
         style: context.appTypography.caption.copyWith(
-          color: kcLightGrey,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           decoration: TextDecoration.underline,
         ),
       ),

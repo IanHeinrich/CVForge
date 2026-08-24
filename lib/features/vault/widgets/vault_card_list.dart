@@ -5,7 +5,6 @@ import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -254,7 +253,10 @@ class _BasicsCard extends StatelessWidget {
       subtitle: subtitle,
       selected: selected,
       onTap: onTap,
-      leading: const Icon(RemixIcons.user_line, color: kcLightGrey),
+      leading: Icon(
+        RemixIcons.user_line,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
     );
   }
 }
@@ -285,7 +287,10 @@ class _SkillsCard extends StatelessWidget {
           : '${categories.length} categories, $skillCount skills',
       selected: selected,
       onTap: onTap,
-      leading: const Icon(RemixIcons.star_line, color: kcLightGrey),
+      leading: Icon(
+        RemixIcons.star_line,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
     );
   }
 }
@@ -315,7 +320,10 @@ class _HobbiesCard extends StatelessWidget {
           : '${hobbies.length} ${hobbies.length == 1 ? 'hobby' : 'hobbies'}',
       selected: selected,
       onTap: onTap,
-      leading: const Icon(RemixIcons.footprint_line, color: kcLightGrey),
+      leading: Icon(
+        RemixIcons.footprint_line,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
     );
   }
 }

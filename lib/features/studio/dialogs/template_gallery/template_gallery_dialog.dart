@@ -179,7 +179,7 @@ class _TemplateCard extends StatelessWidget {
                 Text(
                   template.displayName,
                   style: context.appTypography.bodySmall.copyWith(
-                    color: kcWhite,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -187,7 +187,7 @@ class _TemplateCard extends StatelessWidget {
                 Text(
                   template.description,
                   style: context.appTypography.caption.copyWith(
-                    color: kcLightGrey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

@@ -247,8 +247,12 @@ class _RailChrome extends StatelessWidget {
             useIndicator: false,
             selectedIconTheme: const IconThemeData(color: kcPrimaryColor),
             selectedLabelTextStyle: const TextStyle(color: kcPrimaryColor),
-            unselectedIconTheme: const IconThemeData(color: kcLightGrey),
-            unselectedLabelTextStyle: const TextStyle(color: kcLightGrey),
+            unselectedIconTheme: IconThemeData(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            unselectedLabelTextStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             onDestinationSelected: (index) =>
                 onSelect(destinations[index].section),
             destinations: [
@@ -283,7 +287,7 @@ class _RailChrome extends StatelessWidget {
                               : _settingsDestination.icon,
                           color: section == AppSection.settings
                               ? kcPrimaryColor
-                              : kcLightGrey,
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () => onSelect(AppSection.settings),
                       ),
@@ -344,13 +348,16 @@ class _MobileChrome extends StatelessWidget {
             (states) => context.appTypography.caption.copyWith(
               color: states.contains(WidgetState.selected)
                   ? kcPrimaryColor
-                  : kcLightGrey,
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           destinations: [
             for (final d in destinations)
               NavigationDestination(
-                icon: Icon(d.icon, color: kcLightGrey),
+                icon: Icon(
+                  d.icon,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 selectedIcon: Icon(d.selectedIcon, color: kcPrimaryColor),
                 label: d.label,
               ),

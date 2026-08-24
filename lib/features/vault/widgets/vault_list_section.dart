@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
@@ -77,7 +76,7 @@ class VaultListSection<T> extends StatelessWidget {
         else
           LayoutBuilder(
             builder: (context, constraints) {
-              final cards = [for (final item in items) _card(item)];
+              final cards = [for (final item in items) _card(context, item)];
               if (constraints.maxWidth < _twoColumnMinWidth) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -94,14 +93,14 @@ class VaultListSection<T> extends StatelessWidget {
     );
   }
 
-  Widget _card(T item) => AppSummaryCard(
+  Widget _card(BuildContext context, T item) => AppSummaryCard(
     key: idOf(item) == openId ? selectedItemKey : null,
     title: titleOf(item),
     subtitle: subtitleOf(item),
     selected: idOf(item) == openId,
     onTap: () => onOpen(idOf(item)),
     onDelete: () => onDelete(idOf(item)),
-    leading: Icon(icon, color: kcLightGrey),
+    leading: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
   );
 }
 

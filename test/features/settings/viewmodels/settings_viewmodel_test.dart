@@ -95,7 +95,7 @@ void main() {
       verify(backupService.exportBackup()).called(1);
     });
 
-    group('backup state (7.7) -', () {
+    group('backup state -', () {
       test('lastBackupAt is null initially', () {
         final model = SettingsViewModel();
 
@@ -167,7 +167,7 @@ void main() {
       });
     });
 
-    group('clearVault (7.8) -', () {
+    group('clearVault -', () {
       test('prompts for confirmation and, once confirmed, clears the '
           'Vault', () async {
         when(
@@ -277,7 +277,7 @@ void main() {
       });
     });
 
-    group('AI Assistant connection (4.4) -', () {
+    group('AI Assistant connection -', () {
       test('selectAiAssistantModel persists just the model id, leaving the '
           'current provider selection alone', () async {
         when(

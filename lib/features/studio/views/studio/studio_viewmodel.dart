@@ -188,12 +188,40 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   PdfPageFormat get pageFormat => _draft.region.preset.page.toPdfPageFormat;
 
-  ResolvedCv get resolvedCv => CvComposer.compose(
-    _vault,
-    _draft,
-    region: _draft.region,
-    sectionOrder: _draft.effectiveSectionOrder,
-  );
+  /// Memoised on the identity of the Vault and Draft it was composed from.
+  /// `StudioPreviewPane` reads this two to four times per build and
+  /// rebuilds on every selection toggle, so recomposing per read walked the
+  /// whole Vault and rebuilt the section tree for nothing.
+  ///
+  /// Identity, not equality: both services hand back the same instance
+  /// until a write actually replaces it, so `identical` is the exact "has
+  /// anything changed" signal, and a miss only costs the recompute that
+  /// used to happen unconditionally. [CvDraft] supplies the region and
+  /// section order too, so those need no key of their own.
+  ResolvedCv get resolvedCv {
+    final vault = _vault;
+    final draft = _draft;
+    final cached = _composed;
+    if (cached != null &&
+        identical(vault, _composedVault) &&
+        identical(draft, _composedDraft)) {
+      return cached;
+    }
+    final composed = CvComposer.compose(
+      vault,
+      draft,
+      region: draft.region,
+      sectionOrder: draft.effectiveSectionOrder,
+    );
+    _composedVault = vault;
+    _composedDraft = draft;
+    _composed = composed;
+    return composed;
+  }
+
+  CvVault? _composedVault;
+  CvDraft? _composedDraft;
+  ResolvedCv? _composed;
 
   /// [CvVault.isEmpty] (no source data anywhere) is checked ahead of an
   /// empty [resolvedCv] (data exists but nothing is included) — the two

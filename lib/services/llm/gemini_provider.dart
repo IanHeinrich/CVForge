@@ -233,7 +233,6 @@ class GeminiProvider implements LlmProvider {
   }
 
   LlmException _mapDioException(DioException e) {
-    final status = e.response?.statusCode;
     final errorBody = e.response?.data;
     final error = errorBody is Map ? errorBody['error'] : null;
 
@@ -253,17 +252,7 @@ class GeminiProvider implements LlmProvider {
       if (isKeyError) return LlmException(LlmFailure.unauthorized, e);
     }
 
-    if (status != null) {
-      if (status == 429) return LlmException(LlmFailure.rateLimited, e);
-      if (status >= 500) return LlmException(LlmFailure.overloaded, e);
-      if (status >= 400) return LlmException(LlmFailure.invalidRequest, e);
-    }
-    return switch (e.type) {
-      DioExceptionType.connectionTimeout ||
-      DioExceptionType.sendTimeout ||
-      DioExceptionType.receiveTimeout => LlmException(LlmFailure.timeout, e),
-      _ => LlmException(LlmFailure.network, e),
-    };
+    return mapLlmTransportError(e);
   }
 
   /// Walks the provider-agnostic [JsonSchema] into Gemini's

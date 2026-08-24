@@ -179,26 +179,15 @@ class AnthropicProvider implements LlmProvider {
     }
   }
 
+  /// 403 sits with 401: both mean "this key may not do this", which is the
+  /// same thing for a user to act on. Everything else is the shared
+  /// mapping.
   LlmException _mapDioException(DioException e) {
     final status = e.response?.statusCode;
-    if (status != null) {
-      // 403 sits with 401: both mean "this key may not do this", which is
-      // the same thing for a user to act on. Every other 4xx is a request
-      // this client built wrongly — reporting that as a network failure
-      // ("check your connection") sends the user to debug the wrong thing.
-      if (status == 401 || status == 403) {
-        return LlmException(LlmFailure.unauthorized, e);
-      }
-      if (status == 429) return LlmException(LlmFailure.rateLimited, e);
-      if (status >= 500) return LlmException(LlmFailure.overloaded, e);
-      if (status >= 400) return LlmException(LlmFailure.invalidRequest, e);
+    if (status == 401 || status == 403) {
+      return LlmException(LlmFailure.unauthorized, e);
     }
-    return switch (e.type) {
-      DioExceptionType.connectionTimeout ||
-      DioExceptionType.sendTimeout ||
-      DioExceptionType.receiveTimeout => LlmException(LlmFailure.timeout, e),
-      _ => LlmException(LlmFailure.network, e),
-    };
+    return mapLlmTransportError(e);
   }
 
   /// Walks the provider-agnostic [JsonSchema] into Anthropic's

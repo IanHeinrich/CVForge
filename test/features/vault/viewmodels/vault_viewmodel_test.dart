@@ -127,7 +127,7 @@ void main() {
       verify(vaultService.updateExperience(experience)).called(1);
     });
 
-    group('year field validation (7.8) -', () {
+    group('year field validation -', () {
       final experience = Experience(
         id: 'exp-1',
         role: 'Engineer',

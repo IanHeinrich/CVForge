@@ -1,11 +1,6 @@
-/// Baselines are generated on `ubuntu-latest` (see
-/// `.github/workflows/update-goldens.yml`) and compared there again on
-/// every PR by `ci.yml`'s plain `flutter test` — that's the run that
-/// actually catches a real visual regression. Font rasterization differs
-/// by platform, so these fail with a small pixel diff on a non-Linux dev
-/// machine even with no changes at all; run `flutter test
-/// --exclude-tags=golden` locally to skip them, or `--tags=golden` to run
-/// just these.
+/// Run `flutter test --exclude-tags=golden` locally to skip these, or
+/// `--tags=golden` to run just them. See [pumpGoldenScreen] for why they
+/// only compare meaningfully on Linux.
 @Tags(['golden'])
 library;
 
@@ -16,12 +11,11 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
-import 'package:cv_forge/ui/common/app_theme.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mockito/mockito.dart';
 
+import '../helpers/golden_helpers.dart';
 import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
 
@@ -44,30 +38,10 @@ void main() {
   });
   tearDown(() => locator.reset());
 
-  Future<void> pumpVaultView(WidgetTester tester) async {
-    await loadAppFonts();
-    await tester.binding.setSurfaceSize(const Size(1600, 1000));
-    tester.view.devicePixelRatio = 1.0;
-
-    await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(
-          size: Size(1600, 1000),
-          devicePixelRatio: 1.0,
-        ),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: buildAppTheme(),
-          home: const VaultView(),
-        ),
-      ),
-    );
-  }
-
   testGoldens('VaultView - empty state', (tester) async {
     when(vaultService.vault).thenReturn(CvVault.empty());
 
-    await pumpVaultView(tester);
+    await pumpGoldenScreen(tester, const VaultView());
 
     await screenMatchesGolden(tester, 'vault_view_empty');
   });
@@ -75,7 +49,7 @@ void main() {
   testGoldens('VaultView - populated from example vault', (tester) async {
     when(vaultService.vault).thenReturn(buildExampleVault());
 
-    await pumpVaultView(tester);
+    await pumpGoldenScreen(tester, const VaultView());
 
     await screenMatchesGolden(tester, 'vault_view_populated');
   });

@@ -40,7 +40,10 @@ class PersistErrorBanner extends StatelessWidget {
           const Icon(RemixIcons.error_warning_line, color: kcErrorColor),
           const HGap.small(),
           Expanded(
-            child: Text(message, style: const TextStyle(color: kcWhite)),
+            child: Text(
+              message,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            ),
           ),
           TextButton(onPressed: onRetry, child: const Text('Retry')),
         ],

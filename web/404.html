@@ -8,7 +8,7 @@
     // GitHub Pages has no server-side rewrite rules, so a fresh browser
     // load (a bookmark, a shared link, a refresh) of a deep path like
     // /CVForge/vault 404s before the Flutter app — which owns routing
-    // for that path via url_strategy's History-API URLs — ever loads.
+    // for that path via the History-API URLs the path strategy produces — ever loads.
     // This is the standard workaround for that combination (History-API
     // client-side routing + GitHub Pages' static hosting): GitHub Pages
     // serves this file for any unmatched path, and it redirects back to

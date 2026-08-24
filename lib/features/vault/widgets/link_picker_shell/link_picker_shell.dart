@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -97,7 +96,7 @@ class _LinkPickerShellState extends State<LinkPickerShell> {
                 Icon(
                   widget.icon,
                   size: context.appIconSize.small,
-                  color: kcLightGrey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const HGap.small(),
                 Expanded(child: _buildLabel(context)),
@@ -106,7 +105,7 @@ class _LinkPickerShellState extends State<LinkPickerShell> {
                       ? RemixIcons.arrow_up_s_line
                       : RemixIcons.arrow_down_s_line,
                   size: context.appIconSize.medium,
-                  color: kcLightGrey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ],
             ),
@@ -120,7 +119,9 @@ class _LinkPickerShellState extends State<LinkPickerShell> {
   Widget _buildLabel(BuildContext context) {
     final label = Text(
       widget.label,
-      style: context.appTypography.caption.copyWith(color: kcLightGrey),
+      style: context.appTypography.caption.copyWith(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
     );
     final summary = widget.summary;
     // Expanded, the chips below already name every linked item, so
@@ -135,7 +136,9 @@ class _LinkPickerShellState extends State<LinkPickerShell> {
           summary,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: context.appTypography.caption.copyWith(color: kcWhite),
+          style: context.appTypography.caption.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
       ],
     );

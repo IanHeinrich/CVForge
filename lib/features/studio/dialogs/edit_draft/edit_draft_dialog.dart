@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/app_colors.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +49,7 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
           controller: viewModel.nameController,
           autofocus: true,
           onChanged: viewModel.onNameChanged,
-          style: const TextStyle(color: kcWhite),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             labelText: 'Name',
             hintText: 'e.g. "Acme — Backend Engineer"',
@@ -64,7 +63,7 @@ class EditDraftDialog extends StackedView<EditDraftDialogModel> {
           controller: viewModel.notesController,
           minLines: 2,
           maxLines: 5,
-          style: const TextStyle(color: kcWhite),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             labelText: 'Notes',
             hintText:
