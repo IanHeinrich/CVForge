@@ -305,6 +305,14 @@ filenames; and brand names
 market's own word for the document, whose entire purpose is to not be
 translated).
 
+**Legal copy** is the one exemption that covers whole files rather than
+individual strings: `PrivacyView` and `TermsView` (and the shared
+`LegalPageScaffold` they render through) are English in every locale. An
+approximate translation of a privacy policy is worse than an accurate
+English one, and the text on that exact page is what Google's OAuth consent
+screen links to — so it has to say what was reviewed, not a machine
+paraphrase of it.
+
 ### Three access paths, and only three
 
 | Where | How |
