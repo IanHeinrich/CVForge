@@ -2,12 +2,11 @@
 //
 // `dart:js_interop` bindings for `pdfjsLib`, the module `web/pdfjs/
 // pdf.min.mjs` exposes on `window` once imported. Modeled on (never
-// imports — that package is vendored, patched, and slated for deletion,
-// see `third_party/printing/README.md`) `third_party/printing/lib/src/
-// pdfjs.dart`'s loading-task-vs-promise shape, extended with the members
-// `getTextContent`/`getMetadata`/`getAnnotations`/`getStructTree`/
-// `getOperatorList`/`commonObjs` need — none of which `printing`'s own
-// binding covers, since it only ever rasterizes.
+// imports — it's `src/`, another package's private source) `printing`'s
+// `lib/src/pdfjs.dart`'s loading-task-vs-promise shape, extended with
+// the members `getTextContent`/`getMetadata`/`getAnnotations`/
+// `getStructTree`/`getOperatorList`/`commonObjs` need — none of which
+// `printing`'s own binding covers, since it only ever rasterizes.
 //
 // Binding-correctness notes:
 //  - Never declare an `external set` anywhere on this library. Depending
