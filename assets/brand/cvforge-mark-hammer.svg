@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 232 232" width="232" height="232"
+     fill="none" stroke="currentColor" stroke-width="12"
+     stroke-linecap="round" stroke-linejoin="round">
+  <title>CVForge detail mark, hammer only</title>
+  <!-- The hammer lifted out of cvforge-mark.svg unchanged — 40x20 head, 60
+       haft, same resting transform — so BrandMarkLoader can swing it over
+       cvforge-mark-anvil.svg. Same viewBox as that file, so the two overlay
+       with no per-layer offset, and the resting pose here is the mark's own.
+       See cvforge-mark.svg for why the head is solid and the haft runs long. -->
+  <g transform="translate(134 68) rotate(35)">
+    <rect x="-20" y="-10" width="40" height="20" rx="4" fill="currentColor" stroke="none"/>
+    <path d="M0 -10 V-60"/>
+  </g>
+</svg>

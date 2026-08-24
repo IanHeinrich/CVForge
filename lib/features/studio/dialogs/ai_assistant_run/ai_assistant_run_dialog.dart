@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
+import 'package:cv_forge/ui/widgets/common/brand_mark_loader/brand_mark_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -108,7 +109,12 @@ class AiAssistantRunDialog extends StackedView<AiAssistantRunDialogModel> {
             padding: EdgeInsets.symmetric(
               vertical: context.appSpacing.paddingPage,
             ),
-            child: const Center(child: CircularProgressIndicator()),
+            // The forging mark rather than a spinner: this wait runs to tens
+            // of seconds, long enough that a spinner starts reading as a
+            // stall. See BrandMarkLoader for where that line is drawn.
+            child: const Center(
+              child: BrandMarkLoader(semanticsLabel: 'Tailoring your CV'),
+            ),
           ),
           Center(
             child: Text(
