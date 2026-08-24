@@ -78,6 +78,54 @@ class GoogleAuthServiceWeb implements GoogleAuthService {
   }
 
   @override
+  Future<void> warmUp() async {
+    if (!isConfigured) return;
+    try {
+      await _ensureTokenClient();
+    } on GoogleAuthException {
+      // Nothing to surface yet — the next real request reports it.
+    }
+  }
+
+  Completer<String?>? _gestureWait;
+  JSFunction? _gestureListener;
+
+  @override
+  Future<String?> tokenOnNextUserGesture() {
+    final pending = _gestureWait;
+    if (pending != null) return pending.future;
+    if (!isConfigured) return Future.value(null);
+
+    final completer = Completer<String?>();
+    _gestureWait = completer;
+
+    void onGesture(web.Event event) {
+      _removeGestureListener();
+      // Deliberately not awaited before the request goes out: transient
+      // activation is short-lived, and everything slow (the GIS script,
+      // the token client) was already done in warmUp.
+      silentAccessToken().then((token) {
+        _gestureWait = null;
+        if (!completer.isCompleted) completer.complete(token);
+      });
+    }
+
+    final listener = onGesture.toJS;
+    _gestureListener = listener;
+    web.document.addEventListener('pointerdown', listener);
+    web.document.addEventListener('keydown', listener);
+    return completer.future;
+  }
+
+  void _removeGestureListener() {
+    final listener = _gestureListener;
+    if (listener == null) return;
+    web.document.removeEventListener('pointerdown', listener);
+    web.document.removeEventListener('keydown', listener);
+    _gestureListener = null;
+  }
+
+  @override
   Future<String> connect() async {
     if (!isConfigured) {
       throw const GoogleAuthException(GoogleAuthFailure.notConfigured);
@@ -94,6 +142,12 @@ class GoogleAuthServiceWeb implements GoogleAuthService {
     _accessToken = null;
     _expiresAt = null;
     _tokenClient = null;
+    _removeGestureListener();
+    // Anything still waiting on a gesture is waiting for a session that
+    // no longer exists.
+    final waiting = _gestureWait;
+    _gestureWait = null;
+    if (waiting != null && !waiting.isCompleted) waiting.complete(null);
     if (token == null) return;
     final completer = Completer<void>();
     gis.revoke(token, (() => completer.complete()).toJS);
@@ -108,6 +162,21 @@ class GoogleAuthServiceWeb implements GoogleAuthService {
       onTimeout: () {},
     );
   }
+
+  /// GIS's `callback` reliably fires when the user completes the flow, or
+  /// explicitly denies it from *inside* Google's own UI (`error:
+  /// 'access_denied'`) — but empirically does not always fire when the
+  /// user just closes the popup window itself rather than clicking a
+  /// button in it. Without a timeout that leaves [_requestToken]'s
+  /// `completer` (and therefore [connect]/[silentAccessToken], and every
+  /// UI state waiting on them) hung indefinitely on "connecting" with no
+  /// way to recover short of a page reload. Silent renewal gets a short
+  /// timeout — it either resolves fast or genuinely isn't going to
+  /// succeed; interactive gets a long one, since a real human completing
+  /// a Google sign-in (password managers, 2FA) can legitimately take a
+  /// while.
+  static const _silentTimeout = Duration(seconds: 10);
+  static const _interactiveTimeout = Duration(minutes: 2);
 
   /// Serializes on [_requestLock] — see its doc comment — rather than
   /// running concurrently, so [_pendingRequest] is always unambiguous
@@ -124,7 +193,13 @@ class GoogleAuthServiceWeb implements GoogleAuthService {
       client.requestAccessToken(
         gis.buildRequestAccessTokenOptions(prompt: prompt),
       );
-      return await completer.future;
+      return await completer.future.timeout(
+        prompt.isEmpty ? _silentTimeout : _interactiveTimeout,
+        onTimeout: () => throw const GoogleAuthException(
+          GoogleAuthFailure.cancelledOrBlocked,
+          'timed out waiting for a response from Google',
+        ),
+      );
     } finally {
       _pendingRequest = null;
       unlock.complete();
@@ -167,7 +242,24 @@ class GoogleAuthServiceWeb implements GoogleAuthService {
         clientId: _clientId,
         scope: _scope,
         callback: ((gis.GisTokenResponse response) {
-          _pendingRequest?.complete(response);
+          final pending = _pendingRequest;
+          if (pending == null || pending.isCompleted) return;
+          pending.complete(response);
+        }).toJS,
+        // Without this the popup-blocked case reaches neither callback and
+        // the request hangs until the timeout — see buildTokenClientConfig.
+        errorCallback: ((gis.GisErrorResponse error) {
+          final pending = _pendingRequest;
+          if (pending == null || pending.isCompleted) return;
+          pending.completeError(
+            GoogleAuthException(
+              error.type == 'popup_failed_to_open' ||
+                      error.type == 'popup_closed'
+                  ? GoogleAuthFailure.cancelledOrBlocked
+                  : GoogleAuthFailure.unknown,
+              '${error.type}: ${error.message}',
+            ),
+          );
         }).toJS,
       ),
     );
