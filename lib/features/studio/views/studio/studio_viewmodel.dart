@@ -12,6 +12,7 @@ import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/vault_selection.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
@@ -50,10 +51,9 @@ enum StudioPreviewState { vaultEmpty, nothingSelected, ready }
 class StudioViewModel extends ReactiveViewModel implements Initialisable {
   StudioViewModel({this.requestedDraftId});
 
-  /// The `?draftId=…` query param `StudioView` was opened with, if any —
-  /// see its doc comment for why this is a query param rather than a path
-  /// segment. `null` means "show whatever `DraftService` already has
-  /// active", the pre-existing behaviour.
+  /// The `?draftId=…` query param `StudioView` was opened with — see its
+  /// doc comment for why a query param rather than a path segment. `null`
+  /// shows whatever `DraftService` already has active.
   final String? requestedDraftId;
 
   final _vaultService = locator<VaultService>();
@@ -687,124 +687,126 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> removeAllProjectBullets(Project project) =>
       _projectBullets.removeAll(project.id, project.bullets);
 
-  // Bullet text overrides are shared by experience, project, and
-  // publication bullets alike — bullet ids are globally unique (see
-  // `Skill.linkedBulletIds`'s doc comment), so an override lookup needs
-  // only the bullet, never which entity it belongs to.
+  // Every id-keyed override quartet below is the same four operations
+  // over a different [TextOverrideField] and Vault fallback. Blank input,
+  // or input identical to the Vault's own value, collapses back to "no
+  // override" — see [_TextOverride], which applies the same rule to the
+  // three scalar fields.
+  //
+  // Bullet ids are globally unique (see `Skill.linkedBulletIds`), so a
+  // bullet override needs only the bullet, never its owning entity.
 
-  _TextOverride _bulletOverride(CvBullet bullet) => _TextOverride(
-    vaultValue: () => bullet.text,
-    draftValue: () => _draft.bulletOverrides[bullet.id],
-    setOverride: (value) => _draftService.setBulletOverride(bullet.id, value),
+  String _overrideText(
+    TextOverrideField field,
+    String id,
+    String? vaultValue,
+  ) => field.of(_draft)[id] ?? vaultValue ?? '';
+
+  bool _hasOverride(TextOverrideField field, String id) =>
+      field.of(_draft).containsKey(id);
+
+  Future<void> _setOverride(
+    TextOverrideField field,
+    String id,
+    String value,
+    String? vaultValue,
+  ) => _draftService.setTextOverride(
+    field,
+    id,
+    _TextOverride.normalize(value, vaultValue),
   );
 
-  String bulletText(CvBullet bullet) => _bulletOverride(bullet).text;
+  Future<void> _revertOverride(TextOverrideField field, String id) =>
+      _draftService.setTextOverride(field, id, null);
+
+  String bulletText(CvBullet bullet) =>
+      _overrideText(TextOverrideField.bullet, bullet.id, bullet.text);
 
   bool hasBulletOverride(String bulletId) =>
-      _draft.bulletOverrides.containsKey(bulletId);
+      _hasOverride(TextOverrideField.bullet, bulletId);
 
   Future<void> setBulletOverride(CvBullet bullet, String value) =>
-      _bulletOverride(bullet).set(value);
+      _setOverride(TextOverrideField.bullet, bullet.id, value, bullet.text);
 
   Future<void> revertBulletOverride(String bulletId) =>
-      _draftService.setBulletOverride(bulletId, null);
+      _revertOverride(TextOverrideField.bullet, bulletId);
 
   // The entity-title overrides below are the same wiring as [bulletText],
   // one per field that prints. They exist so a draft can shorten a job
   // title or drop a market's untranslatable jargon for one application
   // without editing the Vault, which would change every other draft.
 
-  _TextOverride _roleOverride(Experience entry) => _TextOverride(
-    vaultValue: () => entry.role,
-    draftValue: () => _draft.roleOverrides[entry.id],
-    setOverride: (value) => _draftService.setRoleOverride(entry.id, value),
-  );
-
-  String roleText(Experience entry) => _roleOverride(entry).text;
+  String roleText(Experience entry) =>
+      _overrideText(TextOverrideField.role, entry.id, entry.role);
 
   bool hasRoleOverride(String experienceId) =>
-      _draft.roleOverrides.containsKey(experienceId);
+      _hasOverride(TextOverrideField.role, experienceId);
 
   Future<void> setRoleOverride(Experience entry, String value) =>
-      _roleOverride(entry).set(value);
+      _setOverride(TextOverrideField.role, entry.id, value, entry.role);
 
   Future<void> revertRoleOverride(String experienceId) =>
-      _draftService.setRoleOverride(experienceId, null);
+      _revertOverride(TextOverrideField.role, experienceId);
 
-  _TextOverride _projectTitleOverride(Project entry) => _TextOverride(
-    vaultValue: () => entry.title,
-    draftValue: () => _draft.projectTitleOverrides[entry.id],
-    setOverride: (value) =>
-        _draftService.setProjectTitleOverride(entry.id, value),
-  );
-
-  String projectTitleText(Project entry) => _projectTitleOverride(entry).text;
+  String projectTitleText(Project entry) =>
+      _overrideText(TextOverrideField.projectTitle, entry.id, entry.title);
 
   bool hasProjectTitleOverride(String projectId) =>
-      _draft.projectTitleOverrides.containsKey(projectId);
+      _hasOverride(TextOverrideField.projectTitle, projectId);
 
   Future<void> setProjectTitleOverride(Project entry, String value) =>
-      _projectTitleOverride(entry).set(value);
-
-  Future<void> revertProjectTitleOverride(String projectId) =>
-      _draftService.setProjectTitleOverride(projectId, null);
-
-  _TextOverride _skillLabelOverride(Skill entry) => _TextOverride(
-    vaultValue: () => entry.label,
-    draftValue: () => _draft.skillLabelOverrides[entry.id],
-    setOverride: (value) =>
-        _draftService.setSkillLabelOverride(entry.id, value),
-  );
-
-  String skillLabelText(Skill entry) => _skillLabelOverride(entry).text;
-
-  bool hasSkillLabelOverride(String skillId) =>
-      _draft.skillLabelOverrides.containsKey(skillId);
-
-  Future<void> setSkillLabelOverride(Skill entry, String value) =>
-      _skillLabelOverride(entry).set(value);
-
-  Future<void> revertSkillLabelOverride(String skillId) =>
-      _draftService.setSkillLabelOverride(skillId, null);
-
-  _TextOverride _skillCategoryNameOverride(SkillCategory entry) =>
-      _TextOverride(
-        vaultValue: () => entry.name,
-        draftValue: () => _draft.skillCategoryNameOverrides[entry.id],
-        setOverride: (value) =>
-            _draftService.setSkillCategoryNameOverride(entry.id, value),
+      _setOverride(
+        TextOverrideField.projectTitle,
+        entry.id,
+        value,
+        entry.title,
       );
 
+  Future<void> revertProjectTitleOverride(String projectId) =>
+      _revertOverride(TextOverrideField.projectTitle, projectId);
+
+  String skillLabelText(Skill entry) =>
+      _overrideText(TextOverrideField.skillLabel, entry.id, entry.label);
+
+  bool hasSkillLabelOverride(String skillId) =>
+      _hasOverride(TextOverrideField.skillLabel, skillId);
+
+  Future<void> setSkillLabelOverride(Skill entry, String value) =>
+      _setOverride(TextOverrideField.skillLabel, entry.id, value, entry.label);
+
+  Future<void> revertSkillLabelOverride(String skillId) =>
+      _revertOverride(TextOverrideField.skillLabel, skillId);
+
   String skillCategoryNameText(SkillCategory entry) =>
-      _skillCategoryNameOverride(entry).text;
+      _overrideText(TextOverrideField.skillCategoryName, entry.id, entry.name);
 
   bool hasSkillCategoryNameOverride(String categoryId) =>
-      _draft.skillCategoryNameOverrides.containsKey(categoryId);
+      _hasOverride(TextOverrideField.skillCategoryName, categoryId);
 
   Future<void> setSkillCategoryNameOverride(
     SkillCategory entry,
     String value,
-  ) => _skillCategoryNameOverride(entry).set(value);
-
-  Future<void> revertSkillCategoryNameOverride(String categoryId) =>
-      _draftService.setSkillCategoryNameOverride(categoryId, null);
-
-  _TextOverride _hobbyOverride(HobbyItem entry) => _TextOverride(
-    vaultValue: () => entry.text,
-    draftValue: () => _draft.hobbyOverrides[entry.id],
-    setOverride: (value) => _draftService.setHobbyOverride(entry.id, value),
+  ) => _setOverride(
+    TextOverrideField.skillCategoryName,
+    entry.id,
+    value,
+    entry.name,
   );
 
-  String hobbyText(HobbyItem entry) => _hobbyOverride(entry).text;
+  Future<void> revertSkillCategoryNameOverride(String categoryId) =>
+      _revertOverride(TextOverrideField.skillCategoryName, categoryId);
+
+  String hobbyText(HobbyItem entry) =>
+      _overrideText(TextOverrideField.hobby, entry.id, entry.text);
 
   bool hasHobbyOverride(String hobbyId) =>
-      _draft.hobbyOverrides.containsKey(hobbyId);
+      _hasOverride(TextOverrideField.hobby, hobbyId);
 
   Future<void> setHobbyOverride(HobbyItem entry, String value) =>
-      _hobbyOverride(entry).set(value);
+      _setOverride(TextOverrideField.hobby, entry.id, value, entry.text);
 
   Future<void> revertHobbyOverride(String hobbyId) =>
-      _draftService.setHobbyOverride(hobbyId, null);
+      _revertOverride(TextOverrideField.hobby, hobbyId);
 
   late final _skillSelection = _Selection<Skill>(
     items: () => _allSkills,
@@ -828,16 +830,14 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> addAllSkills() => _skillSelection.addAll();
 
-  /// Same shape as [_Selection.addAll], restricted to one category — each
-  /// toggle must be awaited before the next starts, for the same reason
-  /// [addAllExperienceBullets] documents.
+  /// Same shape as [_Selection.addAll], restricted to one category.
   Future<void> addAllSkillsInCategory(SkillCategory category) async {
     for (final skill in category.skills) {
       if (!isSkillIncluded(skill.id)) await toggleSkill(skill);
     }
   }
 
-  /// Inverse of [addAllSkillsInCategory] — same sequential-await shape.
+  /// Inverse of [addAllSkillsInCategory].
   Future<void> removeAllSkillsInCategory(SkillCategory category) async {
     for (final skill in category.skills) {
       if (isSkillIncluded(skill.id)) await toggleSkill(skill);
@@ -922,65 +922,64 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   /// Same shape as [bulletText]. [Education.institution] and `year` have
   /// no counterpart here deliberately — see [CvDraft]'s override-layer
   /// doc for which fields stay Vault-sourced and why.
-  _TextOverride _educationDetailsOverride(Education entry) => _TextOverride(
-    vaultValue: () => entry.details,
-    draftValue: () => _draft.educationDetailsOverrides[entry.id],
-    setOverride: (value) =>
-        _draftService.setEducationDetailsOverride(entry.id, value),
+  String educationDetailsText(Education entry) => _overrideText(
+    TextOverrideField.educationDetails,
+    entry.id,
+    entry.details,
   );
 
-  String educationDetailsText(Education entry) =>
-      _educationDetailsOverride(entry).text;
-
   bool hasEducationDetailsOverride(String educationId) =>
-      _draft.educationDetailsOverrides.containsKey(educationId);
+      _hasOverride(TextOverrideField.educationDetails, educationId);
 
   Future<void> setEducationDetailsOverride(Education entry, String value) =>
-      _educationDetailsOverride(entry).set(value);
-
-  Future<void> revertEducationDetailsOverride(String educationId) =>
-      _draftService.setEducationDetailsOverride(educationId, null);
-
-  _TextOverride _educationQualificationOverride(Education entry) =>
-      _TextOverride(
-        vaultValue: () => entry.qualification,
-        draftValue: () => _draft.educationQualificationOverrides[entry.id],
-        setOverride: (value) =>
-            _draftService.setEducationQualificationOverride(entry.id, value),
+      _setOverride(
+        TextOverrideField.educationDetails,
+        entry.id,
+        value,
+        entry.details,
       );
 
-  String educationQualificationText(Education entry) =>
-      _educationQualificationOverride(entry).text;
+  Future<void> revertEducationDetailsOverride(String educationId) =>
+      _revertOverride(TextOverrideField.educationDetails, educationId);
+
+  String educationQualificationText(Education entry) => _overrideText(
+    TextOverrideField.educationQualification,
+    entry.id,
+    entry.qualification,
+  );
 
   bool hasEducationQualificationOverride(String educationId) =>
-      _draft.educationQualificationOverrides.containsKey(educationId);
+      _hasOverride(TextOverrideField.educationQualification, educationId);
 
   Future<void> setEducationQualificationOverride(
     Education entry,
     String value,
-  ) => _educationQualificationOverride(entry).set(value);
-
-  Future<void> revertEducationQualificationOverride(String educationId) =>
-      _draftService.setEducationQualificationOverride(educationId, null);
-
-  _TextOverride _educationGradeOverride(Education entry) => _TextOverride(
-    vaultValue: () => entry.grade,
-    draftValue: () => _draft.educationGradeOverrides[entry.id],
-    setOverride: (value) =>
-        _draftService.setEducationGradeOverride(entry.id, value),
+  ) => _setOverride(
+    TextOverrideField.educationQualification,
+    entry.id,
+    value,
+    entry.qualification,
   );
 
+  Future<void> revertEducationQualificationOverride(String educationId) =>
+      _revertOverride(TextOverrideField.educationQualification, educationId);
+
   String educationGradeText(Education entry) =>
-      _educationGradeOverride(entry).text;
+      _overrideText(TextOverrideField.educationGrade, entry.id, entry.grade);
 
   bool hasEducationGradeOverride(String educationId) =>
-      _draft.educationGradeOverrides.containsKey(educationId);
+      _hasOverride(TextOverrideField.educationGrade, educationId);
 
   Future<void> setEducationGradeOverride(Education entry, String value) =>
-      _educationGradeOverride(entry).set(value);
+      _setOverride(
+        TextOverrideField.educationGrade,
+        entry.id,
+        value,
+        entry.grade,
+      );
 
   Future<void> revertEducationGradeOverride(String educationId) =>
-      _draftService.setEducationGradeOverride(educationId, null);
+      _revertOverride(TextOverrideField.educationGrade, educationId);
 
   late final _hobbySelection = _Selection<HobbyItem>(
     items: () => _vault.hobbies,
@@ -1179,11 +1178,8 @@ class _BulletSelection {
     );
   }
 
-  /// Selects every bullet of [allBullets] not already included. Must
-  /// await each [toggle] before starting the next — each call reads the
-  /// owner's current selection fresh to compute its own updated list, so
-  /// firing them all without awaiting would have every call read the same
-  /// pre-toggle selection and only the last write survive.
+  /// Selects every bullet of [allBullets] not already included, awaiting
+  /// each toggle for the reason [_Selection.addAll] gives.
   Future<void> addAll(String ownerId, List<CvBullet> allBullets) async {
     for (final bullet in allBullets) {
       if (!isIncluded(ownerId, bullet.id)) {
@@ -1201,16 +1197,13 @@ class _BulletSelection {
   }
 }
 
-/// A single draft-overridable text field, falling back to the Vault's own
-/// value when there's no override — shared by headline, tailored summary,
-/// references, a bullet's text, and an education entry's details, which
-/// otherwise differ only in which draft field and Vault field they read.
+/// One of the three scalar draft overrides — headline, tailored summary,
+/// references note — falling back to the Vault's own value.
 ///
-/// Blank input, or input identical to the Vault's own value, collapses
-/// back to "no override" (`null`) rather than persisting a draft value
-/// that's merely a copy of the Vault's — without this, opening an editor
-/// and blurring without actually changing anything would silently
-/// disconnect that field from future Vault edits.
+/// Blank input, or input identical to the Vault's, collapses back to "no
+/// override" (`null`); otherwise opening an editor and blurring without
+/// changing anything would silently disconnect the field from future
+/// Vault edits. [normalize] is the id-keyed fields' rule too.
 class _TextOverride {
   _TextOverride({
     required this.vaultValue,

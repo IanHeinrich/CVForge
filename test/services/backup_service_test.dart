@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
@@ -134,7 +135,11 @@ void main() {
         included: true,
         bulletIds: [bullet.id],
       );
-      await draftService.setBulletOverride(bullet.id, 'Did other things');
+      await draftService.setTextOverride(
+        TextOverrideField.bullet,
+        bullet.id,
+        'Did other things',
+      );
       final secondDraftId = await draftService.createDraft(name: 'Second CV');
       await draftService.openDraft(firstDraftId);
 

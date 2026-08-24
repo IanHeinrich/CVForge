@@ -6,6 +6,7 @@ import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
+import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/llm/cv_translation_result.dart';
@@ -182,7 +183,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         StorageBoxes.drafts,
         StorageKeys.draftEntry(id),
       );
-      if (raw == null) continue; // dangling index entry — drop silently.
+      if (raw == null) continue;
       try {
         loaded.add(_migrateDraft(jsonDecode(raw) as Map<String, dynamic>));
       } catch (_) {
@@ -411,7 +412,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       );
     }
 
-    _freshDraftIds.clear(); // imported drafts are never "fresh"
+    _freshDraftIds.clear();
     _drafts.value = _sortedByRecency(drafts);
     _activeDraftId.value = drafts.any((d) => d.id == activeDraftId)
         ? activeDraftId
@@ -668,14 +669,10 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     _setDraft((d) => d.copyWith(sectionOrder: order));
   }
 
-  /// Resets the active draft's section order AND hidden-sections state
-  /// back to the user's default — their remembered default (see
-  /// `AppSettings.defaultSectionOrder`/`AppSettings.defaultHiddenSections`)
-  /// if they've saved one, else the active draft's own template's
-  /// suggested order with nothing hidden. Same fallback rule as
-  /// [_seedSectionOrder]/[_seedHiddenSections], just applied to an
-  /// existing draft instead of a brand-new one, and both fields reset
-  /// together in one write so they can't end up half-reset.
+  /// Resets the active draft's section order and hidden-sections state to
+  /// [DocumentDefaults], by the same fallback rule as
+  /// [_seedSectionOrder]/[_seedHiddenSections]. Both in one write, so they
+  /// can't end up half-reset.
   Future<void> resetSectionSettings(DocumentDefaults defaults) async {
     await ready();
     _setDraft(
@@ -810,9 +807,6 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   Future<bool> removeCvTranslation() =>
       _restoreUndoSnapshot(StorageKeys.cvTranslationUndoFor);
 
-  Future<bool> hasCvTranslationUndoFor(String draftId) =>
-      _hasUndoSnapshot(draftId, StorageKeys.cvTranslationUndoFor);
-
   Future<void> _writeUndoSnapshot(String key, CvDraft current) => _persistAux(
     () => _localStorage.write(
       StorageBoxes.drafts,
@@ -869,13 +863,23 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     _setDraft((d) => d.copyWith(tailoredSummary: summary));
   }
 
-  Future<void> setBulletOverride(String bulletId, String? text) async {
+  /// Sets or clears one id-keyed text override. A null [text] removes the
+  /// entry, reverting that field to the Vault's own value.
+  Future<void> setTextOverride(
+    TextOverrideField field,
+    String id,
+    String? text,
+  ) async {
     await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        bulletOverrides: _appliedMapEntry(d.bulletOverrides, bulletId, text),
-      ),
-    );
+    _setDraft((d) {
+      final overrides = {...field.of(d)};
+      if (text == null) {
+        overrides.remove(id);
+      } else {
+        overrides[id] = text;
+      }
+      return field.applyTo(d, overrides);
+    });
   }
 
   Future<void> setHeadlineOverride(String? headline) async {
@@ -893,138 +897,13 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     _setDraft((d) => d.copyWith(hideHeadline: hidden));
   }
 
-  /// Same shape as [setBulletOverride], one entity type over.
-  Future<void> setEducationDetailsOverride(
-    String educationId,
-    String? text,
-  ) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        educationDetailsOverrides: _appliedMapEntry(
-          d.educationDetailsOverrides,
-          educationId,
-          text,
-        ),
-      ),
-    );
-  }
-
-  Future<void> setRoleOverride(String experienceId, String? text) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        roleOverrides: _appliedMapEntry(d.roleOverrides, experienceId, text),
-      ),
-    );
-  }
-
-  Future<void> setProjectTitleOverride(String projectId, String? text) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        projectTitleOverrides: _appliedMapEntry(
-          d.projectTitleOverrides,
-          projectId,
-          text,
-        ),
-      ),
-    );
-  }
-
-  Future<void> setSkillLabelOverride(String skillId, String? text) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        skillLabelOverrides: _appliedMapEntry(
-          d.skillLabelOverrides,
-          skillId,
-          text,
-        ),
-      ),
-    );
-  }
-
-  Future<void> setSkillCategoryNameOverride(
-    String categoryId,
-    String? text,
-  ) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        skillCategoryNameOverrides: _appliedMapEntry(
-          d.skillCategoryNameOverrides,
-          categoryId,
-          text,
-        ),
-      ),
-    );
-  }
-
-  Future<void> setHobbyOverride(String hobbyId, String? text) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        hobbyOverrides: _appliedMapEntry(d.hobbyOverrides, hobbyId, text),
-      ),
-    );
-  }
-
-  Future<void> setEducationQualificationOverride(
-    String educationId,
-    String? text,
-  ) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        educationQualificationOverrides: _appliedMapEntry(
-          d.educationQualificationOverrides,
-          educationId,
-          text,
-        ),
-      ),
-    );
-  }
-
-  Future<void> setEducationGradeOverride(
-    String educationId,
-    String? text,
-  ) async {
-    await ready();
-    _setDraft(
-      (d) => d.copyWith(
-        educationGradeOverrides: _appliedMapEntry(
-          d.educationGradeOverrides,
-          educationId,
-          text,
-        ),
-      ),
-    );
-  }
-
-  /// [map] with [key] set to [value], or removed if [value] is null —
-  /// shared by every id-keyed text-override setter above.
-  Map<String, String> _appliedMapEntry(
-    Map<String, String> map,
-    String key,
-    String? value,
-  ) {
-    final result = {...map};
-    if (value == null) {
-      result.remove(key);
-    } else {
-      result[key] = value;
-    }
-    return result;
-  }
-
   /// Applies [update] to the active draft, stamps it, and schedules a
   /// debounced write — the shared path for every selection/tailoring
   /// setter above, all of which mutate the draft the user is currently
   /// looking at in Studio.
   void _setDraft(CvDraft Function(CvDraft current) update) {
     final id = _activeDraftId.value;
-    if (id == null) return; // No draft loaded yet — defensive no-op.
+    if (id == null) return;
     _freshDraftIds.remove(id);
     final updated = update(draft).copyWith(updatedAt: DateTime.now());
     _drafts.value = _sortedByRecency(

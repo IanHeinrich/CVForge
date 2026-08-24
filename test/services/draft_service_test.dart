@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/document/document_language.dart';
@@ -341,10 +342,18 @@ void main() {
         final service = DraftService();
         await service.load();
 
-        await service.setBulletOverride('bullet-1', 'Rewritten text');
+        await service.setTextOverride(
+          TextOverrideField.bullet,
+          'bullet-1',
+          'Rewritten text',
+        );
         expect(service.draft.bulletOverrides['bullet-1'], 'Rewritten text');
 
-        await service.setBulletOverride('bullet-1', null);
+        await service.setTextOverride(
+          TextOverrideField.bullet,
+          'bullet-1',
+          null,
+        );
         expect(service.draft.bulletOverrides.containsKey('bullet-1'), isFalse);
 
         await service.flushPendingWrites();
@@ -511,9 +520,8 @@ void main() {
       expect(service.draft.sectionOrder, CvSectionType.values);
     });
 
-    // setHeadlineOverride/setReferencesOverride/setEducationDetailsOverride
-    // are the same "sets and clears" round-trip three times over — one
-    // table instead of three copies.
+    // The same "sets and clears" round-trip over a scalar override, a
+    // second scalar, and an id-keyed one — a table instead of three copies.
     for (final c
         in <
           ({
@@ -534,8 +542,12 @@ void main() {
             readOverride: (s) => s.draft.referencesOverride,
           ),
           (
-            label: 'setEducationDetailsOverride',
-            setOverride: (s, v) => s.setEducationDetailsOverride('edu-1', v),
+            label: 'setTextOverride(educationDetails)',
+            setOverride: (s, v) => s.setTextOverride(
+              TextOverrideField.educationDetails,
+              'edu-1',
+              v,
+            ),
             readOverride: (s) => s.draft.educationDetailsOverrides['edu-1'],
           ),
         ]) {
@@ -782,7 +794,6 @@ void main() {
           DocumentLanguage.de,
         );
 
-        expect(await service.hasCvTranslationUndoFor(id), isTrue);
         expect(await service.hasAiAssistantUndoFor(id), isFalse);
         expect(
           memory.containsKey(
@@ -797,7 +808,11 @@ void main() {
         final service = DraftService();
         await service.load();
         final id = service.draft.id;
-        await service.setRoleOverride('exp-1', 'Hand-edited role');
+        await service.setTextOverride(
+          TextOverrideField.role,
+          'exp-1',
+          'Hand-edited role',
+        );
         final before = service.draft;
 
         await service.applyCvTranslationResult(
@@ -810,7 +825,12 @@ void main() {
         expect(service.draft.roleOverrides, before.roleOverrides);
         expect(service.draft.headlineOverride, before.headlineOverride);
         expect(service.draft.translatedTo, isNull);
-        expect(await service.hasCvTranslationUndoFor(id), isFalse);
+        expect(
+          memory.containsKey(
+            '${StorageBoxes.drafts}/${StorageKeys.cvTranslationUndoFor(id)}',
+          ),
+          isFalse,
+        );
       });
 
       test('removeCvTranslation is a no-op when nothing has been '
