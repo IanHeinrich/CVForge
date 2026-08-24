@@ -561,7 +561,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionAnzConvention5 =>
-      'Ortografía australiana: organised, centre, analyse. Sé coherente — algunos sectores aceptan -ize, pero lo que se nota es mezclar ambas.';
+      'Si escribes en inglés, usa ortografía australiana: organised, centre, analyse. Sé coherente: algunos sectores aceptan -ize, pero lo que se nota es mezclar las dos.';
 
   @override
   String get regionAnzConvention6 =>
@@ -787,7 +787,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionUkConvention3 =>
-      'Ortografía británica en todo el documento: organised, programme, centre, analyse.';
+      'Si escribes en inglés, usa ortografía británica en todo el documento: organised, programme, centre, analyse.';
 
   @override
   String get regionUkConvention4 =>
@@ -829,7 +829,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regionUsConvention4 =>
-      'Ortografía estadounidense: organized, program, center, analyze.';
+      'Si escribes en inglés, usa ortografía estadounidense: organized, program, center, analyze.';
 
   @override
   String get regionUsConvention5 =>
@@ -1254,7 +1254,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String studioAiDialogRegionNote(String region) {
-    return 'Adaptado para $region — el asistente sigue las convenciones de extensión, ortografía y tono de ese mercado.';
+    return 'Adaptado para $region: el asistente sigue las convenciones de extensión y tono de ese mercado.';
   }
 
   @override
@@ -1655,7 +1655,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioRegionPickerBody =>
-      'Las convenciones cambian según el mercado. Esto modifica cómo se arma este CV — tamaño de página, extensión esperada y la guía de abajo. Nunca cambia lo que guarda tu Bóveda.';
+      'Las convenciones varían según el mercado. Esto define el tamaño de página, la extensión esperada y las recomendaciones de abajo. No define el idioma en el que está escrito tu CV, y nunca reescribe el contenido de tu carrera.';
 
   @override
   String get studioRegionPickerDefaultBody =>
@@ -1674,7 +1674,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioRegionPickerUse => 'Usar esta región';
 
   @override
-  String get studioRegionSpelling => 'Ortografía';
+  String get studioRegionSpelling => 'Ortografía del inglés';
 
   @override
   String get studioRegionTypicalLength => 'Extensión habitual';
@@ -1978,7 +1978,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsLanguageHelp =>
-      'El idioma en el que está escrito tu CV. Es distinto del idioma en el que se muestra CVForge, que se elige en Ajustes.';
+      'El idioma en el que está escrito tu CV: es distinto del mercado de arriba y del idioma en el que se muestra CVForge, que se elige en Ajustes.';
 
   @override
   String get vaultCvDefaultsLanguageLabel => 'Idioma';
@@ -1998,7 +1998,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionHelp =>
-      'Define el tamaño de página, el formato de las fechas y las recomendaciones que sigue el Asistente de IA.';
+      'Define el tamaño de página, el formato de las fechas y las recomendaciones que sigue el Asistente de IA. No el idioma: eso está en la fila de abajo.';
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Región';

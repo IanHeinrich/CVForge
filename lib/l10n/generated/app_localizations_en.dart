@@ -553,7 +553,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionAnzConvention5 =>
-      'Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.';
+      'If writing in English, use Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.';
 
   @override
   String get regionAnzConvention6 =>
@@ -779,7 +779,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionUkConvention3 =>
-      'British spelling throughout: organised, programme, centre, analyse.';
+      'If writing in English, use British spelling throughout: organised, programme, centre, analyse.';
 
   @override
   String get regionUkConvention4 =>
@@ -821,7 +821,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionUsConvention4 =>
-      'US spelling: organized, program, center, analyze.';
+      'If writing in English, use US spelling: organized, program, center, analyze.';
 
   @override
   String get regionUsConvention5 =>
@@ -1241,7 +1241,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String studioAiDialogRegionNote(String region) {
-    return 'Tailored for $region — the assistant follows that market\'s length, spelling, and tone conventions.';
+    return 'Tailored for $region — the assistant follows that market\'s length and tone conventions.';
   }
 
   @override
@@ -1635,7 +1635,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioRegionPickerBody =>
-      'Conventions differ by market. This changes how this CV is built — page size, expected length, and the guidance below. It never changes what your Vault stores.';
+      'Conventions differ by market. This sets the page size, the expected length, and the guidance below. It does not set the language your CV is written in, and it never rewrites your career content.';
 
   @override
   String get studioRegionPickerDefaultBody =>
@@ -1654,7 +1654,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioRegionPickerUse => 'Use this region';
 
   @override
-  String get studioRegionSpelling => 'Spelling';
+  String get studioRegionSpelling => 'English spelling';
 
   @override
   String get studioRegionTypicalLength => 'Typical length';
@@ -1956,7 +1956,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsLanguageHelp =>
-      'The language your CV is written in. Separate from the language CVForge itself is shown in, which you set in Settings.';
+      'The language your CV is written in — separate from the market above, and from the language CVForge itself is shown in, which you set in Settings.';
 
   @override
   String get vaultCvDefaultsLanguageLabel => 'Language';
@@ -1976,7 +1976,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionHelp =>
-      'Sets the page size, the date convention, and the advice the AI Assistant follows.';
+      'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.';
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Region';

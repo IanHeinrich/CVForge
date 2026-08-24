@@ -690,7 +690,7 @@
   "@regionAnzConvention4": {
     "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionAnzConvention5": "Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.",
+  "regionAnzConvention5": "If writing in English, use Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.",
   "@regionAnzConvention5": {
     "description": "Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -930,7 +930,7 @@
   "@regionUkConvention2": {
     "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionUkConvention3": "British spelling throughout: organised, programme, centre, analyse.",
+  "regionUkConvention3": "If writing in English, use British spelling throughout: organised, programme, centre, analyse.",
   "@regionUkConvention3": {
     "description": "Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -974,7 +974,7 @@
   "@regionUsConvention3": {
     "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
-  "regionUsConvention4": "US spelling: organized, program, center, analyze.",
+  "regionUsConvention4": "If writing in English, use US spelling: organized, program, center, analyze.",
   "@regionUsConvention4": {
     "description": "Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence."
   },
@@ -1570,9 +1570,9 @@
       }
     }
   },
-  "studioAiDialogRegionNote": "Tailored for {region} — the assistant follows that market's length, spelling, and tone conventions.",
+  "studioAiDialogRegionNote": "Tailored for {region} — the assistant follows that market's length and tone conventions.",
   "@studioAiDialogRegionNote": {
-    "description": "AI dialog, note naming which regional CV conventions the AI will follow.",
+    "description": "AI dialog, note naming which regional CV conventions the AI will follow. Deliberately no longer mentions spelling: the line directly below names the document's language, and spelling only applies within English — see _languageBlock, which drops the spelling instruction entirely for a non-English document.",
     "placeholders": {
       "region": {
         "type": "String",
@@ -2084,9 +2084,9 @@
   "@studioRegionPhoto": {
     "description": "Region detail row label — whether a photograph is expected on a CV in this market."
   },
-  "studioRegionPickerBody": "Conventions differ by market. This changes how this CV is built — page size, expected length, and the guidance below. It never changes what your Vault stores.",
+  "studioRegionPickerBody": "Conventions differ by market. This sets the page size, the expected length, and the guidance below. It does not set the language your CV is written in, and it never rewrites your career content.",
   "@studioRegionPickerBody": {
-    "description": "Region picker body when choosing for one CV."
+    "description": "Region picker intro, per-CV context. Names what region does NOT do, because market and language are the app's most confusable pair: someone targeting DACH does not necessarily write in German. The old wording said it 'never changes what your Vault stores', which stopped being precise once the Vault started holding the default region itself."
   },
   "studioRegionPickerDefaultBody": "Sets the region every new CV starts with. Changing it never touches a CV you have already created — switch those individually from Studio.",
   "@studioRegionPickerDefaultBody": {
@@ -2108,9 +2108,9 @@
   "@studioRegionPickerUse": {
     "description": "Region picker confirm button when choosing for one CV."
   },
-  "studioRegionSpelling": "Spelling",
+  "studioRegionSpelling": "English spelling",
   "@studioRegionSpelling": {
-    "description": "Region detail row label — which spelling convention this market expects."
+    "description": "Region detail pane, label for the English spelling variant this market reads as native. Says 'English' deliberately: RegionSpelling has only en-GB/en-US/en-AU cases, so the row means nothing for a CV written in another language, and an unqualified 'Spelling' beside a German document reads as a contradiction."
   },
   "studioRegionTypicalLength": "Typical length",
   "@studioRegionTypicalLength": {
@@ -2508,9 +2508,9 @@
   "@vaultCvDefaultsChange": {
     "description": "Button on the region row of the Vault's document-defaults panel, opening the region picker."
   },
-  "vaultCvDefaultsLanguageHelp": "The language your CV is written in. Separate from the language CVForge itself is shown in, which you set in Settings.",
+  "vaultCvDefaultsLanguageHelp": "The language your CV is written in — separate from the market above, and from the language CVForge itself is shown in, which you set in Settings.",
   "@vaultCvDefaultsLanguageHelp": {
-    "description": "Help text under the document-language row of the Vault's document-defaults panel. Exists to stop the two language axes being confused; keep the distinction explicit."
+    "description": "Help text under the document-language row of the Vault's CV defaults panel. Names both of the other two axes explicitly — this is the one place all three meet, and the divide has to be stated rather than inferred."
   },
   "vaultCvDefaultsLanguageLabel": "Language",
   "@vaultCvDefaultsLanguageLabel": {
@@ -2530,7 +2530,7 @@
       }
     }
   },
-  "vaultCvDefaultsRegionHelp": "Sets the page size, the date convention, and the advice the AI Assistant follows.",
+  "vaultCvDefaultsRegionHelp": "Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.",
   "@vaultCvDefaultsRegionHelp": {
     "description": "Help text under the region row of the Vault's document-defaults panel, naming what region actually changes."
   },

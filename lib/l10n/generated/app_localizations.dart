@@ -875,7 +875,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.'**
+  /// **'If writing in English, use Australian spelling: organised, centre, analyse. Be consistent — some sectors accept -ize, but mixing the two is what gets noticed.'**
   String get regionAnzConvention5;
 
   /// Region picker: one of the ANZ market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1235,7 +1235,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'British spelling throughout: organised, programme, centre, analyse.'**
+  /// **'If writing in English, use British spelling throughout: organised, programme, centre, analyse.'**
   String get regionUkConvention3;
 
   /// Region picker: one of the UK market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1301,7 +1301,7 @@ abstract class AppLocalizations {
   /// Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
   ///
   /// In en, this message translates to:
-  /// **'US spelling: organized, program, center, analyze.'**
+  /// **'If writing in English, use US spelling: organized, program, center, analyze.'**
   String get regionUsConvention4;
 
   /// Region picker: one of the US market's CV conventions, rendered as a bullet and read on its own. A complete sentence.
@@ -1946,10 +1946,10 @@ abstract class AppLocalizations {
   /// **'This sends the job description below and your CV content — not your name, email, phone, or links — to {provider}, using your own API key. There is no CVForge server in between. This can take up to a few minutes — the model reasons through your whole Vault before responding.'**
   String studioAiDialogPrivacy(String provider);
 
-  /// AI dialog, note naming which regional CV conventions the AI will follow.
+  /// AI dialog, note naming which regional CV conventions the AI will follow. Deliberately no longer mentions spelling: the line directly below names the document's language, and spelling only applies within English — see _languageBlock, which drops the spelling instruction entirely for a non-English document.
   ///
   /// In en, this message translates to:
-  /// **'Tailored for {region} — the assistant follows that market\'s length, spelling, and tone conventions.'**
+  /// **'Tailored for {region} — the assistant follows that market\'s length and tone conventions.'**
   String studioAiDialogRegionNote(String region);
 
   /// Title of the dialog that rewrites a CV against a job description using AI.
@@ -2426,10 +2426,10 @@ abstract class AppLocalizations {
   /// **'Photo'**
   String get studioRegionPhoto;
 
-  /// Region picker body when choosing for one CV.
+  /// Region picker intro, per-CV context. Names what region does NOT do, because market and language are the app's most confusable pair: someone targeting DACH does not necessarily write in German. The old wording said it 'never changes what your Vault stores', which stopped being precise once the Vault started holding the default region itself.
   ///
   /// In en, this message translates to:
-  /// **'Conventions differ by market. This changes how this CV is built — page size, expected length, and the guidance below. It never changes what your Vault stores.'**
+  /// **'Conventions differ by market. This sets the page size, the expected length, and the guidance below. It does not set the language your CV is written in, and it never rewrites your career content.'**
   String get studioRegionPickerBody;
 
   /// Region picker body when setting the default from Settings.
@@ -2462,10 +2462,10 @@ abstract class AppLocalizations {
   /// **'Use this region'**
   String get studioRegionPickerUse;
 
-  /// Region detail row label — which spelling convention this market expects.
+  /// Region detail pane, label for the English spelling variant this market reads as native. Says 'English' deliberately: RegionSpelling has only en-GB/en-US/en-AU cases, so the row means nothing for a CV written in another language, and an unqualified 'Spelling' beside a German document reads as a contradiction.
   ///
   /// In en, this message translates to:
-  /// **'Spelling'**
+  /// **'English spelling'**
   String get studioRegionSpelling;
 
   /// Region detail row label — how many pages a CV usually runs to in this market.
@@ -2996,10 +2996,10 @@ abstract class AppLocalizations {
   /// **'Change'**
   String get vaultCvDefaultsChange;
 
-  /// Help text under the document-language row of the Vault's document-defaults panel. Exists to stop the two language axes being confused; keep the distinction explicit.
+  /// Help text under the document-language row of the Vault's CV defaults panel. Names both of the other two axes explicitly — this is the one place all three meet, and the divide has to be stated rather than inferred.
   ///
   /// In en, this message translates to:
-  /// **'The language your CV is written in. Separate from the language CVForge itself is shown in, which you set in Settings.'**
+  /// **'The language your CV is written in — separate from the market above, and from the language CVForge itself is shown in, which you set in Settings.'**
   String get vaultCvDefaultsLanguageHelp;
 
   /// Label on the document-language row of the Vault's document-defaults panel.
@@ -3023,7 +3023,7 @@ abstract class AppLocalizations {
   /// Help text under the region row of the Vault's document-defaults panel, naming what region actually changes.
   ///
   /// In en, this message translates to:
-  /// **'Sets the page size, the date convention, and the advice the AI Assistant follows.'**
+  /// **'Sets the page size, the date convention, and the advice the AI Assistant follows. Not the language — that is the row below.'**
   String get vaultCvDefaultsRegionHelp;
 
   /// Label on the region row of the Vault's document-defaults panel.
