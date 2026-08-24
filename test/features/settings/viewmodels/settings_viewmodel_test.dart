@@ -45,6 +45,7 @@ void main() {
       dialogService = getAndRegisterDialogService();
       llmService = getAndRegisterLlmService();
       driveSyncService = getAndRegisterDriveSyncService();
+      getAndRegisterLocalizationService();
       // Mockito can't synthesize its own dummy for a custom sealed class
       // like DriveSyncStatus — `when(driveSyncService.status)` below would
       // otherwise throw MissingDummyValueError before the explicit stub

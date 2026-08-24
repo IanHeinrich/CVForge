@@ -1,0 +1,23 @@
+# Configuration for `flutter gen-l10n`. See CLAUDE.md's Localization section.
+#
+# `synthetic-package` is deliberately absent: the flutter tool now exits with
+# an error if it is set to true, and warns if set to false. Generated output
+# always lands on disk, which is why output-dir is explicit.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-dir: lib/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+
+# AppLocalizations.of(context) returns non-null, so call sites don't need `!`.
+nullable-getter: false
+
+# Makes a missing `@key` metadata slot a build failure rather than a review
+# nit. Turned on while the ARB is small — retrofitting descriptions across
+# hundreds of keys never happens.
+required-resource-attributes: true
+
+# gen-l10n does NOT fail on keys missing from a non-template locale; it
+# silently falls back to the template value. This file is the only signal that
+# a locale is incomplete, so it is committed and reviewed.
+untranslated-messages-file: lib/l10n/untranslated_messages.json

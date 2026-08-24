@@ -4,6 +4,7 @@ import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
@@ -63,23 +64,25 @@ class ExperienceEditorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VaultEditorPanelScaffold(
-      title: experience.role.isEmpty ? 'New experience' : experience.role,
+      title: experience.role.isEmpty
+          ? context.l10n.vaultExperienceNew
+          : experience.role,
       onClose: onClose,
       children: [
         AppTextField(
-          label: 'Role',
+          label: context.l10n.vaultExperienceRole,
           initialValue: experience.role,
           onChanged: (v) => onChanged(experience.copyWith(role: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Company',
+          label: context.l10n.vaultExperienceCompany,
           initialValue: experience.company,
           onChanged: (v) => onChanged(experience.copyWith(company: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Location',
+          label: context.l10n.vaultExperienceLocation,
           initialValue: experience.location,
           onChanged: (v) => onChanged(experience.copyWith(location: v)),
         ),
@@ -90,7 +93,7 @@ class ExperienceEditorPanel extends StatelessWidget {
           children: [
             Expanded(
               child: _MonthField(
-                label: 'Start month',
+                label: context.l10n.vaultExperienceStartMonth,
                 value: experience.start.month,
                 onChanged: (month) => onChanged(
                   experience.copyWith(
@@ -102,7 +105,7 @@ class ExperienceEditorPanel extends StatelessWidget {
             const HGap.small(),
             Expanded(
               child: AppTextField(
-                label: 'Start year',
+                label: context.l10n.vaultExperienceStartYear,
                 initialValue: experience.start.year.toString(),
                 keyboardType: TextInputType.number,
                 errorText: startYearError,
@@ -121,7 +124,7 @@ class ExperienceEditorPanel extends StatelessWidget {
             ),
           ),
           title: Text(
-            'I currently work here',
+            context.l10n.vaultExperienceCurrent,
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           activeColor: Theme.of(context).colorScheme.primary,
@@ -135,7 +138,7 @@ class ExperienceEditorPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: _MonthField(
-                  label: 'End month',
+                  label: context.l10n.vaultExperienceEndMonth,
                   value: experience.end?.month,
                   onChanged: (month) {
                     // Seeds the year from *now*, not from start — see
@@ -156,7 +159,7 @@ class ExperienceEditorPanel extends StatelessWidget {
               const HGap.small(),
               Expanded(
                 child: AppTextField(
-                  label: 'End year',
+                  label: context.l10n.vaultExperienceEndYear,
                   initialValue: experience.end?.year.toString() ?? '',
                   keyboardType: TextInputType.number,
                   errorText: endYearError,
@@ -194,7 +197,10 @@ class ExperienceEditorPanel extends StatelessWidget {
 
     return [
       const VGap.medium(),
-      Text('Promotion — group with', style: context.appTypography.bodySmall),
+      Text(
+        context.l10n.vaultExperiencePromotionGroup,
+        style: context.appTypography.bodySmall,
+      ),
       const VGap.tiny(),
       Wrap(
         spacing: 8,
@@ -203,7 +209,9 @@ class ExperienceEditorPanel extends StatelessWidget {
           for (final candidate in candidates)
             ChoiceChip(
               label: Text(
-                candidate.role.isEmpty ? 'Untitled role' : candidate.role,
+                candidate.role.isEmpty
+                    ? context.l10n.vaultUntitledRole
+                    : candidate.role,
               ),
               selected:
                   experience.companyGroupId != null &&
@@ -237,7 +245,7 @@ class _MonthField extends StatelessWidget {
       initialValue: value,
       isExpanded: true,
       decoration: InputDecoration(labelText: label),
-      hint: const Text('Select'),
+      hint: Text(context.l10n.commonSelect),
       items: [
         for (var month = 1; month <= 12; month++)
           DropdownMenuItem(value: month, child: Text(monthName(month))),

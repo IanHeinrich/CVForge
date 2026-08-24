@@ -1,4 +1,5 @@
 import 'package:crop_image/crop_image.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -44,9 +45,11 @@ class CropPhotoDialog extends StackedView<CropPhotoDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
-      title: 'Position your photo',
+      title: context.l10n.vaultCropPhotoTitle,
       maxWidth: 520,
-      confirmLabel: viewModel.isBusy ? 'Saving…' : 'Use this photo',
+      confirmLabel: viewModel.isBusy
+          ? context.l10n.vaultCropPhotoSaving
+          : context.l10n.vaultCropPhotoConfirm,
       // Both null while encoding — it takes a moment on a large image, and
       // a second confirm would race a half-written crop into the Vault.
       onCancel: viewModel.isBusy
@@ -56,8 +59,7 @@ class CropPhotoDialog extends StackedView<CropPhotoDialogModel> {
       children: [
         const VGap.small(),
         Text(
-          'Drag the frame to choose what appears. The shape is fixed to '
-          'the 35 × 45 mm size European CVs expect.',
+          context.l10n.vaultCropPhotoBody,
           style: context.appTypography.bodySmall,
         ),
         const VGap.medium(),

@@ -2,6 +2,7 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -22,10 +23,10 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
     final nodes = viewModel.extractedNodes;
 
     if (nodes.isEmpty) {
-      return const AppEmptyState(
+      return AppEmptyState(
         icon: RemixIcons.file_list_line,
-        title: 'No text extracted',
-        message: "This PDF didn't yield any extractable text runs.",
+        title: context.l10n.analyzerMachineEmptyTitle,
+        message: context.l10n.analyzerMachineEmptyBody,
       );
     }
 
@@ -55,7 +56,7 @@ class AnalyzerMachineIngestionPanel extends StatelessWidget {
               bottom: context.appSpacing.gapSmall,
             ),
             child: Text(
-              'Page ${pageIndex + 1}',
+              context.l10n.analyzerPageLabel(pageIndex + 1),
               style: context.appTypography.titleSmall,
             ),
           ),

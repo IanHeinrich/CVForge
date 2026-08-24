@@ -13,6 +13,12 @@ dependencies:
   # url_strategy package.
   flutter_web_plugins:
     sdk: flutter
+  # `intl: any` rather than a caret range on purpose: flutter_localizations
+  # pins an exact intl version per SDK, so any constraint of our own becomes a
+  # version-solve failure the next time the SDK moves.
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   stacked: ^3.4.0
   stacked_services: ^1.1.0
   responsive_builder: ^0.7.0
@@ -64,6 +70,10 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
+
+  # Required by `flutter gen-l10n` — the tool exits outright without it. Also
+  # what makes `flutter pub get` regenerate the localizations. See l10n.yaml.
+  generate: true
 
   # rootBundle.load() needs this to find the raw TTF bytes for
   # pw.Font.ttf() — the sole renderer now (Studio's preview rasterizes the

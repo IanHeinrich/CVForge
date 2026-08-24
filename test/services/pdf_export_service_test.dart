@@ -103,6 +103,7 @@ void main() {
       );
       locator.registerSingleton<FontService>(FontService());
       fileDownload = getAndRegisterFileDownloadService();
+      getAndRegisterLocalizationService();
       when(
         fileDownload.saveFile(
           nameWithoutExtension: anyNamed('nameWithoutExtension'),

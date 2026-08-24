@@ -35,18 +35,6 @@ enum TemplateTag {
   photo,
 }
 
-extension TemplateTagLabel on TemplateTag {
-  String get displayLabel => switch (this) {
-    TemplateTag.atsSafe => 'ATS-safe',
-    TemplateTag.academic => 'Academic',
-    TemplateTag.twoColumn => 'Two-column',
-    TemplateTag.compact => 'Compact',
-    TemplateTag.traditional => 'Traditional',
-    TemplateTag.modern => 'Modern',
-    TemplateTag.photo => 'Photo',
-  };
-}
-
 /// The single-renderer boundary. A template never sees `CvVault`/`CvDraft`
 /// — only the [ResolvedCv] `CvComposer` produces — so Studio's live
 /// preview (a rasterized render of [buildDocument]'s real output, via
@@ -54,8 +42,12 @@ extension TemplateTagLabel on TemplateTag {
 /// *or* pixels: they're the same bytes.
 abstract interface class CvTemplate {
   String get id;
-  String get displayName;
-  String get description;
+
+  /// No `displayName`/`description` here. A template's user-facing name and
+  /// blurb are translated, so they live in the ARB keyed by [id] and are
+  /// read through `templateDisplayName`/`templateDescriptionFor` in
+  /// `lib/ui/common/l10n/`. Keeping an English copy on the template as well
+  /// would be a second source of truth that nothing renders.
   CvDesignTokens get tokens;
 
   /// Kept on the interface rather than in a separate registry-side map so

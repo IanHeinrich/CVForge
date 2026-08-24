@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
@@ -14,6 +16,8 @@ import 'package:cv_forge/services/llm/llm_exception.dart';
 import 'package:cv_forge/services/llm/llm_provider.dart';
 import 'package:cv_forge/services/llm/llm_provider_registry.dart';
 import 'package:cv_forge/services/llm_service.dart';
+import 'package:cv_forge/l10n/generated/app_localizations.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:stacked/stacked.dart';
@@ -31,6 +35,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   final _dialogService = locator<DialogService>();
   final _llmService = locator<LlmService>();
   final _driveSyncService = locator<DriveSyncService>();
+  final _localizationService = locator<LocalizationService>();
 
   /// Not locator-registered — see `LlmService`'s own doc comment for why
   /// (stateless, deterministic, nothing else needs one injected).
@@ -65,11 +70,12 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   String? get importErrorMessage {
     final error = this.error(_importBusyKey);
     if (error is! BackupException) return null;
+    final strings = _localizationService.strings;
     return switch (error.failure) {
-      BackupFailure.malformed => "That file isn't a valid CVForge backup.",
+      BackupFailure.malformed => strings.settingsImportErrorMalformed,
       BackupFailure.unsupportedVersion =>
-        'This backup was made by a newer version of CVForge.',
-      BackupFailure.ioError => "Couldn't read that file. Try again.",
+        strings.settingsImportErrorNewerVersion,
+      BackupFailure.ioError => strings.settingsImportErrorIo,
     };
   }
 
@@ -151,16 +157,17 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     if (bundle == null) return; // cancelled, or pickImportFile's own error —
     // surfaced separately via importErrorMessage.
 
-    final noun = defaultRegion.preset.documentNoun.pluralCapitalized;
+    final strings = _localizationService.strings;
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
-      title: 'Replace your data?',
-      description:
-          'This will replace your Vault and all ${_draftService.drafts.length} '
-          '$noun with ${bundle.drafts.length} $noun from this file. Your '
-          'current data downloads as a backup first.',
-      mainButtonTitle: 'Replace',
-      secondaryButtonTitle: 'Cancel',
+      title: strings.settingsImportConfirmTitle,
+      description: strings.settingsImportConfirmBody(
+        defaultRegion.preset.documentNoun.name,
+        _draftService.drafts.length,
+        bundle.drafts.length,
+      ),
+      mainButtonTitle: strings.commonReplace,
+      secondaryButtonTitle: strings.commonCancel,
     );
     if (response?.confirmed != true) return;
 
@@ -178,12 +185,10 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> clearVault() async {
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
-      title: 'Clear your entire Vault?',
-      description:
-          'This removes every experience, project, skill, education '
-          "entry, hobby, and publication. This can't be undone.",
-      mainButtonTitle: 'Clear',
-      secondaryButtonTitle: 'Cancel',
+      title: _localizationService.strings.settingsClearVaultConfirmTitle,
+      description: _localizationService.strings.settingsClearVaultConfirmBody,
+      mainButtonTitle: _localizationService.strings.commonClear,
+      secondaryButtonTitle: _localizationService.strings.commonCancel,
     );
     if (response?.confirmed != true) return;
     await _vaultService.clearVault();
@@ -271,15 +276,13 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// [clearVault] and [disconnectDrive].
   Future<void> removeApiKey() async {
     final providerName = selectedAiAssistantProvider.displayName;
+    final strings = _localizationService.strings;
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
-      title: 'Remove your $providerName key?',
-      description:
-          "$providerName won't show you this key again, so you'd need to "
-          'create a new one in their console to use the AI Assistant on '
-          'this device. Your CVs and Vault are not affected.',
-      mainButtonTitle: 'Remove',
-      secondaryButtonTitle: 'Cancel',
+      title: strings.settingsAiRemoveKeyConfirmTitle(providerName),
+      description: strings.settingsAiRemoveKeyConfirmBody(providerName),
+      mainButtonTitle: strings.commonRemove,
+      secondaryButtonTitle: strings.commonCancel,
     );
     if (response?.confirmed != true) return;
     await _settingsService.clearApiKey(selectedAiAssistantProvider.id);
@@ -313,23 +316,19 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     final error = this.error(_testConnectionBusyKey);
     if (error is! LlmException) return null;
     final providerName = selectedAiAssistantProvider.displayName;
+    final strings = _localizationService.strings;
     return switch (error.failure) {
-      LlmFailure.noKey => 'Enter an API key first.',
-      LlmFailure.unauthorized =>
-        'That key was rejected. Check it and try again.',
-      LlmFailure.rateLimited =>
-        'Your API account is rate limited. Try again in a moment.',
-      LlmFailure.overloaded =>
-        "$providerName's API is temporarily unavailable. Try again "
-            'shortly.',
-      LlmFailure.network =>
-        "Couldn't reach $providerName. Check your connection.",
-      LlmFailure.timeout => 'The request timed out. Try again.',
-      LlmFailure.refusal => 'The connection check was refused.',
-      LlmFailure.invalidRequest =>
-        "$providerName rejected the request. That's a bug in CVForge, not "
-            'your key.',
-      LlmFailure.malformedResponse => 'Got an unexpected response. Try again.',
+      LlmFailure.noKey => strings.settingsAiErrorNoKey,
+      LlmFailure.unauthorized => strings.settingsAiErrorUnauthorized,
+      LlmFailure.rateLimited => strings.settingsAiErrorRateLimited,
+      LlmFailure.overloaded => strings.settingsAiErrorOverloaded(providerName),
+      LlmFailure.network => strings.settingsAiErrorNetwork(providerName),
+      LlmFailure.timeout => strings.settingsAiErrorTimeout,
+      LlmFailure.refusal => strings.settingsAiErrorRefusal,
+      LlmFailure.invalidRequest => strings.settingsAiErrorInvalidRequest(
+        providerName,
+      ),
+      LlmFailure.malformedResponse => strings.settingsAiErrorMalformedResponse,
     };
   }
 
@@ -337,9 +336,8 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// costs before starting one — the reason the rate table exists at all
   /// (an unrendered price can be wrong indefinitely without anyone
   /// noticing).
-  String priceLabelFor(LlmModelOption model) =>
-      '\$${model.inputPricePerMTok.toStringAsFixed(2)} in / '
-      '\$${model.outputPricePerMTok.toStringAsFixed(2)} out per M tokens';
+  String priceLabelFor(LlmModelOption model) => _localizationService.strings
+      .settingsAiPriceRate(model.inputPricePerMTok, model.outputPricePerMTok);
 
   Future<void> _testConnection(String apiKey) async =>
       _llmService.testConnection(selectedAiAssistantProvider.id, apiKey);
@@ -396,13 +394,15 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   String? get driveConnectErrorMessage {
     final error = this.error(_driveConnectBusyKey);
     if (error is! GoogleAuthException) return null;
+    final strings = _localizationService.strings;
     return switch (error.failure) {
-      GoogleAuthFailure.notConfigured => 'Google Drive sync is not set up.',
+      GoogleAuthFailure.notConfigured =>
+        strings.settingsDriveErrorNotConfigured,
       GoogleAuthFailure.scriptLoadFailed =>
-        "Couldn't reach Google. Check your connection and try again.",
-      GoogleAuthFailure.cancelledOrBlocked => 'Connection cancelled.',
-      GoogleAuthFailure.unknown =>
-        "Couldn't connect to Google Drive. Try again.",
+        strings.settingsDriveErrorScriptLoad,
+      GoogleAuthFailure.cancelledOrBlocked =>
+        strings.settingsDriveErrorCancelled,
+      GoogleAuthFailure.unknown => strings.settingsDriveErrorUnknown,
     };
   }
 
@@ -421,17 +421,37 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
   /// first since it's easy to mistake for "delete my data on Drive",
   /// which it explicitly is not.
   Future<void> disconnectDrive() async {
+    final strings = _localizationService.strings;
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
-      title: 'Disconnect Google Drive?',
-      description:
-          'Your Vault and CVs stay exactly as they are on this device. '
-          'This only stops syncing them to Drive. You can reconnect any '
-          'time.',
-      mainButtonTitle: 'Disconnect',
-      secondaryButtonTitle: 'Cancel',
+      title: strings.settingsDriveDisconnectConfirmTitle,
+      description: strings.settingsDriveDisconnectConfirmBody,
+      mainButtonTitle: strings.commonDisconnect,
+      secondaryButtonTitle: strings.commonCancel,
     );
     if (response?.confirmed != true) return;
     await _driveSyncService.disconnect();
   }
+
+  /// The language picker only earns its place once there is more than one
+  /// language to pick, so `SettingsView` hides the card until then. Reading
+  /// the list off the generated `supportedLocales` means adding a language
+  /// stays a one-file change — a new `.arb` and nothing else.
+  List<Locale> get availableLocales => LocalizationService.supportedLocales;
+
+  bool get showLanguageSelector => availableLocales.length > 1;
+
+  /// Null means "follow the browser" — the default, and the only value that
+  /// does not sync between devices.
+  String? get selectedLocaleTag =>
+      _localizationService.selectedLocale?.toLanguageTag();
+
+  /// Each language named in its own language, read from that locale's own
+  /// ARB rather than a map here, so a new language brings its own name with
+  /// it.
+  String localeDisplayName(Locale locale) =>
+      lookupAppLocalizations(locale).localeDisplayName;
+
+  Future<void> setLocaleTag(String? tag) =>
+      _localizationService.setLocale(tag == null ? null : Locale(tag));
 }

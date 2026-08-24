@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -6,14 +7,14 @@ import 'package:remixicon/remixicon.dart';
 /// delete action — one widget instead of five copies of the same icon,
 /// color and tooltip.
 class AppDeleteIconButton extends StatelessWidget {
-  const AppDeleteIconButton({
-    super.key,
-    required this.onPressed,
-    this.tooltip = 'Delete',
-  });
+  const AppDeleteIconButton({super.key, required this.onPressed, this.tooltip});
 
   final VoidCallback onPressed;
-  final String tooltip;
+
+  /// Null means the standard "Delete" label. Resolved in [build] rather
+  /// than defaulted here, because a localized string is not a compile-time
+  /// constant and this widget has a `const` constructor.
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class AppDeleteIconButton extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       onPressed: onPressed,
-      tooltip: tooltip,
+      tooltip: tooltip ?? context.l10n.commonDelete,
     );
   }
 }

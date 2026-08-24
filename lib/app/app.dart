@@ -58,6 +58,8 @@ import 'package:cv_forge/ui/views/privacy/privacy_view.dart';
 
 import 'package:cv_forge/ui/views/terms/terms_view.dart';
 
+import 'package:cv_forge/services/localization_service.dart';
+
 import 'package:cv_forge/services/profile_photo_service.dart';
 
 import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog.dart';
@@ -109,6 +111,7 @@ import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog.dar
     LazySingleton(classType: TemplateThumbnailService),
     LazySingleton(classType: DriveApiClientService),
     LazySingleton(classType: DriveSyncService),
+    LazySingleton(classType: LocalizationService),
     LazySingleton(classType: ProfilePhotoService),
     // @stacked-service
   ],

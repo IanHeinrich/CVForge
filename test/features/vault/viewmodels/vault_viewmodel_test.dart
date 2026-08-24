@@ -26,6 +26,7 @@ void main() {
     setUp(() {
       vaultService = getAndRegisterVaultService();
       dialogService = getAndRegisterDialogService();
+      getAndRegisterLocalizationService();
       fileUpload = getAndRegisterFileUploadService();
       photoService = getAndRegisterProfilePhotoService();
       when(vaultService.vault).thenReturn(CvVault.empty());

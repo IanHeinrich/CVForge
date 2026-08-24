@@ -1,5 +1,6 @@
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -14,12 +15,15 @@ class VaultSectionHeading extends StatelessWidget {
     super.key,
     required this.title,
     this.onAdd,
-    this.addLabel = 'Add',
+    this.addLabel,
   });
 
   final String title;
   final VoidCallback? onAdd;
-  final String addLabel;
+
+  /// Null means the standard "Add" label — a localized string is not a
+  /// compile-time constant, so it cannot be a constructor default.
+  final String? addLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +46,7 @@ class VaultSectionHeading extends StatelessWidget {
                 RemixIcons.add_circle_line,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              tooltip: addLabel,
+              tooltip: addLabel ?? context.l10n.commonAdd,
               visualDensity: VisualDensity.compact,
             ),
         ],

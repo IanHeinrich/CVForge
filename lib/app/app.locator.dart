@@ -22,6 +22,7 @@ import '../services/file_upload_service.dart';
 import '../services/font_service.dart';
 import '../services/llm_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/localization_service.dart';
 import '../services/pdf_export_service.dart';
 import '../services/profile_photo_service.dart';
 import '../services/settings_service.dart';
@@ -62,6 +63,7 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => TemplateThumbnailService());
   locator.registerLazySingleton(() => DriveApiClientService());
   locator.registerLazySingleton(() => DriveSyncService());
+  locator.registerLazySingleton(() => LocalizationService());
   locator.registerLazySingleton(() => ProfilePhotoService());
   if (stackedRouter == null) {
     throw Exception(

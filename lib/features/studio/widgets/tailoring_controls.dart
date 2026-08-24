@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:remixicon/remixicon.dart';
@@ -55,12 +56,12 @@ class TailorIconButtons extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
             color: Theme.of(context).colorScheme.onSurfaceVariant,
-            tooltip: 'Revert to Vault — tailored for this CV',
+            tooltip: context.l10n.studioTailoringReverted,
             onPressed: onRevert,
           )
         else
           Tooltip(
-            message: 'From your Vault — not yet tailored',
+            message: context.l10n.studioTailoringFromVault,
             child: Icon(
               RemixIcons.safe_line,
               size: kdTailorIconSize,
@@ -76,7 +77,9 @@ class TailorIconButtons extends StatelessWidget {
           color: editing
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.onSurfaceVariant,
-          tooltip: editing ? 'Done' : 'Edit text',
+          tooltip: editing
+              ? context.l10n.commonDone
+              : context.l10n.studioTailoringEditText,
           onPressed: onToggleEdit,
         ),
       ],
@@ -184,7 +187,7 @@ class InlineTextOverrideEditor extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(top: context.appSpacing.paddingHairline),
             child: Text(
-              'Only affects this CV.',
+              context.l10n.studioTailoringOnlyThisCv,
               style: context.appTypography.caption.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

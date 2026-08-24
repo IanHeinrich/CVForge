@@ -64,6 +64,26 @@ abstract class CvPreferences with _$CvPreferences {
     /// draft starts with nothing hidden.
     Set<CvSectionType>? defaultHiddenSections,
 
+    /// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
+    /// Null — the default — means "follow the browser's own locale", and is
+    /// what a user who never opens the language picker keeps.
+    ///
+    /// That default is why this belongs here rather than in [AppSettings]:
+    /// only an *explicit* choice ever travels between devices. Someone who
+    /// never picks a language syncs nothing, and each browser goes on
+    /// following itself. A language is a fact about the person, like
+    /// [defaultRegion] — not about the device, like `lastBackupAt`.
+    ///
+    /// A tag rather than an enum so that adding a supported language is
+    /// exactly one new `.arb` file, with nothing here to keep in lockstep.
+    /// `LocalizationService` validates it on read and falls back to the
+    /// platform locale if it names a language this build no longer ships.
+    ///
+    /// Only ever the language of the app's *chrome*. The CV itself is
+    /// produced in English regardless — see `CvComposer` for why the
+    /// document's language is a separate axis.
+    String? localeTag,
+
     /// When any field above last changed — the tie-break when two devices
     /// have both edited their preferences since they last agreed. These
     /// are flat scalars with no ids to merge by, so unlike the Vault there

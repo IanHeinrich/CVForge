@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:stacked/stacked.dart';
 
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/ats/ats_analysis_result.dart';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_font_info.dart';
@@ -26,6 +27,7 @@ class AnalyzerViewModel extends BaseViewModel {
   final _extraction = locator<PdfExtractionService>();
   final _analyzer = locator<AtsAnalyzerService>();
   final _settingsService = locator<SettingsService>();
+  final _localizationService = locator<LocalizationService>();
 
   static const _analyzeBusyKey = 'analyzer_analyze';
 
@@ -33,13 +35,20 @@ class AnalyzerViewModel extends BaseViewModel {
   /// read here rather than adding a region concept of this feature's own:
   /// Analyzer has no draft, so the device-wide default is the only region
   /// signal available to it.
+  /// Which document noun the user's default region uses — `cv` or
+  /// `resume` — as an ICU `select` branch id, not a display word.
+  ///
+  /// Deliberately not an inflected English string any more: a translated
+  /// sentence cannot have a foreign noun interpolated into it and stay
+  /// grammatical, so each message spells out its own branches. See
+  /// CLAUDE.md's Localization section.
   String get documentNoun => _settingsService
       .settings
       .preferences
       .defaultRegion
       .preset
       .documentNoun
-      .lower;
+      .name;
 
   AtsAnalysisResult? _result;
   AtsAnalysisResult? get result => _result;
@@ -94,19 +103,15 @@ class AnalyzerViewModel extends BaseViewModel {
   /// precedent every other exception-tagged service in this app follows.
   String get analyzeErrorMessage {
     final error = this.error(_analyzeBusyKey);
+    final strings = _localizationService.strings;
     if (error is! PdfExtractionException) {
-      return "Couldn't analyze that file — try again.";
+      return strings.analyzerErrorGeneric;
     }
     return switch (error.failure) {
-      PdfExtractionFailure.moduleLoadFailed =>
-        "Couldn't load the PDF engine — check your connection and try "
-            'again.',
-      PdfExtractionFailure.invalidPdf =>
-        "That file doesn't look like a valid PDF, or it's password-"
-            'protected.',
+      PdfExtractionFailure.moduleLoadFailed => strings.analyzerErrorEngineLoad,
+      PdfExtractionFailure.invalidPdf => strings.analyzerErrorInvalidPdf,
       PdfExtractionFailure.unsupportedXfa =>
-        'This is an interactive PDF form, which works differently from a '
-            "typical resume and can't be analyzed the same way.",
+        strings.analyzerErrorInteractiveForm,
     };
   }
 }

@@ -32,6 +32,7 @@ void main() {
         TemplateRegistryService.new,
       );
       settings = getAndRegisterSettingsService();
+      getAndRegisterLocalizationService();
       when(settings.settings).thenReturn(AppSettings.empty());
     });
     tearDown(() => locator.reset());

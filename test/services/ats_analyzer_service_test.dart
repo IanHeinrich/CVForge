@@ -4,8 +4,11 @@ import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:cv_forge/models/ats/ats_font_info.dart';
 import 'package:cv_forge/models/ats/ats_link_annotation.dart';
 import 'package:cv_forge/models/ats/ats_text_node.dart';
+import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../helpers/test_helpers.dart';
 
 /// Fixture geometry below is copied from real `pdf.js` output captured
 /// during the ATS-analyzer spike (a probe run against synthetic PDFs
@@ -42,7 +45,17 @@ AtsExtractedDocument _doc({
 );
 
 void main() {
-  final service = AtsAnalyzerService();
+  // AtsAnalyzerService bakes each finding's user-facing copy in at
+  // construction, so it resolves LocalizationService from the locator —
+  // which means it can only be built once the locator is populated, not at
+  // main() scope the way it used to be.
+  late AtsAnalyzerService service;
+
+  setUp(() {
+    registerServices();
+    service = AtsAnalyzerService();
+  });
+  tearDown(() => locator.reset());
 
   group('AtsAnalyzerServiceTest - no text layer', () {
     test('zero nodes across the whole document is a critical finding', () {

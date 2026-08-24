@@ -3,6 +3,7 @@ import 'package:cv_forge/models/settings/app_theme_mode.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -45,11 +46,12 @@ class ThemeModeToggle extends StatelessWidget {
     AppThemeMode.system => RemixIcons.computer_line,
   };
 
-  static String _labelFor(AppThemeMode mode) => switch (mode) {
-    AppThemeMode.light => 'Light',
-    AppThemeMode.dark => 'Dark',
-    AppThemeMode.system => 'Match device',
-  };
+  static String _labelFor(BuildContext context, AppThemeMode mode) =>
+      switch (mode) {
+        AppThemeMode.light => context.l10n.themeModeLight,
+        AppThemeMode.dark => context.l10n.themeModeDark,
+        AppThemeMode.system => context.l10n.themeModeSystem,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,10 @@ class ThemeModeToggle extends StatelessWidget {
     final next = _next(mode);
 
     return IconButton(
-      tooltip: 'Theme: ${_labelFor(mode)} — switch to ${_labelFor(next)}',
+      tooltip: context.l10n.themeToggleTooltip(
+        _labelFor(context, mode),
+        _labelFor(context, next),
+      ),
       onPressed: () => settingsService.setThemeMode(next),
       icon: AnimatedSwitcher(
         duration: context.appMotion.iconSwap,

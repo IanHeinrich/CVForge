@@ -9,6 +9,7 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -104,13 +105,16 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
       if (e.bullets.isNotEmpty) _BulletGroup(_experienceHeading(e), e.bullets),
     for (final p in widget.projects)
       if (p.bullets.isNotEmpty)
-        _BulletGroup(p.title.isEmpty ? 'Untitled project' : p.title, p.bullets),
+        _BulletGroup(
+          p.title.isEmpty ? context.l10n.vaultUntitledProject : p.title,
+          p.bullets,
+        ),
     for (final e in widget.education)
       if (e.bullets.isNotEmpty) _BulletGroup(_educationHeading(e), e.bullets),
     for (final p in widget.publications)
       if (p.bullets.isNotEmpty)
         _BulletGroup(
-          p.title.isEmpty ? 'Untitled publication' : p.title,
+          p.title.isEmpty ? context.l10n.vaultUntitledPublication : p.title,
           p.bullets,
         ),
   ];
@@ -121,21 +125,28 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
   /// share a title ("Software Engineer" at three different companies),
   /// so the heading needs the company to actually tell them apart.
   String _experienceHeading(Experience experience) {
-    final role = experience.role.isEmpty ? 'Untitled role' : experience.role;
+    final role = experience.role.isEmpty
+        ? context.l10n.vaultUntitledRole
+        : experience.role;
     final company = experience.company;
-    return company.isEmpty ? role : '$role · $company';
+    return company.isEmpty
+        ? role
+        : context.l10n.vaultRoleAtCompany(role, company);
   }
 
   /// Same reasoning as [_experienceHeading] — several qualifications can
   /// share a name across institutions (or vice versa).
   String _educationHeading(Education education) {
     final qualification = education.qualification.isEmpty
-        ? 'Untitled qualification'
+        ? context.l10n.vaultUntitledQualification
         : education.qualification;
     final institution = education.institution;
     return institution.isEmpty
         ? qualification
-        : '$qualification · $institution';
+        : context.l10n.vaultQualificationAtInstitution(
+            qualification,
+            institution,
+          );
   }
 
   @override
@@ -145,21 +156,21 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
         .where(_categoryVisible)
         .toList(growable: false);
     return VaultEditorPanelScaffold(
-      title: 'Skills',
+      title: context.l10n.vaultSkillsTitle,
       onClose: widget.onClose,
       children: [
         VaultSectionHeading(
-          title: 'Categories',
+          title: context.l10n.vaultSkillsCategories,
           onAdd: widget.onAddCategory,
-          addLabel: 'Add category',
+          addLabel: context.l10n.vaultSkillsAddCategory,
         ),
         if (categories.isEmpty)
-          const AppInlineEmptyMessage('No skill categories yet.')
+          AppInlineEmptyMessage(context.l10n.vaultSkillsNoCategories)
         else ...[
           TextField(
             decoration: InputDecoration(
               isDense: true,
-              hintText: 'Search skills…',
+              hintText: context.l10n.vaultSkillsSearch,
               prefixIcon: Icon(
                 RemixIcons.search_line,
                 size: context.appIconSize.medium,
@@ -170,7 +181,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
           ),
           const VGap.small(),
           if (visibleCategories.isEmpty)
-            const AppInlineEmptyMessage('No skills match your search.'),
+            AppInlineEmptyMessage(context.l10n.vaultSkillsNoMatches),
         ],
         for (final category in visibleCategories)
           Container(
@@ -191,15 +202,15 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                   children: [
                     Expanded(
                       child: AppTextField(
-                        label: 'Category name',
-                        hint: 'e.g. Languages & Frameworks',
+                        label: context.l10n.vaultSkillsCategoryName,
+                        hint: context.l10n.vaultSkillsCategoryNameHint,
                         initialValue: category.name,
                         onChanged: (v) =>
                             widget.onUpdateCategory(category.copyWith(name: v)),
                       ),
                     ),
                     AppDeleteIconButton(
-                      tooltip: 'Delete category',
+                      tooltip: context.l10n.vaultSkillsDeleteCategory,
                       onPressed: () => widget.onDeleteCategory(category.id),
                     ),
                   ],
@@ -216,7 +227,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                           children: [
                             Expanded(
                               child: AppTextField(
-                                hint: 'Skill',
+                                hint: context.l10n.vaultSkillsSkillLabel,
                                 initialValue: skill.label,
                                 onChanged: (v) => widget.onUpdateSkill(
                                   category.id,
@@ -234,7 +245,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                               ),
                               onPressed: () =>
                                   widget.onDeleteSkill(category.id, skill.id),
-                              tooltip: 'Delete skill',
+                              tooltip: context.l10n.vaultSkillsDeleteSkill,
                             ),
                           ],
                         ),
@@ -252,14 +263,14 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                   ),
                 const VGap.tiny(),
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: TextButton.icon(
                     onPressed: () => widget.onAddSkill(category.id),
                     icon: Icon(
                       RemixIcons.add_line,
                       size: context.appIconSize.small,
                     ),
-                    label: const Text('Add skill'),
+                    label: Text(context.l10n.vaultSkillsAddSkill),
                   ),
                 ),
               ],
@@ -382,12 +393,12 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
       // Mirrors the bullet side's label exactly — see the reasoning on
       // `BulletListEditor`'s `_BulletSkillLinkPicker`.
       label: linked.isEmpty
-          ? 'Link to bullets'
-          : 'Linked to ${linked.length} bullet${linked.length == 1 ? '' : 's'}',
+          ? context.l10n.vaultSkillLinkToBullets
+          : context.l10n.vaultSkillLinkedBullets(linked.length),
       summary: linked.isEmpty
           ? null
           : linked.map((b) => b.label ?? b.text).join(' · '),
-      searchHint: 'Search bullets…',
+      searchHint: context.l10n.vaultSkillSearchBullets,
       onQueryChanged: (value) =>
           setState(() => _query = value.trim().toLowerCase()),
       expanded: widget.expanded,
@@ -396,7 +407,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
         if (groups.isNotEmpty)
           AppChipGroupSelector(groups: groups)
         else
-          const AppInlineEmptyMessage('No bullets match your search.'),
+          AppInlineEmptyMessage(context.l10n.vaultSkillNoBulletMatches),
       ],
     );
   }

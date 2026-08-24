@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -11,9 +12,9 @@ class PublicationsSectionEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => EntityBulletSectionEditor(
-    title: 'Publications',
+    title: context.l10n.vaultSectionPublications,
     items: viewModel.publications,
-    untitledLabel: 'Untitled publication',
+    untitledLabel: context.l10n.vaultUntitledPublication,
     idOf: (p) => p.id,
     titleOf: (p) => p.title,
     subtitleOf: (p) => p.citation,

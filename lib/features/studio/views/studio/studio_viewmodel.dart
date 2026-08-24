@@ -1,5 +1,7 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/ui/common/l10n/region_labels.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_run_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
@@ -54,6 +56,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   final _vaultService = locator<VaultService>();
   final _draftService = locator<DraftService>();
   final _settingsService = locator<SettingsService>();
+  final _localizationService = locator<LocalizationService>();
   final _templateRegistry = locator<TemplateRegistryService>();
   final _pdfExportService = locator<PdfExportService>();
   final _routerService = locator<RouterService>();
@@ -276,8 +279,11 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     if (count == null) return null;
     final preset = _draft.region.preset;
     if (count <= preset.typicalMaxPages) return null;
-    return 'Longer than ${preset.displayName} typically expects. '
-        '${preset.lengthNote} Try trimming content, or a denser template.';
+    final strings = _localizationService.strings;
+    return strings.studioLengthWarning(
+      _draft.region.displayName(strings),
+      _draft.region.lengthNote(strings),
+    );
   }
 
   /// Set when the chosen template prints a photograph into a market that
@@ -296,12 +302,13 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   /// least useful.
   String? get photoRegionWarning {
     if (!template.tags.contains(TemplateTag.photo)) return null;
-    final preset = region.preset;
-    return switch (preset.photo) {
-      RegionPhotoStance.prohibited || RegionPhotoStance.discouraged =>
-        'This template prints a photo, and ${preset.displayName} '
-            'expects none — ${preset.photo.displayLabel.toLowerCase()}. '
-            'Switch template, or change region.',
+    final strings = _localizationService.strings;
+    return switch (region.preset.photo) {
+      RegionPhotoStance.prohibited ||
+      RegionPhotoStance.discouraged => strings.studioPhotoRegionWarning(
+        region.preset.photo.name,
+        region.displayName(strings),
+      ),
       RegionPhotoStance.optional || RegionPhotoStance.expected => null,
     };
   }
@@ -321,10 +328,12 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     final response = await _dialogService
         .showCustomDialog<EditDraftDialogData, EditDraftDialogData>(
           variant: DialogType.editDraft,
-          title: 'Edit CV details',
+          title: _localizationService.strings.studioEditDraftDetailsTitle(
+            _draft.region.preset.documentNoun.name,
+          ),
           data: EditDraftDialogData(name: _draft.name, notes: _draft.notes),
-          mainButtonTitle: 'Save',
-          secondaryButtonTitle: 'Cancel',
+          mainButtonTitle: _localizationService.strings.commonSave,
+          secondaryButtonTitle: _localizationService.strings.commonCancel,
         );
     final result = response?.data;
     if (response?.confirmed != true || result == null) return;
@@ -871,18 +880,14 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   String get exportErrorMessage {
     final error = exportError;
     if (error is! PdfExportException) {
-      return "Couldn't export the PDF — try again.";
+      return _localizationService.strings.studioExportErrorGeneric;
     }
     return switch (error.stage) {
       PdfExportStage.fonts =>
-        "Couldn't load the fonts needed to export — check your "
-            'connection and try again.',
+        _localizationService.strings.studioExportErrorFonts,
       PdfExportStage.render =>
-        "Couldn't generate the PDF — try again, and if it keeps "
-            'failing, check your CV for unusual characters or formatting.',
-      PdfExportStage.save =>
-        "Couldn't save the file — check your browser's download "
-            'settings and try again.',
+        _localizationService.strings.studioExportErrorRender,
+      PdfExportStage.save => _localizationService.strings.studioExportErrorSave,
     };
   }
 

@@ -4,6 +4,7 @@ import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/ui/common/relative_time.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -46,33 +47,35 @@ class DriveSyncIndicator extends StackedView<DriveSyncIndicatorModel> {
       DriveSyncDisconnected() || DriveSyncConnecting() => null,
       DriveSyncIdle(:final lastSyncedAt) => _Glyph(
         tooltip: lastSyncedAt == null
-            ? 'Synced to Google Drive'
-            : 'Synced to Google Drive · ${formatRelativeTime(lastSyncedAt)}',
+            ? context.l10n.driveSyncSynced
+            : context.l10n.driveSyncSyncedAt(
+                formatRelativeTime(context.l10n, lastSyncedAt),
+              ),
         icon: _StatusIcon(
           icon: RemixIcons.cloud_fill,
           color: context.appPalette.success,
         ),
       ),
       DriveSyncPending() => _Glyph(
-        tooltip: 'Waiting to sync to Google Drive…',
+        tooltip: context.l10n.driveSyncPending,
         icon: _StatusIcon(
           icon: RemixIcons.cloud_line,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
-      DriveSyncSyncing() => const _Glyph(
-        tooltip: 'Syncing to Google Drive…',
+      DriveSyncSyncing() => _Glyph(
+        tooltip: context.l10n.driveSyncSyncing,
         icon: _SyncingIcon(),
       ),
       DriveSyncMerged() => _Glyph(
-        tooltip: 'Merged changes from your other device',
+        tooltip: context.l10n.driveSyncMerged,
         icon: _StatusIcon(
           icon: RemixIcons.git_merge_line,
           color: context.appPalette.success,
         ),
       ),
       DriveSyncNeedsReauth() => _Glyph(
-        tooltip: 'Reconnect Google Drive in Settings to keep syncing',
+        tooltip: context.l10n.driveSyncNeedsReauth,
         icon: _StatusIcon(
           icon: RemixIcons.error_warning_line,
           color: context.appPalette.warning,

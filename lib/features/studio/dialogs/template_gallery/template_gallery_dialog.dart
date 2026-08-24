@@ -7,6 +7,8 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
 import 'package:cv_forge/ui/widgets/common/pdf_page_thumbnail.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:stacked/stacked.dart';
@@ -51,10 +53,10 @@ class TemplateGalleryDialog extends StackedView<TemplateGalleryDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
-      title: 'Choose a template',
+      title: context.l10n.studioTemplatePickerTitle,
       maxWidth: 760,
-      cancelLabel: 'Cancel',
-      confirmLabel: 'Use this template',
+      cancelLabel: context.l10n.commonCancel,
+      confirmLabel: context.l10n.studioTemplatePickerUse,
       onCancel: () => completer(DialogResponse<String>(confirmed: false)),
       onConfirm: () => completer(
         DialogResponse<String>(
@@ -131,7 +133,9 @@ class _TemplateCard extends StatelessWidget {
     // caption line rather than a `Chip` each: three Material chips wrap to
     // two or three rows at this card width, and carry far more visual
     // weight than one line of text is worth.
-    final tags = template.tags.map((tag) => tag.displayLabel).join(' · ');
+    final tags = template.tags
+        .map((tag) => tag.displayLabel(context.l10n))
+        .join(' · ');
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -185,7 +189,7 @@ class _TemplateCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        template.displayName,
+                        templateDisplayName(context.l10n, template.id),
                         style: context.appTypography.bodySmall.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
@@ -197,7 +201,7 @@ class _TemplateCard extends StatelessWidget {
                     if (current) ...[
                       const HGap.tiny(),
                       Text(
-                        'Current',
+                        context.l10n.studioTemplateCurrent,
                         style: context.appTypography.caption.copyWith(
                           color: muted,
                         ),
@@ -225,7 +229,7 @@ class _TemplateCard extends StatelessWidget {
                 // `RegionGalleryDialog._RegionListRow` makes for its
                 // country list.
                 Text(
-                  template.description,
+                  templateDescriptionFor(context.l10n, template.id),
                   style: context.appTypography.caption.copyWith(color: muted),
                 ),
                 if (tags.isNotEmpty) ...[

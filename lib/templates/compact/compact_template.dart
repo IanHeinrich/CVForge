@@ -23,13 +23,6 @@ class CompactTemplate implements CvTemplate {
   String get id => 'compact';
 
   @override
-  String get displayName => 'Compact';
-
-  @override
-  String get description =>
-      'A plain single column, tightly set — the most content per page.';
-
-  @override
   CvDesignTokens get tokens => compactTokens;
 
   @override

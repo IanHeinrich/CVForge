@@ -5,6 +5,8 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
@@ -37,11 +39,13 @@ class RegionSettingsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Default region', style: context.appTypography.titleMedium),
+          Text(
+            context.l10n.settingsRegionCardTitle,
+            style: context.appTypography.titleMedium,
+          ),
           const VGap.tiny(),
           Text(
-            'The region every new CV starts with. Change it any time for an '
-            'individual CV from Studio.',
+            context.l10n.settingsRegionCardBody,
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
@@ -57,14 +61,14 @@ class RegionSettingsCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      preset.displayName,
+                      viewModel.defaultRegion.displayName(context.l10n),
                       style: context.appTypography.bodySmall.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      preset.coverage,
+                      viewModel.defaultRegion.coverage(context.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.appTypography.caption.copyWith(
@@ -77,7 +81,7 @@ class RegionSettingsCard extends StatelessWidget {
               const HGap.small(),
               OutlinedButton(
                 onPressed: viewModel.openDefaultRegionPicker,
-                child: const Text('Change'),
+                child: Text(context.l10n.settingsRegionCardChange),
               ),
             ],
           ),

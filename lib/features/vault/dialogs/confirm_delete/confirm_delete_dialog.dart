@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_dialog_scaffold.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -28,10 +29,10 @@ class ConfirmDeleteDialog extends StackedView<ConfirmDeleteDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
-      title: request.title ?? 'Delete this?',
+      title: request.title ?? context.l10n.vaultConfirmDeleteFallbackTitle,
       destructive: true,
-      cancelLabel: request.secondaryButtonTitle ?? 'Cancel',
-      confirmLabel: request.mainButtonTitle ?? 'Delete',
+      cancelLabel: request.secondaryButtonTitle,
+      confirmLabel: request.mainButtonTitle ?? context.l10n.commonDelete,
       onCancel: () => completer(DialogResponse(confirmed: false)),
       onConfirm: () => completer(DialogResponse(confirmed: true)),
       children: [

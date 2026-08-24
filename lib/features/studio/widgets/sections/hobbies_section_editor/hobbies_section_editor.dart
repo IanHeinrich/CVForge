@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -12,7 +13,7 @@ class HobbiesSectionEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VaultItemSelectorList(
-      title: 'Hobbies and interests',
+      title: context.l10n.vaultHobbiesTitle,
       unselectedCount: viewModel.unselectedHobbies.length,
       selectedCount: viewModel.selectedHobbies.length,
       onAddAll: viewModel.addAllHobbies,

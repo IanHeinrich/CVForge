@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -13,7 +14,7 @@ class EducationSectionEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VaultItemSelectorList(
-      title: 'Education',
+      title: context.l10n.vaultSectionEducation,
       unselectedCount: viewModel.unselectedEducation.length,
       selectedCount: viewModel.selectedEducation.length,
       onAddAll: viewModel.addAllEducation,
@@ -23,7 +24,7 @@ class EducationSectionEditor extends StatelessWidget {
           SelectorItem(
             id: entry.id,
             title: entry.qualification.isEmpty
-                ? 'Untitled qualification'
+                ? context.l10n.vaultUntitledQualification
                 : entry.qualification,
             subtitle: entry.institution,
             selected: viewModel.isEducationIncluded(entry.id),
@@ -31,7 +32,7 @@ class EducationSectionEditor extends StatelessWidget {
             tailorable: TailorableField(
               hasOverride: viewModel.hasEducationDetailsOverride(entry.id),
               effectiveText: viewModel.educationDetailsText(entry),
-              emptyMessage: 'No details in your Vault yet.',
+              emptyMessage: context.l10n.studioNoEducationDetails,
               onChanged: (value) =>
                   viewModel.setEducationDetailsOverride(entry, value),
               onRevert: () =>

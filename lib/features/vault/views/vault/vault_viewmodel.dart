@@ -1,6 +1,7 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_photo.dart';
@@ -48,6 +49,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     : _invalidUrlNoticePending = cameFromInvalidUrl;
 
   final _vaultService = locator<VaultService>();
+  final _localizationService = locator<LocalizationService>();
   final _dialogService = locator<DialogService>();
   final _fileUpload = locator<FileUploadService>();
   final _photoService = locator<ProfilePhotoService>();
@@ -211,8 +213,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
       final prepared = _photoService.prepareForCrop(picked);
       if (prepared == null) {
-        _photoError =
-            "That file couldn't be read as an image. Try a JPEG or PNG.";
+        _photoError = _localizationService.strings.vaultPhotoErrorUnreadable;
         return;
       }
 
@@ -225,7 +226,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
       final photo = response?.data;
       if (photo == null) {
-        _photoError = "That photo couldn't be prepared. Try a different image.";
+        _photoError = _localizationService.strings.vaultPhotoErrorPrepareFailed;
         return;
       }
       await updateBasics(vault.basics.copyWith(photo: photo));
@@ -295,11 +296,17 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   /// callers for those leave it at the default.
   String? _yearError(String raw, {bool allowEmpty = false}) {
     final trimmed = raw.trim();
-    if (trimmed.isEmpty) return allowEmpty ? null : 'Enter a year';
+    final strings = _localizationService.strings;
+    if (trimmed.isEmpty) {
+      return allowEmpty ? null : strings.vaultYearRequired;
+    }
     final year = int.tryParse(trimmed);
-    if (year == null) return 'Enter a valid year';
+    if (year == null) return strings.vaultYearInvalid;
     if (year < _minYear || year > _maxYear) {
-      return 'Enter a year between $_minYear and $_maxYear';
+      return _localizationService.strings.vaultYearOutOfRange(
+        _minYear,
+        _maxYear,
+      );
     }
     return null;
   }
@@ -360,9 +367,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   Future<void> deleteExperience(String id) => _confirmDeleteThen(
-    title: 'Delete this experience?',
-    description:
-        "This removes it and all of its bullets. This can't be undone.",
+    title: _localizationService.strings.vaultDeleteExperienceTitle,
+    description: _localizationService.strings.vaultDeleteWithBulletsBody,
     delete: () => _vaultService.deleteExperience(id),
     closeIfOpenId: id,
   );
@@ -401,9 +407,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
       _vaultService.updateProject(project);
 
   Future<void> deleteProject(String id) => _confirmDeleteThen(
-    title: 'Delete this project?',
-    description:
-        "This removes it and all of its bullets. This can't be undone.",
+    title: _localizationService.strings.vaultDeleteProjectTitle,
+    description: _localizationService.strings.vaultDeleteWithBulletsBody,
     delete: () => _vaultService.deleteProject(id),
     closeIfOpenId: id,
   );
@@ -421,8 +426,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> deleteSkillCategory(String id) async {
     final confirmed = await _confirmDelete(
-      title: 'Delete this category?',
-      description: 'This removes it and all of its skills.',
+      title: _localizationService.strings.vaultDeleteCategoryTitle,
+      description: _localizationService.strings.vaultDeleteCategoryBody,
     );
     if (confirmed) await _vaultService.deleteSkillCategory(id);
   }
@@ -452,8 +457,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
       _vaultService.updateEducation(education);
 
   Future<void> deleteEducation(String id) => _confirmDeleteThen(
-    title: 'Delete this qualification?',
-    description: "This can't be undone.",
+    title: _localizationService.strings.vaultDeleteQualificationTitle,
+    description: _localizationService.strings.vaultDeleteUndoneBody,
     delete: () => _vaultService.deleteEducation(id),
     closeIfOpenId: id,
   );
@@ -473,9 +478,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
       _vaultService.updatePublication(publication);
 
   Future<void> deletePublication(String id) => _confirmDeleteThen(
-    title: 'Delete this publication?',
-    description:
-        "This removes it and all of its bullets. This can't be undone.",
+    title: _localizationService.strings.vaultDeletePublicationTitle,
+    description: _localizationService.strings.vaultDeleteWithBulletsBody,
     delete: () => _vaultService.deletePublication(id),
     closeIfOpenId: id,
   );
@@ -502,14 +506,15 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<bool> _confirmDelete({
     required String title,
     required String description,
-    String confirmLabel = 'Delete',
+    String? confirmLabel,
   }) async {
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
       title: title,
       description: description,
-      mainButtonTitle: confirmLabel,
-      secondaryButtonTitle: 'Cancel',
+      mainButtonTitle:
+          confirmLabel ?? _localizationService.strings.commonDelete,
+      secondaryButtonTitle: _localizationService.strings.commonCancel,
     );
     return response?.confirmed ?? false;
   }

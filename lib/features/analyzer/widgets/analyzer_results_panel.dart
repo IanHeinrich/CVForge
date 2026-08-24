@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_viewmodel.dart';
@@ -30,24 +31,29 @@ class AnalyzerResultsPanel extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Results', style: context.appTypography.titleMedium),
+                Text(
+                  context.l10n.analyzerResultsTitle,
+                  style: context.appTypography.titleMedium,
+                ),
                 OutlinedButton(
                   onPressed: viewModel.reset,
-                  child: const Text('Analyze another file'),
+                  child: Text(context.l10n.analyzerResultsAnalyzeAnother),
                 ),
               ],
             ),
             const VGap.small(),
             Text(
-              '${result.info.pageCount} page(s), ${result.totalNodeCount} '
-              'text run(s) extracted.',
+              context.l10n.analyzerResultsExtractionSummary(
+                result.info.pageCount,
+                result.totalNodeCount,
+              ),
               style: context.appTypography.bodySmall,
             ),
             const VGap.medium(),
-            const TabBar(
+            TabBar(
               tabs: [
-                Tab(text: 'X-Ray'),
-                Tab(text: 'Machine Ingestion'),
+                Tab(text: context.l10n.analyzerTabXray),
+                Tab(text: context.l10n.analyzerTabMachineIngestion),
               ],
             ),
             const VGap.small(),

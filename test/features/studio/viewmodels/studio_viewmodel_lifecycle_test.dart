@@ -35,6 +35,7 @@ void main() {
       getAndRegisterPdfExportService();
       routerService = getAndRegisterRouterService();
       dialogService = getAndRegisterDialogService();
+      getAndRegisterLocalizationService();
     });
     tearDown(() => locator.reset());
 

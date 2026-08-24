@@ -39,8 +39,10 @@ void main() {
 
   group('AnalyzerViewModel Tests - documentNoun', () {
     test(
-      'follows SettingsService.settings.preferences.defaultRegion (7.5) — no '
-      'region concept of its own, since Analyzer has no draft',
+      'follows SettingsService.settings.preferences.defaultRegion — no '
+      'region concept of its own, since Analyzer has no draft. Reports the '
+      'ICU select branch id, not a display word: a translated sentence '
+      'cannot have a foreign noun interpolated into it and stay grammatical',
       () {
         when(settings.settings).thenReturn(
           AppSettings.empty().copyWith(
@@ -49,7 +51,7 @@ void main() {
             ),
           ),
         );
-        expect(viewModel.documentNoun, 'CV');
+        expect(viewModel.documentNoun, 'cv');
 
         when(settings.settings).thenReturn(
           AppSettings.empty().copyWith(
@@ -58,7 +60,7 @@ void main() {
             ),
           ),
         );
-        expect(viewModel.documentNoun, 'résumé');
+        expect(viewModel.documentNoun, 'resume');
       },
     );
   });

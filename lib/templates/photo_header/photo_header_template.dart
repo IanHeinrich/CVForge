@@ -32,15 +32,6 @@ class PhotoHeaderTemplate implements CvTemplate {
   String get id => 'photo_header';
 
   @override
-  String get displayName => 'Modern with photo';
-
-  @override
-  String get description =>
-      'A tinted header band around your Vault photo. Expected in DACH, '
-      'common in southern Europe; in the US and UK a photo invites '
-      'rejection.';
-
-  @override
   CvDesignTokens get tokens => photoHeaderTokens;
 
   /// [TemplateTag.atsSafe] applies here for the reason it applies to the

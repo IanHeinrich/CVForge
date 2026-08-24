@@ -1,3 +1,5 @@
+import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_analysis_result.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
@@ -11,6 +13,13 @@ import 'package:cv_forge/models/ats/ats_text_node.dart';
 /// Ships a reduced check set — see [AtsFindingCategory]'s doc comment
 /// for what was cut and why.
 class AtsAnalyzerService {
+  /// Findings carry their own user-facing copy, baked in at
+  /// construction (see [AtsFinding.title]/[AtsFinding.message]), so
+  /// this service needs strings without a `BuildContext` — which is
+  /// the whole reason `LocalizationService` is a locator entry rather
+  /// than something that lives on the widget tree.
+  final _l10n = locator<LocalizationService>();
+
   AtsAnalysisResult analyze(AtsExtractedDocument document) {
     final findings = <AtsFinding>[
       ..._checkNoTextLayer(document),
@@ -33,14 +42,11 @@ class AtsAnalyzerService {
   List<AtsFinding> _checkNoTextLayer(AtsExtractedDocument document) {
     if (document.nodes.isEmpty) {
       return [
-        const AtsFinding(
+        AtsFinding(
           category: AtsFindingCategory.noTextLayer,
           severity: AtsFindingSeverity.critical,
-          title: 'No extractable text found',
-          message:
-              'This PDF has no text layer at all — likely a scanned image. '
-              'Most ATS software will read this as a completely blank '
-              'resume.',
+          title: _l10n.strings.atsFindingNoTextLayerTitle,
+          message: _l10n.strings.atsFindingNoTextLayerBody,
         ),
       ];
     }
@@ -53,10 +59,8 @@ class AtsAnalyzerService {
           AtsFinding(
             category: AtsFindingCategory.noTextLayer,
             severity: AtsFindingSeverity.warning,
-            title: 'Page ${page + 1} has no extractable text',
-            message:
-                'Page ${page + 1} contributed no text at all, while other '
-                'pages did — an ATS will likely skip this page entirely.',
+            title: _l10n.strings.atsFindingPageNoTextTitle(page + 1),
+            message: _l10n.strings.atsFindingPageNoTextBody(page + 1),
             pageIndex: page,
           ),
         );
@@ -164,14 +168,12 @@ class AtsAnalyzerService {
             AtsFinding(
               category: AtsFindingCategory.columnCrush,
               severity: AtsFindingSeverity.warning,
-              title: 'Possible multi-column layout',
-              message:
-                  '"${_truncate(left.str)}" and "${_truncate(right.str)}" '
-                  'sit on the same line with a wide gap between them. A '
-                  'text extractor that reads by position rather than by '
-                  'the document\'s own structure may merge these into '
-                  'one run, e.g. "${_truncate(left.str)}'
-                  '${_truncate(right.str)}".',
+              title: _l10n.strings.atsFindingColumnCrushTitle,
+              message: _l10n.strings.atsFindingColumnCrushBody(
+                _truncate(left.str),
+                _truncate(right.str),
+                '${_truncate(left.str)}${_truncate(right.str)}',
+              ),
               pageIndex: entry.key,
               evidence: [
                 AtsFindingEvidence(pageIndex: entry.key, nodeIndex: leftIndex),
@@ -279,11 +281,8 @@ class AtsAnalyzerService {
         AtsFinding(
           category: AtsFindingCategory.garbledText,
           severity: AtsFindingSeverity.critical,
-          title: 'Unreadable characters found',
-          message:
-              'Found $replacementCount character(s) that failed to decode '
-              'to readable text — the font used likely has a missing or '
-              'broken character map. An ATS will see this text as garbage.',
+          title: _l10n.strings.atsFindingGarbledTitle,
+          message: _l10n.strings.atsFindingGarbledBody(replacementCount),
           evidence: replacementEvidence,
         ),
       );
@@ -293,12 +292,8 @@ class AtsAnalyzerService {
         AtsFinding(
           category: AtsFindingCategory.garbledText,
           severity: AtsFindingSeverity.warning,
-          title: 'Possible icon/symbol font glyphs in text',
-          message:
-              'Found $embeddedPuaCount character(s) from a private-use '
-              'code range embedded within words — a common sign of an '
-              'icon or symbol font (e.g. Wingdings) rather than real text, '
-              'which most ATS parsers will render as blanks or gibberish.',
+          title: _l10n.strings.atsFindingIconFontTitle,
+          message: _l10n.strings.atsFindingIconFontBody(embeddedPuaCount),
           evidence: embeddedPuaEvidence,
         ),
       );
@@ -308,11 +303,8 @@ class AtsAnalyzerService {
         AtsFinding(
           category: AtsFindingCategory.garbledText,
           severity: AtsFindingSeverity.info,
-          title: 'Possible dropped characters',
-          message:
-              'Found $phantomGlyphCount short run(s) where more space was '
-              'used than the extracted characters account for — a sign a '
-              'symbol (often a bullet) silently failed to extract at all.',
+          title: _l10n.strings.atsFindingDroppedCharsTitle,
+          message: _l10n.strings.atsFindingDroppedCharsBody(phantomGlyphCount),
           evidence: phantomGlyphEvidence,
         ),
       );
@@ -325,14 +317,11 @@ class AtsAnalyzerService {
     if ((replacementCount > 0 || embeddedPuaCount > 0) &&
         document.fonts.values.any((f) => f.missingFile)) {
       findings.add(
-        const AtsFinding(
+        AtsFinding(
           category: AtsFindingCategory.garbledText,
           severity: AtsFindingSeverity.info,
-          title: 'Non-embedded font in use',
-          message:
-              'This PDF relies on at least one font that is not embedded '
-              'in the file. Combined with the unreadable text found above, '
-              'this is a likely contributing cause.',
+          title: _l10n.strings.atsFindingNonEmbeddedFontTitle,
+          message: _l10n.strings.atsFindingNonEmbeddedFontBody,
         ),
       );
     }
@@ -344,13 +333,17 @@ class AtsAnalyzerService {
     final text = document.nodes.map((n) => n.str).join(' ').toLowerCase();
     final findings = <AtsFinding>[];
 
+    // `keywords` are matched against the uploaded PDF's own text, which
+    // this app always writes in English (CLAUDE.md: the document's language
+    // is a separate axis from the UI's), so they stay English whatever the
+    // locale. `id` only selects the ICU branch used for display.
     const sections = [
       (
-        label: 'Experience',
+        id: 'experience',
         keywords: ['experience', 'work history', 'employment'],
       ),
-      (label: 'Education', keywords: ['education']),
-      (label: 'Skills', keywords: ['skills', 'competencies']),
+      (id: 'education', keywords: ['education']),
+      (id: 'skills', keywords: ['skills', 'competencies']),
     ];
 
     for (final section in sections) {
@@ -360,13 +353,8 @@ class AtsAnalyzerService {
           AtsFinding(
             category: AtsFindingCategory.missingHeadings,
             severity: AtsFindingSeverity.info,
-            title: 'No ${section.label} section detected',
-            message:
-                'Couldn\'t find a heading for ${section.label} anywhere in '
-                'the document. Some ATS software structures a resume by '
-                'matching canonical section headings, and may file this '
-                'content as unstructured text if the heading is missing or '
-                'phrased unusually.',
+            title: _l10n.strings.atsFindingMissingHeadingTitle(section.id),
+            message: _l10n.strings.atsFindingMissingHeadingBody(section.id),
           ),
         );
       }
@@ -385,14 +373,11 @@ class AtsAnalyzerService {
     final hasEmailLink = document.links.any((l) => l.url.startsWith('mailto:'));
     if (!hasEmailText && !hasEmailLink) {
       findings.add(
-        const AtsFinding(
+        AtsFinding(
           category: AtsFindingCategory.contactInfo,
           severity: AtsFindingSeverity.critical,
-          title: 'No email address found',
-          message:
-              'Couldn\'t find an email address in the extracted text or in '
-              'any clickable link. Most ATS software requires a readable '
-              'email address to file an application.',
+          title: _l10n.strings.atsFindingNoEmailTitle,
+          message: _l10n.strings.atsFindingNoEmailBody,
         ),
       );
     }
@@ -401,13 +386,11 @@ class AtsAnalyzerService {
     final hasPhoneLink = document.links.any((l) => l.url.startsWith('tel:'));
     if (!hasPhoneText && !hasPhoneLink) {
       findings.add(
-        const AtsFinding(
+        AtsFinding(
           category: AtsFindingCategory.contactInfo,
           severity: AtsFindingSeverity.warning,
-          title: 'No phone number found',
-          message:
-              'Couldn\'t find a phone number in the extracted text or in '
-              'any clickable link.',
+          title: _l10n.strings.atsFindingNoPhoneTitle,
+          message: _l10n.strings.atsFindingNoPhoneBody,
         ),
       );
     }

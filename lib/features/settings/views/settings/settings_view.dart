@@ -4,6 +4,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_chrome/app_chrome.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -12,6 +13,7 @@ import 'package:cv_forge/features/settings/widgets/appearance_settings_card.dart
 import 'package:cv_forge/features/settings/widgets/backup_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/ai_assistant_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/drive_settings_card.dart';
+import 'package:cv_forge/features/settings/widgets/language_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/region_settings_card.dart';
 import 'settings_viewmodel.dart';
 
@@ -43,7 +45,7 @@ class SettingsView extends StackedView<SettingsViewModel> {
         // ConstrainedBox's own minWidth still inherits the full tight
         // viewport width and the cap has no effect.
         child: Align(
-          alignment: Alignment.topLeft,
+          alignment: AlignmentDirectional.topStart,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: _contentMaxWidth),
             child: Column(
@@ -53,6 +55,10 @@ class SettingsView extends StackedView<SettingsViewModel> {
                 const VGap.medium(),
                 RegionSettingsCard(viewModel: viewModel),
                 const VGap.medium(),
+                if (viewModel.showLanguageSelector) ...[
+                  LanguageSettingsCard(viewModel: viewModel),
+                  const VGap.medium(),
+                ],
                 // DriveSettingsCard renders nothing when Drive sync isn't
                 // configured for this build — skipped here too, rather
                 // than left in with its own VGap either side, so an
@@ -95,11 +101,11 @@ class _LegalLinks extends StatelessWidget {
       runSpacing: context.appSpacing.gapTiny,
       children: [
         _LegalLink(
-          label: 'Privacy Policy',
+          label: context.l10n.settingsLinkPrivacy,
           onTap: () => locator<RouterService>().navigateToPrivacyView(),
         ),
         _LegalLink(
-          label: 'Terms of Service',
+          label: context.l10n.settingsLinkTerms,
           onTap: () => locator<RouterService>().navigateToTermsView(),
         ),
       ],

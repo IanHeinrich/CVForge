@@ -1,3 +1,5 @@
+import 'package:cv_forge/l10n/generated/app_localizations.dart';
+
 /// "< 1 hour ago" / "N hours ago" / "yesterday" / "N days ago", falling
 /// back to an absolute `DD/MM/YYYY` past a month — "47 days ago" stops
 /// being a useful unit for something you may not think about for months at
@@ -18,16 +20,14 @@
 /// rationale once" rule. Every caller reads the result as the tail of a
 /// sentence ("Last backed up …", "Updated …"), so each branch has to be a
 /// phrase that completes one.
-String formatRelativeTime(DateTime time) {
+String formatRelativeTime(AppLocalizations l10n, DateTime time) {
   final elapsed = DateTime.now().difference(time);
   // Also catches a timestamp marginally in the future — a drifted clock,
   // or a write from another tab — which would otherwise count backwards.
-  if (elapsed.inHours < 1) return '< 1 hour ago';
-  if (elapsed.inHours == 1) return '1 hour ago';
-  if (elapsed.inHours < 24) return '${elapsed.inHours} hours ago';
+  if (elapsed.inHours < 1) return l10n.commonRelativeUnderAnHour;
+  if (elapsed.inHours < 24) return l10n.commonRelativeHoursAgo(elapsed.inHours);
   final days = elapsed.inDays;
-  if (days == 1) return 'yesterday';
-  if (days < 30) return '$days days ago';
-  return 'on ${time.day.toString().padLeft(2, '0')}/'
-      '${time.month.toString().padLeft(2, '0')}/${time.year}';
+  if (days == 1) return l10n.commonRelativeYesterday;
+  if (days < 30) return l10n.commonRelativeDaysAgo(days);
+  return l10n.commonRelativeOnDate(time);
 }

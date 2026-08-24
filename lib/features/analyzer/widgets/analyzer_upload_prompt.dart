@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -15,22 +16,22 @@ class AnalyzerUploadPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (viewModel.isAnalyzing) {
-      return const AppEmptyState(
+      return AppEmptyState(
         icon: RemixIcons.loader_4_line,
-        title: 'Analyzing…',
-        message: 'Reading the PDF and checking for ATS parsing issues.',
+        title: context.l10n.analyzerAnalyzingTitle,
+        message: context.l10n.analyzerAnalyzingBody,
       );
     }
 
     if (viewModel.hasAnalyzeError) {
       return AppEmptyState(
         icon: RemixIcons.error_warning_line,
-        title: "Couldn't analyze that file",
+        title: context.l10n.analyzerErrorTitle,
         message: viewModel.analyzeErrorMessage,
         actions: [
           FilledButton(
             onPressed: viewModel.pickAndAnalyze,
-            child: const Text('Try again'),
+            child: Text(context.l10n.commonTryAgain),
           ),
         ],
       );
@@ -38,17 +39,13 @@ class AnalyzerUploadPrompt extends StatelessWidget {
 
     return AppEmptyState(
       icon: RemixIcons.file_search_line,
-      title: 'Check your ${viewModel.documentNoun} for ATS issues',
+      title: context.l10n.analyzerUploadTitle(viewModel.documentNoun),
       messageMaxWidth: 480,
-      message:
-          'Upload a PDF ${viewModel.documentNoun} to check for formatting '
-          'that applicant tracking software commonly misreads — missing '
-          'text layers, multi-column layouts, garbled characters, and '
-          'more. Nothing leaves your browser.',
+      message: context.l10n.analyzerUploadBody(viewModel.documentNoun),
       actions: [
         FilledButton(
           onPressed: viewModel.pickAndAnalyze,
-          child: const Text('Upload PDF'),
+          child: Text(context.l10n.analyzerUploadCta),
         ),
       ],
     );

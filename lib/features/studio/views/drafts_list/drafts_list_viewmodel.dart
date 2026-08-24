@@ -1,7 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:cv_forge/app/app.dialogs.dart';
+import 'package:cv_forge/l10n/generated/app_localizations.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/ui/common/l10n/model_labels.dart';
+import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
@@ -25,14 +28,19 @@ import 'package:stacked_services/stacked_services.dart';
 /// No "newest first": [CvDraft] has no `createdAt`, so creation order isn't
 /// recoverable without a schema change.
 enum DraftSortOrder {
-  recentlyUpdated('Recently updated'),
-  nameAtoZ('Name A–Z');
-
-  const DraftSortOrder(this.label);
+  recentlyUpdated,
+  nameAtoZ;
 
   /// Shown on the sort control itself, so the active order is readable
   /// without opening the menu.
-  final String label;
+  ///
+  /// A method rather than a `const` constructor field: a localized string
+  /// is not a compile-time constant. Same reason the other display labels
+  /// on this app take the localizations rather than holding them.
+  String label(AppLocalizations l10n) => switch (this) {
+    DraftSortOrder.recentlyUpdated => l10n.studioSortRecentlyUpdated,
+    DraftSortOrder.nameAtoZ => l10n.studioSortNameAtoZ,
+  };
 }
 
 /// Studio's landing page: every saved CV, with create/open/rename/
@@ -42,6 +50,7 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   final _draftService = locator<DraftService>();
   final _vaultService = locator<VaultService>();
   final _settingsService = locator<SettingsService>();
+  final _localizationService = locator<LocalizationService>();
   final _templateRegistry = locator<TemplateRegistryService>();
   final _thumbnailService = locator<TemplateThumbnailService>();
   final _dialogService = locator<DialogService>();
@@ -83,31 +92,32 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   /// `AppChrome`'s nav label and `SettingsViewModel`'s replace-data copy
   /// read, so this page's own "New CV" button and empty state never say
   /// something the sidebar tab it lives under disagrees with.
+  /// Which document noun the user's default region uses — `cv` or
+  /// `resume` — as an ICU `select` branch id, not a display word.
+  ///
+  /// Deliberately not an inflected English string any more: a translated
+  /// sentence cannot have a foreign noun interpolated into it and stay
+  /// grammatical, so each message spells out its own branches. See
+  /// CLAUDE.md's Localization section.
   String get documentNoun => _settingsService
       .settings
       .preferences
       .defaultRegion
       .preset
       .documentNoun
-      .capitalized;
-
-  String get documentNounPlural => _settingsService
-      .settings
-      .preferences
-      .defaultRegion
-      .preset
-      .documentNoun
-      .pluralCapitalized;
+      .name;
 
   String templateName(String templateId) =>
-      _templateRegistry.byId(templateId).displayName;
+      templateDisplayName(_localizationService.strings, templateId);
 
   /// What a card actually shows as this draft's title, falling back to
   /// "Untitled CV"/"Untitled Résumé" per the draft's own region. Read by
   /// both the card and [DraftSortOrder.nameAtoZ], so an untitled draft
   /// can't sort under one string while displaying another.
   String displayName(CvDraft draft) => draft.name.isEmpty
-      ? 'Untitled ${draft.region.preset.documentNoun.capitalized}'
+      ? _localizationService.strings.studioDraftUntitled(
+          draft.region.preset.documentNoun.name,
+        )
       : draft.name;
 
   /// Presentation state, not persisted — deliberately kept off
@@ -215,9 +225,9 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> createDraft() async {
     final result = await _editDraftDialog(
-      title: 'New $documentNoun',
+      title: _localizationService.strings.studioNewDraftTitle(documentNoun),
       initial: const EditDraftDialogData(name: '', notes: ''),
-      mainButtonTitle: 'Create',
+      mainButtonTitle: _localizationService.strings.commonCreate,
     );
     if (result == null) return;
     final id = await _draftService.createDraft(
@@ -235,9 +245,11 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> editDraft(CvDraft draft) async {
     final result = await _editDraftDialog(
-      title: 'Edit $documentNoun details',
+      title: _localizationService.strings.studioEditDraftDetailsTitle(
+        documentNoun,
+      ),
       initial: EditDraftDialogData(name: draft.name, notes: draft.notes),
-      mainButtonTitle: 'Save',
+      mainButtonTitle: _localizationService.strings.commonSave,
     );
     if (result == null) return;
     await _draftService.updateDraftDetails(
@@ -255,10 +267,10 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> deleteDraft(CvDraft draft) async {
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.confirmDelete,
-      title: 'Delete "${draft.name}"?',
-      description: "This can't be undone.",
-      mainButtonTitle: 'Delete',
-      secondaryButtonTitle: 'Cancel',
+      title: _localizationService.strings.studioDeleteDraftTitle(draft.name),
+      description: _localizationService.strings.studioDeleteDraftBody,
+      mainButtonTitle: _localizationService.strings.commonDelete,
+      secondaryButtonTitle: _localizationService.strings.commonCancel,
     );
     if (response?.confirmed != true) return;
     await _draftService.deleteDraft(draft.id);
@@ -275,7 +287,7 @@ class DraftsListViewModel extends ReactiveViewModel implements Initialisable {
           title: title,
           data: initial,
           mainButtonTitle: mainButtonTitle,
-          secondaryButtonTitle: 'Cancel',
+          secondaryButtonTitle: _localizationService.strings.commonCancel,
         );
     if (response?.confirmed != true) return null;
     return response?.data;

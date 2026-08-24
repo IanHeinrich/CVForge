@@ -1,5 +1,6 @@
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'vault_editor_panel_scaffold.dart';
@@ -27,11 +28,15 @@ class HobbiesEditorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VaultEditorPanelScaffold(
-      title: 'Hobbies and interests',
+      title: context.l10n.vaultHobbiesTitle,
       onClose: onClose,
       children: [
-        VaultSectionHeading(title: 'Items', onAdd: onAdd),
-        if (hobbies.isEmpty) const AppInlineEmptyMessage('Nothing yet.'),
+        VaultSectionHeading(
+          title: context.l10n.vaultHobbiesItems,
+          onAdd: onAdd,
+        ),
+        if (hobbies.isEmpty)
+          AppInlineEmptyMessage(context.l10n.vaultHobbiesEmptyShort),
         for (final hobby in hobbies)
           Padding(
             padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),

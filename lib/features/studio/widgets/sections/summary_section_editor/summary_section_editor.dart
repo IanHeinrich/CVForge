@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -18,23 +19,23 @@ class SummarySectionEditor extends StatelessWidget {
       children: [
         StudioFieldOverrideCard(
           key: const ValueKey('studio_headline_editor'),
-          label: 'Headline',
+          label: context.l10n.studioSectionHeadline,
           vaultValue: viewModel.vaultHeadline,
           hasOverride: viewModel.hasHeadlineOverride,
           effectiveValue: viewModel.headlineText,
           onChanged: viewModel.setHeadlineOverride,
           onRevert: viewModel.revertHeadlineToVault,
-          emptyVaultMessage: 'No headline in your Vault yet.',
+          emptyVaultMessage: context.l10n.studioNoHeadline,
         ),
         StudioFieldOverrideCard(
           key: const ValueKey('studio_summary_editor'),
-          label: 'Professional summary',
+          label: context.l10n.vaultBasicsSummary,
           vaultValue: viewModel.vaultSummary,
           hasOverride: viewModel.hasTailoredSummary,
           effectiveValue: viewModel.summaryText,
           onChanged: viewModel.setTailoredSummary,
           onRevert: viewModel.revertSummaryToVault,
-          emptyVaultMessage: 'No summary in your Vault yet.',
+          emptyVaultMessage: context.l10n.studioNoSummary,
         ),
       ],
     );

@@ -3,6 +3,7 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -90,7 +91,7 @@ class AtsFindingCard extends StatelessWidget {
                       finding.message,
                       style: context.appTypography.bodySmall,
                     ),
-                    if (_locationLabel case final label?) ...[
+                    if (_locationLabel(context) case final label?) ...[
                       const VGap.tiny(),
                       Text(
                         label,
@@ -122,10 +123,11 @@ class AtsFindingCard extends StatelessWidget {
   /// can't express); falls back to [AtsFinding.pageIndex] for a
   /// document-level per-page finding ([AtsFindingCategory.noTextLayer])
   /// that has no node evidence by definition but is still page-anchored.
-  String? get _locationLabel {
+  String? _locationLabel(BuildContext context) {
+    final l10n = context.l10n;
     if (finding.evidence.isEmpty) {
       return finding.pageIndex != null
-          ? 'Page ${finding.pageIndex! + 1}'
+          ? l10n.analyzerPageLabel(finding.pageIndex! + 1)
           : null;
     }
     final pages = finding.evidence.map((e) => e.pageIndex).toSet().toList()
@@ -133,10 +135,10 @@ class AtsFindingCard extends StatelessWidget {
     final count = finding.evidence.length;
     if (pages.length == 1) {
       return count == 1
-          ? 'Page ${pages.single + 1}'
-          : '$count locations on page ${pages.single + 1}';
+          ? l10n.analyzerPageLabel(pages.single + 1)
+          : l10n.analyzerFindingLocationsOnPage(count, pages.single + 1);
     }
-    return '$count locations across ${pages.length} pages';
+    return l10n.analyzerFindingLocationsAcrossPages(count, pages.length);
   }
 }
 
@@ -167,7 +169,7 @@ class _StepControls extends StatelessWidget {
           onPressed: stepIndex > 0 ? () => onStep?.call(stepIndex - 1) : null,
         ),
         Text(
-          '${stepIndex + 1} of $total',
+          context.l10n.analyzerFindingStepOf(stepIndex + 1, total),
           style: context.appTypography.caption.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),

@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'photo_editor_field/photo_editor_field.dart';
@@ -47,7 +48,7 @@ class BasicsEditorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VaultEditorPanelScaffold(
-      title: 'Basics',
+      title: context.l10n.vaultBasicsTitle,
       onClose: onClose,
       children: [
         PhotoEditorField(
@@ -59,47 +60,50 @@ class BasicsEditorPanel extends StatelessWidget {
         ),
         const VGap.medium(),
         AppTextField(
-          label: 'Full name',
+          label: context.l10n.vaultBasicsFullName,
           initialValue: basics.fullName,
           onChanged: (v) => onChanged(basics.copyWith(fullName: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Headline',
-          hint: 'e.g. Senior Software Engineer',
+          label: context.l10n.vaultBasicsHeadline,
+          hint: context.l10n.vaultBasicsHeadlineHint,
           initialValue: basics.headline,
           onChanged: (v) => onChanged(basics.copyWith(headline: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Email',
+          label: context.l10n.vaultBasicsEmail,
           initialValue: basics.email,
           keyboardType: TextInputType.emailAddress,
           onChanged: (v) => onChanged(basics.copyWith(email: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Phone',
+          label: context.l10n.vaultBasicsPhone,
           initialValue: basics.phone,
           keyboardType: TextInputType.phone,
           onChanged: (v) => onChanged(basics.copyWith(phone: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Location',
+          label: context.l10n.vaultBasicsLocation,
           initialValue: basics.location,
           onChanged: (v) => onChanged(basics.copyWith(location: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Professional summary',
+          label: context.l10n.vaultBasicsSummary,
           initialValue: basics.summary ?? '',
           maxLines: 4,
           onChanged: (v) =>
               onChanged(basics.copyWith(summary: v.orNullIfEmpty)),
         ),
         const VGap.medium(),
-        VaultSectionHeading(title: 'Links', onAdd: onAddLink),
+        VaultSectionHeading(
+          title: context.l10n.vaultBasicsLinks,
+          onAdd: onAddLink,
+        ),
         for (final link in basics.links)
           Padding(
             padding: EdgeInsets.only(bottom: context.appSpacing.paddingTight),
@@ -108,8 +112,8 @@ class BasicsEditorPanel extends StatelessWidget {
               children: [
                 Expanded(
                   child: AppTextField(
-                    label: 'Label',
-                    hint: 'e.g. LinkedIn',
+                    label: context.l10n.vaultBasicsLinkLabel,
+                    hint: context.l10n.vaultBasicsLinkLabelHint,
                     initialValue: link.label,
                     onChanged: (v) => onLinkChanged(link.copyWith(label: v)),
                   ),
@@ -118,13 +122,13 @@ class BasicsEditorPanel extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: AppTextField(
-                    label: 'URL',
+                    label: context.l10n.vaultBasicsLinkUrl,
                     initialValue: link.url,
                     onChanged: (v) => onLinkChanged(link.copyWith(url: v)),
                   ),
                 ),
                 AppDeleteIconButton(
-                  tooltip: 'Delete link',
+                  tooltip: context.l10n.vaultBasicsDeleteLink,
                   onPressed: () => onLinkDeleted(link.id),
                 ),
               ],
@@ -132,8 +136,8 @@ class BasicsEditorPanel extends StatelessWidget {
           ),
         const VGap.medium(),
         AppTextField(
-          label: 'References',
-          hint: 'e.g. "Available on request."',
+          label: context.l10n.vaultBasicsReferences,
+          hint: context.l10n.vaultBasicsReferencesHint,
           initialValue: referencesNote ?? '',
           onChanged: (v) => onReferencesChanged(v.orNullIfEmpty),
         ),

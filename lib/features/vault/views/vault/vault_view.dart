@@ -1,4 +1,5 @@
 import 'package:cv_forge/ui/widgets/common/app_chrome/app_chrome.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:stacked/stacked.dart';
@@ -29,9 +30,7 @@ class VaultView extends StackedView<VaultViewModel> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("That page doesn't exist — here's your Vault."),
-          ),
+          SnackBar(content: Text(context.l10n.vaultInvalidUrlNotice)),
         );
       });
     }

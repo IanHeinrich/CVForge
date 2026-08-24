@@ -5,6 +5,7 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:remixicon/remixicon.dart';
@@ -395,10 +396,10 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   Widget build(BuildContext context) {
     final result = widget.viewModel.result;
     if (result == null || widget.viewModel.pdfBytes == null) {
-      return const AppEmptyState(
+      return AppEmptyState(
         icon: RemixIcons.image_line,
-        title: 'Nothing to show yet',
-        message: 'Analyze a PDF to see its X-Ray.',
+        title: context.l10n.analyzerXrayEmptyTitle,
+        message: context.l10n.analyzerXrayEmptyBody,
       );
     }
 
@@ -450,10 +451,10 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
       length: 2,
       child: Column(
         children: [
-          const TabBar(
+          TabBar(
             tabs: [
-              Tab(text: 'Findings'),
-              Tab(text: 'Page'),
+              Tab(text: context.l10n.analyzerXrayFindings),
+              Tab(text: context.l10n.analyzerXrayPageTab),
             ],
           ),
           const VGap.small(),
@@ -486,7 +487,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
                   : null,
             ),
             Text(
-              'Page ${_pageIndex + 1} of $pageCount',
+              context.l10n.analyzerXrayPageOf(_pageIndex + 1, pageCount),
               style: context.appTypography.bodySmall,
             ),
             IconButton(
@@ -506,7 +507,7 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               label: Text(
-                'Reading order',
+                context.l10n.analyzerXrayReadingOrder,
                 style: context.appTypography.bodySmall.copyWith(
                   color: _showFlowLines
                       ? Theme.of(context).colorScheme.primary
@@ -530,8 +531,8 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
         // `_hoveredNodeIndex` in this method directly — see that field's
         // doc comment for why.
         Padding(
-          padding: EdgeInsets.only(
-            left: context.appSpacing.paddingCompact,
+          padding: EdgeInsetsDirectional.only(
+            start: context.appSpacing.paddingCompact,
             bottom: context.appSpacing.gapSmall,
           ),
           child: SizedBox(
@@ -557,10 +558,10 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
         ),
         Expanded(
           child: data.orderedNodeIndices.isEmpty
-              ? const AppEmptyState(
+              ? AppEmptyState(
                   icon: RemixIcons.image_line,
-                  title: 'Nothing to show on this page',
-                  message: 'No extractable text runs to draw boxes on.',
+                  title: context.l10n.analyzerXrayPageEmptyTitle,
+                  message: context.l10n.analyzerXrayPageEmptyBody,
                 )
               : LayoutBuilder(
                   builder: (context, constraints) => _buildInteractiveViewer(

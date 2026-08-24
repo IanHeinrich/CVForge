@@ -128,12 +128,16 @@ abstract class CvDraft with _$CvDraft {
   factory CvDraft.empty({
     required String id,
     required String templateId,
-    String name = 'My CV',
+
+    /// Null means the caller wants the standard "My CV" default, which is
+    /// a localized string and therefore cannot be a constructor default —
+    /// `DraftService` supplies it.
+    String? name,
     RegionProfile region = RegionProfile.uk,
   }) => CvDraft(
     schemaVersion: 1,
     id: id,
-    name: name,
+    name: name ?? '',
     templateId: templateId,
     region: region,
     updatedAt: DateTime.now(),

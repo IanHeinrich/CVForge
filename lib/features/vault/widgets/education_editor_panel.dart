@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'bullet_list_editor.dart';
@@ -43,32 +44,32 @@ class EducationEditorPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return VaultEditorPanelScaffold(
       title: education.qualification.isEmpty
-          ? 'New qualification'
+          ? context.l10n.vaultEducationNew
           : education.qualification,
       onClose: onClose,
       children: [
         AppTextField(
-          label: 'Qualification',
-          hint: 'e.g. BSc Computer Science',
+          label: context.l10n.vaultEducationQualification,
+          hint: context.l10n.vaultEducationQualificationHint,
           initialValue: education.qualification,
           onChanged: (v) => onChanged(education.copyWith(qualification: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Institution',
+          label: context.l10n.vaultEducationInstitution,
           initialValue: education.institution,
           onChanged: (v) => onChanged(education.copyWith(institution: v)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Location (optional)',
+          label: context.l10n.vaultEducationLocation,
           initialValue: education.location ?? '',
           onChanged: (v) =>
               onChanged(education.copyWith(location: v.orNullIfEmpty)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Year (optional)',
+          label: context.l10n.vaultEducationYear,
           initialValue: education.year?.toString() ?? '',
           keyboardType: TextInputType.number,
           errorText: yearError,
@@ -76,15 +77,15 @@ class EducationEditorPanel extends StatelessWidget {
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Grade (optional)',
-          hint: 'e.g. First Class Honours',
+          label: context.l10n.vaultEducationGrade,
+          hint: context.l10n.vaultEducationGradeHint,
           initialValue: education.grade ?? '',
           onChanged: (v) =>
               onChanged(education.copyWith(grade: v.orNullIfEmpty)),
         ),
         const VGap.small(),
         AppTextField(
-          label: 'Details (optional)',
+          label: context.l10n.vaultEducationDetails,
           initialValue: education.details ?? '',
           maxLines: 3,
           onChanged: (v) =>

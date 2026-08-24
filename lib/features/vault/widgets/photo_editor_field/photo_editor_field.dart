@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -60,18 +61,18 @@ class PhotoEditorField extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Photo', style: context.appTypography.titleSmall),
+              Text(
+                context.l10n.vaultPhotoTitle,
+                style: context.appTypography.titleSmall,
+              ),
               const VGap.tiny(),
               Text(
                 // Deliberately names no template. This copy outlives any
                 // one of them, and there may be more than one that
                 // prints a photo later.
                 current == null
-                    ? 'Optional. Only used by templates that include a '
-                          'photo — expected in DACH, best left off for '
-                          'the US and UK.'
-                    : 'Used by templates that include a photo. Others '
-                          'ignore it.',
+                    ? context.l10n.vaultPhotoHelpOptional
+                    : context.l10n.vaultPhotoHelpInUse,
                 style: context.appTypography.bodySmall,
               ),
               const VGap.small(),
@@ -87,10 +88,10 @@ class PhotoEditorField extends StatelessWidget {
                     ),
                     label: Text(
                       busy
-                          ? 'Loading…'
+                          ? context.l10n.vaultPhotoLoading
                           : current == null
-                          ? 'Add photo'
-                          : 'Replace',
+                          ? context.l10n.vaultPhotoAdd
+                          : context.l10n.vaultPhotoReplace,
                     ),
                   ),
                   if (current != null)
@@ -100,7 +101,7 @@ class PhotoEditorField extends StatelessWidget {
                         RemixIcons.delete_bin_line,
                         size: context.appIconSize.medium,
                       ),
-                      label: const Text('Remove'),
+                      label: Text(context.l10n.vaultPhotoRemove),
                     ),
                 ],
               ),

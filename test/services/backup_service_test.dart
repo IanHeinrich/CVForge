@@ -77,6 +77,7 @@ void main() {
       ).thenAnswer((_) async {});
 
       fileUpload = getAndRegisterFileUploadService();
+      getAndRegisterLocalizationService();
 
       backupService = BackupService();
 

@@ -14,6 +14,7 @@ import 'package:cv_forge/ui/widgets/common/pdf_page_thumbnail.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -62,7 +63,6 @@ class _DraftsCardListState extends State<DraftsCardList> {
     if (viewModel.isEmpty) {
       return _DraftsEmptyState(
         documentNoun: viewModel.documentNoun,
-        documentNounPlural: viewModel.documentNounPlural,
         onNewCv: viewModel.createDraft,
       );
     }
@@ -80,7 +80,7 @@ class _DraftsCardListState extends State<DraftsCardList> {
             children: [
               if (viewModel.hasPersistError) ...[
                 PersistErrorBanner(
-                  message: "Your last change couldn't be saved.",
+                  message: context.l10n.studioDraftsPersistError,
                   onRetry: viewModel.retryPersist,
                 ),
                 const VGap.medium(),
@@ -99,7 +99,9 @@ class _DraftsCardListState extends State<DraftsCardList> {
                     ),
                     child: _DraftsSearchField(
                       controller: _searchController,
-                      hintText: 'Search ${viewModel.documentNounPlural}…',
+                      hintText: context.l10n.studioDraftsSearch(
+                        viewModel.documentNoun,
+                      ),
                       onChanged: viewModel.setQuery,
                       onClear: _clearSearch,
                     ),
@@ -113,7 +115,7 @@ class _DraftsCardListState extends State<DraftsCardList> {
               const VGap.medium(),
               if (viewModel.hasNoSearchResults)
                 _NoSearchResults(
-                  documentNounPlural: viewModel.documentNounPlural,
+                  documentNoun: viewModel.documentNoun,
                   onClearSearch: _clearSearch,
                 )
               else
@@ -147,7 +149,9 @@ class _DraftsCardListState extends State<DraftsCardList> {
           child: FloatingActionButton.extended(
             onPressed: viewModel.createDraft,
             icon: const Icon(RemixIcons.add_line),
-            label: Text('New ${viewModel.documentNoun}'),
+            label: Text(
+              context.l10n.studioNewDraftTitle(viewModel.documentNoun),
+            ),
           ),
         ),
       ],
@@ -201,7 +205,7 @@ class _DraftsSearchField extends StatelessWidget {
                     RemixIcons.close_line,
                     size: context.appIconSize.medium,
                   ),
-                  tooltip: 'Clear search',
+                  tooltip: context.l10n.commonClearSearch,
                   onPressed: onClear,
                 ),
         ),
@@ -225,11 +229,11 @@ class _SortControl extends StatelessWidget {
     return PopupMenuButton<DraftSortOrder>(
       initialValue: sortOrder,
       onSelected: onChanged,
-      tooltip: 'Sort',
+      tooltip: context.l10n.studioSortLabel,
       position: PopupMenuPosition.under,
       itemBuilder: (context) => [
         for (final order in DraftSortOrder.values)
-          PopupMenuItem(value: order, child: Text(order.label)),
+          PopupMenuItem(value: order, child: Text(order.label(context.l10n))),
       ],
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -246,7 +250,7 @@ class _SortControl extends StatelessWidget {
             ),
             const HGap.tiny(),
             Text(
-              sortOrder.label,
+              sortOrder.label(context.l10n),
               style: context.appTypography.bodySmall.copyWith(
                 color: Theme.of(context).colorScheme.onSurface,
               ),
@@ -268,11 +272,11 @@ class _SortControl extends StatelessWidget {
 /// offers clearing the search rather than creating a first one.
 class _NoSearchResults extends StatelessWidget {
   const _NoSearchResults({
-    required this.documentNounPlural,
+    required this.documentNoun,
     required this.onClearSearch,
   });
 
-  final String documentNounPlural;
+  final String documentNoun;
   final VoidCallback onClearSearch;
 
   @override
@@ -282,7 +286,7 @@ class _NoSearchResults extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'No $documentNounPlural match your search.',
+            context.l10n.studioDraftsNoMatches(documentNoun),
             style: context.appTypography.bodySmall.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -290,7 +294,7 @@ class _NoSearchResults extends StatelessWidget {
           const VGap.tiny(),
           TextButton(
             onPressed: onClearSearch,
-            child: const Text('Clear search'),
+            child: Text(context.l10n.commonClearSearch),
           ),
         ],
       ),
@@ -382,24 +386,24 @@ class _DraftCard extends StatelessWidget {
                       size: context.appIconSize.medium,
                     ),
                     padding: EdgeInsets.zero,
-                    tooltip: 'More',
+                    tooltip: context.l10n.commonMore,
                     onSelected: (action) => switch (action) {
                       _DraftCardAction.edit => onEdit(),
                       _DraftCardAction.duplicate => onDuplicate(),
                       _DraftCardAction.delete => onDelete(),
                     },
-                    itemBuilder: (context) => const [
+                    itemBuilder: (context) => [
                       PopupMenuItem(
                         value: _DraftCardAction.edit,
-                        child: Text('Rename / edit notes'),
+                        child: Text(context.l10n.studioDraftRename),
                       ),
                       PopupMenuItem(
                         value: _DraftCardAction.duplicate,
-                        child: Text('Duplicate'),
+                        child: Text(context.l10n.studioDraftDuplicate),
                       ),
                       PopupMenuItem(
                         value: _DraftCardAction.delete,
-                        child: Text('Delete'),
+                        child: Text(context.l10n.commonDelete),
                       ),
                     ],
                   ),
@@ -448,9 +452,13 @@ class _DraftCard extends StatelessWidget {
                         // today; this is what stops a longer one added
                         // later from silently clipping instead.
                         Tooltip(
-                          message: _absoluteDateTime(draft.updatedAt),
+                          message: context.l10n.studioDraftUpdatedExact(
+                            draft.updatedAt,
+                          ),
                           child: Text(
-                            'Updated ${formatRelativeTime(draft.updatedAt)}',
+                            context.l10n.studioDraftUpdated(
+                              formatRelativeTime(context.l10n, draft.updatedAt),
+                            ),
                             style: context.appTypography.caption.copyWith(
                               color: muted,
                             ),
@@ -477,7 +485,7 @@ class _DraftCard extends StatelessWidget {
                     const HGap.tiny(),
                     Expanded(
                       child: Text(
-                        'Tailored to a job ad',
+                        context.l10n.studioDraftTailoredMarker,
                         style: context.appTypography.caption.copyWith(
                           color: muted,
                         ),
@@ -511,14 +519,9 @@ class _DraftCard extends StatelessWidget {
 enum _DraftCardAction { edit, duplicate, delete }
 
 class _DraftsEmptyState extends StatelessWidget {
-  const _DraftsEmptyState({
-    required this.documentNoun,
-    required this.documentNounPlural,
-    required this.onNewCv,
-  });
+  const _DraftsEmptyState({required this.documentNoun, required this.onNewCv});
 
   final String documentNoun;
-  final String documentNounPlural;
   final VoidCallback onNewCv;
 
   @override
@@ -529,12 +532,13 @@ class _DraftsEmptyState extends StatelessWidget {
       // to carry the product. Every other empty state keeps its icon.
       graphic: BrandMark(color: context.appPalette.placeholder),
       icon: RemixIcons.file_text_line,
-      title: 'No $documentNounPlural yet',
-      message:
-          'Create a $documentNoun to start tailoring your Vault for a '
-          'specific application.',
+      title: context.l10n.studioDraftsEmptyTitle(documentNoun),
+      message: context.l10n.studioDraftsEmptyBody(documentNoun),
       actions: [
-        FilledButton(onPressed: onNewCv, child: Text('New $documentNoun')),
+        FilledButton(
+          onPressed: onNewCv,
+          child: Text(context.l10n.studioNewDraftTitle(documentNoun)),
+        ),
       ],
     );
   }
@@ -542,8 +546,3 @@ class _DraftsEmptyState extends StatelessWidget {
 
 /// The precision [formatRelativeTime] deliberately drops, kept on the
 /// "Updated" line's tooltip.
-String _absoluteDateTime(DateTime date) =>
-    '${date.day.toString().padLeft(2, '0')}/'
-    '${date.month.toString().padLeft(2, '0')}/${date.year} '
-    '${date.hour.toString().padLeft(2, '0')}:'
-    '${date.minute.toString().padLeft(2, '0')}';
