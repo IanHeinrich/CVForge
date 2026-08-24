@@ -1,5 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
 import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
+import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/cv_photo.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
@@ -15,10 +20,14 @@ void main() {
   group('VaultViewModel Tests -', () {
     late MockVaultService vaultService;
     late MockDialogService dialogService;
+    late MockFileUploadService fileUpload;
+    late MockProfilePhotoService photoService;
 
     setUp(() {
       vaultService = getAndRegisterVaultService();
       dialogService = getAndRegisterDialogService();
+      fileUpload = getAndRegisterFileUploadService();
+      photoService = getAndRegisterProfilePhotoService();
       when(vaultService.vault).thenReturn(CvVault.empty());
     });
     tearDown(() => locator.reset());
@@ -294,6 +303,106 @@ void main() {
         expect(model.showEmptyState, isFalse);
       },
     );
+
+    group('photo -', () {
+      final picked = Uint8List.fromList([1, 2, 3]);
+      final prepared = Uint8List.fromList([4, 5, 6]);
+      const photo = CvPhoto(jpegBase64: 'AAAA', widthPx: 420, heightPx: 540);
+
+      void stubCropDialog(DialogResponse<CvPhoto>? response) {
+        when(
+          dialogService.showCustomDialog<CvPhoto, CropPhotoDialogData>(
+            variant: anyNamed('variant'),
+            data: anyNamed('data'),
+          ),
+        ).thenAnswer((_) async => response);
+      }
+
+      test('a cancelled file picker leaves the Vault untouched', () async {
+        when(fileUpload.pickImageFile()).thenAnswer((_) async => null);
+
+        await VaultViewModel().pickPhoto();
+
+        verifyNever(vaultService.updateBasics(any));
+        verifyNever(photoService.prepareForCrop(argThat(isA<Uint8List>())));
+      });
+
+      test('a cancelled crop dialog leaves the Vault untouched — backing '
+          'out of framing must not clear an existing photo', () async {
+        when(fileUpload.pickImageFile()).thenAnswer((_) async => picked);
+        when(photoService.prepareForCrop(picked)).thenReturn(prepared);
+        stubCropDialog(DialogResponse<CvPhoto>(confirmed: false));
+
+        await VaultViewModel().pickPhoto();
+
+        verifyNever(vaultService.updateBasics(any));
+      });
+
+      test('a confirmed crop stores the photo on the Vault basics', () async {
+        when(fileUpload.pickImageFile()).thenAnswer((_) async => picked);
+        when(photoService.prepareForCrop(picked)).thenReturn(prepared);
+        stubCropDialog(DialogResponse<CvPhoto>(confirmed: true, data: photo));
+
+        final model = VaultViewModel();
+        await model.pickPhoto();
+
+        final captured =
+            verify(vaultService.updateBasics(captureAny)).captured.single
+                as ContactBasics;
+        expect(captured.photo, photo);
+        expect(model.photoError, isNull);
+        expect(model.photoBusy, isFalse);
+      });
+
+      test('an undecodable file is reported rather than silently dropped, '
+          'and never reaches the crop dialog', () async {
+        when(fileUpload.pickImageFile()).thenAnswer((_) async => picked);
+        when(photoService.prepareForCrop(picked)).thenReturn(null);
+
+        final model = VaultViewModel();
+        await model.pickPhoto();
+
+        expect(model.photoError, isNotNull);
+        expect(model.photoBusy, isFalse);
+        verifyNever(vaultService.updateBasics(any));
+        verifyNever(
+          dialogService.showCustomDialog<CvPhoto, CropPhotoDialogData>(
+            variant: anyNamed('variant'),
+            data: anyNamed('data'),
+          ),
+        );
+      });
+
+      test('a previous error clears when the next pick succeeds', () async {
+        when(fileUpload.pickImageFile()).thenAnswer((_) async => picked);
+        when(photoService.prepareForCrop(picked)).thenReturn(null);
+        final model = VaultViewModel();
+        await model.pickPhoto();
+        expect(model.photoError, isNotNull);
+
+        when(photoService.prepareForCrop(picked)).thenReturn(prepared);
+        stubCropDialog(DialogResponse<CvPhoto>(confirmed: true, data: photo));
+        await model.pickPhoto();
+
+        expect(model.photoError, isNull);
+      });
+
+      test('removePhoto clears the field rather than leaving the old bytes '
+          'behind', () async {
+        when(vaultService.vault).thenReturn(
+          CvVault.empty().copyWith(
+            basics: ContactBasics.empty().copyWith(photo: photo),
+          ),
+        );
+
+        await VaultViewModel().removePhoto();
+
+        final captured =
+            verify(vaultService.updateBasics(captureAny)).captured.single
+                as ContactBasics;
+        expect(captured.photo, isNull);
+      });
+    });
 
     group('consumeInvalidUrlNotice -', () {
       test('is false for a plain visit — the toast only fires when the '

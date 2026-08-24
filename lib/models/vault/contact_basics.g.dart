@@ -19,6 +19,9 @@ _ContactBasics _$ContactBasicsFromJson(Map<String, dynamic> json) =>
               ?.map((e) => ProfileLink.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const <ProfileLink>[],
+      photo: json['photo'] == null
+          ? null
+          : CvPhoto.fromJson(json['photo'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ContactBasicsToJson(_ContactBasics instance) =>
@@ -30,4 +33,5 @@ Map<String, dynamic> _$ContactBasicsToJson(_ContactBasics instance) =>
       'location': instance.location,
       'summary': instance.summary,
       'links': instance.links.map((e) => e.toJson()).toList(),
+      'photo': instance.photo?.toJson(),
     };

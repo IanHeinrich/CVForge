@@ -9,6 +9,7 @@ import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_warning_surface.dart';
 
 /// The "How do I get an API key?" disclosure inside [AiAssistantSettingsCard] —
 /// per-provider setup steps, real links into that provider's console, and
@@ -130,25 +131,15 @@ class _SpendWarning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppWarningSurface(
       padding: EdgeInsets.all(context.appSpacing.paddingCompact),
-      decoration: BoxDecoration(
-        color: context.appPalette.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(context.appRadius.small),
-        border: Border.all(
-          color: context.appPalette.warning.withValues(alpha: 0.4),
-        ),
-      ),
+      radius: context.appRadius.small,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                RemixIcons.error_warning_line,
-                size: context.appIconSize.small,
-                color: context.appPalette.warning,
-              ),
+              AppWarningSurface.icon(context),
               const HGap.small(),
               Text(
                 'Protect yourself from surprise bills',

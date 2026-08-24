@@ -1,7 +1,9 @@
 import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/cv_photo.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
@@ -13,6 +15,8 @@ import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
+import 'package:cv_forge/services/file_upload_service.dart';
+import 'package:cv_forge/services/profile_photo_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -45,6 +49,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   final _vaultService = locator<VaultService>();
   final _dialogService = locator<DialogService>();
+  final _fileUpload = locator<FileUploadService>();
+  final _photoService = locator<ProfilePhotoService>();
 
   @override
   List<ListenableServiceMixin> get listenableServices => [_vaultService];
@@ -179,6 +185,60 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
 
   Future<void> updateBasics(ContactBasics basics) =>
       _vaultService.updateBasics(basics);
+
+  bool _photoBusy = false;
+
+  /// True across the decode, which is long enough to notice on a photo
+  /// straight off a phone camera.
+  bool get photoBusy => _photoBusy;
+
+  String? _photoError;
+
+  /// Rendered inline by the photo control. A picked file that can't be
+  /// decoded is an ordinary outcome the user has to be told about — the
+  /// one thing it must never be is silently dropped.
+  String? get photoError => _photoError;
+
+  /// Pick, decode, crop, store. Any step the user backs out of leaves the
+  /// existing photo (or its absence) exactly as it was.
+  Future<void> pickPhoto() async {
+    _photoError = null;
+    _photoBusy = true;
+    rebuildUi();
+    try {
+      final picked = await _fileUpload.pickImageFile();
+      if (picked == null) return;
+
+      final prepared = _photoService.prepareForCrop(picked);
+      if (prepared == null) {
+        _photoError =
+            "That file couldn't be read as an image. Try a JPEG or PNG.";
+        return;
+      }
+
+      final response = await _dialogService
+          .showCustomDialog<CvPhoto, CropPhotoDialogData>(
+            variant: DialogType.cropPhoto,
+            data: CropPhotoDialogData(preparedJpeg: prepared),
+          );
+      if (response?.confirmed != true) return;
+
+      final photo = response?.data;
+      if (photo == null) {
+        _photoError = "That photo couldn't be prepared. Try a different image.";
+        return;
+      }
+      await updateBasics(vault.basics.copyWith(photo: photo));
+    } finally {
+      _photoBusy = false;
+      rebuildUi();
+    }
+  }
+
+  Future<void> removePhoto() async {
+    _photoError = null;
+    await updateBasics(vault.basics.copyWith(photo: null));
+  }
 
   Future<void> addProfileLink() =>
       _vaultService.addProfileLink(label: '', url: '');

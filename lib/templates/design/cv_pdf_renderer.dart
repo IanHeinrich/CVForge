@@ -125,9 +125,27 @@ abstract class CvPdfRenderer {
     return widgets;
   }
 
-  /// Name, headline and contact line. Shared whole — the templates differ
-  /// only in [contactSeparator] and [headlineStyle].
+  /// The whole page header. Defaults to [headerTextBlock] alone; override
+  /// to place something alongside it — a photograph, say — while still
+  /// reusing that block rather than rebuilding the contact line.
+  ///
+  /// Whatever this returns is the FIRST entry in [build]'s flat top-level
+  /// list, so it is free to be a `pw.Row` or any other multi-child layout:
+  /// a header is one block that either fits on page one or doesn't. That
+  /// licence does not extend to the body, where the nested-`pw.Column`
+  /// rule in `CvTemplate.buildDocument`'s doc comment still binds.
   pw.Widget pageHeader(
+    ResolvedHeader header,
+    CvDesignTokens tokens,
+    CvFontSet fonts,
+  ) => headerTextBlock(header, tokens, fonts);
+
+  /// Name, headline and contact line, stacked and centered. Shared whole
+  /// — the templates that use it differ only in [contactSeparator] and
+  /// [headlineStyle]. A template wanting a different header shape
+  /// overrides [pageHeader] and builds its own (see
+  /// `PhotoHeaderPdfRenderer`).
+  pw.Widget headerTextBlock(
     ResolvedHeader header,
     CvDesignTokens tokens,
     CvFontSet fonts,
@@ -238,7 +256,11 @@ abstract class CvPdfRenderer {
           fonts,
           preventOrphansAndSplits: preventOrphansAndSplits,
         ),
-    ], tokens.bulletGap),
+      // [itemGap], like every other multi-entry section. This case used
+      // [bulletGap] — the gap *inside* an entry — with no stated reason,
+      // which left qualifications packed tighter than the projects and
+      // publications either side of them.
+    ], tokens.itemGap),
     ResolvedHobbiesSection(items: final items) => [
       bodyText(items.join(', '), tokens, fonts),
     ],

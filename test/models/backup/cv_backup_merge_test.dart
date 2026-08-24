@@ -5,6 +5,7 @@ import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
+import 'package:cv_forge/models/vault/cv_photo.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
@@ -375,6 +376,60 @@ void main() {
       final basics = _mergedVault(base, local, remote).basics;
       expect(basics.headline, 'Staff Engineer');
       expect(basics.links.map((l) => l.id), ['l1', 'l2']);
+    });
+
+    test('a photo added on one device only reaches the other — the Vault '
+        'is how the photograph syncs, so a missed field here would be a '
+        'silently unsynced upload', () {
+      const photo = CvPhoto(jpegBase64: 'AAAA', widthPx: 420, heightPx: 540);
+      final baseBasics = ContactBasics.empty().copyWith(fullName: 'Ada');
+      final base = _b(_v(basics: baseBasics));
+      final local = _b(
+        _v(
+          basics: baseBasics.copyWith(photo: photo),
+          at: _t1,
+        ),
+      );
+      final remote = _b(_v(basics: baseBasics, at: _t1));
+
+      expect(_mergedVault(base, local, remote).basics.photo, photo);
+      // Symmetric: which side uploaded it must not matter.
+      expect(_mergedVault(base, remote, local).basics.photo, photo);
+    });
+
+    test('a photo replaced on both devices is settled by preferRemote, not '
+        'silently merged into neither', () {
+      const basePhoto = CvPhoto(jpegBase64: 'A', widthPx: 1, heightPx: 1);
+      const localPhoto = CvPhoto(jpegBase64: 'L', widthPx: 2, heightPx: 2);
+      const remotePhoto = CvPhoto(jpegBase64: 'R', widthPx: 3, heightPx: 3);
+      final baseBasics = ContactBasics.empty().copyWith(photo: basePhoto);
+      final base = _b(_v(basics: baseBasics));
+      final local = _b(
+        _v(
+          basics: baseBasics.copyWith(photo: localPhoto),
+          at: _t2,
+        ),
+      );
+      final remote = _b(
+        _v(
+          basics: baseBasics.copyWith(photo: remotePhoto),
+          at: _t1,
+        ),
+      );
+
+      // The newer vault wins, same rule as every other contested field.
+      expect(_mergedVault(base, local, remote).basics.photo, localPhoto);
+    });
+
+    test('a photo removed on one device stays removed rather than being '
+        'resurrected by the other side still having it', () {
+      const photo = CvPhoto(jpegBase64: 'AAAA', widthPx: 420, heightPx: 540);
+      final baseBasics = ContactBasics.empty().copyWith(photo: photo);
+      final base = _b(_v(basics: baseBasics));
+      final local = _b(_v(basics: baseBasics.copyWith(photo: null), at: _t1));
+      final remote = _b(_v(basics: baseBasics, at: _t1));
+
+      expect(_mergedVault(base, local, remote).basics.photo, isNull);
     });
 
     test('a references note changed on both sides goes to the newer vault', () {

@@ -14,7 +14,20 @@ import 'design/cv_font_set.dart';
 /// only now. A new value here is cheap while there are only two templates
 /// to update; keep the set small (four or five values) and require every
 /// template to declare at least one.
-enum TemplateTag { atsSafe, academic, twoColumn, compact, traditional, modern }
+/// [TemplateTag.photo] is the one value here that anything other than the
+/// gallery reads: `StudioViewModel.photoRegionWarning` uses it to tell
+/// whether the chosen template prints `ContactBasics.photo`, so a market
+/// that rejects photographs can be flagged. Keep that the exception — the
+/// rest of this enum stays informational.
+enum TemplateTag {
+  atsSafe,
+  academic,
+  twoColumn,
+  compact,
+  traditional,
+  modern,
+  photo,
+}
 
 extension TemplateTagLabel on TemplateTag {
   String get displayLabel => switch (this) {
@@ -24,6 +37,7 @@ extension TemplateTagLabel on TemplateTag {
     TemplateTag.compact => 'Compact',
     TemplateTag.traditional => 'Traditional',
     TemplateTag.modern => 'Modern',
+    TemplateTag.photo => 'Photo',
   };
 }
 

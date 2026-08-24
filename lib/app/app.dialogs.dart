@@ -13,6 +13,7 @@ import '../features/studio/dialogs/edit_draft/edit_draft_dialog.dart';
 import '../features/studio/dialogs/region_gallery/region_gallery_dialog.dart';
 import '../features/studio/dialogs/template_gallery/template_gallery_dialog.dart';
 import '../features/vault/dialogs/confirm_delete/confirm_delete_dialog.dart';
+import '../features/vault/dialogs/crop_photo/crop_photo_dialog.dart';
 
 enum DialogType {
   confirmDelete,
@@ -20,6 +21,7 @@ enum DialogType {
   aiAssistantRun,
   templateGallery,
   regionGallery,
+  cropPhoto,
 }
 
 void setupDialogUi() {
@@ -36,6 +38,8 @@ void setupDialogUi() {
         TemplateGalleryDialog(request: request, completer: completer),
     DialogType.regionGallery: (context, request, completer) =>
         RegionGalleryDialog(request: request, completer: completer),
+    DialogType.cropPhoto: (context, request, completer) =>
+        CropPhotoDialog(request: request, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);
