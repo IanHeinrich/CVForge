@@ -4,6 +4,7 @@ import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/project.dart';
@@ -85,12 +86,6 @@ CvPreferences? _mergePreferences(
   final b = base ?? CvPreferences.empty();
   final pr = remote.updatedAt.isAfter(local.updatedAt);
   final merged = local.copyWith(
-    defaultRegion: _pick(
-      b.defaultRegion,
-      local.defaultRegion,
-      remote.defaultRegion,
-      pr,
-    ),
     aiAssistantProviderId: _pick(
       b.aiAssistantProviderId,
       local.aiAssistantProviderId,
@@ -107,18 +102,6 @@ CvPreferences? _mergePreferences(
       b.aiAssistantConfiguredAt,
       local.aiAssistantConfiguredAt,
       remote.aiAssistantConfiguredAt,
-      pr,
-    ),
-    defaultSectionOrder: _pick(
-      b.defaultSectionOrder,
-      local.defaultSectionOrder,
-      remote.defaultSectionOrder,
-      pr,
-    ),
-    defaultHiddenSections: _pick(
-      b.defaultHiddenSections,
-      local.defaultHiddenSections,
-      remote.defaultHiddenSections,
       pr,
     ),
     localeTag: _pick(b.localeTag, local.localeTag, remote.localeTag, pr),
@@ -227,11 +210,46 @@ CvVault? _mergeVaults(CvVault? base, CvVault? local, CvVault? remote) {
       remote.referencesNote,
       pr,
     ),
+    documentDefaults: _mergeDocumentDefaults(
+      b.documentDefaults,
+      local.documentDefaults,
+      remote.documentDefaults,
+      pr,
+    ),
     // Placeholder — _stampMerged picks the real one below.
     updatedAt: local.updatedAt,
   );
   return _stampMerged(merged, local, remote);
 }
+
+/// Field by field, not whole-object.
+///
+/// A single [_pick] over the whole [DocumentDefaults] would drop one
+/// device's edit whenever the two changed *different* fields — both would
+/// differ from the ancestor, so it would fall through to the timestamp
+/// tie-break and take one side entire. Same shape as [_mergeBasics], for
+/// the same reason.
+DocumentDefaults _mergeDocumentDefaults(
+  DocumentDefaults base,
+  DocumentDefaults local,
+  DocumentDefaults remote,
+  bool preferRemote,
+) => local.copyWith(
+  region: _pick(base.region, local.region, remote.region, preferRemote),
+  language: _pick(base.language, local.language, remote.language, preferRemote),
+  sectionOrder: _pick(
+    base.sectionOrder,
+    local.sectionOrder,
+    remote.sectionOrder,
+    preferRemote,
+  ),
+  hiddenSections: _pick(
+    base.hiddenSections,
+    local.hiddenSections,
+    remote.hiddenSections,
+    preferRemote,
+  ),
+);
 
 /// Dates the merged vault by what it actually turned out to be.
 ///

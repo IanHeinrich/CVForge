@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CvPreferences {
 
- RegionProfile get defaultRegion; String? get aiAssistantProviderId; String? get aiAssistantModelId;/// When an AI Assistant connection test first succeeded on *any*
+ String? get aiAssistantProviderId; String? get aiAssistantModelId;/// When an AI Assistant connection test first succeeded on *any*
 /// device — the one piece of AI Assistant setup that can safely travel,
 /// and the reason the key itself doesn't need to.
 ///
@@ -30,38 +30,26 @@ mixin _$CvPreferences {
 /// Never cleared by removing a key — it records that setup happened,
 /// not that this device is currently configured. [ApiKeyOrigin] is the
 /// authority on the latter.
- DateTime? get aiAssistantConfiguredAt;/// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-/// draft with, set via the "Save as my default" action in Studio.
-/// Null means no default has ever been saved — a new draft then falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`. Never
-/// re-resolved against an existing draft; it only ever seeds a draft
-/// at creation time. Saved and reset together with
-/// [defaultHiddenSections] by the same Studio action, so the two
-/// fields never drift apart, but kept as two fields rather than one
-/// combined value — same shape as `CvDraft.sectionOrder` /
-/// `CvDraft.hiddenSections` being separate fields there too.
- List<CvSectionType>? get defaultSectionOrder;/// Same seed-only rationale as [defaultSectionOrder], one field over
-/// for `CvDraft.hiddenSections` — which sections a brand-new draft
-/// starts with hidden. Null means no default has been saved, so a new
-/// draft starts with nothing hidden.
- Set<CvSectionType>? get defaultHiddenSections;/// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
+ DateTime? get aiAssistantConfiguredAt;/// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
 /// Null — the default — means "follow the browser's own locale", and is
 /// what a user who never opens the language picker keeps.
 ///
 /// That default is why this belongs here rather than in [AppSettings]:
 /// only an *explicit* choice ever travels between devices. Someone who
 /// never picks a language syncs nothing, and each browser goes on
-/// following itself. A language is a fact about the person, like
-/// [defaultRegion] — not about the device, like `lastBackupAt`.
+/// following itself. A language is a fact about the person, not about
+/// the device the way `lastBackupAt` is.
 ///
 /// A tag rather than an enum so that adding a supported language is
 /// exactly one new `.arb` file, with nothing here to keep in lockstep.
 /// `LocalizationService` validates it on read and falls back to the
 /// platform locale if it names a language this build no longer ships.
 ///
-/// Only ever the language of the app's *chrome*. The CV itself is
-/// produced in English regardless — see `CvComposer` for why the
-/// document's language is a separate axis.
+/// Only ever the language of the app's *chrome*, and never the
+/// language the CV is written in — that is `DocumentLanguage`, which
+/// lives on the Vault and the draft precisely so the two cannot be
+/// confused. Someone reading a Spanish interface while preparing an
+/// English CV is the ordinary case, not an edge one.
  String? get localeTag;/// When any field above last changed — the tie-break when two devices
 /// have both edited their preferences since they last agreed. These
 /// are flat scalars with no ids to merge by, so unlike the Vault there
@@ -79,16 +67,16 @@ $CvPreferencesCopyWith<CvPreferences> get copyWith => _$CvPreferencesCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvPreferences&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.aiAssistantProviderId, aiAssistantProviderId) || other.aiAssistantProviderId == aiAssistantProviderId)&&(identical(other.aiAssistantModelId, aiAssistantModelId) || other.aiAssistantModelId == aiAssistantModelId)&&(identical(other.aiAssistantConfiguredAt, aiAssistantConfiguredAt) || other.aiAssistantConfiguredAt == aiAssistantConfiguredAt)&&const DeepCollectionEquality().equals(other.defaultSectionOrder, defaultSectionOrder)&&const DeepCollectionEquality().equals(other.defaultHiddenSections, defaultHiddenSections)&&(identical(other.localeTag, localeTag) || other.localeTag == localeTag)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvPreferences&&(identical(other.aiAssistantProviderId, aiAssistantProviderId) || other.aiAssistantProviderId == aiAssistantProviderId)&&(identical(other.aiAssistantModelId, aiAssistantModelId) || other.aiAssistantModelId == aiAssistantModelId)&&(identical(other.aiAssistantConfiguredAt, aiAssistantConfiguredAt) || other.aiAssistantConfiguredAt == aiAssistantConfiguredAt)&&(identical(other.localeTag, localeTag) || other.localeTag == localeTag)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,defaultRegion,aiAssistantProviderId,aiAssistantModelId,aiAssistantConfiguredAt,const DeepCollectionEquality().hash(defaultSectionOrder),const DeepCollectionEquality().hash(defaultHiddenSections),localeTag,updatedAt);
+int get hashCode => Object.hash(runtimeType,aiAssistantProviderId,aiAssistantModelId,aiAssistantConfiguredAt,localeTag,updatedAt);
 
 @override
 String toString() {
-  return 'CvPreferences(defaultRegion: $defaultRegion, aiAssistantProviderId: $aiAssistantProviderId, aiAssistantModelId: $aiAssistantModelId, aiAssistantConfiguredAt: $aiAssistantConfiguredAt, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections, localeTag: $localeTag, updatedAt: $updatedAt)';
+  return 'CvPreferences(aiAssistantProviderId: $aiAssistantProviderId, aiAssistantModelId: $aiAssistantModelId, aiAssistantConfiguredAt: $aiAssistantConfiguredAt, localeTag: $localeTag, updatedAt: $updatedAt)';
 }
 
 
@@ -99,7 +87,7 @@ abstract mixin class $CvPreferencesCopyWith<$Res>  {
   factory $CvPreferencesCopyWith(CvPreferences value, $Res Function(CvPreferences) _then) = _$CvPreferencesCopyWithImpl;
 @useResult
 $Res call({
- RegionProfile defaultRegion, String? aiAssistantProviderId, String? aiAssistantModelId, DateTime? aiAssistantConfiguredAt, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections, String? localeTag, DateTime updatedAt
+ String? aiAssistantProviderId, String? aiAssistantModelId, DateTime? aiAssistantConfiguredAt, String? localeTag, DateTime updatedAt
 });
 
 
@@ -116,15 +104,12 @@ class _$CvPreferencesCopyWithImpl<$Res>
 
 /// Create a copy of CvPreferences
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? defaultRegion = null,Object? aiAssistantProviderId = freezed,Object? aiAssistantModelId = freezed,Object? aiAssistantConfiguredAt = freezed,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,Object? localeTag = freezed,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? aiAssistantProviderId = freezed,Object? aiAssistantModelId = freezed,Object? aiAssistantConfiguredAt = freezed,Object? localeTag = freezed,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
-defaultRegion: null == defaultRegion ? _self.defaultRegion : defaultRegion // ignore: cast_nullable_to_non_nullable
-as RegionProfile,aiAssistantProviderId: freezed == aiAssistantProviderId ? _self.aiAssistantProviderId : aiAssistantProviderId // ignore: cast_nullable_to_non_nullable
+aiAssistantProviderId: freezed == aiAssistantProviderId ? _self.aiAssistantProviderId : aiAssistantProviderId // ignore: cast_nullable_to_non_nullable
 as String?,aiAssistantModelId: freezed == aiAssistantModelId ? _self.aiAssistantModelId : aiAssistantModelId // ignore: cast_nullable_to_non_nullable
 as String?,aiAssistantConfiguredAt: freezed == aiAssistantConfiguredAt ? _self.aiAssistantConfiguredAt : aiAssistantConfiguredAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,defaultSectionOrder: freezed == defaultSectionOrder ? _self.defaultSectionOrder : defaultSectionOrder // ignore: cast_nullable_to_non_nullable
-as List<CvSectionType>?,defaultHiddenSections: freezed == defaultHiddenSections ? _self.defaultHiddenSections : defaultHiddenSections // ignore: cast_nullable_to_non_nullable
-as Set<CvSectionType>?,localeTag: freezed == localeTag ? _self.localeTag : localeTag // ignore: cast_nullable_to_non_nullable
+as DateTime?,localeTag: freezed == localeTag ? _self.localeTag : localeTag // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -211,10 +196,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RegionProfile defaultRegion,  String? aiAssistantProviderId,  String? aiAssistantModelId,  DateTime? aiAssistantConfiguredAt,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  String? localeTag,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? aiAssistantProviderId,  String? aiAssistantModelId,  DateTime? aiAssistantConfiguredAt,  String? localeTag,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CvPreferences() when $default != null:
-return $default(_that.defaultRegion,_that.aiAssistantProviderId,_that.aiAssistantModelId,_that.aiAssistantConfiguredAt,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.localeTag,_that.updatedAt);case _:
+return $default(_that.aiAssistantProviderId,_that.aiAssistantModelId,_that.aiAssistantConfiguredAt,_that.localeTag,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -232,10 +217,10 @@ return $default(_that.defaultRegion,_that.aiAssistantProviderId,_that.aiAssistan
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RegionProfile defaultRegion,  String? aiAssistantProviderId,  String? aiAssistantModelId,  DateTime? aiAssistantConfiguredAt,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  String? localeTag,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? aiAssistantProviderId,  String? aiAssistantModelId,  DateTime? aiAssistantConfiguredAt,  String? localeTag,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _CvPreferences():
-return $default(_that.defaultRegion,_that.aiAssistantProviderId,_that.aiAssistantModelId,_that.aiAssistantConfiguredAt,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.localeTag,_that.updatedAt);case _:
+return $default(_that.aiAssistantProviderId,_that.aiAssistantModelId,_that.aiAssistantConfiguredAt,_that.localeTag,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -252,10 +237,10 @@ return $default(_that.defaultRegion,_that.aiAssistantProviderId,_that.aiAssistan
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RegionProfile defaultRegion,  String? aiAssistantProviderId,  String? aiAssistantModelId,  DateTime? aiAssistantConfiguredAt,  List<CvSectionType>? defaultSectionOrder,  Set<CvSectionType>? defaultHiddenSections,  String? localeTag,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? aiAssistantProviderId,  String? aiAssistantModelId,  DateTime? aiAssistantConfiguredAt,  String? localeTag,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CvPreferences() when $default != null:
-return $default(_that.defaultRegion,_that.aiAssistantProviderId,_that.aiAssistantModelId,_that.aiAssistantConfiguredAt,_that.defaultSectionOrder,_that.defaultHiddenSections,_that.localeTag,_that.updatedAt);case _:
+return $default(_that.aiAssistantProviderId,_that.aiAssistantModelId,_that.aiAssistantConfiguredAt,_that.localeTag,_that.updatedAt);case _:
   return null;
 
 }
@@ -267,10 +252,9 @@ return $default(_that.defaultRegion,_that.aiAssistantProviderId,_that.aiAssistan
 @JsonSerializable()
 
 class _CvPreferences implements CvPreferences {
-  const _CvPreferences({this.defaultRegion = RegionProfile.uk, this.aiAssistantProviderId, this.aiAssistantModelId, this.aiAssistantConfiguredAt, final  List<CvSectionType>? defaultSectionOrder, final  Set<CvSectionType>? defaultHiddenSections, this.localeTag, required this.updatedAt}): _defaultSectionOrder = defaultSectionOrder,_defaultHiddenSections = defaultHiddenSections;
+  const _CvPreferences({this.aiAssistantProviderId, this.aiAssistantModelId, this.aiAssistantConfiguredAt, this.localeTag, required this.updatedAt});
   factory _CvPreferences.fromJson(Map<String, dynamic> json) => _$CvPreferencesFromJson(json);
 
-@override@JsonKey() final  RegionProfile defaultRegion;
 @override final  String? aiAssistantProviderId;
 @override final  String? aiAssistantModelId;
 /// When an AI Assistant connection test first succeeded on *any*
@@ -289,52 +273,6 @@ class _CvPreferences implements CvPreferences {
 /// not that this device is currently configured. [ApiKeyOrigin] is the
 /// authority on the latter.
 @override final  DateTime? aiAssistantConfiguredAt;
-/// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-/// draft with, set via the "Save as my default" action in Studio.
-/// Null means no default has ever been saved — a new draft then falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`. Never
-/// re-resolved against an existing draft; it only ever seeds a draft
-/// at creation time. Saved and reset together with
-/// [defaultHiddenSections] by the same Studio action, so the two
-/// fields never drift apart, but kept as two fields rather than one
-/// combined value — same shape as `CvDraft.sectionOrder` /
-/// `CvDraft.hiddenSections` being separate fields there too.
- final  List<CvSectionType>? _defaultSectionOrder;
-/// The section order (see `CvDraft.sectionOrder`) to seed a brand-new
-/// draft with, set via the "Save as my default" action in Studio.
-/// Null means no default has ever been saved — a new draft then falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`. Never
-/// re-resolved against an existing draft; it only ever seeds a draft
-/// at creation time. Saved and reset together with
-/// [defaultHiddenSections] by the same Studio action, so the two
-/// fields never drift apart, but kept as two fields rather than one
-/// combined value — same shape as `CvDraft.sectionOrder` /
-/// `CvDraft.hiddenSections` being separate fields there too.
-@override List<CvSectionType>? get defaultSectionOrder {
-  final value = _defaultSectionOrder;
-  if (value == null) return null;
-  if (_defaultSectionOrder is EqualUnmodifiableListView) return _defaultSectionOrder;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(value);
-}
-
-/// Same seed-only rationale as [defaultSectionOrder], one field over
-/// for `CvDraft.hiddenSections` — which sections a brand-new draft
-/// starts with hidden. Null means no default has been saved, so a new
-/// draft starts with nothing hidden.
- final  Set<CvSectionType>? _defaultHiddenSections;
-/// Same seed-only rationale as [defaultSectionOrder], one field over
-/// for `CvDraft.hiddenSections` — which sections a brand-new draft
-/// starts with hidden. Null means no default has been saved, so a new
-/// draft starts with nothing hidden.
-@override Set<CvSectionType>? get defaultHiddenSections {
-  final value = _defaultHiddenSections;
-  if (value == null) return null;
-  if (_defaultHiddenSections is EqualUnmodifiableSetView) return _defaultHiddenSections;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableSetView(value);
-}
-
 /// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
 /// Null — the default — means "follow the browser's own locale", and is
 /// what a user who never opens the language picker keeps.
@@ -342,17 +280,19 @@ class _CvPreferences implements CvPreferences {
 /// That default is why this belongs here rather than in [AppSettings]:
 /// only an *explicit* choice ever travels between devices. Someone who
 /// never picks a language syncs nothing, and each browser goes on
-/// following itself. A language is a fact about the person, like
-/// [defaultRegion] — not about the device, like `lastBackupAt`.
+/// following itself. A language is a fact about the person, not about
+/// the device the way `lastBackupAt` is.
 ///
 /// A tag rather than an enum so that adding a supported language is
 /// exactly one new `.arb` file, with nothing here to keep in lockstep.
 /// `LocalizationService` validates it on read and falls back to the
 /// platform locale if it names a language this build no longer ships.
 ///
-/// Only ever the language of the app's *chrome*. The CV itself is
-/// produced in English regardless — see `CvComposer` for why the
-/// document's language is a separate axis.
+/// Only ever the language of the app's *chrome*, and never the
+/// language the CV is written in — that is `DocumentLanguage`, which
+/// lives on the Vault and the draft precisely so the two cannot be
+/// confused. Someone reading a Spanish interface while preparing an
+/// English CV is the ordinary case, not an edge one.
 @override final  String? localeTag;
 /// When any field above last changed — the tie-break when two devices
 /// have both edited their preferences since they last agreed. These
@@ -373,16 +313,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvPreferences&&(identical(other.defaultRegion, defaultRegion) || other.defaultRegion == defaultRegion)&&(identical(other.aiAssistantProviderId, aiAssistantProviderId) || other.aiAssistantProviderId == aiAssistantProviderId)&&(identical(other.aiAssistantModelId, aiAssistantModelId) || other.aiAssistantModelId == aiAssistantModelId)&&(identical(other.aiAssistantConfiguredAt, aiAssistantConfiguredAt) || other.aiAssistantConfiguredAt == aiAssistantConfiguredAt)&&const DeepCollectionEquality().equals(other._defaultSectionOrder, _defaultSectionOrder)&&const DeepCollectionEquality().equals(other._defaultHiddenSections, _defaultHiddenSections)&&(identical(other.localeTag, localeTag) || other.localeTag == localeTag)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvPreferences&&(identical(other.aiAssistantProviderId, aiAssistantProviderId) || other.aiAssistantProviderId == aiAssistantProviderId)&&(identical(other.aiAssistantModelId, aiAssistantModelId) || other.aiAssistantModelId == aiAssistantModelId)&&(identical(other.aiAssistantConfiguredAt, aiAssistantConfiguredAt) || other.aiAssistantConfiguredAt == aiAssistantConfiguredAt)&&(identical(other.localeTag, localeTag) || other.localeTag == localeTag)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,defaultRegion,aiAssistantProviderId,aiAssistantModelId,aiAssistantConfiguredAt,const DeepCollectionEquality().hash(_defaultSectionOrder),const DeepCollectionEquality().hash(_defaultHiddenSections),localeTag,updatedAt);
+int get hashCode => Object.hash(runtimeType,aiAssistantProviderId,aiAssistantModelId,aiAssistantConfiguredAt,localeTag,updatedAt);
 
 @override
 String toString() {
-  return 'CvPreferences(defaultRegion: $defaultRegion, aiAssistantProviderId: $aiAssistantProviderId, aiAssistantModelId: $aiAssistantModelId, aiAssistantConfiguredAt: $aiAssistantConfiguredAt, defaultSectionOrder: $defaultSectionOrder, defaultHiddenSections: $defaultHiddenSections, localeTag: $localeTag, updatedAt: $updatedAt)';
+  return 'CvPreferences(aiAssistantProviderId: $aiAssistantProviderId, aiAssistantModelId: $aiAssistantModelId, aiAssistantConfiguredAt: $aiAssistantConfiguredAt, localeTag: $localeTag, updatedAt: $updatedAt)';
 }
 
 
@@ -393,7 +333,7 @@ abstract mixin class _$CvPreferencesCopyWith<$Res> implements $CvPreferencesCopy
   factory _$CvPreferencesCopyWith(_CvPreferences value, $Res Function(_CvPreferences) _then) = __$CvPreferencesCopyWithImpl;
 @override @useResult
 $Res call({
- RegionProfile defaultRegion, String? aiAssistantProviderId, String? aiAssistantModelId, DateTime? aiAssistantConfiguredAt, List<CvSectionType>? defaultSectionOrder, Set<CvSectionType>? defaultHiddenSections, String? localeTag, DateTime updatedAt
+ String? aiAssistantProviderId, String? aiAssistantModelId, DateTime? aiAssistantConfiguredAt, String? localeTag, DateTime updatedAt
 });
 
 
@@ -410,15 +350,12 @@ class __$CvPreferencesCopyWithImpl<$Res>
 
 /// Create a copy of CvPreferences
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? defaultRegion = null,Object? aiAssistantProviderId = freezed,Object? aiAssistantModelId = freezed,Object? aiAssistantConfiguredAt = freezed,Object? defaultSectionOrder = freezed,Object? defaultHiddenSections = freezed,Object? localeTag = freezed,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? aiAssistantProviderId = freezed,Object? aiAssistantModelId = freezed,Object? aiAssistantConfiguredAt = freezed,Object? localeTag = freezed,Object? updatedAt = null,}) {
   return _then(_CvPreferences(
-defaultRegion: null == defaultRegion ? _self.defaultRegion : defaultRegion // ignore: cast_nullable_to_non_nullable
-as RegionProfile,aiAssistantProviderId: freezed == aiAssistantProviderId ? _self.aiAssistantProviderId : aiAssistantProviderId // ignore: cast_nullable_to_non_nullable
+aiAssistantProviderId: freezed == aiAssistantProviderId ? _self.aiAssistantProviderId : aiAssistantProviderId // ignore: cast_nullable_to_non_nullable
 as String?,aiAssistantModelId: freezed == aiAssistantModelId ? _self.aiAssistantModelId : aiAssistantModelId // ignore: cast_nullable_to_non_nullable
 as String?,aiAssistantConfiguredAt: freezed == aiAssistantConfiguredAt ? _self.aiAssistantConfiguredAt : aiAssistantConfiguredAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,defaultSectionOrder: freezed == defaultSectionOrder ? _self._defaultSectionOrder : defaultSectionOrder // ignore: cast_nullable_to_non_nullable
-as List<CvSectionType>?,defaultHiddenSections: freezed == defaultHiddenSections ? _self._defaultHiddenSections : defaultHiddenSections // ignore: cast_nullable_to_non_nullable
-as Set<CvSectionType>?,localeTag: freezed == localeTag ? _self.localeTag : localeTag // ignore: cast_nullable_to_non_nullable
+as DateTime?,localeTag: freezed == localeTag ? _self.localeTag : localeTag // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));

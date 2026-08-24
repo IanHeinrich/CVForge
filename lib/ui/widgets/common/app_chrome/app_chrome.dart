@@ -1,7 +1,7 @@
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/app/app.router.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
-import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/services/vault_service.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -36,10 +36,16 @@ class _NavDestination {
 /// for where each layout adds it back.
 ///
 /// A function rather than a top-level `const`, since the drafts
-/// destination's label follows `AppSettings.defaultRegion`'s document noun
+/// destination's label follows the Vault's default region document noun
 /// ("CVs" for a UK default, "Résumés" for a US one) — read straight off the
 /// locator, since this file is deliberately modelless (see [AppChrome]'s
 /// class doc) and has no ViewModel to hold it as reactive state instead.
+///
+/// Reads `VaultService` rather than `SettingsService` because that is
+/// where the default lives now, and because `StartupViewModel` actually
+/// loads the Vault — nothing loads settings at startup, so this label
+/// used to sit on the `uk` fallback until the user happened to open
+/// Settings or the CVs list.
 ///
 /// The noun picks an ICU `select` branch rather than being interpolated
 /// into a translated frame: a language with grammatical gender or case
@@ -57,10 +63,10 @@ List<_NavDestination> _workspaceDestinations(BuildContext context) => [
     icon: RemixIcons.file_text_line,
     selectedIcon: RemixIcons.file_text_fill,
     label: context.l10n.appNavDrafts(
-      locator<SettingsService>()
-          .settings
-          .preferences
-          .defaultRegion
+      locator<VaultService>()
+          .vault
+          .documentDefaults
+          .region
           .preset
           .documentNoun
           .name,

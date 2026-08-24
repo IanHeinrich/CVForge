@@ -2026,6 +2026,42 @@ class AppLocalizationsEn extends AppLocalizations {
       'That page doesn\'t exist — here\'s your Vault.';
 
   @override
+  String get vaultMonthApr => 'Apr';
+
+  @override
+  String get vaultMonthAug => 'Aug';
+
+  @override
+  String get vaultMonthDec => 'Dec';
+
+  @override
+  String get vaultMonthFeb => 'Feb';
+
+  @override
+  String get vaultMonthJan => 'Jan';
+
+  @override
+  String get vaultMonthJul => 'Jul';
+
+  @override
+  String get vaultMonthJun => 'Jun';
+
+  @override
+  String get vaultMonthMar => 'Mar';
+
+  @override
+  String get vaultMonthMay => 'May';
+
+  @override
+  String get vaultMonthNov => 'Nov';
+
+  @override
+  String get vaultMonthOct => 'Oct';
+
+  @override
+  String get vaultMonthSep => 'Sep';
+
+  @override
   String get vaultNoEducation => 'No education yet.';
 
   @override

@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
-import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
@@ -268,7 +269,7 @@ void main() {
       ]);
       await service.setSectionHidden(CvSectionType.hobbies, hidden: true);
 
-      await service.resetSectionSettings();
+      await service.resetSectionSettings(const DocumentDefaults());
       expect(
         service.draft.sectionOrder,
         registry.byId(service.draft.templateId).sectionOrder,
@@ -289,13 +290,9 @@ void main() {
         CvSectionType.references,
         CvSectionType.publications,
       ];
-      when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(
-          preferences: CvPreferences.empty().copyWith(
-            defaultSectionOrder: remembered,
-            defaultHiddenSections: {CvSectionType.references},
-          ),
-        ),
+      const defaults = DocumentDefaults(
+        sectionOrder: remembered,
+        hiddenSections: {CvSectionType.references},
       );
 
       final service = DraftService();
@@ -313,7 +310,7 @@ void main() {
       ]);
       await service.setSectionHidden(CvSectionType.hobbies, hidden: true);
 
-      await service.resetSectionSettings();
+      await service.resetSectionSettings(defaults);
       expect(service.draft.sectionOrder, remembered);
       expect(service.draft.hiddenSections, {CvSectionType.references});
     });
@@ -364,22 +361,45 @@ void main() {
       await service.flushPendingWrites();
     });
 
-    test('createDraft defaults a new draft\'s region from '
-        "SettingsService's defaultRegion", () async {
-      when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(
-          preferences: CvPreferences.empty().copyWith(
-            defaultRegion: RegionProfile.us,
-          ),
-        ),
-      );
-
+    test('createDraft seeds region and language from the defaults it is '
+        'handed — this service never reaches for the Vault itself', () async {
       final service = DraftService();
       await service.load();
 
-      final newId = await service.createDraft(name: 'US application');
+      final newId = await service.createDraft(
+        name: 'US application',
+        defaults: const DocumentDefaults(
+          region: RegionProfile.us,
+          language: DocumentLanguage.enUs,
+        ),
+      );
       expect(service.activeDraftId, newId);
       expect(service.draft.region, RegionProfile.us);
+      expect(service.draft.documentLanguage, DocumentLanguage.enUs);
+    });
+
+    test('changing the defaults afterwards leaves an existing draft alone — '
+        'they seed a CV, they do not follow it', () async {
+      final service = DraftService();
+      await service.load();
+
+      await service.createDraft(
+        name: 'German application',
+        defaults: const DocumentDefaults(
+          region: RegionProfile.dach,
+          language: DocumentLanguage.de,
+        ),
+      );
+      await service.createDraft(
+        name: 'UK application',
+        defaults: const DocumentDefaults(region: RegionProfile.uk),
+      );
+
+      final german = service.drafts.firstWhere(
+        (d) => d.name == 'German application',
+      );
+      expect(german.region, RegionProfile.dach);
+      expect(german.documentLanguage, DocumentLanguage.de);
     });
 
     test('createDraft seeds sectionOrder AND hiddenSections from '
@@ -395,19 +415,16 @@ void main() {
         CvSectionType.references,
         CvSectionType.publications,
       ];
-      when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(
-          preferences: CvPreferences.empty().copyWith(
-            defaultSectionOrder: remembered,
-            defaultHiddenSections: {CvSectionType.hobbies},
-          ),
-        ),
-      );
-
       final service = DraftService();
       await service.load();
 
-      await service.createDraft(name: 'Tailored application');
+      await service.createDraft(
+        name: 'Tailored application',
+        defaults: const DocumentDefaults(
+          sectionOrder: remembered,
+          hiddenSections: {CvSectionType.hobbies},
+        ),
+      );
       expect(service.draft.sectionOrder, remembered);
       expect(service.draft.hiddenSections, {CvSectionType.hobbies});
     });

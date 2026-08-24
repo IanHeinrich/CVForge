@@ -4,6 +4,7 @@ import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/common/l10n/month_labels.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
@@ -248,7 +249,10 @@ class _MonthField extends StatelessWidget {
       hint: Text(context.l10n.commonSelect),
       items: [
         for (var month = 1; month <= 12; month++)
-          DropdownMenuItem(value: month, child: Text(monthName(month))),
+          DropdownMenuItem(
+            value: month,
+            child: Text(monthLabel(context.l10n, month)),
+          ),
       ],
       onChanged: (month) {
         if (month != null) onChanged(month);

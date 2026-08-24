@@ -12,7 +12,7 @@ import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
-import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/services/vault_service.dart';
 
 /// Drives the "upload a PDF, see what an ATS would struggle with" flow.
 /// Unlike most top-level ViewModels in this app, there is no persisted
@@ -22,33 +22,37 @@ import 'package:cv_forge/services/settings_service.dart';
 /// service's state, and `AnalyzerView` passes `isLoading`/`hasError:
 /// false` straight through to `AppChrome.gated` rather than gating on an
 /// init load that doesn't exist.
-class AnalyzerViewModel extends BaseViewModel {
+class AnalyzerViewModel extends BaseViewModel implements Initialisable {
   final _fileUpload = locator<FileUploadService>();
   final _extraction = locator<PdfExtractionService>();
   final _analyzer = locator<AtsAnalyzerService>();
-  final _settingsService = locator<SettingsService>();
+  final _vaultService = locator<VaultService>();
   final _localizationService = locator<LocalizationService>();
 
   static const _analyzeBusyKey = 'analyzer_analyze';
 
-  /// "CV" or "résumé" — [AppSettings.defaultRegion]'s own document noun,
-  /// read here rather than adding a region concept of this feature's own:
-  /// Analyzer has no draft, so the device-wide default is the only region
-  /// signal available to it.
-  /// Which document noun the user's default region uses — `cv` or
+  /// Loads the Vault, purely so [documentNoun] is answered from the
+  /// user's real default rather than the `uk` fallback.
+  ///
+  /// This ViewModel held no `initialise` at all before, which meant a
+  /// direct link to `/analyzer` showed "CV" to someone whose default is
+  /// `résumé` until they visited another screen.
+  @override
+  Future<void> initialise() => _vaultService.load();
+
+  /// Which document noun the Vault's default region uses — `cv` or
   /// `resume` — as an ICU `select` branch id, not a display word.
   ///
-  /// Deliberately not an inflected English string any more: a translated
-  /// sentence cannot have a foreign noun interpolated into it and stay
+  /// Read here rather than giving this feature a region concept of its
+  /// own: the Analyzer inspects an uploaded PDF and has no draft, so the
+  /// Vault's default is the only region signal available to it.
+  ///
+  /// Deliberately not an inflected English string: a translated sentence
+  /// cannot have a foreign noun interpolated into it and stay
   /// grammatical, so each message spells out its own branches. See
   /// CLAUDE.md's Localization section.
-  String get documentNoun => _settingsService
-      .settings
-      .preferences
-      .defaultRegion
-      .preset
-      .documentNoun
-      .name;
+  String get documentNoun =>
+      _vaultService.vault.documentDefaults.region.preset.documentNoun.name;
 
   AtsAnalysisResult? _result;
   AtsAnalysisResult? get result => _result;

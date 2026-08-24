@@ -2048,6 +2048,42 @@ class AppLocalizationsEs extends AppLocalizations {
       'Esa página no existe — aquí está tu Bóveda.';
 
   @override
+  String get vaultMonthApr => 'abr';
+
+  @override
+  String get vaultMonthAug => 'ago';
+
+  @override
+  String get vaultMonthDec => 'dic';
+
+  @override
+  String get vaultMonthFeb => 'feb';
+
+  @override
+  String get vaultMonthJan => 'ene';
+
+  @override
+  String get vaultMonthJul => 'jul';
+
+  @override
+  String get vaultMonthJun => 'jun';
+
+  @override
+  String get vaultMonthMar => 'mar';
+
+  @override
+  String get vaultMonthMay => 'may';
+
+  @override
+  String get vaultMonthNov => 'nov';
+
+  @override
+  String get vaultMonthOct => 'oct';
+
+  @override
+  String get vaultMonthSep => 'sept';
+
+  @override
   String get vaultNoEducation => 'Aún no hay formación académica.';
 
   @override

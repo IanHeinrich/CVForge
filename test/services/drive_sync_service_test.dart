@@ -6,7 +6,6 @@ import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/drive/drive_file_snapshot.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
-import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
@@ -232,12 +231,12 @@ void main() {
       verify(settings.addListener(any)).called(1);
     });
 
-    test("applying Drive's copy replaces preferences too, so a default "
-        'region set on another device actually lands', () async {
+    test("applying Drive's copy replaces preferences too, so a language "
+        'chosen on another device actually lands', () async {
       await connect();
       final remoteWithPrefs = _fixtureBundle.copyWith(
         preferences: CvPreferences(
-          defaultRegion: RegionProfile.us,
+          localeTag: 'es',
           updatedAt: _baseTime.add(const Duration(hours: 1)),
         ),
       );
@@ -253,7 +252,7 @@ void main() {
       final applied =
           verify(settings.replacePreferences(captureAny)).captured.single
               as CvPreferences;
-      expect(applied.defaultRegion, RegionProfile.us);
+      expect(applied.localeTag, 'es');
     });
 
     test('a burst of local edits collapses into exactly one push after the '

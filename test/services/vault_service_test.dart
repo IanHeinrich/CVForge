@@ -5,7 +5,10 @@ import 'package:cv_forge/models/settings/app_settings.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_photo.dart';
+import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -475,6 +478,68 @@ void main() {
                 as List<dynamic>;
         expect(skills, hasLength(1));
         expect((skills.single as Map<String, dynamic>)['label'], 'Dart');
+      });
+    });
+
+    group('document defaults -', () {
+      test('setDocumentDefaults round-trips through storage', () async {
+        final service = VaultService();
+        await service.load();
+
+        await service.setDocumentDefaults(
+          const DocumentDefaults(
+            region: RegionProfile.dach,
+            language: DocumentLanguage.de,
+          ),
+        );
+        await service.flushPendingWrites();
+
+        final reloaded = VaultService();
+        await reloaded.load();
+        expect(reloaded.vault.documentDefaults.region, RegionProfile.dach);
+        expect(reloaded.vault.documentDefaults.language, DocumentLanguage.de);
+      });
+
+      test('loadExampleVault replaces the career content but keeps the '
+          'defaults — a sample CV is no reason to forget which language '
+          'the user writes in', () async {
+        final service = VaultService();
+        await service.load();
+        await service.setDocumentDefaults(
+          const DocumentDefaults(language: DocumentLanguage.nl),
+        );
+
+        await service.loadExampleVault();
+
+        expect(service.vault.experiences, isNotEmpty);
+        expect(service.vault.documentDefaults.language, DocumentLanguage.nl);
+      });
+
+      test('clearVault keeps them too — "clear my career history" is not '
+          '"forget how I write my CVs"', () async {
+        final service = VaultService();
+        await service.load();
+        await service.setDocumentDefaults(
+          const DocumentDefaults(language: DocumentLanguage.nl),
+        );
+        await service.addHobby('Bouldering');
+
+        await service.clearVault();
+
+        expect(service.vault.hobbies, isEmpty);
+        expect(service.vault.documentDefaults.language, DocumentLanguage.nl);
+      });
+
+      test('are not treated as content, so they never keep the first-run '
+          'empty state from showing', () async {
+        final service = VaultService();
+        await service.load();
+
+        await service.setDocumentDefaults(
+          const DocumentDefaults(language: DocumentLanguage.nl),
+        );
+
+        expect(service.vault.isEmpty, isTrue);
       });
     });
   });

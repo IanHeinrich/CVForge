@@ -7,12 +7,12 @@ import 'package:cv_forge/models/ats/ats_document_info.dart';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
-import 'package:cv_forge/models/settings/app_settings.dart';
-import 'package:cv_forge/models/settings/cv_preferences.dart';
+import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
-import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/services/vault_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -23,7 +23,7 @@ void main() {
   late MockFileUploadService fileUpload;
   late MockPdfExtractionService extraction;
   late MockAtsAnalyzerService analyzer;
-  late MockSettingsService settings;
+  late MockVaultService vault;
   late AnalyzerViewModel viewModel;
 
   setUp(() {
@@ -31,38 +31,35 @@ void main() {
     fileUpload = locator<FileUploadService>() as MockFileUploadService;
     extraction = locator<PdfExtractionService>() as MockPdfExtractionService;
     analyzer = locator<AtsAnalyzerService>() as MockAtsAnalyzerService;
-    settings = locator<SettingsService>() as MockSettingsService;
-    when(settings.settings).thenReturn(AppSettings.empty());
+    vault = locator<VaultService>() as MockVaultService;
+    when(vault.vault).thenReturn(CvVault.empty());
     viewModel = AnalyzerViewModel();
   });
   tearDown(() => locator.reset());
 
   group('AnalyzerViewModel Tests - documentNoun', () {
-    test(
-      'follows SettingsService.settings.preferences.defaultRegion — no '
-      'region concept of its own, since Analyzer has no draft. Reports the '
-      'ICU select branch id, not a display word: a translated sentence '
-      'cannot have a foreign noun interpolated into it and stay grammatical',
-      () {
-        when(settings.settings).thenReturn(
-          AppSettings.empty().copyWith(
-            preferences: CvPreferences.empty().copyWith(
-              defaultRegion: RegionProfile.uk,
-            ),
-          ),
-        );
-        expect(viewModel.documentNoun, 'cv');
-
-        when(settings.settings).thenReturn(
-          AppSettings.empty().copyWith(
-            preferences: CvPreferences.empty().copyWith(
-              defaultRegion: RegionProfile.us,
-            ),
-          ),
-        );
-        expect(viewModel.documentNoun, 'resume');
-      },
+    void withRegion(RegionProfile region) => when(vault.vault).thenReturn(
+      CvVault.empty().copyWith(
+        documentDefaults: DocumentDefaults(region: region),
+      ),
     );
+
+    test("follows the Vault's default region — no region concept of its own, "
+        'since Analyzer has no draft. Reports the ICU select branch id, not '
+        'a display word: a translated sentence cannot have a foreign noun '
+        'interpolated into it and stay grammatical', () {
+      withRegion(RegionProfile.uk);
+      expect(viewModel.documentNoun, 'cv');
+
+      withRegion(RegionProfile.us);
+      expect(viewModel.documentNoun, 'resume');
+    });
+
+    test('loads the Vault, so a direct link to /analyzer reports the real '
+        'default rather than the uk fallback', () async {
+      await viewModel.initialise();
+      verify(vault.load()).called(1);
+    });
   });
 
   group('AnalyzerViewModel Tests - pickAndAnalyze', () {

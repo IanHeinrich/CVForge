@@ -214,6 +214,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       vault,
       draft,
       region: draft.region,
+      language: draft.documentLanguage,
       sectionOrder: draft.effectiveSectionOrder,
     );
     _composedVault = vault;
@@ -536,19 +537,24 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   /// Copies this draft's current [sectionOrder] and hidden-sections state
-  /// into `AppSettings.defaultSectionOrder`/`AppSettings.defaultHiddenSections`
-  /// so the next brand-new draft starts with both — a one-shot copy, never
-  /// a standing link back to this draft.
+  /// into [DocumentDefaults] so the next brand-new draft starts with
+  /// both — a one-shot copy, never a standing link back to this draft.
   Future<void> saveSectionSettingsAsDefault() =>
-      _settingsService.setDefaultSectionSettings(
-        order: sectionOrder,
-        hiddenSections: _draft.hiddenSections,
+      _vaultService.setDocumentDefaults(
+        _vaultService.vault.documentDefaults.copyWith(
+          sectionOrder: sectionOrder,
+          hiddenSections: _draft.hiddenSections,
+        ),
       );
 
   /// Resets this draft's order and hidden-sections state back to the
   /// user's saved default (or, if they've never saved one, the active
   /// template's own suggested order with nothing hidden).
-  Future<void> resetSectionSettings() => _draftService.resetSectionSettings();
+  ///
+  /// The defaults are passed in rather than read by `DraftService`, which
+  /// stays decoupled from the Vault — see its class doc comment.
+  Future<void> resetSectionSettings() =>
+      _draftService.resetSectionSettings(_vaultService.vault.documentDefaults);
 
   late final _experienceSelection = _Selection<Experience>(
     items: () => _vault.experiences,

@@ -3116,6 +3116,78 @@ abstract class AppLocalizations {
   /// **'That page doesn\'t exist — here\'s your Vault.'**
   String get vaultInvalidUrlNotice;
 
+  /// Month abbreviation shown in the Vault's year/month picker for April. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Apr'**
+  String get vaultMonthApr;
+
+  /// Month abbreviation shown in the Vault's year/month picker for August. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Aug'**
+  String get vaultMonthAug;
+
+  /// Month abbreviation shown in the Vault's year/month picker for December. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Dec'**
+  String get vaultMonthDec;
+
+  /// Month abbreviation shown in the Vault's year/month picker for February. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Feb'**
+  String get vaultMonthFeb;
+
+  /// Month abbreviation shown in the Vault's year/month picker for January. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Jan'**
+  String get vaultMonthJan;
+
+  /// Month abbreviation shown in the Vault's year/month picker for July. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Jul'**
+  String get vaultMonthJul;
+
+  /// Month abbreviation shown in the Vault's year/month picker for June. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Jun'**
+  String get vaultMonthJun;
+
+  /// Month abbreviation shown in the Vault's year/month picker for March. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Mar'**
+  String get vaultMonthMar;
+
+  /// Month abbreviation shown in the Vault's year/month picker for May. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get vaultMonthMay;
+
+  /// Month abbreviation shown in the Vault's year/month picker for November. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Nov'**
+  String get vaultMonthNov;
+
+  /// Month abbreviation shown in the Vault's year/month picker for October. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct'**
+  String get vaultMonthOct;
+
+  /// Month abbreviation shown in the Vault's year/month picker for September. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sep'**
+  String get vaultMonthSep;
+
   /// Vault empty state for the education section.
   ///
   /// In en, this message translates to:

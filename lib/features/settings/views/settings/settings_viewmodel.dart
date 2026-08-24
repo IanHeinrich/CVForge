@@ -5,7 +5,6 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/models/llm/llm_model_option.dart';
-import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/settings/app_theme_mode.dart';
 import 'package:cv_forge/services/backup_service.dart';
@@ -79,41 +78,12 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
     };
   }
 
-  RegionProfile get defaultRegion =>
-      _settingsService.settings.preferences.defaultRegion;
-
-  /// Device-scoped, unlike [defaultRegion] — see [AppSettings.themeMode].
+  /// Device-scoped, unlike anything on [CvPreferences] — see
+  /// [AppSettings.themeMode].
   AppThemeMode get themeMode => _settingsService.settings.themeMode;
 
   Future<void> setThemeMode(AppThemeMode mode) =>
       _settingsService.setThemeMode(mode);
-
-  /// Opens the same picker Studio's per-CV region button opens, in its
-  /// `appDefault` context — one region surface with two entry points
-  /// rather than two that can drift on wording or on which conventions
-  /// they explain. Settings used to carry its own chip row, which listed
-  /// the regions without explaining any of them.
-  ///
-  /// Near-identical to [StudioViewModel.openRegionGallery] and left that
-  /// way: they write to different services and pass different contexts, so
-  /// factoring them together would need a home neither ViewModel owns.
-  ///
-  /// Only changes what a *new* CV is created with — see
-  /// `SettingsService.setDefaultRegion`'s doc comment.
-  Future<void> openDefaultRegionPicker() async {
-    final response = await _dialogService
-        .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
-          variant: DialogType.regionGallery,
-          data: RegionGalleryDialogData(
-            currentRegion: defaultRegion,
-            context: RegionGalleryContext.appDefault,
-          ),
-        );
-    final selected = response?.data;
-    if (response?.confirmed == true && selected != null) {
-      await _settingsService.setDefaultRegion(selected);
-    }
-  }
 
   Future<void> exportBackup() =>
       runBusyFuture(_export(), busyObject: _exportBusyKey);
@@ -162,7 +132,7 @@ class SettingsViewModel extends ReactiveViewModel implements Initialisable {
       variant: DialogType.confirmDelete,
       title: strings.settingsImportConfirmTitle,
       description: strings.settingsImportConfirmBody(
-        defaultRegion.preset.documentNoun.name,
+        _vaultService.vault.documentDefaults.region.preset.documentNoun.name,
         _draftService.drafts.length,
         bundle.drafts.length,
       ),

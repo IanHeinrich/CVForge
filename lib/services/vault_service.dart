@@ -6,6 +6,7 @@ import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
@@ -79,17 +80,50 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     return CvVault.fromJson(json);
   }
 
+  /// Replaces the Vault's *content* with the worked example, keeping
+  /// [CvVault.documentDefaults].
+  ///
+  /// The defaults are configuration, not content, so loading a sample CV
+  /// is no more a reason to forget which region and language the user
+  /// works in than it is a reason to forget their password. This is the
+  /// same trap `CvVaultEmptiness.isEmpty`'s doc records for photos, one
+  /// step further along: a photo could be fixed by counting it as content,
+  /// and the defaults cannot, because they are never absent. So they have
+  /// to be carried across by hand here and in [clearVault].
   Future<void> loadExampleVault() async {
     await ready();
-    _setVault((_) => buildExampleVault());
+    _setVault(
+      (v) => buildExampleVault().copyWith(documentDefaults: v.documentDefaults),
+    );
   }
 
   /// Resets the Vault back to [CvVault.empty] — the same starting point as
   /// a first-ever launch, so the empty-state choice ("Load example CV" or
   /// build from scratch) is available again afterwards.
+  ///
+  /// Keeps [CvVault.documentDefaults] for the reason [loadExampleVault]
+  /// gives. "Clear my career history" is not "forget that I write my CVs
+  /// in Dutch".
   Future<void> clearVault() async {
     await ready();
-    _setVault((_) => CvVault.empty());
+    _setVault(
+      (v) => CvVault.empty().copyWith(documentDefaults: v.documentDefaults),
+    );
+  }
+
+  /// The one write path for what new CVs start out as.
+  ///
+  /// Unlike every other mutator here this changes configuration rather
+  /// than content, which has one consequence worth naming: [_setVault]
+  /// stamps `CvVault.updatedAt`, and Drive's three-way merge uses that
+  /// timestamp to settle *contested content* too. So changing a language
+  /// here makes this device win any bullet both devices edited since they
+  /// last agreed. That is acceptable — it is a real edit by a real person,
+  /// at a real moment — but it is a consequence rather than an accident,
+  /// and `cv_backup_merge_test` pins it.
+  Future<void> setDocumentDefaults(DocumentDefaults defaults) async {
+    await ready();
+    _setVault((v) => v.copyWith(documentDefaults: defaults));
   }
 
   Future<void> updateBasics(ContactBasics basics) async {

@@ -6,6 +6,7 @@ import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +20,6 @@ void main() {
   group('StudioViewModel Tests - selection -', () {
     late MockVaultService vaultService;
     late MockDraftService draftService;
-    late MockSettingsService settingsService;
 
     const experience = sampleExperience;
     const education = sampleEducation;
@@ -29,7 +29,7 @@ void main() {
     setUp(() {
       vaultService = getAndRegisterVaultService();
       draftService = getAndRegisterDraftService();
-      settingsService = getAndRegisterSettingsService();
+      getAndRegisterSettingsService();
       getAndRegisterTemplateRegistryService();
       getAndRegisterPdfExportService();
       // Not read by any test in this file, but still needed: StudioViewModel's
@@ -750,43 +750,45 @@ void main() {
           ),
         );
         when(
-          settingsService.setDefaultSectionSettings(
-            order: anyNamed('order'),
-            hiddenSections: anyNamed('hiddenSections'),
-          ),
+          vaultService.setDocumentDefaults(any),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = StudioViewModel();
         await model.saveSectionSettingsAsDefault();
 
-        verify(
-          settingsService.setDefaultSectionSettings(
-            order: [
-              CvSectionType.education,
-              CvSectionType.experience,
-              CvSectionType.skills,
-              CvSectionType.projects,
-              CvSectionType.summary,
-              CvSectionType.hobbies,
-              CvSectionType.references,
-              CvSectionType.publications,
-            ],
-            hiddenSections: {CvSectionType.hobbies},
-          ),
-        ).called(1);
+        final saved =
+            verify(vaultService.setDocumentDefaults(captureAny)).captured.single
+                as DocumentDefaults;
+        expect(saved.sectionOrder, [
+          CvSectionType.education,
+          CvSectionType.experience,
+          CvSectionType.skills,
+          CvSectionType.projects,
+          CvSectionType.summary,
+          CvSectionType.hobbies,
+          CvSectionType.references,
+          CvSectionType.publications,
+        ]);
+        expect(saved.hiddenSections, {CvSectionType.hobbies});
       });
 
-      test('resetSectionSettings delegates to DraftService', () async {
-        when(vaultService.vault).thenReturn(CvVault.empty());
+      test("resetSectionSettings hands DraftService the Vault's defaults, "
+          'rather than having it reach for them itself', () async {
+        const defaults = DocumentDefaults(
+          sectionOrder: [CvSectionType.skills, CvSectionType.summary],
+        );
+        when(
+          vaultService.vault,
+        ).thenReturn(CvVault.empty().copyWith(documentDefaults: defaults));
         when(draftService.draft).thenReturn(draftWith());
         when(
-          draftService.resetSectionSettings(),
+          draftService.resetSectionSettings(any),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = StudioViewModel();
         await model.resetSectionSettings();
 
-        verify(draftService.resetSectionSettings()).called(1);
+        verify(draftService.resetSectionSettings(defaults)).called(1);
       });
     });
   });

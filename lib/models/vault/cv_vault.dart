@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'contact_basics.dart';
+import 'document_defaults.dart';
 import 'education.dart';
 import 'experience.dart';
 import 'hobby_item.dart';
@@ -27,6 +28,20 @@ abstract class CvVault with _$CvVault {
     @Default(<HobbyItem>[]) List<HobbyItem> hobbies,
     @Default(<Publication>[]) List<Publication> publications,
     String? referencesNote,
+
+    /// What every new CV built from this Vault starts out as — region,
+    /// language, and section layout.
+    ///
+    /// The one part of this aggregate that is configuration rather than
+    /// career content, and it lives here for the reason [DocumentDefaults]
+    /// gives: it shapes the document, so it belongs with the document's
+    /// source material rather than with the app's own settings.
+    ///
+    /// That distinction is load-bearing in two places, both of which would
+    /// otherwise destroy it silently: [CvVaultEmptiness.isEmpty] must not
+    /// count it as content, and `VaultService`'s two replace-the-whole-
+    /// aggregate methods must carry it across. See both.
+    @Default(DocumentDefaults()) DocumentDefaults documentDefaults,
     required DateTime updatedAt,
   }) = _CvVault;
 
@@ -42,6 +57,14 @@ abstract class CvVault with _$CvVault {
 
 /// A pure structural predicate — not presentation logic — used to decide
 /// whether to show the Vault's first-run empty state.
+///
+/// [CvVault.documentDefaults] is deliberately not consulted: this asks
+/// whether the user has entered any *content*, and a region or language
+/// choice is not content. It also could not usefully be — unlike a photo,
+/// it is never absent, so counting it would make every Vault non-empty and
+/// the first-run state unreachable. That is exactly why the photo's fix
+/// below does not generalise, and why `VaultService.loadExampleVault` and
+/// `clearVault` have to carry the defaults across by hand instead.
 extension CvVaultEmptiness on CvVault {
   bool get isEmpty =>
       basics.fullName.trim().isEmpty &&
