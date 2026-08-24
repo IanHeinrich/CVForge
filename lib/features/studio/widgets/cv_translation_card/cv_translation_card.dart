@@ -29,6 +29,7 @@ class CvTranslationCard extends StatelessWidget {
     required this.translatedLanguage,
     required this.isStale,
     required this.hasApiKey,
+    required this.canRemove,
     required this.onRun,
     required this.onRemove,
     required this.onOpenSettings,
@@ -48,6 +49,11 @@ class CvTranslationCard extends StatelessWidget {
   final bool isStale;
 
   final bool hasApiKey;
+
+  /// Whether there is a pre-translation snapshot to restore. Offering
+  /// Remove without one gives a button that silently does nothing.
+  final bool canRemove;
+
   final VoidCallback onRun;
   final Future<void> Function() onRemove;
   final Future<void> Function() onOpenSettings;
@@ -108,7 +114,7 @@ class CvTranslationCard extends StatelessWidget {
                         : context.l10n.studioTranslateCardTitle,
                   ),
                 ),
-              if (_hasTranslation)
+              if (_hasTranslation && canRemove)
                 TextButton(
                   onPressed: onRemove,
                   child: Text(context.l10n.studioTranslateRemove),

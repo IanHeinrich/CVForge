@@ -36,6 +36,14 @@ class CvTranslationRunDialogModel extends BaseViewModel {
 
   Object? _error;
 
+  /// How many of the run's requests have come back, and how many there
+  /// are. A CV is translated as one request per section, so this actually
+  /// moves during the wait instead of a loader sitting still for minutes.
+  int _completed = 0;
+  int _total = 0;
+  int get completed => _completed;
+  int get total => _total;
+
   LlmProvider get _provider => _settingsService.selectedAiAssistantProvider;
 
   String get providerDisplayName => _provider.displayName;
@@ -90,6 +98,11 @@ class CvTranslationRunDialogModel extends BaseViewModel {
       final apiKey = await _settingsService.apiKeyFor(_provider.id) ?? '';
       final draft = _draftService.draft;
       final result = await _translationService.runTranslationPass(
+        onProgress: (completed, total) {
+          _completed = completed;
+          _total = total;
+          notifyListeners();
+        },
         vault: _vaultService.vault,
         draft: draft,
         targetLanguage: draft.documentLanguage,

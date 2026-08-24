@@ -46,23 +46,20 @@ class StudioSectionNav extends StatelessWidget {
         // language and template — see `DocumentDefaults`. This row stays,
         // because discarding *this draft's* customisation is a fact about
         // the draft rather than about the defaults.
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: viewModel.resetSectionSettings,
-            icon: Icon(
-              RemixIcons.arrow_go_back_line,
-              size: context.appIconSize.tiny,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            label: Text(
-              context.l10n.studioSectionsResetDefault,
-              style: context.appTypography.caption.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
+        _ResetButton(
+          label: context.l10n.studioSectionsResetDefault,
+          onPressed: viewModel.resetSectionSettings,
         ),
+        // The wording counterpart, and the one control that always works:
+        // "Undo AI changes" and "Remove translation" each need a snapshot,
+        // where this needs only the Vault. Hidden when the draft says
+        // nothing the Vault does not, so it appears only when it would do
+        // something.
+        if (viewModel.hasWordingOverrides)
+          _ResetButton(
+            label: context.l10n.studioResetWording,
+            onPressed: viewModel.resetWordingToVault,
+          ),
         const VGap.medium(),
         AiAssistantConfigCard(
           jobDescription: viewModel.targetJobDescription,
@@ -81,6 +78,7 @@ class StudioSectionNav extends StatelessWidget {
           translatedLanguage: viewModel.translatedLanguage,
           isStale: viewModel.isTranslationStale,
           hasApiKey: viewModel.hasAiAssistantKey,
+          canRemove: viewModel.hasCvTranslationUndo,
           onRun: viewModel.translateCv,
           onRemove: viewModel.removeTranslation,
           onOpenSettings: viewModel.goToAiAssistantSettings,
@@ -168,6 +166,36 @@ class _SectionList extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// One of the section nav's two "put this draft back" controls — same
+/// shape for both so they read as a pair, differing only in which axis
+/// they reset (sections, or wording).
+class _ResetButton extends StatelessWidget {
+  const _ResetButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: onPressed,
+        icon: Icon(
+          RemixIcons.arrow_go_back_line,
+          size: context.appIconSize.tiny,
+          color: muted,
+        ),
+        label: Text(
+          label,
+          style: context.appTypography.caption.copyWith(color: muted),
+        ),
+      ),
     );
   }
 }

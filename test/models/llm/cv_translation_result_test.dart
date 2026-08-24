@@ -78,118 +78,85 @@ CvDraft _draft({
   updatedAt: DateTime(2026, 1, 1),
 );
 
-CvTranslationPayload _payload({CvVault? vault, CvDraft? draft}) =>
-    CvTranslationPayload.from(vault ?? _vault(), draft ?? _draft());
+/// The requests a real pass would send for this Vault and draft.
+List<CvTranslationPayload> _chunks({CvDraft? draft}) =>
+    CvTranslationPayload.chunksFor(_vault(), draft ?? _draft());
+
+/// The one request carrying [key] — a result is always parsed against the
+/// request that asked for it, so a test answers the chunk that actually
+/// contains the field it cares about.
+CvTranslationPayload _chunkWith(String key, {CvDraft? draft}) =>
+    _chunks(draft: draft).firstWhere((c) => c.toJson().containsKey(key));
 
 void main() {
-  group('CvTranslationResultTest -', () {
-    test('maps every group onto its override map', () {
+  group('CvTranslationResultTest - fromLlmResponse -', () {
+    test("maps a request's own groups onto their override maps", () {
       final result = CvTranslationResult.fromLlmResponse({
-        'headline': 'Leitender Ingenieur',
-        'summary': 'Zusammenfassung',
-        'referencesNote': 'Referenzen',
         'roles': {'exp1': 'Leitender Ingenieur'},
-        'skills': {'s2': 'Stakeholder-Management'},
-        'skillCategories': {'cat1': 'Sprachen'},
-        'qualifications': {'edu1': 'BSc Informatik'},
-        'grades': {'edu1': 'Sehr gut'},
-        'educationDetails': {'edu1': 'Abschlussarbeit'},
-        'hobbies': {'h1': 'Bouldern'},
         'bullets': {'b1': 'Leitete ein Team von sechs'},
-      }, _payload());
+      }, _chunkWith('roles'));
 
-      expect(result.headline, 'Leitender Ingenieur');
       expect(result.roles['exp1'], 'Leitender Ingenieur');
-      expect(result.skillLabels['s2'], 'Stakeholder-Management');
-      expect(result.skillCategoryNames['cat1'], 'Sprachen');
-      expect(result.educationQualifications['edu1'], 'BSc Informatik');
-      expect(result.educationGrades['edu1'], 'Sehr gut');
-      expect(result.educationDetails['edu1'], 'Abschlussarbeit');
-      expect(result.hobbies['h1'], 'Bouldern');
       expect(result.bullets['b1'], 'Leitete ein Team von sechs');
     });
 
-    test('drops ids the Vault has never heard of', () {
+    test('drops ids the request never asked about', () {
       final result = CvTranslationResult.fromLlmResponse({
         'roles': {'exp1': 'Ok', 'ghost': 'Invented'},
         'bullets': {'b1': 'Ok', 'nope': 'Invented'},
-      }, _payload());
+      }, _chunkWith('roles'));
 
       expect(result.roles.keys, ['exp1']);
       expect(result.bullets.keys, ['b1']);
     });
 
-    test('drops ids this draft does not include, so a translation cannot '
-        'reach content the CV never prints', () {
-      final result = CvTranslationResult.fromLlmResponse(
-        {
-          'roles': {'exp1': 'Translated'},
-          'hobbies': {'h1': 'Translated'},
-          'bullets': {'b1': 'Translated', 'b2': 'Translated'},
-        },
-        _payload(
-          draft: _draft(
-            experienceIds: const [],
-            bulletIds: const {
-              'exp1': ['b1'],
-            },
-            hobbyIds: const [],
-          ),
-        ),
-      );
+    test('ignores a group belonging to a different request, so an answer '
+        'cannot reach past the section it was asked about', () {
+      final result = CvTranslationResult.fromLlmResponse({
+        'summary': 'Zusammenfassung',
+        'roles': {'exp1': 'Leitender Ingenieur'},
+      }, _chunkWith('summary'));
 
-      expect(result.roles, isEmpty);
-      expect(result.hobbies, isEmpty);
-      // b1's owning experience is deselected, so neither bullet ships.
-      expect(result.bullets, isEmpty);
+      expect(result.summary, 'Zusammenfassung');
+      expect(result.roles, isEmpty, reason: 'roles belong to another chunk');
     });
 
     test('an omitted key means "leave this alone" rather than an error — the '
         'only way to say it, since JsonSchema has no null type', () {
-      final result = CvTranslationResult.fromLlmResponse(const {}, _payload());
+      final result = CvTranslationResult.fromLlmResponse(
+        const {},
+        _chunkWith('summary'),
+      );
 
-      expect(result.headline, isNull);
       expect(result.summary, isNull);
-      expect(result.roles, isEmpty);
+      expect(result.headline, isNull);
       expect(result.translatedCount, 0);
     });
 
     test('tolerates wrong types instead of throwing', () {
       final result = CvTranslationResult.fromLlmResponse({
-        'headline': 42,
         'roles': 'not a map',
         'bullets': {'b1': 7, 'b2': 'Fine'},
-        'hobbies': {'h1': '   '},
-      }, _payload());
+      }, _chunkWith('roles'));
 
-      expect(result.headline, isNull);
       expect(result.roles, isEmpty);
       expect(result.bullets, {'b2': 'Fine'});
-      expect(result.hobbies, isEmpty, reason: 'blank is not a translation');
-    });
-
-    test('ignores a headline translation when the draft hides it', () {
-      final result = CvTranslationResult.fromLlmResponse({
-        'headline': 'Leitender Ingenieur',
-      }, _payload(draft: _draft(hideHeadline: true)));
-
-      expect(result.headline, isNull);
     });
 
     test('discards a field that has swallowed the document — the failure '
         'that produced an unrenderable CV: package:pdf cannot paginate a '
         'single widget taller than a page, so one enormous summary killed '
         'the whole preview and export', () {
-      final huge = List.generate(4000, (i) => 'palabra$i').join(' ');
+      final huge = List.filled(4000, 'palabra').join(' ');
 
       final result = CvTranslationResult.fromLlmResponse({
+        'headline': 'Ingeniero Senior',
         'summary': huge,
-        'roles': {'exp1': 'Ingeniero Senior'},
-      }, _payload());
+      }, _chunkWith('summary'));
 
       expect(result.summary, isNull, reason: 'oversized, so not applied');
       expect(
-        result.roles['exp1'],
+        result.headline,
         'Ingeniero Senior',
         reason: 'a sane sibling field still lands',
       );
@@ -202,7 +169,7 @@ void main() {
         'roles': {
           'exp1': 'Leitender Softwareentwickler mit Sicherheitsschwerpunkt',
         },
-      }, _payload());
+      }, _chunkWith('roles'));
 
       expect(
         result.roles['exp1'],
@@ -210,33 +177,115 @@ void main() {
       );
     });
 
-    test('ignores a field the request never asked about, so a response '
-        'cannot introduce content the CV does not print', () {
-      final result = CvTranslationResult.fromLlmResponse({
-        'referencesNote': 'Referencias disponibles',
-      }, _payload());
+    test('a hidden headline is never asked about, so it cannot come back', () {
+      final draft = _draft(hideHeadline: true);
+      final chunk = _chunkWith('summary', draft: draft);
 
-      expect(result.referencesNote, isNull);
+      expect(chunk.toJson().containsKey('headline'), isFalse);
+
+      final result = CvTranslationResult.fromLlmResponse({
+        'headline': 'Leitender Ingenieur',
+      }, chunk);
+
+      expect(result.headline, isNull);
+    });
+  });
+
+  group('CvTranslationResultTest - chunking -', () {
+    test('splits the CV into several requests, none of them carrying the '
+        'whole document — which is what stops a model dumping the lot '
+        'into one prose field', () {
+      final chunks = _chunks();
+
+      expect(chunks.length, greaterThan(1));
+      for (final chunk in chunks) {
+        final keys = chunk.toJson().keys;
+        expect(
+          keys.contains('summary') && keys.contains('roles'),
+          isFalse,
+          reason: 'no request mixes the summary with another section',
+        );
+      }
     });
 
-    test('reports how many strings were asked about, so a partial pass '
-        'reads as partial rather than as success', () {
-      final result = CvTranslationResult.fromLlmResponse({
-        'roles': {'exp1': 'Ingeniero Senior'},
-      }, _payload());
+    test('keeps a role and its own bullets in one request, where a '
+        'wandering translation would show most', () {
+      final json = _chunkWith('roles').toJson();
 
-      expect(result.translatedCount, 1);
-      expect(result.requestedCount, greaterThan(1));
+      expect((json['roles'] as Map).keys, contains('exp1'));
+      expect((json['bullets'] as Map).keys, containsAll(['b1', 'b2']));
     });
 
-    test('counts only what actually came back translated', () {
-      final result = CvTranslationResult.fromLlmResponse({
-        'headline': 'A',
-        'roles': {'exp1': 'B'},
-        'bullets': {'b1': 'C', 'b2': 'D'},
-      }, _payload());
+    test('asks about every string the CV prints, exactly once', () {
+      // Keyed by group *and* id: one education entry legitimately appears
+      // under qualifications, grades and educationDetails alike, since
+      // those are three different fields of the same entry.
+      final fields = <String>[];
+      for (final chunk in _chunks()) {
+        chunk.toJson().forEach((group, value) {
+          if (value is Map) {
+            fields.addAll(value.keys.map((id) => '$group/$id'));
+          } else {
+            fields.add(group);
+          }
+        });
+      }
 
-      expect(result.translatedCount, 4);
+      expect(
+        fields.toSet().length,
+        fields.length,
+        reason: 'no field asked twice',
+      );
+      expect(
+        fields,
+        containsAll([
+          'summary',
+          'headline',
+          'roles/exp1',
+          'bullets/b1',
+          'bullets/b2',
+          'skills/s1',
+          'skills/s2',
+          'skillCategories/cat1',
+          'hobbies/h1',
+          'qualifications/edu1',
+          'grades/edu1',
+          'educationDetails/edu1',
+        ]),
+      );
+    });
+  });
+
+  group('CvTranslationResultTest - merge -', () {
+    test('combines every request into one result and totals what was '
+        'asked', () {
+      final parts = [
+        CvTranslationResult.fromLlmResponse({
+          'summary': 'Zusammenfassung',
+        }, _chunkWith('summary')),
+        CvTranslationResult.fromLlmResponse({
+          'roles': {'exp1': 'Leitender Ingenieur'},
+        }, _chunkWith('roles')),
+      ];
+
+      final merged = CvTranslationResult.merge(parts);
+
+      expect(merged.summary, 'Zusammenfassung');
+      expect(merged.roles['exp1'], 'Leitender Ingenieur');
+      expect(merged.translatedCount, 2);
+      expect(
+        merged.requestedCount,
+        parts.fold<int>(0, (total, part) => total + part.requestedCount),
+      );
+    });
+
+    test('merging nothing is an empty result rather than a crash — a CV '
+        'with nothing to translate sends no requests at all', () {
+      final merged = CvTranslationResult.merge(const []);
+
+      expect(merged.translatedCount, 0);
+      expect(merged.requestedCount, 0);
+      expect(merged.roles, isEmpty);
     });
   });
 }

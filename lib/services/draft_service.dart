@@ -776,7 +776,16 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     final current = _drafts.value.findById(id, (d) => d.id);
     if (current == null) return;
 
-    await _writeUndoSnapshot(StorageKeys.cvTranslationUndoFor(id), current);
+    // Only if there isn't one already, so the snapshot always holds the
+    // last *untranslated* state. Overwriting it on a second pass would
+    // make "Remove translation" restore a CV that is still translated —
+    // which is exactly what it promises not to do. The AI Assistant's
+    // snapshot is overwritten every pass on purpose: "Undo" there means
+    // the last pass, where this means "back to untranslated".
+    final key = StorageKeys.cvTranslationUndoFor(id);
+    if (!await _hasUndoSnapshot(id, StorageKeys.cvTranslationUndoFor)) {
+      await _writeUndoSnapshot(key, current);
+    }
 
     final updated = current.copyWith(
       headlineOverride: result.headline ?? current.headlineOverride,
@@ -806,6 +815,68 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// with it. Returns whether a snapshot existed.
   Future<bool> removeCvTranslation() =>
       _restoreUndoSnapshot(StorageKeys.cvTranslationUndoFor);
+
+  /// Clears every per-draft text override, so each line reads exactly as
+  /// the Vault has it.
+  ///
+  /// The unconditional way back. Because an override records no
+  /// provenance — a hand edit, an AI rewrite and a translation are the
+  /// same string in the same map, which is what keeps the layer simple —
+  /// nothing can undo one kind selectively. This undoes all of them, and
+  /// so always works, where "Undo AI changes" and "Remove translation"
+  /// each depend on a snapshot that may not be there.
+  ///
+  /// Deliberately leaves **selection** alone: which entries, bullets and
+  /// sections appear is a separate axis, reset by [resetSectionSettings].
+  /// [CvDraft.translatedTo] clears with the text it described.
+  Future<void> resetWordingToVault() async {
+    await ready();
+    final id = _activeDraftId.value;
+    if (id == null) return;
+    final current = _drafts.value.findById(id, (d) => d.id);
+    if (current == null) return;
+
+    final updated = current.copyWith(
+      headlineOverride: null,
+      tailoredSummary: null,
+      referencesOverride: null,
+      bulletOverrides: const {},
+      educationDetailsOverrides: const {},
+      roleOverrides: const {},
+      projectTitleOverrides: const {},
+      skillLabelOverrides: const {},
+      skillCategoryNameOverrides: const {},
+      hobbyOverrides: const {},
+      educationQualificationOverrides: const {},
+      educationGradeOverrides: const {},
+      translatedTo: null,
+      updatedAt: DateTime.now(),
+    );
+    _drafts.value = _sortedByRecency(
+      _drafts.value.replaceById(id, updated, (d) => d.id),
+    );
+    await persistImmediately(updated);
+
+    // Both snapshots describe a world that no longer exists — offering
+    // "Undo AI changes" after this would put the AI's wording back on a
+    // draft the user just reset to the Vault.
+    await _localStorage.delete(
+      StorageBoxes.drafts,
+      StorageKeys.aiAssistantUndoFor(id),
+    );
+    await _localStorage.delete(
+      StorageBoxes.drafts,
+      StorageKeys.cvTranslationUndoFor(id),
+    );
+  }
+
+  /// Whether [draftId] still has a pre-translation snapshot, and so
+  /// whether "Remove translation" has anything to restore. Read by Studio
+  /// to decide whether to offer it at all — a translation can be applied
+  /// while the snapshot write failed, and a button that silently does
+  /// nothing is worse than no button.
+  Future<bool> hasCvTranslationUndoFor(String draftId) =>
+      _hasUndoSnapshot(draftId, StorageKeys.cvTranslationUndoFor);
 
   Future<void> _writeUndoSnapshot(String key, CvDraft current) => _persistAux(
     () => _localStorage.write(

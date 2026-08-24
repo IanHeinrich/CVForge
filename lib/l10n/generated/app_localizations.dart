@@ -566,6 +566,12 @@ abstract class AppLocalizations {
   /// **'Replace'**
   String get commonReplace;
 
+  /// Generic confirm-button label on a dialog whose action resets something to a saved state. Shared, so it must stay generic — the dialog's own title says what is being reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get commonReset;
+
   /// Button on the inline error banner shown when saving to local storage failed. Retries the failed write.
   ///
   /// In en, this message translates to:
@@ -2516,6 +2522,18 @@ abstract class AppLocalizations {
   /// **'Typical length'**
   String get studioRegionTypicalLength;
 
+  /// Studio, section nav — button discarding every per-draft text edit so each line reads as the Vault has it. Sits beside the control that resets section layout; this one resets text, that one resets which sections show.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset wording to Vault'**
+  String get studioResetWording;
+
+  /// Studio, confirmation before resetting wording. Spells out the breadth because it cannot be undone: an override records no provenance, so the three kinds of edit cannot be told apart or restored separately.
+  ///
+  /// In en, this message translates to:
+  /// **'Every line goes back to how your Vault words it, discarding your edits, any AI rewrites and any translation on this CV. Which entries are included is not affected.'**
+  String get studioResetWordingConfirm;
+
   /// Studio section editor label for the professional title line.
   ///
   /// In en, this message translates to:
@@ -2528,11 +2546,17 @@ abstract class AppLocalizations {
   /// **'Your last selection change couldn\'t be saved.'**
   String get studioSectionNavPersistError;
 
-  /// Studio button that restores the saved default section arrangement.
+  /// Studio, section nav — button restoring the section order and visibility saved as the Vault's CV defaults. Deliberately parallel to studioResetWording ('Reset wording to Vault'): both reset this CV to the Vault, and the middle word is what says which axis. Keep the two phrased alike in every locale, or the pair stops reading as a pair.
   ///
   /// In en, this message translates to:
-  /// **'Reset to my saved default'**
+  /// **'Reset sections to Vault'**
   String get studioSectionsResetDefault;
+
+  /// Studio, confirmation before resetting section order and visibility. The closing sentence draws the line against the wording reset sitting next to it, since the two are easily confused.
+  ///
+  /// In en, this message translates to:
+  /// **'The sections on this CV go back to the order and visibility saved in your Vault, discarding how you have arranged this one. What each line says is not affected.'**
+  String get studioSectionsResetDefaultConfirm;
 
   /// Studio heading above the reorderable list of CV sections.
   ///
@@ -2815,6 +2839,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Translating every line this CV prints. This can take a few minutes.'**
   String get studioTranslateRunningBody;
+
+  /// Studio, Translate dialog — how far through the run it is. A CV is translated as one request per section, so this moves several times during a pass rather than sitting still for minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Section {completed} of {total}.'**
+  String studioTranslateRunningProgress(int completed, int total);
 
   /// Studio, Translate dialog heading while the request is in flight.
   ///

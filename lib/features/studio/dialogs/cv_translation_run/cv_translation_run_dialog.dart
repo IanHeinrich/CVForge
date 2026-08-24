@@ -111,6 +111,18 @@ class CvTranslationRunDialog extends StackedView<CvTranslationRunDialogModel> {
               style: context.appTypography.bodySmall,
             ),
           ),
+          if (viewModel.total > 0) ...[
+            const VGap.tiny(),
+            Center(
+              child: Text(
+                context.l10n.studioTranslateRunningProgress(
+                  viewModel.completed,
+                  viewModel.total,
+                ),
+                style: context.appTypography.caption,
+              ),
+            ),
+          ],
         ];
 
       case CvTranslationRunPhase.result:

@@ -57,6 +57,40 @@ abstract class CvTranslationResult with _$CvTranslationResult {
       hobbies.length +
       bullets.length;
 
+  /// Every chunk's answer as one result.
+  ///
+  /// The pass is all-or-nothing, so this only ever runs once every request
+  /// has succeeded — there is no partial state to reconcile, just maps to
+  /// combine. Chunks never share an id (each field is asked about exactly
+  /// once), so the merge cannot be lossy.
+  static CvTranslationResult merge(Iterable<CvTranslationResult> parts) {
+    Map<String, String> join(
+      Map<String, String> Function(CvTranslationResult) pick,
+    ) => {for (final part in parts) ...pick(part)};
+
+    return CvTranslationResult(
+      headline: parts
+          .map((p) => p.headline)
+          .firstWhere((v) => v != null, orElse: () => null),
+      summary: parts
+          .map((p) => p.summary)
+          .firstWhere((v) => v != null, orElse: () => null),
+      referencesNote: parts
+          .map((p) => p.referencesNote)
+          .firstWhere((v) => v != null, orElse: () => null),
+      roles: join((p) => p.roles),
+      projectTitles: join((p) => p.projectTitles),
+      skillCategoryNames: join((p) => p.skillCategoryNames),
+      skillLabels: join((p) => p.skillLabels),
+      educationQualifications: join((p) => p.educationQualifications),
+      educationGrades: join((p) => p.educationGrades),
+      educationDetails: join((p) => p.educationDetails),
+      hobbies: join((p) => p.hobbies),
+      bullets: join((p) => p.bullets),
+      requestedCount: parts.fold(0, (t, p) => t + p.requestedCount),
+    );
+  }
+
   factory CvTranslationResult.fromLlmResponse(
     Map<String, dynamic> json,
     CvTranslationPayload payload,

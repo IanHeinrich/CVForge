@@ -97,6 +97,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     }
     if (_draftService.isFreshDraft) await _selectAllFromVault();
     await _refreshAiAssistantUndoState();
+    await _refreshCvTranslationUndoState();
   }
 
   /// A never-before-persisted draft (a first-time user's seeded draft, or
@@ -444,6 +445,22 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     notifyListeners();
   }
 
+  /// Whether a pre-translation snapshot exists to go back to.
+  ///
+  /// Gates the Remove affordance on the same thing that makes it work,
+  /// rather than on [translatedLanguage] alone — otherwise the button can
+  /// be offered when there is nothing to restore, and pressing it does
+  /// nothing at all.
+  bool _hasCvTranslationUndo = false;
+  bool get hasCvTranslationUndo => _hasCvTranslationUndo;
+
+  Future<void> _refreshCvTranslationUndoState() async {
+    _hasCvTranslationUndo = await _draftService.hasCvTranslationUndoFor(
+      _draft.id,
+    );
+    notifyListeners();
+  }
+
   /// Restores the draft to its pre-translation state.
   ///
   /// Confirmed first because it is lossier than it looks: an override
@@ -459,7 +476,43 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     );
     if (response?.confirmed != true) return;
     await _draftService.removeCvTranslation();
-    notifyListeners();
+    await _refreshCvTranslationUndoState();
+  }
+
+  /// Whether this draft says anything the Vault does not, and so whether
+  /// there is any wording to reset.
+  bool get hasWordingOverrides =>
+      _draft.headlineOverride != null ||
+      _draft.tailoredSummary != null ||
+      _draft.referencesOverride != null ||
+      _draft.bulletOverrides.isNotEmpty ||
+      _draft.educationDetailsOverrides.isNotEmpty ||
+      _draft.roleOverrides.isNotEmpty ||
+      _draft.projectTitleOverrides.isNotEmpty ||
+      _draft.skillLabelOverrides.isNotEmpty ||
+      _draft.skillCategoryNameOverrides.isNotEmpty ||
+      _draft.hobbyOverrides.isNotEmpty ||
+      _draft.educationQualificationOverrides.isNotEmpty ||
+      _draft.educationGradeOverrides.isNotEmpty;
+
+  /// Discards every per-draft text edit — hand edits, AI rewrites and any
+  /// translation alike — so each line reads as the Vault has it.
+  ///
+  /// The unconditional escape hatch, and the reason it is worth having
+  /// even beside "Undo AI changes" and "Remove translation": those depend
+  /// on a snapshot, and this only depends on the Vault, which is always
+  /// there. Confirmed first because nothing can undo it.
+  Future<void> resetWordingToVault() async {
+    final strings = _localizationService.strings;
+    if (!await _confirmReset(
+      strings.studioResetWording,
+      strings.studioResetWordingConfirm,
+    )) {
+      return;
+    }
+    await _draftService.resetWordingToVault();
+    await _refreshAiAssistantUndoState();
+    await _refreshCvTranslationUndoState();
   }
 
   Future<void> undoAiAssistantChanges() async {
@@ -595,8 +648,34 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   ///
   /// The defaults are passed in rather than read by `DraftService`, which
   /// stays decoupled from the Vault — see its class doc comment.
-  Future<void> resetSectionSettings() =>
-      _draftService.resetSectionSettings(_vaultService.vault.documentDefaults);
+  /// Both reset controls ask first. Neither can be undone — the wording
+  /// reset discards edits no snapshot holds, and the section reset
+  /// discards an arrangement that was never stored anywhere else — and
+  /// they sit next to each other, so one asking and the other not would
+  /// read as the silent one being the safe one.
+  Future<bool> _confirmReset(String title, String description) async {
+    final strings = _localizationService.strings;
+    final response = await _dialogService.showDialog(
+      title: title,
+      description: description,
+      buttonTitle: strings.commonReset,
+      cancelTitle: strings.commonCancel,
+    );
+    return response?.confirmed == true;
+  }
+
+  Future<void> resetSectionSettings() async {
+    final strings = _localizationService.strings;
+    if (!await _confirmReset(
+      strings.studioSectionsResetDefault,
+      strings.studioSectionsResetDefaultConfirm,
+    )) {
+      return;
+    }
+    await _draftService.resetSectionSettings(
+      _vaultService.vault.documentDefaults,
+    );
+  }
 
   late final _experienceSelection = _Selection<Experience>(
     items: () => _vault.experiences,

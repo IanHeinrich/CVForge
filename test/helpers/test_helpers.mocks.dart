@@ -1835,6 +1835,24 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
           as _i32.Future<bool>);
 
   @override
+  _i32.Future<void> resetWordingToVault() =>
+      (super.noSuchMethod(
+            Invocation.method(#resetWordingToVault, []),
+            returnValue: _i32.Future<void>.value(),
+            returnValueForMissingStub: _i32.Future<void>.value(),
+          )
+          as _i32.Future<void>);
+
+  @override
+  _i32.Future<bool> hasCvTranslationUndoFor(String? draftId) =>
+      (super.noSuchMethod(
+            Invocation.method(#hasCvTranslationUndoFor, [draftId]),
+            returnValue: _i32.Future<bool>.value(false),
+            returnValueForMissingStub: _i32.Future<bool>.value(false),
+          )
+          as _i32.Future<bool>);
+
+  @override
   _i32.Future<void> setTailoredSummary(String? summary) =>
       (super.noSuchMethod(
             Invocation.method(#setTailoredSummary, [summary]),
@@ -3192,6 +3210,7 @@ class MockCvTranslationService extends _i1.Mock
     required String? providerId,
     required String? modelId,
     required String? apiKey,
+    void Function(int, int)? onProgress,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#runTranslationPass, [], {
@@ -3202,6 +3221,7 @@ class MockCvTranslationService extends _i1.Mock
               #providerId: providerId,
               #modelId: modelId,
               #apiKey: apiKey,
+              #onProgress: onProgress,
             }),
             returnValue: _i32.Future<_i30.CvTranslationResult>.value(
               _FakeCvTranslationResult_32(
@@ -3214,6 +3234,7 @@ class MockCvTranslationService extends _i1.Mock
                   #providerId: providerId,
                   #modelId: modelId,
                   #apiKey: apiKey,
+                  #onProgress: onProgress,
                 }),
               ),
             ),
@@ -3229,6 +3250,7 @@ class MockCvTranslationService extends _i1.Mock
                       #providerId: providerId,
                       #modelId: modelId,
                       #apiKey: apiKey,
+                      #onProgress: onProgress,
                     }),
                   ),
                 ),

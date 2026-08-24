@@ -391,6 +391,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonReplace => 'Reemplazar';
 
   @override
+  String get commonReset => 'Restablecer';
+
+  @override
   String get commonRetry => 'Reintentar';
 
   @override
@@ -1701,6 +1704,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioRegionTypicalLength => 'Extensión habitual';
 
   @override
+  String get studioResetWording => 'Restablecer el texto al de la Bóveda';
+
+  @override
+  String get studioResetWordingConfirm =>
+      'Cada línea volverá a como la redacta tu Bóveda, descartando tus ediciones, las reescrituras de IA y cualquier traducción de este CV. No afecta a qué entradas se incluyen.';
+
+  @override
   String get studioSectionHeadline => 'Titular';
 
   @override
@@ -1709,7 +1719,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioSectionsResetDefault =>
-      'Restaurar mi configuración guardada';
+      'Restablecer las secciones a la Bóveda';
+
+  @override
+  String get studioSectionsResetDefaultConfirm =>
+      'Las secciones de este CV volverán al orden y la visibilidad guardados en tu Bóveda, descartando cómo has organizado este. No afecta a lo que dice cada línea.';
 
   @override
   String get studioSectionsTitle => 'Secciones';
@@ -1901,6 +1915,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get studioTranslateRunningBody =>
       'Traduciendo cada línea que imprime este CV. Puede tardar unos minutos.';
+
+  @override
+  String studioTranslateRunningProgress(int completed, int total) {
+    return 'Sección $completed de $total.';
+  }
 
   @override
   String get studioTranslateRunningTitle => 'Traduciendo tu CV';

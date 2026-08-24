@@ -384,6 +384,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonReplace => 'Replace';
 
   @override
+  String get commonReset => 'Reset';
+
+  @override
   String get commonRetry => 'Retry';
 
   @override
@@ -1681,6 +1684,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioRegionTypicalLength => 'Typical length';
 
   @override
+  String get studioResetWording => 'Reset wording to Vault';
+
+  @override
+  String get studioResetWordingConfirm =>
+      'Every line goes back to how your Vault words it, discarding your edits, any AI rewrites and any translation on this CV. Which entries are included is not affected.';
+
+  @override
   String get studioSectionHeadline => 'Headline';
 
   @override
@@ -1688,7 +1698,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your last selection change couldn\'t be saved.';
 
   @override
-  String get studioSectionsResetDefault => 'Reset to my saved default';
+  String get studioSectionsResetDefault => 'Reset sections to Vault';
+
+  @override
+  String get studioSectionsResetDefaultConfirm =>
+      'The sections on this CV go back to the order and visibility saved in your Vault, discarding how you have arranged this one. What each line says is not affected.';
 
   @override
   String get studioSectionsTitle => 'Sections';
@@ -1880,6 +1894,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get studioTranslateRunningBody =>
       'Translating every line this CV prints. This can take a few minutes.';
+
+  @override
+  String studioTranslateRunningProgress(int completed, int total) {
+    return 'Section $completed of $total.';
+  }
 
   @override
   String get studioTranslateRunningTitle => 'Translating your CV';
