@@ -32,11 +32,9 @@ class AnalyzerViewModel extends BaseViewModel implements Initialisable {
   static const _analyzeBusyKey = 'analyzer_analyze';
 
   /// Loads the Vault, purely so [documentNoun] is answered from the
-  /// user's real default rather than the `uk` fallback.
-  ///
-  /// This ViewModel held no `initialise` at all before, which meant a
-  /// direct link to `/analyzer` showed "CV" to someone whose default is
-  /// `résumé` until they visited another screen.
+  /// user's real default rather than the `uk` fallback — without it a
+  /// direct link to `/analyzer` says "CV" to someone whose default is
+  /// `résumé`.
   @override
   Future<void> initialise() => _vaultService.load();
 

@@ -16,11 +16,9 @@ import 'package:cv_forge/features/settings/widgets/drive_settings_card.dart';
 import 'package:cv_forge/features/settings/widgets/language_settings_card.dart';
 import 'settings_viewmodel.dart';
 
-/// The only top-level surface that previously had neither a page header
-/// nor a content max-width — at 1600px its cards' description paragraphs
-/// ran to ~1,100px lines. 720px, left-aligned rather than centred: a
-/// settings column drifting to the middle of a very wide screen is worse
-/// than one anchored where the nav rail already draws the eye.
+/// Caps the settings column's line length. Left-aligned rather than
+/// centred: a column drifting to the middle of a very wide screen reads
+/// worse than one anchored where the nav rail already draws the eye.
 const _contentMaxWidth = 720.0;
 
 class SettingsView extends StackedView<SettingsViewModel> {

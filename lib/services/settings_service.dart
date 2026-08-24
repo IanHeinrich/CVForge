@@ -192,12 +192,9 @@ class SettingsService
   /// Saves [key] to this device, and keeps it in memory for this session
   /// regardless.
   ///
-  /// Persisting is unconditional. It used to be gated on a "Remember on
-  /// this device" checkbox that defaulted to *off*, which made the default
-  /// experience "your key silently vanishes when you reload" — and singled
-  /// the key out for an opt-in that the Vault and every CV, sitting in the
-  /// same unencrypted IndexedDB, never asked for. The storage caveat is
-  /// still stated in the UI; it just isn't a control any more.
+  /// Persisting is unconditional: an opt-in would single the key out for a
+  /// consent the Vault and every CV, in the same unencrypted IndexedDB,
+  /// never asked for. The storage caveat is stated in the UI instead.
   ///
   /// A failed write is not fatal: the key stays usable for this session and
   /// is reported as [ApiKeyOrigin.session] so the UI can say so. That case

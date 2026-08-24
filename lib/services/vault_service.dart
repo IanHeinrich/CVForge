@@ -196,7 +196,15 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateExperience(Experience experience) async {
     await ready();
-    _updateExperience(experience.id, (_) => experience);
+    _setVault(
+      (v) => v.copyWith(
+        experiences: v.experiences.replaceById(
+          experience.id,
+          experience,
+          (e) => e.id,
+        ),
+      ),
+    );
   }
 
   Future<void> deleteExperience(String experienceId) async {
@@ -254,7 +262,11 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateProject(Project project) async {
     await ready();
-    _updateProject(project.id, (_) => project);
+    _setVault(
+      (v) => v.copyWith(
+        projects: v.projects.replaceById(project.id, project, (p) => p.id),
+      ),
+    );
   }
 
   Future<void> deleteProject(String projectId) async {
@@ -285,7 +297,15 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateSkillCategory(SkillCategory category) async {
     await ready();
-    _updateSkillCategory(category.id, (_) => category);
+    _setVault(
+      (v) => v.copyWith(
+        skillCategories: v.skillCategories.replaceById(
+          category.id,
+          category,
+          (c) => c.id,
+        ),
+      ),
+    );
   }
 
   Future<void> deleteSkillCategory(String categoryId) async {
@@ -362,7 +382,15 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updateEducation(Education education) async {
     await ready();
-    _updateEducation(education.id, (_) => education);
+    _setVault(
+      (v) => v.copyWith(
+        education: v.education.replaceById(
+          education.id,
+          education,
+          (e) => e.id,
+        ),
+      ),
+    );
   }
 
   Future<void> deleteEducation(String educationId) async {
@@ -426,7 +454,15 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
 
   Future<void> updatePublication(Publication publication) async {
     await ready();
-    _updatePublication(publication.id, (_) => publication);
+    _setVault(
+      (v) => v.copyWith(
+        publications: v.publications.replaceById(
+          publication.id,
+          publication,
+          (p) => p.id,
+        ),
+      ),
+    );
   }
 
   Future<void> deletePublication(String publicationId) async {

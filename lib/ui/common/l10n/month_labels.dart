@@ -3,17 +3,10 @@ import 'package:cv_forge/l10n/generated/app_localizations.dart';
 /// [month]'s abbreviation (1 = January … 12 = December) in the language the
 /// **app** is being read in.
 ///
-/// Deliberately not `YearMonth.monthName`, which answers the same question
-/// for the language the **CV** is written in. The two used to be one
-/// function, guarding a promise that a picker option and the printed date
-/// could never disagree — a promise that stopped being keepable once a
-/// document carried its own language, since a Vault defaulting to English
-/// and a draft written in Spanish disagree by construction.
-///
-/// Splitting them costs nothing, because the picker never stored a name:
-/// it stores a month *number*, so its labels were only ever chrome. A
-/// Spanish reader now sees "sept" while their German CV still prints
-/// "Sept." — which is what both of them wanted.
+/// Not `YearMonth.monthName`, which answers the same question for the
+/// language the **CV** is written in — the picker stores a month *number*,
+/// so its labels are only ever chrome. A Spanish reader sees "sept" while
+/// their German CV prints "Sept.", which is what both of them wanted.
 String monthLabel(AppLocalizations l10n, int month) => switch (month) {
   1 => l10n.vaultMonthJan,
   2 => l10n.vaultMonthFeb,

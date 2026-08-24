@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
@@ -245,7 +246,7 @@ void main() {
     group('bullet text override -', () {
       setUp(() {
         when(
-          draftService.setBulletOverride(any, any),
+          draftService.setTextOverride(any, any, any),
         ).thenAnswer((_) => Future<void>.value());
       });
 
@@ -258,7 +259,9 @@ void main() {
         final model = StudioViewModel();
         await model.setBulletOverride(experience.bullets.first, '   ');
 
-        verify(draftService.setBulletOverride('b1', null)).called(1);
+        verify(
+          draftService.setTextOverride(TextOverrideField.bullet, 'b1', null),
+        ).called(1);
       });
 
       test('input identical to the Vault bullet text stores null rather '
@@ -271,7 +274,9 @@ void main() {
         final model = StudioViewModel();
         await model.setBulletOverride(experience.bullets.first, 'Did a thing');
 
-        verify(draftService.setBulletOverride('b1', null)).called(1);
+        verify(
+          draftService.setTextOverride(TextOverrideField.bullet, 'b1', null),
+        ).called(1);
       });
 
       test('revertBulletOverride clears the override', () async {
@@ -285,7 +290,9 @@ void main() {
         final model = StudioViewModel();
         await model.revertBulletOverride('b1');
 
-        verify(draftService.setBulletOverride('b1', null)).called(1);
+        verify(
+          draftService.setTextOverride(TextOverrideField.bullet, 'b1', null),
+        ).called(1);
       });
 
       test('bulletText/hasBulletOverride reflect draft-vs-Vault state', () {
@@ -310,7 +317,7 @@ void main() {
     group('education details override -', () {
       setUp(() {
         when(
-          draftService.setEducationDetailsOverride(any, any),
+          draftService.setTextOverride(any, any, any),
         ).thenAnswer((_) => Future<void>.value());
       });
 
@@ -341,7 +348,11 @@ void main() {
         await model.setEducationDetailsOverride(detailed, '   ');
 
         verify(
-          draftService.setEducationDetailsOverride(detailed.id, null),
+          draftService.setTextOverride(
+            TextOverrideField.educationDetails,
+            detailed.id,
+            null,
+          ),
         ).called(1);
       });
 
@@ -355,7 +366,11 @@ void main() {
         await model.setEducationDetailsOverride(detailed, 'Same details');
 
         verify(
-          draftService.setEducationDetailsOverride(detailed.id, null),
+          draftService.setTextOverride(
+            TextOverrideField.educationDetails,
+            detailed.id,
+            null,
+          ),
         ).called(1);
       });
 
@@ -371,7 +386,11 @@ void main() {
         await model.revertEducationDetailsOverride(education.id);
 
         verify(
-          draftService.setEducationDetailsOverride(education.id, null),
+          draftService.setTextOverride(
+            TextOverrideField.educationDetails,
+            education.id,
+            null,
+          ),
         ).called(1);
       });
 

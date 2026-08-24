@@ -1,29 +1,25 @@
-/// Which stage of a Google auth flow failed — mirrors [PdfExtractionFailure]/
-/// [BackupFailure]'s precedent so the UI can show different recovery copy
-/// per failure mode instead of one generic "something went wrong".
+/// Which stage of a Google auth flow failed, so the UI can show recovery
+/// copy per mode. Mirrors [PdfExtractionFailure]/[BackupFailure].
 enum GoogleAuthFailure {
-  /// No `GOOGLE_OAUTH_CLIENT_ID` was compiled into this build — the whole
-  /// Drive sync feature should be hidden before this can ever be hit; see
-  /// [GoogleAuthService.isConfigured].
+  /// No `GOOGLE_OAUTH_CLIENT_ID` in this build. [GoogleAuthService
+  /// .isConfigured] should have hidden the feature before this is hit.
   notConfigured,
 
-  /// The Google Identity Services script itself failed to load — a
-  /// network/CDN problem, not a problem with the user's account.
+  /// The Google Identity Services script failed to load — a network/CDN
+  /// problem, not a problem with the user's account.
   scriptLoadFailed,
 
   /// The user closed the consent popup, or the browser blocked it for not
   /// originating from a direct user gesture.
   cancelledOrBlocked,
 
-  /// Every other GIS-reported failure — surfaced with the raw `error`
-  /// string as [GoogleAuthException.cause] rather than swallowed.
+  /// Every other GIS-reported failure, surfaced with the raw `error`
+  /// string as [GoogleAuthException.cause].
   unknown,
 }
 
-/// Wraps whatever [GoogleAuthService.connect] (or a failed silent renewal
-/// worth surfacing rather than just returning null for) threw, tagged with
-/// [failure] so callers can classify it without inspecting the underlying
-/// value.
+/// Wraps whatever [GoogleAuthService.connect] threw, tagged with [failure]
+/// so callers classify it without inspecting the underlying value.
 class GoogleAuthException implements Exception {
   const GoogleAuthException(this.failure, [this.cause]);
 
@@ -34,77 +30,57 @@ class GoogleAuthException implements Exception {
   String toString() => 'GoogleAuthException(failure: $failure, cause: $cause)';
 }
 
-/// Vends short-lived Google OAuth access tokens scoped to
-/// `drive.appdata` — nothing else. Pure interface, deliberately not
-/// registered through `app.dart`'s `@StackedApp(dependencies: [...])`
-/// list: the real implementation ([GoogleAuthServiceWeb], in
-/// `google_auth_service_web.dart`) imports `dart:js_interop`/`package:web`
-/// via `gis_bindings.dart`, which doesn't compile under the Dart VM at
-/// all. Registering it through the normal list would pull that import
-/// into the centrally-generated `app.locator.dart` and break the whole
-/// VM-run test suite — see [PdfExtractionService]'s doc comment for the
-/// exact same reasoning, and `main.dart` for how this is wired instead
-/// (a manual `registerLazySingleton` call, not the annotation).
+/// Vends short-lived Google OAuth access tokens scoped to `drive.appdata`
+/// and nothing else.
 ///
-/// Deliberately stateless from callers' point of view: no persisted
-/// token, no reactive "signed in" stream. Browser OAuth issues no refresh
-/// token to a public client (see this feature's design doc), so every
-/// access token this vends lives in memory only and is either the still-
-/// valid cached one or a freshly renewed one — there is nothing durable
-/// to expose. `DriveSyncService` is the layer that turns "can/can't get a
+/// A pure interface, registered by hand in `main.dart` rather than through
+/// `@StackedApp(dependencies: [...])` — [GoogleAuthServiceWeb] reaches
+/// `dart:js_interop`, which would pull that import into the generated
+/// `app.locator.dart` and break the VM-run test suite. Same reasoning as
+/// [PdfExtractionService].
+///
+/// Stateless to callers: browser OAuth issues no refresh token to a public
+/// client, so every token this vends is in memory only and there is
+/// nothing durable to expose. `DriveSyncService` turns "can/can't get a
 /// token right now" into the reactive [DriveSyncStatus] the UI binds to.
 abstract class GoogleAuthService {
-  /// True once a non-empty client ID was compiled into this build via
-  /// `--dart-define=GOOGLE_OAUTH_CLIENT_ID=...`. `DriveSettingsCard` uses
-  /// this (via `DriveSyncService.isAvailable`) to hide the entire feature
-  /// rather than show a broken "Connect" button in local dev or a
-  /// misconfigured deploy.
+  /// True once a non-empty `--dart-define=GOOGLE_OAUTH_CLIENT_ID=...` was
+  /// compiled in. `DriveSettingsCard` hides the whole feature when false,
+  /// rather than showing a "Connect" button that can only fail.
   bool get isConfigured;
 
-  /// Returns a valid access token without ever showing UI — either a
-  /// still-fresh cached one, or one silently renewed (`prompt: ''`)
-  /// against an existing Google session and a grant this app already
-  /// has. Returns `null` when silent renewal isn't possible (no prior
-  /// grant, the Google session itself has ended, or the grant was
-  /// revoked) — a normal, expected outcome that flips
-  /// `DriveSyncStatus.needsReauth`, not a thrown failure.
+  /// A valid access token without ever showing UI — a still-fresh cached
+  /// one, or one silently renewed against an existing grant. `null` when
+  /// renewal isn't possible, which is expected and flips
+  /// `DriveSyncStatus.needsReauth` rather than throwing.
   ///
-  /// **Renewal needs a live user gesture**, even with `prompt: ''` and a
-  /// grant already in place. GIS renews by opening a popup, and a browser
-  /// refuses that outside a gesture — confirmed from GIS's own
-  /// `error_callback` reporting `popup_failed_to_open` on every page load.
-  /// So this returns `null` whenever the cache is empty and no gesture is
-  /// in flight, which is the normal state immediately after a refresh.
-  /// [tokenOnNextUserGesture] is how a caller recovers from that.
+  /// **Renewal needs a live user gesture**, even with `prompt: ''`: GIS
+  /// renews via a popup and the browser refuses one outside a gesture
+  /// (`popup_failed_to_open`). So this returns `null` whenever the cache
+  /// is empty and no gesture is in flight — the normal state right after a
+  /// refresh, which [tokenOnNextUserGesture] recovers from.
   Future<String?> silentAccessToken();
 
-  /// Loads the GIS client and builds the token client without requesting
-  /// a token — safe to call at page load, where a real request would be
-  /// blocked. Worth doing early: a browser's transient activation lasts
-  /// only a few seconds, so a cold script load inside a gesture handler
-  /// can burn the very activation the request needs.
+  /// Loads the GIS client without requesting a token, so it is safe at
+  /// page load. Worth doing early: transient activation lasts only a few
+  /// seconds, so a cold script load inside a gesture handler can burn the
+  /// very activation the request needs.
   Future<void> warmUp();
 
-  /// Completes with a token minted from the user's next interaction with
-  /// the page, or `null` if that attempt fails too (the grant is gone, so
-  /// only an interactive [connect] can recover).
+  /// Completes with a token minted from the user's next interaction, or
+  /// `null` if that fails too (only an interactive [connect] can recover).
   ///
-  /// This is the counterpart to [silentAccessToken]'s gesture
-  /// requirement: after a refresh there is no cached token and no way to
-  /// mint one until the user touches something, so callers arm this and
-  /// carry on rather than declaring the session dead. Repeated calls
-  /// while one is already armed share the same pending attempt.
+  /// The counterpart to [silentAccessToken]'s gesture requirement: callers
+  /// arm this after a refresh and carry on rather than declaring the
+  /// session dead. Repeated calls share the same pending attempt.
   Future<String?> tokenOnNextUserGesture();
 
-  /// Requests the `drive.appdata` scope interactively, showing Google's
-  /// consent UI if needed. Must be called synchronously from a user
-  /// gesture (a button's `onPressed`) — browsers, and GIS itself, block
-  /// the popup otherwise. Throws [GoogleAuthException] if the user
-  /// cancels/the popup is blocked, or the request otherwise fails.
+  /// Requests the `drive.appdata` scope interactively. Must be called
+  /// synchronously from a user gesture, or the popup is blocked. Throws
+  /// [GoogleAuthException] on cancel, block, or any other failure.
   Future<String> connect();
 
-  /// Revokes the current grant with Google and clears every cached
-  /// token, so a subsequent [silentAccessToken] correctly returns `null`
-  /// until [connect] is called again.
+  /// Revokes the grant and clears every cached token, so
+  /// [silentAccessToken] returns `null` until [connect] runs again.
   Future<void> disconnect();
 }

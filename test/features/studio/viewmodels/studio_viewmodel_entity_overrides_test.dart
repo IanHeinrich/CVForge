@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/document/document_language.dart';
@@ -123,13 +124,15 @@ void main() {
         draftService.draft,
       ).thenReturn(draftWith(experienceIds: const ['exp-1']));
       when(
-        draftService.setRoleOverride(any, any),
+        draftService.setTextOverride(any, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.setRoleOverride(sampleExperience, sampleExperience.role);
 
-      verify(draftService.setRoleOverride('exp-1', null)).called(1);
+      verify(
+        draftService.setTextOverride(TextOverrideField.role, 'exp-1', null),
+      ).called(1);
     });
 
     test(
@@ -142,13 +145,15 @@ void main() {
           draftService.draft,
         ).thenReturn(draftWith(experienceIds: const ['exp-1']));
         when(
-          draftService.setRoleOverride(any, any),
+          draftService.setTextOverride(any, any, any),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = StudioViewModel();
         await model.setRoleOverride(sampleExperience, '   ');
 
-        verify(draftService.setRoleOverride('exp-1', null)).called(1);
+        verify(
+          draftService.setTextOverride(TextOverrideField.role, 'exp-1', null),
+        ).called(1);
       },
     );
 
@@ -160,13 +165,15 @@ void main() {
         draftService.draft,
       ).thenReturn(draftWith(experienceIds: const ['exp-1']));
       when(
-        draftService.setRoleOverride(any, any),
+        draftService.setTextOverride(any, any, any),
       ).thenAnswer((_) => Future<void>.value());
 
       final model = StudioViewModel();
       await model.revertRoleOverride('exp-1');
 
-      verify(draftService.setRoleOverride('exp-1', null)).called(1);
+      verify(
+        draftService.setTextOverride(TextOverrideField.role, 'exp-1', null),
+      ).called(1);
     });
   });
 

@@ -18,17 +18,14 @@ import 'package:cv_forge/services/settings_service.dart';
 /// full ~1,000px content measure the card would otherwise stretch it to.
 const _apiKeyFieldMaxWidth = 360.0;
 
-/// AI Assistant connection setup — pick a provider (once more than one is
-/// registered), enter a key, pick a model, test the connection. Same
-/// block-card frame as [BackupSettingsCard]; the surrounding scroll and
-/// page padding belong to `SettingsView`.
+/// AI Assistant connection setup — pick a provider, enter a key, pick a
+/// model, test the connection. Same block-card frame as
+/// [BackupSettingsCard]; scroll and page padding belong to `SettingsView`.
 ///
-/// Renders in one of two modes, chosen by [SettingsViewModel.apiKeyOrigin]:
-/// **configured** shows the key that's already there, masked, with replace
-/// and remove actions; **entry** shows the field to paste a new one into.
-/// A single always-empty password field served both states before, which
-/// meant a stored key and no key at all looked exactly the same — the
-/// thing this card most needed to tell you.
+/// Two modes, chosen by [SettingsViewModel.apiKeyOrigin]: **configured**
+/// shows the stored key masked, with replace and remove; **entry** shows
+/// the field to paste a new one into. The distinction is the thing this
+/// card most needs to tell you, so it is never one always-empty field.
 class AiAssistantSettingsCard extends StatefulWidget {
   const AiAssistantSettingsCard({super.key, required this.viewModel});
 

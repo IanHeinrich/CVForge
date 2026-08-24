@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// The app's surface elevation ramp. Four tiers, darkest (the page ground)
-/// to lightest (a hovered/nested surface), plus two line weights. Widgets
-/// should not reference these six consts directly — they're pinned onto
-/// `buildAppTheme()`'s `ColorScheme` container slots (see that file), so
-/// widget code reads `Theme.of(context).colorScheme.*` (or picks up a
-/// Material default, e.g. `Card`) and only this file and `app_theme.dart`
-/// know the raw values. Keeping every widget on the theme, rather than a
-/// literal tier name, is what lets a future light theme invert the ramp
-/// without touching call sites.
+/// The app's surface elevation ramp: four tiers, page ground to
+/// hovered/nested surface, plus two line weights.
+///
+/// Widgets never reference these directly. `buildAppTheme()` pins them onto
+/// `ColorScheme` container slots, so widget code reads
+/// `Theme.of(context).colorScheme.*` and only this file and
+/// `app_theme.dart` know the raw values — which is what lets the light
+/// theme invert the ramp without touching a call site.
 const Color kcPrimaryColor = Color(0xFF9600FF);
 const Color kcPrimaryColorDark = Color(0xFF300151);
 
@@ -37,33 +36,23 @@ const Color kcLightGrey = Color.fromARGB(255, 187, 187, 187);
 const Color kcWhite = Color(0xFFFFFFFF);
 const Color kcErrorColor = Color(0xFFE05252);
 
-/// The warning-severity colour for evidence boxes/rail badges —
-/// `kcErrorColor` already means critical elsewhere in the app, so warning
-/// needs its own tone rather than reusing it at lower opacity.
+/// Warning severity — `kcErrorColor` already means critical, so this needs
+/// its own tone rather than that one at lower opacity.
 const Color kcWarningColor = Color(0xFFE0A83B);
 
-/// A positive/confirmed-state colour — a successful connection test, a
-/// clean backup state. `kcPrimaryColor` is brand purple, not semantically
-/// "success".
+/// A positive/confirmed state. `kcPrimaryColor` is brand purple, not
+/// semantically "success".
 const Color kcSuccessColor = Color(0xFF4CAF7D);
 
-/// The light-theme counterparts to the ramp above, in the same order.
+/// The light-theme counterparts, same order and same four-tier semantics
+/// with the luminance inverted. `app_theme.dart` picks between the two
+/// sets and pins the winner onto the same `ColorScheme` slots.
 ///
-/// Same four-tier elevation semantics — each tier one step closer to the
-/// viewer — with the luminance direction inverted: the page ground is the
-/// greyest and a hovered/nested surface is pure white. Widgets never
-/// reference these directly either; `app_theme.dart` selects between the
-/// two sets and pins the winner onto the same `ColorScheme` slots, which
-/// is what lets a widget read `colorScheme.surfaceContainerLow` and be
-/// correct in both themes.
-///
-/// [kcPrimaryColor] deliberately has no light variant. Measured against
-/// the light surfaces below it sits at 5.25:1, and white-on-purple at
-/// 5.61:1 — both clear WCAG AA — so the brand accent stays the same colour
-/// in both themes rather than becoming a second, nearly-identical purple.
-/// The three semantic colours below are a different story and do change:
-/// their dark values fail badly on a near-white surface (the amber is
-/// ~2:1), so each has a darkened twin that clears AA.
+/// [kcPrimaryColor] has no light variant: 5.25:1 on the light surfaces and
+/// 5.61:1 white-on-purple both clear AA, so the brand accent stays one
+/// colour rather than becoming a second, nearly-identical purple. The
+/// three semantic colours do change — their dark values fail badly on
+/// near-white (the amber is ~2:1), so each has a darkened twin.
 
 /// The page ground — behind everything, never on a card.
 const Color kcSurfaceSunkenLight = Color(0xFFE9EBF0);
@@ -91,9 +80,8 @@ const Color kcOnSurfaceLight = Color(0xFF14161A);
 /// The muted foreground — secondary lines, unselected rail labels. 5.75:1.
 const Color kcOnSurfaceVariantLight = Color(0xFF5A6270);
 
-/// Placeholder and disabled text/icon colour. Deliberately low-contrast,
-/// mirroring [kcMediumGrey]'s role in the dark theme — WCAG exempts
-/// placeholder and disabled text, and a placeholder that meets AA stops
+/// Placeholder and disabled text, mirroring [kcMediumGrey]. Low-contrast
+/// on purpose: WCAG exempts placeholder text, and one that meets AA stops
 /// reading as a placeholder.
 const Color kcMediumGreyLight = Color(0xFF9096A3);
 

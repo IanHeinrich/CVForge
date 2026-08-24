@@ -15,29 +15,18 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DocumentDefaults {
 
- RegionProfile get region;/// The language a new CV is written in.
+ RegionProfile get region;/// The language a new CV is written in. Defaults to agree with
+/// [region]'s default, though the two are independent axes — see
+/// `RegionProfile`'s "Region is not a locale" note.
+ DocumentLanguage get language;/// `CvTemplate.id` for the template a new CV starts on. Null means no
+/// choice has been made, and a new draft inherits the open draft's.
 ///
-/// Defaults to [DocumentLanguage.enGb] to agree with [region]'s own
-/// default. The two are independent axes and neither is inferred from
-/// the other — see `RegionProfile`'s "Region is not a locale" note —
-/// but their *defaults* may as well describe the same person.
- DocumentLanguage get language;/// `CvTemplate.id` for the template a new CV starts on. Null means the
-/// user has never chosen one, in which case a new draft inherits the
-/// template of whichever draft is open — the sticky behaviour that was
-/// the only behaviour before this field existed.
-///
-/// Deliberately the raw id and not a `CvTemplate`: this is a model, and
+/// The raw id and not a `CvTemplate`, because this is a model and
 /// `lib/templates/` imports `pdf`. An id that no longer resolves is
-/// safe — `TemplateRegistryService.byId` falls back rather than
-/// throwing — so a default surviving a template's removal degrades to
-/// the fallback instead of breaking every new draft.
- String? get templateId;/// The section order (see `CvDraft.sectionOrder`) to seed a new draft
-/// with. Null means no default has ever been set, and a new draft falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`.
-///
-/// Kept as two fields with [hiddenSections] rather than one combined
-/// value, mirroring `CvDraft.sectionOrder` / `CvDraft.hiddenSections`
-/// being separate there too.
+/// safe: `TemplateRegistryService.byId` falls back rather than throws.
+ String? get templateId;/// The section order to seed a new draft with; null falls back to the
+/// chosen template's own `CvTemplate.sectionOrder`. Two fields with
+/// [hiddenSections], mirroring how `CvDraft` keeps them separate.
  List<CvSectionType>? get sectionOrder;/// Which sections a new draft starts with hidden. See [sectionOrder].
  Set<CvSectionType>? get hiddenSections;
 /// Create a copy of DocumentDefaults
@@ -241,39 +230,24 @@ class _DocumentDefaults implements DocumentDefaults {
   factory _DocumentDefaults.fromJson(Map<String, dynamic> json) => _$DocumentDefaultsFromJson(json);
 
 @override@JsonKey() final  RegionProfile region;
-/// The language a new CV is written in.
-///
-/// Defaults to [DocumentLanguage.enGb] to agree with [region]'s own
-/// default. The two are independent axes and neither is inferred from
-/// the other — see `RegionProfile`'s "Region is not a locale" note —
-/// but their *defaults* may as well describe the same person.
+/// The language a new CV is written in. Defaults to agree with
+/// [region]'s default, though the two are independent axes — see
+/// `RegionProfile`'s "Region is not a locale" note.
 @override@JsonKey() final  DocumentLanguage language;
-/// `CvTemplate.id` for the template a new CV starts on. Null means the
-/// user has never chosen one, in which case a new draft inherits the
-/// template of whichever draft is open — the sticky behaviour that was
-/// the only behaviour before this field existed.
+/// `CvTemplate.id` for the template a new CV starts on. Null means no
+/// choice has been made, and a new draft inherits the open draft's.
 ///
-/// Deliberately the raw id and not a `CvTemplate`: this is a model, and
+/// The raw id and not a `CvTemplate`, because this is a model and
 /// `lib/templates/` imports `pdf`. An id that no longer resolves is
-/// safe — `TemplateRegistryService.byId` falls back rather than
-/// throwing — so a default surviving a template's removal degrades to
-/// the fallback instead of breaking every new draft.
+/// safe: `TemplateRegistryService.byId` falls back rather than throws.
 @override final  String? templateId;
-/// The section order (see `CvDraft.sectionOrder`) to seed a new draft
-/// with. Null means no default has ever been set, and a new draft falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`.
-///
-/// Kept as two fields with [hiddenSections] rather than one combined
-/// value, mirroring `CvDraft.sectionOrder` / `CvDraft.hiddenSections`
-/// being separate there too.
+/// The section order to seed a new draft with; null falls back to the
+/// chosen template's own `CvTemplate.sectionOrder`. Two fields with
+/// [hiddenSections], mirroring how `CvDraft` keeps them separate.
  final  List<CvSectionType>? _sectionOrder;
-/// The section order (see `CvDraft.sectionOrder`) to seed a new draft
-/// with. Null means no default has ever been set, and a new draft falls
-/// back to its chosen template's own `CvTemplate.sectionOrder`.
-///
-/// Kept as two fields with [hiddenSections] rather than one combined
-/// value, mirroring `CvDraft.sectionOrder` / `CvDraft.hiddenSections`
-/// being separate there too.
+/// The section order to seed a new draft with; null falls back to the
+/// chosen template's own `CvTemplate.sectionOrder`. Two fields with
+/// [hiddenSections], mirroring how `CvDraft` keeps them separate.
 @override List<CvSectionType>? get sectionOrder {
   final value = _sectionOrder;
   if (value == null) return null;

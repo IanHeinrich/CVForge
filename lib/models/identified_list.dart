@@ -1,10 +1,7 @@
-/// Small helpers for the "operate on the list element whose id matches"
-/// shape that recurs across every Vault entity list (experiences,
-/// projects, skills, education, …) and the Vault editor panel router.
-/// [idOf] stays an explicit callback rather than an `Identifiable`
-/// interface — every entity already carries a `String id` field, but none
-/// currently implement a shared interface for it, and adding one to every
-/// freezed model is a bigger change than this extension needs.
+/// Helpers for the "operate on the list element whose id matches" shape
+/// that recurs across every Vault entity list. [idOf] is an explicit
+/// callback rather than an `Identifiable` interface, which would mean
+/// changing every freezed model.
 extension IdentifiedList<T> on List<T> {
   /// The item whose [idOf] matches [id], or `null` if none does (including
   /// when [id] itself is `null`).
@@ -27,10 +24,8 @@ extension IdentifiedList<T> on List<T> {
   List<T> removeById(String id, String Function(T item) idOf) =>
       where((item) => idOf(item) != id).toList();
 
-  /// Applies [update] to the single item whose [idOf] matches [id],
-  /// leaving every other item untouched. The general form of
-  /// [replaceById] for callers that need to derive the replacement from
-  /// the current item rather than supplying it outright.
+  /// [replaceById]'s general form, for a replacement derived from the
+  /// current item rather than supplied outright.
   List<T> updateById(
     String id,
     T Function(T current) update,
@@ -40,23 +35,18 @@ extension IdentifiedList<T> on List<T> {
       if (idOf(item) == id) update(item) else item,
   ];
 
-  /// Reorders this list to match [orderedIds], dropping any id in
-  /// [orderedIds] that no item's [idOf] matches. Used wherever a
-  /// drag-reorder hands back an ordered id list rather than an ordered
-  /// item list.
+  /// Reorders to match [orderedIds], dropping ids no item matches — for a
+  /// drag-reorder that hands back ids rather than items.
   List<T> reorderByIds(List<String> orderedIds, String Function(T item) idOf) {
     final byId = {for (final item in this) idOf(item): item};
     return [for (final id in orderedIds) ?byId[id]];
   }
 }
 
-/// The three-way merge used by Drive sync, kept here because it's the same
-/// "operate on the list element whose id matches" shape as [IdentifiedList]
-/// and shares its explicit-[idOf] convention.
-///
-/// Separate extension only because it needs `T extends Object` — the merge
-/// uses `T?` internally to mean "this id didn't survive", which would be
-/// ambiguous if `T` were itself nullable.
+/// The three-way merge used by Drive sync — the same id-keyed shape as
+/// [IdentifiedList], in a separate extension only because it needs
+/// `T extends Object`: the merge uses `T?` to mean "this id didn't
+/// survive", which a nullable `T` would make ambiguous.
 extension IdentifiedListMerge<T extends Object> on List<T> {
   /// Three-way merges [local] and [remote] against `this` — the common
   /// ancestor both sides last agreed on — keying every element by [idOf].
@@ -82,19 +72,16 @@ extension IdentifiedListMerge<T extends Object> on List<T> {
   /// back, delete it again"; the one it can't is "the paragraph I typed is
   /// gone".
   ///
-  /// A contested element (both sides changed it since the ancestor) goes to
-  /// [mergeItem] if given, else to whichever side [preferRemote] picks.
-  /// [preferRemote] is a predicate rather than a flag so a caller with
-  /// per-element timestamps can decide per element, while one with only an
-  /// aggregate timestamp returns the same answer every time. Both callbacks
-  /// take a nullable base: an id on both sides but absent from the ancestor
-  /// has no ancestral version to merge against.
+  /// A contested element goes to [mergeItem] if given, else to whichever
+  /// side [preferRemote] picks. [preferRemote] is a predicate, not a flag,
+  /// so a caller with per-element timestamps can decide per element. Both
+  /// callbacks take a nullable base: an id on both sides but not in the
+  /// ancestor has no ancestral version to merge against.
   ///
-  /// Ordering is itself three-way — the side that reordered wins, and
-  /// elements unique to the losing side splice in beside whichever
-  /// neighbour they had there. Drag-reorder is a first-class Vault
-  /// gesture, so a merge that silently reverted one would read as lost
-  /// work.
+  /// Ordering is three-way too — the side that reordered wins, and
+  /// elements unique to the losing side splice in beside the neighbour
+  /// they had there. Drag-reorder is a first-class Vault gesture, so a
+  /// merge that silently reverted one would read as lost work.
   List<T> mergeThreeWay(
     List<T> local,
     List<T> remote, {

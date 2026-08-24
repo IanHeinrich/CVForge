@@ -16,44 +16,23 @@ T _$identity<T>(T value) => value;
 mixin _$CvPreferences {
 
  String? get aiAssistantProviderId; String? get aiAssistantModelId;/// When an AI Assistant connection test first succeeded on *any*
-/// device — the one piece of AI Assistant setup that can safely travel,
-/// and the reason the key itself doesn't need to.
-///
-/// A key is a secret, so it stays on the device that has it (see this
-/// class' exclusion list). But "you have already set this up
-/// somewhere" is not a secret, and without it a second device is
-/// indistinguishable from a brand-new user: it shows an empty box with
-/// no hint that the missing piece is a key the user already owns.
-/// Settings reads this to say so, and to prompt for the key rather
-/// than for the whole setup.
+/// device. Lets a second device prompt for just the key rather than
+/// the whole setup, without the key itself having to travel.
 ///
 /// Never cleared by removing a key — it records that setup happened,
-/// not that this device is currently configured. [ApiKeyOrigin] is the
-/// authority on the latter.
- DateTime? get aiAssistantConfiguredAt;/// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
-/// Null — the default — means "follow the browser's own locale", and is
-/// what a user who never opens the language picker keeps.
+/// not that this device is configured. [ApiKeyOrigin] owns the latter.
+ DateTime? get aiAssistantConfiguredAt;/// The UI language as a BCP-47 tag; null means "follow the browser's
+/// own locale", so only an *explicit* choice ever syncs.
 ///
-/// That default is why this belongs here rather than in [AppSettings]:
-/// only an *explicit* choice ever travels between devices. Someone who
-/// never picks a language syncs nothing, and each browser goes on
-/// following itself. A language is a fact about the person, not about
-/// the device the way `lastBackupAt` is.
+/// A tag rather than an enum, so adding a language is one new `.arb`
+/// file. `LocalizationService` validates it on read and falls back to
+/// the platform locale for a language this build no longer ships.
 ///
-/// A tag rather than an enum so that adding a supported language is
-/// exactly one new `.arb` file, with nothing here to keep in lockstep.
-/// `LocalizationService` validates it on read and falls back to the
-/// platform locale if it names a language this build no longer ships.
-///
-/// Only ever the language of the app's *chrome*, and never the
-/// language the CV is written in — that is `DocumentLanguage`, which
-/// lives on the Vault and the draft precisely so the two cannot be
-/// confused. Someone reading a Spanish interface while preparing an
-/// English CV is the ordinary case, not an edge one.
+/// Never the language the CV is written in — that is
+/// `DocumentLanguage`, which owns the distinction.
  String? get localeTag;/// When any field above last changed — the tie-break when two devices
-/// have both edited their preferences since they last agreed. These
-/// are flat scalars with no ids to merge by, so unlike the Vault there
-/// is nothing finer to fall back on.
+/// have both edited since they last agreed. Flat scalars with no ids,
+/// so unlike the Vault there is nothing finer to merge by.
  DateTime get updatedAt;
 /// Create a copy of CvPreferences
 /// with the given fields replaced by the non-null parameter values.
@@ -258,46 +237,25 @@ class _CvPreferences implements CvPreferences {
 @override final  String? aiAssistantProviderId;
 @override final  String? aiAssistantModelId;
 /// When an AI Assistant connection test first succeeded on *any*
-/// device — the one piece of AI Assistant setup that can safely travel,
-/// and the reason the key itself doesn't need to.
-///
-/// A key is a secret, so it stays on the device that has it (see this
-/// class' exclusion list). But "you have already set this up
-/// somewhere" is not a secret, and without it a second device is
-/// indistinguishable from a brand-new user: it shows an empty box with
-/// no hint that the missing piece is a key the user already owns.
-/// Settings reads this to say so, and to prompt for the key rather
-/// than for the whole setup.
+/// device. Lets a second device prompt for just the key rather than
+/// the whole setup, without the key itself having to travel.
 ///
 /// Never cleared by removing a key — it records that setup happened,
-/// not that this device is currently configured. [ApiKeyOrigin] is the
-/// authority on the latter.
+/// not that this device is configured. [ApiKeyOrigin] owns the latter.
 @override final  DateTime? aiAssistantConfiguredAt;
-/// The UI language, as a BCP-47 language tag ('en', 'de', 'pt-BR').
-/// Null — the default — means "follow the browser's own locale", and is
-/// what a user who never opens the language picker keeps.
+/// The UI language as a BCP-47 tag; null means "follow the browser's
+/// own locale", so only an *explicit* choice ever syncs.
 ///
-/// That default is why this belongs here rather than in [AppSettings]:
-/// only an *explicit* choice ever travels between devices. Someone who
-/// never picks a language syncs nothing, and each browser goes on
-/// following itself. A language is a fact about the person, not about
-/// the device the way `lastBackupAt` is.
+/// A tag rather than an enum, so adding a language is one new `.arb`
+/// file. `LocalizationService` validates it on read and falls back to
+/// the platform locale for a language this build no longer ships.
 ///
-/// A tag rather than an enum so that adding a supported language is
-/// exactly one new `.arb` file, with nothing here to keep in lockstep.
-/// `LocalizationService` validates it on read and falls back to the
-/// platform locale if it names a language this build no longer ships.
-///
-/// Only ever the language of the app's *chrome*, and never the
-/// language the CV is written in — that is `DocumentLanguage`, which
-/// lives on the Vault and the draft precisely so the two cannot be
-/// confused. Someone reading a Spanish interface while preparing an
-/// English CV is the ordinary case, not an edge one.
+/// Never the language the CV is written in — that is
+/// `DocumentLanguage`, which owns the distinction.
 @override final  String? localeTag;
 /// When any field above last changed — the tie-break when two devices
-/// have both edited their preferences since they last agreed. These
-/// are flat scalars with no ids to merge by, so unlike the Vault there
-/// is nothing finer to fall back on.
+/// have both edited since they last agreed. Flat scalars with no ids,
+/// so unlike the Vault there is nothing finer to merge by.
 @override final  DateTime updatedAt;
 
 /// Create a copy of CvPreferences
