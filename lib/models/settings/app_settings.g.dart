@@ -8,18 +8,10 @@ part of 'app_settings.dart';
 
 _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
   schemaVersion: (json['schemaVersion'] as num).toInt(),
-  defaultRegion:
-      $enumDecodeNullable(_$RegionProfileEnumMap, json['defaultRegion']) ??
-      RegionProfile.uk,
-  copilotProviderId: json['copilotProviderId'] as String?,
-  copilotModelId: json['copilotModelId'] as String?,
+  preferences: CvPreferences.fromJson(
+    json['preferences'] as Map<String, dynamic>,
+  ),
   rememberApiKey: json['rememberApiKey'] as bool? ?? false,
-  defaultSectionOrder: (json['defaultSectionOrder'] as List<dynamic>?)
-      ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
-      .toList(),
-  defaultHiddenSections: (json['defaultHiddenSections'] as List<dynamic>?)
-      ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
-      .toSet(),
   lastBackupAt: json['lastBackupAt'] == null
       ? null
       : DateTime.parse(json['lastBackupAt'] as String),
@@ -28,28 +20,7 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
 Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
     <String, dynamic>{
       'schemaVersion': instance.schemaVersion,
-      'defaultRegion': _$RegionProfileEnumMap[instance.defaultRegion]!,
-      'copilotProviderId': instance.copilotProviderId,
-      'copilotModelId': instance.copilotModelId,
+      'preferences': instance.preferences.toJson(),
       'rememberApiKey': instance.rememberApiKey,
-      'defaultSectionOrder': instance.defaultSectionOrder
-          ?.map((e) => _$CvSectionTypeEnumMap[e]!)
-          .toList(),
-      'defaultHiddenSections': instance.defaultHiddenSections
-          ?.map((e) => _$CvSectionTypeEnumMap[e]!)
-          .toList(),
       'lastBackupAt': instance.lastBackupAt?.toIso8601String(),
     };
-
-const _$RegionProfileEnumMap = {RegionProfile.uk: 'uk', RegionProfile.us: 'us'};
-
-const _$CvSectionTypeEnumMap = {
-  CvSectionType.summary: 'summary',
-  CvSectionType.skills: 'skills',
-  CvSectionType.experience: 'experience',
-  CvSectionType.projects: 'projects',
-  CvSectionType.education: 'education',
-  CvSectionType.hobbies: 'hobbies',
-  CvSectionType.references: 'references',
-  CvSectionType.publications: 'publications',
-};

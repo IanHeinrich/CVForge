@@ -34,7 +34,7 @@ class AnalyzerViewModel extends BaseViewModel {
   /// Analyzer has no draft, so the device-wide default is the only region
   /// signal available to it.
   String get documentNoun =>
-      _settingsService.settings.defaultRegion.preset.documentNoun;
+      _settingsService.settings.preferences.defaultRegion.preset.documentNoun;
 
   AtsAnalysisResult? _result;
   AtsAnalysisResult? get result => _result;

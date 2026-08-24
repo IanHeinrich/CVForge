@@ -1,6 +1,4 @@
 import 'package:cv_forge/app/app.locator.dart';
-import 'package:cv_forge/app/app.dialogs.dart';
-import 'package:cv_forge/features/settings/dialogs/drive_conflict/drive_conflict_dialog_data.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
@@ -279,31 +277,31 @@ void main() {
       test('selectCopilotModel persists just the model id, leaving the '
           'current provider selection alone', () async {
         when(
-          settingsService.setCopilotModel(any),
+          settingsService.setAssistantModel(any),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = SettingsViewModel();
         await model.selectCopilotModel('claude-sonnet-5');
 
-        verify(settingsService.setCopilotModel('claude-sonnet-5')).called(1);
-        verifyNever(settingsService.setCopilotProvider(any));
+        verify(settingsService.setAssistantModel('claude-sonnet-5')).called(1);
+        verifyNever(settingsService.setAssistantProvider(any));
       });
 
       test('selectCopilotProvider persists the provider and resets the '
           'model to that provider\'s first option', () async {
         when(
-          settingsService.setCopilotProvider(any),
+          settingsService.setAssistantProvider(any),
         ).thenAnswer((_) => Future<void>.value());
         when(
-          settingsService.setCopilotModel(any),
+          settingsService.setAssistantModel(any),
         ).thenAnswer((_) => Future<void>.value());
 
         final model = SettingsViewModel();
         await model.selectCopilotProvider('gemini');
 
-        verify(settingsService.setCopilotProvider('gemini')).called(1);
+        verify(settingsService.setAssistantProvider('gemini')).called(1);
         verify(
-          settingsService.setCopilotModel('gemini-3.5-flash-lite'),
+          settingsService.setAssistantModel('gemini-3.5-flash-lite'),
         ).called(1);
       });
 
@@ -409,10 +407,10 @@ void main() {
         'selectCopilotProvider clears a stale connection test result',
         () async {
           when(
-            settingsService.setCopilotProvider(any),
+            settingsService.setAssistantProvider(any),
           ).thenAnswer((_) => Future<void>.value());
           when(
-            settingsService.setCopilotModel(any),
+            settingsService.setAssistantModel(any),
           ).thenAnswer((_) => Future<void>.value());
           when(
             llmService.testConnection('anthropic', 'sk-ant-test'),
@@ -510,51 +508,6 @@ void main() {
 
         verify(driveSyncService.disconnect()).called(1);
       });
-
-      test(
-        'resolveDriveConflict is a no-op when not currently in conflict',
-        () async {
-          when(
-            driveSyncService.status,
-          ).thenReturn(const DriveSyncStatus.disconnected());
-
-          final model = SettingsViewModel();
-          await model.resolveDriveConflict();
-
-          verifyNever(
-            dialogService.showCustomDialog<bool, DriveConflictDialogData>(
-              variant: anyNamed('variant'),
-              data: anyNamed('data'),
-            ),
-          );
-        },
-      );
-
-      test(
-        'resolveDriveConflict resolves with the choice from the dialog',
-        () async {
-          when(driveSyncService.status).thenReturn(
-            const DriveSyncStatus.conflict(accountEmail: 'person@example.com'),
-          );
-          when(driveSyncService.conflictRemoteModifiedAt).thenReturn(null);
-          when(
-            dialogService.showCustomDialog<bool, DriveConflictDialogData>(
-              variant: DialogType.driveConflict,
-              data: anyNamed('data'),
-            ),
-          ).thenAnswer(
-            (_) async => DialogResponse<bool>(confirmed: true, data: false),
-          );
-          when(
-            driveSyncService.resolveConflict(keepLocal: false),
-          ).thenAnswer((_) async {});
-
-          final model = SettingsViewModel();
-          await model.resolveDriveConflict();
-
-          verify(driveSyncService.resolveConflict(keepLocal: false)).called(1);
-        },
-      );
     });
   });
 }

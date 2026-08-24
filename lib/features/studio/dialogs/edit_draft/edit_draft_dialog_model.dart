@@ -25,6 +25,7 @@ class EditDraftDialogModel extends BaseViewModel {
   /// worth plumbing one through for.
   String get documentNoun => locator<SettingsService>()
       .settings
+      .preferences
       .defaultRegion
       .preset
       .documentNounCapitalized;

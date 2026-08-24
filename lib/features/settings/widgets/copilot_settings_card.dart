@@ -50,12 +50,12 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Copilot', style: context.appTypography.titleMedium),
+          Text('AI Assistant', style: context.appTypography.titleMedium),
           const VGap.tiny(),
           Text(
             'Bring your own API key to enable AI-assisted tailoring. Your '
             'key never leaves this device except to call the provider\'s '
-            'API directly — there is no CVForge server.',
+            'API directly. There is no CVForge server.',
             style: context.appTypography.bodySmall,
           ),
           const VGap.medium(),
@@ -112,9 +112,9 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
                     top: context.appSpacing.paddingCompact,
                   ),
                   child: Text(
-                    'Remember on this device — stored unencrypted in this '
-                    "browser's local storage. Anyone with access to this "
-                    'device can read it.',
+                    'Remember on this device. Stored unencrypted in this '
+                    "browser's local storage, so anyone with access to "
+                    'this device can read it.',
                     style: context.appTypography.bodySmall,
                   ),
                 ),
@@ -144,7 +144,7 @@ class _CopilotSettingsCardState extends State<CopilotSettingsCard> {
           Text(
             // "Provider's rate" up front — the price table is the
             // provider's own, not something CVForge charges.
-            "${viewModel.selectedCopilotProvider.displayName}'s own rate — "
+            "${viewModel.selectedCopilotProvider.displayName}'s own rate, "
             'not billed by CVForge: '
             '${viewModel.priceLabelFor(viewModel.selectedCopilotModel)}',
             style: context.appTypography.caption.copyWith(color: kcLightGrey),

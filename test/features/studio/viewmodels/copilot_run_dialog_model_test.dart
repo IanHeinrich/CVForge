@@ -3,6 +3,7 @@ import 'package:cv_forge/features/studio/dialogs/copilot_run/copilot_run_dialog_
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/llm/copilot_result.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/services/llm/llm_exception.dart';
@@ -49,8 +50,10 @@ void main() {
       copilotService = getAndRegisterCopilotService();
       when(settingsService.settings).thenReturn(
         AppSettings.empty().copyWith(
-          copilotProviderId: 'anthropic',
-          copilotModelId: 'claude-sonnet-5',
+          preferences: CvPreferences.empty().copyWith(
+            assistantProviderId: 'anthropic',
+            assistantModelId: 'claude-sonnet-5',
+          ),
         ),
       );
       when(vaultService.vault).thenReturn(vault);
@@ -103,8 +106,10 @@ void main() {
         'model, same as SettingsViewModel.selectedCopilotModel', () async {
       when(settingsService.settings).thenReturn(
         AppSettings.empty().copyWith(
-          copilotProviderId: 'anthropic',
-          copilotModelId: 'not-a-real-model',
+          preferences: CvPreferences.empty().copyWith(
+            assistantProviderId: 'anthropic',
+            assistantModelId: 'not-a-real-model',
+          ),
         ),
       );
       when(

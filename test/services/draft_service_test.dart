@@ -5,6 +5,7 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/llm/copilot_result.dart';
 import 'package:cv_forge/models/render/region_profile.dart';
 import 'package:cv_forge/models/settings/app_settings.dart';
+import 'package:cv_forge/models/settings/cv_preferences.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/storage_keys.dart';
 import 'package:cv_forge/services/template_registry_service.dart';
@@ -270,8 +271,10 @@ void main() {
       ];
       when(settings.settings).thenReturn(
         AppSettings.empty().copyWith(
-          defaultSectionOrder: remembered,
-          defaultHiddenSections: {CvSectionType.references},
+          preferences: CvPreferences.empty().copyWith(
+            defaultSectionOrder: remembered,
+            defaultHiddenSections: {CvSectionType.references},
+          ),
         ),
       );
 
@@ -344,7 +347,11 @@ void main() {
     test('createDraft defaults a new draft\'s region from '
         "SettingsService's defaultRegion", () async {
       when(settings.settings).thenReturn(
-        AppSettings.empty().copyWith(defaultRegion: RegionProfile.us),
+        AppSettings.empty().copyWith(
+          preferences: CvPreferences.empty().copyWith(
+            defaultRegion: RegionProfile.us,
+          ),
+        ),
       );
 
       final service = DraftService();
@@ -370,8 +377,10 @@ void main() {
       ];
       when(settings.settings).thenReturn(
         AppSettings.empty().copyWith(
-          defaultSectionOrder: remembered,
-          defaultHiddenSections: {CvSectionType.hobbies},
+          preferences: CvPreferences.empty().copyWith(
+            defaultSectionOrder: remembered,
+            defaultHiddenSections: {CvSectionType.hobbies},
+          ),
         ),
       );
 

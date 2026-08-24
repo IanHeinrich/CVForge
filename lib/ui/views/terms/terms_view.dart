@@ -55,17 +55,17 @@ class TermsView extends StackedView<TermsViewModel> {
                   ),
                   const VGap.medium(),
                   ..._section(context, null, [
-                    'CVForge is a free, source-available personal project '
-                        '— not a company or a paid product. These terms '
-                        'are intentionally short.',
+                    'CVForge is a free, source-available personal '
+                        'project, not a company or a paid product. These '
+                        'terms are intentionally short.',
                   ]),
                   ..._section(context, 'The app, as-is', [
                     'CVForge is provided free of charge, "as is" and "as '
                         'available", with no warranty of any kind, '
-                        'express or implied — including no guarantee it '
-                        'will always be available, error-free, or '
-                        "suitable for a particular purpose. It's hosted "
-                        'on GitHub Pages with no uptime commitment.',
+                        'express or implied. That includes no guarantee '
+                        'it will always be available or error-free. '
+                        "It's hosted on GitHub Pages with no uptime "
+                        'commitment.',
                   ]),
                   ..._section(context, 'Your data, your responsibility', [
                     'Because CVForge stores your Vault and CVs only in '
@@ -77,8 +77,8 @@ class TermsView extends StackedView<TermsViewModel> {
                         'loss that CVForge cannot recover on your behalf.',
                   ]),
                   ..._section(context, 'Third-party services', [
-                    'If you use Copilot or Google Drive sync, you are '
-                        "also bound by that provider's own terms — "
+                    'If you use the AI Assistant or Google Drive sync, '
+                        "you are also bound by that provider's own terms: "
                         "Anthropic's, Google's Gemini API terms, or "
                         "Google's own Terms of Service for your Drive "
                         'account. CVForge has no control over, and no '

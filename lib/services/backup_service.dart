@@ -9,6 +9,7 @@ import 'package:cv_forge/models/vault/vault_pruning.dart';
 import 'package:cv_forge/services/draft_service.dart';
 import 'package:cv_forge/services/file_download_service.dart';
 import 'package:cv_forge/services/file_upload_service.dart';
+import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
 
 /// Which part of a backup/restore failed — lets the UI show different
@@ -36,6 +37,7 @@ class BackupException implements Exception {
 class BackupService {
   final _vaultService = locator<VaultService>();
   final _draftService = locator<DraftService>();
+  final _settingsService = locator<SettingsService>();
   final _fileDownload = locator<FileDownloadService>();
   final _fileUpload = locator<FileUploadService>();
 
@@ -47,7 +49,7 @@ class BackupService {
   /// Provenance only, never branched on — a small hardcoded literal rather
   /// than a `package_info_plus` dependency, since nothing reads this back.
   /// Keep it in sync with `pubspec.yaml`'s `version:` at each bump.
-  static const _appVersion = '2.13.1';
+  static const _appVersion = '2.14.0';
 
   /// The current Vault + every Draft as one envelope — also the payload
   /// `DriveSyncService` pushes to Drive, so a local JSON export and a
@@ -64,6 +66,7 @@ class BackupService {
     vault: _vaultService.vault.withoutBlankEntries(),
     drafts: _draftService.drafts,
     activeDraftId: _draftService.activeDraftId,
+    preferences: _settingsService.settings.preferences,
   );
 
   /// Downloads the whole Vault + every Draft as one JSON file.
@@ -134,6 +137,9 @@ class BackupService {
       bundle.drafts,
       activeDraftId: bundle.activeDraftId,
     );
+    if (bundle.preferences != null) {
+      await _settingsService.replacePreferences(bundle.preferences!);
+    }
   }
 
   String _dateStamp(DateTime date) =>

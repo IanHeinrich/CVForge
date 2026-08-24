@@ -68,10 +68,10 @@ class PrivacyView extends StackedView<PrivacyViewModel> {
                         "are stored only in your browser's local storage "
                         "(IndexedDB), on your own device. CVForge's "
                         'developer cannot see, access, or receive this '
-                        'data — there is no backend for it to be sent to.',
+                        'data. There is no backend for it to be sent to.',
                   ]),
-                  ..._section(context, 'AI-assisted tailoring (Copilot)', [
-                    'If you use the optional Copilot feature, the '
+                  ..._section(context, 'AI-assisted tailoring', [
+                    'If you use the optional AI Assistant, the '
                         'relevant CV content and job description are sent '
                         "directly from your browser to the AI provider "
                         "you choose (Anthropic or Google), using an API "
@@ -84,14 +84,14 @@ class PrivacyView extends StackedView<PrivacyViewModel> {
                         'requests exactly one Google OAuth scope: '
                         '`drive.appdata`. This scope only grants access '
                         "to a single hidden file CVForge creates for "
-                        "itself in your Drive — it cannot see, list, or "
-                        "touch any other file in your Google Drive.",
+                        'itself in your Drive. It cannot see, list, or '
+                        'touch any other file in your Google Drive.',
                     'That file is a copy of your Vault and CVs, letting '
                         'you recover them by signing in again on another '
                         'browser. It is readable only by CVForge acting '
-                        "on your own Google account — CVForge's developer "
+                        "on your own Google account. CVForge's developer "
                         'has no access to it, and no other app can read '
-                        "it either.",
+                        'it either.',
                     'CVForge also reads your Google account email address '
                         '(via the same connection) purely to show which '
                         'account is connected in Settings. That address '
@@ -99,7 +99,7 @@ class PrivacyView extends StackedView<PrivacyViewModel> {
                         'never transmitted anywhere else.',
                     'You can disconnect at any time from Settings, which '
                         'stops syncing immediately. Disconnecting does '
-                        "not delete the file already on Drive — you can "
+                        'not delete the file already on Drive. You can '
                         'remove it yourself from your Google Account\'s '
                         '"Third-party apps & services" page at '
                         'myaccount.google.com, which also fully revokes '
