@@ -30,7 +30,17 @@ part 'document_defaults.g.dart';
 /// Studio's "reset sections" action re-reads and applies to the open draft
 /// on demand. That is a user asking for it rather than a background
 /// re-resolve, but it does mean these two are not purely seed-time the way
-/// [region] and [language] are.
+/// [region], [language] and [templateId] are.
+///
+/// ## Every field here is authored in one place
+///
+/// All five are edited from the Vault's "CV defaults" panel and nowhere
+/// else. [sectionOrder] and [hiddenSections] used to be authored from
+/// Studio instead, by a "Save as my default" button that promoted the open
+/// draft's arrangement — which meant the defaults had an editor in one
+/// feature and every other default had its editor in another. Studio keeps
+/// the *reset* action, because discarding one draft's customisation is a
+/// fact about that draft, not about the defaults.
 @freezed
 abstract class DocumentDefaults with _$DocumentDefaults {
   const factory DocumentDefaults({
@@ -44,15 +54,25 @@ abstract class DocumentDefaults with _$DocumentDefaults {
     /// but their *defaults* may as well describe the same person.
     @Default(DocumentLanguage.enGb) DocumentLanguage language,
 
-    /// The section order (see `CvDraft.sectionOrder`) to seed a new draft
-    /// with, set via "Save as my default" in Studio. Null means no default
-    /// has ever been saved, and a new draft falls back to its chosen
-    /// template's own `CvTemplate.sectionOrder`.
+    /// `CvTemplate.id` for the template a new CV starts on. Null means the
+    /// user has never chosen one, in which case a new draft inherits the
+    /// template of whichever draft is open — the sticky behaviour that was
+    /// the only behaviour before this field existed.
     ///
-    /// Saved and reset together with [hiddenSections] by the same Studio
-    /// action, so the two never drift apart — but kept as two fields
-    /// rather than one combined value, mirroring `CvDraft.sectionOrder` /
-    /// `CvDraft.hiddenSections` being separate there too.
+    /// Deliberately the raw id and not a `CvTemplate`: this is a model, and
+    /// `lib/templates/` imports `pdf`. An id that no longer resolves is
+    /// safe — `TemplateRegistryService.byId` falls back rather than
+    /// throwing — so a default surviving a template's removal degrades to
+    /// the fallback instead of breaking every new draft.
+    String? templateId,
+
+    /// The section order (see `CvDraft.sectionOrder`) to seed a new draft
+    /// with. Null means no default has ever been set, and a new draft falls
+    /// back to its chosen template's own `CvTemplate.sectionOrder`.
+    ///
+    /// Kept as two fields with [hiddenSections] rather than one combined
+    /// value, mirroring `CvDraft.sectionOrder` / `CvDraft.hiddenSections`
+    /// being separate there too.
     List<CvSectionType>? sectionOrder,
 
     /// Which sections a new draft starts with hidden. See [sectionOrder].

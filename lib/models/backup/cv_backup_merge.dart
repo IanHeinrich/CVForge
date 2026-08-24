@@ -237,6 +237,12 @@ DocumentDefaults _mergeDocumentDefaults(
 ) => local.copyWith(
   region: _pick(base.region, local.region, remote.region, preferRemote),
   language: _pick(base.language, local.language, remote.language, preferRemote),
+  templateId: _pick(
+    base.templateId,
+    local.templateId,
+    remote.templateId,
+    preferRemote,
+  ),
   sectionOrder: _pick(
     base.sectionOrder,
     local.sectionOrder,

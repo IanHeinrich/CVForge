@@ -5,6 +5,9 @@ import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_d
 import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
+import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
+import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/services/template_registry_service.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
 import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
@@ -31,6 +34,7 @@ void main() {
       vaultService = getAndRegisterVaultService();
       dialogService = getAndRegisterDialogService();
       getAndRegisterLocalizationService();
+      getAndRegisterTemplateRegistryService();
       fileUpload = getAndRegisterFileUploadService();
       photoService = getAndRegisterProfilePhotoService();
       when(vaultService.vault).thenReturn(CvVault.empty());
@@ -427,6 +431,142 @@ void main() {
         expect(saved.language, DocumentLanguage.ptBr);
         expect(saved.region, RegionProfile.latamA4);
       });
+    });
+
+    group('default template and sections -', () {
+      void stubVault(DocumentDefaults defaults) {
+        when(
+          vaultService.vault,
+        ).thenReturn(CvVault.empty().copyWith(documentDefaults: defaults));
+        when(
+          vaultService.setDocumentDefaults(any),
+        ).thenAnswer((_) => Future<void>.value());
+      }
+
+      DocumentDefaults captureSaved() =>
+          verify(vaultService.setDocumentDefaults(captureAny)).captured.single
+              as DocumentDefaults;
+
+      test('defaultTemplate falls back to the registry when none is set', () {
+        stubVault(const DocumentDefaults());
+
+        expect(
+          VaultViewModel().defaultTemplate.id,
+          TemplateRegistryService().defaultTemplate.id,
+        );
+      });
+
+      test('defaultTemplate falls back for an id no longer registered, '
+          'rather than leaving the panel with nothing to show', () {
+        stubVault(const DocumentDefaults(templateId: 'deleted_template'));
+
+        expect(
+          VaultViewModel().defaultTemplate.id,
+          TemplateRegistryService().defaultTemplate.id,
+        );
+      });
+
+      test('defaultSectionOrder is complete even when the stored one '
+          'predates a section type', () {
+        stubVault(
+          const DocumentDefaults(
+            sectionOrder: [CvSectionType.skills, CvSectionType.summary],
+          ),
+        );
+
+        final order = VaultViewModel().defaultSectionOrder;
+
+        expect(order.take(2), [CvSectionType.skills, CvSectionType.summary]);
+        expect(order.toSet(), CvSectionType.values.toSet());
+      });
+
+      test('reorderDefaultSections writes the whole order', () async {
+        stubVault(const DocumentDefaults(sectionOrder: CvSectionType.values));
+
+        // Move the last section to the front.
+        await VaultViewModel().reorderDefaultSections(
+          CvSectionType.values.length - 1,
+          0,
+        );
+
+        expect(captureSaved().sectionOrder!.first, CvSectionType.values.last);
+      });
+
+      test('toggleDefaultSectionHidden hides, then shows again', () async {
+        stubVault(const DocumentDefaults(sectionOrder: CvSectionType.values));
+
+        await VaultViewModel().toggleDefaultSectionHidden(
+          CvSectionType.hobbies,
+        );
+        expect(captureSaved().hiddenSections, {CvSectionType.hobbies});
+
+        stubVault(
+          const DocumentDefaults(
+            sectionOrder: CvSectionType.values,
+            hiddenSections: {CvSectionType.hobbies},
+          ),
+        );
+        await VaultViewModel().toggleDefaultSectionHidden(
+          CvSectionType.hobbies,
+        );
+        expect(captureSaved().hiddenSections, isEmpty);
+      });
+
+      test('hiding a section pins the order that was only implied by the '
+          'template, so a later template change cannot reorder it', () async {
+        stubVault(const DocumentDefaults());
+
+        await VaultViewModel().toggleDefaultSectionHidden(
+          CvSectionType.hobbies,
+        );
+
+        expect(captureSaved().sectionOrder, isNotNull);
+      });
+
+      test(
+        'the template picker saves the chosen id and keeps the rest',
+        () async {
+          stubVault(
+            const DocumentDefaults(
+              region: RegionProfile.dach,
+              language: DocumentLanguage.deAt,
+            ),
+          );
+          when(
+            dialogService.showCustomDialog<String, TemplateGalleryDialogData>(
+              variant: anyNamed('variant'),
+              data: anyNamed('data'),
+            ),
+          ).thenAnswer(
+            (_) async =>
+                DialogResponse<String>(confirmed: true, data: 'photo_header'),
+          );
+
+          await VaultViewModel().openDefaultTemplatePicker();
+
+          final saved = captureSaved();
+          expect(saved.templateId, 'photo_header');
+          expect(saved.region, RegionProfile.dach);
+          expect(saved.language, DocumentLanguage.deAt);
+        },
+      );
+
+      test(
+        'cancelling the template picker leaves the defaults alone',
+        () async {
+          stubVault(const DocumentDefaults());
+          when(
+            dialogService.showCustomDialog<String, TemplateGalleryDialogData>(
+              variant: anyNamed('variant'),
+              data: anyNamed('data'),
+            ),
+          ).thenAnswer((_) async => DialogResponse<String>(confirmed: false));
+
+          await VaultViewModel().openDefaultTemplatePicker();
+
+          verifyNever(vaultService.setDocumentDefaults(any));
+        },
+      );
     });
   });
 }

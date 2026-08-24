@@ -171,9 +171,6 @@ extension CvDraftSectionOrder on CvDraft {
   /// silently dropped from the printed CV forever. Always read this,
   /// never [sectionOrder] directly, anywhere order is consumed for
   /// rendering or for the picker UI.
-  List<CvSectionType> get effectiveSectionOrder => [
-    ...sectionOrder,
-    for (final type in CvSectionType.values)
-      if (!sectionOrder.contains(type)) type,
-  ];
+  List<CvSectionType> get effectiveSectionOrder =>
+      completeSectionOrder(sectionOrder);
 }

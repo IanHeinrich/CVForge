@@ -1664,13 +1664,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioSectionsResetDefault => 'Reset to my saved default';
 
   @override
-  String get studioSectionsSavedDefault =>
-      'Saved this order and section selection as your default';
-
-  @override
-  String get studioSectionsSaveDefault => 'Save as my default';
-
-  @override
   String get studioSectionsTitle => 'Sections';
 
   @override
@@ -1974,6 +1967,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsRegionLabel => 'Region';
+
+  @override
+  String get vaultCvDefaultsSectionsHelp =>
+      'Which sections a new CV includes, and the order they print in. Drag to reorder.';
+
+  @override
+  String get vaultCvDefaultsSectionsLabel => 'Sections';
+
+  @override
+  String get vaultCvDefaultsTemplateHelp =>
+      'The design a new CV starts with — its layout, its type, and whether a photo is printed.';
+
+  @override
+  String get vaultCvDefaultsTemplateLabel => 'Template';
 
   @override
   String get vaultDeleteCategoryBody =>

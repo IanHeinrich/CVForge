@@ -378,6 +378,33 @@ void main() {
       expect(service.draft.documentLanguage, DocumentLanguage.enUs);
     });
 
+    test('createDraft starts a new CV on the default template, rather than '
+        'inheriting the open draft template', () async {
+      final service = DraftService();
+      await service.load();
+
+      await service.createDraft(
+        name: 'On the default',
+        defaults: const DocumentDefaults(templateId: 'photo_header'),
+      );
+
+      expect(service.draft.templateId, 'photo_header');
+    });
+
+    test('an explicit templateId still beats the default, so "duplicate as" '
+        'is not overridden by a preference', () async {
+      final service = DraftService();
+      await service.load();
+
+      await service.createDraft(
+        name: 'Explicit',
+        templateId: 'classic_centered',
+        defaults: const DocumentDefaults(templateId: 'photo_header'),
+      );
+
+      expect(service.draft.templateId, 'classic_centered');
+    });
+
     test('changing the defaults afterwards leaves an existing draft alone — '
         'they seed a CV, they do not follow it', () async {
       final service = DraftService();
