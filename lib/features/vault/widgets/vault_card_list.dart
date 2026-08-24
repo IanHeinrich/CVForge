@@ -12,7 +12,14 @@ import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
+import 'package:cv_forge/ui/common/l10n/document_language_labels.dart';
+import 'package:cv_forge/ui/common/l10n/region_labels.dart';
+import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter/material.dart';
+
+import 'vault_section_heading.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
@@ -125,12 +132,41 @@ class _VaultCardListState extends State<VaultCardList> {
     final viewModel = widget.viewModel;
     final vault = viewModel.vault;
     final target = viewModel.openTarget;
+    final noun = vault.documentDefaults.region.preset.documentNoun.name;
+
     return [
-      _BasicsCard(
-        key: target == VaultEditorTarget.basics ? _selectedCardKey : null,
-        basics: vault.basics,
-        selected: target == VaultEditorTarget.basics,
-        onTap: viewModel.openBasicsEditor,
+      // The list has two halves, and says so. Everything below "About you"
+      // is a fact about the person; the card above it is configuration for
+      // the document. Splitting them with the list's own section heading
+      // keeps one idiom — tap a card, the right-hand panel opens — rather
+      // than bolting a settings strip above the search field, which would
+      // scroll away with the list anyway.
+      //
+      // Hidden while searching: the search filters career content, and a
+      // config card stranded above "no matches" reads as a bug.
+      if (!viewModel.isSearching)
+        _HeadedSection(
+          title: context.l10n.vaultSectionCvDefaults(noun),
+          child: _DocumentDefaultsCard(
+            key: target == VaultEditorTarget.documentDefaults
+                ? _selectedCardKey
+                : null,
+            defaults: vault.documentDefaults,
+            selected: target == VaultEditorTarget.documentDefaults,
+            onTap: viewModel.openDocumentDefaultsEditor,
+          ),
+        ),
+      _HeadedSection(
+        // Only labelled when the defaults section above it is showing —
+        // with nothing to separate it from, a lone "About you" over the
+        // whole list is a heading that earns nothing.
+        title: viewModel.isSearching ? null : context.l10n.vaultSectionAboutYou,
+        child: _BasicsCard(
+          key: target == VaultEditorTarget.basics ? _selectedCardKey : null,
+          basics: vault.basics,
+          selected: target == VaultEditorTarget.basics,
+          onTap: viewModel.openBasicsEditor,
+        ),
       ),
       VaultListSection<Experience>(
         title: context.l10n.vaultSectionExperience,
@@ -234,6 +270,66 @@ class _VaultCardListState extends State<VaultCardList> {
   /// misleadingly claim to have no entries at all.
   String _emptyMessage(VaultViewModel viewModel, String base) =>
       viewModel.isSearching ? context.l10n.vaultNoSearchMatches : base;
+}
+
+/// A heading and the single card under it, as one item.
+///
+/// [VaultListSection] bundles its own heading the same way, and it has to
+/// be one widget rather than two entries in [_VaultCardListState._sections]
+/// — that list puts a `VGap.medium` after every item, which between a
+/// heading and the card it labels would read as a gap rather than a group.
+class _HeadedSection extends StatelessWidget {
+  const _HeadedSection({required this.title, required this.child});
+
+  /// Null renders the card with no heading at all.
+  final String? title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final heading = title;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (heading != null) VaultSectionHeading(title: heading),
+        child,
+      ],
+    );
+  }
+}
+
+/// The Vault's one configuration card: which region and language every
+/// new CV starts out as.
+///
+/// Deliberately the same [AppSummaryCard] shape as the content cards
+/// below it, so the interaction is identical — it is the *heading* above
+/// it that says this is a different kind of thing, not a different
+/// control.
+class _DocumentDefaultsCard extends StatelessWidget {
+  const _DocumentDefaultsCard({
+    super.key,
+    required this.defaults,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final DocumentDefaults defaults;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSummaryCard(
+      title: defaults.region.displayName(context.l10n),
+      subtitle: defaults.language.displayLabel(context.l10n),
+      selected: selected,
+      onTap: onTap,
+      leading: RegionFlagStack(
+        flags: defaults.region.preset.flags,
+        size: context.appIconSize.large,
+      ),
+    );
+  }
 }
 
 class _BasicsCard extends StatelessWidget {

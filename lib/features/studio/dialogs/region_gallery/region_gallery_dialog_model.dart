@@ -40,16 +40,16 @@ class RegionGalleryDialogModel extends BaseViewModel {
 
   String get title => switch (data.context) {
     RegionGalleryContext.draft => strings.studioRegionPickerTitle,
-    RegionGalleryContext.appDefault => strings.studioRegionPickerDefaultTitle,
+    RegionGalleryContext.vaultDefault => strings.studioRegionPickerDefaultTitle,
   };
 
   String get introText => switch (data.context) {
     RegionGalleryContext.draft => strings.studioRegionPickerBody,
-    RegionGalleryContext.appDefault => strings.studioRegionPickerDefaultBody,
+    RegionGalleryContext.vaultDefault => strings.studioRegionPickerDefaultBody,
   };
 
   String get confirmLabel => switch (data.context) {
     RegionGalleryContext.draft => strings.studioRegionPickerUse,
-    RegionGalleryContext.appDefault => strings.studioRegionPickerSetDefault,
+    RegionGalleryContext.vaultDefault => strings.studioRegionPickerSetDefault,
   };
 }

@@ -402,6 +402,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateStyleMonYyyy => 'Mon YYYY (e.g. Jun 2023)';
 
   @override
+  String get documentLanguageDaName => 'Dansk';
+
+  @override
+  String get documentLanguageDeAtName => 'Deutsch (Österreich)';
+
+  @override
+  String get documentLanguageDeName => 'Deutsch';
+
+  @override
+  String get documentLanguageEnAuName => 'English (Australia)';
+
+  @override
+  String get documentLanguageEnGbName => 'English (United Kingdom)';
+
+  @override
+  String get documentLanguageEnUsName => 'English (United States)';
+
+  @override
+  String get documentLanguageEs419Name => 'Español (Latinoamérica)';
+
+  @override
+  String get documentLanguageEsName => 'Español (España)';
+
+  @override
+  String get documentLanguageFiName => 'Suomi';
+
+  @override
+  String get documentLanguageFrCaName => 'Français (Canada)';
+
+  @override
+  String get documentLanguageFrName => 'Français';
+
+  @override
+  String get documentLanguageItName => 'Italiano';
+
+  @override
+  String get documentLanguageNbName => 'Norsk bokmål';
+
+  @override
+  String get documentLanguageNlName => 'Nederlands';
+
+  @override
+  String get documentLanguagePtBrName => 'Português (Brasil)';
+
+  @override
+  String get documentLanguagePtPtName => 'Português (Portugal)';
+
+  @override
+  String get documentLanguageSvName => 'Svenska';
+
+  @override
   String draftCopySuffix(String name) {
     return '$name (copy)';
   }
@@ -1150,16 +1201,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLinkTerms => 'Terms of Service';
 
   @override
-  String get settingsRegionCardBody =>
-      'The region every new CV starts with. Change it any time for an individual CV from Studio.';
-
-  @override
-  String get settingsRegionCardChange => 'Change';
-
-  @override
-  String get settingsRegionCardTitle => 'Default region';
-
-  @override
   String get skillCategoryUnnamed => 'Unnamed category';
 
   @override
@@ -1903,6 +1944,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultCropPhotoTitle => 'Position your photo';
 
   @override
+  String get vaultCvDefaultsCardEmpty => 'Region and language';
+
+  @override
+  String get vaultCvDefaultsChange => 'Change';
+
+  @override
+  String get vaultCvDefaultsLanguageHelp =>
+      'The language your CV is written in. Separate from the language CVForge itself is shown in, which you set in Settings.';
+
+  @override
+  String get vaultCvDefaultsLanguageLabel => 'Language';
+
+  @override
+  String get vaultCvDefaultsPanelBody =>
+      'What every new CV starts out as. Changing these never rewrites a CV you have already made — switch those individually from Studio.';
+
+  @override
+  String vaultCvDefaultsPanelTitle(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Résumé defaults',
+      'other': 'CV defaults',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultCvDefaultsRegionHelp =>
+      'Sets the page size, the date convention, and the advice the AI Assistant follows.';
+
+  @override
+  String get vaultCvDefaultsRegionLabel => 'Region';
+
+  @override
   String get vaultDeleteCategoryBody =>
       'This removes it and all of its skills.';
 
@@ -2163,6 +2237,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultSearch => 'Search your Vault…';
+
+  @override
+  String get vaultSectionAboutYou => 'About you';
+
+  @override
+  String vaultSectionCvDefaults(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Résumé defaults',
+      'other': 'CV defaults',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get vaultSectionEducation => 'Education';

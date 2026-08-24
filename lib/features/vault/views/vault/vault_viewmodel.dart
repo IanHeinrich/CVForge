@@ -1,4 +1,8 @@
 import 'package:cv_forge/app/app.dialogs.dart';
+import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
 import 'package:cv_forge/services/localization_service.dart';
@@ -24,10 +28,17 @@ import 'package:stacked_services/stacked_services.dart';
 
 /// What the right-hand editor panel is currently showing, if anything.
 /// `experience`/`project`/`education` are keyed by id (many possible
-/// cards); `basics`/`skills`/`hobbies` are singletons (exactly one card
-/// each).
+/// cards); `basics`/`skills`/`hobbies`/`documentDefaults` are singletons
+/// (exactly one card each).
 enum VaultEditorTarget {
   none,
+
+  /// The only target that edits configuration rather than career content —
+  /// what every new CV starts out as. It routes through this same panel
+  /// mechanism deliberately: the Vault already has one way to open an
+  /// editor, and a settings surface bolted on beside it would read as
+  /// foreign.
+  documentDefaults,
   basics,
   experience,
   project,
@@ -163,6 +174,8 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   String? get openId => _openId;
   bool get isEditorOpen => _openTarget != VaultEditorTarget.none;
 
+  void openDocumentDefaultsEditor() =>
+      _open(VaultEditorTarget.documentDefaults);
   void openBasicsEditor() => _open(VaultEditorTarget.basics);
   void openSkillsEditor() => _open(VaultEditorTarget.skills);
   void openHobbiesEditor() => _open(VaultEditorTarget.hobbies);
@@ -183,6 +196,36 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     _openTarget = target;
     _openId = id;
     rebuildUi();
+  }
+
+  DocumentDefaults get documentDefaults => vault.documentDefaults;
+
+  Future<void> setDocumentLanguage(DocumentLanguage language) => _vaultService
+      .setDocumentDefaults(documentDefaults.copyWith(language: language));
+
+  /// Opens the same picker Studio's per-CV region button opens, in its
+  /// `vaultDefault` context — one region surface with two entry points
+  /// rather than two that can drift on wording or on which conventions
+  /// they explain.
+  ///
+  /// Near-identical to `StudioViewModel.openRegionGallery` and left that
+  /// way: they write to different services and pass different contexts, so
+  /// factoring them together would need a home neither ViewModel owns.
+  Future<void> openDefaultRegionPicker() async {
+    final response = await _dialogService
+        .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
+          variant: DialogType.regionGallery,
+          data: RegionGalleryDialogData(
+            currentRegion: documentDefaults.region,
+            context: RegionGalleryContext.vaultDefault,
+          ),
+        );
+    final selected = response?.data;
+    if (response?.confirmed == true && selected != null) {
+      await _vaultService.setDocumentDefaults(
+        documentDefaults.copyWith(region: selected),
+      );
+    }
   }
 
   Future<void> updateBasics(ContactBasics basics) =>

@@ -57,9 +57,10 @@ void main() {
     when(
       (locator<VaultService>() as MockVaultService).vault,
     ).thenReturn(CvVault.empty());
-    // DraftsCardList's "New CV"/search/empty-state copy reads
-    // `AppSettings.defaultRegion` — unstubbed, the mock's dummy `AppSettings`
-    // throws as soon as anything dereferences a field on it.
+    // DraftsCardList's "New CV"/search/empty-state copy reads the Vault's
+    // default region, stubbed just above. Settings is stubbed too because
+    // the surrounding chrome still dereferences it, and the mock's dummy
+    // `AppSettings` throws on the first field read.
     when(
       (locator<SettingsService>() as MockSettingsService).settings,
     ).thenReturn(AppSettings.empty());

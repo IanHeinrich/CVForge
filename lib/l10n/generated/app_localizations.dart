@@ -602,6 +602,108 @@ abstract class AppLocalizations {
   /// **'Mon YYYY (e.g. Jun 2023)'**
   String get dateStyleMonYyyy;
 
+  /// Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Dansk'**
+  String get documentLanguageDaName;
+
+  /// Name of the language a CV can be written in, as Deutsch (Österreich) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Deutsch (Österreich)'**
+  String get documentLanguageDeAtName;
+
+  /// Name of the language a CV can be written in, as Deutsch writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Deutsch'**
+  String get documentLanguageDeName;
+
+  /// Name of the language a CV can be written in, as English (Australia) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'English (Australia)'**
+  String get documentLanguageEnAuName;
+
+  /// Name of the language a CV can be written in, as English (United Kingdom) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'English (United Kingdom)'**
+  String get documentLanguageEnGbName;
+
+  /// Name of the language a CV can be written in, as English (United States) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'English (United States)'**
+  String get documentLanguageEnUsName;
+
+  /// Name of the language a CV can be written in, as Español (Latinoamérica) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Español (Latinoamérica)'**
+  String get documentLanguageEs419Name;
+
+  /// Name of the language a CV can be written in, as Español (España) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Español (España)'**
+  String get documentLanguageEsName;
+
+  /// Name of the language a CV can be written in, as Suomi writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Suomi'**
+  String get documentLanguageFiName;
+
+  /// Name of the language a CV can be written in, as Français (Canada) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Français (Canada)'**
+  String get documentLanguageFrCaName;
+
+  /// Name of the language a CV can be written in, as Français writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Français'**
+  String get documentLanguageFrName;
+
+  /// Name of the language a CV can be written in, as Italiano writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Italiano'**
+  String get documentLanguageItName;
+
+  /// Name of the language a CV can be written in, as Norsk bokmål writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Norsk bokmål'**
+  String get documentLanguageNbName;
+
+  /// Name of the language a CV can be written in, as Nederlands writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Nederlands'**
+  String get documentLanguageNlName;
+
+  /// Name of the language a CV can be written in, as Português (Brasil) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Português (Brasil)'**
+  String get documentLanguagePtBrName;
+
+  /// Name of the language a CV can be written in, as Português (Portugal) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Português (Portugal)'**
+  String get documentLanguagePtPtName;
+
+  /// Name of the language a CV can be written in, as Svenska writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card.
+  ///
+  /// In en, this message translates to:
+  /// **'Svenska'**
+  String get documentLanguageSvName;
+
   /// The name given to a duplicated CV, based on the original's name.
   ///
   /// In en, this message translates to:
@@ -1778,24 +1880,6 @@ abstract class AppLocalizations {
   /// **'Terms of Service'**
   String get settingsLinkTerms;
 
-  /// Settings, region card body. 'Studio' is this app's name for the CV editor screen.
-  ///
-  /// In en, this message translates to:
-  /// **'The region every new CV starts with. Change it any time for an individual CV from Studio.'**
-  String get settingsRegionCardBody;
-
-  /// Settings, region card button that opens the region picker.
-  ///
-  /// In en, this message translates to:
-  /// **'Change'**
-  String get settingsRegionCardChange;
-
-  /// Settings, region card heading. Region controls CV conventions for a job market (page size, date style, whether a photo is expected), not the app's language.
-  ///
-  /// In en, this message translates to:
-  /// **'Default region'**
-  String get settingsRegionCardTitle;
-
   /// Stands in for a skill category's name while it is still blank. Shown wherever the name is displayed (a chip-group heading, a menu item); the editor field itself still shows the real empty value.
   ///
   /// In en, this message translates to:
@@ -2894,6 +2978,54 @@ abstract class AppLocalizations {
   /// **'Position your photo'**
   String get vaultCropPhotoTitle;
 
+  /// Fallback title on the Vault's CV defaults card, shown only if the region name is somehow unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Region and language'**
+  String get vaultCvDefaultsCardEmpty;
+
+  /// Button on the region row of the Vault's document-defaults panel, opening the region picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get vaultCvDefaultsChange;
+
+  /// Help text under the document-language row of the Vault's document-defaults panel. Exists to stop the two language axes being confused; keep the distinction explicit.
+  ///
+  /// In en, this message translates to:
+  /// **'The language your CV is written in. Separate from the language CVForge itself is shown in, which you set in Settings.'**
+  String get vaultCvDefaultsLanguageHelp;
+
+  /// Label on the document-language row of the Vault's document-defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get vaultCvDefaultsLanguageLabel;
+
+  /// Body text in the Vault's document-defaults editor panel. The second clause is the point: users routinely expect a 'default' to apply retroactively.
+  ///
+  /// In en, this message translates to:
+  /// **'What every new CV starts out as. Changing these never rewrites a CV you have already made — switch those individually from Studio.'**
+  String get vaultCvDefaultsPanelBody;
+
+  /// Title of the Vault editor panel for the document defaults. Same copy as the section heading that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'{noun, select, resume{Résumé defaults} other{CV defaults}}'**
+  String vaultCvDefaultsPanelTitle(String noun);
+
+  /// Help text under the region row of the Vault's document-defaults panel, naming what region actually changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the page size, the date convention, and the advice the AI Assistant follows.'**
+  String get vaultCvDefaultsRegionHelp;
+
+  /// Label on the region row of the Vault's document-defaults panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get vaultCvDefaultsRegionLabel;
+
   /// Confirmation dialog body for deleting a skill category.
   ///
   /// In en, this message translates to:
@@ -3370,6 +3502,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search your Vault…'**
   String get vaultSearch;
+
+  /// Heading above the Vault's career-content cards (personal details, experience, skills and so on), separating them from the document defaults above.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get vaultSectionAboutYou;
+
+  /// Heading above the Vault's document-defaults card, separating it from the career content below. Follows the default region's document noun. Branch on the noun, not on the language.
+  ///
+  /// In en, this message translates to:
+  /// **'{noun, select, resume{Résumé defaults} other{CV defaults}}'**
+  String vaultSectionCvDefaults(String noun);
 
   /// Vault list section heading for qualifications.
   ///

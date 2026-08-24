@@ -409,6 +409,57 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dateStyleMonYyyy => 'Mes AAAA (p. ej. jun 2023)';
 
   @override
+  String get documentLanguageDaName => 'Dansk';
+
+  @override
+  String get documentLanguageDeAtName => 'Deutsch (Österreich)';
+
+  @override
+  String get documentLanguageDeName => 'Deutsch';
+
+  @override
+  String get documentLanguageEnAuName => 'English (Australia)';
+
+  @override
+  String get documentLanguageEnGbName => 'English (United Kingdom)';
+
+  @override
+  String get documentLanguageEnUsName => 'English (United States)';
+
+  @override
+  String get documentLanguageEs419Name => 'Español (Latinoamérica)';
+
+  @override
+  String get documentLanguageEsName => 'Español (España)';
+
+  @override
+  String get documentLanguageFiName => 'Suomi';
+
+  @override
+  String get documentLanguageFrCaName => 'Français (Canada)';
+
+  @override
+  String get documentLanguageFrName => 'Français';
+
+  @override
+  String get documentLanguageItName => 'Italiano';
+
+  @override
+  String get documentLanguageNbName => 'Norsk bokmål';
+
+  @override
+  String get documentLanguageNlName => 'Nederlands';
+
+  @override
+  String get documentLanguagePtBrName => 'Português (Brasil)';
+
+  @override
+  String get documentLanguagePtPtName => 'Português (Portugal)';
+
+  @override
+  String get documentLanguageSvName => 'Svenska';
+
+  @override
   String draftCopySuffix(String name) {
     return '$name (copia)';
   }
@@ -1163,16 +1214,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsLinkTerms => 'Términos del servicio';
 
   @override
-  String get settingsRegionCardBody =>
-      'La región con la que empieza cada CV nuevo. Puedes cambiarla en cualquier momento para un CV concreto desde Studio.';
-
-  @override
-  String get settingsRegionCardChange => 'Cambiar';
-
-  @override
-  String get settingsRegionCardTitle => 'Región predeterminada';
-
-  @override
   String get skillCategoryUnnamed => 'Categoría sin nombre';
 
   @override
@@ -1613,7 +1654,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioRegionPickerDefaultBody =>
-      'Define la región con la que empieza cada CV nuevo. Cambiarla nunca afecta un CV que ya hayas creado — esos se cambian individualmente desde Studio.';
+      'Define la región con la que empieza cada CV nuevo. Cambiarla nunca afecta a un CV que ya hayas creado: esos se cambian de uno en uno desde el Estudio.';
 
   @override
   String get studioRegionPickerDefaultTitle => 'Región predeterminada';
@@ -1925,6 +1966,39 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultCropPhotoTitle => 'Encuadra tu foto';
 
   @override
+  String get vaultCvDefaultsCardEmpty => 'Región e idioma';
+
+  @override
+  String get vaultCvDefaultsChange => 'Cambiar';
+
+  @override
+  String get vaultCvDefaultsLanguageHelp =>
+      'El idioma en el que está escrito tu CV. Es distinto del idioma en el que se muestra CVForge, que se elige en Ajustes.';
+
+  @override
+  String get vaultCvDefaultsLanguageLabel => 'Idioma';
+
+  @override
+  String get vaultCvDefaultsPanelBody =>
+      'Con esto empieza cada CV nuevo. Cambiarlo nunca modifica un CV que ya hayas creado: esos se cambian de uno en uno desde el Estudio.';
+
+  @override
+  String vaultCvDefaultsPanelTitle(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Valores por defecto del résumé',
+      'other': 'Valores por defecto del CV',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultCvDefaultsRegionHelp =>
+      'Define el tamaño de página, el formato de las fechas y las recomendaciones que sigue el Asistente de IA.';
+
+  @override
+  String get vaultCvDefaultsRegionLabel => 'Región';
+
+  @override
   String get vaultDeleteCategoryBody =>
       'Esto la elimina junto con todas sus habilidades.';
 
@@ -2185,6 +2259,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultSearch => 'Busca en tu Bóveda…';
+
+  @override
+  String get vaultSectionAboutYou => 'Sobre ti';
+
+  @override
+  String vaultSectionCvDefaults(String noun) {
+    String _temp0 = intl.Intl.selectLogic(noun, {
+      'resume': 'Valores por defecto del résumé',
+      'other': 'Valores por defecto del CV',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get vaultSectionEducation => 'Formación académica';

@@ -1,9 +1,11 @@
 import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
+import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
 import 'basics_editor_panel.dart';
+import 'document_defaults_editor_panel/document_defaults_editor_panel.dart';
 import 'bullet_list_editor.dart';
 import 'education_editor_panel.dart';
 import 'experience_editor_panel.dart';
@@ -38,6 +40,16 @@ class VaultEditorPanelRouter extends StatelessWidget {
     switch (viewModel.openTarget) {
       case VaultEditorTarget.none:
         return const SizedBox.shrink();
+
+      case VaultEditorTarget.documentDefaults:
+        return DocumentDefaultsEditorPanel(
+          defaults: viewModel.documentDefaults,
+          documentNoun:
+              viewModel.documentDefaults.region.preset.documentNoun.name,
+          onClose: viewModel.closeEditor,
+          onChangeRegion: viewModel.openDefaultRegionPicker,
+          onLanguageChanged: viewModel.setDocumentLanguage,
+        );
 
       case VaultEditorTarget.basics:
         return BasicsEditorPanel(

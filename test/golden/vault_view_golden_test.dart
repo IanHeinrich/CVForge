@@ -29,9 +29,11 @@ void main() {
     // remembering to update every golden test's setUp individually.
     registerServices();
     vaultService = locator<VaultService>() as MockVaultService;
-    // AppChrome's nav rail reads `AppSettings.defaultRegion` for the
-    // drafts tab's "CVs"/"Résumés" label — unstubbed, the mock's dummy
-    // `AppSettings` throws as soon as anything dereferences a field on it.
+    // AppChrome's nav rail reads the Vault's default region for the
+    // drafts tab's "CVs"/"Résumés" label, and each test stubs
+    // `vaultService.vault` for its own case. Settings is still stubbed
+    // because SettingsViewModel-adjacent chrome dereferences it, and the
+    // mock's dummy `AppSettings` throws on the first field read.
     when(
       (locator<SettingsService>() as MockSettingsService).settings,
     ).thenReturn(AppSettings.empty());

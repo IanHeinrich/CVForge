@@ -498,6 +498,74 @@
   "@dateStyleMonYyyy": {
     "description": "How dates are written on the CV. The pattern letters and the example should be rewritten to show the same format using the target language's own month abbreviation."
   },
+  "documentLanguageDaName": "Dansk",
+  "@documentLanguageDaName": {
+    "description": "Name of the language a CV can be written in, as Dansk writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageDeAtName": "Deutsch (Österreich)",
+  "@documentLanguageDeAtName": {
+    "description": "Name of the language a CV can be written in, as Deutsch (Österreich) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageDeName": "Deutsch",
+  "@documentLanguageDeName": {
+    "description": "Name of the language a CV can be written in, as Deutsch writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEnAuName": "English (Australia)",
+  "@documentLanguageEnAuName": {
+    "description": "Name of the language a CV can be written in, as English (Australia) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEnGbName": "English (United Kingdom)",
+  "@documentLanguageEnGbName": {
+    "description": "Name of the language a CV can be written in, as English (United Kingdom) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEnUsName": "English (United States)",
+  "@documentLanguageEnUsName": {
+    "description": "Name of the language a CV can be written in, as English (United States) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEs419Name": "Español (Latinoamérica)",
+  "@documentLanguageEs419Name": {
+    "description": "Name of the language a CV can be written in, as Español (Latinoamérica) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageEsName": "Español (España)",
+  "@documentLanguageEsName": {
+    "description": "Name of the language a CV can be written in, as Español (España) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageFiName": "Suomi",
+  "@documentLanguageFiName": {
+    "description": "Name of the language a CV can be written in, as Suomi writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageFrCaName": "Français (Canada)",
+  "@documentLanguageFrCaName": {
+    "description": "Name of the language a CV can be written in, as Français (Canada) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageFrName": "Français",
+  "@documentLanguageFrName": {
+    "description": "Name of the language a CV can be written in, as Français writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageItName": "Italiano",
+  "@documentLanguageItName": {
+    "description": "Name of the language a CV can be written in, as Italiano writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageNbName": "Norsk bokmål",
+  "@documentLanguageNbName": {
+    "description": "Name of the language a CV can be written in, as Norsk bokmål writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageNlName": "Nederlands",
+  "@documentLanguageNlName": {
+    "description": "Name of the language a CV can be written in, as Nederlands writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguagePtBrName": "Português (Brasil)",
+  "@documentLanguagePtBrName": {
+    "description": "Name of the language a CV can be written in, as Português (Brasil) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguagePtPtName": "Português (Portugal)",
+  "@documentLanguagePtPtName": {
+    "description": "Name of the language a CV can be written in, as Português (Portugal) writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
+  "documentLanguageSvName": "Svenska",
+  "@documentLanguageSvName": {
+    "description": "Name of the language a CV can be written in, as Svenska writes it. An autonym: NEVER translate this — it is what makes the picker usable by someone who cannot read the app's current language. Shown in the document-language picker and on the Vault's CV defaults card."
+  },
   "draftCopySuffix": "{name} (copy)",
   "@draftCopySuffix": {
     "description": "The name given to a duplicated CV, based on the original's name.",
@@ -1445,18 +1513,6 @@
   "settingsLinkTerms": "Terms of Service",
   "@settingsLinkTerms": {
     "description": "Settings, footer link to the terms of service page."
-  },
-  "settingsRegionCardBody": "The region every new CV starts with. Change it any time for an individual CV from Studio.",
-  "@settingsRegionCardBody": {
-    "description": "Settings, region card body. 'Studio' is this app's name for the CV editor screen."
-  },
-  "settingsRegionCardChange": "Change",
-  "@settingsRegionCardChange": {
-    "description": "Settings, region card button that opens the region picker."
-  },
-  "settingsRegionCardTitle": "Default region",
-  "@settingsRegionCardTitle": {
-    "description": "Settings, region card heading. Region controls CV conventions for a job market (page size, date style, whether a photo is expected), not the app's language."
   },
   "skillCategoryUnnamed": "Unnamed category",
   "@skillCategoryUnnamed": {
@@ -2434,6 +2490,44 @@
   "@vaultCropPhotoTitle": {
     "description": "Title of the dialog for cropping a profile photograph to the required aspect ratio."
   },
+  "vaultCvDefaultsCardEmpty": "Region and language",
+  "@vaultCvDefaultsCardEmpty": {
+    "description": "Fallback title on the Vault's CV defaults card, shown only if the region name is somehow unavailable."
+  },
+  "vaultCvDefaultsChange": "Change",
+  "@vaultCvDefaultsChange": {
+    "description": "Button on the region row of the Vault's document-defaults panel, opening the region picker."
+  },
+  "vaultCvDefaultsLanguageHelp": "The language your CV is written in. Separate from the language CVForge itself is shown in, which you set in Settings.",
+  "@vaultCvDefaultsLanguageHelp": {
+    "description": "Help text under the document-language row of the Vault's document-defaults panel. Exists to stop the two language axes being confused; keep the distinction explicit."
+  },
+  "vaultCvDefaultsLanguageLabel": "Language",
+  "@vaultCvDefaultsLanguageLabel": {
+    "description": "Label on the document-language row of the Vault's document-defaults panel."
+  },
+  "vaultCvDefaultsPanelBody": "What every new CV starts out as. Changing these never rewrites a CV you have already made — switch those individually from Studio.",
+  "@vaultCvDefaultsPanelBody": {
+    "description": "Body text in the Vault's document-defaults editor panel. The second clause is the point: users routinely expect a 'default' to apply retroactively."
+  },
+  "vaultCvDefaultsPanelTitle": "{noun, select, resume{Résumé defaults} other{CV defaults}}",
+  "@vaultCvDefaultsPanelTitle": {
+    "description": "Title of the Vault editor panel for the document defaults. Same copy as the section heading that opens it.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
+  },
+  "vaultCvDefaultsRegionHelp": "Sets the page size, the date convention, and the advice the AI Assistant follows.",
+  "@vaultCvDefaultsRegionHelp": {
+    "description": "Help text under the region row of the Vault's document-defaults panel, naming what region actually changes."
+  },
+  "vaultCvDefaultsRegionLabel": "Region",
+  "@vaultCvDefaultsRegionLabel": {
+    "description": "Label on the region row of the Vault's document-defaults panel."
+  },
   "vaultDeleteCategoryBody": "This removes it and all of its skills.",
   "@vaultDeleteCategoryBody": {
     "description": "Confirmation dialog body for deleting a skill category."
@@ -2775,6 +2869,20 @@
   "vaultSearch": "Search your Vault…",
   "@vaultSearch": {
     "description": "Placeholder in the search field above the Vault's entry list."
+  },
+  "vaultSectionAboutYou": "About you",
+  "@vaultSectionAboutYou": {
+    "description": "Heading above the Vault's career-content cards (personal details, experience, skills and so on), separating them from the document defaults above."
+  },
+  "vaultSectionCvDefaults": "{noun, select, resume{Résumé defaults} other{CV defaults}}",
+  "@vaultSectionCvDefaults": {
+    "description": "Heading above the Vault's document-defaults card, separating it from the career content below. Follows the default region's document noun. Branch on the noun, not on the language.",
+    "placeholders": {
+      "noun": {
+        "type": "String",
+        "example": "cv"
+      }
+    }
   },
   "vaultSectionEducation": "Education",
   "@vaultSectionEducation": {

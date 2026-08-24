@@ -1,5 +1,10 @@
 import 'dart:typed_data';
 
+import 'package:cv_forge/app/app.dialogs.dart';
+import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
+import 'package:cv_forge/models/document/document_language.dart';
+import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/vault/dialogs/crop_photo/crop_photo_dialog_data.dart';
 import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
@@ -421,6 +426,111 @@ void main() {
         expect(model.consumeInvalidUrlNotice(), isTrue);
         expect(model.consumeInvalidUrlNotice(), isFalse);
         expect(model.consumeInvalidUrlNotice(), isFalse);
+      });
+    });
+
+    group('document defaults -', () {
+      void stubPicker(DialogResponse<RegionProfile>? response) {
+        when(
+          dialogService
+              .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
+                variant: anyNamed('variant'),
+                data: anyNamed('data'),
+              ),
+        ).thenAnswer((_) async => response);
+      }
+
+      test('the defaults card opens the panel, like every other card', () {
+        final model = VaultViewModel();
+
+        model.openDocumentDefaultsEditor();
+
+        expect(model.openTarget, VaultEditorTarget.documentDefaults);
+        expect(model.isEditorOpen, isTrue);
+      });
+
+      test('openDefaultRegionPicker opens the shared picker in its '
+          'vaultDefault context, seeded with the current default', () async {
+        when(vaultService.vault).thenReturn(
+          CvVault.empty().copyWith(
+            documentDefaults: const DocumentDefaults(
+              region: RegionProfile.nordics,
+            ),
+          ),
+        );
+        stubPicker(DialogResponse<RegionProfile>(confirmed: false));
+
+        await VaultViewModel().openDefaultRegionPicker();
+
+        final data =
+            verify(
+                  dialogService
+                      .showCustomDialog<RegionProfile, RegionGalleryDialogData>(
+                        variant: DialogType.regionGallery,
+                        data: captureAnyNamed('data'),
+                      ),
+                ).captured.single
+                as RegionGalleryDialogData;
+
+        expect(data.context, RegionGalleryContext.vaultDefault);
+        expect(data.currentRegion, RegionProfile.nordics);
+      });
+
+      test('a confirmed region lands on the Vault without disturbing the '
+          'language beside it', () async {
+        when(vaultService.vault).thenReturn(
+          CvVault.empty().copyWith(
+            documentDefaults: const DocumentDefaults(
+              language: DocumentLanguage.nl,
+            ),
+          ),
+        );
+        stubPicker(
+          DialogResponse<RegionProfile>(
+            confirmed: true,
+            data: RegionProfile.dach,
+          ),
+        );
+        when(
+          vaultService.setDocumentDefaults(any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        await VaultViewModel().openDefaultRegionPicker();
+
+        final saved =
+            verify(vaultService.setDocumentDefaults(captureAny)).captured.single
+                as DocumentDefaults;
+        expect(saved.region, RegionProfile.dach);
+        expect(saved.language, DocumentLanguage.nl);
+      });
+
+      test('cancelling leaves the defaults alone', () async {
+        stubPicker(DialogResponse<RegionProfile>(confirmed: false));
+
+        await VaultViewModel().openDefaultRegionPicker();
+
+        verifyNever(vaultService.setDocumentDefaults(any));
+      });
+
+      test('setDocumentLanguage keeps the region beside it', () async {
+        when(vaultService.vault).thenReturn(
+          CvVault.empty().copyWith(
+            documentDefaults: const DocumentDefaults(
+              region: RegionProfile.latamA4,
+            ),
+          ),
+        );
+        when(
+          vaultService.setDocumentDefaults(any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        await VaultViewModel().setDocumentLanguage(DocumentLanguage.ptBr);
+
+        final saved =
+            verify(vaultService.setDocumentDefaults(captureAny)).captured.single
+                as DocumentDefaults;
+        expect(saved.language, DocumentLanguage.ptBr);
+        expect(saved.region, RegionProfile.latamA4);
       });
     });
   });

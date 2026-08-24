@@ -11,8 +11,11 @@ enum RegionGalleryContext {
   /// Opened from Studio's document bar, changing this one CV's region.
   draft,
 
-  /// Opened from Settings, changing the region new CVs start with.
-  appDefault,
+  /// Opened from the Vault's CV defaults panel, changing the region new
+  /// CVs start with. Named for the Vault rather than the app because that
+  /// is where the default lives: region shapes the produced document, so
+  /// it sits with the career content rather than in Settings.
+  vaultDefault,
 }
 
 /// What [RegionGalleryDialog] needs to mark the current region — passed in
