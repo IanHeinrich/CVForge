@@ -1230,6 +1230,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioAiClearJobDescription => 'Clear job description';
 
   @override
+  String studioAiDialogLanguageNote(String language) {
+    return 'Written in $language — the assistant translates your bullets if your Vault is in another language.';
+  }
+
+  @override
   String studioAiDialogPrivacy(String provider) {
     return 'This sends the job description below and your CV content — not your name, email, phone, or links — to $provider, using your own API key. There is no CVForge server in between. This can take up to a few minutes — the model reasons through your whole Vault before responding.';
   }

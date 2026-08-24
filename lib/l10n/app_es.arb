@@ -306,6 +306,7 @@
   "studioAiCardBodyNoKey": "Usa tu propia clave de API en Configuración y luego pega aquí una oferta de empleo para seleccionar y reescribir este CV en función de ella.",
   "studioAiCardTitle": "Adaptar con IA",
   "studioAiClearJobDescription": "Borrar la descripción del puesto",
+  "studioAiDialogLanguageNote": "Redactado en {language}: el asistente traduce tus viñetas si tu Bóveda está en otro idioma.",
   "studioAiDialogPrivacy": "Esto envía la descripción del puesto que está abajo y el contenido de tu CV — no tu nombre, correo, teléfono ni enlaces — a {provider}, usando tu propia clave de API. No hay ningún servidor de CVForge de por medio. Puede tardar hasta unos minutos: el modelo razona sobre toda tu Bóveda antes de responder.",
   "studioAiDialogRegionNote": "Adaptado para {region} — el asistente sigue las convenciones de extensión, ortografía y tono de ese mercado.",
   "studioAiDialogTitle": "Adaptar con IA",

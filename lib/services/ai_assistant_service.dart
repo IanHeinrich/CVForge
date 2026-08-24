@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/llm/ai_assistant_vault_payload.dart';
+import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/services/llm/ai_assistant_prompt.dart';
@@ -23,13 +24,19 @@ class AiAssistantService {
   final _llmService = locator<LlmService>();
 
   /// [region] steers selection and phrasing only — length, spelling, and
-  /// tone. It travels in the system prompt rather than in
-  /// [AiAssistantVaultPayload], because it is not Vault content and does
-  /// not belong behind the confirm dialog's account of what gets sent.
+  /// tone. [documentLanguage] decides what language the returned bullets
+  /// are written in. Both travel in the system prompt rather than in
+  /// [AiAssistantVaultPayload], because neither is Vault content and so
+  /// neither belongs behind the confirm dialog's account of what gets sent.
+  ///
+  /// Both are the *draft's* own values, never the Vault's defaults — the
+  /// pass tailors one CV, and that CV's language is the one its bullets
+  /// have to come back in.
   Future<AiAssistantResult> runTailoringPass({
     required CvVault vault,
     required String jobDescription,
     required RegionProfile region,
+    required DocumentLanguage documentLanguage,
     required String providerId,
     required String modelId,
     required String apiKey,
@@ -38,7 +45,10 @@ class AiAssistantService {
       providerId: providerId,
       modelId: modelId,
       apiKey: apiKey,
-      systemPrompt: aiAssistantSystemPromptFor(region),
+      systemPrompt: aiAssistantSystemPromptFor(
+        region,
+        language: documentLanguage,
+      ),
       userContent: jsonEncode({
         'jobDescription': jobDescription,
         'vault': AiAssistantVaultPayload.from(vault).toJson(),

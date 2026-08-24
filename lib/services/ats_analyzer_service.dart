@@ -2,6 +2,7 @@ import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/services/localization_service.dart';
 import 'package:cv_forge/models/ats/ats_extracted_document.dart';
 import 'package:cv_forge/models/ats/ats_analysis_result.dart';
+import 'package:cv_forge/models/document/document_strings.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:cv_forge/models/ats/ats_text_node.dart';
 
@@ -329,21 +330,56 @@ class AtsAnalyzerService {
     return findings;
   }
 
+  /// Every shipped document language's word for one section, lowercased
+  /// and de-duplicated, plus any [extra] phrasings that are conventional
+  /// without being ours.
+  ///
+  /// A section title is often more than one word ("Professional summary",
+  /// "Formación académica"), and a heading matches if the *whole* title
+  /// appears — a substring check on "experience" alone would already be
+  /// satisfied by a bullet that used the word.
+  List<String> _headingKeywords(
+    String Function(DocumentStrings) titleOf, {
+    List<String> extra = const [],
+  }) => {
+    for (final language in DocumentLanguage.values)
+      titleOf(language.strings).toLowerCase(),
+    ...extra,
+  }.toList();
+
   List<AtsFinding> _checkMissingHeadings(AtsExtractedDocument document) {
     final text = document.nodes.map((n) => n.str).join(' ').toLowerCase();
     final findings = <AtsFinding>[];
 
-    // `keywords` are matched against the uploaded PDF's own text, which
-    // this app always writes in English (CLAUDE.md: the document's language
-    // is a separate axis from the UI's), so they stay English whatever the
-    // locale. `id` only selects the ICU branch used for display.
-    const sections = [
+    // Matched against an uploaded PDF's own text, in whatever language it
+    // happens to be written. That rules out both of the obvious sources:
+    // the UI locale is the language the *reader* chose, and this app's own
+    // document language belongs to a CV that is not necessarily the one
+    // being analysed — an upload is an arbitrary file, frequently one this
+    // app never produced.
+    //
+    // So the keyword list is the union across every language the app can
+    // write a CV in, plus the extra English phrasings other tools use.
+    // Derived from `documentStrings` rather than restated, so a language
+    // added there cannot be forgotten here — which would otherwise mean
+    // exporting a Spanish CV, feeding it back in, and being told it has no
+    // Experience, Education or Skills heading.
+    final sections = [
       (
         id: 'experience',
-        keywords: ['experience', 'work history', 'employment'],
+        keywords: _headingKeywords(
+          (s) => s.experience,
+          extra: const ['work history', 'employment'],
+        ),
       ),
-      (id: 'education', keywords: ['education']),
-      (id: 'skills', keywords: ['skills', 'competencies']),
+      (id: 'education', keywords: _headingKeywords((s) => s.education)),
+      (
+        id: 'skills',
+        keywords: _headingKeywords(
+          (s) => s.skills,
+          extra: const ['competencies'],
+        ),
+      ),
     ];
 
     for (final section in sections) {

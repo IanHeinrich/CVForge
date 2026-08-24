@@ -28,6 +28,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// UK, Ireland, New Zealand, South Africa, Singapore, India.
   DocumentLanguage.enGb: DocumentStrings(
     cldrTag: 'en_GB',
+    promptName: 'British English',
     summary: 'Professional summary',
     experience: 'Experience',
     projects: 'Projects',
@@ -56,6 +57,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// United States, Canada.
   DocumentLanguage.enUs: DocumentStrings(
     cldrTag: 'en',
+    promptName: 'American English',
     summary: 'Professional summary',
     experience: 'Experience',
     projects: 'Projects',
@@ -84,6 +86,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Australia.
   DocumentLanguage.enAu: DocumentStrings(
     cldrTag: 'en_AU',
+    promptName: 'Australian English',
     summary: 'Professional summary',
     experience: 'Experience',
     projects: 'Projects',
@@ -112,6 +115,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Germany, Switzerland.
   DocumentLanguage.de: DocumentStrings(
     cldrTag: 'de',
+    promptName: 'German',
     summary: 'Kurzprofil',
     experience: 'Berufserfahrung',
     projects: 'Projekte',
@@ -140,6 +144,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Austria. Section titles match Germany; the months do not.
   DocumentLanguage.deAt: DocumentStrings(
     cldrTag: 'de_AT',
+    promptName: 'Austrian German',
     summary: 'Kurzprofil',
     experience: 'Berufserfahrung',
     projects: 'Projekte',
@@ -168,6 +173,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// France, Belgium, Switzerland.
   DocumentLanguage.fr: DocumentStrings(
     cldrTag: 'fr',
+    promptName: 'French',
     summary: 'Profil professionnel',
     experience: 'Expérience professionnelle',
     projects: 'Projets',
@@ -196,6 +202,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Canada. Section titles match France; the months do not.
   DocumentLanguage.frCa: DocumentStrings(
     cldrTag: 'fr_CA',
+    promptName: 'Canadian French',
     summary: 'Profil professionnel',
     experience: 'Expérience professionnelle',
     projects: 'Projets',
@@ -224,6 +231,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Netherlands, Belgium.
   DocumentLanguage.nl: DocumentStrings(
     cldrTag: 'nl',
+    promptName: 'Dutch',
     summary: 'Profiel',
     experience: 'Werkervaring',
     projects: 'Projecten',
@@ -252,6 +260,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Italy, Switzerland.
   DocumentLanguage.it: DocumentStrings(
     cldrTag: 'it',
+    promptName: 'Italian',
     summary: 'Profilo professionale',
     experience: 'Esperienza professionale',
     projects: 'Progetti',
@@ -280,6 +289,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Spain.
   DocumentLanguage.es: DocumentStrings(
     cldrTag: 'es',
+    promptName: 'European Spanish',
     summary: 'Perfil profesional',
     experience: 'Experiencia profesional',
     projects: 'Proyectos',
@@ -310,6 +320,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Aficiones.
   DocumentLanguage.es419: DocumentStrings(
     cldrTag: 'es_419',
+    promptName: 'Latin American Spanish',
     summary: 'Perfil profesional',
     experience: 'Experiencia profesional',
     projects: 'Proyectos',
@@ -338,6 +349,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Portugal. Note académica, against Brazil's acadêmica.
   DocumentLanguage.ptPt: DocumentStrings(
     cldrTag: 'pt_PT',
+    promptName: 'European Portuguese',
     summary: 'Perfil profissional',
     experience: 'Experiência profissional',
     projects: 'Projetos',
@@ -366,6 +378,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Brazil. Shares its months with Portugal; the titles differ.
   DocumentLanguage.ptBr: DocumentStrings(
     cldrTag: 'pt_BR',
+    promptName: 'Brazilian Portuguese',
     summary: 'Perfil profissional',
     experience: 'Experiência profissional',
     projects: 'Projetos',
@@ -394,6 +407,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Sweden.
   DocumentLanguage.sv: DocumentStrings(
     cldrTag: 'sv',
+    promptName: 'Swedish',
     summary: 'Profil',
     experience: 'Arbetslivserfarenhet',
     projects: 'Projekt',
@@ -422,6 +436,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Norway.
   DocumentLanguage.nb: DocumentStrings(
     cldrTag: 'nb',
+    promptName: 'Norwegian Bokmål',
     summary: 'Profil',
     experience: 'Arbeidserfaring',
     projects: 'Prosjekter',
@@ -450,6 +465,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Denmark.
   DocumentLanguage.da: DocumentStrings(
     cldrTag: 'da',
+    promptName: 'Danish',
     summary: 'Profil',
     experience: 'Erhvervserfaring',
     projects: 'Projekter',
@@ -478,6 +494,7 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
   /// Finland.
   DocumentLanguage.fi: DocumentStrings(
     cldrTag: 'fi',
+    promptName: 'Finnish',
     summary: 'Profiili',
     experience: 'Työkokemus',
     projects: 'Projektit',
@@ -506,4 +523,17 @@ const Map<DocumentLanguage, DocumentStrings> documentStrings = {
 
 extension DocumentLanguageX on DocumentLanguage {
   DocumentStrings get strings => documentStrings[this]!;
+
+  /// Whether a CV in this language is written in English.
+  ///
+  /// Read by the AI Assistant's prompt, which describes a region's
+  /// expected *English* spelling convention (`RegionSpelling` has three
+  /// cases and all three are English). Telling a model to write German and
+  /// to use British spelling in the same breath is incoherent, so the
+  /// spelling line is omitted when this is false.
+  ///
+  /// Derived from [DocumentStrings.cldrTag] rather than listed out, so
+  /// adding another English locale cannot silently miss it.
+  bool get isEnglish =>
+      strings.cldrTag == 'en' || strings.cldrTag.startsWith('en_');
 }

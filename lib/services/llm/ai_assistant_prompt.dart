@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/document/document_strings.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 
 /// The AI Assistant tailoring pass's system prompt — deliberately asymmetric:
@@ -118,8 +119,12 @@ of stretching a bullet to imply it.
 /// the base prompt is stable and region-agnostic, so keeping it a named
 /// `const` lets the region block be tested as a delta against it, and keeps
 /// a stable prefix for any prompt caching added later.
-String aiAssistantSystemPromptFor(RegionProfile region) =>
-    '$aiAssistantSystemPrompt\n${_regionBlock(region)}';
+String aiAssistantSystemPromptFor(
+  RegionProfile region, {
+  required DocumentLanguage language,
+}) =>
+    '$aiAssistantSystemPrompt\n${_regionBlock(region, language)}'
+    '\n${_languageBlock(language)}';
 
 /// The closing paragraph is load-bearing, not boilerplate. Several regions
 /// expect a date of birth or a work-rights line, and the Vault has a field
@@ -131,9 +136,18 @@ String aiAssistantSystemPromptFor(RegionProfile region) =>
 /// the text. The per-stance `promptLabel`s carry the same guard inline;
 /// this restates it once for the conventions list, which is free text and
 /// cannot.
-String _regionBlock(RegionProfile region) {
+String _regionBlock(RegionProfile region, DocumentLanguage language) {
   final preset = region.preset;
   final conventions = preset.conventions.map((c) => '- $c').join('\n');
+  // RegionSpelling's three cases are en-GB, en-US and en-AU — all
+  // English. Telling the model to write in German and to use British
+  // spelling in the same breath is incoherent, so the line is dropped
+  // when the document is not in English. The real fix is a per-region,
+  // per-language spelling answer on RegionPreset; this is the honest
+  // stopgap until a market actually needs one.
+  final spelling = language.isEnglish
+      ? '- Spelling: ${preset.spelling.promptLabel}\n'
+      : '';
 
   return '''
 
@@ -145,8 +159,7 @@ Follow that market's conventions when selecting and phrasing content:
 - The document is called a "${preset.localName}" there.
 - Length: ${preset.lengthNote} Do not produce a selection that would run
   past ${preset.typicalMaxPages} pages.
-- Spelling: ${preset.spelling.promptLabel}
-- Tone: ${preset.toneNote}
+$spelling- Tone: ${preset.toneNote}
 - Photograph: ${preset.photo.promptLabel}
 - Personal details: ${preset.personalDetails.promptLabel}
 $conventions
@@ -157,5 +170,43 @@ relaxed by any convention here. Where a convention calls for something you
 have not been given — a date of birth, a language certification, a
 work-rights statement, a photograph — do not add, describe, or imply it.
 Record it in `keywordGaps` instead.
+''';
+}
+
+/// Names the language the CV is written in, and widens the rewriting rules
+/// just far enough to allow translating into it.
+///
+/// This block is not optional politeness. The rewriting section above
+/// permits only reordering and rephrasing, and demands every claim be
+/// verifiable by re-reading the original bullet — read literally, that
+/// forbids translation outright, and a model held to it will either refuse,
+/// half-translate, or decide the constraint is soft and relax it generally.
+/// Naming the one exception explicitly is what keeps the rest binding.
+///
+/// Appended *after* the region block so the stable prefix
+/// ([aiAssistantSystemPrompt] plus region) survives intact for any prompt
+/// caching added later.
+String _languageBlock(DocumentLanguage language) {
+  final name = language.strings.promptName;
+
+  return '''
+
+## Document language: $name
+
+This CV will be printed in $name. Write every bullet you select, every
+bullet you rewrite, and the summary in $name — whatever language the Vault
+content you were given happens to be in.
+
+Translating a bullet you were given is permitted, and is not inventing.
+Nothing else about the rewriting rules is relaxed: a translated bullet must
+still state exactly what the original stated, with no claim, metric, scope,
+or seniority added, removed, or sharpened on the way across. Where a
+faithful translation is not available without changing what the bullet
+claims, translate it plainly and literally rather than improving it.
+
+Leave proper nouns as they are — employer names, product names, trademarked
+job titles, qualifications, and certification names all stay exactly as
+written. A reader in this market has to be able to match them against the
+organisation that issued them.
 ''';
 }

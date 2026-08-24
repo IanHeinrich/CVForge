@@ -6,6 +6,7 @@ import 'package:cv_forge/models/ats/ats_link_annotation.dart';
 import 'package:cv_forge/models/ats/ats_text_node.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
+import 'package:cv_forge/models/document/document_strings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/test_helpers.dart';
@@ -519,6 +520,52 @@ void main() {
         ),
         isEmpty,
       );
+    });
+
+    test('a CV this app exported in Spanish analyses clean — the headings '
+        'are matched in every language the app can write one in, not just '
+        'English', () {
+      final spanish = DocumentLanguage.es419.strings;
+      final result = service.analyze(
+        _doc(
+          nodes: [
+            _node(str: spanish.experience, x: 0, y: 30, width: 50),
+            _node(str: spanish.education, x: 0, y: 20, width: 50),
+            _node(str: spanish.skills, x: 0, y: 10, width: 50),
+          ],
+        ),
+      );
+
+      expect(
+        result.findings.where(
+          (f) => f.category == AtsFindingCategory.missingHeadings,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('every shipped document language is covered, so adding one cannot '
+        'quietly start failing its own exports', () {
+      for (final language in DocumentLanguage.values) {
+        final strings = language.strings;
+        final result = service.analyze(
+          _doc(
+            nodes: [
+              _node(str: strings.experience, x: 0, y: 30, width: 50),
+              _node(str: strings.education, x: 0, y: 20, width: 50),
+              _node(str: strings.skills, x: 0, y: 10, width: 50),
+            ],
+          ),
+        );
+
+        expect(
+          result.findings.where(
+            (f) => f.category == AtsFindingCategory.missingHeadings,
+          ),
+          isEmpty,
+          reason: '${language.name} headings were not recognised',
+        );
+      }
     });
   });
 

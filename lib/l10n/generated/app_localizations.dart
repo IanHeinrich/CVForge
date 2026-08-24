@@ -1934,6 +1934,12 @@ abstract class AppLocalizations {
   /// **'Clear job description'**
   String get studioAiClearJobDescription;
 
+  /// AI dialog, note naming the language the assistant will write the tailored bullets in. Sits beside the region note. Names it explicitly because translating someone's career history is a larger surprise than a page size if they had not noticed the setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Written in {language} — the assistant translates your bullets if your Vault is in another language.'**
+  String studioAiDialogLanguageNote(String language);
+
   /// AI dialog, privacy note listing exactly what is and is not transmitted. The exclusions matter; keep them explicit.
   ///
   /// In en, this message translates to:

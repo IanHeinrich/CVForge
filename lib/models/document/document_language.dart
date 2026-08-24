@@ -69,6 +69,7 @@ enum DocumentLanguage {
 class DocumentStrings {
   const DocumentStrings({
     required this.cldrTag,
+    required this.promptName,
     required this.summary,
     required this.experience,
     required this.projects,
@@ -96,6 +97,15 @@ class DocumentStrings {
   /// fails on divergence — turning an SDK bump into a test failure a human
   /// adjudicates, and giving the transcription a standing correctness check.
   final String cldrTag;
+
+  /// What to call this language when telling the model to write in it —
+  /// "Brazilian Portuguese", "Austrian German".
+  ///
+  /// English, and separate from the autonym the picker shows, because
+  /// prompt text is English by policy: the model is instructed in English,
+  /// and translating its instructions changes how it behaves. See
+  /// CLAUDE.md's list of what is deliberately not localized.
+  final String promptName;
 
   final String summary;
   final String experience;

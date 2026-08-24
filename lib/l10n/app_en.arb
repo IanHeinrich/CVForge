@@ -1550,6 +1550,16 @@
   "@studioAiClearJobDescription": {
     "description": "Tooltip on the button that empties the job description field."
   },
+  "studioAiDialogLanguageNote": "Written in {language} — the assistant translates your bullets if your Vault is in another language.",
+  "@studioAiDialogLanguageNote": {
+    "description": "AI dialog, note naming the language the assistant will write the tailored bullets in. Sits beside the region note. Names it explicitly because translating someone's career history is a larger surprise than a page size if they had not noticed the setting.",
+    "placeholders": {
+      "language": {
+        "type": "String",
+        "example": "Brazilian Portuguese"
+      }
+    }
+  },
   "studioAiDialogPrivacy": "This sends the job description below and your CV content — not your name, email, phone, or links — to {provider}, using your own API key. There is no CVForge server in between. This can take up to a few minutes — the model reasons through your whole Vault before responding.",
   "@studioAiDialogPrivacy": {
     "description": "AI dialog, privacy note listing exactly what is and is not transmitted. The exclusions matter; keep them explicit.",

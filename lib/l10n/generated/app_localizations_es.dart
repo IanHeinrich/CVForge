@@ -1243,6 +1243,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioAiClearJobDescription => 'Borrar la descripción del puesto';
 
   @override
+  String studioAiDialogLanguageNote(String language) {
+    return 'Redactado en $language: el asistente traduce tus viñetas si tu Bóveda está en otro idioma.';
+  }
+
+  @override
   String studioAiDialogPrivacy(String provider) {
     return 'Esto envía la descripción del puesto que está abajo y el contenido de tu CV — no tu nombre, correo, teléfono ni enlaces — a $provider, usando tu propia clave de API. No hay ningún servidor de CVForge de por medio. Puede tardar hasta unos minutos: el modelo razona sobre toda tu Bóveda antes de responder.';
   }
