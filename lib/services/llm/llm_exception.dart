@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 /// Why an [LlmProvider] call failed — lets the UI show failure-specific
 /// copy instead of one generic message (the same "no single generic
 /// failure message" rule `PdfExportException`/`PdfExportStage` already
@@ -38,4 +40,27 @@ class LlmException implements Exception {
 
   @override
   String toString() => 'LlmException(failure: $failure, cause: $cause)';
+}
+
+/// The status/transport mapping every provider ends on, once its own
+/// provider-specific checks have had first refusal — Anthropic reads 401
+/// and 403 as auth, Gemini reads an `API_KEY_INVALID` reason out of a 400
+/// body, and both then fall through to exactly this.
+///
+/// 429 and 5xx are worth retrying; any other 4xx is a request this client
+/// built wrongly, and reporting *that* as a network failure ("check your
+/// connection") sends the user to debug the wrong thing.
+LlmException mapLlmTransportError(DioException e) {
+  final status = e.response?.statusCode;
+  if (status != null) {
+    if (status == 429) return LlmException(LlmFailure.rateLimited, e);
+    if (status >= 500) return LlmException(LlmFailure.overloaded, e);
+    if (status >= 400) return LlmException(LlmFailure.invalidRequest, e);
+  }
+  return switch (e.type) {
+    DioExceptionType.connectionTimeout ||
+    DioExceptionType.sendTimeout ||
+    DioExceptionType.receiveTimeout => LlmException(LlmFailure.timeout, e),
+    _ => LlmException(LlmFailure.network, e),
+  };
 }
