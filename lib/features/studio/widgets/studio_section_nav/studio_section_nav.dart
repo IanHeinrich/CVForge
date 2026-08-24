@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
@@ -5,8 +6,8 @@ import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
-import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/ui/common/l10n/model_labels.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -46,23 +47,20 @@ class StudioSectionNav extends StatelessWidget {
         // language and template — see `DocumentDefaults`. This row stays,
         // because discarding *this draft's* customisation is a fact about
         // the draft rather than about the defaults.
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: viewModel.resetSectionSettings,
-            icon: Icon(
-              RemixIcons.arrow_go_back_line,
-              size: context.appIconSize.tiny,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            label: Text(
-              context.l10n.studioSectionsResetDefault,
-              style: context.appTypography.caption.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
+        _ResetButton(
+          label: context.l10n.studioSectionsResetDefault,
+          onPressed: viewModel.resetSectionSettings,
         ),
+        // The wording counterpart, and the one control that always works:
+        // "Undo AI changes" and "Remove translation" each need a snapshot,
+        // where this needs only the Vault. Hidden when the draft says
+        // nothing the Vault does not, so it appears only when it would do
+        // something.
+        if (viewModel.hasWordingOverrides)
+          _ResetButton(
+            label: context.l10n.studioResetWording,
+            onPressed: viewModel.resetWordingToVault,
+          ),
         const VGap.medium(),
         AiAssistantConfigCard(
           jobDescription: viewModel.targetJobDescription,
@@ -81,6 +79,7 @@ class StudioSectionNav extends StatelessWidget {
           translatedLanguage: viewModel.translatedLanguage,
           isStale: viewModel.isTranslationStale,
           hasApiKey: viewModel.hasAiAssistantKey,
+          canRemove: viewModel.hasCvTranslationUndo,
           onRun: viewModel.translateCv,
           onRemove: viewModel.removeTranslation,
           onOpenSettings: viewModel.goToAiAssistantSettings,
@@ -100,6 +99,28 @@ class _SectionList extends StatelessWidget {
     final visible = viewModel.sectionOrder
         .where(viewModel.sectionHasData)
         .toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Pinned above the reorderable list, and deliberately outside it:
+        // the headline prints in the name block, so it has no position to
+        // drag to. Its own row all the same, because whether it appears is
+        // independent of the summary — while the two shared an editor, a
+        // CV with a headline and no summary could not reach it at all.
+        if (viewModel.hasHeadline)
+          _NavRow(
+            label: context.l10n.studioSectionHeadline,
+            included: viewModel.includeHeadline,
+            selected: viewModel.isHeadlineOpen,
+            onToggle: viewModel.toggleHeadline,
+            onTap: viewModel.selectHeadline,
+          ),
+        _buildSections(context, visible),
+      ],
+    );
+  }
+
+  Widget _buildSections(BuildContext context, List<CvSectionType> visible) {
     return ReorderableListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -110,64 +131,137 @@ class _SectionList extends StatelessWidget {
       itemBuilder: (context, index) {
         final type = visible[index];
         final selected = viewModel.openSection == type;
-        return Row(
+        return _NavRow(
           key: ValueKey('section_${type.name}'),
-          children: [
-            // shrinkWrap tap target + compact density — the default 48px
-            // tap target left the longest labels ("Professional summary",
-            // "Hobbies and interests") no room and forced an ellipsis
-            // even at a widened nav column; every pixel here is pixels
-            // the label doesn't get.
-            Checkbox(
-              value: !viewModel.isSectionHidden(type),
-              onChanged: (_) => viewModel.toggleSectionHidden(type),
-              activeColor: Theme.of(context).colorScheme.primary,
-              visualDensity: VisualDensity.compact,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            const HGap.tiny(),
-            Expanded(
-              child: Material(
-                color: selected
-                    ? Theme.of(context).colorScheme.surfaceContainerHigh
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(context.appRadius.small),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(context.appRadius.small),
-                  onTap: () => viewModel.selectSection(type),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.appSpacing.paddingTight,
-                      vertical: context.appSpacing.paddingTight,
-                    ),
-                    child: Text(
-                      type.displayLabel(context.l10n),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            ReorderableDragStartListener(
-              index: index,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.appSpacing.paddingHairline,
-                ),
-                child: Icon(
-                  RemixIcons.draggable,
-                  color: context.appPalette.placeholder,
-                  size: context.appIconSize.medium,
-                ),
-              ),
-            ),
-          ],
+          label: type.displayLabel(context.l10n),
+          included: !viewModel.isSectionHidden(type),
+          selected: selected,
+          onToggle: () => viewModel.toggleSectionHidden(type),
+          onTap: () => viewModel.selectSection(type),
+          dragIndex: index,
         );
       },
+    );
+  }
+}
+
+/// One of the section nav's two "put this draft back" controls — same
+/// shape for both so they read as a pair, differing only in which axis
+/// they reset (sections, or wording).
+class _ResetButton extends StatelessWidget {
+  const _ResetButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: onPressed,
+        icon: Icon(
+          RemixIcons.arrow_go_back_line,
+          size: context.appIconSize.tiny,
+          color: muted,
+        ),
+        label: Text(
+          label,
+          style: context.appTypography.caption.copyWith(color: muted),
+        ),
+      ),
+    );
+  }
+}
+
+/// One row of the section nav — a visibility checkbox, a tappable label,
+/// and a drag handle when the row has somewhere to be dragged to.
+///
+/// Shared by the sections and by the pinned headline row above them, so
+/// the one row that cannot be reordered still looks like the rest of the
+/// list rather than like something bolted on. [dragIndex] is null for that
+/// row, which is what drops the handle.
+class _NavRow extends StatelessWidget {
+  const _NavRow({
+    super.key,
+    required this.label,
+    required this.included,
+    required this.selected,
+    required this.onToggle,
+    required this.onTap,
+    this.dragIndex,
+  });
+
+  final String label;
+  final bool included;
+  final bool selected;
+  final VoidCallback onToggle;
+  final VoidCallback onTap;
+  final int? dragIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // shrinkWrap tap target + compact density — the default 48px tap
+        // target left the longest labels ("Professional summary",
+        // "Hobbies and interests") no room and forced an ellipsis even at
+        // a widened nav column; every pixel here is pixels the label
+        // doesn't get.
+        Checkbox(
+          value: included,
+          onChanged: (_) => onToggle(),
+          activeColor: Theme.of(context).colorScheme.primary,
+          visualDensity: VisualDensity.compact,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        const HGap.tiny(),
+        Expanded(
+          child: Material(
+            color: selected
+                ? Theme.of(context).colorScheme.surfaceContainerHigh
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(context.appRadius.small),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(context.appRadius.small),
+              onTap: onTap,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.appSpacing.paddingTight,
+                  vertical: context.appSpacing.paddingTight,
+                ),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (dragIndex case final index?)
+          ReorderableDragStartListener(
+            index: index,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.appSpacing.paddingHairline,
+              ),
+              child: Icon(
+                RemixIcons.draggable,
+                color: context.appPalette.placeholder,
+                size: context.appIconSize.medium,
+              ),
+            ),
+          )
+        else
+          // Keeps both kinds of row ending in the same place, so the
+          // pinned one doesn't read as misaligned.
+          SizedBox(width: context.appIconSize.medium),
+      ],
     );
   }
 }

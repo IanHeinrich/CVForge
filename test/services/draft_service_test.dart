@@ -726,6 +726,96 @@ void main() {
       });
     });
 
+    group('resetWordingToVault -', () {
+      test('clears every text override and the translation marker, while '
+          'leaving selection alone — the one way back that needs no '
+          'snapshot', () async {
+        final service = DraftService();
+        await service.load();
+        await service.setExperienceIncluded(
+          'exp-1',
+          included: true,
+          bulletIds: const ['bullet-1'],
+        );
+        await service.setTextOverride(
+          TextOverrideField.bullet,
+          'bullet-1',
+          'Hand-edited bullet.',
+        );
+        await service.setHeadlineOverride('Hand-edited headline');
+        await service.applyCvTranslationResult(
+          const CvTranslationResult(
+            roles: {'exp-1': 'Leitender Ingenieur'},
+            projectTitles: {},
+            skillCategoryNames: {},
+            skillLabels: {},
+            educationQualifications: {},
+            educationGrades: {},
+            educationDetails: {},
+            hobbies: {},
+            bullets: {},
+          ),
+          DocumentLanguage.de,
+        );
+
+        await service.resetWordingToVault();
+
+        expect(service.draft.headlineOverride, isNull);
+        expect(service.draft.bulletOverrides, isEmpty);
+        expect(service.draft.roleOverrides, isEmpty);
+        expect(service.draft.translatedTo, isNull);
+        // Selection is a separate axis and must survive.
+        expect(service.draft.experienceIds, ['exp-1']);
+        expect(service.draft.bulletIds['exp-1'], ['bullet-1']);
+      });
+
+      test('drops both undo snapshots, so neither pass can put its wording '
+          'back onto a draft just reset to the Vault', () async {
+        const aiPass = AiAssistantResult(
+          summary: 'Tailored summary.',
+          experienceIds: [],
+          bulletIds: {},
+          projectIds: [],
+          projectBulletIds: {},
+          publicationIds: [],
+          publicationBulletIds: {},
+          bulletOverrides: {},
+          skillIds: [],
+          educationIds: [],
+          hobbyIds: [],
+          hiddenSections: {},
+          rationale: '',
+          keywordGaps: [],
+        );
+        const translationPass = CvTranslationResult(
+          summary: 'Zusammenfassung.',
+          roles: {},
+          projectTitles: {},
+          skillCategoryNames: {},
+          skillLabels: {},
+          educationQualifications: {},
+          educationGrades: {},
+          educationDetails: {},
+          hobbies: {},
+          bullets: {},
+        );
+
+        final service = DraftService();
+        await service.load();
+        final id = service.draft.id;
+        await service.applyAiAssistantResult(aiPass);
+        await service.applyCvTranslationResult(
+          translationPass,
+          DocumentLanguage.de,
+        );
+
+        await service.resetWordingToVault();
+
+        expect(await service.hasAiAssistantUndoFor(id), isFalse);
+        expect(await service.hasCvTranslationUndoFor(id), isFalse);
+      });
+    });
+
     group('applyCvTranslationResult / removeCvTranslation -', () {
       const translation = CvTranslationResult(
         headline: 'Leitender Ingenieur',
@@ -831,6 +921,26 @@ void main() {
           ),
           isFalse,
         );
+      });
+
+      test('a second pass keeps the first snapshot, so "remove" always '
+          'lands on an untranslated CV rather than on the previous '
+          'translation', () async {
+        final service = DraftService();
+        await service.load();
+
+        await service.applyCvTranslationResult(
+          translation,
+          DocumentLanguage.de,
+        );
+        await service.applyCvTranslationResult(
+          translation.copyWith(roles: const {'exp-1': 'Ingeniero Senior'}),
+          DocumentLanguage.es,
+        );
+        await service.removeCvTranslation();
+
+        expect(service.draft.translatedTo, isNull);
+        expect(service.draft.roleOverrides, isEmpty);
       });
 
       test('removeCvTranslation is a no-op when nothing has been '

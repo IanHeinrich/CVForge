@@ -391,6 +391,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonReplace => 'Reemplazar';
 
   @override
+  String get commonReset => 'Restablecer';
+
+  @override
   String get commonRetry => 'Reintentar';
 
   @override
@@ -1240,6 +1243,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioAiClearJobDescription => 'Borrar la descripción del puesto';
 
   @override
+  String studioAiCostEstimate(int cents) {
+    String _temp0 = intl.Intl.pluralLogic(
+      cents,
+      locale: localeName,
+      other: 'Aproximadamente $cents¢ a las tarifas actuales.',
+      one: 'Aproximadamente 1¢ a las tarifas actuales.',
+      zero: 'Menos de 1¢ a las tarifas actuales.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String studioAiDialogLanguageNote(String language) {
     return 'Redactado en $language: el asistente traduce tus viñetas si tu Bóveda está en otro idioma.';
   }
@@ -1701,6 +1716,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioRegionTypicalLength => 'Extensión habitual';
 
   @override
+  String get studioResetWording => 'Restablecer el texto al de la Bóveda';
+
+  @override
+  String get studioResetWordingConfirm =>
+      'Cada línea volverá a como la redacta tu Bóveda, descartando tus ediciones, las reescrituras de IA y cualquier traducción de este CV. No afecta a qué entradas se incluyen.';
+
+  @override
   String get studioSectionHeadline => 'Titular';
 
   @override
@@ -1709,7 +1731,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioSectionsResetDefault =>
-      'Restaurar mi configuración guardada';
+      'Restablecer las secciones a la Bóveda';
+
+  @override
+  String get studioSectionsResetDefaultConfirm =>
+      'Las secciones de este CV volverán al orden y la visibilidad guardados en tu Bóveda, descartando cómo has organizado este. No afecta a lo que dice cada línea.';
 
   @override
   String get studioSectionsTitle => 'Secciones';
@@ -1885,12 +1911,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'Esto restaura cada línea a como estaba antes de traducir, incluido lo que hayas editado desde entonces. ¿Quitarla?';
 
   @override
-  String studioTranslateResultBody(int count) {
+  String studioTranslateResultBody(int count, int total) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Se tradujeron $count líneas.',
-      one: 'Se tradujo 1 línea.',
+      other: 'Se tradujeron $count líneas de $total.',
+      one: 'Se tradujo 1 línea de $total.',
     );
     return '$_temp0';
   }
@@ -1901,6 +1927,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get studioTranslateRunningBody =>
       'Traduciendo cada línea que imprime este CV. Puede tardar unos minutos.';
+
+  @override
+  String studioTranslateRunningProgress(int completed, int total) {
+    return 'Sección $completed de $total.';
+  }
 
   @override
   String get studioTranslateRunningTitle => 'Traduciendo tu CV';

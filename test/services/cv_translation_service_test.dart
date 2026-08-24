@@ -59,7 +59,9 @@ void main() {
     setUp(registerServices);
     tearDown(locator.reset);
 
-    Future<List<dynamic>> runAndCapture({
+    /// Runs a pass and returns every captured call, since a CV is now
+    /// translated as several requests rather than one.
+    Future<({List<String> prompts, String userContent})> runAndCapture({
       DocumentLanguage language = DocumentLanguage.de,
       RegionProfile region = RegionProfile.uk,
     }) async {
@@ -90,7 +92,7 @@ void main() {
         apiKey: 'key',
       );
 
-      return verify(
+      final captured = verify(
         llm.completeJson(
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
@@ -100,18 +102,30 @@ void main() {
           schema: anyNamed('schema'),
         ),
       ).captured;
+
+      // Captures interleave as [prompt, content, prompt, content, ...].
+      final prompts = <String>[];
+      final contents = <String>[];
+      for (var i = 0; i < captured.length; i += 2) {
+        prompts.add(captured[i] as String);
+        contents.add(captured[i + 1] as String);
+      }
+      return (prompts: prompts, userContent: contents.join(' '));
     }
 
     test('keeps the base prompt as a verbatim prefix, so the region and '
         'language block is a testable delta', () async {
       final captured = await runAndCapture();
-      expect(captured[0] as String, startsWith(cvTranslationSystemPrompt));
+      expect(captured.prompts, isNotEmpty);
+      for (final prompt in captured.prompts) {
+        expect(prompt, startsWith(cvTranslationSystemPrompt));
+      }
     });
 
     test('names the target language in the prompt', () async {
       final captured = await runAndCapture(language: DocumentLanguage.de);
       expect(
-        captured[0] as String,
+        captured.prompts.first,
         contains(DocumentLanguage.de.strings.promptName),
       );
     });
@@ -125,7 +139,7 @@ void main() {
           region: RegionProfile.uk,
         );
         expect(
-          captured[0] as String,
+          captured.prompts.first,
           isNot(contains(RegionProfile.uk.preset.spelling.promptLabel)),
         );
       },
@@ -137,7 +151,7 @@ void main() {
         region: RegionProfile.uk,
       );
       expect(
-        captured[0] as String,
+        captured.prompts.first,
         contains(RegionProfile.uk.preset.spelling.promptLabel),
       );
     });
@@ -145,7 +159,7 @@ void main() {
     test('never sends identifying details — the same PII policy the '
         'tailoring payload enforces', () async {
       final captured = await runAndCapture();
-      final userContent = captured[1] as String;
+      final userContent = captured.userContent;
       expect(userContent, isNot(contains(_fullName)));
       expect(userContent, isNot(contains(_email)));
       expect(userContent, isNot(contains(_phone)));
@@ -154,14 +168,14 @@ void main() {
     test('never sends a field that must survive translation untouched, so '
         'it cannot come back translated', () async {
       final captured = await runAndCapture();
-      final userContent = captured[1] as String;
+      final userContent = captured.userContent;
       expect(userContent, isNot(contains('Acme')));
       expect(userContent, isNot(contains('London')));
     });
 
     test('sends the text the CV actually prints', () async {
       final captured = await runAndCapture();
-      final userContent = captured[1] as String;
+      final userContent = captured.userContent;
       expect(userContent, contains('Led a team of six'));
       expect(userContent, contains('Senior Engineer'));
     });

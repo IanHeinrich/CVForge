@@ -34,6 +34,24 @@ import 'package:cv_forge/services/llm_service.dart';
 /// translated CV and puts English back on the page. Nothing here can
 /// prevent that — an override records no provenance, by design — so the
 /// Studio card says it in the UI instead.
+///
+/// ## All or nothing
+///
+/// One CV is several requests (see [CvTranslationPayload]), and if any of
+/// them fails the whole pass fails and nothing is written. That keeps the
+/// single atomic apply and the single undo snapshot that
+/// [DraftService.applyCvTranslationResult] is built around, and spares the
+/// user a CV translated in patches with no way to tell which parts are
+/// which.
+/// How many translation requests may be in flight at once.
+///
+/// Deliberately modest. The win from running chunks concurrently is
+/// already most of the way there at this width, whereas firing a dozen at
+/// once is a reliable way to meet a provider's rate limit and turn a slow
+/// pass into a failed one — and the pass is all-or-nothing, so one 429
+/// costs every other request in it.
+const _maxConcurrentRequests = 4;
+
 class CvTranslationService {
   final _llmService = locator<LlmService>();
 
@@ -58,19 +76,44 @@ class CvTranslationService {
     required String providerId,
     required String modelId,
     required String apiKey,
+    void Function(int completed, int total)? onProgress,
   }) async {
-    final payload = CvTranslationPayload.from(vault, draft);
-    final response = await _llmService.completeJson(
-      providerId: providerId,
-      modelId: modelId,
-      apiKey: apiKey,
-      systemPrompt: cvTranslationSystemPromptFor(
-        targetLanguage,
-        region: region,
-      ),
-      userContent: jsonEncode(payload.toJson()),
-      schema: buildCvTranslationResponseSchema(payload),
+    final chunks = CvTranslationPayload.chunksFor(vault, draft);
+    if (chunks.isEmpty) return CvTranslationResult.merge(const []);
+
+    final systemPrompt = cvTranslationSystemPromptFor(
+      targetLanguage,
+      region: region,
     );
-    return CvTranslationResult.fromLlmResponse(response.data, vault, draft);
+
+    var completed = 0;
+    onProgress?.call(0, chunks.length);
+
+    Future<CvTranslationResult> runChunk(CvTranslationPayload chunk) async {
+      final response = await _llmService.completeJson(
+        providerId: providerId,
+        modelId: modelId,
+        apiKey: apiKey,
+        systemPrompt: systemPrompt,
+        userContent: jsonEncode(chunk.toJson()),
+        schema: buildCvTranslationResponseSchema(chunk),
+      );
+      onProgress?.call(++completed, chunks.length);
+      return CvTranslationResult.fromLlmResponse(response.data, chunk);
+    }
+
+    final results = <CvTranslationResult>[];
+    // Bounded rather than firing every chunk at once: a CV with many
+    // entries would otherwise open a dozen simultaneous connections and
+    // walk straight into the provider's rate limit, turning a slow pass
+    // into a failed one.
+    for (var i = 0; i < chunks.length; i += _maxConcurrentRequests) {
+      final window = chunks.skip(i).take(_maxConcurrentRequests);
+      // Fails the whole pass if any request in the window does, which is
+      // the intended contract — see the class doc.
+      results.addAll(await Future.wait(window.map(runChunk)));
+    }
+
+    return CvTranslationResult.merge(results);
   }
 }

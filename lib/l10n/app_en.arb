@@ -473,6 +473,10 @@
   "@commonReplace": {
     "description": "Confirm button on the dialog that replaces all local data with an imported backup."
   },
+  "commonReset": "Reset",
+  "@commonReset": {
+    "description": "Generic confirm-button label on a dialog whose action resets something to a saved state. Shared, so it must stay generic — the dialog's own title says what is being reset."
+  },
   "commonRetry": "Retry",
   "@commonRetry": {
     "description": "Button on the inline error banner shown when saving to local storage failed. Retries the failed write."
@@ -1546,6 +1550,13 @@
   "@studioAiClearJobDescription": {
     "description": "Tooltip on the button that empties the job description field."
   },
+  "studioAiCostEstimate": "{cents, plural, =0{Under 1¢ at current rates.} one{About 1¢ at current rates.} other{About {cents}¢ at current rates.}}",
+  "@studioAiCostEstimate": {
+    "description": "Confirm screen of both AI dialogs (tailoring and translation) — roughly what this run will cost. In US cents because both providers price and bill in USD, so it matches the invoice; do not convert to a local currency, the app has no way to keep a rate current. Approximate by nature: token counts are inferred from character counts.",
+    "placeholders": {
+      "cents": { "type": "int", "example": "4" }
+    }
+  },
   "studioAiDialogLanguageNote": "Written in {language} — the assistant translates your bullets if your Vault is in another language.",
   "@studioAiDialogLanguageNote": {
     "description": "AI dialog, note naming the language the assistant will write the tailored bullets in. Sits beside the region note. Names it explicitly because translating someone's career history is a larger surprise than a page size if they had not noticed the setting.",
@@ -2144,6 +2155,14 @@
   "@studioRegionTypicalLength": {
     "description": "Region detail row label — how many pages a CV usually runs to in this market."
   },
+  "studioResetWording": "Reset wording to Vault",
+  "@studioResetWording": {
+    "description": "Studio, section nav — button discarding every per-draft text edit so each line reads as the Vault has it. Sits beside the control that resets section layout; this one resets text, that one resets which sections show."
+  },
+  "studioResetWordingConfirm": "Every line goes back to how your Vault words it, discarding your edits, any AI rewrites and any translation on this CV. Which entries are included is not affected.",
+  "@studioResetWordingConfirm": {
+    "description": "Studio, confirmation before resetting wording. Spells out the breadth because it cannot be undone: an override records no provenance, so the three kinds of edit cannot be told apart or restored separately."
+  },
   "studioSectionHeadline": "Headline",
   "@studioSectionHeadline": {
     "description": "Studio section editor label for the professional title line."
@@ -2152,9 +2171,13 @@
   "@studioSectionNavPersistError": {
     "description": "Studio banner shown when saving the section order or selection failed."
   },
-  "studioSectionsResetDefault": "Reset to my saved default",
+  "studioSectionsResetDefault": "Reset sections to Vault",
   "@studioSectionsResetDefault": {
-    "description": "Studio button that restores the saved default section arrangement."
+    "description": "Studio, section nav — button restoring the section order and visibility saved as the Vault's CV defaults. Deliberately parallel to studioResetWording ('Reset wording to Vault'): both reset this CV to the Vault, and the middle word is what says which axis. Keep the two phrased alike in every locale, or the pair stops reading as a pair."
+  },
+  "studioSectionsResetDefaultConfirm": "The sections on this CV go back to the order and visibility saved in your Vault, discarding how you have arranged this one. What each line says is not affected.",
+  "@studioSectionsResetDefaultConfirm": {
+    "description": "Studio, confirmation before resetting section order and visibility. The closing sentence draws the line against the wording reset sitting next to it, since the two are easily confused."
   },
   "studioSectionsTitle": "Sections",
   "@studioSectionsTitle": {
@@ -2376,11 +2399,12 @@
   "@studioTranslateRemoveConfirm": {
     "description": "Studio, confirmation before removing a translation — an override records no provenance, so a hand edit made after translating cannot be told apart from the translation and is restored with it."
   },
-  "studioTranslateResultBody": "{count, plural, one{Translated 1 line.} other{Translated {count} lines.}}",
+  "studioTranslateResultBody": "{count, plural, one{Translated 1 of {total} lines.} other{Translated {count} of {total} lines.}}",
   "@studioTranslateResultBody": {
-    "description": "Studio, Translate dialog result screen — how many individual strings came back translated. Lines the model left alone were already in the target language or are names that should not be translated.",
+    "description": "Studio, Translate dialog result screen — how many of the CV's lines came back translated. Shown as a fraction rather than a bare count so a partial pass is visible: lines can be left alone because they were already in the target language, are names that should not be translated, or came back unusable and were discarded.",
     "placeholders": {
-      "count": { "type": "int", "example": "42" }
+      "count": { "type": "int", "example": "42" },
+      "total": { "type": "int", "example": "61" }
     }
   },
   "studioTranslateRunAgain": "Translate again",
@@ -2390,6 +2414,14 @@
   "studioTranslateRunningBody": "Translating every line this CV prints. This can take a few minutes.",
   "@studioTranslateRunningBody": {
     "description": "Studio, Translate dialog body while the request is in flight."
+  },
+  "studioTranslateRunningProgress": "Section {completed} of {total}.",
+  "@studioTranslateRunningProgress": {
+    "description": "Studio, Translate dialog — how far through the run it is. A CV is translated as one request per section, so this moves several times during a pass rather than sitting still for minutes.",
+    "placeholders": {
+      "completed": { "type": "int", "example": "3" },
+      "total": { "type": "int", "example": "6" }
+    }
   },
   "studioTranslateRunningTitle": "Translating your CV",
   "@studioTranslateRunningTitle": {

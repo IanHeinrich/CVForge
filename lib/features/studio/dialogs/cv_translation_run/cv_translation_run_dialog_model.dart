@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/models/llm/cv_translation_payload.dart';
+import 'package:cv_forge/models/llm/llm_cost_estimate.dart';
+import 'package:cv_forge/services/llm/cv_translation_prompt.dart';
 import 'package:cv_forge/models/llm/cv_translation_result.dart';
 import 'package:cv_forge/services/cv_translation_service.dart';
 import 'package:cv_forge/services/draft_service.dart';
@@ -36,6 +41,14 @@ class CvTranslationRunDialogModel extends BaseViewModel {
 
   Object? _error;
 
+  /// How many of the run's requests have come back, and how many there
+  /// are. A CV is translated as one request per section, so this actually
+  /// moves during the wait instead of a loader sitting still for minutes.
+  int _completed = 0;
+  int _total = 0;
+  int get completed => _completed;
+  int get total => _total;
+
   LlmProvider get _provider => _settingsService.selectedAiAssistantProvider;
 
   String get providerDisplayName => _provider.displayName;
@@ -53,6 +66,35 @@ class CvTranslationRunDialogModel extends BaseViewModel {
   bool get replacesExisting => _draftService.draft.translatedTo != null;
 
   String get _modelId => _settingsService.selectedAiAssistantModel.id;
+
+  /// Roughly what this run will cost, in US cents.
+  ///
+  /// Every string the CV prints goes out and comes back, so the answer is
+  /// about as long as the request — which makes this the one LLM pass in
+  /// the app whose output length can be predicted rather than guessed.
+  int get estimatedCents {
+    final chunks = CvTranslationPayload.chunksFor(
+      _vaultService.vault,
+      _draftService.draft,
+    );
+    if (chunks.isEmpty) return 0;
+    final systemPromptChars = cvTranslationSystemPromptFor(
+      _draftService.draft.documentLanguage,
+      region: _draftService.draft.region,
+    ).length;
+    final contentChars = chunks.fold<int>(
+      0,
+      (total, chunk) => total + jsonEncode(chunk.toJson()).length,
+    );
+    return displayCents(
+      estimatedCentsFor(
+        model: _settingsService.selectedAiAssistantModel,
+        // The system prompt is resent with every chunk.
+        inputChars: systemPromptChars * chunks.length + contentChars,
+        expectedOutputChars: contentChars,
+      ),
+    );
+  }
 
   /// Mirrors `AiAssistantRunDialogModel.errorMessage` — the same failure
   /// vocabulary, in this feature's own keys, since both reach the same
@@ -90,6 +132,11 @@ class CvTranslationRunDialogModel extends BaseViewModel {
       final apiKey = await _settingsService.apiKeyFor(_provider.id) ?? '';
       final draft = _draftService.draft;
       final result = await _translationService.runTranslationPass(
+        onProgress: (completed, total) {
+          _completed = completed;
+          _total = total;
+          notifyListeners();
+        },
         vault: _vaultService.vault,
         draft: draft,
         targetLanguage: draft.documentLanguage,

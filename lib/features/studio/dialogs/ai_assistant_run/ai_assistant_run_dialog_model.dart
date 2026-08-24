@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/models/llm/ai_assistant_vault_payload.dart';
+import 'package:cv_forge/models/llm/llm_cost_estimate.dart';
+import 'package:cv_forge/services/llm/ai_assistant_prompt.dart';
 import 'package:cv_forge/ui/common/l10n/document_language_labels.dart';
 import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:cv_forge/services/localization_service.dart';
@@ -63,6 +68,30 @@ class AiAssistantRunDialogModel extends BaseViewModel {
   /// Same stored-id-may-be-stale fallback, resolved in the one place that
   /// owns it — see [SettingsService.selectedAiAssistantModel].
   String get _modelId => _settingsService.selectedAiAssistantModel.id;
+
+  /// Roughly what this run will cost, in US cents.
+  ///
+  /// The output is a selection plus a handful of rewrites rather than a
+  /// restatement of the input, so it is assumed to come back at about a
+  /// third of the request's length. A rougher guess than the translation
+  /// dialog's, which knows its answer is the same size as its question.
+  int get estimatedCents {
+    final contentChars = jsonEncode({
+      'jobDescription': jobDescription,
+      'vault': AiAssistantVaultPayload.from(_vaultService.vault).toJson(),
+    }).length;
+    final promptChars = aiAssistantSystemPromptFor(
+      _draftService.draft.region,
+      language: _draftService.draft.documentLanguage,
+    ).length;
+    return displayCents(
+      estimatedCentsFor(
+        model: _settingsService.selectedAiAssistantModel,
+        inputChars: promptChars + contentChars,
+        expectedOutputChars: contentChars ~/ 3,
+      ),
+    );
+  }
 
   /// Mirrors `SettingsViewModel.connectionTestErrorMessage`'s per-failure
   /// copy — this dialog surfaces the same failure vocabulary as the

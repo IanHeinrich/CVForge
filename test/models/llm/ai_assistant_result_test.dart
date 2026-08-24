@@ -300,5 +300,93 @@ void main() {
       expect(result.experienceIds, ['exp-a']);
       expect(result.bulletIds['exp-a'], isEmpty);
     });
+
+    test('discards a field big enough to break rendering, and keeps its '
+        'sane siblings — package:pdf cannot paginate a single text widget, '
+        'so one runaway value would take out the preview and the export '
+        'together', () {
+      final huge = List.filled(4000, 'word').join(' ');
+
+      final result = AiAssistantResult.fromLlmResponse({
+        'headline': 'Backend Engineer',
+        'summary': huge,
+        'experiences': {
+          'exp-a': {
+            'bulletIds': ['bullet-a1', 'bullet-a2'],
+            'rewrites': [
+              {'id': 'bullet-a1', 'text': huge},
+              {'id': 'bullet-a2', 'text': 'Shipped the other thing'},
+            ],
+          },
+        },
+        'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
+        'skillIds': <String>[],
+        'educationIds': <String>[],
+        'hobbyIds': <String>[],
+        'hiddenSections': <String>[],
+        'rationale': '',
+        'keywordGaps': <String>[],
+      }, vault);
+
+      expect(result.summary, isNull, reason: 'oversized, so not applied');
+      expect(result.bulletOverrides.containsKey('bullet-a1'), isFalse);
+      expect(result.headline, 'Backend Engineer');
+      expect(result.bulletOverrides['bullet-a2'], 'Shipped the other thing');
+      expect(
+        result.bulletIds['exp-a'],
+        ['bullet-a1', 'bullet-a2'],
+        reason:
+            'a rejected rewrite drops the new text, not the bullet — '
+            'it keeps saying what the Vault says',
+      );
+    });
+
+    test('a tailored summary many times longer than the source is kept — '
+        'unlike a translation, a rewrite has no length relationship to its '
+        'source, so only the page bounds it', () {
+      final expanded = List.filled(120, 'word').join(' ');
+
+      final result = AiAssistantResult.fromLlmResponse({
+        'summary': expanded,
+        'experiences': <String, dynamic>{},
+        'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
+        'skillIds': <String>[],
+        'educationIds': <String>[],
+        'hobbyIds': <String>[],
+        'hiddenSections': <String>[],
+        'rationale': '',
+        'keywordGaps': <String>[],
+      }, vault);
+
+      expect(result.summary, expanded);
+    });
+
+    test('an empty rewrite is not applied — it would blank the line rather '
+        'than tailor it, and leaving the original is the better failure', () {
+      final result = AiAssistantResult.fromLlmResponse({
+        'summary': '',
+        'experiences': {
+          'exp-a': {
+            'bulletIds': ['bullet-a1'],
+            'rewrites': [
+              {'id': 'bullet-a1', 'text': '   '},
+            ],
+          },
+        },
+        'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
+        'skillIds': <String>[],
+        'educationIds': <String>[],
+        'hobbyIds': <String>[],
+        'hiddenSections': <String>[],
+        'rationale': '',
+        'keywordGaps': <String>[],
+      }, vault);
+
+      expect(result.summary, isNull);
+      expect(result.bulletOverrides, isEmpty);
+    });
   });
 }

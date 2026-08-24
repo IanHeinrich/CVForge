@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
@@ -7,6 +6,8 @@ import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';

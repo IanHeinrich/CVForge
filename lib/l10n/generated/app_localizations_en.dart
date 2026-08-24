@@ -384,6 +384,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonReplace => 'Replace';
 
   @override
+  String get commonReset => 'Reset';
+
+  @override
   String get commonRetry => 'Retry';
 
   @override
@@ -1227,6 +1230,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioAiClearJobDescription => 'Clear job description';
 
   @override
+  String studioAiCostEstimate(int cents) {
+    String _temp0 = intl.Intl.pluralLogic(
+      cents,
+      locale: localeName,
+      other: 'About $cents¢ at current rates.',
+      one: 'About 1¢ at current rates.',
+      zero: 'Under 1¢ at current rates.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String studioAiDialogLanguageNote(String language) {
     return 'Written in $language — the assistant translates your bullets if your Vault is in another language.';
   }
@@ -1681,6 +1696,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioRegionTypicalLength => 'Typical length';
 
   @override
+  String get studioResetWording => 'Reset wording to Vault';
+
+  @override
+  String get studioResetWordingConfirm =>
+      'Every line goes back to how your Vault words it, discarding your edits, any AI rewrites and any translation on this CV. Which entries are included is not affected.';
+
+  @override
   String get studioSectionHeadline => 'Headline';
 
   @override
@@ -1688,7 +1710,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your last selection change couldn\'t be saved.';
 
   @override
-  String get studioSectionsResetDefault => 'Reset to my saved default';
+  String get studioSectionsResetDefault => 'Reset sections to Vault';
+
+  @override
+  String get studioSectionsResetDefaultConfirm =>
+      'The sections on this CV go back to the order and visibility saved in your Vault, discarding how you have arranged this one. What each line says is not affected.';
 
   @override
   String get studioSectionsTitle => 'Sections';
@@ -1864,12 +1890,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'This restores every line to how it read before translating, including anything you\'ve edited since. Remove it?';
 
   @override
-  String studioTranslateResultBody(int count) {
+  String studioTranslateResultBody(int count, int total) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Translated $count lines.',
-      one: 'Translated 1 line.',
+      other: 'Translated $count of $total lines.',
+      one: 'Translated 1 of $total lines.',
     );
     return '$_temp0';
   }
@@ -1880,6 +1906,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get studioTranslateRunningBody =>
       'Translating every line this CV prints. This can take a few minutes.';
+
+  @override
+  String studioTranslateRunningProgress(int completed, int total) {
+    return 'Section $completed of $total.';
+  }
 
   @override
   String get studioTranslateRunningTitle => 'Translating your CV';

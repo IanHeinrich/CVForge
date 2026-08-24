@@ -11,6 +11,7 @@ import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_helpers.dart';
@@ -742,11 +743,41 @@ void main() {
         when(
           draftService.resetSectionSettings(any),
         ).thenAnswer((_) => Future<void>.value());
+        // Confirmed first, like the wording reset beside it — neither can
+        // be undone.
+        final dialogService = getAndRegisterDialogService();
+        when(
+          dialogService.showDialog(
+            title: anyNamed('title'),
+            description: anyNamed('description'),
+            buttonTitle: anyNamed('buttonTitle'),
+            cancelTitle: anyNamed('cancelTitle'),
+          ),
+        ).thenAnswer((_) async => DialogResponse<dynamic>(confirmed: true));
 
         final model = StudioViewModel();
         await model.resetSectionSettings();
 
         verify(draftService.resetSectionSettings(defaults)).called(1);
+      });
+
+      test('a declined confirmation leaves the arrangement alone', () async {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        final dialogService = getAndRegisterDialogService();
+        when(
+          dialogService.showDialog(
+            title: anyNamed('title'),
+            description: anyNamed('description'),
+            buttonTitle: anyNamed('buttonTitle'),
+            cancelTitle: anyNamed('cancelTitle'),
+          ),
+        ).thenAnswer((_) async => DialogResponse<dynamic>(confirmed: false));
+
+        final model = StudioViewModel();
+        await model.resetSectionSettings();
+
+        verifyNever(draftService.resetSectionSettings(any));
       });
     });
   });

@@ -82,6 +82,13 @@ class CvTranslationRunDialog extends StackedView<CvTranslationRunDialogModel> {
             context.l10n.studioAiDialogPrivacy(viewModel.providerDisplayName),
             style: context.appTypography.bodySmall,
           ),
+          const VGap.small(),
+          Text(
+            context.l10n.studioAiCostEstimate(viewModel.estimatedCents),
+            style: context.appTypography.bodySmall.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
           if (viewModel.replacesExisting) ...[
             const VGap.small(),
             Text(
@@ -111,6 +118,18 @@ class CvTranslationRunDialog extends StackedView<CvTranslationRunDialogModel> {
               style: context.appTypography.bodySmall,
             ),
           ),
+          if (viewModel.total > 0) ...[
+            const VGap.tiny(),
+            Center(
+              child: Text(
+                context.l10n.studioTranslateRunningProgress(
+                  viewModel.completed,
+                  viewModel.total,
+                ),
+                style: context.appTypography.caption,
+              ),
+            ),
+          ],
         ];
 
       case CvTranslationRunPhase.result:
@@ -118,6 +137,7 @@ class CvTranslationRunDialog extends StackedView<CvTranslationRunDialogModel> {
           Text(
             context.l10n.studioTranslateResultBody(
               viewModel.result!.translatedCount,
+              viewModel.result!.requestedCount,
             ),
             style: context.appTypography.bodySmall,
           ),

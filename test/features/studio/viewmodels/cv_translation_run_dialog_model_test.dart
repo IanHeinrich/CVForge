@@ -50,6 +50,7 @@ void main() {
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
+          onProgress: anyNamed('onProgress'),
         ),
       ).thenAnswer((_) async => emptyResult);
       when(
@@ -121,6 +122,7 @@ void main() {
           providerId: 'anthropic',
           modelId: 'claude-sonnet-5',
           apiKey: 'sk-ant-test',
+          onProgress: anyNamed('onProgress'),
         ),
       ).called(1);
       verify(draftService.applyCvTranslationResult(emptyResult, any)).called(1);
@@ -152,6 +154,7 @@ void main() {
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
+          onProgress: anyNamed('onProgress'),
         ),
       ).captured.single;
 
@@ -180,6 +183,7 @@ void main() {
           providerId: anyNamed('providerId'),
           modelId: anyNamed('modelId'),
           apiKey: anyNamed('apiKey'),
+          onProgress: anyNamed('onProgress'),
         ),
       ).thenThrow(const LlmException(LlmFailure.unauthorized));
 
