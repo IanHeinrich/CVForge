@@ -36,21 +36,23 @@ class PhotoHeaderTemplate implements CvTemplate {
 
   @override
   String get description =>
-      'A tinted header band with your Vault photo, over an open, '
-      'generously spaced body. Expected in DACH and common across '
-      'southern Europe; leave it for the US and UK, where a photo invites '
-      'a rejection.';
+      'A tinted header band around your Vault photo. Expected in DACH, '
+      'common in southern Europe; in the US and UK a photo invites '
+      'rejection.';
 
   @override
   CvDesignTokens get tokens => photoHeaderTokens;
 
-  /// Deliberately NOT [TemplateTag.atsSafe], even though every word on the
-  /// page is real text. The photograph is a real screening liability in
-  /// the markets that don't expect one, and a chip claiming otherwise
-  /// would be the app telling a comfortable lie; [description] carries the
-  /// nuance the chip can't.
+  /// [TemplateTag.atsSafe] applies here for the reason it applies to the
+  /// other two: every word on the page is real text in a single column,
+  /// so a parser reads it cleanly. It was once withheld to warn about the
+  /// photograph, which conflated two different risks — see
+  /// [TemplateTag.atsSafe]'s own doc comment. The photograph's market
+  /// risk is a human screening question, and [description] is where it is
+  /// said plainly rather than implied by a missing tag.
   @override
   Set<TemplateTag> get tags => const {
+    TemplateTag.atsSafe,
     TemplateTag.photo,
     TemplateTag.traditional,
   };

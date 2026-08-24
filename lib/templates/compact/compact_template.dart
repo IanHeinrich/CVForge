@@ -27,8 +27,7 @@ class CompactTemplate implements CvTemplate {
 
   @override
   String get description =>
-      'A clean, single-column, sans-serif layout built to pass through '
-      'ATS parsers without friction.';
+      'A plain single column, tightly set — the most content per page.';
 
   @override
   CvDesignTokens get tokens => compactTokens;

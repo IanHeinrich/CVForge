@@ -59,12 +59,29 @@ class AppDialogScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Material's own `AlertDialog` structure: a pinned title, a body that
+    // scrolls on its own, and a pinned action row. Previously the whole
+    // column (title and buttons included) sat inside one
+    // `SingleChildScrollView`, so a tall body — the template gallery's
+    // card grid, notably — pushed the confirm button off-screen and you
+    // had to scroll the entire dialog to reach it. `Flexible` bounds the
+    // scrolling body against the `maxHeight` cap below; a dialog shorter
+    // than the cap still lays out at its natural height and never
+    // scrolls.
     final body = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: context.appTypography.titleMedium),
-        ...children,
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: children,
+            ),
+          ),
+        ),
         const VGap.medium(),
         // OverflowBar, not Row — a confirm label is caller-supplied and
         // has no length guarantee (the template gallery's "Use this
@@ -119,22 +136,18 @@ class AppDialogScaffold extends StatelessWidget {
             maxWidth: maxWidth ?? _defaultMaxWidth,
             // Caps the whole dialog (title + body + button row) to
             // whatever height the viewport actually has left after
-            // `Dialog`'s own inset and this padding — without this, a
-            // tall body (the template gallery's card grid, on a phone
-            // short on height) had nothing bounding it, so it simply
-            // extended past the screen with no way to reach the
-            // confirm/cancel row below it: not clipped with an overflow
-            // warning, just silently unreachable. `SingleChildScrollView`
-            // already shrinks to its child's natural size (clamped to
-            // whatever max its parent allows) with no extra flag needed
-            // — a dialog that already fits doesn't pay for this at all;
-            // only content actually taller than the cap ends up scrolled.
+            // `Dialog`'s own inset and this padding. Without this the
+            // body's `Flexible` has nothing to bound against, and a tall
+            // body (the template gallery's card grid, on a phone short on
+            // height) simply extends past the screen: not clipped with an
+            // overflow warning, just silently unreachable. This cap and
+            // that `Flexible` are one mechanism — neither works alone.
             maxHeight:
                 MediaQuery.sizeOf(context).height -
                 insetPadding.vertical -
                 contentPadding * 2,
           ),
-          child: SingleChildScrollView(child: body),
+          child: body,
         ),
       ),
     );
