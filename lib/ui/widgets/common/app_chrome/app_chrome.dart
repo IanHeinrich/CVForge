@@ -73,8 +73,7 @@ const _settingsDestination = _NavDestination(
   label: 'Settings',
 );
 
-/// The top-level sections of the app. Declaration order matches the nav
-/// rail's main destination order.
+/// The top-level sections of the app.
 ///
 /// [studio] is deliberately not a rail destination — the editor only ever
 /// makes sense once a CV has been chosen from [drafts], so it's reached by
@@ -89,16 +88,6 @@ const _settingsDestination = _NavDestination(
 /// a utility surface rather than a workspace. That's why it's excluded from
 /// `destinations` further down even though it participates fully in
 /// [_visualSection]/highlighting.
-///
-/// [analyzer] is declared right after [drafts] (before [studio]) rather
-/// than appended at the end — `_navigateTo`'s `onDestinationSelected` maps
-/// a rail tap straight to `AppSection.values[index]`, so every section
-/// with a real indexed destination must keep its enum position in lockstep
-/// with its position in `destinations` below. [studio] and [settings] can
-/// sit anywhere else because both are special-cased out of that indexing
-/// ([studio] has no destination at all; [settings] always resolves to a
-/// `null` index), but inserting a new *real* destination after either of
-/// them would silently desync every following index.
 enum AppSection { vault, drafts, analyzer, studio, settings }
 
 /// The shared shell every top-level View wraps itself in: a left nav rail
@@ -252,6 +241,10 @@ class _RailChrome extends StatelessWidget {
                 ? null
                 : destinations.indexWhere((d) => d.section == section),
             labelType: NavigationRailLabelType.all,
+            // The icon and label already recolour to the brand purple when
+            // selected; Material's pill behind them adds a second, weaker
+            // signal in a colour that belongs to nothing else here.
+            useIndicator: false,
             selectedIconTheme: const IconThemeData(color: kcPrimaryColor),
             selectedLabelTextStyle: const TextStyle(color: kcPrimaryColor),
             unselectedIconTheme: const IconThemeData(color: kcLightGrey),
