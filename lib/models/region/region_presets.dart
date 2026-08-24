@@ -29,7 +29,7 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
     lengthNote:
         'Two pages is the standard. One page is fine for a recent '
         'graduate.',
-    photo: RegionPhotoStance.notExpected,
+    photo: RegionPhotoStance.discouraged,
     personalDetails: RegionPersonalDetailsStance.omit,
     spelling: RegionSpelling.enGb,
     toneNote:
@@ -96,7 +96,7 @@ const Map<RegionProfile, RegionPreset> regionPresets = {
     typicalMaxPages: 3,
     lengthNote:
         'Two to three pages mid-career; three to five for executive roles.',
-    photo: RegionPhotoStance.notExpected,
+    photo: RegionPhotoStance.discouraged,
     personalDetails: RegionPersonalDetailsStance.omit,
     spelling: RegionSpelling.enAu,
     toneNote:

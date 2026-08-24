@@ -48,7 +48,7 @@ enum RegionDocumentNoun { cv, resume }
 /// Advice only. No template renders a photo and `ContactBasics` has no
 /// field for one — deferred deliberately, see 7.5. Do not wire this into
 /// `CvComposer`.
-enum RegionPhotoStance { prohibited, notExpected, optional, expected }
+enum RegionPhotoStance { prohibited, discouraged, optional, expected }
 
 /// How much personal data (date of birth, nationality, marital status,
 /// national ID) this market conventionally expects. Advice only, same
@@ -204,9 +204,14 @@ extension RegionDocumentNounLabel on RegionDocumentNoun {
 /// while handing it a Vault with no photo field, is otherwise an invitation
 /// to invent one.
 extension RegionPhotoStanceLabel on RegionPhotoStance {
+  /// One scale, read as answers to "should this CV carry a photo?" — so
+  /// the four read against each other rather than each describing the
+  /// market its own way. "Not expected" for the UK understated a market
+  /// where equality law makes a photo a liability; the severity now sits
+  /// after the dash, where it can differ without the answer differing.
   String get displayLabel => switch (this) {
-    RegionPhotoStance.prohibited => 'Never include one',
-    RegionPhotoStance.notExpected => 'Not expected',
+    RegionPhotoStance.prohibited => 'No — an automatic rejection',
+    RegionPhotoStance.discouraged => 'No — strongly discouraged',
     RegionPhotoStance.optional => 'Optional',
     RegionPhotoStance.expected => 'Usually expected',
   };
@@ -215,8 +220,9 @@ extension RegionPhotoStanceLabel on RegionPhotoStance {
     RegionPhotoStance.prohibited =>
       'Employers here discard documents carrying a photograph. Never '
           'suggest adding one.',
-    RegionPhotoStance.notExpected =>
-      'No photograph. Do not suggest adding one.',
+    RegionPhotoStance.discouraged =>
+      'No photograph. Equality law here makes one a liability for the '
+          'employer as well as the candidate. Do not suggest adding one.',
     RegionPhotoStance.optional =>
       'A photograph is optional here. Do not suggest adding one the '
           'candidate has not already provided.',
@@ -227,11 +233,14 @@ extension RegionPhotoStanceLabel on RegionPhotoStance {
 }
 
 extension RegionPersonalDetailsStanceLabel on RegionPersonalDetailsStance {
+  /// Same scale treatment as [RegionPhotoStanceLabel.displayLabel]: each
+  /// says what the header actually carries, so the three can be compared
+  /// rather than each describing its market differently.
   String get displayLabel => switch (this) {
     RegionPersonalDetailsStance.omit => 'Name and contact only',
     RegionPersonalDetailsStance.minimal => 'Name, contact, city',
     RegionPersonalDetailsStance.traditional =>
-      'Date of birth and nationality are conventional',
+      'Name, contact, date of birth, nationality',
   };
 
   String get promptLabel => switch (this) {

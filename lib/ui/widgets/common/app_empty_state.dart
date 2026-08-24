@@ -21,6 +21,7 @@ class AppEmptyState extends StatelessWidget {
     required this.message,
     this.actions = const [],
     this.messageMaxWidth,
+    this.graphic,
   });
 
   final IconData icon;
@@ -39,6 +40,16 @@ class AppEmptyState extends StatelessWidget {
   /// the Analyzer upload prompt's did before this was added.
   final double? messageMaxWidth;
 
+  /// Replaces [icon] with an arbitrary widget. This exists for the one
+  /// first-run empty state that earns the brand mark (the CVs list, per
+  /// `docs/ux/7.6-logo.md`'s decision 7) and should stay rare: the other
+  /// placeholders here are *contextual* — no analysis yet, no section
+  /// selected — and a brand mark says nothing about those, besides
+  /// cheapening itself by appearing everywhere. [icon] stays required so
+  /// that a caller passing a graphic still has to name the icon it
+  /// replaces, which keeps the two in step if the graphic is ever dropped.
+  final Widget? graphic;
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -49,7 +60,12 @@ class AppEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: context.appIconSize.xLarge, color: kcLightGrey),
+            graphic ??
+                Icon(
+                  icon,
+                  size: context.appIconSize.xLarge,
+                  color: kcLightGrey,
+                ),
             const VGap.medium(),
             Text(
               title,
