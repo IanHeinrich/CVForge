@@ -464,6 +464,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     required List<String> educationIds,
     required Map<String, List<String>> educationBulletIds,
     required List<String> hobbyIds,
+    required List<String> languageIds,
     required List<String> publicationIds,
     required Map<String, List<String>> publicationBulletIds,
   }) async {
@@ -479,6 +480,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         educationIds: educationIds,
         educationBulletIds: educationBulletIds,
         hobbyIds: hobbyIds,
+        languageIds: languageIds,
         publicationIds: publicationIds,
         publicationBulletIds: publicationBulletIds,
       ),
@@ -603,7 +605,18 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         copyWith: (d, ids) => d.copyWith(hobbyIds: ids),
       );
 
-  /// Shared by [setSkillIncluded] and [setHobbyIncluded] — each just
+  Future<void> setLanguageIncluded(
+    String languageId, {
+    required bool included,
+  }) => _setIdIncluded(
+    languageId,
+    included: included,
+    idsOf: (d) => d.languageIds,
+    copyWith: (d, ids) => d.copyWith(languageIds: ids),
+  );
+
+  /// Shared by [setSkillIncluded], [setHobbyIncluded] and
+  /// [setLanguageIncluded] — each just
   /// toggles [id] in a different one of [CvDraft]'s flat id lists. Also
   /// backs [_setIncludedWithBullets]'s id-list half via [_appliedIds].
   Future<void> _setIdIncluded(
@@ -740,6 +753,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       educationIds: result.educationIds,
       educationBulletIds: result.educationBulletIds,
       hobbyIds: result.hobbyIds,
+      languageIds: result.languageIds,
       publicationIds: result.publicationIds,
       publicationBulletIds: result.publicationBulletIds,
       hiddenSections: result.hiddenSections,
@@ -816,6 +830,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       educationGradeOverrides: result.educationGrades,
       educationDetailsOverrides: result.educationDetails,
       hobbyOverrides: result.hobbies,
+      languageOverrides: result.languages,
       bulletOverrides: {...current.bulletOverrides, ...result.bullets},
       translatedTo: language,
       updatedAt: DateTime.now(),

@@ -64,6 +64,8 @@ class DocumentStrings {
     required this.skills,
     required this.education,
     required this.hobbies,
+    required this.languages,
+    required this.nativeLanguage,
     required this.references,
     required this.publications,
     required this.present,
@@ -91,6 +93,16 @@ class DocumentStrings {
   final String skills;
   final String education;
   final String hobbies;
+
+  /// The heading over the spoken-languages section. Not to be confused
+  /// with the language this document is written in — see [LanguageItem].
+  final String languages;
+
+  /// What a native speaker is called, the one band on the CEFR scale that
+  /// needs a word rather than a code. Every other band prints as itself
+  /// ("C1"), which is the point of using CEFR — see [LanguageProficiency].
+  final String nativeLanguage;
+
   final String references;
   final String publications;
 

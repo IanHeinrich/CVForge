@@ -35,6 +35,7 @@ abstract class CvTranslationResult with _$CvTranslationResult {
     required Map<String, String> educationGrades,
     required Map<String, String> educationDetails,
     required Map<String, String> hobbies,
+    required Map<String, String> languages,
     required Map<String, String> bullets,
 
     /// How many strings the request asked about, so a caller can report
@@ -82,6 +83,7 @@ abstract class CvTranslationResult with _$CvTranslationResult {
       educationGrades: join((p) => p.educationGrades),
       educationDetails: join((p) => p.educationDetails),
       hobbies: join((p) => p.hobbies),
+      languages: join((p) => p.languages),
       bullets: join((p) => p.bullets),
       requestedCount: parts.fold(0, (t, p) => t + p.requestedCount),
       translatedCount: parts.fold(0, (t, p) => t + p.translatedCount),
@@ -142,6 +144,7 @@ abstract class CvTranslationResult with _$CvTranslationResult {
       educationGrades: group('grades'),
       educationDetails: group('educationDetails'),
       hobbies: group('hobbies'),
+      languages: group('languages'),
       bullets: group('bullets'),
       requestedCount: payload.fieldCount,
       translatedCount: changed,

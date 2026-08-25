@@ -1022,6 +1022,10 @@
   "@sectionLabelHobbies": {
     "description": "Studio's section-visibility picker: personal interests."
   },
+  "sectionLabelLanguages": "Languages",
+  "@sectionLabelLanguages": {
+    "description": "Studio's section-visibility picker: languages the person speaks."
+  },
   "sectionLabelProjects": "Projects",
   "@sectionLabelProjects": {
     "description": "Studio's section-visibility picker: the projects section."
@@ -2675,6 +2679,10 @@
   "@vaultAddHobbies": {
     "description": "Vault list card title for the hobbies section before any hobby exists, shown where the hobby names otherwise appear."
   },
+  "vaultAddLanguages": "Add your languages",
+  "@vaultAddLanguages": {
+    "description": "Vault list card title for the languages section before any language exists, shown where the language names otherwise appear."
+  },
   "vaultAddProject": "Add project",
   "@vaultAddProject": {
     "description": "Vault button that adds a new project entry."
@@ -3041,6 +3049,58 @@
   "@vaultInvalidUrlNotice": {
     "description": "One-shot notice shown when the user lands on a URL that matches no route and is redirected to the Vault."
   },
+  "vaultLanguageLevel": "Level",
+  "@vaultLanguageLevel": {
+    "description": "Field label for the CEFR proficiency picker in the Vault languages editor."
+  },
+  "vaultLanguageLevelUnset": "Not specified",
+  "@vaultLanguageLevelUnset": {
+    "description": "Proficiency picker option that grades a language not at all; the CV then prints the language on its own."
+  },
+  "vaultLanguageName": "Language",
+  "@vaultLanguageName": {
+    "description": "Field label for a language name in the Vault languages editor."
+  },
+  "vaultLanguageNameHint": "e.g. German",
+  "@vaultLanguageNameHint": {
+    "description": "Hint for the language-name field. The name is printed on the CV verbatim, so it is written in the document language, not the UI one."
+  },
+  "vaultLanguagesCount": "{count, plural, =1{1 language} other{{count} languages}}",
+  "@vaultLanguagesCount": {
+    "description": "Vault summary card line counting languages.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "vaultLanguagesDeleteLanguage": "Delete language",
+  "@vaultLanguagesDeleteLanguage": {
+    "description": "Tooltip on the delete button beside a language in the Vault languages editor."
+  },
+  "vaultLanguagesEmptyShort": "Nothing yet.",
+  "@vaultLanguagesEmptyShort": {
+    "description": "Empty state inside the Vault languages editor."
+  },
+  "vaultLanguagesItems": "Items",
+  "@vaultLanguagesItems": {
+    "description": "Heading above the list of entries inside the Vault languages editor."
+  },
+  "vaultLanguagesMatchCount": "{count, plural, =1{1 matching language} other{{count} matching languages}}",
+  "@vaultLanguagesMatchCount": {
+    "description": "Vault list card line under the languages section while a search is active, counting the languages that matched.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "vaultLanguagesTitle": "Languages",
+  "@vaultLanguagesTitle": {
+    "description": "Title of the Vault's languages editor panel, and of Studio's languages section editor."
+  },
   "vaultMonthApr": "Apr",
   "@vaultMonthApr": {
     "description": "Month abbreviation shown in the Vault's year/month picker for April. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell."
@@ -3149,6 +3209,34 @@
   "@vaultPhotoTitle": {
     "description": "Vault basics, heading for the optional profile photograph."
   },
+  "vaultProficiencyA1": "A1 — Beginner",
+  "@vaultProficiencyA1": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyA2": "A2 — Elementary",
+  "@vaultProficiencyA2": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyB1": "B1 — Intermediate",
+  "@vaultProficiencyB1": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyB2": "B2 — Upper intermediate",
+  "@vaultProficiencyB2": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyC1": "C1 — Advanced",
+  "@vaultProficiencyC1": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyC2": "C2 — Mastery",
+  "@vaultProficiencyC2": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyNative": "Native speaker",
+  "@vaultProficiencyNative": {
+    "description": "Proficiency picker option in the Vault languages editor. CEFR has no native band; this is the one level that prints as a word rather than a code."
+  },
   "vaultProjectLink": "Link (optional)",
   "@vaultProjectLink": {
     "description": "Vault project form field label for a URL showing the project."
@@ -3250,6 +3338,10 @@
   "vaultSectionHobbies": "Hobbies and interests",
   "@vaultSectionHobbies": {
     "description": "Heading above the hobbies card in the Vault's main list."
+  },
+  "vaultSectionLanguages": "Languages",
+  "@vaultSectionLanguages": {
+    "description": "Heading above the languages card in the Vault's main list."
   },
   "vaultSectionProjects": "Projects",
   "@vaultSectionProjects": {

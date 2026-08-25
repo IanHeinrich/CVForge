@@ -1370,6 +1370,12 @@ abstract class AppLocalizations {
   /// **'Hobbies and interests'**
   String get sectionLabelHobbies;
 
+  /// Studio's section-visibility picker: languages the person speaks.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get sectionLabelLanguages;
+
   /// Studio's section-visibility picker: the projects section.
   ///
   /// In en, this message translates to:
@@ -3194,6 +3200,12 @@ abstract class AppLocalizations {
   /// **'Add your hobbies'**
   String get vaultAddHobbies;
 
+  /// Vault list card title for the languages section before any language exists, shown where the language names otherwise appear.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your languages'**
+  String get vaultAddLanguages;
+
   /// Vault button that adds a new project entry.
   ///
   /// In en, this message translates to:
@@ -3698,6 +3710,66 @@ abstract class AppLocalizations {
   /// **'That page doesn\'t exist — here\'s your Vault.'**
   String get vaultInvalidUrlNotice;
 
+  /// Field label for the CEFR proficiency picker in the Vault languages editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get vaultLanguageLevel;
+
+  /// Proficiency picker option that grades a language not at all; the CV then prints the language on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get vaultLanguageLevelUnset;
+
+  /// Field label for a language name in the Vault languages editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get vaultLanguageName;
+
+  /// Hint for the language-name field. The name is printed on the CV verbatim, so it is written in the document language, not the UI one.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. German'**
+  String get vaultLanguageNameHint;
+
+  /// Vault summary card line counting languages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 language} other{{count} languages}}'**
+  String vaultLanguagesCount(int count);
+
+  /// Tooltip on the delete button beside a language in the Vault languages editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete language'**
+  String get vaultLanguagesDeleteLanguage;
+
+  /// Empty state inside the Vault languages editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet.'**
+  String get vaultLanguagesEmptyShort;
+
+  /// Heading above the list of entries inside the Vault languages editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get vaultLanguagesItems;
+
+  /// Vault list card line under the languages section while a search is active, counting the languages that matched.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 matching language} other{{count} matching languages}}'**
+  String vaultLanguagesMatchCount(int count);
+
+  /// Title of the Vault's languages editor panel, and of Studio's languages section editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get vaultLanguagesTitle;
+
   /// Month abbreviation shown in the Vault's year/month picker for April. This is app chrome, so it follows the app's language — it is NOT what the CV prints, which follows the document's own language (see DocumentStrings). Keep it short enough for a grid cell.
   ///
   /// In en, this message translates to:
@@ -3860,6 +3932,48 @@ abstract class AppLocalizations {
   /// **'Photo'**
   String get vaultPhotoTitle;
 
+  /// Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is.
+  ///
+  /// In en, this message translates to:
+  /// **'A1 — Beginner'**
+  String get vaultProficiencyA1;
+
+  /// Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is.
+  ///
+  /// In en, this message translates to:
+  /// **'A2 — Elementary'**
+  String get vaultProficiencyA2;
+
+  /// Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is.
+  ///
+  /// In en, this message translates to:
+  /// **'B1 — Intermediate'**
+  String get vaultProficiencyB1;
+
+  /// Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is.
+  ///
+  /// In en, this message translates to:
+  /// **'B2 — Upper intermediate'**
+  String get vaultProficiencyB2;
+
+  /// Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is.
+  ///
+  /// In en, this message translates to:
+  /// **'C1 — Advanced'**
+  String get vaultProficiencyC1;
+
+  /// Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is.
+  ///
+  /// In en, this message translates to:
+  /// **'C2 — Mastery'**
+  String get vaultProficiencyC2;
+
+  /// Proficiency picker option in the Vault languages editor. CEFR has no native band; this is the one level that prints as a word rather than a code.
+  ///
+  /// In en, this message translates to:
+  /// **'Native speaker'**
+  String get vaultProficiencyNative;
+
   /// Vault project form field label for a URL showing the project.
   ///
   /// In en, this message translates to:
@@ -3976,6 +4090,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hobbies and interests'**
   String get vaultSectionHobbies;
+
+  /// Heading above the languages card in the Vault's main list.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get vaultSectionLanguages;
 
   /// Vault list section heading for projects.
   ///

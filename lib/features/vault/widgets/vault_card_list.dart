@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
@@ -143,6 +144,7 @@ class _VaultCardListState extends State<VaultCardList> {
     final searching = viewModel.isSearching;
     final skillCategories = viewModel.filteredSkillCategories;
     final hobbies = viewModel.filteredHobbies;
+    final languages = viewModel.filteredLanguages;
 
     return [
       // The list has two halves, and says so. Everything below "About you"
@@ -230,6 +232,20 @@ class _VaultCardListState extends State<VaultCardList> {
                 searching: searching,
                 selected: target == VaultEditorTarget.skills,
                 onTap: viewModel.openSkillsEditor,
+              ),
+      ),
+      VaultCardSection(
+        title: context.l10n.vaultSectionLanguages,
+        child: searching && languages.isEmpty
+            ? AppInlineEmptyMessage(context.l10n.vaultNoSearchMatches)
+            : _LanguagesCard(
+                key: target == VaultEditorTarget.languages
+                    ? _selectedCardKey
+                    : null,
+                languages: languages,
+                searching: searching,
+                selected: target == VaultEditorTarget.languages,
+                onTap: viewModel.openLanguagesEditor,
               ),
       ),
       VaultListSection<Education>(
@@ -416,6 +432,49 @@ class _SkillsCard extends StatelessWidget {
       onTap: onTap,
       leading: Icon(
         RemixIcons.star_line,
+        size: context.appIconSize.large,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+/// The languages themselves, counted underneath — the same split as
+/// [_SkillsCard], for the same reason. The level is deliberately not in
+/// the title: at a glance the useful fact is *which* languages, and
+/// "German: B2 · French: C1" runs out of one line after two of them.
+class _LanguagesCard extends StatelessWidget {
+  const _LanguagesCard({
+    super.key,
+    required this.languages,
+    required this.searching,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final List<LanguageItem> languages;
+  final bool searching;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final names = languages
+        .map((l) => l.name)
+        .where((n) => n.isNotEmpty)
+        .join(' · ');
+
+    return AppSummaryCard(
+      title: names.isEmpty ? context.l10n.vaultAddLanguages : names,
+      subtitle: names.isEmpty
+          ? null
+          : searching
+          ? context.l10n.vaultLanguagesMatchCount(languages.length)
+          : context.l10n.vaultLanguagesCount(languages.length),
+      selected: selected,
+      onTap: onTap,
+      leading: Icon(
+        RemixIcons.translate_2,
         size: context.appIconSize.large,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),

@@ -6,6 +6,7 @@ import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/vault/language_proficiency.dart';
 import 'resolved_cv.dart';
 import 'resolved_section.dart';
 
@@ -62,6 +63,7 @@ abstract final class CvComposer {
       final section = switch (type) {
         CvSectionType.summary => _buildSummary(vault, draft, strings),
         CvSectionType.skills => _buildSkills(vault, draft, strings),
+        CvSectionType.languages => _buildLanguages(vault, draft, strings),
         CvSectionType.experience => _buildExperience(
           vault,
           draft,
@@ -296,6 +298,37 @@ abstract final class CvComposer {
     if (items.isEmpty) return null;
     return ResolvedSection.hobbies(title: strings.hobbies, items: items);
   }
+
+  static ResolvedSection? _buildLanguages(
+    CvVault vault,
+    CvDraft draft,
+    DocumentStrings strings,
+  ) {
+    final byId = {for (final l in vault.languages) l.id: l};
+    final items = <ResolvedLanguage>[
+      for (final id in draft.languageIds)
+        if (byId[id] case final language?)
+          ResolvedLanguage(
+            name: draft.languageOverrides[language.id] ?? language.name,
+            level: _formatProficiency(language.proficiency, strings),
+          ),
+    ];
+
+    if (items.isEmpty) return null;
+    return ResolvedSection.languages(title: strings.languages, items: items);
+  }
+
+  /// A CEFR band prints as its own code in every language — that is what
+  /// the scale is for, and why adding a document language costs one word
+  /// here rather than seven. Only the native band needs translating.
+  static String? _formatProficiency(
+    LanguageProficiency? proficiency,
+    DocumentStrings strings,
+  ) => switch (proficiency) {
+    null => null,
+    LanguageProficiency.native => strings.nativeLanguage,
+    _ => proficiency.name.toUpperCase(),
+  };
 
   static ResolvedSection? _buildReferences(
     CvVault vault,

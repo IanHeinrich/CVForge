@@ -22,6 +22,7 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
@@ -53,6 +54,7 @@ enum VaultEditorTarget {
   education,
   skills,
   hobbies,
+  languages,
   publication,
 }
 
@@ -202,6 +204,12 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   List<HobbyItem> get filteredHobbies =>
       _filtered(vault.hobbies, (h) => [h.text]);
 
+  /// Matches a language's name. The proficiency is deliberately not
+  /// searched: "c1" would match a band the user cannot see spelled that
+  /// way anywhere in this list.
+  List<LanguageItem> get filteredLanguages =>
+      _filtered(vault.languages, (l) => [l.name]);
+
   /// Whether "About you" still has anything to show under the current
   /// query. True whenever nothing is being searched for, so the card is
   /// only ever hidden by an active search that missed it.
@@ -228,6 +236,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   void openBasicsEditor() => _open(VaultEditorTarget.basics);
   void openSkillsEditor() => _open(VaultEditorTarget.skills);
   void openHobbiesEditor() => _open(VaultEditorTarget.hobbies);
+  void openLanguagesEditor() => _open(VaultEditorTarget.languages);
   void openExperienceEditor(String id) =>
       _open(VaultEditorTarget.experience, id);
   void openProjectEditor(String id) => _open(VaultEditorTarget.project, id);
@@ -564,6 +573,13 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> updateHobby(HobbyItem hobby) => _vaultService.updateHobby(hobby);
 
   Future<void> deleteHobby(String id) => _vaultService.deleteHobby(id);
+
+  Future<void> addLanguage(String name) => _vaultService.addLanguage(name);
+
+  Future<void> updateLanguage(LanguageItem language) =>
+      _vaultService.updateLanguage(language);
+
+  Future<void> deleteLanguage(String id) => _vaultService.deleteLanguage(id);
 
   Future<void> addPublication() async {
     final created = await _vaultService.addPublication(title: '');

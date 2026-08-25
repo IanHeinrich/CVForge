@@ -261,6 +261,11 @@ abstract class CvPdfRenderer {
       // which left qualifications packed tighter than the projects and
       // publications either side of them.
     ], tokens.itemGap),
+    ResolvedLanguagesSection(items: final items) => _languageRows(
+      items,
+      tokens,
+      fonts,
+    ),
     ResolvedHobbiesSection(items: final items) => [
       bodyText(items.join(', '), tokens, fonts),
     ],
@@ -354,6 +359,38 @@ abstract class CvPdfRenderer {
       preventOrphansAndSplits: preventOrphansAndSplits,
     );
   }
+
+  /// One language per line, laid out like a skills group — the name as
+  /// the inline label, the level as the value beside it. Concrete enough
+  /// that a reader scanning for "does this person speak German" finds it
+  /// on its own line, and shared by every template for the same reason
+  /// [_skillGroups] is: nothing here is a presentation choice a template
+  /// would want to make differently.
+  List<pw.Widget> _languageRows(
+    List<ResolvedLanguage> items,
+    CvDesignTokens tokens,
+    CvFontSet fonts,
+  ) => [
+    for (final language in items)
+      pw.Padding(
+        padding: pw.EdgeInsets.only(bottom: tokens.bulletGap),
+        child: pw.RichText(
+          text: pw.TextSpan(
+            children: [
+              pw.TextSpan(
+                // No trailing colon when there is no level to introduce.
+                text: language.level == null
+                    ? language.name
+                    : '${language.name}: ',
+                style: tokens.inlineLabel.toPdfStyle(fonts),
+              ),
+              if (language.level case final level?)
+                pw.TextSpan(text: level, style: tokens.body.toPdfStyle(fonts)),
+            ],
+          ),
+        ),
+      ),
+  ];
 
   List<pw.Widget> _skillGroups(
     List<ResolvedSkillGroup> groups,

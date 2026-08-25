@@ -57,6 +57,7 @@ JsonSchema buildCvTranslationResponseSchema(CvTranslationPayload payload) {
       'grades',
       'educationDetails',
       'hobbies',
+      'languages',
       'bullets',
     ])
       key: ?group(key),

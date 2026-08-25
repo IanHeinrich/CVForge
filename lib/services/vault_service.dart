@@ -11,6 +11,8 @@ import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
+import 'package:cv_forge/models/vault/language_proficiency.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
@@ -431,6 +433,38 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
     await ready();
     _setVault(
       (v) => v.copyWith(hobbies: v.hobbies.removeById(hobbyId, (h) => h.id)),
+    );
+  }
+
+  Future<LanguageItem> addLanguage(
+    String name, {
+    LanguageProficiency? proficiency,
+  }) async {
+    await ready();
+    final language = LanguageItem(
+      id: _uuid.v4(),
+      name: name,
+      proficiency: proficiency,
+    );
+    _setVault((v) => v.copyWith(languages: [...v.languages, language]));
+    return language;
+  }
+
+  Future<void> updateLanguage(LanguageItem language) async {
+    await ready();
+    _setVault(
+      (v) => v.copyWith(
+        languages: v.languages.replaceById(language.id, language, (l) => l.id),
+      ),
+    );
+  }
+
+  Future<void> deleteLanguage(String languageId) async {
+    await ready();
+    _setVault(
+      (v) => v.copyWith(
+        languages: v.languages.removeById(languageId, (l) => l.id),
+      ),
     );
   }
 

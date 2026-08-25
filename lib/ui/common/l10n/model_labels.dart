@@ -25,6 +25,7 @@ extension CvSectionTypeLabel on CvSectionType {
   String displayLabel(AppLocalizations l10n) => switch (this) {
     CvSectionType.summary => l10n.sectionLabelSummary,
     CvSectionType.skills => l10n.sectionLabelSkills,
+    CvSectionType.languages => l10n.sectionLabelLanguages,
     CvSectionType.experience => l10n.sectionLabelExperience,
     CvSectionType.projects => l10n.sectionLabelProjects,
     CvSectionType.education => l10n.sectionLabelEducation,

@@ -91,6 +91,14 @@ class AiAssistantVaultPayload {
       'hobbies': [
         for (final h in vault.hobbies) {'id': h.id, 'text': h.text},
       ],
+      'languages': [
+        for (final l in vault.languages)
+          {
+            'id': l.id,
+            'name': l.name,
+            if (l.proficiency case final p?) 'level': p.name,
+          },
+      ],
       'publications': [
         for (final p in vault.publications)
           {

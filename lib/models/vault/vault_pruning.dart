@@ -93,6 +93,9 @@ extension CvVaultPruning on CvVault {
         (c) => _isBlank(c.name) && c.skills.isEmpty,
       ),
       hobbies: _pruned(hobbies, (h) => h, (h) => _isBlank(h.text)),
+      // A level with no language to attach it to is not an entry —
+      // unlike a skill category, there is nothing under it to keep.
+      languages: _pruned(languages, (l) => l, (l) => _isBlank(l.name)),
     );
   }
 }

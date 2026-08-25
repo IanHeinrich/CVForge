@@ -666,6 +666,7 @@ void main() {
         skillIds: ['skill-1'],
         educationIds: [],
         educationBulletIds: {},
+        languageIds: [],
         hobbyIds: [],
         hiddenSections: {CvSectionType.hobbies},
         rationale: 'Kept the relevant backend experience.',
@@ -826,6 +827,7 @@ void main() {
             educationGrades: {},
             educationDetails: {},
             hobbies: {},
+            languages: {},
             bullets: {},
           ),
           DocumentLanguage.de,
@@ -880,6 +882,7 @@ void main() {
           skillIds: [],
           educationIds: [],
           educationBulletIds: {},
+          languageIds: [],
           hobbyIds: [],
           hiddenSections: {},
           rationale: '',
@@ -895,6 +898,7 @@ void main() {
           educationGrades: {},
           educationDetails: {},
           hobbies: {},
+          languages: {},
           bullets: {},
         );
 
@@ -926,6 +930,7 @@ void main() {
         educationGrades: {},
         educationDetails: {},
         hobbies: {'hobby-1': 'Bouldern'},
+        languages: {},
         bullets: {'bullet-1': 'Leitete ein Team von sechs.'},
       );
 

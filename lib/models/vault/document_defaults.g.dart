@@ -72,6 +72,7 @@ const _$DocumentLanguageEnumMap = {
 const _$CvSectionTypeEnumMap = {
   CvSectionType.summary: 'summary',
   CvSectionType.skills: 'skills',
+  CvSectionType.languages: 'languages',
   CvSectionType.experience: 'experience',
   CvSectionType.projects: 'projects',
   CvSectionType.education: 'education',

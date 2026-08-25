@@ -870,6 +870,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sectionLabelHobbies => 'Intereses y pasatiempos';
 
   @override
+  String get sectionLabelLanguages => 'Idiomas';
+
+  @override
   String get sectionLabelProjects => 'Proyectos';
 
   @override
@@ -2150,6 +2153,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultAddHobbies => 'Añade tus pasatiempos';
 
   @override
+  String get vaultAddLanguages => 'Añade tus idiomas';
+
+  @override
   String get vaultAddProject => 'Agregar proyecto';
 
   @override
@@ -2445,6 +2451,52 @@ class AppLocalizationsEs extends AppLocalizations {
       'Esa página no existe — aquí está tu Bóveda.';
 
   @override
+  String get vaultLanguageLevel => 'Nivel';
+
+  @override
+  String get vaultLanguageLevelUnset => 'Sin especificar';
+
+  @override
+  String get vaultLanguageName => 'Idioma';
+
+  @override
+  String get vaultLanguageNameHint => 'p. ej. Alemán';
+
+  @override
+  String vaultLanguagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count idiomas',
+      one: '1 idioma',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultLanguagesDeleteLanguage => 'Eliminar idioma';
+
+  @override
+  String get vaultLanguagesEmptyShort => 'Aún no hay nada.';
+
+  @override
+  String get vaultLanguagesItems => 'Elementos';
+
+  @override
+  String vaultLanguagesMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count idiomas coincidentes',
+      one: '1 idioma coincidente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultLanguagesTitle => 'Idiomas';
+
+  @override
   String get vaultMonthApr => 'abr';
 
   @override
@@ -2530,6 +2582,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultPhotoTitle => 'Foto';
 
   @override
+  String get vaultProficiencyA1 => 'A1 — Principiante';
+
+  @override
+  String get vaultProficiencyA2 => 'A2 — Básico';
+
+  @override
+  String get vaultProficiencyB1 => 'B1 — Intermedio';
+
+  @override
+  String get vaultProficiencyB2 => 'B2 — Intermedio alto';
+
+  @override
+  String get vaultProficiencyC1 => 'C1 — Avanzado';
+
+  @override
+  String get vaultProficiencyC2 => 'C2 — Maestría';
+
+  @override
+  String get vaultProficiencyNative => 'Hablante nativo';
+
+  @override
   String get vaultProjectLink => 'Enlace (opcional)';
 
   @override
@@ -2600,6 +2673,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultSectionHobbies => 'Intereses y pasatiempos';
+
+  @override
+  String get vaultSectionLanguages => 'Idiomas';
 
   @override
   String get vaultSectionProjects => 'Proyectos';

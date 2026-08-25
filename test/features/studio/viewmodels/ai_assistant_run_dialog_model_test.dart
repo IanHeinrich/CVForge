@@ -40,6 +40,7 @@ void main() {
       skillIds: [],
       educationIds: [],
       educationBulletIds: {},
+      languageIds: [],
       hobbyIds: [],
       hiddenSections: {CvSectionType.hobbies},
       rationale: 'Kept the relevant bits.',

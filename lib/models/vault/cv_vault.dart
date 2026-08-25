@@ -5,6 +5,7 @@ import 'document_defaults.dart';
 import 'education.dart';
 import 'experience.dart';
 import 'hobby_item.dart';
+import 'language_item.dart';
 import 'project.dart';
 import 'publication.dart';
 import 'skill_category.dart';
@@ -26,6 +27,7 @@ abstract class CvVault with _$CvVault {
     @Default(<Project>[]) List<Project> projects,
     @Default(<Education>[]) List<Education> education,
     @Default(<HobbyItem>[]) List<HobbyItem> hobbies,
+    @Default(<LanguageItem>[]) List<LanguageItem> languages,
     @Default(<Publication>[]) List<Publication> publications,
     String? referencesNote,
 
@@ -77,5 +79,6 @@ extension CvVaultEmptiness on CvVault {
       projects.isEmpty &&
       education.isEmpty &&
       hobbies.isEmpty &&
+      languages.isEmpty &&
       publications.isEmpty;
 }
