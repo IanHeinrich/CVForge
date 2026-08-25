@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/l10n_extensions.dart';
+import 'package:cv_forge/models/render/cv_markup.dart';
+import 'package:cv_forge/models/llm/llm_field_length_guard.dart';
 import 'package:cv_forge/ui/common/markup/cv_markup_editing_controller.dart';
 import 'package:cv_forge/ui/common/markup/markup_selection.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
@@ -172,6 +176,15 @@ class _AppTextFieldState extends State<AppTextField> {
 
     if (!widget.markup) return field;
 
+    // Prose only. A budget under a one-line role or skill label would be
+    // chrome for a limit nothing there could plausibly reach.
+    final budget = widget.maxLines > 1
+        ? ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _controller,
+            builder: (context, value, _) => _LengthBudget(text: value.text),
+          )
+        : const SizedBox.shrink();
+
     return CallbackShortcuts(
       bindings: {
         // Both platforms' habits, since this ships as a web app: Cmd on
@@ -198,7 +211,53 @@ class _AppTextFieldState extends State<AppTextField> {
                 : const SizedBox.shrink(),
           ),
           field,
+          budget,
         ],
+      ),
+    );
+  }
+}
+
+/// A warning that a field is running out of page, shown only once that is
+/// nearly true.
+///
+/// Silent below the threshold on purpose: a permanent "12 / 4000" on
+/// every prose field is noise for a limit almost nothing reaches, and the
+/// bound exists to catch a field that has swallowed the document rather
+/// than to police how much someone writes.
+class _LengthBudget extends StatelessWidget {
+  const _LengthBudget({required this.text});
+
+  final String text;
+
+  /// How close to the limit the warning starts. Far enough out to be
+  /// actionable while there is still room to edit.
+  static const _warnFrom = 0.85;
+
+  @override
+  Widget build(BuildContext context) {
+    // Printed characters, not typed ones — the bound is sized against the
+    // page and an emphasis marker occupies none of it, so adding bold to
+    // a sentence must not bring the warning closer.
+    final used = stripCvMarkup(text).length;
+    final remaining = maxRenderableFieldChars - used;
+    if (used < maxRenderableFieldChars * _warnFrom) {
+      return const SizedBox.shrink();
+    }
+
+    final overBudget = remaining < 0;
+    return Padding(
+      padding: EdgeInsets.only(top: context.appSpacing.paddingHairline),
+      child: Text(
+        overBudget
+            ? context.l10n.commonLengthBudgetOver
+            : context.l10n.commonLengthBudgetLeft(remaining),
+        textAlign: TextAlign.end,
+        style: context.appTypography.caption.copyWith(
+          color: overBudget
+              ? Theme.of(context).colorScheme.error
+              : context.appPalette.warning,
+        ),
       ),
     );
   }

@@ -337,6 +337,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonFormatItalic => 'Italic';
 
   @override
+  String commonLengthBudgetLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters left',
+      one: '1 character left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonLengthBudgetOver => 'Too long to fit on one page';
+
+  @override
   String commonVaultOriginal(String text) {
     return 'Vault: $text';
   }

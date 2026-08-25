@@ -344,6 +344,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonFormatItalic => 'Cursiva';
 
   @override
+  String commonLengthBudgetLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan $count caracteres',
+      one: 'Queda 1 carácter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonLengthBudgetOver =>
+      'Demasiado largo para caber en una página';
+
+  @override
   String commonVaultOriginal(String text) {
     return 'Baúl: $text';
   }

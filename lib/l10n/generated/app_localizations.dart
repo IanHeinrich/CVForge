@@ -524,6 +524,18 @@ abstract class AppLocalizations {
   /// **'Italic'**
   String get commonFormatItalic;
 
+  /// Shown under a long CV text field as it nears the length that still fits on a page. Silent until close to the limit, so it reads as a warning rather than as a permanent counter. Counts printed characters, so emphasis markers do not count against it.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 character left} other{{count} characters left}}'**
+  String commonLengthBudgetLeft(int count);
+
+  /// Shown under a CV text field whose text has passed the length that fits on a page. States the consequence rather than a number, because the number is not what the writer needs to act on.
+  ///
+  /// In en, this message translates to:
+  /// **'Too long to fit on one page'**
+  String get commonLengthBudgetOver;
+
   /// Shown above an open Studio editor when the field has been tailored, giving the wording the Vault still holds so the writer can see what this CV is diverging from. The prefix names the Vault, which is the app's own term for the master record.
   ///
   /// In en, this message translates to:
