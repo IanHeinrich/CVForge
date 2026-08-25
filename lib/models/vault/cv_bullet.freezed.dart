@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CvBullet {
 
- String get id; String? get label; String get text;
+ String get id; String get text;
 /// Create a copy of CvBullet
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CvBulletCopyWith<CvBullet> get copyWith => _$CvBulletCopyWithImpl<CvBullet>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvBullet&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvBullet&&(identical(other.id, id) || other.id == id)&&(identical(other.text, text) || other.text == text));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,text);
+int get hashCode => Object.hash(runtimeType,id,text);
 
 @override
 String toString() {
-  return 'CvBullet(id: $id, label: $label, text: $text)';
+  return 'CvBullet(id: $id, text: $text)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CvBulletCopyWith<$Res>  {
   factory $CvBulletCopyWith(CvBullet value, $Res Function(CvBullet) _then) = _$CvBulletCopyWithImpl;
 @useResult
 $Res call({
- String id, String? label, String text
+ String id, String text
 });
 
 
@@ -65,11 +65,10 @@ class _$CvBulletCopyWithImpl<$Res>
 
 /// Create a copy of CvBullet
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = freezed,Object? text = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? text = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String?,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -155,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? label,  String text)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String text)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CvBullet() when $default != null:
-return $default(_that.id,_that.label,_that.text);case _:
+return $default(_that.id,_that.text);case _:
   return orElse();
 
 }
@@ -176,10 +175,10 @@ return $default(_that.id,_that.label,_that.text);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? label,  String text)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String text)  $default,) {final _that = this;
 switch (_that) {
 case _CvBullet():
-return $default(_that.id,_that.label,_that.text);case _:
+return $default(_that.id,_that.text);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +195,10 @@ return $default(_that.id,_that.label,_that.text);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? label,  String text)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String text)?  $default,) {final _that = this;
 switch (_that) {
 case _CvBullet() when $default != null:
-return $default(_that.id,_that.label,_that.text);case _:
+return $default(_that.id,_that.text);case _:
   return null;
 
 }
@@ -211,11 +210,10 @@ return $default(_that.id,_that.label,_that.text);case _:
 @JsonSerializable()
 
 class _CvBullet implements CvBullet {
-  const _CvBullet({required this.id, this.label, required this.text});
+  const _CvBullet({required this.id, required this.text});
   factory _CvBullet.fromJson(Map<String, dynamic> json) => _$CvBulletFromJson(json);
 
 @override final  String id;
-@override final  String? label;
 @override final  String text;
 
 /// Create a copy of CvBullet
@@ -231,16 +229,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvBullet&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvBullet&&(identical(other.id, id) || other.id == id)&&(identical(other.text, text) || other.text == text));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,text);
+int get hashCode => Object.hash(runtimeType,id,text);
 
 @override
 String toString() {
-  return 'CvBullet(id: $id, label: $label, text: $text)';
+  return 'CvBullet(id: $id, text: $text)';
 }
 
 
@@ -251,7 +249,7 @@ abstract mixin class _$CvBulletCopyWith<$Res> implements $CvBulletCopyWith<$Res>
   factory _$CvBulletCopyWith(_CvBullet value, $Res Function(_CvBullet) _then) = __$CvBulletCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? label, String text
+ String id, String text
 });
 
 
@@ -268,11 +266,10 @@ class __$CvBulletCopyWithImpl<$Res>
 
 /// Create a copy of CvBullet
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = freezed,Object? text = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? text = null,}) {
   return _then(_CvBullet(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String?,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

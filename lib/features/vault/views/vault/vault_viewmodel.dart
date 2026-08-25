@@ -299,6 +299,17 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   bool isDefaultSectionHidden(CvSectionType type) =>
       documentDefaults.hiddenSections?.contains(type) ?? false;
 
+  /// Whether a new CV starts with its headline shown — the same question
+  /// Studio's pinned headline row asks per draft, one level up.
+  ///
+  /// Phrased as "include" rather than "hide" to match the checkbox it
+  /// drives, and `StudioViewModel.includeHeadline` for the same reason.
+  bool get includeDefaultHeadline => !documentDefaults.hideHeadline;
+
+  Future<void> toggleDefaultHeadline() => _vaultService.setDocumentDefaults(
+    documentDefaults.copyWith(hideHeadline: !documentDefaults.hideHeadline),
+  );
+
   /// Unlike Studio's list, which shows only the sections the open draft has
   /// data for, this one lists every section: a default is being set for
   /// CVs that do not exist yet, so "has data" has nothing to answer to.

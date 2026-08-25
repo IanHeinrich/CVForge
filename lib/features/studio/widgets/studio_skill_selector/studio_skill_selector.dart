@@ -11,9 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
+import 'package:cv_forge/features/studio/widgets/studio_entry_field_row.dart';
 import 'package:cv_forge/features/studio/widgets/studio_panel_heading.dart';
 import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
-import 'package:cv_forge/features/studio/widgets/tailoring_controls.dart';
 
 /// Caps the filter field's width so it doesn't stretch to fill the panel
 /// on wide monitors — matches `DraftsCardList`'s own search field.
@@ -39,12 +39,24 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
   final _filterController = TextEditingController();
   String _query = '';
 
+  /// Whether the selector is showing each included skill as an editable
+  /// row beneath its group. Off by default: picking skills is what this
+  /// panel is for, and rewording one is the rare case — so it's a mode you
+  /// ask for, not chrome hung off every chip.
+  bool _renaming = false;
+
   /// Which skill, or which category name, currently has its rename editor
   /// open — one at a time, and presentation state like [_query]. A chip is
-  /// a selection control, so renaming happens in an editor below the group
+  /// a selection control, so renaming happens in a row below the group
   /// rather than inside the chip itself.
   String? _editingSkillId;
   String? _editingCategoryId;
+
+  void _toggleRenaming() => setState(() {
+    _renaming = !_renaming;
+    _editingSkillId = null;
+    _editingCategoryId = null;
+  });
 
   void _editSkill(String? id) => setState(() {
     _editingSkillId = _editingSkillId == id ? null : id;
@@ -62,21 +74,21 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
     super.dispose();
   }
 
-  /// The rename editor for whichever of [category]'s own name or
-  /// [skills] is currently open, or null when nothing in this group is
-  /// being renamed.
+  /// What sits under [category]'s chips: its own open rename editor, or —
+  /// while [_renaming] — one row per included skill in the group. Null
+  /// when there's nothing to show, so an untouched group renders exactly
+  /// the chips and nothing else.
   ///
-  /// Rendered through `AppChipGroup.footer` so it sits under the group it
-  /// belongs to while that widget stays stateless — see
-  /// `AppChipGroupItem.onEdit`.
-  Widget? _buildRenameEditor(
+  /// Rendered through `AppChipGroup.footer` so it stays attached to the
+  /// group it belongs to while that widget stays stateless.
+  Widget? _buildFooter(
     BuildContext context,
     StudioViewModel viewModel,
     SkillCategory category,
     List<Skill> skills,
   ) {
     if (_editingCategoryId == category.id) {
-      return InlineTextOverrideEditor(
+      return StudioEntryFieldRow(
         field: TailorableField(
           hasOverride: viewModel.hasSkillCategoryNameOverride(category.id),
           effectiveText: viewModel.skillCategoryNameText(category),
@@ -86,24 +98,43 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
           onRevert: () =>
               viewModel.revertSkillCategoryNameOverride(category.id),
         ),
-        onDone: () => _editCategory(null),
+        editing: true,
+        onToggleEdit: () => _editCategory(null),
+        editorMinLines: 1,
+        editorMaxLines: 1,
       );
     }
 
-    for (final skill in skills) {
-      if (_editingSkillId != skill.id) continue;
-      return InlineTextOverrideEditor(
-        field: TailorableField(
-          hasOverride: viewModel.hasSkillLabelOverride(skill.id),
-          effectiveText: viewModel.skillLabelText(skill),
-          fieldLabel: context.l10n.studioFieldSkill,
-          onChanged: (value) => viewModel.setSkillLabelOverride(skill, value),
-          onRevert: () => viewModel.revertSkillLabelOverride(skill.id),
-        ),
-        onDone: () => _editSkill(null),
-      );
-    }
-    return null;
+    if (!_renaming) return null;
+
+    // Only a skill that actually prints is worth rewording for this CV.
+    final included = skills
+        .where((s) => viewModel.isSkillIncluded(s.id))
+        .toList();
+    if (included.isEmpty) return null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final skill in included)
+          StudioEntryFieldRow(
+            key: ValueKey('skill_rename_${skill.id}'),
+            field: TailorableField(
+              hasOverride: viewModel.hasSkillLabelOverride(skill.id),
+              effectiveText: viewModel.skillLabelText(skill),
+              fieldLabel: context.l10n.studioFieldSkill,
+              onChanged: (value) =>
+                  viewModel.setSkillLabelOverride(skill, value),
+              onRevert: () => viewModel.revertSkillLabelOverride(skill.id),
+            ),
+            editing: _editingSkillId == skill.id,
+            onToggleEdit: () => _editSkill(skill.id),
+            previewMaxLines: 1,
+            editorMinLines: 1,
+            editorMaxLines: 2,
+          ),
+      ],
+    );
   }
 
   /// Skills within [category] matching the current filter — the category
@@ -120,13 +151,17 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
   /// Null for a skill with no included evidence, so [AppChipGroupItem]
   /// skips rendering a tooltip at all for the common case rather than
   /// showing an empty or "proven by 0" one.
-  String? _evidenceTooltip(StudioViewModel viewModel, Skill skill) {
+  String? _evidenceTooltip(
+    BuildContext context,
+    StudioViewModel viewModel,
+    Skill skill,
+  ) {
     final count = viewModel.evidenceCountFor(skill);
     if (count == 0) return null;
     // Same "Linked to N bullets" phrasing the Vault's own pickers use,
     // narrowed to the bullets this CV actually includes — which is the
     // only sense in which a link is evidence *here*.
-    return 'Linked to $count bullet${count == 1 ? '' : 's'} in this CV';
+    return context.l10n.studioSkillsEvidenceCount(count);
   }
 
   @override
@@ -174,27 +209,44 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
             ),
           ),
           const VGap.tiny(),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Tooltip(
-              message: evidencedCount > 0
-                  ? context.l10n.studioSkillsSelectEvidencedTooltip
-                  : viewModel.hasAnyLinkedSkills
-                  ? context.l10n.studioSkillsNoNewEvidenced
-                  : context.l10n.studioSkillsNoLinks,
-              child: TextButton.icon(
-                // Adds only — see `StudioViewModel.selectEvidencedSkills`'s
-                // doc comment. Disabled rather than hidden at zero so the
-                // control doesn't jump around as bullets are (de)selected.
-                onPressed: evidencedCount == 0
-                    ? null
-                    : viewModel.selectEvidencedSkills,
-                icon: Icon(RemixIcons.shield_check_line, size: 16),
-                label: Text(
-                  context.l10n.studioSkillsSelectEvidenced(evidencedCount),
+          Row(
+            children: [
+              Tooltip(
+                message: evidencedCount > 0
+                    ? context.l10n.studioSkillsSelectEvidencedTooltip
+                    : viewModel.hasAnyLinkedSkills
+                    ? context.l10n.studioSkillsNoNewEvidenced
+                    : context.l10n.studioSkillsNoLinks,
+                child: TextButton.icon(
+                  // Adds only — see `StudioViewModel.selectEvidencedSkills`'s
+                  // doc comment. Disabled rather than hidden at zero so the
+                  // control doesn't jump around as bullets are (de)selected.
+                  onPressed: evidencedCount == 0
+                      ? null
+                      : viewModel.selectEvidencedSkills,
+                  icon: Icon(RemixIcons.shield_check_line, size: 16),
+                  label: Text(
+                    context.l10n.studioSkillsSelectEvidenced(evidencedCount),
+                  ),
                 ),
               ),
-            ),
+              const Spacer(),
+              // One control for the whole panel rather than one per group
+              // — the mode is about what a row *is*, not about which
+              // category you're in.
+              TextButton.icon(
+                onPressed: selectedCount == 0 ? null : _toggleRenaming,
+                icon: Icon(
+                  _renaming ? RemixIcons.check_line : RemixIcons.edit_line,
+                  size: 16,
+                ),
+                label: Text(
+                  _renaming
+                      ? context.l10n.studioSkillsRenameDone
+                      : context.l10n.studioSkillsRename,
+                ),
+              ),
+            ],
           ),
           const VGap.tiny(),
           AppChipGroupSelector(
@@ -207,12 +259,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                         ? category.displayName(context.l10n)
                         : viewModel.skillCategoryNameText(category),
                     onEditLabel: () => _editCategory(category.id),
-                    footer: _buildRenameEditor(
-                      context,
-                      viewModel,
-                      category,
-                      skills,
-                    ),
+                    footer: _buildFooter(context, viewModel, category, skills),
                     items: [
                       for (final skill in skills)
                         AppChipGroupItem(
@@ -220,12 +267,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
                           label: viewModel.skillLabelText(skill),
                           selected: viewModel.isSkillIncluded(skill.id),
                           onToggle: (_) => viewModel.toggleSkill(skill),
-                          tooltip: _evidenceTooltip(viewModel, skill),
-                          // Only a skill that actually prints is worth
-                          // renaming for this CV.
-                          onEdit: viewModel.isSkillIncluded(skill.id)
-                              ? () => _editSkill(skill.id)
-                              : null,
+                          tooltip: _evidenceTooltip(context, viewModel, skill),
                         ),
                     ],
                     // Hidden while filtering — it'd otherwise add/remove

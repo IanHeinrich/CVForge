@@ -37,8 +37,8 @@ class BulletEditorCallbacks {
   final ValueChanged<List<String>> onReorder;
 }
 
-/// The bullet list inside an experience's editor panel — labelled/
-/// unlabelled text, add, delete, and drag-to-reorder.
+/// The bullet list inside an experience's editor panel — text, add,
+/// delete, and drag-to-reorder.
 class BulletListEditor extends StatefulWidget {
   const BulletListEditor({
     super.key,
@@ -141,15 +141,6 @@ class _BulletListEditorState extends State<BulletListEditor> {
                   Expanded(
                     child: Column(
                       children: [
-                        AppTextField(
-                          label: context.l10n.vaultBulletLabel,
-                          hint: context.l10n.vaultBulletLabelHint,
-                          initialValue: bullet.label ?? '',
-                          onChanged: (v) => callbacks.onChanged(
-                            bullet.copyWith(label: v.orNullIfEmpty),
-                          ),
-                        ),
-                        const VGap.tiny(),
                         AppTextField(
                           label: context.l10n.vaultBulletText,
                           initialValue: bullet.text,

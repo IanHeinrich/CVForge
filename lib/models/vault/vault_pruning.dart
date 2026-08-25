@@ -99,9 +99,9 @@ extension CvVaultPruning on CvVault {
 
 bool _isBlank(String? value) => value == null || value.trim().isEmpty;
 
-/// A bullet with neither text nor a label is nothing but its own id.
+/// A bullet with no text is nothing but its own id.
 List<CvBullet> _prunedBullets(List<CvBullet> bullets) =>
-    _pruned(bullets, (b) => b, (b) => _isBlank(b.text) && _isBlank(b.label));
+    _pruned(bullets, (b) => b, (b) => _isBlank(b.text));
 
 /// Keeps each of [items] that [isBlank] rejects, judged *after*
 /// [pruneChildren] has rebuilt it — so a parent whose only children were

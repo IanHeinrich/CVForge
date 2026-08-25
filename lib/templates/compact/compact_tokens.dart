@@ -39,7 +39,7 @@ const CvDesignTokens compactTokens = CvDesignTokens(
   company: CvTypeToken(sizePt: 10.5, colorArgb: _ink),
   meta: CvTypeToken(sizePt: 10, colorArgb: _ink),
   body: CvTypeToken(sizePt: 10, lineSpacingPt: 2, colorArgb: _ink),
-  bulletLabel: CvTypeToken(sizePt: 10, weight: CvWeight.bold, colorArgb: _ink),
+  inlineLabel: CvTypeToken(sizePt: 10, weight: CvWeight.bold, colorArgb: _ink),
   bullet: CvTypeToken(sizePt: 10, lineSpacingPt: 2, colorArgb: _ink),
   // Kept as a separate token (not the same size as the bullet body) so a
   // future size/weight tweak to just the marker is a one-line change.

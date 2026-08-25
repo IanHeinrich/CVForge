@@ -75,8 +75,7 @@ abstract class ResolvedPosition with _$ResolvedPosition {
 
 @freezed
 abstract class ResolvedBullet with _$ResolvedBullet {
-  const factory ResolvedBullet({String? label, required String text}) =
-      _ResolvedBullet;
+  const factory ResolvedBullet({required String text}) = _ResolvedBullet;
 }
 
 @freezed

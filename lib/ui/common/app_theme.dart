@@ -144,6 +144,18 @@ ThemeData buildAppTheme({Brightness brightness = Brightness.dark}) {
     borderRadius: BorderRadius.circular(appRadius.medium),
   );
 
+  // The exact `labelLarge` a chip would have used had `chipTheme` left
+  // `labelStyle` alone — reassembled from the same `Typography` that
+  // `ThemeData` builds its default `textTheme` from (geometry from
+  // `englishLike`, colour from `black`/`white`), so recolouring a chip
+  // label costs nothing but the colour. See the `chipTheme` block below.
+  final typography = Typography.material2021(colorScheme: colorScheme);
+  final chipLabelBase = typography.englishLike
+      .merge(
+        brightness == Brightness.dark ? typography.white : typography.black,
+      )
+      .labelLarge!;
+
   return ThemeData(
     useMaterial3: true,
     brightness: c.brightness,
@@ -216,6 +228,30 @@ ThemeData buildAppTheme({Brightness brightness = Brightness.dark}) {
     chipTheme: ChipThemeData(
       selectedColor: kcPrimaryColor,
       checkmarkColor: kcWhite,
+      // The other half of pinning `selectedColor`. M3's own default label
+      // colour for a *selected* chip is `onSecondaryContainer` — a dark
+      // tone chosen to sit on the pale `secondaryContainer` fill this app
+      // just replaced with a saturated purple, which in the light theme
+      // left grey-on-purple label text at unreadable contrast. Selected
+      // chips take `kcWhite`, matching `checkmarkColor` beside them and
+      // `onPrimary` everywhere else the brand purple is a fill.
+      //
+      // `ChipThemeData.labelStyle` *replaces* the M3 default outright
+      // rather than merging with it (`RawChip`: `chipTheme.labelStyle ??
+      // chipDefaults.labelStyle`), so the size/weight/letterSpacing are
+      // derived from the same `labelLarge` those defaults read rather
+      // than restated as literals here — this app pins no `textTheme` on
+      // purpose (see `AppTypography`'s doc comment) and restating the
+      // metrics would silently shift every chip's glyphs.
+      labelStyle: chipLabelBase.copyWith(
+        color: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.disabled)
+              ? c.onSurface
+              : states.contains(WidgetState.selected)
+              ? kcWhite
+              : c.onSurfaceVariant,
+        ),
+      ),
     ),
     tabBarTheme: TabBarThemeData(
       labelColor: kcPrimaryColor,

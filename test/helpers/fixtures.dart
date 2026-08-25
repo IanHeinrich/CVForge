@@ -1,6 +1,7 @@
 import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/draft/draft_omittable_field.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
@@ -65,9 +66,11 @@ CvDraft draftWith({
   Map<String, List<String>> projectBulletIds = const {},
   List<String> skillIds = const [],
   List<String> educationIds = const [],
+  Map<String, List<String>> educationBulletIds = const {},
   List<String> hobbyIds = const [],
   List<String> publicationIds = const [],
   Map<String, List<String>> publicationBulletIds = const {},
+  Map<DraftOmittableField, List<String>> omittedFields = const {},
   Set<CvSectionType> hiddenSections = const {},
   List<CvSectionType>? sectionOrder,
   Map<String, String> bulletOverrides = const {},
@@ -82,6 +85,10 @@ CvDraft draftWith({
   Map<String, String> hobbyOverrides = const {},
   Map<String, String> educationQualificationOverrides = const {},
   Map<String, String> educationGradeOverrides = const {},
+  Map<String, String> publicationTitleOverrides = const {},
+  Map<String, String> publicationCitationOverrides = const {},
+  Map<String, String> experienceLocationOverrides = const {},
+  Map<String, String> educationLocationOverrides = const {},
   bool hideHeadline = false,
   DocumentLanguage? translatedTo,
   String? targetJobDescription,
@@ -100,9 +107,11 @@ CvDraft draftWith({
   projectBulletIds: projectBulletIds,
   skillIds: skillIds,
   educationIds: educationIds,
+  educationBulletIds: educationBulletIds,
   hobbyIds: hobbyIds,
   publicationIds: publicationIds,
   publicationBulletIds: publicationBulletIds,
+  omittedFields: omittedFields,
   hiddenSections: hiddenSections,
   bulletOverrides: bulletOverrides,
   tailoredSummary: tailoredSummary,
@@ -116,6 +125,10 @@ CvDraft draftWith({
   hobbyOverrides: hobbyOverrides,
   educationQualificationOverrides: educationQualificationOverrides,
   educationGradeOverrides: educationGradeOverrides,
+  publicationTitleOverrides: publicationTitleOverrides,
+  publicationCitationOverrides: publicationCitationOverrides,
+  experienceLocationOverrides: experienceLocationOverrides,
+  educationLocationOverrides: educationLocationOverrides,
   hideHeadline: hideHeadline,
   translatedTo: translatedTo,
   targetJobDescription: targetJobDescription,

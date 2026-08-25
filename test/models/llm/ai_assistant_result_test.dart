@@ -53,7 +53,15 @@ CvVault _fixtureVault() => CvVault(
     ),
   ],
   education: const [
-    Education(id: 'edu-1', qualification: 'BSc', institution: 'Uni'),
+    Education(
+      id: 'edu-1',
+      qualification: 'BSc',
+      institution: 'Uni',
+      bullets: [
+        CvBullet(id: 'ebullet-a1', text: 'Dissertation on a thing'),
+        CvBullet(id: 'ebullet-a2', text: 'Society committee'),
+      ],
+    ),
   ],
   hobbies: const [HobbyItem(id: 'hobby-1', text: 'Climbing')],
   publications: const [
@@ -96,7 +104,14 @@ void main() {
           },
         },
         'skillIds': ['skill-1'],
-        'educationIds': ['edu-1'],
+        'education': {
+          'edu-1': {
+            'bulletIds': ['ebullet-a1'],
+            'rewrites': [
+              {'id': 'ebullet-a1', 'text': 'Rewritten education bullet'},
+            ],
+          },
+        },
         'hobbyIds': ['hobby-1'],
         'hiddenSections': ['hobbies'],
         'rationale': 'Kept the relevant bits.',
@@ -109,7 +124,10 @@ void main() {
       expect(result.bulletIds, {
         'exp-a': ['bullet-a1'],
       });
-      expect(result.bulletOverrides, {'bullet-a1': 'Rewritten bullet'});
+      expect(result.bulletOverrides, {
+        'bullet-a1': 'Rewritten bullet',
+        'ebullet-a1': 'Rewritten education bullet',
+      });
       expect(result.projectIds, ['proj-a']);
       expect(result.projectBulletIds, {
         'proj-a': ['pbullet-a1'],
@@ -120,6 +138,9 @@ void main() {
       });
       expect(result.skillIds, ['skill-1']);
       expect(result.educationIds, ['edu-1']);
+      expect(result.educationBulletIds, {
+        'edu-1': ['ebullet-a1'],
+      });
       expect(result.hobbyIds, ['hobby-1']);
       expect(result.hiddenSections, {CvSectionType.hobbies});
       expect(result.rationale, 'Kept the relevant bits.');
@@ -137,7 +158,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -164,7 +185,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -190,7 +211,7 @@ void main() {
           },
         },
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -208,7 +229,12 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': ['skill-1', 'skill-hallucinated'],
-        'educationIds': ['edu-hallucinated'],
+        'education': {
+          'edu-hallucinated': {
+            'bulletIds': <String>[],
+            'rewrites': <Map<String, dynamic>>[],
+          },
+        },
         'hobbyIds': ['hobby-hallucinated'],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -232,7 +258,7 @@ void main() {
           },
         },
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -249,7 +275,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': ['hobbies', 'not_a_real_section'],
         'rationale': '',
@@ -266,7 +292,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': 'not a list',
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': 7,
@@ -290,7 +316,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -322,7 +348,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -353,7 +379,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',
@@ -378,7 +404,7 @@ void main() {
         'projects': <String, dynamic>{},
         'publications': <String, dynamic>{},
         'skillIds': <String>[],
-        'educationIds': <String>[],
+        'education': <String, dynamic>{},
         'hobbyIds': <String>[],
         'hiddenSections': <String>[],
         'rationale': '',

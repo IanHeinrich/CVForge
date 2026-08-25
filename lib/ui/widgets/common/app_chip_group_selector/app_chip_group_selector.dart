@@ -13,7 +13,6 @@ class AppChipGroupItem {
     required this.selected,
     required this.onToggle,
     this.tooltip,
-    this.onEdit,
   });
 
   final String id;
@@ -24,14 +23,6 @@ class AppChipGroupItem {
   /// Shown on hover — the Vault's bullet-link picker needs the bullet's
   /// full text under a truncated chip label; skills don't need this.
   final String? tooltip;
-
-  /// Opens an editor for this item's [label]. Null — the default, and
-  /// what both Vault call sites pass — renders no edit affordance at all.
-  ///
-  /// This widget stays stateless: it reports the intent and the caller
-  /// decides what "being edited" looks like, rendering the editor itself
-  /// through [AppChipGroup.footer].
-  final VoidCallback? onEdit;
 }
 
 /// One heading plus [Wrap] of chips in an [AppChipGroupSelector].
@@ -59,14 +50,16 @@ class AppChipGroup {
   /// Inverse of [onSelectAll], same sequential-await requirement.
   final VoidCallback? onSelectNone;
 
-  /// Opens an editor for this group's [label]. Same
-  /// caller-owns-the-editing-state contract as [AppChipGroupItem.onEdit].
+  /// Opens an editor for this group's [label], from a button in the group
+  /// heading — which is a row, not a chip. This widget stays stateless: it
+  /// reports the intent and the caller decides what "being edited" looks
+  /// like, rendering the editor itself through [footer].
   final VoidCallback? onEditLabel;
 
-  /// Rendered directly beneath this group's chips — where a caller that
-  /// supplied [onEditLabel] or [AppChipGroupItem.onEdit] puts the editor
-  /// once something is being edited. Keeps the editor attached to the
-  /// group it belongs to without this widget owning any state.
+  /// Rendered directly beneath this group's chips — where a caller puts
+  /// anything that edits what the chips name, including the editor opened
+  /// by [onEditLabel]. Keeps that content attached to the group it belongs
+  /// to without this widget owning any state.
   final Widget? footer;
 }
 
@@ -157,6 +150,12 @@ class _GroupHeading extends StatelessWidget {
   }
 }
 
+/// One chip, and nothing but a chip. A chip is a selection control, so it
+/// carries no second action of its own — an edit affordance drawn inside
+/// one reads as part of the label rather than as a separate button, and
+/// revealing it on hover only makes it harder to hit for the same
+/// confusion. A caller that also needs to *edit* what a chip names does
+/// that in [AppChipGroup.footer], where a normal row can say what it is.
 class _Chip extends StatelessWidget {
   const _Chip({required this.item});
 
@@ -165,22 +164,7 @@ class _Chip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chip = FilterChip(
-      label: item.onEdit == null
-          ? Text(item.label, style: context.appTypography.caption)
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(item.label, style: context.appTypography.caption),
-                const HGap.tiny(),
-                InkWell(
-                  onTap: item.onEdit,
-                  child: Icon(
-                    RemixIcons.pencil_line,
-                    size: context.appIconSize.small,
-                  ),
-                ),
-              ],
-            ),
+      label: Text(item.label, style: context.appTypography.caption),
       visualDensity: VisualDensity.compact,
       selected: item.selected,
       onSelected: item.onToggle,

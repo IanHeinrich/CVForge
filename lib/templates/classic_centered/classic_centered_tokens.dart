@@ -45,7 +45,7 @@ const CvDesignTokens classicCenteredTokens = CvDesignTokens(
   company: CvTypeToken(sizePt: 10.5, italic: true, colorArgb: _ink),
   meta: CvTypeToken(sizePt: 10, colorArgb: _ink),
   body: CvTypeToken(sizePt: 10, lineSpacingPt: 2, colorArgb: _ink),
-  bulletLabel: CvTypeToken(sizePt: 10, weight: CvWeight.bold, colorArgb: _ink),
+  inlineLabel: CvTypeToken(sizePt: 10, weight: CvWeight.bold, colorArgb: _ink),
   bullet: CvTypeToken(sizePt: 10, lineSpacingPt: 2, colorArgb: _ink),
   bulletGlyph: CvTypeToken(sizePt: 18, colorArgb: _ink),
 );

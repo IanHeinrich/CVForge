@@ -68,6 +68,10 @@ class StudioDocumentBar extends StatelessWidget {
   /// language, beside template and region). The centre is what pushes the
   /// side groups apart, so a button added there costs roughly its own
   /// width twice over.
+  ///
+  /// Unchanged by the ATS overlay control: it is a segmented group whose
+  /// only text is the three-character "ATS", so it costs about one button
+  /// of width rather than the two labelled buttons it replaced.
   static const _singleRowMinWidth = 1080.0;
 
   @override
@@ -333,7 +337,7 @@ class _OutputControls extends StatelessWidget {
             ),
             const HGap.tiny(),
           ],
-          _XrayControls(viewModel: viewModel),
+          _XrayControls(viewModel: viewModel, compact: true),
           SizedBox(
             height: StudioDocumentBar._controlHeight,
             width: StudioDocumentBar._controlHeight,
@@ -385,66 +389,146 @@ class _OutputControls extends StatelessWidget {
   }
 }
 
-/// The X-Ray toggle, plus the reading-order toggle that only exists while
-/// X-Ray is on.
+/// The ATS overlay control: one bordered group reading as a single
+/// button, split into a label and two mode segments.
 ///
-/// Reading order appears *beside* the X-Ray toggle rather than inside the
-/// preview because it is a property of the view, and every other control
-/// governing what the preview shows (template, region, language) already
-/// lives on this bar. Identical in both layouts — these are icon-only at
-/// every width, so the compact branch has nothing to drop.
+/// `[ ATS | boxes | reading order ]`. The label steps through every
+/// state in turn — off, boxes, reading order, off — and each icon is a
+/// direct jump into its own mode for anyone who would rather not step.
+/// The label deliberately does not mean "show both": `AtsXrayPainter`
+/// draws the reading-order chain instead of every other layer, so both
+/// at once is not a state that can be rendered.
+///
+/// One group rather than two free-standing buttons because these are one
+/// decision ("what is the preview showing"), not two. Hairline dividers
+/// keep the segments separable while the shared outline keeps them read
+/// as a unit — a segmented control, not a toolbar.
+///
+/// The boxes segment carries `file_search`, the same glyph the nav rail's
+/// ATS Check destination uses, so one icon means "read this the way an
+/// ATS would" wherever that idea appears.
+///
+/// [compact] drops the label and keeps the two icon segments joined; at
+/// phone width the group has to give up its text the same way Export
+/// does.
 class _XrayControls extends StatelessWidget {
-  const _XrayControls({required this.viewModel});
+  const _XrayControls({required this.viewModel, this.compact = false});
 
   final StudioViewModel viewModel;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(context.appRadius.small);
 
-    Widget toggle({
+    Widget divider() => VerticalDivider(
+      width: 1,
+      thickness: 1,
+      indent: 0,
+      endIndent: 0,
+      color: scheme.outline,
+    );
+
+    Widget segment({
+      required Widget child,
       required bool selected,
-      required IconData icon,
       required String tooltip,
       required VoidCallback onPressed,
-    }) => SizedBox(
-      height: StudioDocumentBar._controlHeight,
-      width: StudioDocumentBar._controlHeight,
-      child: IconButton(
-        tooltip: tooltip,
-        isSelected: selected,
-        onPressed: onPressed,
-        icon: Icon(icon, size: context.appIconSize.medium),
-        style: IconButton.styleFrom(
-          backgroundColor: selected ? scheme.primary : null,
-          foregroundColor: selected
-              ? scheme.onPrimary
-              : scheme.onSurfaceVariant,
+      double? width,
+    }) => Tooltip(
+      message: tooltip,
+      child: Material(
+        color: selected ? scheme.primary : Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          child: SizedBox(
+            width: width,
+            height: StudioDocumentBar._controlHeight,
+            child: Center(
+              child: IconTheme(
+                data: IconThemeData(
+                  size: context.appIconSize.medium,
+                  color: selected ? scheme.onPrimary : scheme.onSurface,
+                ),
+                child: child,
+              ),
+            ),
+          ),
         ),
       ),
     );
 
+    Widget modeSegment(StudioXrayMode mode, IconData icon, String tooltip) =>
+        segment(
+          selected: viewModel.xrayMode == mode,
+          tooltip: tooltip,
+          onPressed: () => viewModel.toggleXrayMode(mode),
+          width: StudioDocumentBar._controlHeight,
+          child: Icon(icon),
+        );
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (viewModel.xrayEnabled) ...[
-          toggle(
-            selected: viewModel.xrayReadingOrder,
-            icon: RemixIcons.route_line,
-            tooltip: viewModel.xrayReadingOrder
-                ? context.l10n.studioXrayShowBoxes
-                : context.l10n.studioXrayShowReadingOrder,
-            onPressed: viewModel.toggleXrayReadingOrder,
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: scheme.outline),
+            borderRadius: radius,
           ),
-          const HGap.tiny(),
-        ],
-        toggle(
-          selected: viewModel.xrayEnabled,
-          icon: RemixIcons.scan_2_line,
-          tooltip: viewModel.xrayEnabled
-              ? context.l10n.studioXrayHide
-              : context.l10n.studioXrayShow,
-          onPressed: viewModel.toggleXray,
+          child: ClipRRect(
+            // Clipped so a selected segment's fill stops at the group's
+            // rounded corner instead of squaring it off.
+            borderRadius: radius,
+            child: IntrinsicHeight(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!compact) ...[
+                    segment(
+                      // Never filled: the label reports nothing about
+                      // which mode is active, and highlighting it
+                      // alongside a lit icon would read as a second
+                      // selection.
+                      selected: false,
+                      // Names what the *next* press does, since this
+                      // segment steps rather than toggles — a static
+                      // label would be wrong in two of three states.
+                      tooltip: switch (viewModel.xrayMode) {
+                        StudioXrayMode.off => context.l10n.studioXrayShow,
+                        StudioXrayMode.boxes =>
+                          context.l10n.studioXrayReadingOrderTooltip,
+                        StudioXrayMode.readingOrder =>
+                          context.l10n.studioXrayHide,
+                      },
+                      onPressed: viewModel.cycleXrayMode,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.appSpacing.paddingCompact,
+                        ),
+                        child: Text(
+                          context.l10n.studioXrayGroupLabel,
+                          style: context.appTypography.titleSmall,
+                        ),
+                      ),
+                    ),
+                    divider(),
+                  ],
+                  modeSegment(
+                    StudioXrayMode.boxes,
+                    RemixIcons.file_search_line,
+                    context.l10n.studioXrayBoxesTooltip,
+                  ),
+                  divider(),
+                  modeSegment(
+                    StudioXrayMode.readingOrder,
+                    RemixIcons.route_line,
+                    context.l10n.studioXrayReadingOrderTooltip,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
         const HGap.tiny(),
       ],

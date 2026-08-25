@@ -7,19 +7,15 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/models/ats/ats_analysis_result.dart';
-import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/services/ats_analyzer_service.dart';
 import 'package:cv_forge/services/pdf_export_service.dart';
 import 'package:cv_forge/services/pdf_extraction_service.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
-import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
-import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
-import 'package:cv_forge/ui/widgets/common/ats_xray/ats_finding_severity_style.dart';
 import 'package:cv_forge/ui/widgets/common/ats_xray/ats_xray_boxes.dart';
 import 'package:cv_forge/ui/widgets/common/ats_xray/ats_xray_page_loader.dart';
 import 'package:cv_forge/ui/widgets/common/ats_xray/ats_xray_painter.dart';
@@ -90,6 +86,16 @@ class _StudioXrayPaneState extends State<StudioXrayPane> {
   /// blanking the pane for a second on every change.
   _XrayDocument? _lastDocument;
 
+  /// Hands the findings to [StudioViewModel] so the editor column can
+  /// list them — see [StudioViewModel.xrayResult] for why they live there
+  /// rather than in this State.
+  ///
+  /// Called off the pass's own future, never from `build`: it notifies
+  /// listeners, and doing that mid-build is what forces `setPageCount`
+  /// through a post-frame callback.
+  void _report(AtsAnalysisResult? result) =>
+      widget.viewModel.setXrayResult(result);
+
   @override
   void dispose() {
     _debounceTimer?.cancel();
@@ -139,7 +145,19 @@ class _StudioXrayPaneState extends State<StudioXrayPane> {
       _settledCv = cv;
       _settledTemplateId = templateId;
       _settledPageFormat = format;
-      _pass = _run(cv, templateId, format);
+      // Cleared first so the findings panel says "checking" rather than
+      // showing the previous pass's findings, which the boxes about to be
+      // replaced no longer match.
+      _report(null);
+      _pass = _run(cv, templateId, format)
+        ..then(
+          (document) {
+            if (mounted) _report(document.result);
+          },
+          onError: (_, _) {
+            if (mounted) _report(null);
+          },
+        );
     }
 
     if (_settledCv == null) {
@@ -183,23 +201,16 @@ class _StudioXrayPaneState extends State<StudioXrayPane> {
           if (snapshot.hasData) _lastDocument = document;
           final settling = snapshot.connectionState == ConnectionState.waiting;
 
-          return Column(
-            children: [
-              _XraySummaryBar(result: document.result, settling: settling),
-              Expanded(
-                child: Opacity(
-                  // Dimmed, not replaced: the boxes on screen still
-                  // describe the last render, so they stay readable while
-                  // saying "this is not the edit you just made".
-                  opacity: settling ? 0.45 : 1,
-                  child: _XrayPages(
-                    document: document,
-                    readingOrder: widget.viewModel.xrayReadingOrder,
-                    pageFormat: widget.viewModel.pageFormat,
-                  ),
-                ),
-              ),
-            ],
+          // Dimmed, not replaced: the boxes on screen still describe
+          // the last render, so they stay readable while saying "this is
+          // not the edit you just made".
+          return Opacity(
+            opacity: settling ? 0.45 : 1,
+            child: _XrayPages(
+              document: document,
+              readingOrder: widget.viewModel.xrayReadingOrder,
+              pageFormat: widget.viewModel.pageFormat,
+            ),
           );
         },
       ),
@@ -226,118 +237,10 @@ class _StudioXrayPaneState extends State<StudioXrayPane> {
       messageMaxWidth: 420,
       actions: [
         FilledButton(
-          onPressed: widget.viewModel.toggleXray,
+          onPressed: widget.viewModel.closeXray,
           child: Text(context.l10n.studioXrayErrorBackToPreview),
         ),
       ],
-    );
-  }
-}
-
-/// Severity counts for the whole document, so the coloured boxes below
-/// have something naming what they mean.
-///
-/// Three independent chips rather than one assembled sentence: each is a
-/// complete phrase with its own plural, which is what keeps this
-/// translatable — see CLAUDE.md's rule against concatenating keys.
-class _XraySummaryBar extends StatelessWidget {
-  const _XraySummaryBar({required this.result, required this.settling});
-
-  final AtsAnalysisResult result;
-  final bool settling;
-
-  int _count(AtsFindingSeverity severity) =>
-      result.findings.where((f) => f.severity == severity).length;
-
-  @override
-  Widget build(BuildContext context) {
-    final critical = _count(AtsFindingSeverity.critical);
-    final warning = _count(AtsFindingSeverity.warning);
-    final info = _count(AtsFindingSeverity.info);
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: context.appSpacing.paddingDefault,
-        vertical: context.appSpacing.paddingTight,
-      ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(bottom: BorderSide(color: theme.dividerColor)),
-      ),
-      child: Row(
-        children: [
-          if (settling) ...[
-            SizedBox(
-              width: context.appIconSize.small,
-              height: context.appIconSize.small,
-              child: const CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const HGap.tiny(),
-          ],
-          Expanded(
-            child: Wrap(
-              spacing: context.appSpacing.gapSmall,
-              runSpacing: context.appSpacing.gapSmall,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                if (critical == 0 && warning == 0 && info == 0)
-                  Text(
-                    context.l10n.studioXrayNoIssues,
-                    style: context.appTypography.bodySmall,
-                  ),
-                if (critical > 0)
-                  _SeverityChip(
-                    severity: AtsFindingSeverity.critical,
-                    label: context.l10n.studioXrayCriticalCount(critical),
-                  ),
-                if (warning > 0)
-                  _SeverityChip(
-                    severity: AtsFindingSeverity.warning,
-                    label: context.l10n.studioXrayWarningCount(warning),
-                  ),
-                if (info > 0)
-                  _SeverityChip(
-                    severity: AtsFindingSeverity.info,
-                    label: context.l10n.studioXrayInfoCount(info),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SeverityChip extends StatelessWidget {
-  const _SeverityChip({required this.severity, required this.label});
-
-  final AtsFindingSeverity severity;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = severity.color;
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.appSpacing.paddingTight,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(context.appRadius.large),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(severity.icon, size: context.appIconSize.small, color: color),
-          const HGap.tiny(),
-          Text(label, style: context.appTypography.caption),
-        ],
-      ),
     );
   }
 }

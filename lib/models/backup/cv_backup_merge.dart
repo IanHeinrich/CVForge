@@ -396,11 +396,8 @@ List<CvBullet> _mergeBullets(
   remote,
   idOf: (x) => x.id,
   preferRemote: (_, _, _) => pr,
-  mergeItem: (b, l, r) => CvBullet(
-    id: l.id,
-    label: _pick(b?.label, l.label, r.label, pr),
-    text: _pick(b?.text, l.text, r.text, pr),
-  ),
+  mergeItem: (b, l, r) =>
+      CvBullet(id: l.id, text: _pick(b?.text, l.text, r.text, pr)),
 );
 
 /// Which CV is open is device-scoped in spirit, so local wins unless it

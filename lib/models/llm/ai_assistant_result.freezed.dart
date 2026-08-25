@@ -20,7 +20,12 @@ mixin _$AiAssistantResult {
 /// projects — legal because bullet ids are globally unique (the same
 /// reasoning as `CvDraft.bulletOverrides`), and it's exactly the shape
 /// `DraftService.applyAiAssistantResult` needs to hand `CvDraft` directly.
- Map<String, String> get bulletOverrides; List<String> get skillIds; List<String> get educationIds; List<String> get hobbyIds; Set<CvSectionType> get hiddenSections; String get rationale; List<String> get keywordGaps;
+ Map<String, String> get bulletOverrides; List<String> get skillIds; List<String> get educationIds;/// educationId -> selected bullet ids, same shape and per-entry
+/// scoping as [bulletIds]. Empty for a pass that returned no
+/// `education` object at all, which `CvDraft.educationBulletSelection`
+/// then reads as "every bullet" — the behaviour before the model was
+/// asked about them.
+ Map<String, List<String>> get educationBulletIds; List<String> get hobbyIds; Set<CvSectionType> get hiddenSections; String get rationale; List<String> get keywordGaps;
 /// Create a copy of AiAssistantResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +36,16 @@ $AiAssistantResultCopyWith<AiAssistantResult> get copyWith => _$AiAssistantResul
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AiAssistantResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other.experienceIds, experienceIds)&&const DeepCollectionEquality().equals(other.bulletIds, bulletIds)&&const DeepCollectionEquality().equals(other.projectIds, projectIds)&&const DeepCollectionEquality().equals(other.projectBulletIds, projectBulletIds)&&const DeepCollectionEquality().equals(other.publicationIds, publicationIds)&&const DeepCollectionEquality().equals(other.publicationBulletIds, publicationBulletIds)&&const DeepCollectionEquality().equals(other.bulletOverrides, bulletOverrides)&&const DeepCollectionEquality().equals(other.skillIds, skillIds)&&const DeepCollectionEquality().equals(other.educationIds, educationIds)&&const DeepCollectionEquality().equals(other.hobbyIds, hobbyIds)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other.keywordGaps, keywordGaps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AiAssistantResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other.experienceIds, experienceIds)&&const DeepCollectionEquality().equals(other.bulletIds, bulletIds)&&const DeepCollectionEquality().equals(other.projectIds, projectIds)&&const DeepCollectionEquality().equals(other.projectBulletIds, projectBulletIds)&&const DeepCollectionEquality().equals(other.publicationIds, publicationIds)&&const DeepCollectionEquality().equals(other.publicationBulletIds, publicationBulletIds)&&const DeepCollectionEquality().equals(other.bulletOverrides, bulletOverrides)&&const DeepCollectionEquality().equals(other.skillIds, skillIds)&&const DeepCollectionEquality().equals(other.educationIds, educationIds)&&const DeepCollectionEquality().equals(other.educationBulletIds, educationBulletIds)&&const DeepCollectionEquality().equals(other.hobbyIds, hobbyIds)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other.keywordGaps, keywordGaps));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,headline,summary,const DeepCollectionEquality().hash(experienceIds),const DeepCollectionEquality().hash(bulletIds),const DeepCollectionEquality().hash(projectIds),const DeepCollectionEquality().hash(projectBulletIds),const DeepCollectionEquality().hash(publicationIds),const DeepCollectionEquality().hash(publicationBulletIds),const DeepCollectionEquality().hash(bulletOverrides),const DeepCollectionEquality().hash(skillIds),const DeepCollectionEquality().hash(educationIds),const DeepCollectionEquality().hash(hobbyIds),const DeepCollectionEquality().hash(hiddenSections),rationale,const DeepCollectionEquality().hash(keywordGaps));
+int get hashCode => Object.hash(runtimeType,headline,summary,const DeepCollectionEquality().hash(experienceIds),const DeepCollectionEquality().hash(bulletIds),const DeepCollectionEquality().hash(projectIds),const DeepCollectionEquality().hash(projectBulletIds),const DeepCollectionEquality().hash(publicationIds),const DeepCollectionEquality().hash(publicationBulletIds),const DeepCollectionEquality().hash(bulletOverrides),const DeepCollectionEquality().hash(skillIds),const DeepCollectionEquality().hash(educationIds),const DeepCollectionEquality().hash(educationBulletIds),const DeepCollectionEquality().hash(hobbyIds),const DeepCollectionEquality().hash(hiddenSections),rationale,const DeepCollectionEquality().hash(keywordGaps));
 
 @override
 String toString() {
-  return 'AiAssistantResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
+  return 'AiAssistantResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, educationBulletIds: $educationBulletIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
 }
 
 
@@ -51,7 +56,7 @@ abstract mixin class $AiAssistantResultCopyWith<$Res>  {
   factory $AiAssistantResultCopyWith(AiAssistantResult value, $Res Function(AiAssistantResult) _then) = _$AiAssistantResultCopyWithImpl;
 @useResult
 $Res call({
- String? headline, String? summary, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Map<String, String> bulletOverrides, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, Set<CvSectionType> hiddenSections, String rationale, List<String> keywordGaps
+ String? headline, String? summary, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Map<String, String> bulletOverrides, List<String> skillIds, List<String> educationIds, Map<String, List<String>> educationBulletIds, List<String> hobbyIds, Set<CvSectionType> hiddenSections, String rationale, List<String> keywordGaps
 });
 
 
@@ -68,7 +73,7 @@ class _$AiAssistantResultCopyWithImpl<$Res>
 
 /// Create a copy of AiAssistantResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? headline = freezed,Object? summary = freezed,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? bulletOverrides = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? hiddenSections = null,Object? rationale = null,Object? keywordGaps = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? headline = freezed,Object? summary = freezed,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? bulletOverrides = null,Object? skillIds = null,Object? educationIds = null,Object? educationBulletIds = null,Object? hobbyIds = null,Object? hiddenSections = null,Object? rationale = null,Object? keywordGaps = null,}) {
   return _then(_self.copyWith(
 headline: freezed == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
 as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
@@ -81,7 +86,8 @@ as List<String>,publicationBulletIds: null == publicationBulletIds ? _self.publi
 as Map<String, List<String>>,bulletOverrides: null == bulletOverrides ? _self.bulletOverrides : bulletOverrides // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,skillIds: null == skillIds ? _self.skillIds : skillIds // ignore: cast_nullable_to_non_nullable
 as List<String>,educationIds: null == educationIds ? _self.educationIds : educationIds // ignore: cast_nullable_to_non_nullable
-as List<String>,hobbyIds: null == hobbyIds ? _self.hobbyIds : hobbyIds // ignore: cast_nullable_to_non_nullable
+as List<String>,educationBulletIds: null == educationBulletIds ? _self.educationBulletIds : educationBulletIds // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,hobbyIds: null == hobbyIds ? _self.hobbyIds : hobbyIds // ignore: cast_nullable_to_non_nullable
 as List<String>,hiddenSections: null == hiddenSections ? _self.hiddenSections : hiddenSections // ignore: cast_nullable_to_non_nullable
 as Set<CvSectionType>,rationale: null == rationale ? _self.rationale : rationale // ignore: cast_nullable_to_non_nullable
 as String,keywordGaps: null == keywordGaps ? _self.keywordGaps : keywordGaps // ignore: cast_nullable_to_non_nullable
@@ -170,10 +176,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  Map<String, List<String>> educationBulletIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AiAssistantResult() when $default != null:
-return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
+return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.educationBulletIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
   return orElse();
 
 }
@@ -191,10 +197,10 @@ return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  Map<String, List<String>> educationBulletIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)  $default,) {final _that = this;
 switch (_that) {
 case _AiAssistantResult():
-return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
+return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.educationBulletIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -211,10 +217,10 @@ return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? headline,  String? summary,  List<String> experienceIds,  Map<String, List<String>> bulletIds,  List<String> projectIds,  Map<String, List<String>> projectBulletIds,  List<String> publicationIds,  Map<String, List<String>> publicationBulletIds,  Map<String, String> bulletOverrides,  List<String> skillIds,  List<String> educationIds,  Map<String, List<String>> educationBulletIds,  List<String> hobbyIds,  Set<CvSectionType> hiddenSections,  String rationale,  List<String> keywordGaps)?  $default,) {final _that = this;
 switch (_that) {
 case _AiAssistantResult() when $default != null:
-return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
+return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds,_that.projectIds,_that.projectBulletIds,_that.publicationIds,_that.publicationBulletIds,_that.bulletOverrides,_that.skillIds,_that.educationIds,_that.educationBulletIds,_that.hobbyIds,_that.hiddenSections,_that.rationale,_that.keywordGaps);case _:
   return null;
 
 }
@@ -226,7 +232,7 @@ return $default(_that.headline,_that.summary,_that.experienceIds,_that.bulletIds
 
 
 class _AiAssistantResult implements AiAssistantResult {
-  const _AiAssistantResult({this.headline, this.summary, required final  List<String> experienceIds, required final  Map<String, List<String>> bulletIds, required final  List<String> projectIds, required final  Map<String, List<String>> projectBulletIds, required final  List<String> publicationIds, required final  Map<String, List<String>> publicationBulletIds, required final  Map<String, String> bulletOverrides, required final  List<String> skillIds, required final  List<String> educationIds, required final  List<String> hobbyIds, required final  Set<CvSectionType> hiddenSections, required this.rationale, required final  List<String> keywordGaps}): _experienceIds = experienceIds,_bulletIds = bulletIds,_projectIds = projectIds,_projectBulletIds = projectBulletIds,_publicationIds = publicationIds,_publicationBulletIds = publicationBulletIds,_bulletOverrides = bulletOverrides,_skillIds = skillIds,_educationIds = educationIds,_hobbyIds = hobbyIds,_hiddenSections = hiddenSections,_keywordGaps = keywordGaps;
+  const _AiAssistantResult({this.headline, this.summary, required final  List<String> experienceIds, required final  Map<String, List<String>> bulletIds, required final  List<String> projectIds, required final  Map<String, List<String>> projectBulletIds, required final  List<String> publicationIds, required final  Map<String, List<String>> publicationBulletIds, required final  Map<String, String> bulletOverrides, required final  List<String> skillIds, required final  List<String> educationIds, required final  Map<String, List<String>> educationBulletIds, required final  List<String> hobbyIds, required final  Set<CvSectionType> hiddenSections, required this.rationale, required final  List<String> keywordGaps}): _experienceIds = experienceIds,_bulletIds = bulletIds,_projectIds = projectIds,_projectBulletIds = projectBulletIds,_publicationIds = publicationIds,_publicationBulletIds = publicationBulletIds,_bulletOverrides = bulletOverrides,_skillIds = skillIds,_educationIds = educationIds,_educationBulletIds = educationBulletIds,_hobbyIds = hobbyIds,_hiddenSections = hiddenSections,_keywordGaps = keywordGaps;
   
 
 @override final  String? headline;
@@ -306,6 +312,23 @@ class _AiAssistantResult implements AiAssistantResult {
   return EqualUnmodifiableListView(_educationIds);
 }
 
+/// educationId -> selected bullet ids, same shape and per-entry
+/// scoping as [bulletIds]. Empty for a pass that returned no
+/// `education` object at all, which `CvDraft.educationBulletSelection`
+/// then reads as "every bullet" — the behaviour before the model was
+/// asked about them.
+ final  Map<String, List<String>> _educationBulletIds;
+/// educationId -> selected bullet ids, same shape and per-entry
+/// scoping as [bulletIds]. Empty for a pass that returned no
+/// `education` object at all, which `CvDraft.educationBulletSelection`
+/// then reads as "every bullet" — the behaviour before the model was
+/// asked about them.
+@override Map<String, List<String>> get educationBulletIds {
+  if (_educationBulletIds is EqualUnmodifiableMapView) return _educationBulletIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_educationBulletIds);
+}
+
  final  List<String> _hobbyIds;
 @override List<String> get hobbyIds {
   if (_hobbyIds is EqualUnmodifiableListView) return _hobbyIds;
@@ -339,16 +362,16 @@ _$AiAssistantResultCopyWith<_AiAssistantResult> get copyWith => __$AiAssistantRe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AiAssistantResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other._experienceIds, _experienceIds)&&const DeepCollectionEquality().equals(other._bulletIds, _bulletIds)&&const DeepCollectionEquality().equals(other._projectIds, _projectIds)&&const DeepCollectionEquality().equals(other._projectBulletIds, _projectBulletIds)&&const DeepCollectionEquality().equals(other._publicationIds, _publicationIds)&&const DeepCollectionEquality().equals(other._publicationBulletIds, _publicationBulletIds)&&const DeepCollectionEquality().equals(other._bulletOverrides, _bulletOverrides)&&const DeepCollectionEquality().equals(other._skillIds, _skillIds)&&const DeepCollectionEquality().equals(other._educationIds, _educationIds)&&const DeepCollectionEquality().equals(other._hobbyIds, _hobbyIds)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other._keywordGaps, _keywordGaps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AiAssistantResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other._experienceIds, _experienceIds)&&const DeepCollectionEquality().equals(other._bulletIds, _bulletIds)&&const DeepCollectionEquality().equals(other._projectIds, _projectIds)&&const DeepCollectionEquality().equals(other._projectBulletIds, _projectBulletIds)&&const DeepCollectionEquality().equals(other._publicationIds, _publicationIds)&&const DeepCollectionEquality().equals(other._publicationBulletIds, _publicationBulletIds)&&const DeepCollectionEquality().equals(other._bulletOverrides, _bulletOverrides)&&const DeepCollectionEquality().equals(other._skillIds, _skillIds)&&const DeepCollectionEquality().equals(other._educationIds, _educationIds)&&const DeepCollectionEquality().equals(other._educationBulletIds, _educationBulletIds)&&const DeepCollectionEquality().equals(other._hobbyIds, _hobbyIds)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&(identical(other.rationale, rationale) || other.rationale == rationale)&&const DeepCollectionEquality().equals(other._keywordGaps, _keywordGaps));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,headline,summary,const DeepCollectionEquality().hash(_experienceIds),const DeepCollectionEquality().hash(_bulletIds),const DeepCollectionEquality().hash(_projectIds),const DeepCollectionEquality().hash(_projectBulletIds),const DeepCollectionEquality().hash(_publicationIds),const DeepCollectionEquality().hash(_publicationBulletIds),const DeepCollectionEquality().hash(_bulletOverrides),const DeepCollectionEquality().hash(_skillIds),const DeepCollectionEquality().hash(_educationIds),const DeepCollectionEquality().hash(_hobbyIds),const DeepCollectionEquality().hash(_hiddenSections),rationale,const DeepCollectionEquality().hash(_keywordGaps));
+int get hashCode => Object.hash(runtimeType,headline,summary,const DeepCollectionEquality().hash(_experienceIds),const DeepCollectionEquality().hash(_bulletIds),const DeepCollectionEquality().hash(_projectIds),const DeepCollectionEquality().hash(_projectBulletIds),const DeepCollectionEquality().hash(_publicationIds),const DeepCollectionEquality().hash(_publicationBulletIds),const DeepCollectionEquality().hash(_bulletOverrides),const DeepCollectionEquality().hash(_skillIds),const DeepCollectionEquality().hash(_educationIds),const DeepCollectionEquality().hash(_educationBulletIds),const DeepCollectionEquality().hash(_hobbyIds),const DeepCollectionEquality().hash(_hiddenSections),rationale,const DeepCollectionEquality().hash(_keywordGaps));
 
 @override
 String toString() {
-  return 'AiAssistantResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
+  return 'AiAssistantResult(headline: $headline, summary: $summary, experienceIds: $experienceIds, bulletIds: $bulletIds, projectIds: $projectIds, projectBulletIds: $projectBulletIds, publicationIds: $publicationIds, publicationBulletIds: $publicationBulletIds, bulletOverrides: $bulletOverrides, skillIds: $skillIds, educationIds: $educationIds, educationBulletIds: $educationBulletIds, hobbyIds: $hobbyIds, hiddenSections: $hiddenSections, rationale: $rationale, keywordGaps: $keywordGaps)';
 }
 
 
@@ -359,7 +382,7 @@ abstract mixin class _$AiAssistantResultCopyWith<$Res> implements $AiAssistantRe
   factory _$AiAssistantResultCopyWith(_AiAssistantResult value, $Res Function(_AiAssistantResult) _then) = __$AiAssistantResultCopyWithImpl;
 @override @useResult
 $Res call({
- String? headline, String? summary, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Map<String, String> bulletOverrides, List<String> skillIds, List<String> educationIds, List<String> hobbyIds, Set<CvSectionType> hiddenSections, String rationale, List<String> keywordGaps
+ String? headline, String? summary, List<String> experienceIds, Map<String, List<String>> bulletIds, List<String> projectIds, Map<String, List<String>> projectBulletIds, List<String> publicationIds, Map<String, List<String>> publicationBulletIds, Map<String, String> bulletOverrides, List<String> skillIds, List<String> educationIds, Map<String, List<String>> educationBulletIds, List<String> hobbyIds, Set<CvSectionType> hiddenSections, String rationale, List<String> keywordGaps
 });
 
 
@@ -376,7 +399,7 @@ class __$AiAssistantResultCopyWithImpl<$Res>
 
 /// Create a copy of AiAssistantResult
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? headline = freezed,Object? summary = freezed,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? bulletOverrides = null,Object? skillIds = null,Object? educationIds = null,Object? hobbyIds = null,Object? hiddenSections = null,Object? rationale = null,Object? keywordGaps = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? headline = freezed,Object? summary = freezed,Object? experienceIds = null,Object? bulletIds = null,Object? projectIds = null,Object? projectBulletIds = null,Object? publicationIds = null,Object? publicationBulletIds = null,Object? bulletOverrides = null,Object? skillIds = null,Object? educationIds = null,Object? educationBulletIds = null,Object? hobbyIds = null,Object? hiddenSections = null,Object? rationale = null,Object? keywordGaps = null,}) {
   return _then(_AiAssistantResult(
 headline: freezed == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
 as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
@@ -389,7 +412,8 @@ as List<String>,publicationBulletIds: null == publicationBulletIds ? _self._publ
 as Map<String, List<String>>,bulletOverrides: null == bulletOverrides ? _self._bulletOverrides : bulletOverrides // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,skillIds: null == skillIds ? _self._skillIds : skillIds // ignore: cast_nullable_to_non_nullable
 as List<String>,educationIds: null == educationIds ? _self._educationIds : educationIds // ignore: cast_nullable_to_non_nullable
-as List<String>,hobbyIds: null == hobbyIds ? _self._hobbyIds : hobbyIds // ignore: cast_nullable_to_non_nullable
+as List<String>,educationBulletIds: null == educationBulletIds ? _self._educationBulletIds : educationBulletIds // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,hobbyIds: null == hobbyIds ? _self._hobbyIds : hobbyIds // ignore: cast_nullable_to_non_nullable
 as List<String>,hiddenSections: null == hiddenSections ? _self._hiddenSections : hiddenSections // ignore: cast_nullable_to_non_nullable
 as Set<CvSectionType>,rationale: null == rationale ? _self.rationale : rationale // ignore: cast_nullable_to_non_nullable
 as String,keywordGaps: null == keywordGaps ? _self._keywordGaps : keywordGaps // ignore: cast_nullable_to_non_nullable

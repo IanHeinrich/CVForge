@@ -1549,13 +1549,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioExportPdf => 'Exportar PDF';
 
   @override
+  String get studioFieldCitation => 'Cita';
+
+  @override
+  String get studioFieldCompany => 'Empleador';
+
+  @override
+  String get studioFieldDates => 'Fechas';
+
+  @override
   String get studioFieldDetails => 'Detalles';
+
+  @override
+  String get studioFieldDoNotPrint => 'No imprimir esto en este CV';
 
   @override
   String get studioFieldGrade => 'Calificación';
 
   @override
+  String get studioFieldInstitution => 'Institución';
+
+  @override
+  String get studioFieldLink => 'Enlace';
+
+  @override
+  String get studioFieldLocation => 'Ubicación';
+
+  @override
+  String get studioFieldPrintAgain => 'Imprimir esto en este CV';
+
+  @override
   String get studioFieldProjectTitle => 'Título del proyecto';
+
+  @override
+  String get studioFieldPublicationTitle => 'Título';
 
   @override
   String get studioFieldQualification => 'Titulación';
@@ -1570,17 +1597,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioFieldSkillCategory => 'Categoría';
 
   @override
-  String get studioHeadlineInclude => 'Incluir el titular';
+  String get studioFieldYear => 'Año';
 
   @override
-  String studioItemLabelledText(String label, String text) {
-    return '$label: $text';
-  }
+  String get studioHeadlineInclude => 'Incluir el titular';
 
   @override
   String studioLengthWarning(String region, String note) {
     return 'Más largo de lo que $region suele esperar. $note Prueba a recortar contenido o usar una plantilla más densa.';
   }
+
+  @override
+  String get studioLockedDates =>
+      'Las fechas se mantienen como las registra tu Bóveda — son lo que verifica una comprobación de empleo y determinan el orden en que se imprime esta sección.';
+
+  @override
+  String get studioLockedFromVault =>
+      'Se imprime desde tu Bóveda. Edítalo allí para cambiarlo en todos los CV.';
 
   @override
   String studioNewDraftTitle(String noun) {
@@ -1593,6 +1626,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get studioNoCitation => 'Aún no hay cita en tu Bóveda.';
+
+  @override
   String get studioNoEducationDetails => 'Aún no hay detalles en tu Bóveda.';
 
   @override
@@ -1600,6 +1636,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioNoHeadline => 'Aún no hay titular en tu Bóveda.';
+
+  @override
+  String get studioNoLocation => 'Aún no hay ubicación en tu Bóveda.';
 
   @override
   String get studioNoReferences =>
@@ -1755,6 +1794,17 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String studioSkillsEvidenceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vinculada a $count logros en este CV',
+      one: 'Vinculada a 1 logro en este CV',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get studioSkillsFilter => 'Filtrar habilidades…';
 
   @override
@@ -1764,6 +1814,12 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get studioSkillsNoNewEvidenced =>
       'No hay nuevas habilidades respaldadas por agregar — todas las vinculadas a un logro incluido ya están seleccionadas';
+
+  @override
+  String get studioSkillsRename => 'Renombrar para este CV';
+
+  @override
+  String get studioSkillsRenameDone => 'Terminar de renombrar';
 
   @override
   String studioSkillsSelectedCount(int selected, int total) {
@@ -1805,6 +1861,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get studioTailoringOnlyThisCv => 'Solo afecta a este CV.';
+
+  @override
+  String get studioTailoringPaneNote =>
+      'Los cambios aquí solo afectan a este CV. Tu Bóveda conserva su propia redacción.';
 
   @override
   String get studioTailoringReverted =>
@@ -1948,6 +2008,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioXrayAnalyzing => 'Leyendo tu CV como lo haría un ATS…';
 
   @override
+  String get studioXrayBoxesTooltip =>
+      'Ver lo que un ATS extrae de esta página';
+
+  @override
   String studioXrayCriticalCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1973,7 +2037,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioXrayErrorTitle => 'No se pudo ejecutar la revisión ATS';
 
   @override
-  String get studioXrayHide => 'Ocultar radiografía ATS';
+  String get studioXrayFindingsTitle => 'Lo que le costaría a un ATS';
+
+  @override
+  String get studioXrayGroupLabel => 'ATS';
+
+  @override
+  String get studioXrayHide => 'Ocultar la superposición ATS';
 
   @override
   String studioXrayInfoCount(int count) {
@@ -1991,13 +2061,14 @@ class AppLocalizationsEs extends AppLocalizations {
       'Nada aquí activa un problema conocido de lectura por ATS.';
 
   @override
-  String get studioXrayShow => 'Mostrar radiografía ATS';
+  String get studioXrayNoIssuesTitle => 'Nada que corregir aquí';
 
   @override
-  String get studioXrayShowBoxes => 'Mostrar el texto extraído';
+  String get studioXrayReadingOrderTooltip =>
+      'Ver en qué orden lee esta página un ATS';
 
   @override
-  String get studioXrayShowReadingOrder => 'Mostrar el orden de lectura';
+  String get studioXrayShow => 'Ver lo que ve un ATS';
 
   @override
   String studioXrayWarningCount(int count) {
@@ -2136,12 +2207,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultBulletDelete => 'Eliminar logro';
 
   @override
-  String get vaultBulletLabel => 'Etiqueta (opcional)';
-
-  @override
-  String get vaultBulletLabelHint => 'p. ej. Rendimiento';
-
-  @override
   String vaultBulletLinkedSkills(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2206,6 +2271,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsChange => 'Cambiar';
+
+  @override
+  String get vaultCvDefaultsHeadline => 'Titular';
 
   @override
   String get vaultCvDefaultsLanguageHelp =>

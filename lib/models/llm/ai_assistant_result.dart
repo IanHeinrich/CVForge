@@ -49,8 +49,16 @@ abstract class AiAssistantResult with _$AiAssistantResult {
     /// reasoning as `CvDraft.bulletOverrides`), and it's exactly the shape
     /// `DraftService.applyAiAssistantResult` needs to hand `CvDraft` directly.
     required Map<String, String> bulletOverrides,
+
     required List<String> skillIds,
     required List<String> educationIds,
+
+    /// educationId -> selected bullet ids, same shape and per-entry
+    /// scoping as [bulletIds]. Empty for a pass that returned no
+    /// `education` object at all, which `CvDraft.educationBulletSelection`
+    /// then reads as "every bullet" — the behaviour before the model was
+    /// asked about them.
+    required Map<String, List<String>> educationBulletIds,
     required List<String> hobbyIds,
     required Set<CvSectionType> hiddenSections,
     required String rationale,
@@ -65,13 +73,13 @@ abstract class AiAssistantResult with _$AiAssistantResult {
       for (final c in vault.skillCategories)
         for (final s in c.skills) s.id,
     };
-    final educationIds = {for (final e in vault.education) e.id};
     final hobbyIds = {for (final h in vault.hobbies) h.id};
     final sectionNames = {for (final s in CvSectionType.values) s.name};
 
     final resultBulletIds = <String, List<String>>{};
     final resultProjectBulletIds = <String, List<String>>{};
     final resultPublicationBulletIds = <String, List<String>>{};
+    final resultEducationBulletIds = <String, List<String>>{};
     final bulletOverrides = <String, String>{};
 
     final experiencesRaw = json['experiences'];
@@ -99,6 +107,21 @@ abstract class AiAssistantResult with _$AiAssistantResult {
           entryId: p.id,
           validBulletIds: {for (final b in p.bullets) b.id},
           bulletIdsOut: resultProjectBulletIds,
+          bulletOverridesOut: bulletOverrides,
+        );
+      }
+    }
+
+    final educationRaw = json['education'];
+    if (educationRaw is Map) {
+      for (final e in vault.education) {
+        final entry = educationRaw[e.id];
+        if (entry is! Map) continue;
+        _applyEntry(
+          entry,
+          entryId: e.id,
+          validBulletIds: {for (final b in e.bullets) b.id},
+          bulletIdsOut: resultEducationBulletIds,
           bulletOverridesOut: bulletOverrides,
         );
       }
@@ -139,7 +162,11 @@ abstract class AiAssistantResult with _$AiAssistantResult {
       publicationBulletIds: resultPublicationBulletIds,
       bulletOverrides: bulletOverrides,
       skillIds: _filteredIds(json['skillIds'], skillIds),
-      educationIds: _filteredIds(json['educationIds'], educationIds),
+      educationIds: [
+        for (final e in vault.education)
+          if (resultEducationBulletIds.containsKey(e.id)) e.id,
+      ],
+      educationBulletIds: resultEducationBulletIds,
       hobbyIds: _filteredIds(json['hobbyIds'], hobbyIds),
       hiddenSections: {
         for (final name in _filteredIds(json['hiddenSections'], sectionNames))
@@ -154,11 +181,11 @@ abstract class AiAssistantResult with _$AiAssistantResult {
   }
 }
 
-/// Shared by the `experiences` and `projects` branches of
+/// Shared by all four entity branches of
 /// [AiAssistantResult.fromLlmResponse]: reads [entry]'s `bulletIds`/`rewrites`,
 /// keeping only ids that are actually in [validBulletIds] — the
-/// per-experience/per-project scoping that stops a rewrite meant for one
-/// entry's bullet from being applied to another's.
+/// per-entry scoping that stops a rewrite meant for one entry's bullet
+/// from being applied to another's.
 void _applyEntry(
   Map<dynamic, dynamic> entry, {
   required String entryId,

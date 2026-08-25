@@ -16,6 +16,10 @@ enum TextOverrideField {
   educationQualification,
   educationGrade,
   educationDetails,
+  publicationTitle,
+  publicationCitation,
+  experienceLocation,
+  educationLocation,
 }
 
 extension TextOverrideFieldAccess on TextOverrideField {
@@ -30,6 +34,10 @@ extension TextOverrideFieldAccess on TextOverrideField {
       draft.educationQualificationOverrides,
     TextOverrideField.educationGrade => draft.educationGradeOverrides,
     TextOverrideField.educationDetails => draft.educationDetailsOverrides,
+    TextOverrideField.publicationTitle => draft.publicationTitleOverrides,
+    TextOverrideField.publicationCitation => draft.publicationCitationOverrides,
+    TextOverrideField.experienceLocation => draft.experienceLocationOverrides,
+    TextOverrideField.educationLocation => draft.educationLocationOverrides,
   };
 
   CvDraft applyTo(CvDraft draft, Map<String, String> overrides) =>
@@ -55,5 +63,41 @@ extension TextOverrideFieldAccess on TextOverrideField {
         TextOverrideField.educationDetails => draft.copyWith(
           educationDetailsOverrides: overrides,
         ),
+        TextOverrideField.publicationTitle => draft.copyWith(
+          publicationTitleOverrides: overrides,
+        ),
+        TextOverrideField.publicationCitation => draft.copyWith(
+          publicationCitationOverrides: overrides,
+        ),
+        TextOverrideField.experienceLocation => draft.copyWith(
+          experienceLocationOverrides: overrides,
+        ),
+        TextOverrideField.educationLocation => draft.copyWith(
+          educationLocationOverrides: overrides,
+        ),
       };
+}
+
+/// The whole-draft operations over [TextOverrideField], derived from
+/// `values` rather than hand-enumerated.
+///
+/// Both of these used to be a written-out list of every override map, in
+/// two different files — so adding a map meant remembering to touch both,
+/// and forgetting left the new field out of "Reset wording" while still
+/// letting the user create one. Deriving them is what makes that omission
+/// impossible rather than merely unlikely; it is the reason this enum
+/// exists at all.
+extension CvDraftTextOverrides on CvDraft {
+  /// Whether this draft says anything the Vault doesn't, in any id-keyed
+  /// field. The three scalar overrides (headline, summary, references
+  /// note) are not [TextOverrideField]s and are checked separately by
+  /// callers — see that enum's doc comment.
+  bool get hasAnyTextOverride =>
+      TextOverrideField.values.any((field) => field.of(this).isNotEmpty);
+
+  /// This draft with every id-keyed override map emptied.
+  CvDraft withoutTextOverrides() => TextOverrideField.values.fold(
+    this,
+    (draft, field) => field.applyTo(draft, const {}),
+  );
 }

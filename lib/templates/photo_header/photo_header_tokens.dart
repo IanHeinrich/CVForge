@@ -222,7 +222,7 @@ const CvDesignTokens photoHeaderTokens = CvDesignTokens(
   company: CvTypeToken(sizePt: 12, colorArgb: _ink),
   meta: CvTypeToken(sizePt: 12, colorArgb: _mutedInk),
   body: CvTypeToken(sizePt: 12, lineSpacingPt: 2.3, colorArgb: _ink),
-  bulletLabel: CvTypeToken(sizePt: 12, weight: CvWeight.bold, colorArgb: _ink),
+  inlineLabel: CvTypeToken(sizePt: 12, weight: CvWeight.bold, colorArgb: _ink),
   bullet: CvTypeToken(sizePt: 12, lineSpacingPt: 2.3, colorArgb: _ink),
   bulletGlyph: CvTypeToken(sizePt: 24, colorArgb: _accent),
 );

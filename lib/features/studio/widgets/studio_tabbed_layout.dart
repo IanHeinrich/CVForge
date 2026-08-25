@@ -8,6 +8,7 @@ import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'studio_preview_pane.dart';
 import 'studio_section_editor_router/studio_section_editor_router.dart';
 import 'studio_section_nav/studio_section_nav.dart';
+import 'studio_xray_findings_panel.dart';
 
 /// Tablet and mobile share this: too narrow for the nav/editor/preview
 /// three-column desktop layout, so it's two tabs instead. "Configure" is
@@ -34,7 +35,12 @@ class StudioTabbedLayout extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                _ConfigureDrillDown(viewModel: viewModel),
+                // Same swap as the desktop editor column — see
+                // `StudioViewDesktop`.
+                if (viewModel.xrayEnabled)
+                  StudioXrayFindingsPanel(viewModel: viewModel)
+                else
+                  _ConfigureDrillDown(viewModel: viewModel),
                 StudioPreviewPane(viewModel: viewModel),
               ],
             ),

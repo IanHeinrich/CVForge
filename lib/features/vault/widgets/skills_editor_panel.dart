@@ -338,7 +338,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
   List<CvBullet> _matchingBullets(_BulletGroup group) {
     if (_query.isEmpty) return group.bullets;
     return group.bullets
-        .where((b) => (b.label ?? b.text).toLowerCase().contains(_query))
+        .where((b) => b.text.toLowerCase().contains(_query))
         .toList();
   }
 
@@ -370,7 +370,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
                   id: bullet.id,
                   label: _chipLabel(bullet),
                   selected: widget.skill.linkedBulletIds.contains(bullet.id),
-                  tooltip: bullet.label ?? bullet.text,
+                  tooltip: bullet.text,
                   onToggle: (selected) {
                     final ids = [...widget.skill.linkedBulletIds];
                     if (selected) {
@@ -395,9 +395,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
       label: linked.isEmpty
           ? context.l10n.vaultSkillLinkToBullets
           : context.l10n.vaultSkillLinkedBullets(linked.length),
-      summary: linked.isEmpty
-          ? null
-          : linked.map((b) => b.label ?? b.text).join(' · '),
+      summary: linked.isEmpty ? null : linked.map((b) => b.text).join(' · '),
       searchHint: context.l10n.vaultSkillSearchBullets,
       onQueryChanged: (value) =>
           setState(() => _query = value.trim().toLowerCase()),
@@ -417,10 +415,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
   /// it's meant to be read in full.
   static const _chipLabelMaxLength = 28;
 
-  String _chipLabel(CvBullet bullet) {
-    final text = bullet.label ?? bullet.text;
-    return text.length > _chipLabelMaxLength
-        ? '${text.substring(0, _chipLabelMaxLength)}…'
-        : text;
-  }
+  String _chipLabel(CvBullet bullet) => bullet.text.length > _chipLabelMaxLength
+      ? '${bullet.text.substring(0, _chipLabelMaxLength)}…'
+      : bullet.text;
 }

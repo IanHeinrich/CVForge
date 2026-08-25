@@ -42,8 +42,17 @@ JsonSchema buildAiAssistantResponseSchema(CvVault vault) {
             for (final s in c.skills) s.id,
         ]),
       ),
-      'educationIds': JsonSchema.array(
-        items: JsonSchema.stringEnum([for (final e in vault.education) e.id]),
+      // Same key-presence-means-selected shape as experiences/projects/
+      // publications, rather than the flat id list this used to be: an
+      // education entry's bullets are as selectable and as rewritable as
+      // any other entry's, and four identical shapes is a pattern the
+      // model follows more reliably than three plus a special case.
+      'education': JsonSchema.object(
+        properties: {
+          for (final e in vault.education)
+            e.id: _entryBulletsSchema(e.bullets.map((b) => b.id).toList()),
+        },
+        required: const [],
       ),
       'hobbyIds': JsonSchema.array(
         items: JsonSchema.stringEnum([for (final h in vault.hobbies) h.id]),
@@ -67,7 +76,7 @@ JsonSchema buildAiAssistantResponseSchema(CvVault vault) {
       'experiences',
       'projects',
       'skillIds',
-      'educationIds',
+      'education',
       'hobbyIds',
       'publications',
       'hiddenSections',
@@ -77,7 +86,7 @@ JsonSchema buildAiAssistantResponseSchema(CvVault vault) {
   );
 }
 
-/// Shared by an `experiences`/`projects` entry: which of *this* entry's own
+/// Shared by every entity entry: which of *this* entry's own
 /// bullets are selected, plus optional rewrites of them. Scoping the enum
 /// to [bulletIds] (rather than one flat enum of every bullet id in the
 /// Vault) is what makes it structurally impossible for the model to

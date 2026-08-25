@@ -55,6 +55,8 @@ class VaultEditorPanelRouter extends StatelessWidget {
           onLanguageChanged: viewModel.setDocumentLanguage,
           onReorderSections: viewModel.reorderDefaultSections,
           onToggleSectionHidden: viewModel.toggleDefaultSectionHidden,
+          includeHeadline: viewModel.includeDefaultHeadline,
+          onToggleHeadline: viewModel.toggleDefaultHeadline,
         );
 
       case VaultEditorTarget.basics:

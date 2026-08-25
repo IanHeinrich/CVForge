@@ -280,7 +280,6 @@ void main() {
           await service.addBullet(
             BulletOwner.experience,
             experience.id,
-            label: 'Impact',
             text: 'Did a thing',
           );
 
@@ -305,7 +304,6 @@ void main() {
 
           final bullets = firstExperience['bullets'] as List<dynamic>;
           final firstBullet = bullets.single as Map<String, dynamic>;
-          expect(firstBullet['label'], 'Impact');
           expect(firstBullet['text'], 'Did a thing');
         },
       );

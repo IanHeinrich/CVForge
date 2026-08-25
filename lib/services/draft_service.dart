@@ -6,6 +6,7 @@ import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_index.dart';
+import 'package:cv_forge/models/draft/draft_omittable_field.dart';
 import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/models/identified_list.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
@@ -107,6 +108,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     ).copyWith(
       sectionOrder: _seedSectionOrder(templateId, defaults),
       hiddenSections: _seedHiddenSections(defaults),
+      hideHeadline: defaults.hideHeadline,
     );
   }
 
@@ -293,6 +295,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
           notes: notes,
           sectionOrder: _seedSectionOrder(resolvedTemplateId, defaults),
           hiddenSections: _seedHiddenSections(defaults),
+          hideHeadline: defaults.hideHeadline,
         );
     _drafts.value = _sortedByRecency([..._drafts.value, created]);
     _activeDraftId.value = id;
@@ -459,6 +462,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     required Map<String, List<String>> projectBulletIds,
     required List<String> skillIds,
     required List<String> educationIds,
+    required Map<String, List<String>> educationBulletIds,
     required List<String> hobbyIds,
     required List<String> publicationIds,
     required Map<String, List<String>> publicationBulletIds,
@@ -473,6 +477,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         projectBulletIds: projectBulletIds,
         skillIds: skillIds,
         educationIds: educationIds,
+        educationBulletIds: educationBulletIds,
         hobbyIds: hobbyIds,
         publicationIds: publicationIds,
         publicationBulletIds: publicationBulletIds,
@@ -516,6 +521,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
 
   /// Same shape as [setExperienceIncluded]/[setProjectIncluded], one
   /// entity type over — a [Publication] instead of a [Project].
+  ///
   Future<void> setPublicationIncluded(
     String publicationId, {
     required bool included,
@@ -568,14 +574,25 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         copyWith: (d, ids) => d.copyWith(skillIds: ids),
       );
 
+  /// Same shape as [setExperienceIncluded], one entity type over.
+  ///
+  /// Excluding removes this entry's key from `educationBulletIds`, which
+  /// for education means "all bullets" rather than "none" — harmless,
+  /// since an entry that isn't in `educationIds` prints nothing at all,
+  /// and re-including writes the key back explicitly. See
+  /// `CvDraft.educationBulletIds`.
   Future<void> setEducationIncluded(
     String educationId, {
     required bool included,
-  }) => _setIdIncluded(
+    List<String> bulletIds = const [],
+  }) => _setIncludedWithBullets(
     educationId,
     included: included,
+    bulletIds: bulletIds,
     idsOf: (d) => d.educationIds,
-    copyWith: (d, ids) => d.copyWith(educationIds: ids),
+    bulletIdsOf: (d) => d.educationBulletIds,
+    copyWith: (d, ids, map) =>
+        d.copyWith(educationIds: ids, educationBulletIds: map),
   );
 
   Future<void> setHobbyIncluded(String hobbyId, {required bool included}) =>
@@ -586,10 +603,9 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         copyWith: (d, ids) => d.copyWith(hobbyIds: ids),
       );
 
-  /// Shared by [setSkillIncluded], [setEducationIncluded], and
-  /// [setHobbyIncluded] — each just toggles [id] in a different one of
-  /// [CvDraft]'s flat id lists. Also backs [_setIncludedWithBullets]'s
-  /// id-list half via [_appliedIds].
+  /// Shared by [setSkillIncluded] and [setHobbyIncluded] — each just
+  /// toggles [id] in a different one of [CvDraft]'s flat id lists. Also
+  /// backs [_setIncludedWithBullets]'s id-list half via [_appliedIds].
   Future<void> _setIdIncluded(
     String id, {
     required bool included,
@@ -620,10 +636,8 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   }
 
   /// Replaces the bullet selection for the entity [ownerId] refers to,
-  /// under [owner]. Shared by every bullet-owning draft field
-  /// (experience/project/publication — [CvDraft] has no education
-  /// equivalent, see [BulletOwner]'s doc comment) rather than a
-  /// hand-written method per entity.
+  /// under [owner]. Shared by all four bullet-owning draft fields rather
+  /// than a hand-written method per entity.
   Future<void> setBulletIds(
     BulletOwner owner,
     String ownerId,
@@ -641,8 +655,8 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
         BulletOwner.publication => d.copyWith(
           publicationBulletIds: {...d.publicationBulletIds, ownerId: bulletIds},
         ),
-        BulletOwner.education => throw UnsupportedError(
-          'CvDraft has no per-bullet selection for education entries.',
+        BulletOwner.education => d.copyWith(
+          educationBulletIds: {...d.educationBulletIds, ownerId: bulletIds},
         ),
       },
     );
@@ -724,6 +738,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       bulletOverrides: {...current.bulletOverrides, ...result.bulletOverrides},
       skillIds: result.skillIds,
       educationIds: result.educationIds,
+      educationBulletIds: result.educationBulletIds,
       hobbyIds: result.hobbyIds,
       publicationIds: result.publicationIds,
       publicationBulletIds: result.publicationBulletIds,
@@ -838,19 +853,14 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     final current = _drafts.value.findById(id, (d) => d.id);
     if (current == null) return;
 
-    final updated = current.copyWith(
+    // Every id-keyed map goes through `withoutTextOverrides`, derived from
+    // `TextOverrideField.values`, so a newly added overridable field is
+    // reset here without anyone remembering to come back and add it. Only
+    // the three scalar overrides, which aren't in that enum, are named.
+    final updated = current.withoutTextOverrides().copyWith(
       headlineOverride: null,
       tailoredSummary: null,
       referencesOverride: null,
-      bulletOverrides: const {},
-      educationDetailsOverrides: const {},
-      roleOverrides: const {},
-      projectTitleOverrides: const {},
-      skillLabelOverrides: const {},
-      skillCategoryNameOverrides: const {},
-      hobbyOverrides: const {},
-      educationQualificationOverrides: const {},
-      educationGradeOverrides: const {},
       translatedTo: null,
       updatedAt: DateTime.now(),
     );
@@ -953,6 +963,21 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       }
       return field.applyTo(d, overrides);
     });
+  }
+
+  /// Drops [field] from what [entityId] prints on this draft, or puts it
+  /// back.
+  ///
+  /// Deliberately **not** cleared by [resetWordingToVault]: that resets
+  /// what the CV *says*, and whether a field appears at all is the same
+  /// axis as which entries and bullets appear — see that method's own doc.
+  Future<void> setFieldOmitted(
+    DraftOmittableField field,
+    String entityId, {
+    required bool omitted,
+  }) async {
+    await ready();
+    _setDraft((d) => field.applyTo(d, entityId, omitted: omitted));
   }
 
   Future<void> setHeadlineOverride(String? headline) async {
