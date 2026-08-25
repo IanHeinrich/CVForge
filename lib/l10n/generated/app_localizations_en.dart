@@ -2188,6 +2188,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultBasicsTitle => 'Basics';
 
   @override
+  String get vaultBasicsWorkAuthorization => 'Work authorisation (optional)';
+
+  @override
+  String get vaultBasicsWorkAuthorizationHint =>
+      'e.g. Right to work in the UK — no sponsorship required';
+
+  @override
   String get vaultBulletAddSkill => 'Add skill';
 
   @override

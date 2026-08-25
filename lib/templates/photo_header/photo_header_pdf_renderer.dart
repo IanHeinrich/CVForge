@@ -129,6 +129,12 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
             link.url,
             url: withScheme(link.url),
           ),
+      // Labelless, unlike every row above it: the value is already a
+      // whole sentence, and the labels here are hard-coded English that
+      // does not follow the document language — a defect worth fixing on
+      // its own, not worth a fifth instance of.
+      if (header.workAuthorization?.trim().isNotEmpty ?? false)
+        _ContactRow('', header.workAuthorization!),
     ];
 
     return pw.Column(

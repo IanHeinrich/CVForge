@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CvTranslationResult {
 
- String? get headline; String? get summary; String? get referencesNote; Map<String, String> get roles; Map<String, String> get projectTitles; Map<String, String> get skillCategoryNames; Map<String, String> get skillLabels; Map<String, String> get educationQualifications; Map<String, String> get educationGrades; Map<String, String> get educationDetails; Map<String, String> get hobbies; Map<String, String> get languages; Map<String, String> get bullets;/// How many strings the request asked about, so a caller can report
+ String? get headline; String? get summary; String? get referencesNote; String? get workAuthorization; Map<String, String> get roles; Map<String, String> get projectTitles; Map<String, String> get skillCategoryNames; Map<String, String> get skillLabels; Map<String, String> get educationQualifications; Map<String, String> get educationGrades; Map<String, String> get educationDetails; Map<String, String> get hobbies; Map<String, String> get languages; Map<String, String> get bullets;/// How many strings the request asked about, so a caller can report
 /// "translated 3 of 61" rather than an unqualified "translated 3".
  int get requestedCount;/// How many came back saying something different from what was sent.
 ///
@@ -34,16 +34,16 @@ $CvTranslationResultCopyWith<CvTranslationResult> get copyWith => _$CvTranslatio
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvTranslationResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&const DeepCollectionEquality().equals(other.roles, roles)&&const DeepCollectionEquality().equals(other.projectTitles, projectTitles)&&const DeepCollectionEquality().equals(other.skillCategoryNames, skillCategoryNames)&&const DeepCollectionEquality().equals(other.skillLabels, skillLabels)&&const DeepCollectionEquality().equals(other.educationQualifications, educationQualifications)&&const DeepCollectionEquality().equals(other.educationGrades, educationGrades)&&const DeepCollectionEquality().equals(other.educationDetails, educationDetails)&&const DeepCollectionEquality().equals(other.hobbies, hobbies)&&const DeepCollectionEquality().equals(other.languages, languages)&&const DeepCollectionEquality().equals(other.bullets, bullets)&&(identical(other.requestedCount, requestedCount) || other.requestedCount == requestedCount)&&(identical(other.translatedCount, translatedCount) || other.translatedCount == translatedCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvTranslationResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&(identical(other.workAuthorization, workAuthorization) || other.workAuthorization == workAuthorization)&&const DeepCollectionEquality().equals(other.roles, roles)&&const DeepCollectionEquality().equals(other.projectTitles, projectTitles)&&const DeepCollectionEquality().equals(other.skillCategoryNames, skillCategoryNames)&&const DeepCollectionEquality().equals(other.skillLabels, skillLabels)&&const DeepCollectionEquality().equals(other.educationQualifications, educationQualifications)&&const DeepCollectionEquality().equals(other.educationGrades, educationGrades)&&const DeepCollectionEquality().equals(other.educationDetails, educationDetails)&&const DeepCollectionEquality().equals(other.hobbies, hobbies)&&const DeepCollectionEquality().equals(other.languages, languages)&&const DeepCollectionEquality().equals(other.bullets, bullets)&&(identical(other.requestedCount, requestedCount) || other.requestedCount == requestedCount)&&(identical(other.translatedCount, translatedCount) || other.translatedCount == translatedCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,headline,summary,referencesNote,const DeepCollectionEquality().hash(roles),const DeepCollectionEquality().hash(projectTitles),const DeepCollectionEquality().hash(skillCategoryNames),const DeepCollectionEquality().hash(skillLabels),const DeepCollectionEquality().hash(educationQualifications),const DeepCollectionEquality().hash(educationGrades),const DeepCollectionEquality().hash(educationDetails),const DeepCollectionEquality().hash(hobbies),const DeepCollectionEquality().hash(languages),const DeepCollectionEquality().hash(bullets),requestedCount,translatedCount);
+int get hashCode => Object.hash(runtimeType,headline,summary,referencesNote,workAuthorization,const DeepCollectionEquality().hash(roles),const DeepCollectionEquality().hash(projectTitles),const DeepCollectionEquality().hash(skillCategoryNames),const DeepCollectionEquality().hash(skillLabels),const DeepCollectionEquality().hash(educationQualifications),const DeepCollectionEquality().hash(educationGrades),const DeepCollectionEquality().hash(educationDetails),const DeepCollectionEquality().hash(hobbies),const DeepCollectionEquality().hash(languages),const DeepCollectionEquality().hash(bullets),requestedCount,translatedCount);
 
 @override
 String toString() {
-  return 'CvTranslationResult(headline: $headline, summary: $summary, referencesNote: $referencesNote, roles: $roles, projectTitles: $projectTitles, skillCategoryNames: $skillCategoryNames, skillLabels: $skillLabels, educationQualifications: $educationQualifications, educationGrades: $educationGrades, educationDetails: $educationDetails, hobbies: $hobbies, languages: $languages, bullets: $bullets, requestedCount: $requestedCount, translatedCount: $translatedCount)';
+  return 'CvTranslationResult(headline: $headline, summary: $summary, referencesNote: $referencesNote, workAuthorization: $workAuthorization, roles: $roles, projectTitles: $projectTitles, skillCategoryNames: $skillCategoryNames, skillLabels: $skillLabels, educationQualifications: $educationQualifications, educationGrades: $educationGrades, educationDetails: $educationDetails, hobbies: $hobbies, languages: $languages, bullets: $bullets, requestedCount: $requestedCount, translatedCount: $translatedCount)';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $CvTranslationResultCopyWith<$Res>  {
   factory $CvTranslationResultCopyWith(CvTranslationResult value, $Res Function(CvTranslationResult) _then) = _$CvTranslationResultCopyWithImpl;
 @useResult
 $Res call({
- String? headline, String? summary, String? referencesNote, Map<String, String> roles, Map<String, String> projectTitles, Map<String, String> skillCategoryNames, Map<String, String> skillLabels, Map<String, String> educationQualifications, Map<String, String> educationGrades, Map<String, String> educationDetails, Map<String, String> hobbies, Map<String, String> languages, Map<String, String> bullets, int requestedCount, int translatedCount
+ String? headline, String? summary, String? referencesNote, String? workAuthorization, Map<String, String> roles, Map<String, String> projectTitles, Map<String, String> skillCategoryNames, Map<String, String> skillLabels, Map<String, String> educationQualifications, Map<String, String> educationGrades, Map<String, String> educationDetails, Map<String, String> hobbies, Map<String, String> languages, Map<String, String> bullets, int requestedCount, int translatedCount
 });
 
 
@@ -71,11 +71,12 @@ class _$CvTranslationResultCopyWithImpl<$Res>
 
 /// Create a copy of CvTranslationResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? headline = freezed,Object? summary = freezed,Object? referencesNote = freezed,Object? roles = null,Object? projectTitles = null,Object? skillCategoryNames = null,Object? skillLabels = null,Object? educationQualifications = null,Object? educationGrades = null,Object? educationDetails = null,Object? hobbies = null,Object? languages = null,Object? bullets = null,Object? requestedCount = null,Object? translatedCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? headline = freezed,Object? summary = freezed,Object? referencesNote = freezed,Object? workAuthorization = freezed,Object? roles = null,Object? projectTitles = null,Object? skillCategoryNames = null,Object? skillLabels = null,Object? educationQualifications = null,Object? educationGrades = null,Object? educationDetails = null,Object? hobbies = null,Object? languages = null,Object? bullets = null,Object? requestedCount = null,Object? translatedCount = null,}) {
   return _then(_self.copyWith(
 headline: freezed == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
 as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
 as String?,referencesNote: freezed == referencesNote ? _self.referencesNote : referencesNote // ignore: cast_nullable_to_non_nullable
+as String?,workAuthorization: freezed == workAuthorization ? _self.workAuthorization : workAuthorization // ignore: cast_nullable_to_non_nullable
 as String?,roles: null == roles ? _self.roles : roles // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,projectTitles: null == projectTitles ? _self.projectTitles : projectTitles // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,skillCategoryNames: null == skillCategoryNames ? _self.skillCategoryNames : skillCategoryNames // ignore: cast_nullable_to_non_nullable
@@ -173,10 +174,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? headline,  String? summary,  String? referencesNote,  Map<String, String> roles,  Map<String, String> projectTitles,  Map<String, String> skillCategoryNames,  Map<String, String> skillLabels,  Map<String, String> educationQualifications,  Map<String, String> educationGrades,  Map<String, String> educationDetails,  Map<String, String> hobbies,  Map<String, String> languages,  Map<String, String> bullets,  int requestedCount,  int translatedCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? headline,  String? summary,  String? referencesNote,  String? workAuthorization,  Map<String, String> roles,  Map<String, String> projectTitles,  Map<String, String> skillCategoryNames,  Map<String, String> skillLabels,  Map<String, String> educationQualifications,  Map<String, String> educationGrades,  Map<String, String> educationDetails,  Map<String, String> hobbies,  Map<String, String> languages,  Map<String, String> bullets,  int requestedCount,  int translatedCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CvTranslationResult() when $default != null:
-return $default(_that.headline,_that.summary,_that.referencesNote,_that.roles,_that.projectTitles,_that.skillCategoryNames,_that.skillLabels,_that.educationQualifications,_that.educationGrades,_that.educationDetails,_that.hobbies,_that.languages,_that.bullets,_that.requestedCount,_that.translatedCount);case _:
+return $default(_that.headline,_that.summary,_that.referencesNote,_that.workAuthorization,_that.roles,_that.projectTitles,_that.skillCategoryNames,_that.skillLabels,_that.educationQualifications,_that.educationGrades,_that.educationDetails,_that.hobbies,_that.languages,_that.bullets,_that.requestedCount,_that.translatedCount);case _:
   return orElse();
 
 }
@@ -194,10 +195,10 @@ return $default(_that.headline,_that.summary,_that.referencesNote,_that.roles,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? headline,  String? summary,  String? referencesNote,  Map<String, String> roles,  Map<String, String> projectTitles,  Map<String, String> skillCategoryNames,  Map<String, String> skillLabels,  Map<String, String> educationQualifications,  Map<String, String> educationGrades,  Map<String, String> educationDetails,  Map<String, String> hobbies,  Map<String, String> languages,  Map<String, String> bullets,  int requestedCount,  int translatedCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? headline,  String? summary,  String? referencesNote,  String? workAuthorization,  Map<String, String> roles,  Map<String, String> projectTitles,  Map<String, String> skillCategoryNames,  Map<String, String> skillLabels,  Map<String, String> educationQualifications,  Map<String, String> educationGrades,  Map<String, String> educationDetails,  Map<String, String> hobbies,  Map<String, String> languages,  Map<String, String> bullets,  int requestedCount,  int translatedCount)  $default,) {final _that = this;
 switch (_that) {
 case _CvTranslationResult():
-return $default(_that.headline,_that.summary,_that.referencesNote,_that.roles,_that.projectTitles,_that.skillCategoryNames,_that.skillLabels,_that.educationQualifications,_that.educationGrades,_that.educationDetails,_that.hobbies,_that.languages,_that.bullets,_that.requestedCount,_that.translatedCount);case _:
+return $default(_that.headline,_that.summary,_that.referencesNote,_that.workAuthorization,_that.roles,_that.projectTitles,_that.skillCategoryNames,_that.skillLabels,_that.educationQualifications,_that.educationGrades,_that.educationDetails,_that.hobbies,_that.languages,_that.bullets,_that.requestedCount,_that.translatedCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -214,10 +215,10 @@ return $default(_that.headline,_that.summary,_that.referencesNote,_that.roles,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? headline,  String? summary,  String? referencesNote,  Map<String, String> roles,  Map<String, String> projectTitles,  Map<String, String> skillCategoryNames,  Map<String, String> skillLabels,  Map<String, String> educationQualifications,  Map<String, String> educationGrades,  Map<String, String> educationDetails,  Map<String, String> hobbies,  Map<String, String> languages,  Map<String, String> bullets,  int requestedCount,  int translatedCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? headline,  String? summary,  String? referencesNote,  String? workAuthorization,  Map<String, String> roles,  Map<String, String> projectTitles,  Map<String, String> skillCategoryNames,  Map<String, String> skillLabels,  Map<String, String> educationQualifications,  Map<String, String> educationGrades,  Map<String, String> educationDetails,  Map<String, String> hobbies,  Map<String, String> languages,  Map<String, String> bullets,  int requestedCount,  int translatedCount)?  $default,) {final _that = this;
 switch (_that) {
 case _CvTranslationResult() when $default != null:
-return $default(_that.headline,_that.summary,_that.referencesNote,_that.roles,_that.projectTitles,_that.skillCategoryNames,_that.skillLabels,_that.educationQualifications,_that.educationGrades,_that.educationDetails,_that.hobbies,_that.languages,_that.bullets,_that.requestedCount,_that.translatedCount);case _:
+return $default(_that.headline,_that.summary,_that.referencesNote,_that.workAuthorization,_that.roles,_that.projectTitles,_that.skillCategoryNames,_that.skillLabels,_that.educationQualifications,_that.educationGrades,_that.educationDetails,_that.hobbies,_that.languages,_that.bullets,_that.requestedCount,_that.translatedCount);case _:
   return null;
 
 }
@@ -229,12 +230,13 @@ return $default(_that.headline,_that.summary,_that.referencesNote,_that.roles,_t
 
 
 class _CvTranslationResult extends CvTranslationResult {
-  const _CvTranslationResult({this.headline, this.summary, this.referencesNote, required final  Map<String, String> roles, required final  Map<String, String> projectTitles, required final  Map<String, String> skillCategoryNames, required final  Map<String, String> skillLabels, required final  Map<String, String> educationQualifications, required final  Map<String, String> educationGrades, required final  Map<String, String> educationDetails, required final  Map<String, String> hobbies, required final  Map<String, String> languages, required final  Map<String, String> bullets, this.requestedCount = 0, this.translatedCount = 0}): _roles = roles,_projectTitles = projectTitles,_skillCategoryNames = skillCategoryNames,_skillLabels = skillLabels,_educationQualifications = educationQualifications,_educationGrades = educationGrades,_educationDetails = educationDetails,_hobbies = hobbies,_languages = languages,_bullets = bullets,super._();
+  const _CvTranslationResult({this.headline, this.summary, this.referencesNote, this.workAuthorization, required final  Map<String, String> roles, required final  Map<String, String> projectTitles, required final  Map<String, String> skillCategoryNames, required final  Map<String, String> skillLabels, required final  Map<String, String> educationQualifications, required final  Map<String, String> educationGrades, required final  Map<String, String> educationDetails, required final  Map<String, String> hobbies, required final  Map<String, String> languages, required final  Map<String, String> bullets, this.requestedCount = 0, this.translatedCount = 0}): _roles = roles,_projectTitles = projectTitles,_skillCategoryNames = skillCategoryNames,_skillLabels = skillLabels,_educationQualifications = educationQualifications,_educationGrades = educationGrades,_educationDetails = educationDetails,_hobbies = hobbies,_languages = languages,_bullets = bullets,super._();
   
 
 @override final  String? headline;
 @override final  String? summary;
 @override final  String? referencesNote;
+@override final  String? workAuthorization;
  final  Map<String, String> _roles;
 @override Map<String, String> get roles {
   if (_roles is EqualUnmodifiableMapView) return _roles;
@@ -327,16 +329,16 @@ _$CvTranslationResultCopyWith<_CvTranslationResult> get copyWith => __$CvTransla
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvTranslationResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&const DeepCollectionEquality().equals(other._roles, _roles)&&const DeepCollectionEquality().equals(other._projectTitles, _projectTitles)&&const DeepCollectionEquality().equals(other._skillCategoryNames, _skillCategoryNames)&&const DeepCollectionEquality().equals(other._skillLabels, _skillLabels)&&const DeepCollectionEquality().equals(other._educationQualifications, _educationQualifications)&&const DeepCollectionEquality().equals(other._educationGrades, _educationGrades)&&const DeepCollectionEquality().equals(other._educationDetails, _educationDetails)&&const DeepCollectionEquality().equals(other._hobbies, _hobbies)&&const DeepCollectionEquality().equals(other._languages, _languages)&&const DeepCollectionEquality().equals(other._bullets, _bullets)&&(identical(other.requestedCount, requestedCount) || other.requestedCount == requestedCount)&&(identical(other.translatedCount, translatedCount) || other.translatedCount == translatedCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvTranslationResult&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&(identical(other.workAuthorization, workAuthorization) || other.workAuthorization == workAuthorization)&&const DeepCollectionEquality().equals(other._roles, _roles)&&const DeepCollectionEquality().equals(other._projectTitles, _projectTitles)&&const DeepCollectionEquality().equals(other._skillCategoryNames, _skillCategoryNames)&&const DeepCollectionEquality().equals(other._skillLabels, _skillLabels)&&const DeepCollectionEquality().equals(other._educationQualifications, _educationQualifications)&&const DeepCollectionEquality().equals(other._educationGrades, _educationGrades)&&const DeepCollectionEquality().equals(other._educationDetails, _educationDetails)&&const DeepCollectionEquality().equals(other._hobbies, _hobbies)&&const DeepCollectionEquality().equals(other._languages, _languages)&&const DeepCollectionEquality().equals(other._bullets, _bullets)&&(identical(other.requestedCount, requestedCount) || other.requestedCount == requestedCount)&&(identical(other.translatedCount, translatedCount) || other.translatedCount == translatedCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,headline,summary,referencesNote,const DeepCollectionEquality().hash(_roles),const DeepCollectionEquality().hash(_projectTitles),const DeepCollectionEquality().hash(_skillCategoryNames),const DeepCollectionEquality().hash(_skillLabels),const DeepCollectionEquality().hash(_educationQualifications),const DeepCollectionEquality().hash(_educationGrades),const DeepCollectionEquality().hash(_educationDetails),const DeepCollectionEquality().hash(_hobbies),const DeepCollectionEquality().hash(_languages),const DeepCollectionEquality().hash(_bullets),requestedCount,translatedCount);
+int get hashCode => Object.hash(runtimeType,headline,summary,referencesNote,workAuthorization,const DeepCollectionEquality().hash(_roles),const DeepCollectionEquality().hash(_projectTitles),const DeepCollectionEquality().hash(_skillCategoryNames),const DeepCollectionEquality().hash(_skillLabels),const DeepCollectionEquality().hash(_educationQualifications),const DeepCollectionEquality().hash(_educationGrades),const DeepCollectionEquality().hash(_educationDetails),const DeepCollectionEquality().hash(_hobbies),const DeepCollectionEquality().hash(_languages),const DeepCollectionEquality().hash(_bullets),requestedCount,translatedCount);
 
 @override
 String toString() {
-  return 'CvTranslationResult(headline: $headline, summary: $summary, referencesNote: $referencesNote, roles: $roles, projectTitles: $projectTitles, skillCategoryNames: $skillCategoryNames, skillLabels: $skillLabels, educationQualifications: $educationQualifications, educationGrades: $educationGrades, educationDetails: $educationDetails, hobbies: $hobbies, languages: $languages, bullets: $bullets, requestedCount: $requestedCount, translatedCount: $translatedCount)';
+  return 'CvTranslationResult(headline: $headline, summary: $summary, referencesNote: $referencesNote, workAuthorization: $workAuthorization, roles: $roles, projectTitles: $projectTitles, skillCategoryNames: $skillCategoryNames, skillLabels: $skillLabels, educationQualifications: $educationQualifications, educationGrades: $educationGrades, educationDetails: $educationDetails, hobbies: $hobbies, languages: $languages, bullets: $bullets, requestedCount: $requestedCount, translatedCount: $translatedCount)';
 }
 
 
@@ -347,7 +349,7 @@ abstract mixin class _$CvTranslationResultCopyWith<$Res> implements $CvTranslati
   factory _$CvTranslationResultCopyWith(_CvTranslationResult value, $Res Function(_CvTranslationResult) _then) = __$CvTranslationResultCopyWithImpl;
 @override @useResult
 $Res call({
- String? headline, String? summary, String? referencesNote, Map<String, String> roles, Map<String, String> projectTitles, Map<String, String> skillCategoryNames, Map<String, String> skillLabels, Map<String, String> educationQualifications, Map<String, String> educationGrades, Map<String, String> educationDetails, Map<String, String> hobbies, Map<String, String> languages, Map<String, String> bullets, int requestedCount, int translatedCount
+ String? headline, String? summary, String? referencesNote, String? workAuthorization, Map<String, String> roles, Map<String, String> projectTitles, Map<String, String> skillCategoryNames, Map<String, String> skillLabels, Map<String, String> educationQualifications, Map<String, String> educationGrades, Map<String, String> educationDetails, Map<String, String> hobbies, Map<String, String> languages, Map<String, String> bullets, int requestedCount, int translatedCount
 });
 
 
@@ -364,11 +366,12 @@ class __$CvTranslationResultCopyWithImpl<$Res>
 
 /// Create a copy of CvTranslationResult
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? headline = freezed,Object? summary = freezed,Object? referencesNote = freezed,Object? roles = null,Object? projectTitles = null,Object? skillCategoryNames = null,Object? skillLabels = null,Object? educationQualifications = null,Object? educationGrades = null,Object? educationDetails = null,Object? hobbies = null,Object? languages = null,Object? bullets = null,Object? requestedCount = null,Object? translatedCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? headline = freezed,Object? summary = freezed,Object? referencesNote = freezed,Object? workAuthorization = freezed,Object? roles = null,Object? projectTitles = null,Object? skillCategoryNames = null,Object? skillLabels = null,Object? educationQualifications = null,Object? educationGrades = null,Object? educationDetails = null,Object? hobbies = null,Object? languages = null,Object? bullets = null,Object? requestedCount = null,Object? translatedCount = null,}) {
   return _then(_CvTranslationResult(
 headline: freezed == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
 as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
 as String?,referencesNote: freezed == referencesNote ? _self.referencesNote : referencesNote // ignore: cast_nullable_to_non_nullable
+as String?,workAuthorization: freezed == workAuthorization ? _self.workAuthorization : workAuthorization // ignore: cast_nullable_to_non_nullable
 as String?,roles: null == roles ? _self._roles : roles // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,projectTitles: null == projectTitles ? _self._projectTitles : projectTitles // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,skillCategoryNames: null == skillCategoryNames ? _self._skillCategoryNames : skillCategoryNames // ignore: cast_nullable_to_non_nullable

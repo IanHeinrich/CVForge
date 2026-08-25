@@ -2210,6 +2210,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultBasicsTitle => 'Datos básicos';
 
   @override
+  String get vaultBasicsWorkAuthorization =>
+      'Autorización de trabajo (opcional)';
+
+  @override
+  String get vaultBasicsWorkAuthorizationHint =>
+      'p. ej. Con permiso de trabajo en la UE — no requiere patrocinio';
+
+  @override
   String get vaultBulletAddSkill => 'Agregar habilidad';
 
   @override

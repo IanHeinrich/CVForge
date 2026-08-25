@@ -536,6 +536,8 @@
   "vaultBasicsReferencesHint": "p. ej. \"Disponibles a solicitud.\"",
   "vaultBasicsSummary": "Perfil profesional",
   "vaultBasicsTitle": "Datos básicos",
+  "vaultBasicsWorkAuthorization": "Autorización de trabajo (opcional)",
+  "vaultBasicsWorkAuthorizationHint": "p. ej. Con permiso de trabajo en la UE — no requiere patrocinio",
   "vaultBulletAddSkill": "Agregar habilidad",
   "vaultBulletCategory": "Categoría",
   "vaultBulletDelete": "Eliminar logro",

@@ -255,6 +255,18 @@ class CvTranslationPayload {
       chunks.add(CvTranslationPayload._({'referencesNote': references}, 1));
     }
 
+    // Printed prose like the headline and the summary, so it translates
+    // with them rather than staying in the language it was typed in.
+    final workAuthorization = effective(
+      vault.basics.workAuthorization,
+      draft.workAuthorizationOverride,
+    );
+    if (workAuthorization != null) {
+      chunks.add(
+        CvTranslationPayload._({'workAuthorization': workAuthorization}, 1),
+      );
+    }
+
     return chunks;
   }
 

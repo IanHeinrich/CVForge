@@ -124,6 +124,35 @@ void main() {
       expect(hobbies.items, ['Bouldern']);
     });
 
+    test('work authorisation reaches the header from the Vault, and a '
+        'translation of it wins over the Vault wording', () {
+      const basics = ContactBasics(
+        fullName: 'Morgan Vance',
+        headline: '',
+        email: '',
+        phone: '',
+        location: '',
+        workAuthorization: 'Right to work in the UK',
+      );
+
+      when(vaultService.vault).thenReturn(vaultWith(basics: basics));
+      when(draftService.draft).thenReturn(draftWith());
+
+      expect(
+        StudioViewModel().resolvedCv.header.workAuthorization,
+        'Right to work in the UK',
+      );
+
+      when(draftService.draft).thenReturn(
+        draftWith(workAuthorizationOverride: 'Arbeitserlaubnis für das UK'),
+      );
+
+      expect(
+        StudioViewModel().resolvedCv.header.workAuthorization,
+        'Arbeitserlaubnis für das UK',
+      );
+    });
+
     test('a language renders its name and its CEFR band, and the band is '
         'the same code in every document language', () {
       const german = LanguageItem(

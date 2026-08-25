@@ -596,6 +596,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       _draft.headlineOverride != null ||
       _draft.tailoredSummary != null ||
       _draft.referencesOverride != null ||
+      _draft.workAuthorizationOverride != null ||
       _draft.hasAnyTextOverride;
 
   /// Discards every per-draft text edit — hand edits, AI rewrites and any

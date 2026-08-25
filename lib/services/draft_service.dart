@@ -822,6 +822,8 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       headlineOverride: result.headline ?? current.headlineOverride,
       tailoredSummary: result.summary ?? current.tailoredSummary,
       referencesOverride: result.referencesNote ?? current.referencesOverride,
+      workAuthorizationOverride:
+          result.workAuthorization ?? current.workAuthorizationOverride,
       roleOverrides: result.roles,
       projectTitleOverrides: result.projectTitles,
       skillCategoryNameOverrides: result.skillCategoryNames,
@@ -871,11 +873,12 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
     // Every id-keyed map goes through `withoutTextOverrides`, derived from
     // `TextOverrideField.values`, so a newly added overridable field is
     // reset here without anyone remembering to come back and add it. Only
-    // the three scalar overrides, which aren't in that enum, are named.
+    // the four scalar overrides, which aren't in that enum, are named.
     final updated = current.withoutTextOverrides().copyWith(
       headlineOverride: null,
       tailoredSummary: null,
       referencesOverride: null,
+      workAuthorizationOverride: null,
       translatedTo: null,
       updatedAt: DateTime.now(),
     );

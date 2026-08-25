@@ -175,6 +175,11 @@ abstract class CvDraft with _$CvDraft {
     /// over, for `CvVault.referencesNote`.
     String? referencesOverride,
 
+    /// Same null-means-inherit rationale as [tailoredSummary], for the
+    /// header's work-authorization line. It exists so a translated CV can
+    /// carry the translated sentence — the value is prose, not a code.
+    String? workAuthorizationOverride,
+
     /// educationId -> rewritten `Education.details` text. Same
     /// null-means-inherit rationale as [bulletOverrides], one entity type
     /// over.

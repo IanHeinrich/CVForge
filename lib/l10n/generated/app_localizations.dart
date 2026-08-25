@@ -3314,6 +3314,18 @@ abstract class AppLocalizations {
   /// **'Basics'**
   String get vaultBasicsTitle;
 
+  /// Field label in the Vault basics editor. The value is printed verbatim in the CV header with no label beside it, so the field holds the whole line.
+  ///
+  /// In en, this message translates to:
+  /// **'Work authorisation (optional)'**
+  String get vaultBasicsWorkAuthorization;
+
+  /// Hint for the work-authorisation field. A whole sentence rather than a status word, because nothing labels it on the printed CV.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Right to work in the UK — no sponsorship required'**
+  String get vaultBasicsWorkAuthorizationHint;
+
   /// Vault button that creates a new skill from the typed search text.
   ///
   /// In en, this message translates to:

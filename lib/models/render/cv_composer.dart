@@ -45,6 +45,8 @@ abstract final class CvComposer {
       email: vault.basics.email,
       phone: vault.basics.phone,
       location: vault.basics.location,
+      workAuthorization:
+          draft.workAuthorizationOverride ?? vault.basics.workAuthorization,
       links: [
         for (final link in vault.basics.links)
           ResolvedLink(label: link.label, url: link.url),

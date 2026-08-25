@@ -165,6 +165,11 @@ abstract class CvPdfRenderer {
       for (final link in header.links)
         if (link.url.trim().isNotEmpty)
           contactPart(link.url, url: withScheme(link.url)),
+      // Last, and unlabelled: it is a sentence the user wrote, not a
+      // datum, so it reads as the end of the contact line rather than as
+      // another field in it.
+      if (header.workAuthorization?.trim().isNotEmpty ?? false)
+        contactPart(header.workAuthorization!),
     ];
 
     return pw.Column(

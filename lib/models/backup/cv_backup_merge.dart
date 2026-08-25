@@ -301,6 +301,12 @@ ContactBasics _mergeBasics(
   phone: _pick(base.phone, local.phone, remote.phone, pr),
   location: _pick(base.location, local.location, remote.location, pr),
   summary: _pick(base.summary, local.summary, remote.summary, pr),
+  workAuthorization: _pick(
+    base.workAuthorization,
+    local.workAuthorization,
+    remote.workAuthorization,
+    pr,
+  ),
   photo: _pick(base.photo, local.photo, remote.photo, pr),
   links: base.links.mergeThreeWay(
     local.links,
