@@ -176,6 +176,59 @@ void main() {
       expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
     });
 
+    /// The fonts a rendered PDF actually embeds, by their `/BaseFont`
+    /// names. This is the observable proof that emphasis reached the
+    /// page: the text itself is CID-encoded under Identity-H, so the
+    /// words cannot be read back out of the bytes, but a face that was
+    /// never asked for is never embedded.
+    Future<Set<String>> embeddedFonts(String bulletText) async {
+      final bytes = await PdfExportService().render(
+        cv: _fixtureCv(bulletText: bulletText),
+        templateId: 'compact',
+        compress: false,
+      );
+      return RegExp(
+        r'/BaseFont\s*/([A-Za-z0-9+\-]+)',
+      ).allMatches(latin1.decode(bytes)).map((m) => m.group(1)!).toSet();
+    }
+
+    test('a bullet written with *italic* is rendered in the italic face, '
+        'which the same bullet without markup never pulls in — `compact` '
+        'sets italic on no token of its own, so the face can only be '
+        'there because the markup asked for it', () async {
+      expect(
+        await embeddedFonts('Delivered a result.'),
+        isNot(contains('Roboto-Italic')),
+      );
+      expect(
+        await embeddedFonts('Delivered a *result*.'),
+        contains('Roboto-Italic'),
+      );
+    });
+
+    test('a bullet written with ***bold italic*** reaches the fourth face — '
+        'the one combination that needs its own TTF rather than a '
+        'synthesised slant', () async {
+      expect(
+        await embeddedFonts('Delivered a ***result***.'),
+        contains('Roboto-BoldItalic'),
+      );
+    });
+
+    test('asterisks that are not emphasis print as themselves rather than '
+        'throwing — a multiplication sign, an A-level grade, and an '
+        'unclosed marker are all ordinary CV text', () async {
+      final bytes = await PdfExportService().render(
+        cv: _fixtureCv(
+          bulletText: 'Scaled 3 * 4 clusters; graded A*A*A; **unclosed',
+        ),
+        templateId: 'compact',
+      );
+
+      expect(bytes, isNotEmpty);
+      expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+    });
+
     test('an entry with far more bullets than fit on one page paginates '
         'across as many pages as it needs, rather than failing the '
         'export — each bullet is its own top-level pw.MultiPage widget, '

@@ -66,10 +66,6 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
   @override
   CvTypeToken headlineStyle(CvDesignTokens tokens) => tokens.company;
 
-  @override
-  pw.Widget bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
-      pw.Text(text, style: tokens.body.toPdfStyle(fonts));
-
   /// The header occupies exactly the band's remaining height, so the first
   /// section heading starts at the band's bottom edge rather than partway
   /// up it. Derived rather than stated twice: the band is measured from

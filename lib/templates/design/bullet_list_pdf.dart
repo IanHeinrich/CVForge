@@ -14,6 +14,7 @@ import 'package:cv_forge/models/render/resolved_section.dart';
 import 'cv_design_tokens.dart';
 import 'cv_design_tokens_pdf.dart';
 import 'cv_font_set.dart';
+import 'cv_markup_pdf.dart';
 
 const _bulletGlyphGap = 6.0;
 
@@ -72,9 +73,7 @@ pw.Widget buildBulletRow(
       children: [
         buildBulletGlyph(tokens, fonts),
         pw.SizedBox(width: _bulletGlyphGap),
-        pw.Expanded(
-          child: pw.Text(bullet.text, style: tokens.bullet.toPdfStyle(fonts)),
-        ),
+        pw.Expanded(child: markupText(bullet.text, tokens.bullet, fonts)),
       ],
     ),
   );

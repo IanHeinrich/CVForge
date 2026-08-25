@@ -5,8 +5,13 @@ import 'package:cv_forge/models/region/region_profile.dart';
 import 'cv_design_tokens.dart';
 import 'cv_font_set.dart';
 
-/// PDF-side adapter for [CvDesignTokens]/[CvTypeToken] — the ONLY file
-/// under `templates/design/` allowed to import `pdf`.
+/// PDF-side adapter for [CvDesignTokens]/[CvTypeToken] — the one place a
+/// framework-free token becomes a `pw.TextStyle`.
+///
+/// Not the only file here that imports `pdf`: `bullet_list_pdf.dart`,
+/// `section_pagination_pdf.dart`, `cv_markup_pdf.dart` and the renderer
+/// itself all do. The convention is the `*_pdf.dart` suffix, and what
+/// this file owns specifically is the token→style mapping.
 extension CvTypeTokenPdf on CvTypeToken {
   pw.TextStyle toPdfStyle(CvFontSet fonts) => pw.TextStyle(
     font: _selectFont(fonts),

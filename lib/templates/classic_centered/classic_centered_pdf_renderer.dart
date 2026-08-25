@@ -25,12 +25,7 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
   /// Fully justified — the reference's summary paragraph reads flush on
   /// both margins, not ragged-right like `compact`'s.
   @override
-  pw.Widget bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
-      pw.Text(
-        text,
-        textAlign: pw.TextAlign.justify,
-        style: tokens.body.toPdfStyle(fonts),
-      );
+  pw.TextAlign? get bodyAlign => pw.TextAlign.justify;
 
   /// Centered, bold, no rule — the reference this template clones leans on
   /// whitespace rather than a line to separate sections. "Experience"

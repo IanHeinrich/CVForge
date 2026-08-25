@@ -23,10 +23,6 @@ class CompactPdfRenderer extends CvPdfRenderer {
   CvTypeToken headlineStyle(CvDesignTokens tokens) => tokens.company;
 
   @override
-  pw.Widget bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
-      pw.Text(text, style: tokens.body.toPdfStyle(fonts));
-
-  @override
   pw.Widget? sectionHeading(
     ResolvedSection section,
     CvDesignTokens tokens,
