@@ -25,6 +25,7 @@ String _fixturePhotoBase64() {
 
 ResolvedCv _fixtureCv({
   String bulletText = 'Delivered a standard result.',
+  String role = 'Engineer',
   String? photoJpegBase64,
 }) => ResolvedCv(
   header: ResolvedHeader(
@@ -51,7 +52,7 @@ ResolvedCv _fixtureCv({
           location: 'London',
           positions: [
             ResolvedPosition(
-              role: 'Engineer',
+              role: role,
               dateRange: '01/2020 - current',
               bullets: [ResolvedBullet(text: bulletText)],
             ),
@@ -227,6 +228,42 @@ void main() {
 
       expect(bytes, isNotEmpty);
       expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+    });
+
+    test('emphasis typed into an entry header reaches the page in every '
+        'template, not just in bullets — a role is a field someone edits, '
+        'so the header methods each renderer overrides have to honour it '
+        'too', () async {
+      for (final templateId in [
+        'compact',
+        'classic_centered',
+        'photo_header',
+      ]) {
+        Future<Set<String>> fontsFor(String role) async {
+          final bytes = await PdfExportService().render(
+            cv: _fixtureCv(role: role),
+            templateId: templateId,
+            compress: false,
+          );
+          return RegExp(
+            r'/BaseFont\s*/([A-Za-z0-9+\-]+)',
+          ).allMatches(latin1.decode(bytes)).map((m) => m.group(1)!).toSet();
+        }
+
+        // Bold-italic is the discriminator: no template sets both on a
+        // token of its own, so the fourth face can only appear because
+        // `***` asked for it.
+        expect(
+          await fontsFor('Senior Engineer'),
+          isNot(contains('Roboto-BoldItalic')),
+          reason: '$templateId embedded bold-italic with no markup present',
+        );
+        expect(
+          await fontsFor('***Senior*** Engineer'),
+          contains('Roboto-BoldItalic'),
+          reason: '$templateId dropped the emphasis in a role',
+        );
+      }
     });
 
     test('an entry with far more bullets than fit on one page paginates '

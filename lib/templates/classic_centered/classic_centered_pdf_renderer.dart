@@ -5,6 +5,7 @@ import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
+import 'package:cv_forge/templates/design/cv_markup_pdf.dart';
 import 'package:cv_forge/templates/design/cv_pdf_renderer.dart';
 
 /// The `classic_centered` style: centered, rule-less section headings, a
@@ -63,8 +64,18 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
   ) => pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
-      _headerRow(group.company, position.dateRange, tokens.role, tokens, fonts),
-      _headerRow(position.role, group.location, tokens.company, tokens, fonts),
+      _headerRow(
+        markupSpans(group.company, tokens.role, fonts),
+        _metaSpans(position.dateRange, tokens, fonts),
+        tokens,
+        fonts,
+      ),
+      _headerRow(
+        markupSpans(position.role, tokens.company, fonts),
+        markupSpans(group.location, tokens.meta, fonts),
+        tokens,
+        fonts,
+      ),
     ],
   );
 
@@ -73,7 +84,12 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
     ResolvedCompanyGroup group,
     CvDesignTokens tokens,
     CvFontSet fonts,
-  ) => _headerRow(group.company, group.location, tokens.role, tokens, fonts);
+  ) => _headerRow(
+    markupSpans(group.company, tokens.role, fonts),
+    markupSpans(group.location, tokens.meta, fonts),
+    tokens,
+    fonts,
+  );
 
   @override
   pw.Widget promotionPositionHeading(
@@ -81,9 +97,8 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
     CvDesignTokens tokens,
     CvFontSet fonts,
   ) => _headerRow(
-    position.role,
-    position.dateRange,
-    tokens.company,
+    markupSpans(position.role, tokens.company, fonts),
+    _metaSpans(position.dateRange, tokens, fonts),
     tokens,
     fonts,
   );
@@ -98,7 +113,7 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        pw.Text(project.title, style: tokens.role.toPdfStyle(fonts)),
+        markupText(project.title, tokens.role, fonts),
         if (link != null && link.isNotEmpty)
           pw.UrlLink(
             destination: withScheme(link),
@@ -119,22 +134,31 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
     CvDesignTokens tokens,
     CvFontSet fonts,
   ) {
+    // Parsed per field and glued with unparsed separators, so a stray
+    // marker in `grade` can never pair with one in `details`.
     final detail = [
       edu.grade,
       edu.details,
-    ].where((s) => s != null && s.trim().isNotEmpty).join(', ');
-    final qualificationLine = detail.isEmpty
-        ? edu.qualification
-        : '${edu.qualification}, $detail';
+    ].where((s) => s != null && s.trim().isNotEmpty).cast<String>();
 
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        _headerRow(edu.institution, edu.location, tokens.role, tokens, fonts),
         _headerRow(
-          qualificationLine,
-          edu.yearLabel,
-          tokens.company,
+          markupSpans(edu.institution, tokens.role, fonts),
+          markupSpans(edu.location ?? '', tokens.meta, fonts),
+          tokens,
+          fonts,
+        ),
+        _headerRow(
+          [
+            ...markupSpans(edu.qualification, tokens.company, fonts),
+            if (detail.isNotEmpty) ...[
+              literalSpan(', ', tokens.company, fonts),
+              ...markupJoin(detail, ', ', tokens.company, fonts),
+            ],
+          ],
+          _metaSpans(edu.yearLabel, tokens, fonts),
           tokens,
           fonts,
         ),
@@ -157,9 +181,9 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
     final bodyStyle = tokens.body.toPdfStyle(fonts);
 
     final parts = <pw.Widget>[
-      pw.Text(publication.title, style: bodyStyle),
+      markupText(publication.title, tokens.body, fonts),
       if (citation != null && citation.trim().isNotEmpty)
-        pw.Text(citation, style: bodyStyle),
+        markupText(citation, tokens.body, fonts),
       if (link != null && link.trim().isNotEmpty)
         pw.UrlLink(
           destination: withScheme(link),
@@ -181,23 +205,40 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
   }
 }
 
-/// One row of the two-row entry header: [left] styled bold/italic per
-/// [leftStyle], [right] in the plain `meta` style, right-aligned.
+/// One row of the two-row entry header: [left] styled bold/italic per its
+/// own spans, [right] in the plain `meta` style, right-aligned.
 /// `pw.Expanded` keeps a long left value from pushing [right] off the
 /// page edge.
+///
+/// Both sides are spans rather than strings because either can be user
+/// text — a company and an entry location are typed, a date range and a
+/// year label are formatted by `CvComposer` — and only the caller knows
+/// which it is holding.
 pw.Widget _headerRow(
-  String left,
-  String? right,
-  CvTypeToken leftStyle,
+  List<pw.InlineSpan> left,
+  List<pw.InlineSpan>? right,
   CvDesignTokens tokens,
   CvFontSet fonts,
 ) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
-      pw.Expanded(child: pw.Text(left, style: leftStyle.toPdfStyle(fonts))),
+      pw.Expanded(
+        child: pw.RichText(text: pw.TextSpan(children: left)),
+      ),
       if (right != null && right.isNotEmpty)
-        pw.Text(right, style: tokens.meta.toPdfStyle(fonts)),
+        pw.RichText(text: pw.TextSpan(children: right)),
     ],
   );
 }
+
+/// [value] as `meta`-styled spans, or null when there is nothing to show
+/// — the shape [_headerRow]'s right-hand side wants for a composer
+/// formatted value that is never parsed for emphasis.
+List<pw.InlineSpan>? _metaSpans(
+  String? value,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) => value == null || value.isEmpty
+    ? null
+    : [literalSpan(value, tokens.meta, fonts)];
