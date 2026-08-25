@@ -22,7 +22,11 @@
 /// path instead of failing the run.
 library;
 
-/// The largest single field allowed through, in characters.
+import 'package:cv_forge/models/render/cv_markup.dart';
+
+/// The largest single field allowed through, counted in the characters
+/// that actually reach the page — what [stripCvMarkup] leaves once the
+/// emphasis markers come off.
 ///
 /// Sized against the page, not against taste. At the smallest body type
 /// any template uses (10pt on A4) a full page of prose is roughly 6,500
@@ -34,7 +38,20 @@ library;
 /// actually writes, and far beyond the longest bullet. The bound is here
 /// to catch a field that has swallowed the document, not to police
 /// verbosity.
+///
+/// Measured after stripping because the bound is sized against the page
+/// and a `**` occupies none of it. Counting raw characters would make the
+/// limit tighten as someone added emphasis, which is the wrong thing for
+/// a limit that exists to keep a field renderable.
 const maxRenderableFieldChars = 4000;
+
+/// The raw bound, markers included.
+///
+/// Not a page constraint — [maxRenderableFieldChars] is that. This exists
+/// so a field of nothing but asterisks cannot reach the parser at all:
+/// markup can only ever be a constant factor over what it renders, so a
+/// string far past this is malformed rather than merely emphatic.
+const maxRawFieldChars = maxRenderableFieldChars * 2;
 
 /// [value] as a translation of [source], or null if it is not usable.
 ///
@@ -51,7 +68,12 @@ const maxRenderableFieldChars = 4000;
 String? acceptTranslatedField(String source, Object? value) {
   final text = acceptRewrittenField(value);
   if (text == null) return null;
-  if (text.length > source.length * 3 + 40) return null;
+  // Stripped on both sides: this ratio is measuring how much longer the
+  // prose got, and a model that legitimately preserves the source's
+  // emphasis — or legitimately drops it — must not move it.
+  if (stripCvMarkup(text).length > stripCvMarkup(source).length * 3 + 40) {
+    return null;
+  }
   return text;
 }
 
@@ -65,6 +87,7 @@ String? acceptTranslatedField(String source, Object? value) {
 String? acceptRewrittenField(Object? value) {
   if (value is! String) return null;
   if (value.trim().isEmpty) return null;
-  if (value.length > maxRenderableFieldChars) return null;
+  if (value.length > maxRawFieldChars) return null;
+  if (stripCvMarkup(value).length > maxRenderableFieldChars) return null;
   return value;
 }

@@ -1,6 +1,7 @@
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/cv_markup_flutter.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -80,7 +81,7 @@ class AppSummaryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    cvMarkupText(
                       title,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
@@ -91,7 +92,7 @@ class AppSummaryCard extends StatelessWidget {
                     ),
                     if (subtitle != null && subtitle!.isNotEmpty) ...[
                       const VGap.tiny(),
-                      Text(
+                      cvMarkupText(
                         subtitle!,
                         style: context.appTypography.bodySmall,
                         maxLines: 1,
@@ -100,7 +101,7 @@ class AppSummaryCard extends StatelessWidget {
                     ],
                     if (notes != null && notes!.isNotEmpty) ...[
                       const VGap.tiny(),
-                      Text(
+                      cvMarkupText(
                         notes!,
                         style: context.appTypography.bodySmall.copyWith(
                           fontStyle: FontStyle.italic,

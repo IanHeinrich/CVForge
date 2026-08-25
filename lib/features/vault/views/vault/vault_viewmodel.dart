@@ -1,4 +1,5 @@
 import 'package:cv_forge/app/app.dialogs.dart';
+import 'package:cv_forge/models/render/cv_markup.dart';
 import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
@@ -157,7 +158,11 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   List<T> _filtered<T>(List<T> items, List<String> Function(T) fieldsOf) {
     if (_query.isEmpty) return items;
     return items.where((item) {
-      return fieldsOf(item).any((f) => f.toLowerCase().contains(_query));
+      // Stripped, not raw: a bullet reading `**deployment** pipeline` has
+      // to be found by "deployment", the way the card showing it reads.
+      return fieldsOf(
+        item,
+      ).any((f) => stripCvMarkup(f).toLowerCase().contains(_query));
     }).toList();
   }
 
@@ -188,12 +193,12 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
     if (_query.isEmpty) return vault.skillCategories;
     final matched = <SkillCategory>[];
     for (final category in vault.skillCategories) {
-      if (category.name.toLowerCase().contains(_query)) {
+      if (stripCvMarkup(category.name).toLowerCase().contains(_query)) {
         matched.add(category);
         continue;
       }
       final skills = category.skills
-          .where((s) => s.label.toLowerCase().contains(_query))
+          .where((s) => stripCvMarkup(s.label).toLowerCase().contains(_query))
           .toList();
       if (skills.isNotEmpty) matched.add(category.copyWith(skills: skills));
     }
@@ -221,7 +226,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
       basics.headline,
       basics.email,
       basics.summary ?? '',
-    ].any((field) => field.toLowerCase().contains(_query));
+    ].any((field) => stripCvMarkup(field).toLowerCase().contains(_query));
   }
 
   VaultEditorTarget _openTarget = VaultEditorTarget.none;

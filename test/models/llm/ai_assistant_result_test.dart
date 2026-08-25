@@ -1,3 +1,5 @@
+import 'package:cv_forge/models/llm/llm_field_length_guard.dart';
+import 'package:cv_forge/models/render/cv_markup.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/llm/ai_assistant_result.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
@@ -325,6 +327,37 @@ void main() {
 
       expect(result.experienceIds, ['exp-a']);
       expect(result.bulletIds['exp-a'], isEmpty);
+    });
+
+    test('measures a field by what it prints, not by its markers — a '
+        'bullet just under the bound stays acceptable however much '
+        'emphasis is added to it, because a `**` occupies no page', () {
+      // Just inside the rendered bound, then emphasised heavily enough
+      // that a raw character count would push it over.
+      final base = List.filled(790, 'word').join(' ');
+      final emphasised = base.replaceAll('word', '**word**');
+      expect(emphasised.length, greaterThan(maxRenderableFieldChars));
+      expect(emphasised.length, lessThan(maxRawFieldChars));
+      expect(
+        stripCvMarkup(emphasised).length,
+        lessThan(maxRenderableFieldChars),
+      );
+
+      final result = AiAssistantResult.fromLlmResponse({
+        'headline': 'Backend Engineer',
+        'summary': emphasised,
+        'experiences': <String, dynamic>{},
+        'projects': <String, dynamic>{},
+        'publications': <String, dynamic>{},
+        'skillIds': <String>[],
+        'education': <String, dynamic>{},
+        'hobbyIds': <String>[],
+        'hiddenSections': <String>[],
+        'rationale': '',
+        'keywordGaps': <String>[],
+      }, vault);
+
+      expect(result.summary, emphasised);
     });
 
     test('discards a field big enough to break rendering, and keeps its '

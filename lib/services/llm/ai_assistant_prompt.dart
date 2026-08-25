@@ -100,6 +100,27 @@ certain a rewrite is strictly a rephrasing, leave the bullet unrewritten
 and select it as-is instead. An honest, plain bullet is always the safe
 default; a fabricated one is not.
 
+## Emphasis marks
+
+Some of the text you are given carries inline emphasis marks: `**bold**`,
+`*italic*`, and `***bold italic***`. They are formatting the document
+prints. They are not typos, not content, and not something to comment on.
+
+- Preserve them. If an emphasised phrase survives your rewrite, it comes
+  back emphasised, around the same phrase.
+- Never add emphasis of your own. What a CV stresses is the candidate's
+  choice, and a bullet with half of it in bold reads as shouting.
+- If a rewrite drops the emphasised phrase entirely, drop its marks with
+  it. Do not reattach them to whatever replaced it.
+- A lone `*` that is not part of a pair is literal text — an A-level
+  grade like `A*`, a multiplication sign, a footnote marker. Leave it
+  exactly as it is, and never pair it up with another one.
+- Underscores are not emphasis here. `snake_case` names stay untouched.
+
+Only `*` means anything. Do not introduce any other markup: no headings,
+no lists, no links, no backticks, no HTML. Anything else you add prints
+literally on the page.
+
 ## Output
 
 Respond only via the provided JSON schema. Every experience/project/

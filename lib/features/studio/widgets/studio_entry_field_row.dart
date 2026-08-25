@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/cv_markup_flutter.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -99,11 +100,15 @@ class StudioEntryFieldRow extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                        TextSpan(
-                          text: hasText
-                              ? field.displayText
-                              : (field.emptyMessage ?? ''),
-                        ),
+                        // Emphasis-only spans, so the outer style below
+                        // still supplies the colour, the italic an empty
+                        // field is drawn in, and the strikethrough on an
+                        // omitted one. The empty message is localized
+                        // chrome, never user text, so it is not parsed.
+                        if (hasText)
+                          ...cvMarkupSpans(field.displayText)
+                        else
+                          TextSpan(text: field.emptyMessage ?? ''),
                       ],
                     ),
                     maxLines: maxLines,

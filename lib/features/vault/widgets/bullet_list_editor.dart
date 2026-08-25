@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/render/cv_markup.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
@@ -254,12 +255,12 @@ class _BulletSkillLinkPickerState extends State<_BulletSkillLinkPicker> {
   List<Skill> _matchingSkills(SkillCategory category) {
     if (_query.isEmpty) return category.skills;
     return category.skills
-        .where((s) => s.label.toLowerCase().contains(_query))
+        .where((s) => stripCvMarkup(s.label).toLowerCase().contains(_query))
         .toList();
   }
 
   bool get _hasExactMatch =>
-      _allSkills.any((s) => s.label.toLowerCase() == _query);
+      _allSkills.any((s) => stripCvMarkup(s.label).toLowerCase() == _query);
 
   bool get _isNewCategoryMode =>
       _creatingNewCategory || widget.skillCategories.isEmpty;
