@@ -1,5 +1,4 @@
 import 'package:cv_forge/ui/common/relative_time.dart';
-import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -11,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
+import 'package:cv_forge/ui/widgets/common/app_settings_card/app_settings_card.dart';
 
 /// A card for backup export/import — one of Settings' cards, stacked by
 /// `SettingsView` alongside [AiAssistantSettingsCard]. Dark container,
@@ -25,92 +25,73 @@ class BackupSettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(context.appSpacing.paddingPanel),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(context.appRadius.medium),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.settingsBackupTitle,
-            style: context.appTypography.titleMedium,
-          ),
-          const VGap.tiny(),
-          Text(
-            context.l10n.settingsBackupBody,
-            style: context.appTypography.bodySmall,
-          ),
-          const VGap.medium(),
-          _BackupStatusLine(
-            lastBackupAt: viewModel.lastBackupAt,
-            hasChangesSinceBackup: viewModel.hasChangesSinceBackup,
-          ),
-          const VGap.small(),
-          // Wrap, not Row — on a narrow mobile viewport there isn't
-          // always room for both buttons side by side; Row would clip
-          // the second one instead of dropping it to its own line.
-          Wrap(
-            spacing: context.appSpacing.gapSmall,
-            runSpacing: context.appSpacing.gapSmall,
-            children: [
-              FilledButton(
-                onPressed: viewModel.isExporting
-                    ? null
-                    : viewModel.exportBackup,
-                child: viewModel.isExporting
-                    ? const ButtonSpinner()
-                    : Text(context.l10n.settingsBackupExport),
-              ),
-              OutlinedButton(
-                onPressed: viewModel.isImporting
-                    ? null
-                    : viewModel.importBackup,
-                child: viewModel.isImporting
-                    ? const ButtonSpinner()
-                    : Text(context.l10n.settingsBackupImport),
-              ),
-            ],
-          ),
-          if (viewModel.importErrorMessage != null) ...[
-            const VGap.small(),
-            Text(
-              viewModel.importErrorMessage!,
-              style: context.appTypography.bodySmall.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
+    return AppSettingsCard(
+      title: context.l10n.settingsBackupTitle,
+      body: context.l10n.settingsBackupBody,
+      children: [
+        const VGap.medium(),
+        _BackupStatusLine(
+          lastBackupAt: viewModel.lastBackupAt,
+          hasChangesSinceBackup: viewModel.hasChangesSinceBackup,
+        ),
+        const VGap.small(),
+        // Wrap, not Row — on a narrow mobile viewport there isn't
+        // always room for both buttons side by side; Row would clip
+        // the second one instead of dropping it to its own line.
+        Wrap(
+          spacing: context.appSpacing.gapSmall,
+          runSpacing: context.appSpacing.gapSmall,
+          children: [
+            FilledButton(
+              onPressed: viewModel.isExporting ? null : viewModel.exportBackup,
+              child: viewModel.isExporting
+                  ? const ButtonSpinner()
+                  : Text(context.l10n.settingsBackupExport),
+            ),
+            OutlinedButton(
+              onPressed: viewModel.isImporting ? null : viewModel.importBackup,
+              child: viewModel.isImporting
+                  ? const ButtonSpinner()
+                  : Text(context.l10n.settingsBackupImport),
             ),
           ],
-          const VGap.medium(),
-          const Divider(height: 1),
-          const VGap.medium(),
-          // Clear Vault lives here, not as the Vault screen's first
-          // interactive element above the user's own name — this is where
-          // "export first, then a destructive action replaces everything"
-          // is already the established framing.
+        ),
+        if (viewModel.importErrorMessage != null) ...[
+          const VGap.small(),
           Text(
-            context.l10n.settingsDangerZone,
+            viewModel.importErrorMessage!,
             style: context.appTypography.bodySmall.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: Theme.of(context).colorScheme.error,
             ),
-          ),
-          const VGap.tiny(),
-          OutlinedButton.icon(
-            onPressed: viewModel.clearVault,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-              side: BorderSide(color: Theme.of(context).colorScheme.error),
-            ),
-            icon: Icon(
-              RemixIcons.delete_bin_line,
-              size: context.appIconSize.small,
-            ),
-            label: Text(context.l10n.settingsClearVault),
           ),
         ],
-      ),
+        const VGap.medium(),
+        const Divider(height: 1),
+        const VGap.medium(),
+        // Clear Vault lives here, not as the Vault screen's first
+        // interactive element above the user's own name — this is where
+        // "export first, then a destructive action replaces everything"
+        // is already the established framing.
+        Text(
+          context.l10n.settingsDangerZone,
+          style: context.appTypography.bodySmall.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const VGap.tiny(),
+        OutlinedButton.icon(
+          onPressed: viewModel.clearVault,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.error,
+            side: BorderSide(color: Theme.of(context).colorScheme.error),
+          ),
+          icon: Icon(
+            RemixIcons.delete_bin_line,
+            size: context.appIconSize.small,
+          ),
+          label: Text(context.l10n.settingsClearVault),
+        ),
+      ],
     );
   }
 }

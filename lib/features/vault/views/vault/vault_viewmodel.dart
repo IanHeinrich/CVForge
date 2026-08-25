@@ -136,10 +136,12 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   }
 
   /// Presentation state, not persisted — same call as
-  /// `DraftsListViewModel._query`. Only narrows `VaultCardList`'s
-  /// multi-entry sections (work history, projects, education,
-  /// publications) — Basics/Skills/Hobbies are single summary cards, not
-  /// lists, so there's nothing there to filter.
+  /// `DraftsListViewModel._query`. Narrows every content section, the three
+  /// that are a single summary card rather than a list (Basics, Skills,
+  /// Hobbies) included: a card that ignored the search would be the one
+  /// part of the list still showing content the query did not find. Only
+  /// the CV-defaults card is exempt, and it hides outright rather than
+  /// filtering — it is configuration, not content.
   String _query = '';
   bool get isSearching => _query.isNotEmpty;
 
@@ -175,6 +177,44 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   /// title/subtitle.
   List<Publication> get filteredPublications =>
       _filtered(vault.publications, (p) => [p.title, p.citation ?? '']);
+
+  /// Skill categories narrowed to the query: a category survives on its own
+  /// name (keeping all of its skills), or on containing a matching skill
+  /// (keeping only the skills that matched). Same rule the Skills editor
+  /// filters by — see `SkillsEditorPanel`, where it is stated.
+  List<SkillCategory> get filteredSkillCategories {
+    if (_query.isEmpty) return vault.skillCategories;
+    final matched = <SkillCategory>[];
+    for (final category in vault.skillCategories) {
+      if (category.name.toLowerCase().contains(_query)) {
+        matched.add(category);
+        continue;
+      }
+      final skills = category.skills
+          .where((s) => s.label.toLowerCase().contains(_query))
+          .toList();
+      if (skills.isNotEmpty) matched.add(category.copyWith(skills: skills));
+    }
+    return matched;
+  }
+
+  /// Matches a hobby's text — the only field a hobby has.
+  List<HobbyItem> get filteredHobbies =>
+      _filtered(vault.hobbies, (h) => [h.text]);
+
+  /// Whether "About you" still has anything to show under the current
+  /// query. True whenever nothing is being searched for, so the card is
+  /// only ever hidden by an active search that missed it.
+  bool get basicsMatchQuery {
+    if (_query.isEmpty) return true;
+    final basics = vault.basics;
+    return [
+      basics.fullName,
+      basics.headline,
+      basics.email,
+      basics.summary ?? '',
+    ].any((field) => field.toLowerCase().contains(_query));
+  }
 
   VaultEditorTarget _openTarget = VaultEditorTarget.none;
   String? _openId;

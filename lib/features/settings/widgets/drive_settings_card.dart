@@ -1,7 +1,6 @@
 import 'package:cv_forge/models/drive/drive_sync_status.dart';
 import 'package:cv_forge/ui/common/relative_time.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
-import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
@@ -12,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
+import 'package:cv_forge/ui/widgets/common/app_settings_card/app_settings_card.dart';
 
 /// Google Drive sync setup — connect, see live status, sync now, resolve
 /// a conflict, disconnect. Same block-card frame as [BackupSettingsCard]/
@@ -30,28 +30,10 @@ class DriveSettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!viewModel.isDriveAvailable) return const SizedBox.shrink();
 
-    return Container(
-      padding: EdgeInsets.all(context.appSpacing.paddingPanel),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(context.appRadius.medium),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.settingsDriveTitle,
-            style: context.appTypography.titleMedium,
-          ),
-          const VGap.tiny(),
-          Text(
-            context.l10n.settingsDriveBody,
-            style: context.appTypography.bodySmall,
-          ),
-          const VGap.medium(),
-          ..._body(context),
-        ],
-      ),
+    return AppSettingsCard(
+      title: context.l10n.settingsDriveTitle,
+      body: context.l10n.settingsDriveBody,
+      children: [const VGap.medium(), ..._body(context)],
     );
   }
 

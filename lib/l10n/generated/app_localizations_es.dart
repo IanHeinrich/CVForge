@@ -2147,10 +2147,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultAddExperience => 'Agregar experiencia';
 
   @override
+  String get vaultAddHobbies => 'Añade tus pasatiempos';
+
+  @override
   String get vaultAddProject => 'Agregar proyecto';
 
   @override
   String get vaultAddPublication => 'Agregar publicación';
+
+  @override
+  String get vaultAddSkills => 'Añade tus habilidades';
 
   @override
   String get vaultBasicsDeleteLink => 'Eliminar enlace';
@@ -2265,9 +2271,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCropPhotoTitle => 'Encuadra tu foto';
-
-  @override
-  String get vaultCvDefaultsCardEmpty => 'Región e idioma';
 
   @override
   String get vaultCvDefaultsChange => 'Cambiar';
@@ -2424,7 +2427,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultHobbiesItems => 'Elementos';
 
   @override
-  String get vaultHobbiesNoneYet => 'Aún ninguno';
+  String vaultHobbiesMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pasatiempos coincidentes',
+      one: '1 pasatiempo coincidente',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get vaultHobbiesTitle => 'Intereses y pasatiempos';
@@ -2483,9 +2494,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultNoSearchMatches => 'No hay coincidencias para tu búsqueda.';
-
-  @override
-  String get vaultNoSkillsYet => 'Aún no hay habilidades';
 
   @override
   String get vaultPersistError => 'No se pudo guardar tu último cambio.';
@@ -2591,10 +2599,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get vaultSectionExperience => 'Experiencia laboral';
 
   @override
+  String get vaultSectionHobbies => 'Intereses y pasatiempos';
+
+  @override
   String get vaultSectionProjects => 'Proyectos';
 
   @override
   String get vaultSectionPublications => 'Publicaciones';
+
+  @override
+  String get vaultSectionSkills => 'Habilidades';
 
   @override
   String vaultSkillLinkedBullets(int count) {
@@ -2637,6 +2651,17 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultSkillSearchBullets => 'Buscar logros…';
+
+  @override
+  String vaultSkillsMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count habilidades coincidentes',
+      one: '1 habilidad coincidente',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get vaultSkillsNoCategories => 'Aún no hay categorías de habilidades.';

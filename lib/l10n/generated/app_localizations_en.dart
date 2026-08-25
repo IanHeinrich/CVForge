@@ -2125,10 +2125,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultAddExperience => 'Add experience';
 
   @override
+  String get vaultAddHobbies => 'Add your hobbies';
+
+  @override
   String get vaultAddProject => 'Add project';
 
   @override
   String get vaultAddPublication => 'Add publication';
+
+  @override
+  String get vaultAddSkills => 'Add your skills';
 
   @override
   String get vaultBasicsDeleteLink => 'Delete link';
@@ -2242,9 +2248,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCropPhotoTitle => 'Position your photo';
-
-  @override
-  String get vaultCvDefaultsCardEmpty => 'Region and language';
 
   @override
   String get vaultCvDefaultsChange => 'Change';
@@ -2401,7 +2404,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultHobbiesItems => 'Items';
 
   @override
-  String get vaultHobbiesNoneYet => 'None yet';
+  String vaultHobbiesMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matching hobbies',
+      one: '1 matching hobby',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get vaultHobbiesTitle => 'Hobbies and interests';
@@ -2460,9 +2471,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultNoSearchMatches => 'No matches for your search.';
-
-  @override
-  String get vaultNoSkillsYet => 'No skills yet';
 
   @override
   String get vaultPersistError => 'Your last change couldn\'t be saved.';
@@ -2568,10 +2576,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultSectionExperience => 'Work history';
 
   @override
+  String get vaultSectionHobbies => 'Hobbies and interests';
+
+  @override
   String get vaultSectionProjects => 'Projects';
 
   @override
   String get vaultSectionPublications => 'Publications';
+
+  @override
+  String get vaultSectionSkills => 'Skills';
 
   @override
   String vaultSkillLinkedBullets(int count) {
@@ -2613,6 +2627,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultSkillSearchBullets => 'Search bullets…';
+
+  @override
+  String vaultSkillsMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matching skills',
+      one: '1 matching skill',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get vaultSkillsNoCategories => 'No skill categories yet.';

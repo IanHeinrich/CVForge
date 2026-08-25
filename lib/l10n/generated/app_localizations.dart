@@ -3188,6 +3188,12 @@ abstract class AppLocalizations {
   /// **'Add experience'**
   String get vaultAddExperience;
 
+  /// Vault list card title for the hobbies section before any hobby exists, shown where the hobby names otherwise appear.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your hobbies'**
+  String get vaultAddHobbies;
+
   /// Vault button that adds a new project entry.
   ///
   /// In en, this message translates to:
@@ -3199,6 +3205,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add publication'**
   String get vaultAddPublication;
+
+  /// Vault list card title for the skills section before any category exists, shown where the category names otherwise appear.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your skills'**
+  String get vaultAddSkills;
 
   /// Tooltip on the button removing one link row.
   ///
@@ -3403,12 +3415,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Position your photo'**
   String get vaultCropPhotoTitle;
-
-  /// Fallback title on the Vault's CV defaults card, shown only if the region name is somehow unavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Region and language'**
-  String get vaultCvDefaultsCardEmpty;
 
   /// Button on the region row of the Vault's document-defaults panel, opening the region picker.
   ///
@@ -3674,11 +3680,11 @@ abstract class AppLocalizations {
   /// **'Items'**
   String get vaultHobbiesItems;
 
-  /// Vault summary card text when no hobbies have been added.
+  /// Vault list card line under the hobbies section while a search is active, counting the hobbies that matched. Other languages may need different plural categories.
   ///
   /// In en, this message translates to:
-  /// **'None yet'**
-  String get vaultHobbiesNoneYet;
+  /// **'{count, plural, =1{1 matching hobby} other{{count} matching hobbies}}'**
+  String vaultHobbiesMatchCount(int count);
 
   /// Vault section heading for personal interests.
   ///
@@ -3793,12 +3799,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No matches for your search.'**
   String get vaultNoSearchMatches;
-
-  /// Vault summary card text when no skills have been added.
-  ///
-  /// In en, this message translates to:
-  /// **'No skills yet'**
-  String get vaultNoSkillsYet;
 
   /// Vault banner shown when a write to local storage failed.
   ///
@@ -3971,6 +3971,12 @@ abstract class AppLocalizations {
   /// **'Work history'**
   String get vaultSectionExperience;
 
+  /// Heading above the hobbies card in the Vault's main list.
+  ///
+  /// In en, this message translates to:
+  /// **'Hobbies and interests'**
+  String get vaultSectionHobbies;
+
   /// Vault list section heading for projects.
   ///
   /// In en, this message translates to:
@@ -3982,6 +3988,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Publications'**
   String get vaultSectionPublications;
+
+  /// Heading above the skills card in the Vault's main list.
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get vaultSectionSkills;
 
   /// Vault, summary of how many bullet points this skill is tied to.
   ///
@@ -4048,6 +4060,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search bullets…'**
   String get vaultSkillSearchBullets;
+
+  /// Vault list card line under the skills section while a search is active, counting the skills that matched. Other languages may need different plural categories.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 matching skill} other{{count} matching skills}}'**
+  String vaultSkillsMatchCount(int count);
 
   /// Vault empty state when no skill categories exist.
   ///

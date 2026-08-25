@@ -2671,6 +2671,10 @@
   "@vaultAddExperience": {
     "description": "Vault button that adds a new job entry."
   },
+  "vaultAddHobbies": "Add your hobbies",
+  "@vaultAddHobbies": {
+    "description": "Vault list card title for the hobbies section before any hobby exists, shown where the hobby names otherwise appear."
+  },
   "vaultAddProject": "Add project",
   "@vaultAddProject": {
     "description": "Vault button that adds a new project entry."
@@ -2678,6 +2682,10 @@
   "vaultAddPublication": "Add publication",
   "@vaultAddPublication": {
     "description": "Vault button that adds a new publication entry."
+  },
+  "vaultAddSkills": "Add your skills",
+  "@vaultAddSkills": {
+    "description": "Vault list card title for the skills section before any category exists, shown where the category names otherwise appear."
   },
   "vaultBasicsDeleteLink": "Delete link",
   "@vaultBasicsDeleteLink": {
@@ -2826,10 +2834,6 @@
   "vaultCropPhotoTitle": "Position your photo",
   "@vaultCropPhotoTitle": {
     "description": "Title of the dialog for cropping a profile photograph to the required aspect ratio."
-  },
-  "vaultCvDefaultsCardEmpty": "Region and language",
-  "@vaultCvDefaultsCardEmpty": {
-    "description": "Fallback title on the Vault's CV defaults card, shown only if the region name is somehow unavailable."
   },
   "vaultCvDefaultsChange": "Change",
   "@vaultCvDefaultsChange": {
@@ -3019,9 +3023,15 @@
   "@vaultHobbiesItems": {
     "description": "Vault sub-heading above the list of individual hobbies."
   },
-  "vaultHobbiesNoneYet": "None yet",
-  "@vaultHobbiesNoneYet": {
-    "description": "Vault summary card text when no hobbies have been added."
+  "vaultHobbiesMatchCount": "{count, plural, =1{1 matching hobby} other{{count} matching hobbies}}",
+  "@vaultHobbiesMatchCount": {
+    "description": "Vault list card line under the hobbies section while a search is active, counting the hobbies that matched. Other languages may need different plural categories.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "vaultHobbiesTitle": "Hobbies and interests",
   "@vaultHobbiesTitle": {
@@ -3098,10 +3108,6 @@
   "vaultNoSearchMatches": "No matches for your search.",
   "@vaultNoSearchMatches": {
     "description": "Vault empty state when the whole-Vault search matches nothing."
-  },
-  "vaultNoSkillsYet": "No skills yet",
-  "@vaultNoSkillsYet": {
-    "description": "Vault summary card text when no skills have been added."
   },
   "vaultPersistError": "Your last change couldn't be saved.",
   "@vaultPersistError": {
@@ -3241,6 +3247,10 @@
   "@vaultSectionExperience": {
     "description": "Vault list section heading for jobs and roles. Note this is the Vault's own picker label, deliberately independent of the heading printed on the CV."
   },
+  "vaultSectionHobbies": "Hobbies and interests",
+  "@vaultSectionHobbies": {
+    "description": "Heading above the hobbies card in the Vault's main list."
+  },
   "vaultSectionProjects": "Projects",
   "@vaultSectionProjects": {
     "description": "Vault list section heading for projects."
@@ -3248,6 +3258,10 @@
   "vaultSectionPublications": "Publications",
   "@vaultSectionPublications": {
     "description": "Vault list section heading for published work."
+  },
+  "vaultSectionSkills": "Skills",
+  "@vaultSectionSkills": {
+    "description": "Heading above the skills card in the Vault's main list."
   },
   "vaultSkillLinkedBullets": "{count, plural, =1{Linked to 1 bullet} other{Linked to {count} bullets}}",
   "@vaultSkillLinkedBullets": {
@@ -3298,6 +3312,16 @@
   "vaultSkillSearchBullets": "Search bullets…",
   "@vaultSkillSearchBullets": {
     "description": "Vault placeholder in the bullet-link search field."
+  },
+  "vaultSkillsMatchCount": "{count, plural, =1{1 matching skill} other{{count} matching skills}}",
+  "@vaultSkillsMatchCount": {
+    "description": "Vault list card line under the skills section while a search is active, counting the skills that matched. Other languages may need different plural categories.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
   },
   "vaultSkillsNoCategories": "No skill categories yet.",
   "@vaultSkillsNoCategories": {
