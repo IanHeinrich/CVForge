@@ -208,6 +208,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                         label: context.l10n.vaultSkillsCategoryName,
                         hint: context.l10n.vaultSkillsCategoryNameHint,
                         initialValue: category.name,
+                        markup: true,
                         onChanged: (v) =>
                             widget.onUpdateCategory(category.copyWith(name: v)),
                       ),
@@ -232,6 +233,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                               child: AppTextField(
                                 hint: context.l10n.vaultSkillsSkillLabel,
                                 initialValue: skill.label,
+                                markup: true,
                                 onChanged: (v) => widget.onUpdateSkill(
                                   category.id,
                                   skill.copyWith(label: v),

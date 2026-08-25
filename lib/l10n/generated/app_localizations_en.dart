@@ -331,6 +331,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonDone => 'Done';
 
   @override
+  String get commonFormatBold => 'Bold';
+
+  @override
+  String get commonFormatItalic => 'Italic';
+
+  @override
   String get commonMore => 'More';
 
   @override

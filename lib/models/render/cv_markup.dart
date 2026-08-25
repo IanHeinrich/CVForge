@@ -118,6 +118,16 @@ class _Delim {
   /// Asterisks not yet consumed by a pair. Whatever is left prints.
   int remaining;
 
+  /// Whether this run may still take part in a pair.
+  ///
+  /// Separate from [remaining] on purpose. A delimiter stranded inside a
+  /// pair that closed over it stops being *matchable* — otherwise an
+  /// opener inside a finished span could still reach a later closer and
+  /// produce spans that cross rather than nest — but its asterisks are
+  /// still ordinary characters and still print. Collapsing the two would
+  /// silently delete them: `*a*a*` would come out as "aa".
+  bool matchable = true;
+
   final bool canOpen;
   final bool canClose;
 
@@ -198,11 +208,11 @@ bool _isAlnum(int? unit) => unit != null && !_isSpace(unit) && !_isPunct(unit);
 void _matchDelimiters(List<_Delim> delims) {
   for (var c = 0; c < delims.length; c++) {
     final closer = delims[c];
-    if (!closer.canClose) continue;
+    if (!closer.canClose || !closer.matchable) continue;
     var o = c - 1;
     while (o >= 0 && closer.remaining > 0) {
       final opener = delims[o];
-      if (!opener.canOpen || opener.remaining == 0) {
+      if (!opener.canOpen || !opener.matchable || opener.remaining == 0) {
         o--;
         continue;
       }
@@ -211,11 +221,13 @@ void _matchDelimiters(List<_Delim> delims) {
       opener.remaining -= used;
       closer.remaining -= used;
       closer.pairs.add(_Pair(opener: o, strong: strong));
-      // CommonMark's "remove the delimiters between the pair" step.
-      // Without it an opener inside a just-closed span could still match
-      // a later closer, producing spans that cross rather than nest.
+      // CommonMark's "remove the delimiters between the pair" step —
+      // from the stack, not from the text. Without it an opener inside a
+      // just-closed span could still match a later closer, producing
+      // spans that cross rather than nest; with it done wrongly, the
+      // stranded asterisks vanish off the page instead of printing.
       for (var k = o + 1; k < c; k++) {
-        delims[k].remaining = 0;
+        delims[k].matchable = false;
       }
       if (opener.remaining == 0) o--;
     }

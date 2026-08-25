@@ -69,6 +69,7 @@ class BasicsEditorPanel extends StatelessWidget {
           label: context.l10n.vaultBasicsHeadline,
           hint: context.l10n.vaultBasicsHeadlineHint,
           initialValue: basics.headline,
+          markup: true,
           onChanged: (v) => onChanged(basics.copyWith(headline: v)),
         ),
         const VGap.small(),
@@ -96,6 +97,7 @@ class BasicsEditorPanel extends StatelessWidget {
           label: context.l10n.vaultBasicsWorkAuthorization,
           hint: context.l10n.vaultBasicsWorkAuthorizationHint,
           initialValue: basics.workAuthorization ?? '',
+          markup: true,
           onChanged: (v) => onChanged(
             basics.copyWith(workAuthorization: v.isEmpty ? null : v),
           ),
@@ -104,6 +106,7 @@ class BasicsEditorPanel extends StatelessWidget {
         AppTextField(
           label: context.l10n.vaultBasicsSummary,
           initialValue: basics.summary ?? '',
+          markup: true,
           maxLines: 4,
           onChanged: (v) =>
               onChanged(basics.copyWith(summary: v.orNullIfEmpty)),
@@ -148,6 +151,7 @@ class BasicsEditorPanel extends StatelessWidget {
           label: context.l10n.vaultBasicsReferences,
           hint: context.l10n.vaultBasicsReferencesHint,
           initialValue: referencesNote ?? '',
+          markup: true,
           onChanged: (v) => onReferencesChanged(v.orNullIfEmpty),
         ),
       ],

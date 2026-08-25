@@ -45,6 +45,7 @@ class HobbiesEditorPanel extends StatelessWidget {
                 Expanded(
                   child: AppTextField(
                     initialValue: hobby.text,
+                    markup: true,
                     onChanged: (v) => onChanged(hobby.copyWith(text: v)),
                   ),
                 ),

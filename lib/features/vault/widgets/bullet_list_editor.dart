@@ -145,6 +145,7 @@ class _BulletListEditorState extends State<BulletListEditor> {
                         AppTextField(
                           label: context.l10n.vaultBulletText,
                           initialValue: bullet.text,
+                          markup: true,
                           maxLines: 3,
                           onChanged: (v) =>
                               callbacks.onChanged(bullet.copyWith(text: v)),

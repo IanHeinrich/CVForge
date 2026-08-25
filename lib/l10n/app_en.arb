@@ -411,6 +411,14 @@
   "@commonDone": {
     "description": "Button that closes an inline editor and keeps what was typed."
   },
+  "commonFormatBold": "Bold",
+  "@commonFormatBold": {
+    "description": "Tooltip on the bold button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as bold."
+  },
+  "commonFormatItalic": "Italic",
+  "@commonFormatItalic": {
+    "description": "Tooltip on the italic button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as italic."
+  },
   "commonMore": "More",
   "@commonMore": {
     "description": "Tooltip on a button that opens an overflow menu of extra actions."

@@ -43,6 +43,7 @@ class PublicationEditorPanel extends StatelessWidget {
           label: context.l10n.vaultPublicationTitle,
           hint: context.l10n.vaultPublicationTitleHint,
           initialValue: publication.title,
+          markup: true,
           maxLines: 3,
           onChanged: (v) => onChanged(publication.copyWith(title: v)),
         ),
@@ -51,6 +52,7 @@ class PublicationEditorPanel extends StatelessWidget {
           label: context.l10n.vaultPublicationCitation,
           hint: context.l10n.vaultPublicationCitationHint,
           initialValue: publication.citation ?? '',
+          markup: true,
           maxLines: 3,
           onChanged: (v) =>
               onChanged(publication.copyWith(citation: v.orNullIfEmpty)),

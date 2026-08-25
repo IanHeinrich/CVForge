@@ -512,6 +512,18 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get commonDone;
 
+  /// Tooltip on the bold button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as bold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get commonFormatBold;
+
+  /// Tooltip on the italic button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as italic.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get commonFormatItalic;
+
   /// Tooltip on a button that opens an overflow menu of extra actions.
   ///
   /// In en, this message translates to:

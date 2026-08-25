@@ -338,6 +338,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonDone => 'Listo';
 
   @override
+  String get commonFormatBold => 'Negrita';
+
+  @override
+  String get commonFormatItalic => 'Cursiva';
+
+  @override
   String get commonMore => 'Más';
 
   @override

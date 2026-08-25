@@ -97,6 +97,7 @@ class LanguagesEditorPanel extends StatelessWidget {
         label: context.l10n.vaultLanguageName,
         hint: context.l10n.vaultLanguageNameHint,
         initialValue: language.name,
+        markup: true,
         onChanged: (v) => onChanged(language.copyWith(name: v)),
       );
 

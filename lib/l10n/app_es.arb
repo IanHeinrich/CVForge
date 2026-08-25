@@ -68,6 +68,8 @@
   "commonDelete": "Eliminar",
   "commonDisconnect": "Desconectar",
   "commonDone": "Listo",
+  "commonFormatBold": "Negrita",
+  "commonFormatItalic": "Cursiva",
   "commonMore": "Más",
   "commonRelativeDaysAgo": "{count, plural, =1{hace 1 día} other{hace {count} días}}",
   "commonRelativeHoursAgo": "{count, plural, =1{hace 1 hora} other{hace {count} horas}}",

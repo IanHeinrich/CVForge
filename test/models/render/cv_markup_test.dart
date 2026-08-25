@@ -282,15 +282,22 @@ void main() {
       }
     });
 
-    test('parsing never invents or loses visible characters', () {
-      for (final source in cases) {
+    test('parsing removes exactly the markers it consumed, and no other '
+        'character', () {
+      // The earlier, weaker form of this only checked the output had
+      // not grown, which let a real bug through: a delimiter stranded
+      // inside a pair that closed over it was dropped from the text
+      // rather than only from the matcher, so `*a*a*` printed "aa" and
+      // lost an asterisk someone had typed.
+      for (final source in [...cases, '*a*a*', '*a*b*c*', '**a*b**']) {
         final printed = parseCvMarkup(source).map((r) => r.text).join();
-        // Every character of the output must come from the input; the
-        // only thing parsing may remove is markers and escape slashes.
+        // Every character that is not punctuation the parser owns
+        // survives verbatim, in order.
+        final punctuation = RegExp(r'[*\\]');
         expect(
-          printed.length,
-          lessThanOrEqualTo(source.length),
-          reason: 'grew while parsing "$source"',
+          printed.replaceAll(punctuation, ''),
+          source.replaceAll(punctuation, ''),
+          reason: 'parsing "$source" altered its words',
         );
       }
     });

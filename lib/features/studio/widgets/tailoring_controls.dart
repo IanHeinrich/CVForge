@@ -243,12 +243,22 @@ class InlineTextOverrideEditor extends StatelessWidget {
     required this.onDone,
     this.maxLines = 4,
     this.minLines = 2,
+    this.markup = true,
   });
 
   final TailorableField field;
   final VoidCallback onDone;
   final int maxLines;
   final int minLines;
+
+  /// Whether this field's text prints on the CV.
+  ///
+  /// True for every tailorable field, which is what this editor is for.
+  /// False for the one caller that borrows it to edit something the CV
+  /// never shows — `AiAssistantConfigCard`'s job-description box, which
+  /// wraps a pasted job ad in a synthetic [TailorableField]. Offering to
+  /// bold a word in a job ad would be offering to change nothing.
+  final bool markup;
 
   @override
   Widget build(BuildContext context) {
@@ -277,6 +287,7 @@ class InlineTextOverrideEditor extends StatelessWidget {
           maxLines: maxLines,
           minLines: minLines,
           autofocus: true,
+          markup: markup,
         ),
       ),
     );

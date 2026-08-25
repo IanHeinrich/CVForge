@@ -61,18 +61,21 @@ class ExperienceEditorPanel extends StatelessWidget {
         AppTextField(
           label: context.l10n.vaultExperienceRole,
           initialValue: experience.role,
+          markup: true,
           onChanged: (v) => onChanged(experience.copyWith(role: v)),
         ),
         const VGap.small(),
         AppTextField(
           label: context.l10n.vaultExperienceCompany,
           initialValue: experience.company,
+          markup: true,
           onChanged: (v) => onChanged(experience.copyWith(company: v)),
         ),
         const VGap.small(),
         AppTextField(
           label: context.l10n.vaultExperienceLocation,
           initialValue: experience.location,
+          markup: true,
           onChanged: (v) => onChanged(experience.copyWith(location: v)),
         ),
         ..._buildGroupPicker(context),
