@@ -54,6 +54,11 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
   hobbyIds:
       (json['hobbyIds'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const <String>[],
+  languageIds:
+      (json['languageIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const <String>[],
   publicationIds:
       (json['publicationIds'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -101,6 +106,7 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
       const <CvSectionType>[
         CvSectionType.summary,
         CvSectionType.skills,
+        CvSectionType.languages,
         CvSectionType.experience,
         CvSectionType.projects,
         CvSectionType.education,
@@ -117,6 +123,7 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
   headlineOverride: json['headlineOverride'] as String?,
   hideHeadline: json['hideHeadline'] as bool? ?? false,
   referencesOverride: json['referencesOverride'] as String?,
+  workAuthorizationOverride: json['workAuthorizationOverride'] as String?,
   educationDetailsOverrides:
       (json['educationDetailsOverrides'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
@@ -157,6 +164,11 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
         (k, e) => MapEntry(k, e as String),
       ) ??
       const <String, String>{},
+  languageOverrides:
+      (json['languageOverrides'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const <String, String>{},
   educationQualificationOverrides:
       (json['educationQualificationOverrides'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
@@ -190,6 +202,7 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'skillIds': instance.skillIds,
   'educationIds': instance.educationIds,
   'hobbyIds': instance.hobbyIds,
+  'languageIds': instance.languageIds,
   'publicationIds': instance.publicationIds,
   'publicationBulletIds': instance.publicationBulletIds,
   'publicationTitleOverrides': instance.publicationTitleOverrides,
@@ -209,6 +222,7 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'headlineOverride': instance.headlineOverride,
   'hideHeadline': instance.hideHeadline,
   'referencesOverride': instance.referencesOverride,
+  'workAuthorizationOverride': instance.workAuthorizationOverride,
   'educationDetailsOverrides': instance.educationDetailsOverrides,
   'roleOverrides': instance.roleOverrides,
   'projectTitleOverrides': instance.projectTitleOverrides,
@@ -217,6 +231,7 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'skillLabelOverrides': instance.skillLabelOverrides,
   'skillCategoryNameOverrides': instance.skillCategoryNameOverrides,
   'hobbyOverrides': instance.hobbyOverrides,
+  'languageOverrides': instance.languageOverrides,
   'educationQualificationOverrides': instance.educationQualificationOverrides,
   'educationGradeOverrides': instance.educationGradeOverrides,
   'translatedTo': _$DocumentLanguageEnumMap[instance.translatedTo],
@@ -264,6 +279,7 @@ const _$DraftOmittableFieldEnumMap = {
 const _$CvSectionTypeEnumMap = {
   CvSectionType.summary: 'summary',
   CvSectionType.skills: 'skills',
+  CvSectionType.languages: 'languages',
   CvSectionType.experience: 'experience',
   CvSectionType.projects: 'projects',
   CvSectionType.education: 'education',

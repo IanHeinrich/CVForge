@@ -60,6 +60,7 @@ abstract class AiAssistantResult with _$AiAssistantResult {
     /// asked about them.
     required Map<String, List<String>> educationBulletIds,
     required List<String> hobbyIds,
+    required List<String> languageIds,
     required Set<CvSectionType> hiddenSections,
     required String rationale,
     required List<String> keywordGaps,
@@ -74,6 +75,7 @@ abstract class AiAssistantResult with _$AiAssistantResult {
         for (final s in c.skills) s.id,
     };
     final hobbyIds = {for (final h in vault.hobbies) h.id};
+    final languageIds = {for (final l in vault.languages) l.id};
     final sectionNames = {for (final s in CvSectionType.values) s.name};
 
     final resultBulletIds = <String, List<String>>{};
@@ -168,6 +170,7 @@ abstract class AiAssistantResult with _$AiAssistantResult {
       ],
       educationBulletIds: resultEducationBulletIds,
       hobbyIds: _filteredIds(json['hobbyIds'], hobbyIds),
+      languageIds: _filteredIds(json['languageIds'], languageIds),
       hiddenSections: {
         for (final name in _filteredIds(json['hiddenSections'], sectionNames))
           CvSectionType.values.byName(name),

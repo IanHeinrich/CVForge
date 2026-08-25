@@ -86,14 +86,15 @@ extension ResolvedSectionPatterns on ResolvedSection {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolvedSummarySection value)?  summary,TResult Function( ResolvedExperienceSection value)?  experience,TResult Function( ResolvedProjectsSection value)?  projects,TResult Function( ResolvedSkillsSection value)?  skills,TResult Function( ResolvedEducationSection value)?  education,TResult Function( ResolvedHobbiesSection value)?  hobbies,TResult Function( ResolvedReferencesSection value)?  references,TResult Function( ResolvedPublicationsSection value)?  publications,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolvedSummarySection value)?  summary,TResult Function( ResolvedExperienceSection value)?  experience,TResult Function( ResolvedProjectsSection value)?  projects,TResult Function( ResolvedSkillsSection value)?  skills,TResult Function( ResolvedLanguagesSection value)?  languages,TResult Function( ResolvedEducationSection value)?  education,TResult Function( ResolvedHobbiesSection value)?  hobbies,TResult Function( ResolvedReferencesSection value)?  references,TResult Function( ResolvedPublicationsSection value)?  publications,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that);case ResolvedExperienceSection() when experience != null:
 return experience(_that);case ResolvedProjectsSection() when projects != null:
 return projects(_that);case ResolvedSkillsSection() when skills != null:
-return skills(_that);case ResolvedEducationSection() when education != null:
+return skills(_that);case ResolvedLanguagesSection() when languages != null:
+return languages(_that);case ResolvedEducationSection() when education != null:
 return education(_that);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that);case ResolvedReferencesSection() when references != null:
 return references(_that);case ResolvedPublicationsSection() when publications != null:
@@ -115,14 +116,15 @@ return publications(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolvedSummarySection value)  summary,required TResult Function( ResolvedExperienceSection value)  experience,required TResult Function( ResolvedProjectsSection value)  projects,required TResult Function( ResolvedSkillsSection value)  skills,required TResult Function( ResolvedEducationSection value)  education,required TResult Function( ResolvedHobbiesSection value)  hobbies,required TResult Function( ResolvedReferencesSection value)  references,required TResult Function( ResolvedPublicationsSection value)  publications,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolvedSummarySection value)  summary,required TResult Function( ResolvedExperienceSection value)  experience,required TResult Function( ResolvedProjectsSection value)  projects,required TResult Function( ResolvedSkillsSection value)  skills,required TResult Function( ResolvedLanguagesSection value)  languages,required TResult Function( ResolvedEducationSection value)  education,required TResult Function( ResolvedHobbiesSection value)  hobbies,required TResult Function( ResolvedReferencesSection value)  references,required TResult Function( ResolvedPublicationsSection value)  publications,}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
 return summary(_that);case ResolvedExperienceSection():
 return experience(_that);case ResolvedProjectsSection():
 return projects(_that);case ResolvedSkillsSection():
-return skills(_that);case ResolvedEducationSection():
+return skills(_that);case ResolvedLanguagesSection():
+return languages(_that);case ResolvedEducationSection():
 return education(_that);case ResolvedHobbiesSection():
 return hobbies(_that);case ResolvedReferencesSection():
 return references(_that);case ResolvedPublicationsSection():
@@ -140,14 +142,15 @@ return publications(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolvedSummarySection value)?  summary,TResult? Function( ResolvedExperienceSection value)?  experience,TResult? Function( ResolvedProjectsSection value)?  projects,TResult? Function( ResolvedSkillsSection value)?  skills,TResult? Function( ResolvedEducationSection value)?  education,TResult? Function( ResolvedHobbiesSection value)?  hobbies,TResult? Function( ResolvedReferencesSection value)?  references,TResult? Function( ResolvedPublicationsSection value)?  publications,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolvedSummarySection value)?  summary,TResult? Function( ResolvedExperienceSection value)?  experience,TResult? Function( ResolvedProjectsSection value)?  projects,TResult? Function( ResolvedSkillsSection value)?  skills,TResult? Function( ResolvedLanguagesSection value)?  languages,TResult? Function( ResolvedEducationSection value)?  education,TResult? Function( ResolvedHobbiesSection value)?  hobbies,TResult? Function( ResolvedReferencesSection value)?  references,TResult? Function( ResolvedPublicationsSection value)?  publications,}){
 final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that);case ResolvedExperienceSection() when experience != null:
 return experience(_that);case ResolvedProjectsSection() when projects != null:
 return projects(_that);case ResolvedSkillsSection() when skills != null:
-return skills(_that);case ResolvedEducationSection() when education != null:
+return skills(_that);case ResolvedLanguagesSection() when languages != null:
+return languages(_that);case ResolvedEducationSection() when education != null:
 return education(_that);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that);case ResolvedReferencesSection() when references != null:
 return references(_that);case ResolvedPublicationsSection() when publications != null:
@@ -168,13 +171,14 @@ return publications(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedProject> items)?  projects,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,TResult Function( String title,  List<ResolvedPublication> items)?  publications,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedProject> items)?  projects,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedLanguage> items)?  languages,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,TResult Function( String title,  List<ResolvedPublication> items)?  publications,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
 return experience(_that.title,_that.groups);case ResolvedProjectsSection() when projects != null:
 return projects(_that.title,_that.items);case ResolvedSkillsSection() when skills != null:
-return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
+return skills(_that.title,_that.groups);case ResolvedLanguagesSection() when languages != null:
+return languages(_that.title,_that.items);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
 return references(_that.title,_that.text);case ResolvedPublicationsSection() when publications != null:
@@ -196,13 +200,14 @@ return publications(_that.title,_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedProject> items)  projects,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,required TResult Function( String title,  List<ResolvedPublication> items)  publications,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedProject> items)  projects,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedLanguage> items)  languages,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,required TResult Function( String title,  List<ResolvedPublication> items)  publications,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
 return summary(_that.title,_that.text);case ResolvedExperienceSection():
 return experience(_that.title,_that.groups);case ResolvedProjectsSection():
 return projects(_that.title,_that.items);case ResolvedSkillsSection():
-return skills(_that.title,_that.groups);case ResolvedEducationSection():
+return skills(_that.title,_that.groups);case ResolvedLanguagesSection():
+return languages(_that.title,_that.items);case ResolvedEducationSection():
 return education(_that.title,_that.items);case ResolvedHobbiesSection():
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection():
 return references(_that.title,_that.text);case ResolvedPublicationsSection():
@@ -220,13 +225,14 @@ return publications(_that.title,_that.items);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedProject> items)?  projects,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,TResult? Function( String title,  List<ResolvedPublication> items)?  publications,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedProject> items)?  projects,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedLanguage> items)?  languages,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,TResult? Function( String title,  List<ResolvedPublication> items)?  publications,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
 return experience(_that.title,_that.groups);case ResolvedProjectsSection() when projects != null:
 return projects(_that.title,_that.items);case ResolvedSkillsSection() when skills != null:
-return skills(_that.title,_that.groups);case ResolvedEducationSection() when education != null:
+return skills(_that.title,_that.groups);case ResolvedLanguagesSection() when languages != null:
+return languages(_that.title,_that.items);case ResolvedEducationSection() when education != null:
 return education(_that.title,_that.items);case ResolvedHobbiesSection() when hobbies != null:
 return hobbies(_that.title,_that.items);case ResolvedReferencesSection() when references != null:
 return references(_that.title,_that.text);case ResolvedPublicationsSection() when publications != null:
@@ -522,6 +528,80 @@ class _$ResolvedSkillsSectionCopyWithImpl<$Res>
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
 as List<ResolvedSkillGroup>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ResolvedLanguagesSection implements ResolvedSection {
+  const ResolvedLanguagesSection({required this.title, required final  List<ResolvedLanguage> items}): _items = items;
+  
+
+@override final  String title;
+ final  List<ResolvedLanguage> _items;
+ List<ResolvedLanguage> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_items);
+}
+
+
+/// Create a copy of ResolvedSection
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ResolvedLanguagesSectionCopyWith<ResolvedLanguagesSection> get copyWith => _$ResolvedLanguagesSectionCopyWithImpl<ResolvedLanguagesSection>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedLanguagesSection&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other._items, _items));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,const DeepCollectionEquality().hash(_items));
+
+@override
+String toString() {
+  return 'ResolvedSection.languages(title: $title, items: $items)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ResolvedLanguagesSectionCopyWith<$Res> implements $ResolvedSectionCopyWith<$Res> {
+  factory $ResolvedLanguagesSectionCopyWith(ResolvedLanguagesSection value, $Res Function(ResolvedLanguagesSection) _then) = _$ResolvedLanguagesSectionCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, List<ResolvedLanguage> items
+});
+
+
+
+
+}
+/// @nodoc
+class _$ResolvedLanguagesSectionCopyWithImpl<$Res>
+    implements $ResolvedLanguagesSectionCopyWith<$Res> {
+  _$ResolvedLanguagesSectionCopyWithImpl(this._self, this._then);
+
+  final ResolvedLanguagesSection _self;
+  final $Res Function(ResolvedLanguagesSection) _then;
+
+/// Create a copy of ResolvedSection
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? items = null,}) {
+  return _then(ResolvedLanguagesSection(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<ResolvedLanguage>,
   ));
 }
 
@@ -2146,6 +2226,274 @@ class __$ResolvedSkillGroupCopyWithImpl<$Res>
 category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,skills: null == skills ? _self._skills : skills // ignore: cast_nullable_to_non_nullable
 as List<String>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$ResolvedLanguage {
+
+ String get name;/// Pre-formatted — a CEFR band as its own code, or the document
+/// language's word for a native speaker. Same reasoning as
+/// [ResolvedPosition.dateRange]: formatting happens in the composer,
+/// never in a template. Null when the language was left ungraded.
+ String? get level;
+/// Create a copy of ResolvedLanguage
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ResolvedLanguageCopyWith<ResolvedLanguage> get copyWith => _$ResolvedLanguageCopyWithImpl<ResolvedLanguage>(this as ResolvedLanguage, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedLanguage&&(identical(other.name, name) || other.name == name)&&(identical(other.level, level) || other.level == level));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,name,level);
+
+@override
+String toString() {
+  return 'ResolvedLanguage(name: $name, level: $level)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ResolvedLanguageCopyWith<$Res>  {
+  factory $ResolvedLanguageCopyWith(ResolvedLanguage value, $Res Function(ResolvedLanguage) _then) = _$ResolvedLanguageCopyWithImpl;
+@useResult
+$Res call({
+ String name, String? level
+});
+
+
+
+
+}
+/// @nodoc
+class _$ResolvedLanguageCopyWithImpl<$Res>
+    implements $ResolvedLanguageCopyWith<$Res> {
+  _$ResolvedLanguageCopyWithImpl(this._self, this._then);
+
+  final ResolvedLanguage _self;
+  final $Res Function(ResolvedLanguage) _then;
+
+/// Create a copy of ResolvedLanguage
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? level = freezed,}) {
+  return _then(_self.copyWith(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,level: freezed == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ResolvedLanguage].
+extension ResolvedLanguagePatterns on ResolvedLanguage {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ResolvedLanguage value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ResolvedLanguage() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ResolvedLanguage value)  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedLanguage():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ResolvedLanguage value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ResolvedLanguage() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? level)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ResolvedLanguage() when $default != null:
+return $default(_that.name,_that.level);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? level)  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedLanguage():
+return $default(_that.name,_that.level);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? level)?  $default,) {final _that = this;
+switch (_that) {
+case _ResolvedLanguage() when $default != null:
+return $default(_that.name,_that.level);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ResolvedLanguage implements ResolvedLanguage {
+  const _ResolvedLanguage({required this.name, this.level});
+  
+
+@override final  String name;
+/// Pre-formatted — a CEFR band as its own code, or the document
+/// language's word for a native speaker. Same reasoning as
+/// [ResolvedPosition.dateRange]: formatting happens in the composer,
+/// never in a template. Null when the language was left ungraded.
+@override final  String? level;
+
+/// Create a copy of ResolvedLanguage
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ResolvedLanguageCopyWith<_ResolvedLanguage> get copyWith => __$ResolvedLanguageCopyWithImpl<_ResolvedLanguage>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedLanguage&&(identical(other.name, name) || other.name == name)&&(identical(other.level, level) || other.level == level));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,name,level);
+
+@override
+String toString() {
+  return 'ResolvedLanguage(name: $name, level: $level)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ResolvedLanguageCopyWith<$Res> implements $ResolvedLanguageCopyWith<$Res> {
+  factory _$ResolvedLanguageCopyWith(_ResolvedLanguage value, $Res Function(_ResolvedLanguage) _then) = __$ResolvedLanguageCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, String? level
+});
+
+
+
+
+}
+/// @nodoc
+class __$ResolvedLanguageCopyWithImpl<$Res>
+    implements _$ResolvedLanguageCopyWith<$Res> {
+  __$ResolvedLanguageCopyWithImpl(this._self, this._then);
+
+  final _ResolvedLanguage _self;
+  final $Res Function(_ResolvedLanguage) _then;
+
+/// Create a copy of ResolvedLanguage
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? level = freezed,}) {
+  return _then(_ResolvedLanguage(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,level: freezed == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

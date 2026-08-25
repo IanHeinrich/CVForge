@@ -2,6 +2,7 @@ import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
@@ -9,6 +10,7 @@ import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
+import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 import 'package:cv_forge/ui/widgets/common/persist_error_banner.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
@@ -19,7 +21,7 @@ import 'package:cv_forge/ui/common/l10n/region_labels.dart';
 import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter/material.dart';
 
-import 'vault_section_heading.dart';
+import 'package:cv_forge/features/vault/widgets/vault_card_section/vault_card_section.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/vault/views/vault/vault_viewmodel.dart';
@@ -28,6 +30,12 @@ import 'vault_list_section.dart';
 /// The main scrolling list of collapsed entity summary cards. Shared by
 /// every breakpoint so desktop/tablet/mobile can't drift on which
 /// sections exist or their order.
+///
+/// Every section is a [VaultCardSection]: a heading naming the section,
+/// over content that never repeats that name. The single-card sections
+/// (CV defaults, About you, Skills, Hobbies) follow that rule exactly as
+/// the multi-entry ones do — the card shows what you have, the heading
+/// says what it is.
 ///
 /// Stateful only for [_selectedCardKey]/[_lastOpenKey]: opening an entry
 /// on desktop/tablet can collapse `VaultListSection`'s two-column grid
@@ -133,6 +141,10 @@ class _VaultCardListState extends State<VaultCardList> {
     final vault = viewModel.vault;
     final target = viewModel.openTarget;
     final noun = vault.documentDefaults.region.preset.documentNoun.name;
+    final searching = viewModel.isSearching;
+    final skillCategories = viewModel.filteredSkillCategories;
+    final hobbies = viewModel.filteredHobbies;
+    final languages = viewModel.filteredLanguages;
 
     return [
       // The list has two halves, and says so. Everything below "About you"
@@ -142,10 +154,11 @@ class _VaultCardListState extends State<VaultCardList> {
       // than bolting a settings strip above the search field, which would
       // scroll away with the list anyway.
       //
-      // Hidden while searching: the search filters career content, and a
-      // config card stranded above "no matches" reads as a bug.
-      if (!viewModel.isSearching)
-        _HeadedSection(
+      // Hidden outright while searching rather than filtered like every
+      // section below it: the search looks through career content, and a
+      // config card stranded among the results reads as a bug.
+      if (!searching)
+        VaultCardSection(
           title: context.l10n.vaultSectionCvDefaults(noun),
           child: _DocumentDefaultsCard(
             key: target == VaultEditorTarget.documentDefaults
@@ -156,17 +169,18 @@ class _VaultCardListState extends State<VaultCardList> {
             onTap: viewModel.openDocumentDefaultsEditor,
           ),
         ),
-      _HeadedSection(
-        // Only labelled when the defaults section above it is showing —
-        // with nothing to separate it from, a lone "About you" over the
-        // whole list is a heading that earns nothing.
-        title: viewModel.isSearching ? null : context.l10n.vaultSectionAboutYou,
-        child: _BasicsCard(
-          key: target == VaultEditorTarget.basics ? _selectedCardKey : null,
-          basics: vault.basics,
-          selected: target == VaultEditorTarget.basics,
-          onTap: viewModel.openBasicsEditor,
-        ),
+      VaultCardSection(
+        title: context.l10n.vaultSectionAboutYou,
+        child: viewModel.basicsMatchQuery
+            ? _BasicsCard(
+                key: target == VaultEditorTarget.basics
+                    ? _selectedCardKey
+                    : null,
+                basics: vault.basics,
+                selected: target == VaultEditorTarget.basics,
+                onTap: viewModel.openBasicsEditor,
+              )
+            : AppInlineEmptyMessage(context.l10n.vaultNoSearchMatches),
       ),
       VaultListSection<Experience>(
         title: context.l10n.vaultSectionExperience,
@@ -206,11 +220,33 @@ class _VaultCardListState extends State<VaultCardList> {
         onAdd: viewModel.addProject,
         onDelete: viewModel.deleteProject,
       ),
-      _SkillsCard(
-        key: target == VaultEditorTarget.skills ? _selectedCardKey : null,
-        categories: vault.skillCategories,
-        selected: target == VaultEditorTarget.skills,
-        onTap: viewModel.openSkillsEditor,
+      VaultCardSection(
+        title: context.l10n.vaultSectionSkills,
+        child: searching && skillCategories.isEmpty
+            ? AppInlineEmptyMessage(context.l10n.vaultNoSearchMatches)
+            : _SkillsCard(
+                key: target == VaultEditorTarget.skills
+                    ? _selectedCardKey
+                    : null,
+                categories: skillCategories,
+                searching: searching,
+                selected: target == VaultEditorTarget.skills,
+                onTap: viewModel.openSkillsEditor,
+              ),
+      ),
+      VaultCardSection(
+        title: context.l10n.vaultSectionLanguages,
+        child: searching && languages.isEmpty
+            ? AppInlineEmptyMessage(context.l10n.vaultNoSearchMatches)
+            : _LanguagesCard(
+                key: target == VaultEditorTarget.languages
+                    ? _selectedCardKey
+                    : null,
+                languages: languages,
+                searching: searching,
+                selected: target == VaultEditorTarget.languages,
+                onTap: viewModel.openLanguagesEditor,
+              ),
       ),
       VaultListSection<Education>(
         title: context.l10n.vaultSectionEducation,
@@ -231,11 +267,19 @@ class _VaultCardListState extends State<VaultCardList> {
         onAdd: viewModel.addEducation,
         onDelete: viewModel.deleteEducation,
       ),
-      _HobbiesCard(
-        key: target == VaultEditorTarget.hobbies ? _selectedCardKey : null,
-        hobbies: vault.hobbies,
-        selected: target == VaultEditorTarget.hobbies,
-        onTap: viewModel.openHobbiesEditor,
+      VaultCardSection(
+        title: context.l10n.vaultSectionHobbies,
+        child: searching && hobbies.isEmpty
+            ? AppInlineEmptyMessage(context.l10n.vaultNoSearchMatches)
+            : _HobbiesCard(
+                key: target == VaultEditorTarget.hobbies
+                    ? _selectedCardKey
+                    : null,
+                hobbies: hobbies,
+                searching: searching,
+                selected: target == VaultEditorTarget.hobbies,
+                onTap: viewModel.openHobbiesEditor,
+              ),
       ),
       VaultListSection<Publication>(
         title: context.l10n.vaultSectionPublications,
@@ -270,32 +314,6 @@ class _VaultCardListState extends State<VaultCardList> {
   /// misleadingly claim to have no entries at all.
   String _emptyMessage(VaultViewModel viewModel, String base) =>
       viewModel.isSearching ? context.l10n.vaultNoSearchMatches : base;
-}
-
-/// A heading and the single card under it, as one item.
-///
-/// [VaultListSection] bundles its own heading the same way, and it has to
-/// be one widget rather than two entries in [_VaultCardListState._sections]
-/// — that list puts a `VGap.medium` after every item, which between a
-/// heading and the card it labels would read as a gap rather than a group.
-class _HeadedSection extends StatelessWidget {
-  const _HeadedSection({required this.title, required this.child});
-
-  /// Null renders the card with no heading at all.
-  final String? title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final heading = title;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (heading != null) VaultSectionHeading(title: heading),
-        child,
-      ],
-    );
-  }
 }
 
 /// The Vault's one configuration card: which region and language every
@@ -360,73 +378,145 @@ class _BasicsCard extends StatelessWidget {
       onTap: onTap,
       leading: Icon(
         RemixIcons.user_line,
+        size: context.appIconSize.large,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
 }
 
+/// Names the categories, counts the skills — the heading above it is what
+/// says "Skills", so the card is free to show content instead.
+///
+/// The names ellipsise at one line, which is what the count under them is
+/// for: a truncated list stays honest as long as something says how many
+/// there really are. While [searching] the names are only the ones that
+/// matched, and the count says so rather than reporting the whole Vault.
 class _SkillsCard extends StatelessWidget {
   const _SkillsCard({
     super.key,
     required this.categories,
+    required this.searching,
     required this.selected,
     required this.onTap,
   });
 
   final List<SkillCategory> categories;
+  final bool searching;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final names = categories
+        .map((c) => c.name)
+        .where((n) => n.isNotEmpty)
+        .join(' · ');
     final skillCount = categories.fold<int>(
       0,
       (sum, c) => sum + c.skills.length,
     );
 
     return AppSummaryCard(
-      title: context.l10n.vaultSkillsTitle,
-      subtitle: categories.isEmpty
-          ? context.l10n.vaultNoSkillsYet
+      // No names yet means there is nothing to show, so the card asks for
+      // some. The count goes with them: "Add your skills" above "1
+      // categories, 0 skills" would contradict itself, and a category
+      // created but not yet named is exactly when that happens.
+      title: names.isEmpty ? context.l10n.vaultAddSkills : names,
+      subtitle: names.isEmpty
+          ? null
+          : searching
+          ? context.l10n.vaultSkillsMatchCount(skillCount)
           : context.l10n.vaultSkillsSummary(categories.length, skillCount),
       selected: selected,
       onTap: onTap,
       leading: Icon(
         RemixIcons.star_line,
+        size: context.appIconSize.large,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
 }
 
-class _HobbiesCard extends StatelessWidget {
-  const _HobbiesCard({
+/// The languages themselves, counted underneath — the same split as
+/// [_SkillsCard], for the same reason. The level is deliberately not in
+/// the title: at a glance the useful fact is *which* languages, and
+/// "German: B2 · French: C1" runs out of one line after two of them.
+class _LanguagesCard extends StatelessWidget {
+  const _LanguagesCard({
     super.key,
-    required this.hobbies,
+    required this.languages,
+    required this.searching,
     required this.selected,
     required this.onTap,
   });
 
-  final List<HobbyItem> hobbies;
+  final List<LanguageItem> languages;
+  final bool searching;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final names = languages
+        .map((l) => l.name)
+        .where((n) => n.isNotEmpty)
+        .join(' · ');
+
     return AppSummaryCard(
-      title: context.l10n.vaultHobbiesTitle,
-      // A count, like Skills' "3 categories, 11 skills" — joining every
-      // hobby with ", " reads fine at three but degrades into a
-      // `maxLines: 1`-truncated list ("Running, Chess, Photography,
-      // Cook…") the moment there are more than about four.
-      subtitle: hobbies.isEmpty
-          ? context.l10n.vaultHobbiesNoneYet
+      title: names.isEmpty ? context.l10n.vaultAddLanguages : names,
+      subtitle: names.isEmpty
+          ? null
+          : searching
+          ? context.l10n.vaultLanguagesMatchCount(languages.length)
+          : context.l10n.vaultLanguagesCount(languages.length),
+      selected: selected,
+      onTap: onTap,
+      leading: Icon(
+        RemixIcons.translate_2,
+        size: context.appIconSize.large,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+/// The hobbies themselves, counted underneath — the same split as
+/// [_SkillsCard], for the same reason.
+class _HobbiesCard extends StatelessWidget {
+  const _HobbiesCard({
+    super.key,
+    required this.hobbies,
+    required this.searching,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final List<HobbyItem> hobbies;
+  final bool searching;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final names = hobbies
+        .map((h) => h.text)
+        .where((t) => t.isNotEmpty)
+        .join(' · ');
+
+    return AppSummaryCard(
+      title: names.isEmpty ? context.l10n.vaultAddHobbies : names,
+      subtitle: names.isEmpty
+          ? null
+          : searching
+          ? context.l10n.vaultHobbiesMatchCount(hobbies.length)
           : context.l10n.vaultHobbiesCount(hobbies.length),
       selected: selected,
       onTap: onTap,
       leading: Icon(
         RemixIcons.footprint_line,
+        size: context.appIconSize.large,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );

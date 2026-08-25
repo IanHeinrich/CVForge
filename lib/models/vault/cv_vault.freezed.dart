@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CvVault {
 
- int get schemaVersion; ContactBasics get basics; List<Experience> get experiences; List<SkillCategory> get skillCategories; List<Project> get projects; List<Education> get education; List<HobbyItem> get hobbies; List<Publication> get publications; String? get referencesNote;/// What every new CV built from this Vault starts out as — region,
+ int get schemaVersion; ContactBasics get basics; List<Experience> get experiences; List<SkillCategory> get skillCategories; List<Project> get projects; List<Education> get education; List<HobbyItem> get hobbies; List<LanguageItem> get languages; List<Publication> get publications; String? get referencesNote;/// What every new CV built from this Vault starts out as — region,
 /// language, and section layout.
 ///
 /// The one part of this aggregate that is configuration rather than
@@ -40,16 +40,16 @@ $CvVaultCopyWith<CvVault> get copyWith => _$CvVaultCopyWithImpl<CvVault>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvVault&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.basics, basics) || other.basics == basics)&&const DeepCollectionEquality().equals(other.experiences, experiences)&&const DeepCollectionEquality().equals(other.skillCategories, skillCategories)&&const DeepCollectionEquality().equals(other.projects, projects)&&const DeepCollectionEquality().equals(other.education, education)&&const DeepCollectionEquality().equals(other.hobbies, hobbies)&&const DeepCollectionEquality().equals(other.publications, publications)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&(identical(other.documentDefaults, documentDefaults) || other.documentDefaults == documentDefaults)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CvVault&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.basics, basics) || other.basics == basics)&&const DeepCollectionEquality().equals(other.experiences, experiences)&&const DeepCollectionEquality().equals(other.skillCategories, skillCategories)&&const DeepCollectionEquality().equals(other.projects, projects)&&const DeepCollectionEquality().equals(other.education, education)&&const DeepCollectionEquality().equals(other.hobbies, hobbies)&&const DeepCollectionEquality().equals(other.languages, languages)&&const DeepCollectionEquality().equals(other.publications, publications)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&(identical(other.documentDefaults, documentDefaults) || other.documentDefaults == documentDefaults)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,basics,const DeepCollectionEquality().hash(experiences),const DeepCollectionEquality().hash(skillCategories),const DeepCollectionEquality().hash(projects),const DeepCollectionEquality().hash(education),const DeepCollectionEquality().hash(hobbies),const DeepCollectionEquality().hash(publications),referencesNote,documentDefaults,updatedAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,basics,const DeepCollectionEquality().hash(experiences),const DeepCollectionEquality().hash(skillCategories),const DeepCollectionEquality().hash(projects),const DeepCollectionEquality().hash(education),const DeepCollectionEquality().hash(hobbies),const DeepCollectionEquality().hash(languages),const DeepCollectionEquality().hash(publications),referencesNote,documentDefaults,updatedAt);
 
 @override
 String toString() {
-  return 'CvVault(schemaVersion: $schemaVersion, basics: $basics, experiences: $experiences, skillCategories: $skillCategories, projects: $projects, education: $education, hobbies: $hobbies, publications: $publications, referencesNote: $referencesNote, documentDefaults: $documentDefaults, updatedAt: $updatedAt)';
+  return 'CvVault(schemaVersion: $schemaVersion, basics: $basics, experiences: $experiences, skillCategories: $skillCategories, projects: $projects, education: $education, hobbies: $hobbies, languages: $languages, publications: $publications, referencesNote: $referencesNote, documentDefaults: $documentDefaults, updatedAt: $updatedAt)';
 }
 
 
@@ -60,7 +60,7 @@ abstract mixin class $CvVaultCopyWith<$Res>  {
   factory $CvVaultCopyWith(CvVault value, $Res Function(CvVault) _then) = _$CvVaultCopyWithImpl;
 @useResult
 $Res call({
- int schemaVersion, ContactBasics basics, List<Experience> experiences, List<SkillCategory> skillCategories, List<Project> projects, List<Education> education, List<HobbyItem> hobbies, List<Publication> publications, String? referencesNote, DocumentDefaults documentDefaults, DateTime updatedAt
+ int schemaVersion, ContactBasics basics, List<Experience> experiences, List<SkillCategory> skillCategories, List<Project> projects, List<Education> education, List<HobbyItem> hobbies, List<LanguageItem> languages, List<Publication> publications, String? referencesNote, DocumentDefaults documentDefaults, DateTime updatedAt
 });
 
 
@@ -77,7 +77,7 @@ class _$CvVaultCopyWithImpl<$Res>
 
 /// Create a copy of CvVault
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? basics = null,Object? experiences = null,Object? skillCategories = null,Object? projects = null,Object? education = null,Object? hobbies = null,Object? publications = null,Object? referencesNote = freezed,Object? documentDefaults = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? basics = null,Object? experiences = null,Object? skillCategories = null,Object? projects = null,Object? education = null,Object? hobbies = null,Object? languages = null,Object? publications = null,Object? referencesNote = freezed,Object? documentDefaults = null,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,basics: null == basics ? _self.basics : basics // ignore: cast_nullable_to_non_nullable
@@ -86,7 +86,8 @@ as List<Experience>,skillCategories: null == skillCategories ? _self.skillCatego
 as List<SkillCategory>,projects: null == projects ? _self.projects : projects // ignore: cast_nullable_to_non_nullable
 as List<Project>,education: null == education ? _self.education : education // ignore: cast_nullable_to_non_nullable
 as List<Education>,hobbies: null == hobbies ? _self.hobbies : hobbies // ignore: cast_nullable_to_non_nullable
-as List<HobbyItem>,publications: null == publications ? _self.publications : publications // ignore: cast_nullable_to_non_nullable
+as List<HobbyItem>,languages: null == languages ? _self.languages : languages // ignore: cast_nullable_to_non_nullable
+as List<LanguageItem>,publications: null == publications ? _self.publications : publications // ignore: cast_nullable_to_non_nullable
 as List<Publication>,referencesNote: freezed == referencesNote ? _self.referencesNote : referencesNote // ignore: cast_nullable_to_non_nullable
 as String?,documentDefaults: null == documentDefaults ? _self.documentDefaults : documentDefaults // ignore: cast_nullable_to_non_nullable
 as DocumentDefaults,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -193,10 +194,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  ContactBasics basics,  List<Experience> experiences,  List<SkillCategory> skillCategories,  List<Project> projects,  List<Education> education,  List<HobbyItem> hobbies,  List<Publication> publications,  String? referencesNote,  DocumentDefaults documentDefaults,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  ContactBasics basics,  List<Experience> experiences,  List<SkillCategory> skillCategories,  List<Project> projects,  List<Education> education,  List<HobbyItem> hobbies,  List<LanguageItem> languages,  List<Publication> publications,  String? referencesNote,  DocumentDefaults documentDefaults,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CvVault() when $default != null:
-return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCategories,_that.projects,_that.education,_that.hobbies,_that.publications,_that.referencesNote,_that.documentDefaults,_that.updatedAt);case _:
+return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCategories,_that.projects,_that.education,_that.hobbies,_that.languages,_that.publications,_that.referencesNote,_that.documentDefaults,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -214,10 +215,10 @@ return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  ContactBasics basics,  List<Experience> experiences,  List<SkillCategory> skillCategories,  List<Project> projects,  List<Education> education,  List<HobbyItem> hobbies,  List<Publication> publications,  String? referencesNote,  DocumentDefaults documentDefaults,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  ContactBasics basics,  List<Experience> experiences,  List<SkillCategory> skillCategories,  List<Project> projects,  List<Education> education,  List<HobbyItem> hobbies,  List<LanguageItem> languages,  List<Publication> publications,  String? referencesNote,  DocumentDefaults documentDefaults,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _CvVault():
-return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCategories,_that.projects,_that.education,_that.hobbies,_that.publications,_that.referencesNote,_that.documentDefaults,_that.updatedAt);case _:
+return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCategories,_that.projects,_that.education,_that.hobbies,_that.languages,_that.publications,_that.referencesNote,_that.documentDefaults,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -234,10 +235,10 @@ return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  ContactBasics basics,  List<Experience> experiences,  List<SkillCategory> skillCategories,  List<Project> projects,  List<Education> education,  List<HobbyItem> hobbies,  List<Publication> publications,  String? referencesNote,  DocumentDefaults documentDefaults,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  ContactBasics basics,  List<Experience> experiences,  List<SkillCategory> skillCategories,  List<Project> projects,  List<Education> education,  List<HobbyItem> hobbies,  List<LanguageItem> languages,  List<Publication> publications,  String? referencesNote,  DocumentDefaults documentDefaults,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CvVault() when $default != null:
-return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCategories,_that.projects,_that.education,_that.hobbies,_that.publications,_that.referencesNote,_that.documentDefaults,_that.updatedAt);case _:
+return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCategories,_that.projects,_that.education,_that.hobbies,_that.languages,_that.publications,_that.referencesNote,_that.documentDefaults,_that.updatedAt);case _:
   return null;
 
 }
@@ -249,7 +250,7 @@ return $default(_that.schemaVersion,_that.basics,_that.experiences,_that.skillCa
 @JsonSerializable()
 
 class _CvVault implements CvVault {
-  const _CvVault({required this.schemaVersion, required this.basics, final  List<Experience> experiences = const <Experience>[], final  List<SkillCategory> skillCategories = const <SkillCategory>[], final  List<Project> projects = const <Project>[], final  List<Education> education = const <Education>[], final  List<HobbyItem> hobbies = const <HobbyItem>[], final  List<Publication> publications = const <Publication>[], this.referencesNote, this.documentDefaults = const DocumentDefaults(), required this.updatedAt}): _experiences = experiences,_skillCategories = skillCategories,_projects = projects,_education = education,_hobbies = hobbies,_publications = publications;
+  const _CvVault({required this.schemaVersion, required this.basics, final  List<Experience> experiences = const <Experience>[], final  List<SkillCategory> skillCategories = const <SkillCategory>[], final  List<Project> projects = const <Project>[], final  List<Education> education = const <Education>[], final  List<HobbyItem> hobbies = const <HobbyItem>[], final  List<LanguageItem> languages = const <LanguageItem>[], final  List<Publication> publications = const <Publication>[], this.referencesNote, this.documentDefaults = const DocumentDefaults(), required this.updatedAt}): _experiences = experiences,_skillCategories = skillCategories,_projects = projects,_education = education,_hobbies = hobbies,_languages = languages,_publications = publications;
   factory _CvVault.fromJson(Map<String, dynamic> json) => _$CvVaultFromJson(json);
 
 @override final  int schemaVersion;
@@ -289,6 +290,13 @@ class _CvVault implements CvVault {
   return EqualUnmodifiableListView(_hobbies);
 }
 
+ final  List<LanguageItem> _languages;
+@override@JsonKey() List<LanguageItem> get languages {
+  if (_languages is EqualUnmodifiableListView) return _languages;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_languages);
+}
+
  final  List<Publication> _publications;
 @override@JsonKey() List<Publication> get publications {
   if (_publications is EqualUnmodifiableListView) return _publications;
@@ -325,16 +333,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvVault&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.basics, basics) || other.basics == basics)&&const DeepCollectionEquality().equals(other._experiences, _experiences)&&const DeepCollectionEquality().equals(other._skillCategories, _skillCategories)&&const DeepCollectionEquality().equals(other._projects, _projects)&&const DeepCollectionEquality().equals(other._education, _education)&&const DeepCollectionEquality().equals(other._hobbies, _hobbies)&&const DeepCollectionEquality().equals(other._publications, _publications)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&(identical(other.documentDefaults, documentDefaults) || other.documentDefaults == documentDefaults)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CvVault&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.basics, basics) || other.basics == basics)&&const DeepCollectionEquality().equals(other._experiences, _experiences)&&const DeepCollectionEquality().equals(other._skillCategories, _skillCategories)&&const DeepCollectionEquality().equals(other._projects, _projects)&&const DeepCollectionEquality().equals(other._education, _education)&&const DeepCollectionEquality().equals(other._hobbies, _hobbies)&&const DeepCollectionEquality().equals(other._languages, _languages)&&const DeepCollectionEquality().equals(other._publications, _publications)&&(identical(other.referencesNote, referencesNote) || other.referencesNote == referencesNote)&&(identical(other.documentDefaults, documentDefaults) || other.documentDefaults == documentDefaults)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,basics,const DeepCollectionEquality().hash(_experiences),const DeepCollectionEquality().hash(_skillCategories),const DeepCollectionEquality().hash(_projects),const DeepCollectionEquality().hash(_education),const DeepCollectionEquality().hash(_hobbies),const DeepCollectionEquality().hash(_publications),referencesNote,documentDefaults,updatedAt);
+int get hashCode => Object.hash(runtimeType,schemaVersion,basics,const DeepCollectionEquality().hash(_experiences),const DeepCollectionEquality().hash(_skillCategories),const DeepCollectionEquality().hash(_projects),const DeepCollectionEquality().hash(_education),const DeepCollectionEquality().hash(_hobbies),const DeepCollectionEquality().hash(_languages),const DeepCollectionEquality().hash(_publications),referencesNote,documentDefaults,updatedAt);
 
 @override
 String toString() {
-  return 'CvVault(schemaVersion: $schemaVersion, basics: $basics, experiences: $experiences, skillCategories: $skillCategories, projects: $projects, education: $education, hobbies: $hobbies, publications: $publications, referencesNote: $referencesNote, documentDefaults: $documentDefaults, updatedAt: $updatedAt)';
+  return 'CvVault(schemaVersion: $schemaVersion, basics: $basics, experiences: $experiences, skillCategories: $skillCategories, projects: $projects, education: $education, hobbies: $hobbies, languages: $languages, publications: $publications, referencesNote: $referencesNote, documentDefaults: $documentDefaults, updatedAt: $updatedAt)';
 }
 
 
@@ -345,7 +353,7 @@ abstract mixin class _$CvVaultCopyWith<$Res> implements $CvVaultCopyWith<$Res> {
   factory _$CvVaultCopyWith(_CvVault value, $Res Function(_CvVault) _then) = __$CvVaultCopyWithImpl;
 @override @useResult
 $Res call({
- int schemaVersion, ContactBasics basics, List<Experience> experiences, List<SkillCategory> skillCategories, List<Project> projects, List<Education> education, List<HobbyItem> hobbies, List<Publication> publications, String? referencesNote, DocumentDefaults documentDefaults, DateTime updatedAt
+ int schemaVersion, ContactBasics basics, List<Experience> experiences, List<SkillCategory> skillCategories, List<Project> projects, List<Education> education, List<HobbyItem> hobbies, List<LanguageItem> languages, List<Publication> publications, String? referencesNote, DocumentDefaults documentDefaults, DateTime updatedAt
 });
 
 
@@ -362,7 +370,7 @@ class __$CvVaultCopyWithImpl<$Res>
 
 /// Create a copy of CvVault
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? basics = null,Object? experiences = null,Object? skillCategories = null,Object? projects = null,Object? education = null,Object? hobbies = null,Object? publications = null,Object? referencesNote = freezed,Object? documentDefaults = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? basics = null,Object? experiences = null,Object? skillCategories = null,Object? projects = null,Object? education = null,Object? hobbies = null,Object? languages = null,Object? publications = null,Object? referencesNote = freezed,Object? documentDefaults = null,Object? updatedAt = null,}) {
   return _then(_CvVault(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,basics: null == basics ? _self.basics : basics // ignore: cast_nullable_to_non_nullable
@@ -371,7 +379,8 @@ as List<Experience>,skillCategories: null == skillCategories ? _self._skillCateg
 as List<SkillCategory>,projects: null == projects ? _self._projects : projects // ignore: cast_nullable_to_non_nullable
 as List<Project>,education: null == education ? _self._education : education // ignore: cast_nullable_to_non_nullable
 as List<Education>,hobbies: null == hobbies ? _self._hobbies : hobbies // ignore: cast_nullable_to_non_nullable
-as List<HobbyItem>,publications: null == publications ? _self._publications : publications // ignore: cast_nullable_to_non_nullable
+as List<HobbyItem>,languages: null == languages ? _self._languages : languages // ignore: cast_nullable_to_non_nullable
+as List<LanguageItem>,publications: null == publications ? _self._publications : publications // ignore: cast_nullable_to_non_nullable
 as List<Publication>,referencesNote: freezed == referencesNote ? _self.referencesNote : referencesNote // ignore: cast_nullable_to_non_nullable
 as String?,documentDefaults: null == documentDefaults ? _self.documentDefaults : documentDefaults // ignore: cast_nullable_to_non_nullable
 as DocumentDefaults,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable

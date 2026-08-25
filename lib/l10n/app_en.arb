@@ -1022,6 +1022,10 @@
   "@sectionLabelHobbies": {
     "description": "Studio's section-visibility picker: personal interests."
   },
+  "sectionLabelLanguages": "Languages",
+  "@sectionLabelLanguages": {
+    "description": "Studio's section-visibility picker: languages the person speaks."
+  },
   "sectionLabelProjects": "Projects",
   "@sectionLabelProjects": {
     "description": "Studio's section-visibility picker: the projects section."
@@ -2671,6 +2675,14 @@
   "@vaultAddExperience": {
     "description": "Vault button that adds a new job entry."
   },
+  "vaultAddHobbies": "Add your hobbies",
+  "@vaultAddHobbies": {
+    "description": "Vault list card title for the hobbies section before any hobby exists, shown where the hobby names otherwise appear."
+  },
+  "vaultAddLanguages": "Add your languages",
+  "@vaultAddLanguages": {
+    "description": "Vault list card title for the languages section before any language exists, shown where the language names otherwise appear."
+  },
   "vaultAddProject": "Add project",
   "@vaultAddProject": {
     "description": "Vault button that adds a new project entry."
@@ -2678,6 +2690,10 @@
   "vaultAddPublication": "Add publication",
   "@vaultAddPublication": {
     "description": "Vault button that adds a new publication entry."
+  },
+  "vaultAddSkills": "Add your skills",
+  "@vaultAddSkills": {
+    "description": "Vault list card title for the skills section before any category exists, shown where the category names otherwise appear."
   },
   "vaultBasicsDeleteLink": "Delete link",
   "@vaultBasicsDeleteLink": {
@@ -2738,6 +2754,14 @@
   "vaultBasicsTitle": "Basics",
   "@vaultBasicsTitle": {
     "description": "Vault section heading for personal and contact details."
+  },
+  "vaultBasicsWorkAuthorization": "Work authorisation (optional)",
+  "@vaultBasicsWorkAuthorization": {
+    "description": "Field label in the Vault basics editor. The value is printed verbatim in the CV header with no label beside it, so the field holds the whole line."
+  },
+  "vaultBasicsWorkAuthorizationHint": "e.g. Right to work in the UK — no sponsorship required",
+  "@vaultBasicsWorkAuthorizationHint": {
+    "description": "Hint for the work-authorisation field. A whole sentence rather than a status word, because nothing labels it on the printed CV."
   },
   "vaultBulletAddSkill": "Add skill",
   "@vaultBulletAddSkill": {
@@ -2826,10 +2850,6 @@
   "vaultCropPhotoTitle": "Position your photo",
   "@vaultCropPhotoTitle": {
     "description": "Title of the dialog for cropping a profile photograph to the required aspect ratio."
-  },
-  "vaultCvDefaultsCardEmpty": "Region and language",
-  "@vaultCvDefaultsCardEmpty": {
-    "description": "Fallback title on the Vault's CV defaults card, shown only if the region name is somehow unavailable."
   },
   "vaultCvDefaultsChange": "Change",
   "@vaultCvDefaultsChange": {
@@ -3019,9 +3039,15 @@
   "@vaultHobbiesItems": {
     "description": "Vault sub-heading above the list of individual hobbies."
   },
-  "vaultHobbiesNoneYet": "None yet",
-  "@vaultHobbiesNoneYet": {
-    "description": "Vault summary card text when no hobbies have been added."
+  "vaultHobbiesMatchCount": "{count, plural, =1{1 matching hobby} other{{count} matching hobbies}}",
+  "@vaultHobbiesMatchCount": {
+    "description": "Vault list card line under the hobbies section while a search is active, counting the hobbies that matched. Other languages may need different plural categories.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "vaultHobbiesTitle": "Hobbies and interests",
   "@vaultHobbiesTitle": {
@@ -3030,6 +3056,58 @@
   "vaultInvalidUrlNotice": "That page doesn't exist — here's your Vault.",
   "@vaultInvalidUrlNotice": {
     "description": "One-shot notice shown when the user lands on a URL that matches no route and is redirected to the Vault."
+  },
+  "vaultLanguageLevel": "Level",
+  "@vaultLanguageLevel": {
+    "description": "Field label for the CEFR proficiency picker in the Vault languages editor."
+  },
+  "vaultLanguageLevelUnset": "Not specified",
+  "@vaultLanguageLevelUnset": {
+    "description": "Proficiency picker option that grades a language not at all; the CV then prints the language on its own."
+  },
+  "vaultLanguageName": "Language",
+  "@vaultLanguageName": {
+    "description": "Field label for a language name in the Vault languages editor."
+  },
+  "vaultLanguageNameHint": "e.g. German",
+  "@vaultLanguageNameHint": {
+    "description": "Hint for the language-name field. The name is printed on the CV verbatim, so it is written in the document language, not the UI one."
+  },
+  "vaultLanguagesCount": "{count, plural, =1{1 language} other{{count} languages}}",
+  "@vaultLanguagesCount": {
+    "description": "Vault summary card line counting languages.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "vaultLanguagesDeleteLanguage": "Delete language",
+  "@vaultLanguagesDeleteLanguage": {
+    "description": "Tooltip on the delete button beside a language in the Vault languages editor."
+  },
+  "vaultLanguagesEmptyShort": "Nothing yet.",
+  "@vaultLanguagesEmptyShort": {
+    "description": "Empty state inside the Vault languages editor."
+  },
+  "vaultLanguagesItems": "Items",
+  "@vaultLanguagesItems": {
+    "description": "Heading above the list of entries inside the Vault languages editor."
+  },
+  "vaultLanguagesMatchCount": "{count, plural, =1{1 matching language} other{{count} matching languages}}",
+  "@vaultLanguagesMatchCount": {
+    "description": "Vault list card line under the languages section while a search is active, counting the languages that matched.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "vaultLanguagesTitle": "Languages",
+  "@vaultLanguagesTitle": {
+    "description": "Title of the Vault's languages editor panel, and of Studio's languages section editor."
   },
   "vaultMonthApr": "Apr",
   "@vaultMonthApr": {
@@ -3099,10 +3177,6 @@
   "@vaultNoSearchMatches": {
     "description": "Vault empty state when the whole-Vault search matches nothing."
   },
-  "vaultNoSkillsYet": "No skills yet",
-  "@vaultNoSkillsYet": {
-    "description": "Vault summary card text when no skills have been added."
-  },
   "vaultPersistError": "Your last change couldn't be saved.",
   "@vaultPersistError": {
     "description": "Vault banner shown when a write to local storage failed."
@@ -3142,6 +3216,34 @@
   "vaultPhotoTitle": "Photo",
   "@vaultPhotoTitle": {
     "description": "Vault basics, heading for the optional profile photograph."
+  },
+  "vaultProficiencyA1": "A1 — Beginner",
+  "@vaultProficiencyA1": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyA2": "A2 — Elementary",
+  "@vaultProficiencyA2": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyB1": "B1 — Intermediate",
+  "@vaultProficiencyB1": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyB2": "B2 — Upper intermediate",
+  "@vaultProficiencyB2": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyC1": "C1 — Advanced",
+  "@vaultProficiencyC1": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyC2": "C2 — Mastery",
+  "@vaultProficiencyC2": {
+    "description": "Proficiency picker option in the Vault languages editor. The CEFR code is never translated; the gloss after it is."
+  },
+  "vaultProficiencyNative": "Native speaker",
+  "@vaultProficiencyNative": {
+    "description": "Proficiency picker option in the Vault languages editor. CEFR has no native band; this is the one level that prints as a word rather than a code."
   },
   "vaultProjectLink": "Link (optional)",
   "@vaultProjectLink": {
@@ -3241,6 +3343,14 @@
   "@vaultSectionExperience": {
     "description": "Vault list section heading for jobs and roles. Note this is the Vault's own picker label, deliberately independent of the heading printed on the CV."
   },
+  "vaultSectionHobbies": "Hobbies and interests",
+  "@vaultSectionHobbies": {
+    "description": "Heading above the hobbies card in the Vault's main list."
+  },
+  "vaultSectionLanguages": "Languages",
+  "@vaultSectionLanguages": {
+    "description": "Heading above the languages card in the Vault's main list."
+  },
   "vaultSectionProjects": "Projects",
   "@vaultSectionProjects": {
     "description": "Vault list section heading for projects."
@@ -3248,6 +3358,10 @@
   "vaultSectionPublications": "Publications",
   "@vaultSectionPublications": {
     "description": "Vault list section heading for published work."
+  },
+  "vaultSectionSkills": "Skills",
+  "@vaultSectionSkills": {
+    "description": "Heading above the skills card in the Vault's main list."
   },
   "vaultSkillLinkedBullets": "{count, plural, =1{Linked to 1 bullet} other{Linked to {count} bullets}}",
   "@vaultSkillLinkedBullets": {
@@ -3298,6 +3412,16 @@
   "vaultSkillSearchBullets": "Search bullets…",
   "@vaultSkillSearchBullets": {
     "description": "Vault placeholder in the bullet-link search field."
+  },
+  "vaultSkillsMatchCount": "{count, plural, =1{1 matching skill} other{{count} matching skills}}",
+  "@vaultSkillsMatchCount": {
+    "description": "Vault list card line under the skills section while a search is active, counting the skills that matched. Other languages may need different plural categories.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
   },
   "vaultSkillsNoCategories": "No skill categories yet.",
   "@vaultSkillsNoCategories": {

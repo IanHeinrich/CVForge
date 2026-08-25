@@ -1,4 +1,3 @@
-import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -12,6 +11,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:cv_forge/features/settings/views/settings/settings_viewmodel.dart';
 import 'package:cv_forge/features/settings/widgets/ai_assistant_key_help.dart';
 import 'package:cv_forge/services/settings_service.dart';
+import 'package:cv_forge/ui/widgets/common/app_settings_card/app_settings_card.dart';
 
 /// Caps the API key field's width: a secret this short (and
 /// `obscureText`, which buys nothing from extra width) doesn't need the
@@ -90,188 +90,173 @@ class _AiAssistantSettingsCardState extends State<AiAssistantSettingsCard> {
     final viewModel = widget.viewModel;
     final showEntryField = !viewModel.hasApiKey || _replacing;
 
-    return Container(
-      padding: EdgeInsets.all(context.appSpacing.paddingPanel),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(context.appRadius.medium),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.settingsAiTitle,
-            style: context.appTypography.titleMedium,
-          ),
-          const VGap.tiny(),
-          Text(
-            context.l10n.settingsAiBody,
-            style: context.appTypography.bodySmall,
+    return AppSettingsCard(
+      title: context.l10n.settingsAiTitle,
+      body: context.l10n.settingsAiBody,
+      children: [
+        const VGap.small(),
+        _KeyStatusLine(viewModel: viewModel),
+        const VGap.medium(),
+        if (viewModel.showAiAssistantProviderSelector) ...[
+          DropdownButtonFormField<String>(
+            initialValue: viewModel.selectedAiAssistantProvider.id,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: context.l10n.settingsAiProviderLabel,
+            ),
+            items: [
+              for (final provider in viewModel.aiAssistantProviders)
+                DropdownMenuItem(
+                  value: provider.id,
+                  child: Text(provider.displayName),
+                ),
+            ],
+            onChanged: (providerId) {
+              if (providerId == null) return;
+              // A key typed for the previous provider is meaningless for
+              // the new one — clear it rather than leave a stale value
+              // sitting in the field. Also drops any in-progress replace,
+              // which belonged to the provider being navigated away from.
+              _apiKeyController.clear();
+              setState(() => _replacing = false);
+              viewModel.selectAiAssistantProvider(providerId);
+            },
           ),
           const VGap.small(),
-          _KeyStatusLine(viewModel: viewModel),
-          const VGap.medium(),
-          if (viewModel.showAiAssistantProviderSelector) ...[
-            DropdownButtonFormField<String>(
-              initialValue: viewModel.selectedAiAssistantProvider.id,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: context.l10n.settingsAiProviderLabel,
-              ),
-              items: [
-                for (final provider in viewModel.aiAssistantProviders)
-                  DropdownMenuItem(
-                    value: provider.id,
-                    child: Text(provider.displayName),
-                  ),
-              ],
-              onChanged: (providerId) {
-                if (providerId == null) return;
-                // A key typed for the previous provider is meaningless for
-                // the new one — clear it rather than leave a stale value
-                // sitting in the field. Also drops any in-progress replace,
-                // which belonged to the provider being navigated away from.
-                _apiKeyController.clear();
-                setState(() => _replacing = false);
-                viewModel.selectAiAssistantProvider(providerId);
-              },
+        ],
+        if (showEntryField) ...[
+          if (viewModel.wasConfiguredElsewhere) ...[
+            _SetUpElsewhereNotice(
+              providerName: viewModel.selectedAiAssistantProvider.displayName,
             ),
             const VGap.small(),
           ],
-          if (showEntryField) ...[
-            if (viewModel.wasConfiguredElsewhere) ...[
-              _SetUpElsewhereNotice(
-                providerName: viewModel.selectedAiAssistantProvider.displayName,
-              ),
-              const VGap.small(),
-            ],
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: _apiKeyFieldMaxWidth),
-              child: TextField(
-                controller: _apiKeyController,
-                obscureText: true,
-                autofocus: _replacing,
-                onChanged: _onApiKeyChanged,
-                decoration: InputDecoration(
-                  labelText: context.l10n.settingsAiKeyFieldLabel(
-                    viewModel.selectedAiAssistantProvider.displayName,
-                  ),
-                  hintText: context.l10n.settingsAiKeyFieldHint,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _apiKeyFieldMaxWidth),
+            child: TextField(
+              controller: _apiKeyController,
+              obscureText: true,
+              autofocus: _replacing,
+              onChanged: _onApiKeyChanged,
+              decoration: InputDecoration(
+                labelText: context.l10n.settingsAiKeyFieldLabel(
+                  viewModel.selectedAiAssistantProvider.displayName,
                 ),
+                hintText: context.l10n.settingsAiKeyFieldHint,
               ),
             ),
-            const VGap.tiny(),
-            // There is no separate save action, and the button alone can't
-            // carry that: pressing something labelled "Test" is not an
-            // obvious way to store a key, so without this the field reads
-            // like it saves on its own. Also explains after the fact why a
-            // rejected key didn't stick.
-            Text(
-              context.l10n.settingsAiKeySavedOnSuccess,
-              style: context.appTypography.caption.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            if (_replacing) ...[
-              const VGap.tiny(),
-              TextButton(
-                onPressed: _cancelReplacing,
-                child: Text(context.l10n.settingsAiKeepCurrentKey),
-              ),
-            ],
-          ] else
-            _StoredKeyRow(
-              providerName: viewModel.selectedAiAssistantProvider.displayName,
-              maskedKey: viewModel.maskedApiKey,
-              onReplace: _startReplacing,
-              onRemove: viewModel.removeApiKey,
-            ),
-          const VGap.small(),
-          // The storage caveat outlived the "Remember on this device"
-          // checkbox it used to label. That checkbox defaulted to off,
-          // which made losing your key on reload the default experience,
-          // and it singled the key out for an opt-in the Vault and every
-          // CV — sitting in the same unencrypted IndexedDB — never asked
-          // for. Keeping the disclosure at the same weight it had as a
-          // checkbox label means removing the control costs no
-          // transparency.
-          _StatusLine(
-            icon: RemixIcons.information_line,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            message: context.l10n.settingsAiStorageWarning,
-          ),
-          // Sits with the key field and its "remember" toggle rather than
-          // further down: someone who has no key yet is stuck looking at
-          // that field, and this is what unsticks them. Kept above the
-          // model dropdown so the price caption stays adjacent to the
-          // dropdown it describes.
-          //
-          // Shown in the configured state too, not just during entry. It's
-          // a collapsed `ExpansionTile`, so it costs one line — and the
-          // spend advice inside it (cap your billing, turn off auto
-          // top-up, use a revocable key) is most actionable once a key is
-          // live, which is exactly when hiding it would.
-          AiAssistantKeyHelp(provider: viewModel.selectedAiAssistantProvider),
-          const VGap.small(),
-          DropdownButtonFormField<String>(
-            initialValue: viewModel.selectedAiAssistantModelId,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: context.l10n.settingsAiModelLabel,
-            ),
-            items: [
-              for (final model in viewModel.aiAssistantModels)
-                DropdownMenuItem(value: model.id, child: Text(model.label)),
-            ],
-            onChanged: (modelId) {
-              if (modelId != null) viewModel.selectAiAssistantModel(modelId);
-            },
           ),
           const VGap.tiny(),
+          // There is no separate save action, and the button alone can't
+          // carry that: pressing something labelled "Test" is not an
+          // obvious way to store a key, so without this the field reads
+          // like it saves on its own. Also explains after the fact why a
+          // rejected key didn't stick.
           Text(
-            // "Provider's rate" up front — the price table is the
-            // provider's own, not something CVForge charges.
-            context.l10n.settingsAiPriceLabel(
-              viewModel.selectedAiAssistantProvider.displayName,
-              viewModel.priceLabelFor(viewModel.selectedAiAssistantModel),
-            ),
+            context.l10n.settingsAiKeySavedOnSuccess,
             style: context.appTypography.caption.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          const VGap.medium(),
-          FilledButton(
-            onPressed: viewModel.isTestingConnection ? null : _test,
-            child: viewModel.isTestingConnection
-                ? const ButtonSpinner()
-                // Names both actions once there's a typed key to save,
-                // because this button is the only thing that saves one.
-                // Stays plain "Test connection" over an already-stored key,
-                // where nothing new is being saved and promising a save
-                // would be untrue.
-                : Text(
-                    _hasTypedKey
-                        ? context.l10n.settingsAiTestAndSave
-                        : context.l10n.settingsAiTestConnection,
-                  ),
-          ),
-          if (viewModel.connectionTestErrorMessage != null) ...[
-            const VGap.small(),
-            _StatusLine(
-              icon: RemixIcons.error_warning_line,
-              color: Theme.of(context).colorScheme.error,
-              message: viewModel.connectionTestErrorMessage!,
-            ),
-          ] else if (viewModel.connectionTestSucceeded) ...[
-            const VGap.small(),
-            _StatusLine(
-              icon: RemixIcons.checkbox_circle_line,
-              color: context.appPalette.success,
-              message: context.l10n.settingsAiConnected,
+          if (_replacing) ...[
+            const VGap.tiny(),
+            TextButton(
+              onPressed: _cancelReplacing,
+              child: Text(context.l10n.settingsAiKeepCurrentKey),
             ),
           ],
+        ] else
+          _StoredKeyRow(
+            providerName: viewModel.selectedAiAssistantProvider.displayName,
+            maskedKey: viewModel.maskedApiKey,
+            onReplace: _startReplacing,
+            onRemove: viewModel.removeApiKey,
+          ),
+        const VGap.small(),
+        // The storage caveat outlived the "Remember on this device"
+        // checkbox it used to label. That checkbox defaulted to off,
+        // which made losing your key on reload the default experience,
+        // and it singled the key out for an opt-in the Vault and every
+        // CV — sitting in the same unencrypted IndexedDB — never asked
+        // for. Keeping the disclosure at the same weight it had as a
+        // checkbox label means removing the control costs no
+        // transparency.
+        _StatusLine(
+          icon: RemixIcons.information_line,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          message: context.l10n.settingsAiStorageWarning,
+        ),
+        // Sits with the key field and its "remember" toggle rather than
+        // further down: someone who has no key yet is stuck looking at
+        // that field, and this is what unsticks them. Kept above the
+        // model dropdown so the price caption stays adjacent to the
+        // dropdown it describes.
+        //
+        // Shown in the configured state too, not just during entry. It's
+        // a collapsed `ExpansionTile`, so it costs one line — and the
+        // spend advice inside it (cap your billing, turn off auto
+        // top-up, use a revocable key) is most actionable once a key is
+        // live, which is exactly when hiding it would.
+        AiAssistantKeyHelp(provider: viewModel.selectedAiAssistantProvider),
+        const VGap.small(),
+        DropdownButtonFormField<String>(
+          initialValue: viewModel.selectedAiAssistantModelId,
+          isExpanded: true,
+          decoration: InputDecoration(
+            labelText: context.l10n.settingsAiModelLabel,
+          ),
+          items: [
+            for (final model in viewModel.aiAssistantModels)
+              DropdownMenuItem(value: model.id, child: Text(model.label)),
+          ],
+          onChanged: (modelId) {
+            if (modelId != null) viewModel.selectAiAssistantModel(modelId);
+          },
+        ),
+        const VGap.tiny(),
+        Text(
+          // "Provider's rate" up front — the price table is the
+          // provider's own, not something CVForge charges.
+          context.l10n.settingsAiPriceLabel(
+            viewModel.selectedAiAssistantProvider.displayName,
+            viewModel.priceLabelFor(viewModel.selectedAiAssistantModel),
+          ),
+          style: context.appTypography.caption.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const VGap.medium(),
+        FilledButton(
+          onPressed: viewModel.isTestingConnection ? null : _test,
+          child: viewModel.isTestingConnection
+              ? const ButtonSpinner()
+              // Names both actions once there's a typed key to save,
+              // because this button is the only thing that saves one.
+              // Stays plain "Test connection" over an already-stored key,
+              // where nothing new is being saved and promising a save
+              // would be untrue.
+              : Text(
+                  _hasTypedKey
+                      ? context.l10n.settingsAiTestAndSave
+                      : context.l10n.settingsAiTestConnection,
+                ),
+        ),
+        if (viewModel.connectionTestErrorMessage != null) ...[
+          const VGap.small(),
+          _StatusLine(
+            icon: RemixIcons.error_warning_line,
+            color: Theme.of(context).colorScheme.error,
+            message: viewModel.connectionTestErrorMessage!,
+          ),
+        ] else if (viewModel.connectionTestSucceeded) ...[
+          const VGap.small(),
+          _StatusLine(
+            icon: RemixIcons.checkbox_circle_line,
+            color: context.appPalette.success,
+            message: context.l10n.settingsAiConnected,
+          ),
         ],
-      ),
+      ],
     );
   }
 }

@@ -15,11 +15,15 @@ import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_photo.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/skill.dart';
+import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
@@ -567,6 +571,92 @@ void main() {
           verifyNever(vaultService.setDocumentDefaults(any));
         },
       );
+    });
+
+    group('search -', () {
+      const languages = SkillCategory(
+        id: 'cat-1',
+        name: 'Languages',
+        skills: [
+          Skill(id: 's1', label: 'Dart'),
+          Skill(id: 's2', label: 'Python'),
+        ],
+      );
+      const tooling = SkillCategory(
+        id: 'cat-2',
+        name: 'Tooling',
+        skills: [Skill(id: 's3', label: 'Docker')],
+      );
+
+      VaultViewModel modelSearching(String? query) {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            skillCategories: const [languages, tooling],
+            hobbies: const [
+              HobbyItem(id: 'h1', text: 'Climbing'),
+              HobbyItem(id: 'h2', text: 'Chess'),
+            ],
+            basics: const ContactBasics(
+              fullName: 'Jordan Ellery',
+              headline: 'Senior Engineer',
+              email: 'jordan@example.com',
+              phone: '',
+              location: '',
+              summary: 'Builds reliable systems.',
+            ),
+          ),
+        );
+        final model = VaultViewModel();
+        if (query != null) model.setQuery(query);
+        return model;
+      }
+
+      test('an empty query leaves every section unfiltered', () {
+        final model = modelSearching(null);
+
+        expect(model.isSearching, isFalse);
+        expect(model.filteredSkillCategories, hasLength(2));
+        expect(model.filteredHobbies, hasLength(2));
+        expect(model.basicsMatchQuery, isTrue);
+      });
+
+      test(
+        'a query matching a category name keeps all of its skills — the '
+        'category is what matched, so narrowing it would hide the reason',
+        () {
+          final model = modelSearching('tooling');
+
+          expect(model.filteredSkillCategories, hasLength(1));
+          expect(model.filteredSkillCategories.single.name, 'Tooling');
+          expect(model.filteredSkillCategories.single.skills, hasLength(1));
+        },
+      );
+
+      test('a query matching one skill keeps only that skill', () {
+        final model = modelSearching('python');
+
+        expect(model.filteredSkillCategories, hasLength(1));
+        final category = model.filteredSkillCategories.single;
+        expect(category.name, 'Languages');
+        expect(category.skills.map((s) => s.label), ['Python']);
+      });
+
+      test('a query matching no skill or category empties the list', () {
+        expect(modelSearching('kubernetes').filteredSkillCategories, isEmpty);
+      });
+
+      test('hobbies filter on their text', () {
+        expect(modelSearching('chess').filteredHobbies.single.text, 'Chess');
+        expect(modelSearching('sailing').filteredHobbies, isEmpty);
+      });
+
+      test('basics match on name, headline, email or summary', () {
+        expect(modelSearching('ellery').basicsMatchQuery, isTrue);
+        expect(modelSearching('senior').basicsMatchQuery, isTrue);
+        expect(modelSearching('example.com').basicsMatchQuery, isTrue);
+        expect(modelSearching('reliable').basicsMatchQuery, isTrue);
+        expect(modelSearching('kubernetes').basicsMatchQuery, isFalse);
+      });
     });
   });
 }

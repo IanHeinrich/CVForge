@@ -57,6 +57,9 @@ JsonSchema buildAiAssistantResponseSchema(CvVault vault) {
       'hobbyIds': JsonSchema.array(
         items: JsonSchema.stringEnum([for (final h in vault.hobbies) h.id]),
       ),
+      'languageIds': JsonSchema.array(
+        items: JsonSchema.stringEnum([for (final l in vault.languages) l.id]),
+      ),
       'publications': JsonSchema.object(
         properties: {
           for (final p in vault.publications)
@@ -78,6 +81,7 @@ JsonSchema buildAiAssistantResponseSchema(CvVault vault) {
       'skillIds',
       'education',
       'hobbyIds',
+      'languageIds',
       'publications',
       'hiddenSections',
       'rationale',

@@ -48,6 +48,8 @@ JsonSchema buildCvTranslationResponseSchema(CvTranslationPayload payload) {
     if (request.containsKey('summary')) 'summary': const JsonSchema.string(),
     if (request.containsKey('referencesNote'))
       'referencesNote': const JsonSchema.string(),
+    if (request.containsKey('workAuthorization'))
+      'workAuthorization': const JsonSchema.string(),
     for (final key in const [
       'roles',
       'projectTitles',
@@ -57,6 +59,7 @@ JsonSchema buildCvTranslationResponseSchema(CvTranslationPayload payload) {
       'grades',
       'educationDetails',
       'hobbies',
+      'languages',
       'bullets',
     ])
       key: ?group(key),

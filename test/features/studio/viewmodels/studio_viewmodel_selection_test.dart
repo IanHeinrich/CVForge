@@ -724,6 +724,7 @@ void main() {
               CvSectionType.experience,
               CvSectionType.summary,
               CvSectionType.skills,
+              CvSectionType.languages,
               CvSectionType.projects,
               CvSectionType.hobbies,
               CvSectionType.references,

@@ -93,6 +93,15 @@ class BasicsEditorPanel extends StatelessWidget {
         ),
         const VGap.small(),
         AppTextField(
+          label: context.l10n.vaultBasicsWorkAuthorization,
+          hint: context.l10n.vaultBasicsWorkAuthorizationHint,
+          initialValue: basics.workAuthorization ?? '',
+          onChanged: (v) => onChanged(
+            basics.copyWith(workAuthorization: v.isEmpty ? null : v),
+          ),
+        ),
+        const VGap.small(),
+        AppTextField(
           label: context.l10n.vaultBasicsSummary,
           initialValue: basics.summary ?? '',
           maxLines: 4,

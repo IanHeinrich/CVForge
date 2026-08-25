@@ -27,6 +27,10 @@ abstract class ResolvedHeader with _$ResolvedHeader {
     required String email,
     required String phone,
     required String location,
+
+    /// The Vault's [ContactBasics.workAuthorization], printed as one more
+    /// contact line. Null or blank prints nothing.
+    String? workAuthorization,
     @Default(<ResolvedLink>[]) List<ResolvedLink> links,
 
     /// The Vault photo's JPEG bytes, base64-encoded — carried as the raw

@@ -3,81 +3,83 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i32;
-import 'dart:typed_data' as _i50;
-import 'dart:ui' as _i27;
+import 'dart:async' as _i33;
+import 'dart:typed_data' as _i52;
+import 'dart:ui' as _i28;
 
-import 'package:cv_forge/l10n/generated/app_localizations.dart' as _i28;
-import 'package:cv_forge/models/ats/ats_analysis_result.dart' as _i23;
-import 'package:cv_forge/models/ats/ats_extracted_document.dart' as _i21;
-import 'package:cv_forge/models/ats/ats_text_node.dart' as _i22;
-import 'package:cv_forge/models/backup/cv_backup_bundle.dart' as _i20;
-import 'package:cv_forge/models/document/document_language.dart' as _i45;
-import 'package:cv_forge/models/draft/cv_draft.dart' as _i14;
-import 'package:cv_forge/models/draft/cv_section_type.dart' as _i46;
-import 'package:cv_forge/models/draft/draft_omittable_field.dart' as _i48;
-import 'package:cv_forge/models/draft/text_override_field.dart' as _i47;
-import 'package:cv_forge/models/drive/drive_file_snapshot.dart' as _i26;
-import 'package:cv_forge/models/drive/drive_sync_status.dart' as _i70;
-import 'package:cv_forge/models/llm/ai_assistant_result.dart' as _i25;
-import 'package:cv_forge/models/llm/cv_translation_result.dart' as _i30;
-import 'package:cv_forge/models/llm/json_schema.dart' as _i65;
-import 'package:cv_forge/models/llm/llm_json_response.dart' as _i24;
-import 'package:cv_forge/models/llm/llm_model_option.dart' as _i19;
-import 'package:cv_forge/models/region/region_profile.dart' as _i44;
-import 'package:cv_forge/models/render/resolved_cv.dart' as _i55;
-import 'package:cv_forge/models/settings/app_settings.dart' as _i17;
-import 'package:cv_forge/models/settings/app_theme_mode.dart' as _i59;
-import 'package:cv_forge/models/settings/cv_preferences.dart' as _i58;
-import 'package:cv_forge/models/vault/bullet_owner.dart' as _i41;
-import 'package:cv_forge/models/vault/contact_basics.dart' as _i39;
-import 'package:cv_forge/models/vault/cv_bullet.dart' as _i13;
-import 'package:cv_forge/models/vault/cv_photo.dart' as _i29;
+import 'package:cv_forge/l10n/generated/app_localizations.dart' as _i29;
+import 'package:cv_forge/models/ats/ats_analysis_result.dart' as _i24;
+import 'package:cv_forge/models/ats/ats_extracted_document.dart' as _i22;
+import 'package:cv_forge/models/ats/ats_text_node.dart' as _i23;
+import 'package:cv_forge/models/backup/cv_backup_bundle.dart' as _i21;
+import 'package:cv_forge/models/document/document_language.dart' as _i47;
+import 'package:cv_forge/models/draft/cv_draft.dart' as _i15;
+import 'package:cv_forge/models/draft/cv_section_type.dart' as _i48;
+import 'package:cv_forge/models/draft/draft_omittable_field.dart' as _i50;
+import 'package:cv_forge/models/draft/text_override_field.dart' as _i49;
+import 'package:cv_forge/models/drive/drive_file_snapshot.dart' as _i27;
+import 'package:cv_forge/models/drive/drive_sync_status.dart' as _i72;
+import 'package:cv_forge/models/llm/ai_assistant_result.dart' as _i26;
+import 'package:cv_forge/models/llm/cv_translation_result.dart' as _i31;
+import 'package:cv_forge/models/llm/json_schema.dart' as _i67;
+import 'package:cv_forge/models/llm/llm_json_response.dart' as _i25;
+import 'package:cv_forge/models/llm/llm_model_option.dart' as _i20;
+import 'package:cv_forge/models/region/region_profile.dart' as _i46;
+import 'package:cv_forge/models/render/resolved_cv.dart' as _i57;
+import 'package:cv_forge/models/settings/app_settings.dart' as _i18;
+import 'package:cv_forge/models/settings/app_theme_mode.dart' as _i61;
+import 'package:cv_forge/models/settings/cv_preferences.dart' as _i60;
+import 'package:cv_forge/models/vault/bullet_owner.dart' as _i43;
+import 'package:cv_forge/models/vault/contact_basics.dart' as _i40;
+import 'package:cv_forge/models/vault/cv_bullet.dart' as _i14;
+import 'package:cv_forge/models/vault/cv_photo.dart' as _i30;
 import 'package:cv_forge/models/vault/cv_vault.dart' as _i4;
-import 'package:cv_forge/models/vault/document_defaults.dart' as _i38;
+import 'package:cv_forge/models/vault/document_defaults.dart' as _i39;
 import 'package:cv_forge/models/vault/education.dart' as _i10;
 import 'package:cv_forge/models/vault/experience.dart' as _i6;
 import 'package:cv_forge/models/vault/hobby_item.dart' as _i11;
+import 'package:cv_forge/models/vault/language_item.dart' as _i12;
+import 'package:cv_forge/models/vault/language_proficiency.dart' as _i42;
 import 'package:cv_forge/models/vault/profile_link.dart' as _i5;
 import 'package:cv_forge/models/vault/project.dart' as _i7;
-import 'package:cv_forge/models/vault/publication.dart' as _i12;
+import 'package:cv_forge/models/vault/publication.dart' as _i13;
 import 'package:cv_forge/models/vault/skill.dart' as _i9;
 import 'package:cv_forge/models/vault/skill_category.dart' as _i8;
-import 'package:cv_forge/models/vault/year_month.dart' as _i40;
-import 'package:cv_forge/services/ai_assistant_service.dart' as _i66;
-import 'package:cv_forge/services/ats_analyzer_service.dart' as _i63;
-import 'package:cv_forge/services/backup_service.dart' as _i60;
-import 'package:cv_forge/services/cv_translation_service.dart' as _i74;
-import 'package:cv_forge/services/draft_service.dart' as _i42;
-import 'package:cv_forge/services/drive_api_client_service.dart' as _i68;
-import 'package:cv_forge/services/drive_sync_service.dart' as _i69;
-import 'package:cv_forge/services/file_download_service.dart' as _i49;
-import 'package:cv_forge/services/file_upload_service.dart' as _i61;
-import 'package:cv_forge/services/font_service.dart' as _i53;
-import 'package:cv_forge/services/google_auth_service.dart' as _i71;
-import 'package:cv_forge/services/llm/llm_provider.dart' as _i18;
-import 'package:cv_forge/services/llm_service.dart' as _i64;
+import 'package:cv_forge/models/vault/year_month.dart' as _i41;
+import 'package:cv_forge/services/ai_assistant_service.dart' as _i68;
+import 'package:cv_forge/services/ats_analyzer_service.dart' as _i65;
+import 'package:cv_forge/services/backup_service.dart' as _i62;
+import 'package:cv_forge/services/cv_translation_service.dart' as _i76;
+import 'package:cv_forge/services/draft_service.dart' as _i44;
+import 'package:cv_forge/services/drive_api_client_service.dart' as _i70;
+import 'package:cv_forge/services/drive_sync_service.dart' as _i71;
+import 'package:cv_forge/services/file_download_service.dart' as _i51;
+import 'package:cv_forge/services/file_upload_service.dart' as _i63;
+import 'package:cv_forge/services/font_service.dart' as _i55;
+import 'package:cv_forge/services/google_auth_service.dart' as _i73;
+import 'package:cv_forge/services/llm/llm_provider.dart' as _i19;
+import 'package:cv_forge/services/llm_service.dart' as _i66;
 import 'package:cv_forge/services/local_storage_service.dart' as _i3;
-import 'package:cv_forge/services/localization_service.dart' as _i72;
-import 'package:cv_forge/services/pdf_export_service.dart' as _i54;
-import 'package:cv_forge/services/pdf_extraction_service.dart' as _i62;
-import 'package:cv_forge/services/profile_photo_service.dart' as _i73;
-import 'package:cv_forge/services/settings_service.dart' as _i57;
-import 'package:cv_forge/services/template_registry_service.dart' as _i52;
-import 'package:cv_forge/services/template_thumbnail_service.dart' as _i67;
-import 'package:cv_forge/services/vault_service.dart' as _i37;
-import 'package:cv_forge/templates/cv_template.dart' as _i15;
-import 'package:cv_forge/templates/design/cv_font_set.dart' as _i16;
-import 'package:file_saver/file_saver.dart' as _i51;
-import 'package:flutter/material.dart' as _i33;
+import 'package:cv_forge/services/localization_service.dart' as _i74;
+import 'package:cv_forge/services/pdf_export_service.dart' as _i56;
+import 'package:cv_forge/services/pdf_extraction_service.dart' as _i64;
+import 'package:cv_forge/services/profile_photo_service.dart' as _i75;
+import 'package:cv_forge/services/settings_service.dart' as _i59;
+import 'package:cv_forge/services/template_registry_service.dart' as _i54;
+import 'package:cv_forge/services/template_thumbnail_service.dart' as _i69;
+import 'package:cv_forge/services/vault_service.dart' as _i38;
+import 'package:cv_forge/templates/cv_template.dart' as _i16;
+import 'package:cv_forge/templates/design/cv_font_set.dart' as _i17;
+import 'package:file_saver/file_saver.dart' as _i53;
+import 'package:flutter/material.dart' as _i34;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i43;
-import 'package:pdf/pdf.dart' as _i56;
+import 'package:mockito/src/dummies.dart' as _i45;
+import 'package:pdf/pdf.dart' as _i58;
 import 'package:stacked/stacked.dart' as _i2;
-import 'package:stacked_services/src/dialog/dialog_service.dart' as _i34;
-import 'package:stacked_services/src/models/overlay_request.dart' as _i35;
-import 'package:stacked_services/src/models/overlay_response.dart' as _i36;
-import 'package:stacked_services/src/navigation/router_service.dart' as _i31;
+import 'package:stacked_services/src/dialog/dialog_service.dart' as _i35;
+import 'package:stacked_services/src/models/overlay_request.dart' as _i36;
+import 'package:stacked_services/src/models/overlay_response.dart' as _i37;
+import 'package:stacked_services/src/navigation/router_service.dart' as _i32;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -163,120 +165,125 @@ class _FakeHobbyItem_12 extends _i1.SmartFake implements _i11.HobbyItem {
     : super(parent, parentInvocation);
 }
 
-class _FakePublication_13 extends _i1.SmartFake implements _i12.Publication {
-  _FakePublication_13(Object parent, Invocation parentInvocation)
+class _FakeLanguageItem_13 extends _i1.SmartFake implements _i12.LanguageItem {
+  _FakeLanguageItem_13(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCvBullet_14 extends _i1.SmartFake implements _i13.CvBullet {
-  _FakeCvBullet_14(Object parent, Invocation parentInvocation)
+class _FakePublication_14 extends _i1.SmartFake implements _i13.Publication {
+  _FakePublication_14(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCvDraft_15 extends _i1.SmartFake implements _i14.CvDraft {
-  _FakeCvDraft_15(Object parent, Invocation parentInvocation)
+class _FakeCvBullet_15 extends _i1.SmartFake implements _i14.CvBullet {
+  _FakeCvBullet_15(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCvTemplate_16 extends _i1.SmartFake implements _i15.CvTemplate {
-  _FakeCvTemplate_16(Object parent, Invocation parentInvocation)
+class _FakeCvDraft_16 extends _i1.SmartFake implements _i15.CvDraft {
+  _FakeCvDraft_16(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCvFontSet_17 extends _i1.SmartFake implements _i16.CvFontSet {
-  _FakeCvFontSet_17(Object parent, Invocation parentInvocation)
+class _FakeCvTemplate_17 extends _i1.SmartFake implements _i16.CvTemplate {
+  _FakeCvTemplate_17(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAppSettings_18 extends _i1.SmartFake implements _i17.AppSettings {
-  _FakeAppSettings_18(Object parent, Invocation parentInvocation)
+class _FakeCvFontSet_18 extends _i1.SmartFake implements _i17.CvFontSet {
+  _FakeCvFontSet_18(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeLlmProvider_19 extends _i1.SmartFake implements _i18.LlmProvider {
-  _FakeLlmProvider_19(Object parent, Invocation parentInvocation)
+class _FakeAppSettings_19 extends _i1.SmartFake implements _i18.AppSettings {
+  _FakeAppSettings_19(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeLlmModelOption_20 extends _i1.SmartFake
-    implements _i19.LlmModelOption {
-  _FakeLlmModelOption_20(Object parent, Invocation parentInvocation)
+class _FakeLlmProvider_20 extends _i1.SmartFake implements _i19.LlmProvider {
+  _FakeLlmProvider_20(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCvBackupBundle_21 extends _i1.SmartFake
-    implements _i20.CvBackupBundle {
-  _FakeCvBackupBundle_21(Object parent, Invocation parentInvocation)
+class _FakeLlmModelOption_21 extends _i1.SmartFake
+    implements _i20.LlmModelOption {
+  _FakeLlmModelOption_21(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAtsExtractedDocument_22 extends _i1.SmartFake
-    implements _i21.AtsExtractedDocument {
-  _FakeAtsExtractedDocument_22(Object parent, Invocation parentInvocation)
+class _FakeCvBackupBundle_22 extends _i1.SmartFake
+    implements _i21.CvBackupBundle {
+  _FakeCvBackupBundle_22(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAtsTextMatrix_23 extends _i1.SmartFake
-    implements _i22.AtsTextMatrix {
-  _FakeAtsTextMatrix_23(Object parent, Invocation parentInvocation)
+class _FakeAtsExtractedDocument_23 extends _i1.SmartFake
+    implements _i22.AtsExtractedDocument {
+  _FakeAtsExtractedDocument_23(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAtsAnalysisResult_24 extends _i1.SmartFake
-    implements _i23.AtsAnalysisResult {
-  _FakeAtsAnalysisResult_24(Object parent, Invocation parentInvocation)
+class _FakeAtsTextMatrix_24 extends _i1.SmartFake
+    implements _i23.AtsTextMatrix {
+  _FakeAtsTextMatrix_24(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeLlmJsonResponse_25 extends _i1.SmartFake
-    implements _i24.LlmJsonResponse {
-  _FakeLlmJsonResponse_25(Object parent, Invocation parentInvocation)
+class _FakeAtsAnalysisResult_25 extends _i1.SmartFake
+    implements _i24.AtsAnalysisResult {
+  _FakeAtsAnalysisResult_25(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAiAssistantResult_26 extends _i1.SmartFake
-    implements _i25.AiAssistantResult {
-  _FakeAiAssistantResult_26(Object parent, Invocation parentInvocation)
+class _FakeLlmJsonResponse_26 extends _i1.SmartFake
+    implements _i25.LlmJsonResponse {
+  _FakeLlmJsonResponse_26(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDriveFileSnapshot_27 extends _i1.SmartFake
-    implements _i26.DriveFileSnapshot {
-  _FakeDriveFileSnapshot_27(Object parent, Invocation parentInvocation)
+class _FakeAiAssistantResult_27 extends _i1.SmartFake
+    implements _i26.AiAssistantResult {
+  _FakeAiAssistantResult_27(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDuration_28 extends _i1.SmartFake implements Duration {
-  _FakeDuration_28(Object parent, Invocation parentInvocation)
+class _FakeDriveFileSnapshot_28 extends _i1.SmartFake
+    implements _i27.DriveFileSnapshot {
+  _FakeDriveFileSnapshot_28(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeLocale_29 extends _i1.SmartFake implements _i27.Locale {
-  _FakeLocale_29(Object parent, Invocation parentInvocation)
+class _FakeDuration_29 extends _i1.SmartFake implements Duration {
+  _FakeDuration_29(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAppLocalizations_30 extends _i1.SmartFake
-    implements _i28.AppLocalizations {
-  _FakeAppLocalizations_30(Object parent, Invocation parentInvocation)
+class _FakeLocale_30 extends _i1.SmartFake implements _i28.Locale {
+  _FakeLocale_30(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCvPhoto_31 extends _i1.SmartFake implements _i29.CvPhoto {
-  _FakeCvPhoto_31(Object parent, Invocation parentInvocation)
+class _FakeAppLocalizations_31 extends _i1.SmartFake
+    implements _i29.AppLocalizations {
+  _FakeAppLocalizations_31(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCvTranslationResult_32 extends _i1.SmartFake
-    implements _i30.CvTranslationResult {
-  _FakeCvTranslationResult_32(Object parent, Invocation parentInvocation)
+class _FakeCvPhoto_32 extends _i1.SmartFake implements _i30.CvPhoto {
+  _FakeCvPhoto_32(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeCvTranslationResult_33 extends _i1.SmartFake
+    implements _i31.CvTranslationResult {
+  _FakeCvTranslationResult_33(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [RouterService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRouterService extends _i1.Mock implements _i31.RouterService {
+class MockRouterService extends _i1.Mock implements _i32.RouterService {
   @override
   _i2.RootStackRouter get router =>
       (super.noSuchMethod(
@@ -326,19 +333,19 @@ class MockRouterService extends _i1.Mock implements _i31.RouterService {
   );
 
   @override
-  _i32.Future<dynamic> navigateTo(
+  _i33.Future<dynamic> navigateTo(
     _i2.PageRouteInfo<dynamic>? route, {
     _i2.OnNavigationFailure? onFailure,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#navigateTo, [route], {#onFailure: onFailure}),
-            returnValue: _i32.Future<dynamic>.value(),
-            returnValueForMissingStub: _i32.Future<dynamic>.value(),
+            returnValue: _i33.Future<dynamic>.value(),
+            returnValueForMissingStub: _i33.Future<dynamic>.value(),
           )
-          as _i32.Future<dynamic>);
+          as _i33.Future<dynamic>);
 
   @override
-  _i32.Future<void> navigateToPath({
+  _i33.Future<void> navigateToPath({
     required String? path,
     bool? includePrefixMatches = false,
     _i2.OnNavigationFailure? onFailure,
@@ -349,15 +356,15 @@ class MockRouterService extends _i1.Mock implements _i31.RouterService {
               #includePrefixMatches: includePrefixMatches,
               #onFailure: onFailure,
             }),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<T?> navigateWithTransition<T extends Object?>(
-    _i33.Widget? widget, {
-    _i33.RouteTransitionsBuilder? transitionBuilder,
+  _i33.Future<T?> navigateWithTransition<T extends Object?>(
+    _i34.Widget? widget, {
+    _i34.RouteTransitionsBuilder? transitionBuilder,
     bool? fullscreenDialog = false,
     Duration? transitionDuration = const Duration(milliseconds: 300),
   }) =>
@@ -371,25 +378,25 @@ class MockRouterService extends _i1.Mock implements _i31.RouterService {
                 #transitionDuration: transitionDuration,
               },
             ),
-            returnValue: _i32.Future<T?>.value(),
-            returnValueForMissingStub: _i32.Future<T?>.value(),
+            returnValue: _i33.Future<T?>.value(),
+            returnValueForMissingStub: _i33.Future<T?>.value(),
           )
-          as _i32.Future<T?>);
+          as _i33.Future<T?>);
 
   @override
-  _i32.Future<T?> replaceWith<T extends Object?>(
+  _i33.Future<T?> replaceWith<T extends Object?>(
     _i2.PageRouteInfo<dynamic>? route, {
     _i2.OnNavigationFailure? onFailure,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#replaceWith, [route], {#onFailure: onFailure}),
-            returnValue: _i32.Future<T?>.value(),
-            returnValueForMissingStub: _i32.Future<T?>.value(),
+            returnValue: _i33.Future<T?>.value(),
+            returnValueForMissingStub: _i33.Future<T?>.value(),
           )
-          as _i32.Future<T?>);
+          as _i33.Future<T?>);
 
   @override
-  _i32.Future<void> clearStackAndShow(
+  _i33.Future<void> clearStackAndShow(
     _i2.PageRouteInfo<dynamic>? route, {
     _i2.OnNavigationFailure? onFailure,
   }) =>
@@ -399,15 +406,15 @@ class MockRouterService extends _i1.Mock implements _i31.RouterService {
               [route],
               {#onFailure: onFailure},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> clearStackAndShowView(
-    _i33.Widget? widget, {
-    _i33.RouteTransitionsBuilder? transitionBuilder,
+  _i33.Future<void> clearStackAndShowView(
+    _i34.Widget? widget, {
+    _i34.RouteTransitionsBuilder? transitionBuilder,
     bool? fullscreenDialog = false,
     Duration? transitionDuration = const Duration(milliseconds: 300),
   }) =>
@@ -421,10 +428,10 @@ class MockRouterService extends _i1.Mock implements _i31.RouterService {
                 #transitionDuration: transitionDuration,
               },
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
   void popForced<T extends Object?>([T? result]) => super.noSuchMethod(
@@ -433,13 +440,13 @@ class MockRouterService extends _i1.Mock implements _i31.RouterService {
   );
 
   @override
-  _i32.Future<bool> pop<T extends Object?>([T? result]) =>
+  _i33.Future<bool> pop<T extends Object?>([T? result]) =>
       (super.noSuchMethod(
             Invocation.method(#pop, [result]),
-            returnValue: _i32.Future<bool>.value(false),
-            returnValueForMissingStub: _i32.Future<bool>.value(false),
+            returnValue: _i33.Future<bool>.value(false),
+            returnValueForMissingStub: _i33.Future<bool>.value(false),
           )
-          as _i32.Future<bool>);
+          as _i33.Future<bool>);
 
   @override
   void back<T extends Object?>({T? result}) => super.noSuchMethod(
@@ -469,22 +476,22 @@ class MockRouterService extends _i1.Mock implements _i31.RouterService {
           as _i2.RoutingController);
 
   @override
-  _i32.Future<T?> pushNativeRoute<T extends Object?>(_i33.Route<T>? route) =>
+  _i33.Future<T?> pushNativeRoute<T extends Object?>(_i34.Route<T>? route) =>
       (super.noSuchMethod(
             Invocation.method(#pushNativeRoute, [route]),
-            returnValue: _i32.Future<T?>.value(),
-            returnValueForMissingStub: _i32.Future<T?>.value(),
+            returnValue: _i33.Future<T?>.value(),
+            returnValueForMissingStub: _i33.Future<T?>.value(),
           )
-          as _i32.Future<T?>);
+          as _i33.Future<T?>);
 }
 
 /// A class which mocks [DialogService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDialogService extends _i1.Mock implements _i34.DialogService {
+class MockDialogService extends _i1.Mock implements _i35.DialogService {
   @override
   void registerCustomDialogBuilders(
-    Map<dynamic, _i34.DialogBuilder>? builders,
+    Map<dynamic, _i35.DialogBuilder>? builders,
   ) => super.noSuchMethod(
     Invocation.method(#registerCustomDialogBuilders, [builders]),
     returnValueForMissingStub: null,
@@ -493,10 +500,10 @@ class MockDialogService extends _i1.Mock implements _i34.DialogService {
   @override
   void registerCustomDialogBuilder({
     required dynamic variant,
-    required _i33.Widget Function(
-      _i33.BuildContext,
-      _i35.DialogRequest<dynamic>,
-      dynamic Function(_i36.DialogResponse<dynamic>),
+    required _i34.Widget Function(
+      _i34.BuildContext,
+      _i36.DialogRequest<dynamic>,
+      dynamic Function(_i37.DialogResponse<dynamic>),
     )?
     builder,
   }) => super.noSuchMethod(
@@ -508,17 +515,17 @@ class MockDialogService extends _i1.Mock implements _i34.DialogService {
   );
 
   @override
-  _i32.Future<_i36.DialogResponse<dynamic>?> showDialog({
+  _i33.Future<_i37.DialogResponse<dynamic>?> showDialog({
     String? title,
     String? description,
     String? cancelTitle,
-    _i27.Color? cancelTitleColor,
+    _i28.Color? cancelTitleColor,
     String? buttonTitle = 'Ok',
-    _i27.Color? buttonTitleColor,
+    _i28.Color? buttonTitleColor,
     bool? barrierDismissible = false,
-    _i33.RouteSettings? routeSettings,
-    _i33.GlobalKey<_i33.NavigatorState>? navigatorKey,
-    _i34.DialogPlatform? dialogPlatform,
+    _i34.RouteSettings? routeSettings,
+    _i34.GlobalKey<_i34.NavigatorState>? navigatorKey,
+    _i35.DialogPlatform? dialogPlatform,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#showDialog, [], {
@@ -533,14 +540,14 @@ class MockDialogService extends _i1.Mock implements _i34.DialogService {
               #navigatorKey: navigatorKey,
               #dialogPlatform: dialogPlatform,
             }),
-            returnValue: _i32.Future<_i36.DialogResponse<dynamic>?>.value(),
+            returnValue: _i33.Future<_i37.DialogResponse<dynamic>?>.value(),
             returnValueForMissingStub:
-                _i32.Future<_i36.DialogResponse<dynamic>?>.value(),
+                _i33.Future<_i37.DialogResponse<dynamic>?>.value(),
           )
-          as _i32.Future<_i36.DialogResponse<dynamic>?>);
+          as _i33.Future<_i37.DialogResponse<dynamic>?>);
 
   @override
-  _i32.Future<_i36.DialogResponse<T>?> showCustomDialog<T, R>({
+  _i33.Future<_i37.DialogResponse<T>?> showCustomDialog<T, R>({
     dynamic variant,
     String? title,
     String? description,
@@ -553,13 +560,13 @@ class MockDialogService extends _i1.Mock implements _i34.DialogService {
     bool? showIconInAdditionalButton = false,
     String? additionalButtonTitle,
     bool? takesInput = false,
-    _i27.Color? barrierColor = const _i27.Color(2315255808),
+    _i28.Color? barrierColor = const _i28.Color(2315255808),
     bool? barrierDismissible = false,
     String? barrierLabel = '',
     bool? useSafeArea = true,
-    _i33.RouteSettings? routeSettings,
-    _i33.GlobalKey<_i33.NavigatorState>? navigatorKey,
-    _i33.RouteTransitionsBuilder? transitionBuilder,
+    _i34.RouteSettings? routeSettings,
+    _i34.GlobalKey<_i34.NavigatorState>? navigatorKey,
+    _i34.RouteTransitionsBuilder? transitionBuilder,
     dynamic customData,
     R? data,
   }) =>
@@ -587,23 +594,23 @@ class MockDialogService extends _i1.Mock implements _i34.DialogService {
               #customData: customData,
               #data: data,
             }),
-            returnValue: _i32.Future<_i36.DialogResponse<T>?>.value(),
+            returnValue: _i33.Future<_i37.DialogResponse<T>?>.value(),
             returnValueForMissingStub:
-                _i32.Future<_i36.DialogResponse<T>?>.value(),
+                _i33.Future<_i37.DialogResponse<T>?>.value(),
           )
-          as _i32.Future<_i36.DialogResponse<T>?>);
+          as _i33.Future<_i37.DialogResponse<T>?>);
 
   @override
-  _i32.Future<_i36.DialogResponse<dynamic>?> showConfirmationDialog({
+  _i33.Future<_i37.DialogResponse<dynamic>?> showConfirmationDialog({
     String? title,
     String? description,
     String? cancelTitle = 'Cancel',
-    _i27.Color? cancelTitleColor,
+    _i28.Color? cancelTitleColor,
     String? confirmationTitle = 'Ok',
-    _i27.Color? confirmationTitleColor,
+    _i28.Color? confirmationTitleColor,
     bool? barrierDismissible = false,
-    _i33.RouteSettings? routeSettings,
-    _i34.DialogPlatform? dialogPlatform,
+    _i34.RouteSettings? routeSettings,
+    _i35.DialogPlatform? dialogPlatform,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#showConfirmationDialog, [], {
@@ -617,14 +624,14 @@ class MockDialogService extends _i1.Mock implements _i34.DialogService {
               #routeSettings: routeSettings,
               #dialogPlatform: dialogPlatform,
             }),
-            returnValue: _i32.Future<_i36.DialogResponse<dynamic>?>.value(),
+            returnValue: _i33.Future<_i37.DialogResponse<dynamic>?>.value(),
             returnValueForMissingStub:
-                _i32.Future<_i36.DialogResponse<dynamic>?>.value(),
+                _i33.Future<_i37.DialogResponse<dynamic>?>.value(),
           )
-          as _i32.Future<_i36.DialogResponse<dynamic>?>);
+          as _i33.Future<_i37.DialogResponse<dynamic>?>);
 
   @override
-  void completeDialog(_i36.DialogResponse<dynamic>? response) =>
+  void completeDialog(_i37.DialogResponse<dynamic>? response) =>
       super.noSuchMethod(
         Invocation.method(#completeDialog, [response]),
         returnValueForMissingStub: null,
@@ -637,57 +644,57 @@ class MockDialogService extends _i1.Mock implements _i34.DialogService {
 class MockLocalStorageService extends _i1.Mock
     implements _i3.LocalStorageService {
   @override
-  _i32.Future<void> ensureInitialized() =>
+  _i33.Future<void> ensureInitialized() =>
       (super.noSuchMethod(
             Invocation.method(#ensureInitialized, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<String?> read(String? boxName, String? key) =>
+  _i33.Future<String?> read(String? boxName, String? key) =>
       (super.noSuchMethod(
             Invocation.method(#read, [boxName, key]),
-            returnValue: _i32.Future<String?>.value(),
-            returnValueForMissingStub: _i32.Future<String?>.value(),
+            returnValue: _i33.Future<String?>.value(),
+            returnValueForMissingStub: _i33.Future<String?>.value(),
           )
-          as _i32.Future<String?>);
+          as _i33.Future<String?>);
 
   @override
-  _i32.Future<void> write(String? boxName, String? key, String? value) =>
+  _i33.Future<void> write(String? boxName, String? key, String? value) =>
       (super.noSuchMethod(
             Invocation.method(#write, [boxName, key, value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> delete(String? boxName, String? key) =>
+  _i33.Future<void> delete(String? boxName, String? key) =>
       (super.noSuchMethod(
             Invocation.method(#delete, [boxName, key]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<List<String>> keysWithPrefix(String? boxName, String? prefix) =>
+  _i33.Future<List<String>> keysWithPrefix(String? boxName, String? prefix) =>
       (super.noSuchMethod(
             Invocation.method(#keysWithPrefix, [boxName, prefix]),
-            returnValue: _i32.Future<List<String>>.value(<String>[]),
-            returnValueForMissingStub: _i32.Future<List<String>>.value(
+            returnValue: _i33.Future<List<String>>.value(<String>[]),
+            returnValueForMissingStub: _i33.Future<List<String>>.value(
               <String>[],
             ),
           )
-          as _i32.Future<List<String>>);
+          as _i33.Future<List<String>>);
 }
 
 /// A class which mocks [VaultService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockVaultService extends _i1.Mock implements _i37.VaultService {
+class MockVaultService extends _i1.Mock implements _i38.VaultService {
   @override
   _i3.LocalStorageService get storage =>
       (super.noSuchMethod(
@@ -746,67 +753,67 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
   );
 
   @override
-  _i32.Future<void> load() =>
+  _i33.Future<void> load() =>
       (super.noSuchMethod(
             Invocation.method(#load, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> loadFromStorage() =>
+  _i33.Future<void> loadFromStorage() =>
       (super.noSuchMethod(
             Invocation.method(#loadFromStorage, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> loadExampleVault() =>
+  _i33.Future<void> loadExampleVault() =>
       (super.noSuchMethod(
             Invocation.method(#loadExampleVault, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> clearVault() =>
+  _i33.Future<void> clearVault() =>
       (super.noSuchMethod(
             Invocation.method(#clearVault, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setDocumentDefaults(_i38.DocumentDefaults? defaults) =>
+  _i33.Future<void> setDocumentDefaults(_i39.DocumentDefaults? defaults) =>
       (super.noSuchMethod(
             Invocation.method(#setDocumentDefaults, [defaults]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> updateBasics(_i39.ContactBasics? basics) =>
+  _i33.Future<void> updateBasics(_i40.ContactBasics? basics) =>
       (super.noSuchMethod(
             Invocation.method(#updateBasics, [basics]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i5.ProfileLink> addProfileLink({
+  _i33.Future<_i5.ProfileLink> addProfileLink({
     required String? label,
     required String? url,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#addProfileLink, [], {#label: label, #url: url}),
-            returnValue: _i32.Future<_i5.ProfileLink>.value(
+            returnValue: _i33.Future<_i5.ProfileLink>.value(
               _FakeProfileLink_6(
                 this,
                 Invocation.method(#addProfileLink, [], {
@@ -815,7 +822,7 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i5.ProfileLink>.value(
+            returnValueForMissingStub: _i33.Future<_i5.ProfileLink>.value(
               _FakeProfileLink_6(
                 this,
                 Invocation.method(#addProfileLink, [], {
@@ -825,42 +832,42 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               ),
             ),
           )
-          as _i32.Future<_i5.ProfileLink>);
+          as _i33.Future<_i5.ProfileLink>);
 
   @override
-  _i32.Future<void> updateProfileLink(_i5.ProfileLink? link) =>
+  _i33.Future<void> updateProfileLink(_i5.ProfileLink? link) =>
       (super.noSuchMethod(
             Invocation.method(#updateProfileLink, [link]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteProfileLink(String? id) =>
+  _i33.Future<void> deleteProfileLink(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteProfileLink, [id]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> updateReferencesNote(String? note) =>
+  _i33.Future<void> updateReferencesNote(String? note) =>
       (super.noSuchMethod(
             Invocation.method(#updateReferencesNote, [note]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i6.Experience> addExperience({
+  _i33.Future<_i6.Experience> addExperience({
     required String? role,
     required String? company,
     required String? location,
-    required _i40.YearMonth? start,
-    _i40.YearMonth? end,
+    required _i41.YearMonth? start,
+    _i41.YearMonth? end,
     bool? isCurrent = false,
   }) =>
       (super.noSuchMethod(
@@ -872,7 +879,7 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               #end: end,
               #isCurrent: isCurrent,
             }),
-            returnValue: _i32.Future<_i6.Experience>.value(
+            returnValue: _i33.Future<_i6.Experience>.value(
               _FakeExperience_7(
                 this,
                 Invocation.method(#addExperience, [], {
@@ -885,7 +892,7 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i6.Experience>.value(
+            returnValueForMissingStub: _i33.Future<_i6.Experience>.value(
               _FakeExperience_7(
                 this,
                 Invocation.method(#addExperience, [], {
@@ -899,28 +906,28 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               ),
             ),
           )
-          as _i32.Future<_i6.Experience>);
+          as _i33.Future<_i6.Experience>);
 
   @override
-  _i32.Future<void> updateExperience(_i6.Experience? experience) =>
+  _i33.Future<void> updateExperience(_i6.Experience? experience) =>
       (super.noSuchMethod(
             Invocation.method(#updateExperience, [experience]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteExperience(String? experienceId) =>
+  _i33.Future<void> deleteExperience(String? experienceId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteExperience, [experienceId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> groupExperience(
+  _i33.Future<void> groupExperience(
     String? experienceId,
     String? withExperienceId,
   ) =>
@@ -929,16 +936,16 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               experienceId,
               withExperienceId,
             ]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i7.Project> addProject({required String? title, String? link}) =>
+  _i33.Future<_i7.Project> addProject({required String? title, String? link}) =>
       (super.noSuchMethod(
             Invocation.method(#addProject, [], {#title: title, #link: link}),
-            returnValue: _i32.Future<_i7.Project>.value(
+            returnValue: _i33.Future<_i7.Project>.value(
               _FakeProject_8(
                 this,
                 Invocation.method(#addProject, [], {
@@ -947,7 +954,7 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i7.Project>.value(
+            returnValueForMissingStub: _i33.Future<_i7.Project>.value(
               _FakeProject_8(
                 this,
                 Invocation.method(#addProject, [], {
@@ -957,102 +964,102 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               ),
             ),
           )
-          as _i32.Future<_i7.Project>);
+          as _i33.Future<_i7.Project>);
 
   @override
-  _i32.Future<void> updateProject(_i7.Project? project) =>
+  _i33.Future<void> updateProject(_i7.Project? project) =>
       (super.noSuchMethod(
             Invocation.method(#updateProject, [project]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteProject(String? projectId) =>
+  _i33.Future<void> deleteProject(String? projectId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteProject, [projectId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i8.SkillCategory> addSkillCategory(String? name) =>
+  _i33.Future<_i8.SkillCategory> addSkillCategory(String? name) =>
       (super.noSuchMethod(
             Invocation.method(#addSkillCategory, [name]),
-            returnValue: _i32.Future<_i8.SkillCategory>.value(
+            returnValue: _i33.Future<_i8.SkillCategory>.value(
               _FakeSkillCategory_9(
                 this,
                 Invocation.method(#addSkillCategory, [name]),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i8.SkillCategory>.value(
+            returnValueForMissingStub: _i33.Future<_i8.SkillCategory>.value(
               _FakeSkillCategory_9(
                 this,
                 Invocation.method(#addSkillCategory, [name]),
               ),
             ),
           )
-          as _i32.Future<_i8.SkillCategory>);
+          as _i33.Future<_i8.SkillCategory>);
 
   @override
-  _i32.Future<void> updateSkillCategory(_i8.SkillCategory? category) =>
+  _i33.Future<void> updateSkillCategory(_i8.SkillCategory? category) =>
       (super.noSuchMethod(
             Invocation.method(#updateSkillCategory, [category]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteSkillCategory(String? categoryId) =>
+  _i33.Future<void> deleteSkillCategory(String? categoryId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteSkillCategory, [categoryId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i9.Skill> addSkill(String? categoryId, String? label) =>
+  _i33.Future<_i9.Skill> addSkill(String? categoryId, String? label) =>
       (super.noSuchMethod(
             Invocation.method(#addSkill, [categoryId, label]),
-            returnValue: _i32.Future<_i9.Skill>.value(
+            returnValue: _i33.Future<_i9.Skill>.value(
               _FakeSkill_10(
                 this,
                 Invocation.method(#addSkill, [categoryId, label]),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i9.Skill>.value(
+            returnValueForMissingStub: _i33.Future<_i9.Skill>.value(
               _FakeSkill_10(
                 this,
                 Invocation.method(#addSkill, [categoryId, label]),
               ),
             ),
           )
-          as _i32.Future<_i9.Skill>);
+          as _i33.Future<_i9.Skill>);
 
   @override
-  _i32.Future<void> updateSkill(String? categoryId, _i9.Skill? skill) =>
+  _i33.Future<void> updateSkill(String? categoryId, _i9.Skill? skill) =>
       (super.noSuchMethod(
             Invocation.method(#updateSkill, [categoryId, skill]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteSkill(String? categoryId, String? skillId) =>
+  _i33.Future<void> deleteSkill(String? categoryId, String? skillId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteSkill, [categoryId, skillId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i10.Education> addEducation({
+  _i33.Future<_i10.Education> addEducation({
     required String? qualification,
     required String? institution,
     String? location,
@@ -1069,7 +1076,7 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               #grade: grade,
               #details: details,
             }),
-            returnValue: _i32.Future<_i10.Education>.value(
+            returnValue: _i33.Future<_i10.Education>.value(
               _FakeEducation_11(
                 this,
                 Invocation.method(#addEducation, [], {
@@ -1082,7 +1089,7 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i10.Education>.value(
+            returnValueForMissingStub: _i33.Future<_i10.Education>.value(
               _FakeEducation_11(
                 this,
                 Invocation.method(#addEducation, [], {
@@ -1096,59 +1103,111 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               ),
             ),
           )
-          as _i32.Future<_i10.Education>);
+          as _i33.Future<_i10.Education>);
 
   @override
-  _i32.Future<void> updateEducation(_i10.Education? education) =>
+  _i33.Future<void> updateEducation(_i10.Education? education) =>
       (super.noSuchMethod(
             Invocation.method(#updateEducation, [education]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteEducation(String? educationId) =>
+  _i33.Future<void> deleteEducation(String? educationId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteEducation, [educationId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i11.HobbyItem> addHobby(String? text) =>
+  _i33.Future<_i11.HobbyItem> addHobby(String? text) =>
       (super.noSuchMethod(
             Invocation.method(#addHobby, [text]),
-            returnValue: _i32.Future<_i11.HobbyItem>.value(
+            returnValue: _i33.Future<_i11.HobbyItem>.value(
               _FakeHobbyItem_12(this, Invocation.method(#addHobby, [text])),
             ),
-            returnValueForMissingStub: _i32.Future<_i11.HobbyItem>.value(
+            returnValueForMissingStub: _i33.Future<_i11.HobbyItem>.value(
               _FakeHobbyItem_12(this, Invocation.method(#addHobby, [text])),
             ),
           )
-          as _i32.Future<_i11.HobbyItem>);
+          as _i33.Future<_i11.HobbyItem>);
 
   @override
-  _i32.Future<void> updateHobby(_i11.HobbyItem? hobby) =>
+  _i33.Future<void> updateHobby(_i11.HobbyItem? hobby) =>
       (super.noSuchMethod(
             Invocation.method(#updateHobby, [hobby]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteHobby(String? hobbyId) =>
+  _i33.Future<void> deleteHobby(String? hobbyId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteHobby, [hobbyId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i12.Publication> addPublication({
+  _i33.Future<_i12.LanguageItem> addLanguage(
+    String? name, {
+    _i42.LanguageProficiency? proficiency,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #addLanguage,
+              [name],
+              {#proficiency: proficiency},
+            ),
+            returnValue: _i33.Future<_i12.LanguageItem>.value(
+              _FakeLanguageItem_13(
+                this,
+                Invocation.method(
+                  #addLanguage,
+                  [name],
+                  {#proficiency: proficiency},
+                ),
+              ),
+            ),
+            returnValueForMissingStub: _i33.Future<_i12.LanguageItem>.value(
+              _FakeLanguageItem_13(
+                this,
+                Invocation.method(
+                  #addLanguage,
+                  [name],
+                  {#proficiency: proficiency},
+                ),
+              ),
+            ),
+          )
+          as _i33.Future<_i12.LanguageItem>);
+
+  @override
+  _i33.Future<void> updateLanguage(_i12.LanguageItem? language) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateLanguage, [language]),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
+          )
+          as _i33.Future<void>);
+
+  @override
+  _i33.Future<void> deleteLanguage(String? languageId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteLanguage, [languageId]),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
+          )
+          as _i33.Future<void>);
+
+  @override
+  _i33.Future<_i13.Publication> addPublication({
     required String? title,
     String? citation,
     String? link,
@@ -1159,8 +1218,8 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               #citation: citation,
               #link: link,
             }),
-            returnValue: _i32.Future<_i12.Publication>.value(
-              _FakePublication_13(
+            returnValue: _i33.Future<_i13.Publication>.value(
+              _FakePublication_14(
                 this,
                 Invocation.method(#addPublication, [], {
                   #title: title,
@@ -1169,8 +1228,8 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i12.Publication>.value(
-              _FakePublication_13(
+            returnValueForMissingStub: _i33.Future<_i13.Publication>.value(
+              _FakePublication_14(
                 this,
                 Invocation.method(#addPublication, [], {
                   #title: title,
@@ -1180,91 +1239,78 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               ),
             ),
           )
-          as _i32.Future<_i12.Publication>);
+          as _i33.Future<_i13.Publication>);
 
   @override
-  _i32.Future<void> updatePublication(_i12.Publication? publication) =>
+  _i33.Future<void> updatePublication(_i13.Publication? publication) =>
       (super.noSuchMethod(
             Invocation.method(#updatePublication, [publication]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deletePublication(String? publicationId) =>
+  _i33.Future<void> deletePublication(String? publicationId) =>
       (super.noSuchMethod(
             Invocation.method(#deletePublication, [publicationId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i13.CvBullet> addBullet(
-    _i41.BulletOwner? owner,
+  _i33.Future<_i14.CvBullet> addBullet(
+    _i43.BulletOwner? owner,
     String? ownerId, {
-    String? label,
     required String? text,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #addBullet,
-              [owner, ownerId],
-              {#label: label, #text: text},
-            ),
-            returnValue: _i32.Future<_i13.CvBullet>.value(
-              _FakeCvBullet_14(
+            Invocation.method(#addBullet, [owner, ownerId], {#text: text}),
+            returnValue: _i33.Future<_i14.CvBullet>.value(
+              _FakeCvBullet_15(
                 this,
-                Invocation.method(
-                  #addBullet,
-                  [owner, ownerId],
-                  {#label: label, #text: text},
-                ),
+                Invocation.method(#addBullet, [owner, ownerId], {#text: text}),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i13.CvBullet>.value(
-              _FakeCvBullet_14(
+            returnValueForMissingStub: _i33.Future<_i14.CvBullet>.value(
+              _FakeCvBullet_15(
                 this,
-                Invocation.method(
-                  #addBullet,
-                  [owner, ownerId],
-                  {#label: label, #text: text},
-                ),
+                Invocation.method(#addBullet, [owner, ownerId], {#text: text}),
               ),
             ),
           )
-          as _i32.Future<_i13.CvBullet>);
+          as _i33.Future<_i14.CvBullet>);
 
   @override
-  _i32.Future<void> updateBullet(
-    _i41.BulletOwner? owner,
+  _i33.Future<void> updateBullet(
+    _i43.BulletOwner? owner,
     String? ownerId,
-    _i13.CvBullet? bullet,
+    _i14.CvBullet? bullet,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateBullet, [owner, ownerId, bullet]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> deleteBullet(
-    _i41.BulletOwner? owner,
+  _i33.Future<void> deleteBullet(
+    _i43.BulletOwner? owner,
     String? ownerId,
     String? bulletId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#deleteBullet, [owner, ownerId, bulletId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> reorderBullets(
-    _i41.BulletOwner? owner,
+  _i33.Future<void> reorderBullets(
+    _i43.BulletOwner? owner,
     String? ownerId,
     List<String>? orderedBulletIds,
   ) =>
@@ -1274,37 +1320,37 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
               ownerId,
               orderedBulletIds,
             ]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> replaceAll(_i4.CvVault? vault) =>
+  _i33.Future<void> replaceAll(_i4.CvVault? vault) =>
       (super.noSuchMethod(
             Invocation.method(#replaceAll, [vault]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> flushPendingWrites() =>
+  _i33.Future<void> flushPendingWrites() =>
       (super.noSuchMethod(
             Invocation.method(#flushPendingWrites, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> writeToStorage(_i4.CvVault? value) =>
+  _i33.Future<void> writeToStorage(_i4.CvVault? value) =>
       (super.noSuchMethod(
             Invocation.method(#writeToStorage, [value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
   void listenToReactiveValues(List<dynamic>? reactiveValues) =>
@@ -1332,13 +1378,13 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
   );
 
   @override
-  _i32.Future<void> ready() =>
+  _i33.Future<void> ready() =>
       (super.noSuchMethod(
             Invocation.method(#ready, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
   void scheduleWrite(_i4.CvVault? target) => super.noSuchMethod(
@@ -1347,37 +1393,37 @@ class MockVaultService extends _i1.Mock implements _i37.VaultService {
   );
 
   @override
-  _i32.Future<void> persistNow(_i4.CvVault? fallback) =>
+  _i33.Future<void> persistNow(_i4.CvVault? fallback) =>
       (super.noSuchMethod(
             Invocation.method(#persistNow, [fallback]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> persistImmediately(_i4.CvVault? value) =>
+  _i33.Future<void> persistImmediately(_i4.CvVault? value) =>
       (super.noSuchMethod(
             Invocation.method(#persistImmediately, [value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> quarantine(String? box, String? originalKey, String? raw) =>
+  _i33.Future<void> quarantine(String? box, String? originalKey, String? raw) =>
       (super.noSuchMethod(
             Invocation.method(#quarantine, [box, originalKey, raw]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 }
 
 /// A class which mocks [DraftService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDraftService extends _i1.Mock implements _i42.DraftService {
+class MockDraftService extends _i1.Mock implements _i44.DraftService {
   @override
   _i3.LocalStorageService get storage =>
       (super.noSuchMethod(
@@ -1394,25 +1440,25 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
           as _i3.LocalStorageService);
 
   @override
-  List<_i14.CvDraft> get drafts =>
+  List<_i15.CvDraft> get drafts =>
       (super.noSuchMethod(
             Invocation.getter(#drafts),
-            returnValue: <_i14.CvDraft>[],
-            returnValueForMissingStub: <_i14.CvDraft>[],
+            returnValue: <_i15.CvDraft>[],
+            returnValueForMissingStub: <_i15.CvDraft>[],
           )
-          as List<_i14.CvDraft>);
+          as List<_i15.CvDraft>);
 
   @override
-  _i14.CvDraft get draft =>
+  _i15.CvDraft get draft =>
       (super.noSuchMethod(
             Invocation.getter(#draft),
-            returnValue: _FakeCvDraft_15(this, Invocation.getter(#draft)),
-            returnValueForMissingStub: _FakeCvDraft_15(
+            returnValue: _FakeCvDraft_16(this, Invocation.getter(#draft)),
+            returnValueForMissingStub: _FakeCvDraft_16(
               this,
               Invocation.getter(#draft),
             ),
           )
-          as _i14.CvDraft);
+          as _i15.CvDraft);
 
   @override
   bool get isFreshDraft =>
@@ -1454,29 +1500,29 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
   );
 
   @override
-  _i32.Future<void> load() =>
+  _i33.Future<void> load() =>
       (super.noSuchMethod(
             Invocation.method(#load, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> loadFromStorage() =>
+  _i33.Future<void> loadFromStorage() =>
       (super.noSuchMethod(
             Invocation.method(#loadFromStorage, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<String> createDraft({
+  _i33.Future<String> createDraft({
     required String? name,
     String? notes = '',
     String? templateId,
-    _i38.DocumentDefaults? defaults = const _i38.DocumentDefaults(),
+    _i39.DocumentDefaults? defaults = const _i39.DocumentDefaults(),
   }) =>
       (super.noSuchMethod(
             Invocation.method(#createDraft, [], {
@@ -1485,8 +1531,8 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               #templateId: templateId,
               #defaults: defaults,
             }),
-            returnValue: _i32.Future<String>.value(
-              _i43.dummyValue<String>(
+            returnValue: _i33.Future<String>.value(
+              _i45.dummyValue<String>(
                 this,
                 Invocation.method(#createDraft, [], {
                   #name: name,
@@ -1496,8 +1542,8 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<String>.value(
-              _i43.dummyValue<String>(
+            returnValueForMissingStub: _i33.Future<String>.value(
+              _i45.dummyValue<String>(
                 this,
                 Invocation.method(#createDraft, [], {
                   #name: name,
@@ -1508,19 +1554,19 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               ),
             ),
           )
-          as _i32.Future<String>);
+          as _i33.Future<String>);
 
   @override
-  _i32.Future<void> openDraft(String? id) =>
+  _i33.Future<void> openDraft(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#openDraft, [id]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> updateDraftDetails(
+  _i33.Future<void> updateDraftDetails(
     String? id, {
     required String? name,
     required String? notes,
@@ -1531,42 +1577,42 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [id],
               {#name: name, #notes: notes},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<String> duplicateDraft(String? id) =>
+  _i33.Future<String> duplicateDraft(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#duplicateDraft, [id]),
-            returnValue: _i32.Future<String>.value(
-              _i43.dummyValue<String>(
+            returnValue: _i33.Future<String>.value(
+              _i45.dummyValue<String>(
                 this,
                 Invocation.method(#duplicateDraft, [id]),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<String>.value(
-              _i43.dummyValue<String>(
+            returnValueForMissingStub: _i33.Future<String>.value(
+              _i45.dummyValue<String>(
                 this,
                 Invocation.method(#duplicateDraft, [id]),
               ),
             ),
           )
-          as _i32.Future<String>);
+          as _i33.Future<String>);
 
   @override
-  _i32.Future<void> deleteDraft(String? id) =>
+  _i33.Future<void> deleteDraft(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteDraft, [id]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> replaceAll(
-    List<_i14.CvDraft>? drafts, {
+  _i33.Future<void> replaceAll(
+    List<_i15.CvDraft>? drafts, {
     required String? activeDraftId,
   }) =>
       (super.noSuchMethod(
@@ -1575,40 +1621,40 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [drafts],
               {#activeDraftId: activeDraftId},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setTemplate(String? templateId) =>
+  _i33.Future<void> setTemplate(String? templateId) =>
       (super.noSuchMethod(
             Invocation.method(#setTemplate, [templateId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setRegion(_i44.RegionProfile? region) =>
+  _i33.Future<void> setRegion(_i46.RegionProfile? region) =>
       (super.noSuchMethod(
             Invocation.method(#setRegion, [region]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setDocumentLanguage(_i45.DocumentLanguage? language) =>
+  _i33.Future<void> setDocumentLanguage(_i47.DocumentLanguage? language) =>
       (super.noSuchMethod(
             Invocation.method(#setDocumentLanguage, [language]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> selectAllFromVault({
+  _i33.Future<void> selectAllFromVault({
     required List<String>? experienceIds,
     required Map<String, List<String>>? bulletIds,
     required List<String>? projectIds,
@@ -1617,6 +1663,7 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
     required List<String>? educationIds,
     required Map<String, List<String>>? educationBulletIds,
     required List<String>? hobbyIds,
+    required List<String>? languageIds,
     required List<String>? publicationIds,
     required Map<String, List<String>>? publicationBulletIds,
   }) =>
@@ -1630,16 +1677,17 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               #educationIds: educationIds,
               #educationBulletIds: educationBulletIds,
               #hobbyIds: hobbyIds,
+              #languageIds: languageIds,
               #publicationIds: publicationIds,
               #publicationBulletIds: publicationBulletIds,
             }),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setExperienceIncluded(
+  _i33.Future<void> setExperienceIncluded(
     String? experienceId, {
     required bool? included,
     List<String>? bulletIds = const [],
@@ -1650,13 +1698,13 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [experienceId],
               {#included: included, #bulletIds: bulletIds},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setProjectIncluded(
+  _i33.Future<void> setProjectIncluded(
     String? projectId, {
     required bool? included,
     List<String>? bulletIds = const [],
@@ -1667,13 +1715,13 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [projectId],
               {#included: included, #bulletIds: bulletIds},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setPublicationIncluded(
+  _i33.Future<void> setPublicationIncluded(
     String? publicationId, {
     required bool? included,
     List<String>? bulletIds = const [],
@@ -1684,13 +1732,13 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [publicationId],
               {#included: included, #bulletIds: bulletIds},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setSkillIncluded(
+  _i33.Future<void> setSkillIncluded(
     String? skillId, {
     required bool? included,
   }) =>
@@ -1700,13 +1748,13 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [skillId],
               {#included: included},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setEducationIncluded(
+  _i33.Future<void> setEducationIncluded(
     String? educationId, {
     required bool? included,
     List<String>? bulletIds = const [],
@@ -1717,13 +1765,13 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [educationId],
               {#included: included, #bulletIds: bulletIds},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setHobbyIncluded(
+  _i33.Future<void> setHobbyIncluded(
     String? hobbyId, {
     required bool? included,
   }) =>
@@ -1733,154 +1781,170 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [hobbyId],
               {#included: included},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setBulletIds(
-    _i41.BulletOwner? owner,
+  _i33.Future<void> setLanguageIncluded(
+    String? languageId, {
+    required bool? included,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #setLanguageIncluded,
+              [languageId],
+              {#included: included},
+            ),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
+          )
+          as _i33.Future<void>);
+
+  @override
+  _i33.Future<void> setBulletIds(
+    _i43.BulletOwner? owner,
     String? ownerId,
     List<String>? bulletIds,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#setBulletIds, [owner, ownerId, bulletIds]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setSectionHidden(
-    _i46.CvSectionType? type, {
+  _i33.Future<void> setSectionHidden(
+    _i48.CvSectionType? type, {
     required bool? hidden,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#setSectionHidden, [type], {#hidden: hidden}),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setSectionOrder(List<_i46.CvSectionType>? order) =>
+  _i33.Future<void> setSectionOrder(List<_i48.CvSectionType>? order) =>
       (super.noSuchMethod(
             Invocation.method(#setSectionOrder, [order]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> resetSectionSettings(_i38.DocumentDefaults? defaults) =>
+  _i33.Future<void> resetSectionSettings(_i39.DocumentDefaults? defaults) =>
       (super.noSuchMethod(
             Invocation.method(#resetSectionSettings, [defaults]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setTargetJobDescription(String? jobDescription) =>
+  _i33.Future<void> setTargetJobDescription(String? jobDescription) =>
       (super.noSuchMethod(
             Invocation.method(#setTargetJobDescription, [jobDescription]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> applyAiAssistantResult(_i25.AiAssistantResult? result) =>
+  _i33.Future<void> applyAiAssistantResult(_i26.AiAssistantResult? result) =>
       (super.noSuchMethod(
             Invocation.method(#applyAiAssistantResult, [result]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<bool> undoAiAssistantPass() =>
+  _i33.Future<bool> undoAiAssistantPass() =>
       (super.noSuchMethod(
             Invocation.method(#undoAiAssistantPass, []),
-            returnValue: _i32.Future<bool>.value(false),
-            returnValueForMissingStub: _i32.Future<bool>.value(false),
+            returnValue: _i33.Future<bool>.value(false),
+            returnValueForMissingStub: _i33.Future<bool>.value(false),
           )
-          as _i32.Future<bool>);
+          as _i33.Future<bool>);
 
   @override
-  _i32.Future<bool> hasAiAssistantUndoFor(String? draftId) =>
+  _i33.Future<bool> hasAiAssistantUndoFor(String? draftId) =>
       (super.noSuchMethod(
             Invocation.method(#hasAiAssistantUndoFor, [draftId]),
-            returnValue: _i32.Future<bool>.value(false),
-            returnValueForMissingStub: _i32.Future<bool>.value(false),
+            returnValue: _i33.Future<bool>.value(false),
+            returnValueForMissingStub: _i33.Future<bool>.value(false),
           )
-          as _i32.Future<bool>);
+          as _i33.Future<bool>);
 
   @override
-  _i32.Future<void> applyCvTranslationResult(
-    _i30.CvTranslationResult? result,
-    _i45.DocumentLanguage? language,
+  _i33.Future<void> applyCvTranslationResult(
+    _i31.CvTranslationResult? result,
+    _i47.DocumentLanguage? language,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#applyCvTranslationResult, [result, language]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<bool> removeCvTranslation() =>
+  _i33.Future<bool> removeCvTranslation() =>
       (super.noSuchMethod(
             Invocation.method(#removeCvTranslation, []),
-            returnValue: _i32.Future<bool>.value(false),
-            returnValueForMissingStub: _i32.Future<bool>.value(false),
+            returnValue: _i33.Future<bool>.value(false),
+            returnValueForMissingStub: _i33.Future<bool>.value(false),
           )
-          as _i32.Future<bool>);
+          as _i33.Future<bool>);
 
   @override
-  _i32.Future<void> resetWordingToVault() =>
+  _i33.Future<void> resetWordingToVault() =>
       (super.noSuchMethod(
             Invocation.method(#resetWordingToVault, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<bool> hasCvTranslationUndoFor(String? draftId) =>
+  _i33.Future<bool> hasCvTranslationUndoFor(String? draftId) =>
       (super.noSuchMethod(
             Invocation.method(#hasCvTranslationUndoFor, [draftId]),
-            returnValue: _i32.Future<bool>.value(false),
-            returnValueForMissingStub: _i32.Future<bool>.value(false),
+            returnValue: _i33.Future<bool>.value(false),
+            returnValueForMissingStub: _i33.Future<bool>.value(false),
           )
-          as _i32.Future<bool>);
+          as _i33.Future<bool>);
 
   @override
-  _i32.Future<void> setTailoredSummary(String? summary) =>
+  _i33.Future<void> setTailoredSummary(String? summary) =>
       (super.noSuchMethod(
             Invocation.method(#setTailoredSummary, [summary]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setTextOverride(
-    _i47.TextOverrideField? field,
+  _i33.Future<void> setTextOverride(
+    _i49.TextOverrideField? field,
     String? id,
     String? text,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#setTextOverride, [field, id, text]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setFieldOmitted(
-    _i48.DraftOmittableField? field,
+  _i33.Future<void> setFieldOmitted(
+    _i50.DraftOmittableField? field,
     String? entityId, {
     required bool? omitted,
   }) =>
@@ -1890,55 +1954,55 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
               [field, entityId],
               {#omitted: omitted},
             ),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setHeadlineOverride(String? headline) =>
+  _i33.Future<void> setHeadlineOverride(String? headline) =>
       (super.noSuchMethod(
             Invocation.method(#setHeadlineOverride, [headline]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setReferencesOverride(String? references) =>
+  _i33.Future<void> setReferencesOverride(String? references) =>
       (super.noSuchMethod(
             Invocation.method(#setReferencesOverride, [references]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setHeadlineHidden(bool? hidden) =>
+  _i33.Future<void> setHeadlineHidden(bool? hidden) =>
       (super.noSuchMethod(
             Invocation.method(#setHeadlineHidden, [hidden]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> flushPendingWrites() =>
+  _i33.Future<void> flushPendingWrites() =>
       (super.noSuchMethod(
             Invocation.method(#flushPendingWrites, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> writeToStorage(_i14.CvDraft? value) =>
+  _i33.Future<void> writeToStorage(_i15.CvDraft? value) =>
       (super.noSuchMethod(
             Invocation.method(#writeToStorage, [value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
   void listenToReactiveValues(List<dynamic>? reactiveValues) =>
@@ -1966,59 +2030,59 @@ class MockDraftService extends _i1.Mock implements _i42.DraftService {
   );
 
   @override
-  _i32.Future<void> ready() =>
+  _i33.Future<void> ready() =>
       (super.noSuchMethod(
             Invocation.method(#ready, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  void scheduleWrite(_i14.CvDraft? target) => super.noSuchMethod(
+  void scheduleWrite(_i15.CvDraft? target) => super.noSuchMethod(
     Invocation.method(#scheduleWrite, [target]),
     returnValueForMissingStub: null,
   );
 
   @override
-  _i32.Future<void> persistNow(_i14.CvDraft? fallback) =>
+  _i33.Future<void> persistNow(_i15.CvDraft? fallback) =>
       (super.noSuchMethod(
             Invocation.method(#persistNow, [fallback]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> persistImmediately(_i14.CvDraft? value) =>
+  _i33.Future<void> persistImmediately(_i15.CvDraft? value) =>
       (super.noSuchMethod(
             Invocation.method(#persistImmediately, [value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> quarantine(String? box, String? originalKey, String? raw) =>
+  _i33.Future<void> quarantine(String? box, String? originalKey, String? raw) =>
       (super.noSuchMethod(
             Invocation.method(#quarantine, [box, originalKey, raw]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 }
 
 /// A class which mocks [FileDownloadService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockFileDownloadService extends _i1.Mock
-    implements _i49.FileDownloadService {
+    implements _i51.FileDownloadService {
   @override
-  _i32.Future<void> saveFile({
+  _i33.Future<void> saveFile({
     required String? nameWithoutExtension,
-    required _i50.Uint8List? bytes,
+    required _i52.Uint8List? bytes,
     required String? extension,
-    required _i51.MimeType? mimeType,
+    required _i53.MimeType? mimeType,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#saveFile, [], {
@@ -2027,95 +2091,95 @@ class MockFileDownloadService extends _i1.Mock
               #extension: extension,
               #mimeType: mimeType,
             }),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 }
 
 /// A class which mocks [TemplateRegistryService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTemplateRegistryService extends _i1.Mock
-    implements _i52.TemplateRegistryService {
+    implements _i54.TemplateRegistryService {
   @override
-  _i15.CvTemplate get defaultTemplate =>
+  _i16.CvTemplate get defaultTemplate =>
       (super.noSuchMethod(
             Invocation.getter(#defaultTemplate),
-            returnValue: _FakeCvTemplate_16(
+            returnValue: _FakeCvTemplate_17(
               this,
               Invocation.getter(#defaultTemplate),
             ),
-            returnValueForMissingStub: _FakeCvTemplate_16(
+            returnValueForMissingStub: _FakeCvTemplate_17(
               this,
               Invocation.getter(#defaultTemplate),
             ),
           )
-          as _i15.CvTemplate);
+          as _i16.CvTemplate);
 
   @override
-  List<_i15.CvTemplate> get available =>
+  List<_i16.CvTemplate> get available =>
       (super.noSuchMethod(
             Invocation.getter(#available),
-            returnValue: <_i15.CvTemplate>[],
-            returnValueForMissingStub: <_i15.CvTemplate>[],
+            returnValue: <_i16.CvTemplate>[],
+            returnValueForMissingStub: <_i16.CvTemplate>[],
           )
-          as List<_i15.CvTemplate>);
+          as List<_i16.CvTemplate>);
 
   @override
-  _i15.CvTemplate byId(String? id) =>
+  _i16.CvTemplate byId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#byId, [id]),
-            returnValue: _FakeCvTemplate_16(
+            returnValue: _FakeCvTemplate_17(
               this,
               Invocation.method(#byId, [id]),
             ),
-            returnValueForMissingStub: _FakeCvTemplate_16(
+            returnValueForMissingStub: _FakeCvTemplate_17(
               this,
               Invocation.method(#byId, [id]),
             ),
           )
-          as _i15.CvTemplate);
+          as _i16.CvTemplate);
 }
 
 /// A class which mocks [FontService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFontService extends _i1.Mock implements _i53.FontService {
+class MockFontService extends _i1.Mock implements _i55.FontService {
   @override
-  _i32.Future<_i16.CvFontSet> load() =>
+  _i33.Future<_i17.CvFontSet> load() =>
       (super.noSuchMethod(
             Invocation.method(#load, []),
-            returnValue: _i32.Future<_i16.CvFontSet>.value(
-              _FakeCvFontSet_17(this, Invocation.method(#load, [])),
+            returnValue: _i33.Future<_i17.CvFontSet>.value(
+              _FakeCvFontSet_18(this, Invocation.method(#load, [])),
             ),
-            returnValueForMissingStub: _i32.Future<_i16.CvFontSet>.value(
-              _FakeCvFontSet_17(this, Invocation.method(#load, [])),
+            returnValueForMissingStub: _i33.Future<_i17.CvFontSet>.value(
+              _FakeCvFontSet_18(this, Invocation.method(#load, [])),
             ),
           )
-          as _i32.Future<_i16.CvFontSet>);
+          as _i33.Future<_i17.CvFontSet>);
 
   @override
-  _i32.Future<void> warmUp() =>
+  _i33.Future<void> warmUp() =>
       (super.noSuchMethod(
             Invocation.method(#warmUp, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 }
 
 /// A class which mocks [PdfExportService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPdfExportService extends _i1.Mock implements _i54.PdfExportService {
+class MockPdfExportService extends _i1.Mock implements _i56.PdfExportService {
   @override
-  _i32.Future<void> export({
-    required _i55.ResolvedCv? cv,
+  _i33.Future<void> export({
+    required _i57.ResolvedCv? cv,
     required String? templateId,
     required String? fullName,
     required String? draftName,
-    _i56.PdfPageFormat? format = _i56.PdfPageFormat.a4,
+    _i58.PdfPageFormat? format = _i58.PdfPageFormat.a4,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#export, [], {
@@ -2125,16 +2189,16 @@ class MockPdfExportService extends _i1.Mock implements _i54.PdfExportService {
               #draftName: draftName,
               #format: format,
             }),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i50.Uint8List> render({
-    required _i55.ResolvedCv? cv,
+  _i33.Future<_i52.Uint8List> render({
+    required _i57.ResolvedCv? cv,
     required String? templateId,
-    _i56.PdfPageFormat? format = _i56.PdfPageFormat.a4,
+    _i58.PdfPageFormat? format = _i58.PdfPageFormat.a4,
     bool? compress = true,
   }) =>
       (super.noSuchMethod(
@@ -2144,18 +2208,18 @@ class MockPdfExportService extends _i1.Mock implements _i54.PdfExportService {
               #format: format,
               #compress: compress,
             }),
-            returnValue: _i32.Future<_i50.Uint8List>.value(_i50.Uint8List(0)),
-            returnValueForMissingStub: _i32.Future<_i50.Uint8List>.value(
-              _i50.Uint8List(0),
+            returnValue: _i33.Future<_i52.Uint8List>.value(_i52.Uint8List(0)),
+            returnValueForMissingStub: _i33.Future<_i52.Uint8List>.value(
+              _i52.Uint8List(0),
             ),
           )
-          as _i32.Future<_i50.Uint8List>);
+          as _i33.Future<_i52.Uint8List>);
 }
 
 /// A class which mocks [SettingsService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsService extends _i1.Mock implements _i57.SettingsService {
+class MockSettingsService extends _i1.Mock implements _i59.SettingsService {
   @override
   _i3.LocalStorageService get storage =>
       (super.noSuchMethod(
@@ -2172,49 +2236,49 @@ class MockSettingsService extends _i1.Mock implements _i57.SettingsService {
           as _i3.LocalStorageService);
 
   @override
-  _i17.AppSettings get settings =>
+  _i18.AppSettings get settings =>
       (super.noSuchMethod(
             Invocation.getter(#settings),
-            returnValue: _FakeAppSettings_18(
+            returnValue: _FakeAppSettings_19(
               this,
               Invocation.getter(#settings),
             ),
-            returnValueForMissingStub: _FakeAppSettings_18(
+            returnValueForMissingStub: _FakeAppSettings_19(
               this,
               Invocation.getter(#settings),
             ),
           )
-          as _i17.AppSettings);
+          as _i18.AppSettings);
 
   @override
-  _i18.LlmProvider get selectedAiAssistantProvider =>
+  _i19.LlmProvider get selectedAiAssistantProvider =>
       (super.noSuchMethod(
             Invocation.getter(#selectedAiAssistantProvider),
-            returnValue: _FakeLlmProvider_19(
+            returnValue: _FakeLlmProvider_20(
               this,
               Invocation.getter(#selectedAiAssistantProvider),
             ),
-            returnValueForMissingStub: _FakeLlmProvider_19(
+            returnValueForMissingStub: _FakeLlmProvider_20(
               this,
               Invocation.getter(#selectedAiAssistantProvider),
             ),
           )
-          as _i18.LlmProvider);
+          as _i19.LlmProvider);
 
   @override
-  _i19.LlmModelOption get selectedAiAssistantModel =>
+  _i20.LlmModelOption get selectedAiAssistantModel =>
       (super.noSuchMethod(
             Invocation.getter(#selectedAiAssistantModel),
-            returnValue: _FakeLlmModelOption_20(
+            returnValue: _FakeLlmModelOption_21(
               this,
               Invocation.getter(#selectedAiAssistantModel),
             ),
-            returnValueForMissingStub: _FakeLlmModelOption_20(
+            returnValueForMissingStub: _FakeLlmModelOption_21(
               this,
               Invocation.getter(#selectedAiAssistantModel),
             ),
           )
-          as _i19.LlmModelOption);
+          as _i20.LlmModelOption);
 
   @override
   int get listenersCount =>
@@ -2247,76 +2311,76 @@ class MockSettingsService extends _i1.Mock implements _i57.SettingsService {
   );
 
   @override
-  _i32.Future<void> load() =>
+  _i33.Future<void> load() =>
       (super.noSuchMethod(
             Invocation.method(#load, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setAiAssistantProvider(String? providerId) =>
+  _i33.Future<void> setAiAssistantProvider(String? providerId) =>
       (super.noSuchMethod(
             Invocation.method(#setAiAssistantProvider, [providerId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setAiAssistantModel(String? modelId) =>
+  _i33.Future<void> setAiAssistantModel(String? modelId) =>
       (super.noSuchMethod(
             Invocation.method(#setAiAssistantModel, [modelId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> replacePreferences(_i58.CvPreferences? preferences) =>
+  _i33.Future<void> replacePreferences(_i60.CvPreferences? preferences) =>
       (super.noSuchMethod(
             Invocation.method(#replacePreferences, [preferences]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setLastBackupAt(DateTime? value) =>
+  _i33.Future<void> setLastBackupAt(DateTime? value) =>
       (super.noSuchMethod(
             Invocation.method(#setLastBackupAt, [value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setThemeMode(_i59.AppThemeMode? mode) =>
+  _i33.Future<void> setThemeMode(_i61.AppThemeMode? mode) =>
       (super.noSuchMethod(
             Invocation.method(#setThemeMode, [mode]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setLocaleTag(String? tag) =>
+  _i33.Future<void> setLocaleTag(String? tag) =>
       (super.noSuchMethod(
             Invocation.method(#setLocaleTag, [tag]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i57.ApiKeyOrigin apiKeyOriginFor(String? providerId) =>
+  _i59.ApiKeyOrigin apiKeyOriginFor(String? providerId) =>
       (super.noSuchMethod(
             Invocation.method(#apiKeyOriginFor, [providerId]),
-            returnValue: _i57.ApiKeyOrigin.none,
-            returnValueForMissingStub: _i57.ApiKeyOrigin.none,
+            returnValue: _i59.ApiKeyOrigin.none,
+            returnValueForMissingStub: _i59.ApiKeyOrigin.none,
           )
-          as _i57.ApiKeyOrigin);
+          as _i59.ApiKeyOrigin);
 
   @override
   String? maskedApiKeyFor(String? providerId) =>
@@ -2327,58 +2391,58 @@ class MockSettingsService extends _i1.Mock implements _i57.SettingsService {
           as String?);
 
   @override
-  _i32.Future<String?> apiKeyFor(String? providerId) =>
+  _i33.Future<String?> apiKeyFor(String? providerId) =>
       (super.noSuchMethod(
             Invocation.method(#apiKeyFor, [providerId]),
-            returnValue: _i32.Future<String?>.value(),
-            returnValueForMissingStub: _i32.Future<String?>.value(),
+            returnValue: _i33.Future<String?>.value(),
+            returnValueForMissingStub: _i33.Future<String?>.value(),
           )
-          as _i32.Future<String?>);
+          as _i33.Future<String?>);
 
   @override
-  _i32.Future<void> setApiKey(String? providerId, String? key) =>
+  _i33.Future<void> setApiKey(String? providerId, String? key) =>
       (super.noSuchMethod(
             Invocation.method(#setApiKey, [providerId, key]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> clearApiKey(String? providerId) =>
+  _i33.Future<void> clearApiKey(String? providerId) =>
       (super.noSuchMethod(
             Invocation.method(#clearApiKey, [providerId]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> markAiAssistantConfigured() =>
+  _i33.Future<void> markAiAssistantConfigured() =>
       (super.noSuchMethod(
             Invocation.method(#markAiAssistantConfigured, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> loadFromStorage() =>
+  _i33.Future<void> loadFromStorage() =>
       (super.noSuchMethod(
             Invocation.method(#loadFromStorage, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> writeToStorage(_i17.AppSettings? value) =>
+  _i33.Future<void> writeToStorage(_i18.AppSettings? value) =>
       (super.noSuchMethod(
             Invocation.method(#writeToStorage, [value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
   void listenToReactiveValues(List<dynamic>? reactiveValues) =>
@@ -2406,156 +2470,156 @@ class MockSettingsService extends _i1.Mock implements _i57.SettingsService {
   );
 
   @override
-  _i32.Future<void> ready() =>
+  _i33.Future<void> ready() =>
       (super.noSuchMethod(
             Invocation.method(#ready, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  void scheduleWrite(_i17.AppSettings? target) => super.noSuchMethod(
+  void scheduleWrite(_i18.AppSettings? target) => super.noSuchMethod(
     Invocation.method(#scheduleWrite, [target]),
     returnValueForMissingStub: null,
   );
 
   @override
-  _i32.Future<void> persistNow(_i17.AppSettings? fallback) =>
+  _i33.Future<void> persistNow(_i18.AppSettings? fallback) =>
       (super.noSuchMethod(
             Invocation.method(#persistNow, [fallback]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> persistImmediately(_i17.AppSettings? value) =>
+  _i33.Future<void> persistImmediately(_i18.AppSettings? value) =>
       (super.noSuchMethod(
             Invocation.method(#persistImmediately, [value]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> quarantine(String? box, String? originalKey, String? raw) =>
+  _i33.Future<void> quarantine(String? box, String? originalKey, String? raw) =>
       (super.noSuchMethod(
             Invocation.method(#quarantine, [box, originalKey, raw]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 }
 
 /// A class which mocks [BackupService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBackupService extends _i1.Mock implements _i60.BackupService {
+class MockBackupService extends _i1.Mock implements _i62.BackupService {
   @override
-  _i20.CvBackupBundle buildBundle() =>
+  _i21.CvBackupBundle buildBundle() =>
       (super.noSuchMethod(
             Invocation.method(#buildBundle, []),
-            returnValue: _FakeCvBackupBundle_21(
+            returnValue: _FakeCvBackupBundle_22(
               this,
               Invocation.method(#buildBundle, []),
             ),
-            returnValueForMissingStub: _FakeCvBackupBundle_21(
+            returnValueForMissingStub: _FakeCvBackupBundle_22(
               this,
               Invocation.method(#buildBundle, []),
             ),
           )
-          as _i20.CvBackupBundle);
+          as _i21.CvBackupBundle);
 
   @override
-  _i32.Future<void> exportBackup() =>
+  _i33.Future<void> exportBackup() =>
       (super.noSuchMethod(
             Invocation.method(#exportBackup, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i20.CvBackupBundle?> pickImportFile() =>
+  _i33.Future<_i21.CvBackupBundle?> pickImportFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickImportFile, []),
-            returnValue: _i32.Future<_i20.CvBackupBundle?>.value(),
+            returnValue: _i33.Future<_i21.CvBackupBundle?>.value(),
             returnValueForMissingStub:
-                _i32.Future<_i20.CvBackupBundle?>.value(),
+                _i33.Future<_i21.CvBackupBundle?>.value(),
           )
-          as _i32.Future<_i20.CvBackupBundle?>);
+          as _i33.Future<_i21.CvBackupBundle?>);
 
   @override
-  _i32.Future<void> applyImport(_i20.CvBackupBundle? bundle) =>
+  _i33.Future<void> applyImport(_i21.CvBackupBundle? bundle) =>
       (super.noSuchMethod(
             Invocation.method(#applyImport, [bundle]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 }
 
 /// A class which mocks [FileUploadService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFileUploadService extends _i1.Mock implements _i61.FileUploadService {
+class MockFileUploadService extends _i1.Mock implements _i63.FileUploadService {
   @override
-  _i32.Future<_i50.Uint8List?> pickJsonFile() =>
+  _i33.Future<_i52.Uint8List?> pickJsonFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickJsonFile, []),
-            returnValue: _i32.Future<_i50.Uint8List?>.value(),
-            returnValueForMissingStub: _i32.Future<_i50.Uint8List?>.value(),
+            returnValue: _i33.Future<_i52.Uint8List?>.value(),
+            returnValueForMissingStub: _i33.Future<_i52.Uint8List?>.value(),
           )
-          as _i32.Future<_i50.Uint8List?>);
+          as _i33.Future<_i52.Uint8List?>);
 
   @override
-  _i32.Future<_i50.Uint8List?> pickPdfFile() =>
+  _i33.Future<_i52.Uint8List?> pickPdfFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickPdfFile, []),
-            returnValue: _i32.Future<_i50.Uint8List?>.value(),
-            returnValueForMissingStub: _i32.Future<_i50.Uint8List?>.value(),
+            returnValue: _i33.Future<_i52.Uint8List?>.value(),
+            returnValueForMissingStub: _i33.Future<_i52.Uint8List?>.value(),
           )
-          as _i32.Future<_i50.Uint8List?>);
+          as _i33.Future<_i52.Uint8List?>);
 
   @override
-  _i32.Future<_i50.Uint8List?> pickImageFile() =>
+  _i33.Future<_i52.Uint8List?> pickImageFile() =>
       (super.noSuchMethod(
             Invocation.method(#pickImageFile, []),
-            returnValue: _i32.Future<_i50.Uint8List?>.value(),
-            returnValueForMissingStub: _i32.Future<_i50.Uint8List?>.value(),
+            returnValue: _i33.Future<_i52.Uint8List?>.value(),
+            returnValueForMissingStub: _i33.Future<_i52.Uint8List?>.value(),
           )
-          as _i32.Future<_i50.Uint8List?>);
+          as _i33.Future<_i52.Uint8List?>);
 }
 
 /// A class which mocks [PdfExtractionService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPdfExtractionService extends _i1.Mock
-    implements _i62.PdfExtractionService {
+    implements _i64.PdfExtractionService {
   @override
-  _i32.Future<_i21.AtsExtractedDocument> extract(_i50.Uint8List? bytes) =>
+  _i33.Future<_i22.AtsExtractedDocument> extract(_i52.Uint8List? bytes) =>
       (super.noSuchMethod(
             Invocation.method(#extract, [bytes]),
-            returnValue: _i32.Future<_i21.AtsExtractedDocument>.value(
-              _FakeAtsExtractedDocument_22(
+            returnValue: _i33.Future<_i22.AtsExtractedDocument>.value(
+              _FakeAtsExtractedDocument_23(
                 this,
                 Invocation.method(#extract, [bytes]),
               ),
             ),
             returnValueForMissingStub:
-                _i32.Future<_i21.AtsExtractedDocument>.value(
-                  _FakeAtsExtractedDocument_22(
+                _i33.Future<_i22.AtsExtractedDocument>.value(
+                  _FakeAtsExtractedDocument_23(
                     this,
                     Invocation.method(#extract, [bytes]),
                   ),
                 ),
           )
-          as _i32.Future<_i21.AtsExtractedDocument>);
+          as _i33.Future<_i22.AtsExtractedDocument>);
 
   @override
-  _i32.Future<_i22.AtsTextMatrix> getPageViewportTransform(
-    _i50.Uint8List? bytes, {
+  _i33.Future<_i23.AtsTextMatrix> getPageViewportTransform(
+    _i52.Uint8List? bytes, {
     required int? pageIndex,
     required double? dpi,
   }) =>
@@ -2565,8 +2629,8 @@ class MockPdfExtractionService extends _i1.Mock
               [bytes],
               {#pageIndex: pageIndex, #dpi: dpi},
             ),
-            returnValue: _i32.Future<_i22.AtsTextMatrix>.value(
-              _FakeAtsTextMatrix_23(
+            returnValue: _i33.Future<_i23.AtsTextMatrix>.value(
+              _FakeAtsTextMatrix_24(
                 this,
                 Invocation.method(
                   #getPageViewportTransform,
@@ -2575,8 +2639,8 @@ class MockPdfExtractionService extends _i1.Mock
                 ),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i22.AtsTextMatrix>.value(
-              _FakeAtsTextMatrix_23(
+            returnValueForMissingStub: _i33.Future<_i23.AtsTextMatrix>.value(
+              _FakeAtsTextMatrix_24(
                 this,
                 Invocation.method(
                   #getPageViewportTransform,
@@ -2586,51 +2650,51 @@ class MockPdfExtractionService extends _i1.Mock
               ),
             ),
           )
-          as _i32.Future<_i22.AtsTextMatrix>);
+          as _i33.Future<_i23.AtsTextMatrix>);
 }
 
 /// A class which mocks [AtsAnalyzerService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAtsAnalyzerService extends _i1.Mock
-    implements _i63.AtsAnalyzerService {
+    implements _i65.AtsAnalyzerService {
   @override
-  _i23.AtsAnalysisResult analyze(_i21.AtsExtractedDocument? document) =>
+  _i24.AtsAnalysisResult analyze(_i22.AtsExtractedDocument? document) =>
       (super.noSuchMethod(
             Invocation.method(#analyze, [document]),
-            returnValue: _FakeAtsAnalysisResult_24(
+            returnValue: _FakeAtsAnalysisResult_25(
               this,
               Invocation.method(#analyze, [document]),
             ),
-            returnValueForMissingStub: _FakeAtsAnalysisResult_24(
+            returnValueForMissingStub: _FakeAtsAnalysisResult_25(
               this,
               Invocation.method(#analyze, [document]),
             ),
           )
-          as _i23.AtsAnalysisResult);
+          as _i24.AtsAnalysisResult);
 }
 
 /// A class which mocks [LlmService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLlmService extends _i1.Mock implements _i64.LlmService {
+class MockLlmService extends _i1.Mock implements _i66.LlmService {
   @override
-  _i32.Future<void> testConnection(String? providerId, String? apiKey) =>
+  _i33.Future<void> testConnection(String? providerId, String? apiKey) =>
       (super.noSuchMethod(
             Invocation.method(#testConnection, [providerId, apiKey]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<_i24.LlmJsonResponse> completeJson({
+  _i33.Future<_i25.LlmJsonResponse> completeJson({
     required String? providerId,
     required String? modelId,
     required String? apiKey,
     required String? systemPrompt,
     required String? userContent,
-    required _i65.JsonSchema? schema,
+    required _i67.JsonSchema? schema,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#completeJson, [], {
@@ -2641,8 +2705,8 @@ class MockLlmService extends _i1.Mock implements _i64.LlmService {
               #userContent: userContent,
               #schema: schema,
             }),
-            returnValue: _i32.Future<_i24.LlmJsonResponse>.value(
-              _FakeLlmJsonResponse_25(
+            returnValue: _i33.Future<_i25.LlmJsonResponse>.value(
+              _FakeLlmJsonResponse_26(
                 this,
                 Invocation.method(#completeJson, [], {
                   #providerId: providerId,
@@ -2654,8 +2718,8 @@ class MockLlmService extends _i1.Mock implements _i64.LlmService {
                 }),
               ),
             ),
-            returnValueForMissingStub: _i32.Future<_i24.LlmJsonResponse>.value(
-              _FakeLlmJsonResponse_25(
+            returnValueForMissingStub: _i33.Future<_i25.LlmJsonResponse>.value(
+              _FakeLlmJsonResponse_26(
                 this,
                 Invocation.method(#completeJson, [], {
                   #providerId: providerId,
@@ -2668,20 +2732,20 @@ class MockLlmService extends _i1.Mock implements _i64.LlmService {
               ),
             ),
           )
-          as _i32.Future<_i24.LlmJsonResponse>);
+          as _i33.Future<_i25.LlmJsonResponse>);
 }
 
 /// A class which mocks [AiAssistantService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAiAssistantService extends _i1.Mock
-    implements _i66.AiAssistantService {
+    implements _i68.AiAssistantService {
   @override
-  _i32.Future<_i25.AiAssistantResult> runTailoringPass({
+  _i33.Future<_i26.AiAssistantResult> runTailoringPass({
     required _i4.CvVault? vault,
     required String? jobDescription,
-    required _i44.RegionProfile? region,
-    required _i45.DocumentLanguage? documentLanguage,
+    required _i46.RegionProfile? region,
+    required _i47.DocumentLanguage? documentLanguage,
     required String? providerId,
     required String? modelId,
     required String? apiKey,
@@ -2696,8 +2760,8 @@ class MockAiAssistantService extends _i1.Mock
               #modelId: modelId,
               #apiKey: apiKey,
             }),
-            returnValue: _i32.Future<_i25.AiAssistantResult>.value(
-              _FakeAiAssistantResult_26(
+            returnValue: _i33.Future<_i26.AiAssistantResult>.value(
+              _FakeAiAssistantResult_27(
                 this,
                 Invocation.method(#runTailoringPass, [], {
                   #vault: vault,
@@ -2711,8 +2775,8 @@ class MockAiAssistantService extends _i1.Mock
               ),
             ),
             returnValueForMissingStub:
-                _i32.Future<_i25.AiAssistantResult>.value(
-                  _FakeAiAssistantResult_26(
+                _i33.Future<_i26.AiAssistantResult>.value(
+                  _FakeAiAssistantResult_27(
                     this,
                     Invocation.method(#runTailoringPass, [], {
                       #vault: vault,
@@ -2726,19 +2790,19 @@ class MockAiAssistantService extends _i1.Mock
                   ),
                 ),
           )
-          as _i32.Future<_i25.AiAssistantResult>);
+          as _i33.Future<_i26.AiAssistantResult>);
 }
 
 /// A class which mocks [TemplateThumbnailService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTemplateThumbnailService extends _i1.Mock
-    implements _i67.TemplateThumbnailService {
+    implements _i69.TemplateThumbnailService {
   @override
-  _i32.Future<_i50.Uint8List> thumbnail({
-    required _i55.ResolvedCv? cv,
+  _i33.Future<_i52.Uint8List> thumbnail({
+    required _i57.ResolvedCv? cv,
     required String? templateId,
-    required _i56.PdfPageFormat? format,
+    required _i58.PdfPageFormat? format,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#thumbnail, [], {
@@ -2746,138 +2810,138 @@ class MockTemplateThumbnailService extends _i1.Mock
               #templateId: templateId,
               #format: format,
             }),
-            returnValue: _i32.Future<_i50.Uint8List>.value(_i50.Uint8List(0)),
-            returnValueForMissingStub: _i32.Future<_i50.Uint8List>.value(
-              _i50.Uint8List(0),
+            returnValue: _i33.Future<_i52.Uint8List>.value(_i52.Uint8List(0)),
+            returnValueForMissingStub: _i33.Future<_i52.Uint8List>.value(
+              _i52.Uint8List(0),
             ),
           )
-          as _i32.Future<_i50.Uint8List>);
+          as _i33.Future<_i52.Uint8List>);
 }
 
 /// A class which mocks [DriveApiClientService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockDriveApiClientService extends _i1.Mock
-    implements _i68.DriveApiClientService {
+    implements _i70.DriveApiClientService {
   @override
-  _i32.Future<String?> fetchAccountEmail(String? accessToken) =>
+  _i33.Future<String?> fetchAccountEmail(String? accessToken) =>
       (super.noSuchMethod(
             Invocation.method(#fetchAccountEmail, [accessToken]),
-            returnValue: _i32.Future<String?>.value(),
-            returnValueForMissingStub: _i32.Future<String?>.value(),
+            returnValue: _i33.Future<String?>.value(),
+            returnValueForMissingStub: _i33.Future<String?>.value(),
           )
-          as _i32.Future<String?>);
+          as _i33.Future<String?>);
 
   @override
-  _i32.Future<_i26.DriveFileSnapshot?> findFile(String? accessToken) =>
+  _i33.Future<_i27.DriveFileSnapshot?> findFile(String? accessToken) =>
       (super.noSuchMethod(
             Invocation.method(#findFile, [accessToken]),
-            returnValue: _i32.Future<_i26.DriveFileSnapshot?>.value(),
+            returnValue: _i33.Future<_i27.DriveFileSnapshot?>.value(),
             returnValueForMissingStub:
-                _i32.Future<_i26.DriveFileSnapshot?>.value(),
+                _i33.Future<_i27.DriveFileSnapshot?>.value(),
           )
-          as _i32.Future<_i26.DriveFileSnapshot?>);
+          as _i33.Future<_i27.DriveFileSnapshot?>);
 
   @override
-  _i32.Future<_i26.DriveFileSnapshot> createFile(
+  _i33.Future<_i27.DriveFileSnapshot> createFile(
     String? accessToken,
     Map<String, dynamic>? json,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#createFile, [accessToken, json]),
-            returnValue: _i32.Future<_i26.DriveFileSnapshot>.value(
-              _FakeDriveFileSnapshot_27(
+            returnValue: _i33.Future<_i27.DriveFileSnapshot>.value(
+              _FakeDriveFileSnapshot_28(
                 this,
                 Invocation.method(#createFile, [accessToken, json]),
               ),
             ),
             returnValueForMissingStub:
-                _i32.Future<_i26.DriveFileSnapshot>.value(
-                  _FakeDriveFileSnapshot_27(
+                _i33.Future<_i27.DriveFileSnapshot>.value(
+                  _FakeDriveFileSnapshot_28(
                     this,
                     Invocation.method(#createFile, [accessToken, json]),
                   ),
                 ),
           )
-          as _i32.Future<_i26.DriveFileSnapshot>);
+          as _i33.Future<_i27.DriveFileSnapshot>);
 
   @override
-  _i32.Future<Map<String, dynamic>> downloadFile(
+  _i33.Future<Map<String, dynamic>> downloadFile(
     String? accessToken,
     String? fileId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#downloadFile, [accessToken, fileId]),
-            returnValue: _i32.Future<Map<String, dynamic>>.value(
+            returnValue: _i33.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
-            returnValueForMissingStub: _i32.Future<Map<String, dynamic>>.value(
+            returnValueForMissingStub: _i33.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i32.Future<Map<String, dynamic>>);
+          as _i33.Future<Map<String, dynamic>>);
 
   @override
-  _i32.Future<_i26.DriveFileSnapshot> updateFile(
+  _i33.Future<_i27.DriveFileSnapshot> updateFile(
     String? accessToken,
     String? fileId,
     Map<String, dynamic>? json,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateFile, [accessToken, fileId, json]),
-            returnValue: _i32.Future<_i26.DriveFileSnapshot>.value(
-              _FakeDriveFileSnapshot_27(
+            returnValue: _i33.Future<_i27.DriveFileSnapshot>.value(
+              _FakeDriveFileSnapshot_28(
                 this,
                 Invocation.method(#updateFile, [accessToken, fileId, json]),
               ),
             ),
             returnValueForMissingStub:
-                _i32.Future<_i26.DriveFileSnapshot>.value(
-                  _FakeDriveFileSnapshot_27(
+                _i33.Future<_i27.DriveFileSnapshot>.value(
+                  _FakeDriveFileSnapshot_28(
                     this,
                     Invocation.method(#updateFile, [accessToken, fileId, json]),
                   ),
                 ),
           )
-          as _i32.Future<_i26.DriveFileSnapshot>);
+          as _i33.Future<_i27.DriveFileSnapshot>);
 
   @override
-  _i32.Future<_i26.DriveFileSnapshot> fetchMetadata(
+  _i33.Future<_i27.DriveFileSnapshot> fetchMetadata(
     String? accessToken,
     String? fileId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#fetchMetadata, [accessToken, fileId]),
-            returnValue: _i32.Future<_i26.DriveFileSnapshot>.value(
-              _FakeDriveFileSnapshot_27(
+            returnValue: _i33.Future<_i27.DriveFileSnapshot>.value(
+              _FakeDriveFileSnapshot_28(
                 this,
                 Invocation.method(#fetchMetadata, [accessToken, fileId]),
               ),
             ),
             returnValueForMissingStub:
-                _i32.Future<_i26.DriveFileSnapshot>.value(
-                  _FakeDriveFileSnapshot_27(
+                _i33.Future<_i27.DriveFileSnapshot>.value(
+                  _FakeDriveFileSnapshot_28(
                     this,
                     Invocation.method(#fetchMetadata, [accessToken, fileId]),
                   ),
                 ),
           )
-          as _i32.Future<_i26.DriveFileSnapshot>);
+          as _i33.Future<_i27.DriveFileSnapshot>);
 }
 
 /// A class which mocks [DriveSyncService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDriveSyncService extends _i1.Mock implements _i69.DriveSyncService {
+class MockDriveSyncService extends _i1.Mock implements _i71.DriveSyncService {
   @override
   Duration get idleDebounce =>
       (super.noSuchMethod(
             Invocation.getter(#idleDebounce),
-            returnValue: _FakeDuration_28(
+            returnValue: _FakeDuration_29(
               this,
               Invocation.getter(#idleDebounce),
             ),
-            returnValueForMissingStub: _FakeDuration_28(
+            returnValueForMissingStub: _FakeDuration_29(
               this,
               Invocation.getter(#idleDebounce),
             ),
@@ -2888,8 +2952,8 @@ class MockDriveSyncService extends _i1.Mock implements _i69.DriveSyncService {
   Duration get maxWait =>
       (super.noSuchMethod(
             Invocation.getter(#maxWait),
-            returnValue: _FakeDuration_28(this, Invocation.getter(#maxWait)),
-            returnValueForMissingStub: _FakeDuration_28(
+            returnValue: _FakeDuration_29(this, Invocation.getter(#maxWait)),
+            returnValueForMissingStub: _FakeDuration_29(
               this,
               Invocation.getter(#maxWait),
             ),
@@ -2900,11 +2964,11 @@ class MockDriveSyncService extends _i1.Mock implements _i69.DriveSyncService {
   Duration get mergedNoticeDuration =>
       (super.noSuchMethod(
             Invocation.getter(#mergedNoticeDuration),
-            returnValue: _FakeDuration_28(
+            returnValue: _FakeDuration_29(
               this,
               Invocation.getter(#mergedNoticeDuration),
             ),
-            returnValueForMissingStub: _FakeDuration_28(
+            returnValueForMissingStub: _FakeDuration_29(
               this,
               Invocation.getter(#mergedNoticeDuration),
             ),
@@ -2912,19 +2976,19 @@ class MockDriveSyncService extends _i1.Mock implements _i69.DriveSyncService {
           as Duration);
 
   @override
-  _i70.DriveSyncStatus get status =>
+  _i72.DriveSyncStatus get status =>
       (super.noSuchMethod(
             Invocation.getter(#status),
-            returnValue: _i43.dummyValue<_i70.DriveSyncStatus>(
+            returnValue: _i45.dummyValue<_i72.DriveSyncStatus>(
               this,
               Invocation.getter(#status),
             ),
-            returnValueForMissingStub: _i43.dummyValue<_i70.DriveSyncStatus>(
+            returnValueForMissingStub: _i45.dummyValue<_i72.DriveSyncStatus>(
               this,
               Invocation.getter(#status),
             ),
           )
-          as _i70.DriveSyncStatus);
+          as _i72.DriveSyncStatus);
 
   @override
   bool get isAvailable =>
@@ -2945,49 +3009,49 @@ class MockDriveSyncService extends _i1.Mock implements _i69.DriveSyncService {
           as int);
 
   @override
-  _i32.Future<void> start() =>
+  _i33.Future<void> start() =>
       (super.noSuchMethod(
             Invocation.method(#start, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> connect() =>
+  _i33.Future<void> connect() =>
       (super.noSuchMethod(
             Invocation.method(#connect, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> disconnect() =>
+  _i33.Future<void> disconnect() =>
       (super.noSuchMethod(
             Invocation.method(#disconnect, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> syncNow() =>
+  _i33.Future<void> syncNow() =>
       (super.noSuchMethod(
             Invocation.method(#syncNow, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> flushPendingWrites() =>
+  _i33.Future<void> flushPendingWrites() =>
       (super.noSuchMethod(
             Invocation.method(#flushPendingWrites, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
   void listenToReactiveValues(List<dynamic>? reactiveValues) =>
@@ -3018,7 +3082,7 @@ class MockDriveSyncService extends _i1.Mock implements _i69.DriveSyncService {
 /// A class which mocks [GoogleAuthService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockGoogleAuthService extends _i1.Mock implements _i71.GoogleAuthService {
+class MockGoogleAuthService extends _i1.Mock implements _i73.GoogleAuthService {
   @override
   bool get isConfigured =>
       (super.noSuchMethod(
@@ -3029,89 +3093,89 @@ class MockGoogleAuthService extends _i1.Mock implements _i71.GoogleAuthService {
           as bool);
 
   @override
-  _i32.Future<String?> silentAccessToken() =>
+  _i33.Future<String?> silentAccessToken() =>
       (super.noSuchMethod(
             Invocation.method(#silentAccessToken, []),
-            returnValue: _i32.Future<String?>.value(),
-            returnValueForMissingStub: _i32.Future<String?>.value(),
+            returnValue: _i33.Future<String?>.value(),
+            returnValueForMissingStub: _i33.Future<String?>.value(),
           )
-          as _i32.Future<String?>);
+          as _i33.Future<String?>);
 
   @override
-  _i32.Future<void> warmUp() =>
+  _i33.Future<void> warmUp() =>
       (super.noSuchMethod(
             Invocation.method(#warmUp, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<String?> tokenOnNextUserGesture() =>
+  _i33.Future<String?> tokenOnNextUserGesture() =>
       (super.noSuchMethod(
             Invocation.method(#tokenOnNextUserGesture, []),
-            returnValue: _i32.Future<String?>.value(),
-            returnValueForMissingStub: _i32.Future<String?>.value(),
+            returnValue: _i33.Future<String?>.value(),
+            returnValueForMissingStub: _i33.Future<String?>.value(),
           )
-          as _i32.Future<String?>);
+          as _i33.Future<String?>);
 
   @override
-  _i32.Future<String> connect() =>
+  _i33.Future<String> connect() =>
       (super.noSuchMethod(
             Invocation.method(#connect, []),
-            returnValue: _i32.Future<String>.value(
-              _i43.dummyValue<String>(this, Invocation.method(#connect, [])),
+            returnValue: _i33.Future<String>.value(
+              _i45.dummyValue<String>(this, Invocation.method(#connect, [])),
             ),
-            returnValueForMissingStub: _i32.Future<String>.value(
-              _i43.dummyValue<String>(this, Invocation.method(#connect, [])),
+            returnValueForMissingStub: _i33.Future<String>.value(
+              _i45.dummyValue<String>(this, Invocation.method(#connect, [])),
             ),
           )
-          as _i32.Future<String>);
+          as _i33.Future<String>);
 
   @override
-  _i32.Future<void> disconnect() =>
+  _i33.Future<void> disconnect() =>
       (super.noSuchMethod(
             Invocation.method(#disconnect, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 }
 
 /// A class which mocks [LocalizationService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLocalizationService extends _i1.Mock
-    implements _i72.LocalizationService {
+    implements _i74.LocalizationService {
   @override
-  _i27.Locale get resolvedLocale =>
+  _i28.Locale get resolvedLocale =>
       (super.noSuchMethod(
             Invocation.getter(#resolvedLocale),
-            returnValue: _FakeLocale_29(
+            returnValue: _FakeLocale_30(
               this,
               Invocation.getter(#resolvedLocale),
             ),
-            returnValueForMissingStub: _FakeLocale_29(
+            returnValueForMissingStub: _FakeLocale_30(
               this,
               Invocation.getter(#resolvedLocale),
             ),
           )
-          as _i27.Locale);
+          as _i28.Locale);
 
   @override
-  _i28.AppLocalizations get strings =>
+  _i29.AppLocalizations get strings =>
       (super.noSuchMethod(
             Invocation.getter(#strings),
-            returnValue: _FakeAppLocalizations_30(
+            returnValue: _FakeAppLocalizations_31(
               this,
               Invocation.getter(#strings),
             ),
-            returnValueForMissingStub: _FakeAppLocalizations_30(
+            returnValueForMissingStub: _FakeAppLocalizations_31(
               this,
               Invocation.getter(#strings),
             ),
           )
-          as _i28.AppLocalizations);
+          as _i29.AppLocalizations);
 
   @override
   int get listenersCount =>
@@ -3123,22 +3187,22 @@ class MockLocalizationService extends _i1.Mock
           as int);
 
   @override
-  _i32.Future<void> initialise() =>
+  _i33.Future<void> initialise() =>
       (super.noSuchMethod(
             Invocation.method(#initialise, []),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
-  _i32.Future<void> setLocale(_i27.Locale? locale) =>
+  _i33.Future<void> setLocale(_i28.Locale? locale) =>
       (super.noSuchMethod(
             Invocation.method(#setLocale, [locale]),
-            returnValue: _i32.Future<void>.value(),
-            returnValueForMissingStub: _i32.Future<void>.value(),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
           )
-          as _i32.Future<void>);
+          as _i33.Future<void>);
 
   @override
   void didChangeSystemLocales() => super.noSuchMethod(
@@ -3176,18 +3240,18 @@ class MockLocalizationService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockProfilePhotoService extends _i1.Mock
-    implements _i73.ProfilePhotoService {
+    implements _i75.ProfilePhotoService {
   @override
-  _i50.Uint8List? prepareForCrop(_i50.Uint8List? original) =>
+  _i52.Uint8List? prepareForCrop(_i52.Uint8List? original) =>
       (super.noSuchMethod(
             Invocation.method(#prepareForCrop, [original]),
             returnValueForMissingStub: null,
           )
-          as _i50.Uint8List?);
+          as _i52.Uint8List?);
 
   @override
-  _i29.CvPhoto encodeCrop({
-    required _i50.Uint8List? rgbaBytes,
+  _i30.CvPhoto encodeCrop({
+    required _i52.Uint8List? rgbaBytes,
     required int? width,
     required int? height,
   }) =>
@@ -3197,7 +3261,7 @@ class MockProfilePhotoService extends _i1.Mock
               #width: width,
               #height: height,
             }),
-            returnValue: _FakeCvPhoto_31(
+            returnValue: _FakeCvPhoto_32(
               this,
               Invocation.method(#encodeCrop, [], {
                 #rgbaBytes: rgbaBytes,
@@ -3205,7 +3269,7 @@ class MockProfilePhotoService extends _i1.Mock
                 #height: height,
               }),
             ),
-            returnValueForMissingStub: _FakeCvPhoto_31(
+            returnValueForMissingStub: _FakeCvPhoto_32(
               this,
               Invocation.method(#encodeCrop, [], {
                 #rgbaBytes: rgbaBytes,
@@ -3214,20 +3278,20 @@ class MockProfilePhotoService extends _i1.Mock
               }),
             ),
           )
-          as _i29.CvPhoto);
+          as _i30.CvPhoto);
 }
 
 /// A class which mocks [CvTranslationService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCvTranslationService extends _i1.Mock
-    implements _i74.CvTranslationService {
+    implements _i76.CvTranslationService {
   @override
-  _i32.Future<_i30.CvTranslationResult> runTranslationPass({
+  _i33.Future<_i31.CvTranslationResult> runTranslationPass({
     required _i4.CvVault? vault,
-    required _i14.CvDraft? draft,
-    required _i45.DocumentLanguage? targetLanguage,
-    required _i44.RegionProfile? region,
+    required _i15.CvDraft? draft,
+    required _i47.DocumentLanguage? targetLanguage,
+    required _i46.RegionProfile? region,
     required String? providerId,
     required String? modelId,
     required String? apiKey,
@@ -3244,8 +3308,8 @@ class MockCvTranslationService extends _i1.Mock
               #apiKey: apiKey,
               #onProgress: onProgress,
             }),
-            returnValue: _i32.Future<_i30.CvTranslationResult>.value(
-              _FakeCvTranslationResult_32(
+            returnValue: _i33.Future<_i31.CvTranslationResult>.value(
+              _FakeCvTranslationResult_33(
                 this,
                 Invocation.method(#runTranslationPass, [], {
                   #vault: vault,
@@ -3260,8 +3324,8 @@ class MockCvTranslationService extends _i1.Mock
               ),
             ),
             returnValueForMissingStub:
-                _i32.Future<_i30.CvTranslationResult>.value(
-                  _FakeCvTranslationResult_32(
+                _i33.Future<_i31.CvTranslationResult>.value(
+                  _FakeCvTranslationResult_33(
                     this,
                     Invocation.method(#runTranslationPass, [], {
                       #vault: vault,
@@ -3276,5 +3340,5 @@ class MockCvTranslationService extends _i1.Mock
                   ),
                 ),
           )
-          as _i32.Future<_i30.CvTranslationResult>);
+          as _i33.Future<_i31.CvTranslationResult>);
 }

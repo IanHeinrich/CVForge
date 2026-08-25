@@ -298,7 +298,9 @@ $ResolvedHeaderCopyWith<$Res> get header {
 /// @nodoc
 mixin _$ResolvedHeader {
 
- String get fullName; String get headline; String get email; String get phone; String get location; List<ResolvedLink> get links;/// The Vault photo's JPEG bytes, base64-encoded — carried as the raw
+ String get fullName; String get headline; String get email; String get phone; String get location;/// The Vault's [ContactBasics.workAuthorization], printed as one more
+/// contact line. Null or blank prints nothing.
+ String? get workAuthorization; List<ResolvedLink> get links;/// The Vault photo's JPEG bytes, base64-encoded — carried as the raw
 /// scalar rather than as `CvPhoto` so this file keeps its "templates
 /// never see a Vault type" boundary, and as a `String` rather than
 /// `Uint8List` so [ResolvedHeader] keeps value equality (see
@@ -318,16 +320,16 @@ $ResolvedHeaderCopyWith<ResolvedHeader> get copyWith => _$ResolvedHeaderCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedHeader&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other.links, links)&&(identical(other.photoJpegBase64, photoJpegBase64) || other.photoJpegBase64 == photoJpegBase64));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedHeader&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&(identical(other.workAuthorization, workAuthorization) || other.workAuthorization == workAuthorization)&&const DeepCollectionEquality().equals(other.links, links)&&(identical(other.photoJpegBase64, photoJpegBase64) || other.photoJpegBase64 == photoJpegBase64));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,const DeepCollectionEquality().hash(links),photoJpegBase64);
+int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,workAuthorization,const DeepCollectionEquality().hash(links),photoJpegBase64);
 
 @override
 String toString() {
-  return 'ResolvedHeader(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, links: $links, photoJpegBase64: $photoJpegBase64)';
+  return 'ResolvedHeader(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, workAuthorization: $workAuthorization, links: $links, photoJpegBase64: $photoJpegBase64)';
 }
 
 
@@ -338,7 +340,7 @@ abstract mixin class $ResolvedHeaderCopyWith<$Res>  {
   factory $ResolvedHeaderCopyWith(ResolvedHeader value, $Res Function(ResolvedHeader) _then) = _$ResolvedHeaderCopyWithImpl;
 @useResult
 $Res call({
- String fullName, String headline, String email, String phone, String location, List<ResolvedLink> links, String? photoJpegBase64
+ String fullName, String headline, String email, String phone, String location, String? workAuthorization, List<ResolvedLink> links, String? photoJpegBase64
 });
 
 
@@ -355,14 +357,15 @@ class _$ResolvedHeaderCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedHeader
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? links = null,Object? photoJpegBase64 = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? workAuthorization = freezed,Object? links = null,Object? photoJpegBase64 = freezed,}) {
   return _then(_self.copyWith(
 fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,headline: null == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as String,links: null == links ? _self.links : links // ignore: cast_nullable_to_non_nullable
+as String,workAuthorization: freezed == workAuthorization ? _self.workAuthorization : workAuthorization // ignore: cast_nullable_to_non_nullable
+as String?,links: null == links ? _self.links : links // ignore: cast_nullable_to_non_nullable
 as List<ResolvedLink>,photoJpegBase64: freezed == photoJpegBase64 ? _self.photoJpegBase64 : photoJpegBase64 // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -449,10 +452,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  List<ResolvedLink> links,  String? photoJpegBase64)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  String? workAuthorization,  List<ResolvedLink> links,  String? photoJpegBase64)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ResolvedHeader() when $default != null:
-return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.links,_that.photoJpegBase64);case _:
+return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.workAuthorization,_that.links,_that.photoJpegBase64);case _:
   return orElse();
 
 }
@@ -470,10 +473,10 @@ return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.loca
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  List<ResolvedLink> links,  String? photoJpegBase64)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  String? workAuthorization,  List<ResolvedLink> links,  String? photoJpegBase64)  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedHeader():
-return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.links,_that.photoJpegBase64);case _:
+return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.workAuthorization,_that.links,_that.photoJpegBase64);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -490,10 +493,10 @@ return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.loca
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fullName,  String headline,  String email,  String phone,  String location,  List<ResolvedLink> links,  String? photoJpegBase64)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fullName,  String headline,  String email,  String phone,  String location,  String? workAuthorization,  List<ResolvedLink> links,  String? photoJpegBase64)?  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedHeader() when $default != null:
-return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.links,_that.photoJpegBase64);case _:
+return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.workAuthorization,_that.links,_that.photoJpegBase64);case _:
   return null;
 
 }
@@ -505,7 +508,7 @@ return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.loca
 
 
 class _ResolvedHeader implements ResolvedHeader {
-  const _ResolvedHeader({required this.fullName, required this.headline, required this.email, required this.phone, required this.location, final  List<ResolvedLink> links = const <ResolvedLink>[], this.photoJpegBase64}): _links = links;
+  const _ResolvedHeader({required this.fullName, required this.headline, required this.email, required this.phone, required this.location, this.workAuthorization, final  List<ResolvedLink> links = const <ResolvedLink>[], this.photoJpegBase64}): _links = links;
   
 
 @override final  String fullName;
@@ -513,6 +516,9 @@ class _ResolvedHeader implements ResolvedHeader {
 @override final  String email;
 @override final  String phone;
 @override final  String location;
+/// The Vault's [ContactBasics.workAuthorization], printed as one more
+/// contact line. Null or blank prints nothing.
+@override final  String? workAuthorization;
  final  List<ResolvedLink> _links;
 @override@JsonKey() List<ResolvedLink> get links {
   if (_links is EqualUnmodifiableListView) return _links;
@@ -541,16 +547,16 @@ _$ResolvedHeaderCopyWith<_ResolvedHeader> get copyWith => __$ResolvedHeaderCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedHeader&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other._links, _links)&&(identical(other.photoJpegBase64, photoJpegBase64) || other.photoJpegBase64 == photoJpegBase64));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedHeader&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&(identical(other.workAuthorization, workAuthorization) || other.workAuthorization == workAuthorization)&&const DeepCollectionEquality().equals(other._links, _links)&&(identical(other.photoJpegBase64, photoJpegBase64) || other.photoJpegBase64 == photoJpegBase64));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,const DeepCollectionEquality().hash(_links),photoJpegBase64);
+int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,workAuthorization,const DeepCollectionEquality().hash(_links),photoJpegBase64);
 
 @override
 String toString() {
-  return 'ResolvedHeader(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, links: $links, photoJpegBase64: $photoJpegBase64)';
+  return 'ResolvedHeader(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, workAuthorization: $workAuthorization, links: $links, photoJpegBase64: $photoJpegBase64)';
 }
 
 
@@ -561,7 +567,7 @@ abstract mixin class _$ResolvedHeaderCopyWith<$Res> implements $ResolvedHeaderCo
   factory _$ResolvedHeaderCopyWith(_ResolvedHeader value, $Res Function(_ResolvedHeader) _then) = __$ResolvedHeaderCopyWithImpl;
 @override @useResult
 $Res call({
- String fullName, String headline, String email, String phone, String location, List<ResolvedLink> links, String? photoJpegBase64
+ String fullName, String headline, String email, String phone, String location, String? workAuthorization, List<ResolvedLink> links, String? photoJpegBase64
 });
 
 
@@ -578,14 +584,15 @@ class __$ResolvedHeaderCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedHeader
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? links = null,Object? photoJpegBase64 = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? workAuthorization = freezed,Object? links = null,Object? photoJpegBase64 = freezed,}) {
   return _then(_ResolvedHeader(
 fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,headline: null == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as String,links: null == links ? _self._links : links // ignore: cast_nullable_to_non_nullable
+as String,workAuthorization: freezed == workAuthorization ? _self.workAuthorization : workAuthorization // ignore: cast_nullable_to_non_nullable
+as String?,links: null == links ? _self._links : links // ignore: cast_nullable_to_non_nullable
 as List<ResolvedLink>,photoJpegBase64: freezed == photoJpegBase64 ? _self.photoJpegBase64 : photoJpegBase64 // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

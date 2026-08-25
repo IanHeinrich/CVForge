@@ -13,6 +13,7 @@ enum TextOverrideField {
   skillLabel,
   skillCategoryName,
   hobby,
+  language,
   educationQualification,
   educationGrade,
   educationDetails,
@@ -30,6 +31,7 @@ extension TextOverrideFieldAccess on TextOverrideField {
     TextOverrideField.skillLabel => draft.skillLabelOverrides,
     TextOverrideField.skillCategoryName => draft.skillCategoryNameOverrides,
     TextOverrideField.hobby => draft.hobbyOverrides,
+    TextOverrideField.language => draft.languageOverrides,
     TextOverrideField.educationQualification =>
       draft.educationQualificationOverrides,
     TextOverrideField.educationGrade => draft.educationGradeOverrides,
@@ -54,6 +56,9 @@ extension TextOverrideFieldAccess on TextOverrideField {
           skillCategoryNameOverrides: overrides,
         ),
         TextOverrideField.hobby => draft.copyWith(hobbyOverrides: overrides),
+        TextOverrideField.language => draft.copyWith(
+          languageOverrides: overrides,
+        ),
         TextOverrideField.educationQualification => draft.copyWith(
           educationQualificationOverrides: overrides,
         ),

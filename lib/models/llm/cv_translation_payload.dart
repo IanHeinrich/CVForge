@@ -231,12 +231,40 @@ class CvTranslationPayload {
     }
     chunks.addAll(_pack(hobbyUnits));
 
+    // Languages — the name only. A CEFR band is a code with a fixed
+    // meaning, and handing "C1" to a translator invites it back as
+    // something that is no longer the scale.
+    final languageUnits = <_Unit>[];
+    for (final l in vault.languages) {
+      if (!draft.languageIds.contains(l.id)) continue;
+      final text = effective(l.name, draft.languageOverrides[l.id]);
+      if (text == null) continue;
+      languageUnits.add(
+        _Unit({
+          'languages': {l.id: text},
+        }),
+      );
+    }
+    chunks.addAll(_pack(languageUnits));
+
     final references = effective(
       vault.referencesNote,
       draft.referencesOverride,
     );
     if (references != null) {
       chunks.add(CvTranslationPayload._({'referencesNote': references}, 1));
+    }
+
+    // Printed prose like the headline and the summary, so it translates
+    // with them rather than staying in the language it was typed in.
+    final workAuthorization = effective(
+      vault.basics.workAuthorization,
+      draft.workAuthorizationOverride,
+    );
+    if (workAuthorization != null) {
+      chunks.add(
+        CvTranslationPayload._({'workAuthorization': workAuthorization}, 1),
+      );
     }
 
     return chunks;
