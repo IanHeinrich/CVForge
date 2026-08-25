@@ -1,3 +1,6 @@
+import 'package:cv_forge/ui/common/cv_markup_flutter.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -280,16 +283,49 @@ class InlineTextOverrideEditor extends StatelessWidget {
           }
           return KeyEventResult.ignored;
         },
-        child: AppTextField(
-          initialValue: field.effectiveText,
-          onChanged: field.onChanged,
-          label: field.fieldLabel,
-          maxLines: maxLines,
-          minLines: minLines,
-          autofocus: true,
-          markup: markup,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // What the Vault still says, when this CV says otherwise.
+            // The undo button beside the row reports *that* a field was
+            // tailored but never *from what*, which left no way to see
+            // the original short of reverting and losing the rewrite.
+            if (vaultOriginal case final original?) ...[
+              cvMarkupText(
+                context.l10n.commonVaultOriginal(original),
+                style: context.appTypography.caption.copyWith(
+                  color: context.appPalette.placeholder,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const VGap.tiny(),
+            ],
+            AppTextField(
+              initialValue: field.effectiveText,
+              onChanged: field.onChanged,
+              // No label of its own: the row that opened this already names
+              // the field directly above, and printing it twice read as
+              // "Grade" stacked over "Grade".
+              maxLines: maxLines,
+              minLines: minLines,
+              autofocus: true,
+              markup: markup,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  /// The Vault's wording, or null when there is nothing worth showing —
+  /// no override, no recorded original, or an original identical to what
+  /// is in the box.
+  String? get vaultOriginal {
+    if (!field.hasOverride) return null;
+    final original = field.vaultText?.trim();
+    if (original == null || original.isEmpty) return null;
+    if (original == field.effectiveText.trim()) return null;
+    return original;
   }
 }

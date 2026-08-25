@@ -36,6 +36,7 @@ class LanguagesSectionEditor extends StatelessWidget {
             titleField: TailorableField(
               hasOverride: viewModel.hasLanguageOverride(language.id),
               effectiveText: viewModel.languageName(language),
+              vaultText: language.name,
               onChanged: (value) =>
                   viewModel.setLanguageOverride(language, value),
               onRevert: () => viewModel.revertLanguageOverride(language.id),

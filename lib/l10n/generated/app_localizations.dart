@@ -524,6 +524,12 @@ abstract class AppLocalizations {
   /// **'Italic'**
   String get commonFormatItalic;
 
+  /// Shown above an open Studio editor when the field has been tailored, giving the wording the Vault still holds so the writer can see what this CV is diverging from. The prefix names the Vault, which is the app's own term for the master record.
+  ///
+  /// In en, this message translates to:
+  /// **'Vault: {text}'**
+  String commonVaultOriginal(String text);
+
   /// Tooltip on a button that opens an overflow menu of extra actions.
   ///
   /// In en, this message translates to:

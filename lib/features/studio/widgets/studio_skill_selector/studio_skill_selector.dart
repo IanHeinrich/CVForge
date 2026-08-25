@@ -92,6 +92,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
         field: TailorableField(
           hasOverride: viewModel.hasSkillCategoryNameOverride(category.id),
           effectiveText: viewModel.skillCategoryNameText(category),
+          vaultText: category.name,
           fieldLabel: context.l10n.studioFieldSkillCategory,
           onChanged: (value) =>
               viewModel.setSkillCategoryNameOverride(category, value),
@@ -122,6 +123,7 @@ class _StudioSkillSelectorState extends State<StudioSkillSelector> {
             field: TailorableField(
               hasOverride: viewModel.hasSkillLabelOverride(skill.id),
               effectiveText: viewModel.skillLabelText(skill),
+              vaultText: skill.label,
               fieldLabel: context.l10n.studioFieldSkill,
               onChanged: (value) =>
                   viewModel.setSkillLabelOverride(skill, value),

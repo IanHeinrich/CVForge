@@ -41,6 +41,7 @@ class ProjectsSectionEditor extends StatelessWidget {
     titleFieldOf: (p) => TailorableField(
       hasOverride: viewModel.hasProjectTitleOverride(p.id),
       effectiveText: viewModel.projectTitleText(p),
+      vaultText: p.title,
       fieldLabel: context.l10n.studioFieldProjectTitle,
       onChanged: (value) => viewModel.setProjectTitleOverride(p, value),
       onRevert: () => viewModel.revertProjectTitleOverride(p.id),

@@ -344,6 +344,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonFormatItalic => 'Cursiva';
 
   @override
+  String commonVaultOriginal(String text) {
+    return 'Baúl: $text';
+  }
+
+  @override
   String get commonMore => 'Más';
 
   @override

@@ -337,6 +337,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonFormatItalic => 'Italic';
 
   @override
+  String commonVaultOriginal(String text) {
+    return 'Vault: $text';
+  }
+
+  @override
   String get commonMore => 'More';
 
   @override

@@ -69,9 +69,11 @@ class StudioEntryFieldRow extends StatelessWidget {
       _ => false,
     };
     final hasText = field.displayText.trim().isNotEmpty;
-    // Editing collapses the preview to one line: the box directly below
-    // is already showing the same text in full.
-    final maxLines = editing ? 1 : previewMaxLines;
+    // While editing, the value is dropped from the preview entirely —
+    // the box directly below holds the same text, in full and editable,
+    // and showing it twice made the row read as two fields. The label
+    // stays, because the editor no longer carries one.
+    final showValue = !editing;
 
     return TailoringHighlight(
       active: editing,
@@ -105,13 +107,15 @@ class StudioEntryFieldRow extends StatelessWidget {
                         // field is drawn in, and the strikethrough on an
                         // omitted one. The empty message is localized
                         // chrome, never user text, so it is not parsed.
-                        if (hasText)
+                        if (!showValue)
+                          const TextSpan(text: '')
+                        else if (hasText)
                           ...cvMarkupSpans(field.displayText)
                         else
                           TextSpan(text: field.emptyMessage ?? ''),
                       ],
                     ),
-                    maxLines: maxLines,
+                    maxLines: previewMaxLines,
                     overflow: TextOverflow.ellipsis,
                     style: baseStyle.copyWith(
                       color: hasText && !omitted
