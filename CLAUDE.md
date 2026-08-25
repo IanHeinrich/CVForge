@@ -424,10 +424,16 @@ tests of private helpers or implementation details.
   `ubuntu-latest` (see `update-goldens.yml`) — font rasterization differs by
   platform, so they show a small pixel diff on a non-Linux dev machine even
   with no real change. Run `flutter test --exclude-tags=golden` locally for
-  a signal that's actually green; `ci.yml`'s plain `flutter test` on Linux
-  is what verifies them for real on every PR. Run `flutter test
-  --tags=golden` to check just these before pushing a deliberate UI change,
-  or trigger `update-goldens.yml` to regenerate the baselines afterward.
+  a signal that's actually green; `ci.yml`'s `Golden` job on Linux is what
+  verifies them for real on every PR, and it attaches the diff images as a
+  `golden-failures` artifact when it fails. Run `flutter test --tags=golden`
+  to check just these before pushing a deliberate UI change, then dispatch
+  `update-goldens.yml` against the branch — it regenerates the baselines and
+  commits them back itself. That tag is the only selector on both sides, so
+  an untagged golden test can never be re-baselined by the workflow. Two
+  traps: the bot's push does not re-trigger CI (close and reopen the PR),
+  and `--update-goldens` rewrites without comparing, so it will bless a
+  regression — review the image diff.
 - **Carve-out: pure geometry/math helpers and paint-invalidation
   invariants may be unit-tested directly** — e.g.
   `test/models/ats/ats_matrix_math_test.dart` (matrix composition, box

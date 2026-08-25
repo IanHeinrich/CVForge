@@ -25,12 +25,26 @@ Tick what you ran. CI runs format, analyze and test on Linux against every PR.
 Delete this section if the change is not visual.
 
 Baselines are generated on ubuntu-latest. Do not commit locally-generated
-PNGs — run the update-goldens.yml workflow, download the artifact, and commit
-those in THIS PR rather than a follow-up.
+PNGs — dispatch the update-goldens.yml workflow against THIS branch and it
+commits them for you; then pull. Sort them out in this PR, not a follow-up.
+
+That bot push does NOT re-trigger CI (GitHub suppresses workflow runs for
+pushes made with GITHUB_TOKEN), so the new commit lands with no checks against
+it. Close and reopen this PR to run CI on the new baselines — re-running the
+old CI run replays the old commit and will not work.
+
+And review the image diff. `--update-goldens` rewrites baselines without
+comparing, so it accepts a rendering regression exactly as readily as an
+intended change; no human has looked at that PNG before you.
+
+A new golden test must carry `@Tags(['golden'])`. The tag is the only selector
+both CI and update-goldens use, so an untagged one can never be re-baselined
+by the workflow.
 -->
 
 - [ ] No golden baselines affected
-- [ ] Baselines regenerated via `update-goldens.yml` and committed here
+- [ ] Baselines regenerated via `update-goldens.yml`, pulled in, and the image
+      diff reviewed
 
 ## Anything else
 

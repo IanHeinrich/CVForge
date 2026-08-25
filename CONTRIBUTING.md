@@ -229,10 +229,31 @@ small pixel diff on a macOS or Windows dev machine *even with no real change*.
   UI change.
 - CI's plain `flutter test` on Linux is what verifies them for real.
 
-**Do not commit locally-generated baselines.** Trigger the
-[`update-goldens.yml`](.github/workflows/update-goldens.yml) workflow
-(`workflow_dispatch`), download the PNGs it produces as an artifact, and
-**commit them in the same PR as the change that caused them**. Never after.
+**Do not commit locally-generated baselines.** Dispatch the
+[`update-goldens.yml`](.github/workflows/update-goldens.yml) workflow against
+your branch; it regenerates the PNGs on Linux and commits them back to that
+branch itself. Then `git pull`. They belong **in the same PR as the change that
+caused them** — never a follow-up.
+
+Two wrinkles, both worth knowing before you rely on this:
+
+- **The bot's push does not re-run CI.** GitHub suppresses workflow runs for
+  pushes made with the default `GITHUB_TOKEN`, so the new head commit arrives
+  with no checks against it at all. **Close and reopen the PR** — that fires
+  `reopened` and runs CI fresh. Re-running the previous CI run does not work;
+  it replays the old commit. (This is a genuine cost of the automation: the
+  push you used to make by hand *did* trigger CI. It buys you never touching a
+  PNG, at the price of one extra click.)
+- **`--update-goldens` never fails.** It rewrites baselines instead of
+  comparing them, so it will bless a rendering regression exactly as happily as
+  an intended change, and the next CI run then compares against that new,
+  wrong baseline and passes. Nothing catches this but your eyes: review the
+  image diff on the PR. GitHub gives you a swipe/onion-skin view, and
+  `*.png binary` in `.gitattributes` keeps the bytes exact.
+
+A new golden test must carry `@Tags(['golden'])`. That tag is now the only
+selector both the `Golden` job and `update-goldens.yml` use, so an untagged
+golden still runs in CI but can never be re-baselined by the workflow.
 
 Two more things worth knowing:
 
@@ -293,17 +314,26 @@ delegate to the bound ViewModel.
 
 ## Before you open a PR
 
-CI runs exactly these three, on `ubuntu-latest`, against every PR to `main`:
+CI runs exactly these, on `ubuntu-latest`, against every PR to `main` — as
+three parallel jobs rather than one serial one, so a golden failure is
+immediately distinguishable from a logic failure:
 
 ```bash
+# job: Format & analyze
 dart format --output=none --set-exit-if-changed .
 flutter analyze
-flutter test
+
+# job: Test
+flutter test --exclude-tags=golden
+
+# job: Golden
+flutter test --tags=golden
 ```
 
-Run them locally first. Note that CI's `flutter test` **includes** the golden
-tests, so if you changed anything visual, sort the baselines out first (see
-above).
+Run them locally first. The golden baselines are still verified on every PR, so
+if you changed anything visual, sort them out first (see above). When the
+`Golden` job fails it attaches a `golden-failures` artifact with the diff
+images, which is usually faster than reasoning about what moved.
 
 One thing CI does not check: `web/manifest.json` is not validated by any of
 the three, which is how a malformed one shipped once. If you touch it:
