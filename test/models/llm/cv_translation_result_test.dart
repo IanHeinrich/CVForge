@@ -177,6 +177,26 @@ void main() {
       );
     });
 
+    test('keeps a value echoed back unchanged, but does not count it as a '
+        'translation — every key is required now, and a term that should '
+        'keep its own name is answered by returning it', () {
+      final result = CvTranslationResult.fromLlmResponse({
+        'skills': {'s1': 'Dart', 's2': 'Gestión de stakeholders'},
+      }, _chunkWith('skills'));
+
+      expect(
+        result.skillLabels['s1'],
+        'Dart',
+        reason: 'stored, so replacing the map wholesale cannot lose it',
+      );
+      expect(result.skillLabels['s2'], 'Gestión de stakeholders');
+      expect(
+        result.translatedCount,
+        1,
+        reason: 'only the one that actually changed',
+      );
+    });
+
     test('a hidden headline is never asked about, so it cannot come back', () {
       final draft = _draft(hideHeadline: true);
       final chunk = _chunkWith('summary', draft: draft);

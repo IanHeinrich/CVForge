@@ -40,24 +40,18 @@ abstract class CvTranslationResult with _$CvTranslationResult {
     /// How many strings the request asked about, so a caller can report
     /// "translated 3 of 61" rather than an unqualified "translated 3".
     @Default(0) int requestedCount,
+
+    /// How many came back saying something different from what was sent.
+    ///
+    /// Not the size of the maps, which is now every field the request
+    /// asked about: the schema requires an answer for each one, and a term
+    /// that should keep its name is answered by returning it unchanged.
+    /// Counting those as translations would report "61 of 61" on a pass
+    /// that changed forty things.
+    @Default(0) int translatedCount,
   }) = _CvTranslationResult;
 
   const CvTranslationResult._();
-
-  /// How many strings came back with a translation this result accepted.
-  int get translatedCount =>
-      (headline == null ? 0 : 1) +
-      (summary == null ? 0 : 1) +
-      (referencesNote == null ? 0 : 1) +
-      roles.length +
-      projectTitles.length +
-      skillCategoryNames.length +
-      skillLabels.length +
-      educationQualifications.length +
-      educationGrades.length +
-      educationDetails.length +
-      hobbies.length +
-      bullets.length;
 
   /// Every chunk's answer as one result.
   ///
@@ -90,6 +84,7 @@ abstract class CvTranslationResult with _$CvTranslationResult {
       hobbies: join((p) => p.hobbies),
       bullets: join((p) => p.bullets),
       requestedCount: parts.fold(0, (t, p) => t + p.requestedCount),
+      translatedCount: parts.fold(0, (t, p) => t + p.translatedCount),
     );
   }
 
@@ -98,12 +93,22 @@ abstract class CvTranslationResult with _$CvTranslationResult {
     CvTranslationPayload payload,
   ) {
     final request = payload.toJson();
+    var changed = 0;
+
+    /// Keeps [value], and counts it as a translation only if it says
+    /// something other than what was sent — every key comes back now, so
+    /// the map size is no longer a count of work done.
+    String? keep(String source, String? value) {
+      if (value == null) return null;
+      if (value != source) changed++;
+      return value;
+    }
 
     /// One of the three scalar fields, accepted only if it was asked about.
     String? scalar(String key) {
       final source = request[key];
       if (source is! String) return null;
-      return acceptTranslatedField(source, json[key]);
+      return keep(source, acceptTranslatedField(source, json[key]));
     }
 
     /// One id-keyed group, keeping only ids this request actually sent.
@@ -116,7 +121,10 @@ abstract class CvTranslationResult with _$CvTranslationResult {
         if (id is! String) return;
         final sourceText = source[id];
         if (sourceText is! String) return;
-        final accepted = acceptTranslatedField(sourceText, value);
+        final accepted = keep(
+          sourceText,
+          acceptTranslatedField(sourceText, value),
+        );
         if (accepted != null) result[id] = accepted;
       });
       return result;
@@ -136,6 +144,7 @@ abstract class CvTranslationResult with _$CvTranslationResult {
       hobbies: group('hobbies'),
       bullets: group('bullets'),
       requestedCount: payload.fieldCount,
+      translatedCount: changed,
     );
   }
 }

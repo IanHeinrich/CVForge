@@ -761,11 +761,13 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   /// different language must not leave the first language's strings behind
   /// for whatever the model declined to answer this time.
   ///
-  /// That is also why an unanswered key clears rather than keeps: the model
-  /// omits a key to mean "this text is already right in the target
-  /// language", and the text it was judging was the Vault's. Keeping a
-  /// stale override there would print the *previous* translation of a
-  /// string the model just told us needs none.
+  /// Replacing is safe because the response is complete: every key the
+  /// request asked about is `required` in the schema, and a term that
+  /// keeps its own name comes back unchanged rather than absent (see
+  /// [buildCvTranslationResponseSchema]). So a map holds an entry for
+  /// every field of that section, and a missing one means the pass did not
+  /// cover that field at all — in which case the Vault's own text is the
+  /// right thing to fall back to.
   Future<void> applyCvTranslationResult(
     CvTranslationResult result,
     DocumentLanguage language,

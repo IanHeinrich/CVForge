@@ -40,16 +40,21 @@ return is a translation of that one field and nothing else, and stays
 about as long as the field it came from. A field holding text belonging to
 other fields is discarded on arrival, so the work is wasted.
 
-**Omit any key you are not changing.** No key is required, and an absent
-key means "this text stays exactly as it is". Use that rather than echoing
-a value back unchanged. Two cases where omitting is the correct answer:
+**Answer every key you were given.** Every key is required. A request of
+thirty strings gets an answer of thirty strings; a partial answer leaves
+a CV half in one language and half in another, which is worse for the
+reader than either language on its own.
+
+Where a string needs no translation, **return it unchanged**. That is a
+correct answer, not a wasted one, and it is how you say "this one stays
+as it is". Two cases where returning the text unchanged is right:
 
 - The text is already in the target language.
 - The text should not be translated at all — see the next section.
 
 ## What must not be translated
 
-Omit the key for any of these:
+Return the text unchanged for any of these:
 
 - **Technology, product, and vendor names.** Dart, PostgreSQL, AWS,
   Kubernetes, React, Figma, SAP. These are names, not words, and a reader
