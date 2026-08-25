@@ -1924,6 +1924,71 @@ class AppLocalizationsEn extends AppLocalizations {
       'Machine-translated. Have a fluent speaker read it before you send it.';
 
   @override
+  String get studioXrayAnalyzing => 'Reading your CV the way an ATS would…';
+
+  @override
+  String studioXrayCriticalCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count critical',
+      one: '1 critical',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioXrayErrorBackToPreview => 'Back to preview';
+
+  @override
+  String get studioXrayErrorBody =>
+      'The CV rendered, but couldn\'t be read back for checking. Turn X-Ray off to keep working — your preview and export are unaffected.';
+
+  @override
+  String get studioXrayErrorContext => 'while building the Studio ATS X-Ray';
+
+  @override
+  String get studioXrayErrorTitle => 'Couldn\'t run the ATS check';
+
+  @override
+  String get studioXrayHide => 'Hide ATS X-Ray';
+
+  @override
+  String studioXrayInfoCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes',
+      one: '1 note',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioXrayNoIssues =>
+      'Nothing here trips a known ATS parsing problem.';
+
+  @override
+  String get studioXrayShow => 'Show ATS X-Ray';
+
+  @override
+  String get studioXrayShowBoxes => 'Show extracted text';
+
+  @override
+  String get studioXrayShowReadingOrder => 'Show reading order';
+
+  @override
+  String studioXrayWarningCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count warnings',
+      one: '1 warning',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get templateDescriptionClassicCentered =>
       'Centred headings and a justified summary, with whitespace in place of section rules.';
 

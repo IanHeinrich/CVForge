@@ -333,6 +333,7 @@ class _OutputControls extends StatelessWidget {
             ),
             const HGap.tiny(),
           ],
+          _XrayControls(viewModel: viewModel),
           SizedBox(
             height: StudioDocumentBar._controlHeight,
             width: StudioDocumentBar._controlHeight,
@@ -370,6 +371,7 @@ class _OutputControls extends StatelessWidget {
           ),
           const HGap.tiny(),
         ],
+        _XrayControls(viewModel: viewModel),
         SizedBox(
           height: StudioDocumentBar._controlHeight,
           child: FilledButton.icon(
@@ -378,6 +380,73 @@ class _OutputControls extends StatelessWidget {
             label: Text(exportTooltip),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// The X-Ray toggle, plus the reading-order toggle that only exists while
+/// X-Ray is on.
+///
+/// Reading order appears *beside* the X-Ray toggle rather than inside the
+/// preview because it is a property of the view, and every other control
+/// governing what the preview shows (template, region, language) already
+/// lives on this bar. Identical in both layouts — these are icon-only at
+/// every width, so the compact branch has nothing to drop.
+class _XrayControls extends StatelessWidget {
+  const _XrayControls({required this.viewModel});
+
+  final StudioViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    Widget toggle({
+      required bool selected,
+      required IconData icon,
+      required String tooltip,
+      required VoidCallback onPressed,
+    }) => SizedBox(
+      height: StudioDocumentBar._controlHeight,
+      width: StudioDocumentBar._controlHeight,
+      child: IconButton(
+        tooltip: tooltip,
+        isSelected: selected,
+        onPressed: onPressed,
+        icon: Icon(icon, size: context.appIconSize.medium),
+        style: IconButton.styleFrom(
+          backgroundColor: selected ? scheme.primary : null,
+          foregroundColor: selected
+              ? scheme.onPrimary
+              : scheme.onSurfaceVariant,
+        ),
+      ),
+    );
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (viewModel.xrayEnabled) ...[
+          toggle(
+            selected: viewModel.xrayReadingOrder,
+            icon: RemixIcons.route_line,
+            tooltip: viewModel.xrayReadingOrder
+                ? context.l10n.studioXrayShowBoxes
+                : context.l10n.studioXrayShowReadingOrder,
+            onPressed: viewModel.toggleXrayReadingOrder,
+          ),
+          const HGap.tiny(),
+        ],
+        toggle(
+          selected: viewModel.xrayEnabled,
+          icon: RemixIcons.scan_2_line,
+          tooltip: viewModel.xrayEnabled
+              ? context.l10n.studioXrayHide
+              : context.l10n.studioXrayShow,
+          onPressed: viewModel.toggleXray,
+        ),
+        const HGap.tiny(),
       ],
     );
   }

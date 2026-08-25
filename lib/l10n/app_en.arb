@@ -2435,6 +2435,76 @@
   "@studioTranslateWarning": {
     "description": "Studio, Translate card standing warning once a translation is applied. Permanent rather than dismissible, matching studioAiWarning."
   },
+  "studioXrayAnalyzing": "Reading your CV the way an ATS would…",
+  "@studioXrayAnalyzing": {
+    "description": "Studio, X-Ray preview mode, shown under the spinner while the first pass renders, extracts and analyses the CV."
+  },
+  "studioXrayCriticalCount": "{count, plural, =1{1 critical} other{{count} critical}}",
+  "@studioXrayCriticalCount": {
+    "description": "Studio, X-Ray summary chip counting critical findings. A standalone label in a row of chips, never joined into a sentence.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "studioXrayErrorBackToPreview": "Back to preview",
+  "@studioXrayErrorBackToPreview": {
+    "description": "Studio, X-Ray error state, button that turns the overlay off and returns to the ordinary rendered preview."
+  },
+  "studioXrayErrorBody": "The CV rendered, but couldn't be read back for checking. Turn X-Ray off to keep working — your preview and export are unaffected.",
+  "@studioXrayErrorBody": {
+    "description": "Studio, X-Ray error state body. Must reassure that only the overlay failed, since the ordinary preview and export use a different, still-working path."
+  },
+  "studioXrayErrorContext": "while building the Studio ATS X-Ray",
+  "@studioXrayErrorContext": {
+    "description": "Studio, X-Ray, FlutterError report context string. Diagnostic only — never shown to the user."
+  },
+  "studioXrayErrorTitle": "Couldn't run the ATS check",
+  "@studioXrayErrorTitle": {
+    "description": "Studio, X-Ray error state title, shown when rendering or extraction failed."
+  },
+  "studioXrayHide": "Hide ATS X-Ray",
+  "@studioXrayHide": {
+    "description": "Studio document bar, tooltip on the X-Ray toggle while the overlay is showing."
+  },
+  "studioXrayInfoCount": "{count, plural, =1{1 note} other{{count} notes}}",
+  "@studioXrayInfoCount": {
+    "description": "Studio, X-Ray summary chip counting informational findings. A standalone label in a row of chips, never joined into a sentence.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "studioXrayNoIssues": "Nothing here trips a known ATS parsing problem.",
+  "@studioXrayNoIssues": {
+    "description": "Studio, X-Ray summary bar when the analysis produced no findings. Deliberately narrow — it claims no known problem was found, not that the CV is good."
+  },
+  "studioXrayShow": "Show ATS X-Ray",
+  "@studioXrayShow": {
+    "description": "Studio document bar, tooltip on the X-Ray toggle while the ordinary preview is showing."
+  },
+  "studioXrayShowBoxes": "Show extracted text",
+  "@studioXrayShowBoxes": {
+    "description": "Studio document bar, tooltip that switches the X-Ray back from the reading-order chain to the extraction boxes."
+  },
+  "studioXrayShowReadingOrder": "Show reading order",
+  "@studioXrayShowReadingOrder": {
+    "description": "Studio document bar, tooltip that switches the X-Ray from extraction boxes to the reading-order chain."
+  },
+  "studioXrayWarningCount": "{count, plural, =1{1 warning} other{{count} warnings}}",
+  "@studioXrayWarningCount": {
+    "description": "Studio, X-Ray summary chip counting warning findings. A standalone label in a row of chips, never joined into a sentence.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
   "templateDescriptionClassicCentered": "Centred headings and a justified summary, with whitespace in place of section rules.",
   "@templateDescriptionClassicCentered": {
     "description": "Template description in the picker, for the traditional layout."

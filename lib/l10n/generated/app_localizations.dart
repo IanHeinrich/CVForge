@@ -2870,6 +2870,84 @@ abstract class AppLocalizations {
   /// **'Machine-translated. Have a fluent speaker read it before you send it.'**
   String get studioTranslateWarning;
 
+  /// Studio, X-Ray preview mode, shown under the spinner while the first pass renders, extracts and analyses the CV.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your CV the way an ATS would…'**
+  String get studioXrayAnalyzing;
+
+  /// Studio, X-Ray summary chip counting critical findings. A standalone label in a row of chips, never joined into a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 critical} other{{count} critical}}'**
+  String studioXrayCriticalCount(int count);
+
+  /// Studio, X-Ray error state, button that turns the overlay off and returns to the ordinary rendered preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to preview'**
+  String get studioXrayErrorBackToPreview;
+
+  /// Studio, X-Ray error state body. Must reassure that only the overlay failed, since the ordinary preview and export use a different, still-working path.
+  ///
+  /// In en, this message translates to:
+  /// **'The CV rendered, but couldn\'t be read back for checking. Turn X-Ray off to keep working — your preview and export are unaffected.'**
+  String get studioXrayErrorBody;
+
+  /// Studio, X-Ray, FlutterError report context string. Diagnostic only — never shown to the user.
+  ///
+  /// In en, this message translates to:
+  /// **'while building the Studio ATS X-Ray'**
+  String get studioXrayErrorContext;
+
+  /// Studio, X-Ray error state title, shown when rendering or extraction failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t run the ATS check'**
+  String get studioXrayErrorTitle;
+
+  /// Studio document bar, tooltip on the X-Ray toggle while the overlay is showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide ATS X-Ray'**
+  String get studioXrayHide;
+
+  /// Studio, X-Ray summary chip counting informational findings. A standalone label in a row of chips, never joined into a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 note} other{{count} notes}}'**
+  String studioXrayInfoCount(int count);
+
+  /// Studio, X-Ray summary bar when the analysis produced no findings. Deliberately narrow — it claims no known problem was found, not that the CV is good.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here trips a known ATS parsing problem.'**
+  String get studioXrayNoIssues;
+
+  /// Studio document bar, tooltip on the X-Ray toggle while the ordinary preview is showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Show ATS X-Ray'**
+  String get studioXrayShow;
+
+  /// Studio document bar, tooltip that switches the X-Ray back from the reading-order chain to the extraction boxes.
+  ///
+  /// In en, this message translates to:
+  /// **'Show extracted text'**
+  String get studioXrayShowBoxes;
+
+  /// Studio document bar, tooltip that switches the X-Ray from extraction boxes to the reading-order chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Show reading order'**
+  String get studioXrayShowReadingOrder;
+
+  /// Studio, X-Ray summary chip counting warning findings. A standalone label in a row of chips, never joined into a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 warning} other{{count} warnings}}'**
+  String studioXrayWarningCount(int count);
+
   /// Template description in the picker, for the traditional layout.
   ///
   /// In en, this message translates to:

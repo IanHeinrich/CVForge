@@ -424,6 +424,47 @@ void main() {
       );
     });
 
+    group('X-Ray view mode -', () {
+      StudioViewModel modelWithDraft() {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        return StudioViewModel();
+      }
+
+      test('starts on the ordinary preview, boxes rather than reading '
+          'order', () {
+        final model = modelWithDraft();
+
+        expect(model.xrayEnabled, isFalse);
+        expect(model.xrayReadingOrder, isFalse);
+      });
+
+      test('toggleXray switches the preview pane into and out of X-Ray', () {
+        final model = modelWithDraft();
+
+        model.toggleXray();
+        expect(model.xrayEnabled, isTrue);
+
+        model.toggleXray();
+        expect(model.xrayEnabled, isFalse);
+      });
+
+      test('leaving X-Ray resets reading order, so re-entering always starts '
+          'on the boxes — the view that explains what the overlay is', () {
+        final model = modelWithDraft();
+        model.toggleXray();
+        model.toggleXrayReadingOrder();
+        expect(model.xrayReadingOrder, isTrue);
+
+        model.toggleXray();
+        expect(model.xrayReadingOrder, isFalse);
+
+        model.toggleXray();
+        expect(model.xrayEnabled, isTrue);
+        expect(model.xrayReadingOrder, isFalse);
+      });
+    });
+
     group('openSection / selectSection -', () {
       test('defaults to null so the nav list shows first', () {
         when(vaultService.vault).thenReturn(CvVault.empty());

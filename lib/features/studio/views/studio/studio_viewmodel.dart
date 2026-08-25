@@ -262,6 +262,38 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     notifyListeners();
   }
 
+  /// Whether the preview pane draws the ATS X-Ray instead of the plain
+  /// rendered page — what a text extractor pulls out of the CV, over the
+  /// CV itself.
+  ///
+  /// A view mode rather than a separate analysis step, because the
+  /// overlay's backdrop is rasterised by the same pass that produced its
+  /// boxes (see `StudioXrayPane`). There is no "stale overlay" state to
+  /// manage: geometry and page are always from one render.
+  bool get xrayEnabled => _xrayEnabled;
+  bool _xrayEnabled = false;
+
+  /// Within X-Ray, whether to draw the reading-order chain instead of the
+  /// extraction boxes. A sub-mode, not a peer: reading order is only
+  /// meaningful once you are already looking at what was extracted, and
+  /// `AtsXrayPainter` suppresses every other layer while it is on.
+  bool get xrayReadingOrder => _xrayReadingOrder;
+  bool _xrayReadingOrder = false;
+
+  void toggleXray() {
+    _xrayEnabled = !_xrayEnabled;
+    // Leaving X-Ray resets the sub-mode, so re-entering always starts on
+    // the boxes — the view that explains what the overlay is before the
+    // one that reads it.
+    if (!_xrayEnabled) _xrayReadingOrder = false;
+    notifyListeners();
+  }
+
+  void toggleXrayReadingOrder() {
+    _xrayReadingOrder = !_xrayReadingOrder;
+    notifyListeners();
+  }
+
   /// Why this CV has run longer than its region typically expects, or null
   /// when it hasn't — the badge branches on null rather than doing the
   /// comparison itself, keeping the judgement out of the View.

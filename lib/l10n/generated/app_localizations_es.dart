@@ -1945,6 +1945,72 @@ class AppLocalizationsEs extends AppLocalizations {
       'Traducido automáticamente. Pide a alguien con dominio del idioma que lo revise antes de enviarlo.';
 
   @override
+  String get studioXrayAnalyzing => 'Leyendo tu CV como lo haría un ATS…';
+
+  @override
+  String studioXrayCriticalCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count críticos',
+      one: '1 crítico',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioXrayErrorBackToPreview => 'Volver a la vista previa';
+
+  @override
+  String get studioXrayErrorBody =>
+      'El CV se generó, pero no se pudo volver a leer para revisarlo. Desactiva la radiografía para seguir trabajando: tu vista previa y tu exportación no se ven afectadas.';
+
+  @override
+  String get studioXrayErrorContext =>
+      'al construir la radiografía ATS del Estudio';
+
+  @override
+  String get studioXrayErrorTitle => 'No se pudo ejecutar la revisión ATS';
+
+  @override
+  String get studioXrayHide => 'Ocultar radiografía ATS';
+
+  @override
+  String studioXrayInfoCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notas',
+      one: '1 nota',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioXrayNoIssues =>
+      'Nada aquí activa un problema conocido de lectura por ATS.';
+
+  @override
+  String get studioXrayShow => 'Mostrar radiografía ATS';
+
+  @override
+  String get studioXrayShowBoxes => 'Mostrar el texto extraído';
+
+  @override
+  String get studioXrayShowReadingOrder => 'Mostrar el orden de lectura';
+
+  @override
+  String studioXrayWarningCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count advertencias',
+      one: '1 advertencia',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get templateDescriptionClassicCentered =>
       'Encabezados centrados y un perfil justificado, con espacios en blanco en lugar de líneas divisorias.';
 

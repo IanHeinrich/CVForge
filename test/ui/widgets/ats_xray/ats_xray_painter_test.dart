@@ -1,4 +1,4 @@
-import 'package:cv_forge/features/analyzer/widgets/ats_xray_painter.dart';
+import 'package:cv_forge/ui/widgets/common/ats_xray/ats_xray_painter.dart';
 import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

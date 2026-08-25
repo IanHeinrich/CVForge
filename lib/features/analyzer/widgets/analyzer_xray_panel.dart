@@ -16,9 +16,10 @@ import 'package:cv_forge/models/ats/ats_finding.dart';
 import 'package:cv_forge/models/ats/ats_matrix_math.dart';
 import 'package:cv_forge/features/analyzer/views/analyzer/analyzer_viewmodel.dart';
 import 'analyzer_xray_camera_controller.dart';
-import 'analyzer_xray_page_loader.dart';
+import 'package:cv_forge/ui/widgets/common/ats_xray/ats_xray_page_loader.dart';
 import 'analyzer_xray_rail.dart';
-import 'ats_xray_painter.dart';
+import 'package:cv_forge/ui/widgets/common/ats_xray/ats_xray_painter.dart';
+import 'package:cv_forge/ui/widgets/common/ats_xray/ats_xray_boxes.dart';
 
 /// The X-Ray overlay: a rasterized page backdrop with severity-styled
 /// evidence boxes, paired with [AnalyzerXrayRail]. Findings and the page
@@ -272,41 +273,18 @@ class _AnalyzerXrayPanelState extends State<AnalyzerXrayPanel>
   }
 
   List<AtsXrayBox> _buildBoxes(XrayPageData data, AtsAnalysisResult result) {
-    // result.findings is already severity-sorted (critical first), so the
-    // first finding claiming a node wins — "highest severity wins" falls
-    // out of iteration order rather than needing its own comparison.
-    final severityByNode = <int, AtsFindingSeverity>{};
-    for (final finding in result.findings) {
-      for (final ev in finding.evidence) {
-        if (ev.pageIndex != _pageIndex) continue;
-        severityByNode.putIfAbsent(ev.nodeIndex, () => finding.severity);
-      }
-    }
-
     final selected = _selectedFinding;
-    final selectedNodes = selected == null
-        ? const <int>{}
-        : {
-            for (final ev in selected.evidence)
-              if (ev.pageIndex == _pageIndex) ev.nodeIndex,
-          };
-
-    final boxes = <AtsXrayBox>[];
-    for (final idx in data.orderedNodeIndices) {
-      final rect = data.rectByNodeIndex[idx]!;
-      boxes.add((rect: rect, style: AtsXrayBoxStyle.ambient, severity: null));
-      final severity = severityByNode[idx];
-      if (severity != null) {
-        boxes.add((
-          rect: rect,
-          style: selectedNodes.contains(idx)
-              ? AtsXrayBoxStyle.selected
-              : AtsXrayBoxStyle.evidence,
-          severity: severity,
-        ));
-      }
-    }
-    return boxes;
+    return atsXrayBoxesFor(
+      data: data,
+      result: result,
+      pageIndex: _pageIndex,
+      selectedNodeIndices: selected == null
+          ? const <int>{}
+          : {
+              for (final ev in selected.evidence)
+                if (ev.pageIndex == _pageIndex) ev.nodeIndex,
+            },
+    );
   }
 
   /// [finding]'s evidence rects that fall on [_pageIndex] — a finding may
