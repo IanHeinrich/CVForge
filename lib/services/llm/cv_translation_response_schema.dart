@@ -13,13 +13,22 @@ import 'package:cv_forge/models/llm/json_schema.dart';
 /// land on an education entry, the same guarantee
 /// `buildAiAssistantResponseSchema` gets from its per-entry bullet enums.
 ///
-/// **Nothing is `required`, at any level, and that is the whole
-/// mechanism.** [JsonSchema] has no null type (see its own doc comment on
-/// staying inside every provider's dialect intersection), so "leave this
-/// one alone — it is already in the target language, or it is a product
-/// name that should not be translated" can only be expressed as *the key
-/// is absent*. Requiring a key would force the model to invent a
-/// translation for a term that should have kept its name.
+/// **Every key is `required`, at both levels, and that is the whole
+/// mechanism.** An optional key is one the model may decline to fill, and
+/// given a request of twenty optional strings it will routinely fill only
+/// some — which is exactly what a translation pass must not do. The
+/// symptom was a first pass that translated part of a CV and a second
+/// pass that finished the job: nothing was failing, the model was simply
+/// answering as much of an optional request as it felt like.
+///
+/// The old objection to requiring keys was that it forces a translation
+/// for a term that should keep its name. It doesn't: the prompt asks for
+/// the term back **unchanged**, which is a correct answer rather than an
+/// invented one, and a value that comes back identical to what was sent
+/// is not counted as translated (see
+/// [CvTranslationResult.translatedCount]). What it costs is a few echoed
+/// output tokens; what it buys is a pass that answers all of what it was
+/// asked.
 JsonSchema buildCvTranslationResponseSchema(CvTranslationPayload payload) {
   final request = payload.toJson();
 
@@ -30,30 +39,31 @@ JsonSchema buildCvTranslationResponseSchema(CvTranslationPayload payload) {
     if (value is! Map<String, dynamic> || value.isEmpty) return null;
     return JsonSchema.object(
       properties: {for (final id in value.keys) id: const JsonSchema.string()},
-      required: const [],
+      required: value.keys.toList(),
     );
   }
 
+  final properties = <String, JsonSchema>{
+    if (request.containsKey('headline')) 'headline': const JsonSchema.string(),
+    if (request.containsKey('summary')) 'summary': const JsonSchema.string(),
+    if (request.containsKey('referencesNote'))
+      'referencesNote': const JsonSchema.string(),
+    for (final key in const [
+      'roles',
+      'projectTitles',
+      'skillCategories',
+      'skills',
+      'qualifications',
+      'grades',
+      'educationDetails',
+      'hobbies',
+      'bullets',
+    ])
+      key: ?group(key),
+  };
+
   return JsonSchema.object(
-    properties: {
-      if (request.containsKey('headline'))
-        'headline': const JsonSchema.string(),
-      if (request.containsKey('summary')) 'summary': const JsonSchema.string(),
-      if (request.containsKey('referencesNote'))
-        'referencesNote': const JsonSchema.string(),
-      for (final key in const [
-        'roles',
-        'projectTitles',
-        'skillCategories',
-        'skills',
-        'qualifications',
-        'grades',
-        'educationDetails',
-        'hobbies',
-        'bullets',
-      ])
-        key: ?group(key),
-    },
-    required: const [],
+    properties: properties,
+    required: properties.keys.toList(),
   );
 }
