@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/models/ats/ats_finding.dart';
-import 'ats_finding_severity_style.dart';
+import 'package:cv_forge/ui/widgets/common/ats_xray/ats_finding_severity_style.dart';
 
 /// One [AtsFinding], in the same block-card frame `BackupSettingsCard`
 /// uses — dark container, [context.appRadius.medium] — rather than

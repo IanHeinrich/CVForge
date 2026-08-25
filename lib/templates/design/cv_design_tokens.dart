@@ -74,7 +74,7 @@ class CvDesignTokens {
     required this.company,
     required this.meta,
     required this.body,
-    required this.bulletLabel,
+    required this.inlineLabel,
     required this.bullet,
     required this.bulletGlyph,
   });
@@ -107,7 +107,7 @@ class CvDesignTokens {
   final CvTypeToken company;
   final CvTypeToken meta;
   final CvTypeToken body;
-  final CvTypeToken bulletLabel;
+  final CvTypeToken inlineLabel;
   final CvTypeToken bullet;
 
   /// The bullet glyph itself (e.g. "•"), styled separately from [bullet]'s

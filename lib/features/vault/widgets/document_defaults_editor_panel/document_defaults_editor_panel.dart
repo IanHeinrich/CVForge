@@ -46,6 +46,8 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
     required this.onLanguageChanged,
     required this.onReorderSections,
     required this.onToggleSectionHidden,
+    required this.includeHeadline,
+    required this.onToggleHeadline,
   });
 
   final DocumentDefaults defaults;
@@ -66,6 +68,10 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
   final ValueChanged<DocumentLanguage> onLanguageChanged;
   final void Function(int oldIndex, int newIndex) onReorderSections;
   final ValueChanged<CvSectionType> onToggleSectionHidden;
+
+  /// Whether a new CV starts with its headline shown.
+  final bool includeHeadline;
+  final VoidCallback onToggleHeadline;
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +172,14 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
           help: context.l10n.vaultCvDefaultsSectionsHelp,
         ),
         const VGap.tiny(),
+        // Pinned above the list and outside it, exactly as Studio's own
+        // section nav pins its headline row: the headline prints in the
+        // name block, so it has no position to drag to.
+        _DefaultRow(
+          label: context.l10n.vaultCvDefaultsHeadline,
+          included: includeHeadline,
+          onToggle: onToggleHeadline,
+        ),
         _DefaultSectionList(
           sectionOrder: sectionOrder,
           isSectionHidden: isSectionHidden,
@@ -206,40 +220,77 @@ class _DefaultSectionList extends StatelessWidget {
       onReorderItem: onReorder,
       itemBuilder: (context, index) {
         final type = sectionOrder[index];
-        return Row(
+        return _DefaultRow(
           key: ValueKey('default_section_${type.name}'),
-          children: [
-            // Matches Studio's own section list: the compact density is
-            // what lets the longest labels sit on one line.
-            Checkbox(
-              value: !isSectionHidden(type),
-              onChanged: (_) => onToggleHidden(type),
-              activeColor: Theme.of(context).colorScheme.primary,
-              visualDensity: VisualDensity.compact,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            Expanded(
-              child: Text(
-                type.displayLabel(context.l10n),
-                style: context.appTypography.bodySmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            ReorderableDragStartListener(
-              index: index,
-              child: Padding(
-                padding: EdgeInsetsDirectional.all(context.appSpacing.gapTiny),
-                child: Icon(
-                  RemixIcons.draggable,
-                  size: context.appIconSize.tiny,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
+          label: type.displayLabel(context.l10n),
+          included: !isSectionHidden(type),
+          onToggle: () => onToggleHidden(type),
+          dragIndex: index,
         );
       },
+    );
+  }
+}
+
+/// One row of the defaults list — an "include by default" checkbox, a
+/// label, and a drag handle when the row has somewhere to be dragged to.
+///
+/// Shared by the sections and by the pinned headline row above them, so
+/// the one row that cannot be reordered still looks like the rest of the
+/// list rather than something bolted on. [dragIndex] is null for that row,
+/// which is what drops the handle. Same arrangement as
+/// `StudioSectionNav`'s `_NavRow`, which answers the per-draft version of
+/// this question — see this file's class doc for why the two lists are
+/// not one widget.
+class _DefaultRow extends StatelessWidget {
+  const _DefaultRow({
+    super.key,
+    required this.label,
+    required this.included,
+    required this.onToggle,
+    this.dragIndex,
+  });
+
+  final String label;
+  final bool included;
+  final VoidCallback onToggle;
+  final int? dragIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    final index = dragIndex;
+    return Row(
+      children: [
+        // Matches Studio's own section list: the compact density is what
+        // lets the longest labels sit on one line.
+        Checkbox(
+          value: included,
+          onChanged: (_) => onToggle(),
+          activeColor: Theme.of(context).colorScheme.primary,
+          visualDensity: VisualDensity.compact,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        Expanded(
+          child: Text(
+            label,
+            style: context.appTypography.bodySmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (index != null)
+          ReorderableDragStartListener(
+            index: index,
+            child: Padding(
+              padding: EdgeInsetsDirectional.all(context.appSpacing.gapTiny),
+              child: Icon(
+                RemixIcons.draggable,
+                size: context.appIconSize.tiny,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

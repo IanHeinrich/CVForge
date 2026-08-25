@@ -1532,13 +1532,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioExportPdf => 'Export PDF';
 
   @override
+  String get studioFieldCitation => 'Citation';
+
+  @override
+  String get studioFieldCompany => 'Employer';
+
+  @override
+  String get studioFieldDates => 'Dates';
+
+  @override
   String get studioFieldDetails => 'Details';
+
+  @override
+  String get studioFieldDoNotPrint => 'Don’t print this on this CV';
 
   @override
   String get studioFieldGrade => 'Grade';
 
   @override
+  String get studioFieldInstitution => 'Institution';
+
+  @override
+  String get studioFieldLink => 'Link';
+
+  @override
+  String get studioFieldLocation => 'Location';
+
+  @override
+  String get studioFieldPrintAgain => 'Print this on this CV';
+
+  @override
   String get studioFieldProjectTitle => 'Project title';
+
+  @override
+  String get studioFieldPublicationTitle => 'Title';
 
   @override
   String get studioFieldQualification => 'Qualification';
@@ -1553,17 +1580,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioFieldSkillCategory => 'Category';
 
   @override
-  String get studioHeadlineInclude => 'Include headline';
+  String get studioFieldYear => 'Year';
 
   @override
-  String studioItemLabelledText(String label, String text) {
-    return '$label: $text';
-  }
+  String get studioHeadlineInclude => 'Include headline';
 
   @override
   String studioLengthWarning(String region, String note) {
     return 'Longer than $region typically expects. $note Try trimming content, or a denser template.';
   }
+
+  @override
+  String get studioLockedDates =>
+      'Dates stay as your Vault records them — they are what an employment check verifies, and they set the order this section prints in.';
+
+  @override
+  String get studioLockedFromVault =>
+      'Printed from your Vault. Edit it there to change it on every CV.';
 
   @override
   String studioNewDraftTitle(String noun) {
@@ -1576,6 +1609,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get studioNoCitation => 'No citation in your Vault yet.';
+
+  @override
   String get studioNoEducationDetails => 'No details in your Vault yet.';
 
   @override
@@ -1583,6 +1619,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioNoHeadline => 'No headline in your Vault yet.';
+
+  @override
+  String get studioNoLocation => 'No location in your Vault yet.';
 
   @override
   String get studioNoReferences => 'No references note in your Vault yet.';
@@ -1734,6 +1773,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String studioSkillsEvidenceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Linked to $count bullets in this CV',
+      one: 'Linked to 1 bullet in this CV',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get studioSkillsFilter => 'Filter skills…';
 
   @override
@@ -1743,6 +1793,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get studioSkillsNoNewEvidenced =>
       'No new evidenced skills to add — every skill linked to an included bullet is already selected';
+
+  @override
+  String get studioSkillsRename => 'Rename for this CV';
+
+  @override
+  String get studioSkillsRenameDone => 'Done renaming';
 
   @override
   String studioSkillsSelectedCount(int selected, int total) {
@@ -1784,6 +1840,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioTailoringOnlyThisCv => 'Only affects this CV.';
+
+  @override
+  String get studioTailoringPaneNote =>
+      'Edits here change this CV only. Your Vault keeps its own wording.';
 
   @override
   String get studioTailoringReverted =>
@@ -1924,6 +1984,82 @@ class AppLocalizationsEn extends AppLocalizations {
       'Machine-translated. Have a fluent speaker read it before you send it.';
 
   @override
+  String get studioXrayAnalyzing => 'Reading your CV the way an ATS would…';
+
+  @override
+  String get studioXrayBoxesTooltip =>
+      'Show what an ATS pulls out of this page';
+
+  @override
+  String studioXrayCriticalCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count critical',
+      one: '1 critical',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioXrayErrorBackToPreview => 'Back to preview';
+
+  @override
+  String get studioXrayErrorBody =>
+      'The CV rendered, but couldn\'t be read back for checking. Turn X-Ray off to keep working — your preview and export are unaffected.';
+
+  @override
+  String get studioXrayErrorContext => 'while building the Studio ATS X-Ray';
+
+  @override
+  String get studioXrayErrorTitle => 'Couldn\'t run the ATS check';
+
+  @override
+  String get studioXrayFindingsTitle => 'What an ATS would struggle with';
+
+  @override
+  String get studioXrayGroupLabel => 'ATS';
+
+  @override
+  String get studioXrayHide => 'Hide the ATS overlay';
+
+  @override
+  String studioXrayInfoCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes',
+      one: '1 note',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get studioXrayNoIssues =>
+      'Nothing here trips a known ATS parsing problem.';
+
+  @override
+  String get studioXrayNoIssuesTitle => 'Nothing to fix here';
+
+  @override
+  String get studioXrayReadingOrderTooltip =>
+      'Show the order an ATS reads this page in';
+
+  @override
+  String get studioXrayShow => 'Show what an ATS sees';
+
+  @override
+  String studioXrayWarningCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count warnings',
+      one: '1 warning',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get templateDescriptionClassicCentered =>
       'Centred headings and a justified summary, with whitespace in place of section rules.';
 
@@ -2049,12 +2185,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vaultBulletDelete => 'Delete bullet';
 
   @override
-  String get vaultBulletLabel => 'Label (optional)';
-
-  @override
-  String get vaultBulletLabelHint => 'e.g. Performance';
-
-  @override
   String vaultBulletLinkedSkills(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2118,6 +2248,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsChange => 'Change';
+
+  @override
+  String get vaultCvDefaultsHeadline => 'Headline';
 
   @override
   String get vaultCvDefaultsLanguageHelp =>

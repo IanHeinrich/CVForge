@@ -495,11 +495,10 @@ class VaultService with ListenableServiceMixin, PersistedStoreMixin<CvVault> {
   Future<CvBullet> addBullet(
     BulletOwner owner,
     String ownerId, {
-    String? label,
     required String text,
   }) async {
     await ready();
-    final bullet = CvBullet(id: _uuid.v4(), label: label, text: text);
+    final bullet = CvBullet(id: _uuid.v4(), text: text);
     _updateBulletsOf(owner, ownerId, (bullets) => [...bullets, bullet]);
     return bullet;
   }

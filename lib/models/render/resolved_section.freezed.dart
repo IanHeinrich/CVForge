@@ -1363,7 +1363,7 @@ as List<ResolvedBullet>,
 /// @nodoc
 mixin _$ResolvedBullet {
 
- String? get label; String get text;
+ String get text;
 /// Create a copy of ResolvedBullet
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1374,16 +1374,16 @@ $ResolvedBulletCopyWith<ResolvedBullet> get copyWith => _$ResolvedBulletCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedBullet&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedBullet&&(identical(other.text, text) || other.text == text));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,label,text);
+int get hashCode => Object.hash(runtimeType,text);
 
 @override
 String toString() {
-  return 'ResolvedBullet(label: $label, text: $text)';
+  return 'ResolvedBullet(text: $text)';
 }
 
 
@@ -1394,7 +1394,7 @@ abstract mixin class $ResolvedBulletCopyWith<$Res>  {
   factory $ResolvedBulletCopyWith(ResolvedBullet value, $Res Function(ResolvedBullet) _then) = _$ResolvedBulletCopyWithImpl;
 @useResult
 $Res call({
- String? label, String text
+ String text
 });
 
 
@@ -1411,10 +1411,9 @@ class _$ResolvedBulletCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedBullet
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? label = freezed,Object? text = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? text = null,}) {
   return _then(_self.copyWith(
-label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String?,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -1500,10 +1499,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? label,  String text)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String text)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ResolvedBullet() when $default != null:
-return $default(_that.label,_that.text);case _:
+return $default(_that.text);case _:
   return orElse();
 
 }
@@ -1521,10 +1520,10 @@ return $default(_that.label,_that.text);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? label,  String text)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String text)  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedBullet():
-return $default(_that.label,_that.text);case _:
+return $default(_that.text);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1541,10 +1540,10 @@ return $default(_that.label,_that.text);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? label,  String text)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String text)?  $default,) {final _that = this;
 switch (_that) {
 case _ResolvedBullet() when $default != null:
-return $default(_that.label,_that.text);case _:
+return $default(_that.text);case _:
   return null;
 
 }
@@ -1556,10 +1555,9 @@ return $default(_that.label,_that.text);case _:
 
 
 class _ResolvedBullet implements ResolvedBullet {
-  const _ResolvedBullet({this.label, required this.text});
+  const _ResolvedBullet({required this.text});
   
 
-@override final  String? label;
 @override final  String text;
 
 /// Create a copy of ResolvedBullet
@@ -1572,16 +1570,16 @@ _$ResolvedBulletCopyWith<_ResolvedBullet> get copyWith => __$ResolvedBulletCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedBullet&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolvedBullet&&(identical(other.text, text) || other.text == text));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,label,text);
+int get hashCode => Object.hash(runtimeType,text);
 
 @override
 String toString() {
-  return 'ResolvedBullet(label: $label, text: $text)';
+  return 'ResolvedBullet(text: $text)';
 }
 
 
@@ -1592,7 +1590,7 @@ abstract mixin class _$ResolvedBulletCopyWith<$Res> implements $ResolvedBulletCo
   factory _$ResolvedBulletCopyWith(_ResolvedBullet value, $Res Function(_ResolvedBullet) _then) = __$ResolvedBulletCopyWithImpl;
 @override @useResult
 $Res call({
- String? label, String text
+ String text
 });
 
 
@@ -1609,10 +1607,9 @@ class __$ResolvedBulletCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedBullet
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? label = freezed,Object? text = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? text = null,}) {
   return _then(_ResolvedBullet(
-label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String?,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

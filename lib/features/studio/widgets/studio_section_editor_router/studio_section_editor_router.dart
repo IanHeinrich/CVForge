@@ -1,5 +1,9 @@
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
+import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/widgets/common/app_empty_state.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
@@ -26,45 +30,122 @@ class StudioSectionEditorRouter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Widget editor;
+
+    /// Distinguishes this editor's scroll offset from every other one's —
+    /// `CvSectionType.name` for a section, and a literal the enum cannot
+    /// produce for the headline, which is not a section (see
+    /// [StudioViewModel.isHeadlineOpen]).
+    final String storageKey;
+
     if (viewModel.isHeadlineOpen) {
-      return HeadlineEditor(viewModel: viewModel);
+      editor = HeadlineEditor(viewModel: viewModel);
+      storageKey = 'headline';
+    } else {
+      final type = viewModel.openSection;
+      // A hidden/no-data section can't normally reach here — the nav only
+      // ever selects a visible section, and `toggleSectionHidden` clears
+      // the selection the moment it hides the one that's open — but a
+      // null `openSection` and a stale one both read as "nothing to
+      // show", so one empty state covers both rather than trusting that
+      // invariant to hold everywhere forever.
+      if (type == null || !viewModel.sectionHasData(type)) {
+        return AppEmptyState(
+          icon: RemixIcons.list_check_2,
+          title: context.l10n.studioNoSectionSelectedTitle,
+          message: context.l10n.studioNoSectionSelectedBody,
+        );
+      }
+
+      editor = switch (type) {
+        CvSectionType.summary => SummarySectionEditor(viewModel: viewModel),
+        CvSectionType.skills => SkillsSectionEditor(viewModel: viewModel),
+        CvSectionType.experience => ExperienceSectionEditor(
+          viewModel: viewModel,
+        ),
+        CvSectionType.projects => ProjectsSectionEditor(viewModel: viewModel),
+        CvSectionType.education => EducationSectionEditor(viewModel: viewModel),
+        CvSectionType.hobbies => HobbiesSectionEditor(viewModel: viewModel),
+        CvSectionType.references => ReferencesSectionEditor(
+          viewModel: viewModel,
+        ),
+        CvSectionType.publications => PublicationsSectionEditor(
+          viewModel: viewModel,
+        ),
+      };
+      storageKey = type.name;
     }
 
-    final type = viewModel.openSection;
-    // A hidden/no-data section can't normally reach here — the nav only
-    // ever selects a visible section, and `toggleSectionHidden` clears the
-    // selection the moment it hides the one that's open — but a null
-    // `openSection` and a stale one both read as "nothing to show", so one
-    // empty state covers both rather than trusting that invariant to hold
-    // everywhere forever.
-    if (type == null || !viewModel.sectionHasData(type)) {
-      return AppEmptyState(
-        icon: RemixIcons.list_check_2,
-        title: context.l10n.studioNoSectionSelectedTitle,
-        message: context.l10n.studioNoSectionSelectedBody,
-      );
-    }
+    // Every editor is wrapped here rather than padding itself, so the
+    // headline — which is structurally identical to the summary editor,
+    // one card in a column — cannot end up flush against the pane edge
+    // while the summary sits inset. It used to, by returning early.
+    //
+    // A distinct `PageStorageKey` per editor so switching and coming back
+    // restores each one's own scroll offset rather than bleeding a stale
+    // one in from whatever was open before it.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _TailoringPaneNote(),
+        Expanded(
+          child: SingleChildScrollView(
+            key: PageStorageKey('studio_section_editor_$storageKey'),
+            padding: EdgeInsets.all(context.appSpacing.paddingPage),
+            child: editor,
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-    final editor = switch (type) {
-      CvSectionType.summary => SummarySectionEditor(viewModel: viewModel),
-      CvSectionType.skills => SkillsSectionEditor(viewModel: viewModel),
-      CvSectionType.experience => ExperienceSectionEditor(viewModel: viewModel),
-      CvSectionType.projects => ProjectsSectionEditor(viewModel: viewModel),
-      CvSectionType.education => EducationSectionEditor(viewModel: viewModel),
-      CvSectionType.hobbies => HobbiesSectionEditor(viewModel: viewModel),
-      CvSectionType.references => ReferencesSectionEditor(viewModel: viewModel),
-      CvSectionType.publications => PublicationsSectionEditor(
-        viewModel: viewModel,
+/// Says once, for the whole pane, which layer everything in it edits.
+///
+/// This used to live inside each open inline editor, which meant it
+/// printed once per editor when several were open at once, and said
+/// nothing at all when none were — exactly backwards, since the moment
+/// you most need to know whether you're editing the Vault or this CV is
+/// before you start typing. Pinned above the scroll view rather than
+/// inside it so it can't scroll away from the rows it describes.
+class _TailoringPaneNote extends StatelessWidget {
+  const _TailoringPaneNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsetsDirectional.fromSTEB(
+        context.appSpacing.paddingPage,
+        context.appSpacing.paddingTight,
+        context.appSpacing.paddingPage,
+        context.appSpacing.paddingTight,
       ),
-    };
-
-    // A distinct `PageStorageKey` per section so switching sections and
-    // back restores each one's own scroll offset rather than bleeding a
-    // stale one in from whichever section was open before it.
-    return SingleChildScrollView(
-      key: PageStorageKey('studio_section_editor_${type.name}'),
-      padding: EdgeInsets.all(context.appSpacing.paddingPage),
-      child: editor,
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            RemixIcons.safe_line,
+            size: context.appIconSize.small,
+            color: context.appPalette.placeholder,
+          ),
+          const HGap.small(),
+          Expanded(
+            child: Text(
+              context.l10n.studioTailoringPaneNote,
+              style: context.appTypography.caption.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

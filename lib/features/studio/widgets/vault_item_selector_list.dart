@@ -2,24 +2,14 @@ import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
-import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
-import 'package:cv_forge/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
+import 'studio_entry_field_row.dart';
 import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
 import 'tailoring_controls.dart';
-
-/// A bullet's row title: its label prefixed on, or just its text if it has
-/// none. Shared by every section editor that builds a bullet
-/// [SelectorItem] (experience, projects, publications) rather than each
-/// restating the same one-liner.
-String bulletTitle(AppLocalizations l10n, String? label, String text) =>
-    label == null || label.isEmpty
-    ? text
-    : l10n.studioItemLabelledText(label, text);
 
 /// One selectable row in a [VaultItemSelectorList] — also reused for the
 /// nested rows in [bullets], since a bullet is just a title plus a
@@ -34,7 +24,8 @@ class SelectorItem {
     this.bullets = const [],
     this.onAddAllBullets,
     this.onRemoveAllBullets,
-    this.tailorables = const [],
+    this.titleField,
+    this.fields = const [],
   });
 
   final String id;
@@ -61,14 +52,29 @@ class SelectorItem {
   /// behaving differently, which is what this pairs up.
   final VoidCallback? onRemoveAllBullets;
 
-  /// The editable text fields this row owns, rendered one
-  /// [_TailorableFieldRow] each beneath it, in order.
+  /// The field whose text [title] is already showing — an experience's
+  /// role, an education entry's qualification, a hobby, a bullet's own
+  /// text. Edited from the row itself: the affordance goes in the tile's
+  /// trailing slot and the editor opens directly beneath it.
   ///
-  /// A bullet has at most one (its own text, which doubles as the row's
-  /// title — see [_BulletRow]). An entity row can have several: an
-  /// education entry carries its qualification, grade and details. Empty
-  /// for a row whose every printed field is Vault-sourced.
-  final List<TailorableField> tailorables;
+  /// Deliberately not one more [fields] entry, because a
+  /// [StudioEntryFieldRow] renders its own preview of the text — which
+  /// for this field is the title verbatim, printed a second time one line
+  /// below itself.
+  ///
+  /// A [VaultOnlyField] here is an entry whose title prints from the
+  /// Vault and can't be reworded. Null is an entry with no title field at
+  /// all — which is every section that has one, for now.
+  final StudioEntryField? titleField;
+
+  /// The entry's other printed fields, rendered one
+  /// [StudioEntryFieldRow] each beneath it, in order. Never includes
+  /// [titleField], which has a row of its own.
+  ///
+  /// An entity row can have several: an education entry carries its
+  /// institution, location, year, grade and details. A bullet has none —
+  /// its text is its [titleField], and there is nothing else to it.
+  final List<StudioEntryField> fields;
 }
 
 /// A titled checkbox list for one Vault collection (experiences, projects,
@@ -81,7 +87,7 @@ class SelectorItem {
 /// `_expandedIds` is pure presentation state, not draft data, matching
 /// `_SkillBulletLinkPicker`'s rationale for the same pattern in Vault.
 /// `_editingTextIds` is the same idea one field over, for which
-/// [SelectorItem.tailorables] entry currently has its inline editor open
+/// [SelectorItem.fields] entry currently has its inline editor open
 /// — keyed `'<itemId>_<index>'`, since one row can own several fields.
 class VaultItemSelectorList extends StatefulWidget {
   const VaultItemSelectorList({
@@ -145,28 +151,12 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
           ),
           const VGap.tiny(),
           for (final item in widget.items) ...[
-            CheckboxListTile(
+            _EntityRow(
               key: ValueKey('item_${item.id}'),
-              value: item.selected,
-              onChanged: (_) => item.onToggle(),
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              activeColor: Theme.of(context).colorScheme.primary,
-              title: Text(
-                item.title,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              subtitle: item.subtitle == null || item.subtitle!.isEmpty
-                  ? null
-                  : Text(
-                      item.subtitle!,
-                      style: context.appTypography.caption.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+              item: item,
+              editing: _editingTextIds.contains('${item.id}_title'),
+              onToggleEdit: () =>
+                  _toggleId(_editingTextIds, '${item.id}_title'),
             ),
             if (item.selected && item.bullets.isNotEmpty)
               _BulletSublist(
@@ -177,21 +167,22 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                 editingTextIds: _editingTextIds,
                 onToggleEditingText: (id) => _toggleId(_editingTextIds, id),
               ),
-            // An entity's own printed fields — a role title, an education
-            // entry's qualification/grade/details — have no checkbox row of
-            // their own to hang off, so they get dedicated rows here. A
-            // bullet's text uses its own checkbox row's title instead — see
-            // `_BulletSublist`. Keyed per field rather than per item, or
-            // opening one would open all of them.
+            // An entity's own printed fields — an employer, an education
+            // entry's grade/details — have no checkbox row of their own to
+            // hang off, so they get dedicated rows here. The entry's title
+            // and a bullet's text use their own checkbox row instead, since
+            // that row is already showing exactly this text. Keyed per
+            // field rather than per item, or opening one would open all of
+            // them.
             if (item.selected)
-              for (final (index, field) in item.tailorables.indexed)
+              for (final (index, field) in item.fields.indexed)
                 Padding(
                   key: ValueKey('tailor_${item.id}_$index'),
                   padding: EdgeInsets.only(
                     left: context.appSpacing.paddingDefault,
                     bottom: context.appSpacing.paddingTight,
                   ),
-                  child: _TailorableFieldRow(
+                  child: StudioEntryFieldRow(
                     field: field,
                     editing: _editingTextIds.contains('${item.id}_$index'),
                     onToggleEdit: () =>
@@ -199,6 +190,95 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                   ),
                 ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// One entry's own checkbox row — its title, its optional subtitle, and,
+/// when the entry's title is itself tailorable, the edit affordance for
+/// it plus the editor that opens beneath.
+///
+/// A row whose [SelectorItem.titleField] is null, or that isn't in the
+/// draft yet, is the bare tile and nothing else, so an entry that can't
+/// be tailored here doesn't carry the chrome of one that can. A
+/// [VaultOnlyField] title gets the lock and its reason, but no editor —
+/// which is the whole point of that case existing.
+class _EntityRow extends StatelessWidget {
+  const _EntityRow({
+    super.key,
+    required this.item,
+    required this.editing,
+    required this.onToggleEdit,
+  });
+
+  final SelectorItem item;
+  final bool editing;
+  final VoidCallback onToggleEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    // Only an entry that's actually in the draft shows what can be done
+    // to its title — there is nothing to tailor about a row that doesn't
+    // print.
+    final field = item.selected ? item.titleField : null;
+
+    final tile = CheckboxListTile(
+      value: item.selected,
+      onChanged: (_) => item.onToggle(),
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      controlAffinity: ListTileControlAffinity.leading,
+      activeColor: Theme.of(context).colorScheme.primary,
+      title: Text(
+        item.title,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      ),
+      subtitle: item.subtitle == null || item.subtitle!.isEmpty
+          ? null
+          : Text(
+              item.subtitle!,
+              style: context.appTypography.caption.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+      secondary: switch (field) {
+        null => null,
+        TailorableField(:final hasOverride, :final onRevert) =>
+          TailorIconButtons(
+            hasOverride: hasOverride,
+            editing: editing,
+            onToggleEdit: onToggleEdit,
+            onRevert: onRevert,
+          ),
+        VaultOnlyField(:final reason) => VaultLockIcon(reason: reason),
+      },
+    );
+
+    // A locked title has a lock and nothing else to open, so it stays a
+    // bare tile rather than a tinted block that never tints.
+    if (field is! TailorableField) return tile;
+
+    return TailoringHighlight(
+      active: editing,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          tile,
+          if (editing)
+            Padding(
+              padding: EdgeInsets.only(
+                left: kdCheckboxTitleInset,
+                right: context.appSpacing.paddingTight,
+                bottom: context.appSpacing.paddingTight,
+              ),
+              child: InlineTextOverrideEditor(
+                field: field,
+                onDone: onToggleEdit,
+              ),
+            ),
         ],
       ),
     );
@@ -226,7 +306,7 @@ class _BulletSublist extends StatelessWidget {
     final selectedCount = item.bullets.where((b) => b.selected).length;
     final unselectedCount = item.bullets.length - selectedCount;
     final tailoredCount = item.bullets
-        .where((b) => b.tailorables.any((f) => f.hasOverride))
+        .where((b) => b.titleField?.hasOverride ?? false)
         .length;
     final countLabel = tailoredCount > 0
         ? context.l10n.studioBulletsSelectedTailored(
@@ -305,7 +385,7 @@ class _BulletSublist extends StatelessWidget {
 /// attached to this bullet rather than to the sub-list.
 ///
 /// A bullet's effective (already-overridden) text is its own row title,
-/// so unlike [_TailorableFieldRow] there's no separate preview line; the
+/// so unlike [StudioEntryFieldRow] there's no separate preview line; the
 /// title just tightens to one line while editing, since the editor
 /// directly below is showing the same text in full.
 class _BulletRow extends StatelessWidget {
@@ -322,7 +402,10 @@ class _BulletRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tailorable = bullet.tailorables.firstOrNull;
+    final tailorable = switch (bullet.titleField) {
+      final TailorableField f => f,
+      _ => null,
+    };
     return TailoringHighlight(
       active: editing,
       child: Column(
@@ -366,87 +449,6 @@ class _BulletRow extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-/// One entity-owned field's collapsed row: its label and preview text (or
-/// an empty-state prompt when there's nothing yet) plus the edit
-/// affordance, expanding to [InlineTextOverrideEditor] beneath it while
-/// editing.
-class _TailorableFieldRow extends StatelessWidget {
-  const _TailorableFieldRow({
-    required this.field,
-    required this.editing,
-    required this.onToggleEdit,
-  });
-
-  final TailorableField field;
-  final bool editing;
-  final VoidCallback onToggleEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasText = field.effectiveText.trim().isNotEmpty;
-    return TailoringHighlight(
-      active: editing,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.appSpacing.paddingTight,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        // Several of these rows can sit under one entry
-                        // (an education entry owns three), so each needs
-                        // to say which field it is. Null for a row that
-                        // is the only one on its entry.
-                        if (field.fieldLabel case final label?)
-                          TextSpan(
-                            text: '$label  ',
-                            style: context.appTypography.caption.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        TextSpan(
-                          text: hasText
-                              ? field.effectiveText
-                              : (field.emptyMessage ?? ''),
-                        ),
-                      ],
-                    ),
-                    // One line while editing: the box directly below
-                    // is already showing this text in full.
-                    maxLines: editing ? 1 : 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.appTypography.caption.copyWith(
-                      color: hasText
-                          ? Theme.of(context).colorScheme.onSurfaceVariant
-                          : context.appPalette.placeholder,
-                      fontStyle: hasText ? FontStyle.normal : FontStyle.italic,
-                    ),
-                  ),
-                ),
-                TailorIconButtons(
-                  hasOverride: field.hasOverride,
-                  editing: editing,
-                  onToggleEdit: onToggleEdit,
-                  onRevert: field.onRevert,
-                ),
-              ],
-            ),
-            if (editing)
-              InlineTextOverrideEditor(field: field, onDone: onToggleEdit),
-          ],
-        ),
       ),
     );
   }

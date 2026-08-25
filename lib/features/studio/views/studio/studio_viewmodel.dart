@@ -8,10 +8,12 @@ import 'package:cv_forge/features/studio/dialogs/ai_assistant_run/ai_assistant_r
 import 'package:cv_forge/features/studio/dialogs/edit_draft/edit_draft_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/region_gallery/region_gallery_dialog_data.dart';
 import 'package:cv_forge/features/studio/dialogs/template_gallery/template_gallery_dialog_data.dart';
+import 'package:cv_forge/models/ats/ats_analysis_result.dart';
 import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/vault_selection.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/draft/draft_omittable_field.dart';
 import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/models/render/cv_composer.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
@@ -42,6 +44,26 @@ import 'package:stacked_services/stacked_services.dart';
 /// this draft — the two look identical as an empty [ResolvedCv] but need
 /// different copy and a different recovery action.
 enum StudioPreviewState { vaultEmpty, nothingSelected, ready }
+
+/// Which overlay the preview pane draws over the rendered page, if any.
+///
+/// One tri-state rather than two independent flags, because the two
+/// overlays are genuinely exclusive: `AtsXrayPainter` suppresses every
+/// other layer while it is drawing the reading-order chain, so
+/// "boxes *and* reading order" is not a state that can be rendered. A
+/// pair of booleans could express it, and would then need a rule
+/// somewhere keeping them from both being true.
+enum StudioXrayMode {
+  /// The ordinary rendered page, no overlay.
+  off,
+
+  /// Every extracted text run boxed, severity-coloured where a finding
+  /// claimed it.
+  boxes,
+
+  /// The order a position-sorting extractor walks the page in.
+  readingOrder,
+}
 
 /// Owns Studio's selection UI. It reads [VaultService] for the master data
 /// and [DraftService] for what's currently selected, then hands both to
@@ -114,6 +136,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       projectBulletIds: selection.projectBulletIds,
       skillIds: selection.skillIds,
       educationIds: selection.educationIds,
+      educationBulletIds: selection.educationBulletIds,
       hobbyIds: selection.hobbyIds,
       publicationIds: selection.publicationIds,
       publicationBulletIds: selection.publicationBulletIds,
@@ -259,6 +282,85 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   void setPageCount(int value) {
     if (_pageCount == value) return;
     _pageCount = value;
+    notifyListeners();
+  }
+
+  /// Which ATS overlay the preview pane is drawing — what a text extractor
+  /// pulls out of the CV, over the CV itself.
+  ///
+  /// A view mode rather than a separate analysis step, because the
+  /// overlay's backdrop is rasterised by the same pass that produced its
+  /// geometry (see `StudioXrayPane`). There is no "stale overlay" state to
+  /// manage: boxes and page are always from one render.
+  StudioXrayMode get xrayMode => _xrayMode;
+  StudioXrayMode _xrayMode = StudioXrayMode.off;
+
+  /// Whether any overlay is showing — what the preview pane branches on to
+  /// decide which pane to build at all.
+  bool get xrayEnabled => _xrayMode != StudioXrayMode.off;
+
+  /// Whether that overlay is the reading-order chain, which is what
+  /// `AtsXrayPainter.showFlowLines` takes.
+  bool get xrayReadingOrder => _xrayMode == StudioXrayMode.readingOrder;
+
+  /// Each mode's control is a toggle onto that mode, and pressing the mode
+  /// already showing turns the overlay off. Both controls are permanently
+  /// visible, so either is equally a way in — reading order is a peer of
+  /// the boxes, not something nested behind them.
+  void toggleXrayMode(StudioXrayMode mode) {
+    assert(
+      mode != StudioXrayMode.off,
+      'Use closeXray to turn the overlay off.',
+    );
+    _xrayMode = _xrayMode == mode ? StudioXrayMode.off : mode;
+    if (_xrayMode == StudioXrayMode.off) _xrayResult = null;
+    notifyListeners();
+  }
+
+  /// The control group's label, stepping through every state in turn:
+  /// off → boxes → reading order → off.
+  ///
+  /// It cannot mean "show both" — `AtsXrayPainter` draws the reading-order
+  /// chain *instead of* every other layer, deliberately, because the boxes
+  /// and the chain competing is what made the chain hard to follow. A
+  /// cycle is what that constraint leaves: one control that reaches all
+  /// three states, with the two icons as direct jumps into a mode for
+  /// anyone who would rather not step.
+  ///
+  /// Declaration order *is* the cycle order, so a mode added to
+  /// [StudioXrayMode] joins it by being declared in the right place
+  /// rather than by editing here.
+  void cycleXrayMode() {
+    const values = StudioXrayMode.values;
+    _xrayMode = values[(_xrayMode.index + 1) % values.length];
+    if (_xrayMode == StudioXrayMode.off) _xrayResult = null;
+    notifyListeners();
+  }
+
+  /// Back to the ordinary preview, whichever overlay was showing. Distinct
+  /// from [cycleXrayMode] because the one caller — the X-Ray's own error
+  /// state — needs "off" outright rather than the next state along.
+  void closeXray() {
+    if (_xrayMode == StudioXrayMode.off) return;
+    _xrayMode = StudioXrayMode.off;
+    _xrayResult = null;
+    notifyListeners();
+  }
+
+  /// The findings from the most recent X-Ray pass, or null while one is
+  /// still running (and whenever the overlay is off).
+  ///
+  /// Held here rather than inside `StudioXrayPane` because two sibling
+  /// panes need it: the pane draws the boxes, and the editor column lists
+  /// what they mean. Reported up by the pane that computes it — the same
+  /// shape as [setPageCount], and for the same reason: it is derived from
+  /// a render only that pane performs.
+  AtsAnalysisResult? get xrayResult => _xrayResult;
+  AtsAnalysisResult? _xrayResult;
+
+  void setXrayResult(AtsAnalysisResult? value) {
+    if (identical(_xrayResult, value)) return;
+    _xrayResult = value;
     notifyListeners();
   }
 
@@ -481,19 +583,16 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
 
   /// Whether this draft says anything the Vault does not, and so whether
   /// there is any wording to reset.
+  ///
+  /// The id-keyed half is derived from `TextOverrideField.values`, not
+  /// listed here — a new overridable field must not be able to go missing
+  /// from this check. Only the three scalar overrides, which have no id to
+  /// key by and so aren't in that enum, are named individually.
   bool get hasWordingOverrides =>
       _draft.headlineOverride != null ||
       _draft.tailoredSummary != null ||
       _draft.referencesOverride != null ||
-      _draft.bulletOverrides.isNotEmpty ||
-      _draft.educationDetailsOverrides.isNotEmpty ||
-      _draft.roleOverrides.isNotEmpty ||
-      _draft.projectTitleOverrides.isNotEmpty ||
-      _draft.skillLabelOverrides.isNotEmpty ||
-      _draft.skillCategoryNameOverrides.isNotEmpty ||
-      _draft.hobbyOverrides.isNotEmpty ||
-      _draft.educationQualificationOverrides.isNotEmpty ||
-      _draft.educationGradeOverrides.isNotEmpty;
+      _draft.hasAnyTextOverride;
 
   /// Discards every per-draft text edit — hand edits, AI rewrites and any
   /// translation alike — so each line reads as the Vault has it.
@@ -870,6 +969,100 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> revertProjectTitleOverride(String projectId) =>
       _revertOverride(TextOverrideField.projectTitle, projectId);
 
+  /// Whether [entityId] drops [field] on this draft — the third state a
+  /// printed field can be in, alongside Vault-sourced and overridden.
+  /// Generic rather than a pair of wrappers per field: unlike a text
+  /// override there is no per-field effective value to resolve, so there
+  /// would be nothing for the wrappers to do.
+  bool isFieldOmitted(DraftOmittableField field, String entityId) =>
+      field.isOmittedFor(_draft, entityId);
+
+  Future<void> toggleFieldOmitted(DraftOmittableField field, String entityId) =>
+      _draftService.setFieldOmitted(
+        field,
+        entityId,
+        omitted: !isFieldOmitted(field, entityId),
+      );
+
+  String publicationTitleText(Publication entry) =>
+      _overrideText(TextOverrideField.publicationTitle, entry.id, entry.title);
+
+  bool hasPublicationTitleOverride(String publicationId) =>
+      _hasOverride(TextOverrideField.publicationTitle, publicationId);
+
+  Future<void> setPublicationTitleOverride(Publication entry, String value) =>
+      _setOverride(
+        TextOverrideField.publicationTitle,
+        entry.id,
+        value,
+        entry.title,
+      );
+
+  Future<void> revertPublicationTitleOverride(String publicationId) =>
+      _revertOverride(TextOverrideField.publicationTitle, publicationId);
+
+  String publicationCitationText(Publication entry) => _overrideText(
+    TextOverrideField.publicationCitation,
+    entry.id,
+    entry.citation ?? '',
+  );
+
+  bool hasPublicationCitationOverride(String publicationId) =>
+      _hasOverride(TextOverrideField.publicationCitation, publicationId);
+
+  Future<void> setPublicationCitationOverride(
+    Publication entry,
+    String value,
+  ) => _setOverride(
+    TextOverrideField.publicationCitation,
+    entry.id,
+    value,
+    entry.citation ?? '',
+  );
+
+  Future<void> revertPublicationCitationOverride(String publicationId) =>
+      _revertOverride(TextOverrideField.publicationCitation, publicationId);
+
+  String experienceLocationText(Experience entry) => _overrideText(
+    TextOverrideField.experienceLocation,
+    entry.id,
+    entry.location,
+  );
+
+  bool hasExperienceLocationOverride(String experienceId) =>
+      _hasOverride(TextOverrideField.experienceLocation, experienceId);
+
+  Future<void> setExperienceLocationOverride(Experience entry, String value) =>
+      _setOverride(
+        TextOverrideField.experienceLocation,
+        entry.id,
+        value,
+        entry.location,
+      );
+
+  Future<void> revertExperienceLocationOverride(String experienceId) =>
+      _revertOverride(TextOverrideField.experienceLocation, experienceId);
+
+  String educationLocationText(Education entry) => _overrideText(
+    TextOverrideField.educationLocation,
+    entry.id,
+    entry.location ?? '',
+  );
+
+  bool hasEducationLocationOverride(String educationId) =>
+      _hasOverride(TextOverrideField.educationLocation, educationId);
+
+  Future<void> setEducationLocationOverride(Education entry, String value) =>
+      _setOverride(
+        TextOverrideField.educationLocation,
+        entry.id,
+        value,
+        entry.location ?? '',
+      );
+
+  Future<void> revertEducationLocationOverride(String educationId) =>
+      _revertOverride(TextOverrideField.educationLocation, educationId);
+
   String skillLabelText(Skill entry) =>
       _overrideText(TextOverrideField.skillLabel, entry.id, entry.label);
 
@@ -949,8 +1142,8 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     }
   }
 
-  /// Bullet ids currently included in this draft, across experiences,
-  /// projects and publications — restricted to entries that are themselves
+  /// Bullet ids currently included in this draft, across all four
+  /// bullet-owning collections — restricted to entries that are themselves
   /// included, since an excluded entry's bullet map entry doesn't mean the
   /// bullets are shown. Backs [unselectedEvidencedSkills],
   /// [selectEvidencedSkills], and [evidenceCountFor].
@@ -958,6 +1151,9 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     for (final id in _draft.experienceIds) ...?_draft.bulletIds[id],
     for (final id in _draft.projectIds) ...?_draft.projectBulletIds[id],
     for (final id in _draft.publicationIds) ...?_draft.publicationBulletIds[id],
+    for (final entry in _vault.education)
+      if (_draft.educationIds.contains(entry.id))
+        ..._educationBulletSelection(entry),
   };
 
   /// Skills [selectEvidencedSkills] would add — i.e. not yet selected, and
@@ -1005,8 +1201,11 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     items: () => _vault.education,
     idOf: (e) => e.id,
     selectedIds: () => _draft.educationIds,
-    setIncluded: (e, {required included}) =>
-        _draftService.setEducationIncluded(e.id, included: included),
+    setIncluded: (e, {required included}) => _draftService.setEducationIncluded(
+      e.id,
+      included: included,
+      bulletIds: e.bullets.map((b) => b.id).toList(),
+    ),
   );
 
   List<Education> get education => _vault.education;
@@ -1023,6 +1222,36 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   List<Education> get selectedEducation => _educationSelection.selected;
 
   Future<void> removeAllEducation() => _educationSelection.removeAll();
+
+  /// [entry]'s included bullet ids, through the absent-means-all rule
+  /// that only education carries — see `CvDraft.educationBulletIds`. The
+  /// one place this ViewModel resolves it, so the rest of the class can
+  /// treat education like every other bullet owner.
+  List<String> _educationBulletSelection(Education entry) =>
+      _draft.educationBulletSelection(entry.id, [
+        for (final b in entry.bullets) b.id,
+      ]);
+
+  late final _educationBullets = _BulletSelection(
+    selectedIdsFor: (id) {
+      final entry = _vault.education.where((e) => e.id == id).firstOrNull;
+      return entry == null ? const [] : _educationBulletSelection(entry);
+    },
+    setBulletIds: (id, ids) =>
+        _draftService.setBulletIds(BulletOwner.education, id, ids),
+  );
+
+  bool isEducationBulletIncluded(String educationId, String bulletId) =>
+      _educationBullets.isIncluded(educationId, bulletId);
+
+  Future<void> toggleEducationBullet(Education entry, CvBullet bullet) =>
+      _educationBullets.toggle(entry.id, entry.bullets, bullet.id);
+
+  Future<void> addAllEducationBullets(Education entry) =>
+      _educationBullets.addAll(entry.id, entry.bullets);
+
+  Future<void> removeAllEducationBullets(Education entry) =>
+      _educationBullets.removeAll(entry.id, entry.bullets);
 
   /// Same shape as [bulletText]. [Education.institution] and `year` have
   /// no counterpart here deliberately — see [CvDraft]'s override-layer

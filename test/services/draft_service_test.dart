@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cv_forge/models/draft/draft_omittable_field.dart';
 import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
@@ -388,6 +389,32 @@ void main() {
       expect(service.draft.documentLanguage, DocumentLanguage.enUs);
     });
 
+    test('createDraft seeds the headline default onto the new CV, so the '
+        'Vault choice reaches the draft that actually renders', () async {
+      final service = DraftService();
+      await service.load();
+
+      await service.createDraft(
+        name: 'No headline',
+        defaults: const DocumentDefaults(hideHeadline: true),
+      );
+
+      expect(service.draft.hideHeadline, isTrue);
+    });
+
+    test('createDraft leaves the headline shown when no default says '
+        'otherwise — the pre-defaults behaviour', () async {
+      final service = DraftService();
+      await service.load();
+
+      await service.createDraft(
+        name: 'Ordinary',
+        defaults: const DocumentDefaults(),
+      );
+
+      expect(service.draft.hideHeadline, isFalse);
+    });
+
     test('createDraft starts a new CV on the default template, rather than '
         'inheriting the open draft template', () async {
       final service = DraftService();
@@ -638,6 +665,7 @@ void main() {
         bulletOverrides: {'bullet-1': 'Rewritten bullet.'},
         skillIds: ['skill-1'],
         educationIds: [],
+        educationBulletIds: {},
         hobbyIds: [],
         hiddenSections: {CvSectionType.hobbies},
         rationale: 'Kept the relevant backend experience.',
@@ -726,6 +754,51 @@ void main() {
       });
     });
 
+    group('setFieldOmitted -', () {
+      test('putting a field back removes the key entirely, so a draft that '
+          'omitted something and changed its mind stores exactly what one '
+          'that never touched it stores', () async {
+        final service = DraftService();
+        await service.load();
+
+        await service.setFieldOmitted(
+          DraftOmittableField.projectLink,
+          'proj-1',
+          omitted: true,
+        );
+        expect(service.draft.omittedFields, {
+          DraftOmittableField.projectLink: ['proj-1'],
+        });
+
+        await service.setFieldOmitted(
+          DraftOmittableField.projectLink,
+          'proj-1',
+          omitted: false,
+        );
+        expect(service.draft.omittedFields, isEmpty);
+      });
+
+      test('resetWordingToVault leaves omissions alone — whether a field '
+          'prints at all is the selection axis, not the wording one', () async {
+        final service = DraftService();
+        await service.load();
+
+        await service.setFieldOmitted(
+          DraftOmittableField.educationYear,
+          'edu-1',
+          omitted: true,
+        );
+        await service.setHeadlineOverride('Hand-edited headline');
+
+        await service.resetWordingToVault();
+
+        expect(service.draft.headlineOverride, isNull);
+        expect(service.draft.omittedFields, {
+          DraftOmittableField.educationYear: ['edu-1'],
+        });
+      });
+    });
+
     group('resetWordingToVault -', () {
       test('clears every text override and the translation marker, while '
           'leaving selection alone — the one way back that needs no '
@@ -769,6 +842,30 @@ void main() {
         expect(service.draft.bulletIds['exp-1'], ['bullet-1']);
       });
 
+      test('clears every TextOverrideField, derived from the enum rather '
+          'than a list written out here — a field added to the enum and '
+          'not to the reset would let a user create wording they could '
+          'never get back', () async {
+        final service = DraftService();
+        await service.load();
+
+        for (final field in TextOverrideField.values) {
+          await service.setTextOverride(field, 'some-id', 'Overridden.');
+        }
+        expect(service.draft.hasAnyTextOverride, isTrue);
+
+        await service.resetWordingToVault();
+
+        for (final field in TextOverrideField.values) {
+          expect(
+            field.of(service.draft),
+            isEmpty,
+            reason: 'TextOverrideField.${field.name} survived the reset',
+          );
+        }
+        expect(service.draft.hasAnyTextOverride, isFalse);
+      });
+
       test('drops both undo snapshots, so neither pass can put its wording '
           'back onto a draft just reset to the Vault', () async {
         const aiPass = AiAssistantResult(
@@ -782,6 +879,7 @@ void main() {
           bulletOverrides: {},
           skillIds: [],
           educationIds: [],
+          educationBulletIds: {},
           hobbyIds: [],
           hiddenSections: {},
           rationale: '',

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/models/ats/ats_finding.dart';
-import 'ats_finding_card.dart';
+import 'package:cv_forge/ui/widgets/common/ats_xray/ats_finding_card.dart';
 
 /// The X-Ray overlay's primary findings list.
 ///

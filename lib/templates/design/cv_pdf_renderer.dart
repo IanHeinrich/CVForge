@@ -368,7 +368,7 @@ abstract class CvPdfRenderer {
             children: [
               pw.TextSpan(
                 text: '${group.category}: ',
-                style: tokens.bulletLabel.toPdfStyle(fonts),
+                style: tokens.inlineLabel.toPdfStyle(fonts),
               ),
               pw.TextSpan(
                 text: group.skills.join(', '),

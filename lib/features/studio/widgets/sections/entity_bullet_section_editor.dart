@@ -1,24 +1,29 @@
 import 'package:cv_forge/models/vault/cv_bullet.dart';
-import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
 import 'package:cv_forge/features/studio/widgets/vault_item_selector_list.dart';
 
-/// The [VaultItemSelectorList] wiring shared by experience, projects, and
-/// publications — each is "a titled list of entities with their own
-/// selectable, tailorable bullets", differing only in which collection
-/// feeds it, its title/empty-title copy, which field is the subtitle, and
-/// which `StudioViewModel` methods back selection. Every entity-specific
-/// call is a closure here rather than this widget depending on
+/// The [VaultItemSelectorList] wiring shared by every bullet-owning
+/// section — experience, projects, education and publications. Each is "a
+/// titled list of entities with their own selectable, tailorable
+/// bullets", differing only in which collection feeds it, its
+/// title/empty-title copy, which field is the subtitle, and which
+/// `StudioViewModel` methods back selection. Every entity-specific call
+/// is a closure here rather than this widget depending on
 /// `StudioViewModel` directly, so it stays reusable if Studio ever grows
 /// a fifth bullet-owning collection.
 ///
-/// Education is deliberately NOT genericized alongside these three — it
-/// has no per-bullet draft selection (`CvDraft` has no
-/// `educationBulletIds`; see `BulletOwner`'s doc comment) and instead
-/// exposes a tailorable `details` field, so its section editor has a
-/// different shape than a shared config would help with.
+/// Education used to be excluded, because it had no per-bullet draft
+/// selection and did have tailorable `grade`/`details` fields of its own.
+/// `CvDraft.educationBulletIds` closed the first half and [fieldsOf] the
+/// second, so what was two shapes is one.
+///
+/// [titleFieldOf] and [fieldsOf] are how a caller says what each of its
+/// entries' printed fields *are* — editable here, or printed from the
+/// Vault and fixed, with the reason. One ordered list rather than a
+/// parameter block per field, so adding a field to a section is adding a
+/// list entry at the call site and nothing here.
 class EntityBulletSectionEditor<T> extends StatelessWidget {
   const EntityBulletSectionEditor({
     super.key,
@@ -43,10 +48,8 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
     required this.hasBulletOverride,
     required this.onSetBulletOverride,
     required this.onRevertBulletOverride,
-    this.titleFieldLabel,
-    this.hasTitleOverride,
-    this.onSetTitleOverride,
-    this.onRevertTitleOverride,
+    this.titleFieldOf,
+    this.fieldsOf,
   });
 
   final String title;
@@ -79,14 +82,16 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
   onSetBulletOverride;
   final Future<void> Function(String bulletId) onRevertBulletOverride;
 
-  /// The entity's own printed title (a role, a project name) as an
-  /// editable field. All four are supplied together or not at all —
-  /// publications pass none, since a paper's title is a citable proper
-  /// noun that must stay exactly as published.
-  final String? titleFieldLabel;
-  final bool Function(String id)? hasTitleOverride;
-  final Future<void> Function(T item, String value)? onSetTitleOverride;
-  final Future<void> Function(String id)? onRevertTitleOverride;
+  /// The entity's own printed title (a role, a project name), as the
+  /// field the entry's own row edits — see [SelectorItem.titleField].
+  /// A [VaultOnlyField] for a title that prints from the Vault and stays
+  /// there; null for a section with no title field at all.
+  final StudioEntryField Function(T item)? titleFieldOf;
+
+  /// The entity's other printed fields, in the order they should appear
+  /// beneath it. Same union: an editable field, or one that prints from
+  /// the Vault with the reason it's fixed.
+  final List<StudioEntryField> Function(T item)? fieldsOf;
 
   @override
   Widget build(BuildContext context) {
@@ -106,36 +111,30 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
             onToggle: () => onToggle(item),
             onAddAllBullets: () => onAddAllBullets(item),
             onRemoveAllBullets: () => onRemoveAllBullets(item),
-            tailorables: [
-              if (onSetTitleOverride case final setTitle?)
-                TailorableField(
-                  hasOverride: hasTitleOverride!(idOf(item)),
-                  effectiveText: titleOf(item),
-                  fieldLabel: titleFieldLabel,
-                  onChanged: (value) => setTitle(item, value),
-                  onRevert: () => onRevertTitleOverride!(idOf(item)),
-                ),
+            titleField: titleFieldOf?.call(item),
+            // A field with nothing in it has nothing to say, editable or
+            // not, so an empty one renders no row rather than an empty
+            // one — only a field the Vault can legitimately leave blank
+            // carries an `emptyMessage` prompting for it.
+            fields: [
+              for (final field in fieldsOf?.call(item) ?? const [])
+                if (field.displayText.trim().isNotEmpty ||
+                    field.emptyMessage != null)
+                  field,
             ],
             bullets: [
               for (final bullet in bulletsOf(item))
                 SelectorItem(
                   id: bullet.id,
-                  title: bulletTitle(
-                    context.l10n,
-                    bullet.label,
-                    bulletText(bullet),
-                  ),
+                  title: bulletText(bullet),
                   selected: isBulletIncluded(item, bullet),
                   onToggle: () => onToggleBullet(item, bullet),
-                  tailorables: [
-                    TailorableField(
-                      hasOverride: hasBulletOverride(bullet.id),
-                      effectiveText: bulletText(bullet),
-                      fieldLabel: bullet.label,
-                      onChanged: (value) => onSetBulletOverride(bullet, value),
-                      onRevert: () => onRevertBulletOverride(bullet.id),
-                    ),
-                  ],
+                  titleField: TailorableField(
+                    hasOverride: hasBulletOverride(bullet.id),
+                    effectiveText: bulletText(bullet),
+                    onChanged: (value) => onSetBulletOverride(bullet, value),
+                    onRevert: () => onRevertBulletOverride(bullet.id),
+                  ),
                 ),
             ],
           ),

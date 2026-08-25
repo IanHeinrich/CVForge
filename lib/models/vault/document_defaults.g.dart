@@ -21,6 +21,7 @@ _DocumentDefaults _$DocumentDefaultsFromJson(Map<String, dynamic> json) =>
       hiddenSections: (json['hiddenSections'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
           .toSet(),
+      hideHeadline: json['hideHeadline'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$DocumentDefaultsToJson(_DocumentDefaults instance) =>
@@ -34,6 +35,7 @@ Map<String, dynamic> _$DocumentDefaultsToJson(_DocumentDefaults instance) =>
       'hiddenSections': instance.hiddenSections
           ?.map((e) => _$CvSectionTypeEnumMap[e]!)
           .toList(),
+      'hideHeadline': instance.hideHeadline,
     };
 
 const _$RegionProfileEnumMap = {

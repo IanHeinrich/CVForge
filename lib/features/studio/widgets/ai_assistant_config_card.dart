@@ -116,32 +116,42 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
                 ),
               ),
               if (hasDescription && !_editing)
-                IconButton(
-                  icon: const Icon(
-                    RemixIcons.close_line,
+                TailorIconSlot(
+                  child: IconButton(
+                    icon: const Icon(
+                      RemixIcons.close_line,
+                      size: kdTailorIconSize,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints.tightFor(
+                      width: kdTailorHitSize,
+                      height: kdTailorHitSize,
+                    ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    tooltip: context.l10n.studioAiClearJobDescription,
+                    onPressed: widget.onClear,
+                  ),
+                ),
+              const SizedBox(width: kdTailorIconGap),
+              TailorIconSlot(
+                child: IconButton(
+                  icon: Icon(
+                    _editing ? RemixIcons.check_line : RemixIcons.edit_line,
                     size: kdTailorIconSize,
                   ),
                   padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(),
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  tooltip: context.l10n.studioAiClearJobDescription,
-                  onPressed: widget.onClear,
+                  constraints: const BoxConstraints.tightFor(
+                    width: kdTailorHitSize,
+                    height: kdTailorHitSize,
+                  ),
+                  color: _editing
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                  tooltip: _editing
+                      ? context.l10n.commonDone
+                      : context.l10n.studioAiEditJobDescription,
+                  onPressed: _toggleEditing,
                 ),
-              const SizedBox(width: 4),
-              IconButton(
-                icon: Icon(
-                  _editing ? RemixIcons.check_line : RemixIcons.edit_line,
-                  size: kdTailorIconSize,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                color: _editing
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-                tooltip: _editing
-                    ? context.l10n.commonDone
-                    : context.l10n.studioAiEditJobDescription,
-                onPressed: _toggleEditing,
               ),
             ],
           ),

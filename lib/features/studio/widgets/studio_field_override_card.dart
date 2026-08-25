@@ -1,12 +1,11 @@
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/ui_helpers.dart';
-import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
+import 'studio_entry_field_row.dart';
 import 'studio_panel_heading.dart';
 import 'tailorable_field.dart';
-import 'tailoring_controls.dart';
 
 /// A flat tailoring editor for a page-level, singular text field —
 /// collapsed (showing either the Vault's value or, once tailored, the
@@ -20,13 +19,12 @@ import 'tailoring_controls.dart';
 /// editing state machine is identical, so that's the only thing this
 /// widget owns.
 ///
-/// Reuses the entity-scoped rows' interaction by construction, not just by
-/// resemblance: the same [TailorIconButtons] cluster, and once editing,
-/// the same [InlineTextOverrideEditor] (built here from a
-/// [TailorableField] wrapping this widget's own primitives) — so Escape,
-/// the "Only affects this CV." footer, and the collapse behaviour can't
-/// drift between the two call sites. Only the frame differs: this adds a
-/// heading and an empty-Vault message, since a page-level field has no
+/// Renders the entity-scoped rows' interaction by construction, not just
+/// by resemblance: it *is* a [StudioEntryFieldRow], built from this
+/// widget's own primitives, so the state glyph, Escape, and the collapse
+/// behaviour can't drift between the two call sites. Only the frame
+/// differs: this adds a heading and an empty-Vault message, and asks for
+/// body type and a bigger editor, since a page-level field has no
 /// parent row to hang off, unlike a bullet's own checkbox row — no card
 /// box around it, matching every other Studio section editor, since the
 /// section's own pane is already the boundary (a card *inside* an
@@ -103,9 +101,6 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
   Widget build(BuildContext context) {
     final hasVaultValue = (widget.vaultValue ?? '').trim().isNotEmpty;
     final hasAnyValue = widget.hasOverride || hasVaultValue;
-    final previewText = widget.hasOverride
-        ? widget.effectiveValue
-        : (hasVaultValue ? widget.vaultValue! : widget.emptyVaultMessage);
 
     // Flat — no card frame; see class doc comment for why.
     return Padding(
@@ -133,49 +128,30 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
           else
             StudioPanelHeading(widget.label),
           const VGap.tiny(),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  previewText,
-                  // One line while editing: the box directly below is
-                  // already showing this text in full.
-                  maxLines: _editing ? 1 : 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: hasAnyValue
-                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : context.appPalette.placeholder,
-                    fontStyle: hasAnyValue
-                        ? FontStyle.normal
-                        : FontStyle.italic,
-                  ),
-                ),
-              ),
-              TailorIconButtons(
-                hasOverride: widget.hasOverride,
-                editing: _editing,
-                onToggleEdit: _toggleEditing,
-                onRevert: widget.onRevert,
-              ),
-            ],
-          ),
-          if (_editing)
-            InlineTextOverrideEditor(
-              field: TailorableField(
-                hasOverride: widget.hasOverride,
-                effectiveText: widget.effectiveValue,
-                onChanged: widget.onChanged,
-                onRevert: widget.onRevert,
-                emptyMessage: widget.emptyVaultMessage,
-              ),
-              onDone: _toggleEditing,
-              // A page-level field is typically longer prose than a
-              // bullet — a bigger box to start from, same widget either
-              // way.
-              maxLines: 6,
-              minLines: 3,
+          StudioEntryFieldRow(
+            field: TailorableField(
+              hasOverride: widget.hasOverride,
+              // Empty rather than [effectiveValue] when there is nothing
+              // yet, so the row falls through to `emptyMessage` and shows
+              // the empty-Vault prompt in its placeholder style — and so
+              // the edit box opens blank rather than pre-filled with that
+              // prompt as if it were text.
+              effectiveText: hasAnyValue ? widget.effectiveValue : '',
+              onChanged: widget.onChanged,
+              onRevert: widget.onRevert,
+              emptyMessage: widget.emptyVaultMessage,
             ),
+            editing: _editing,
+            onToggleEdit: _toggleEditing,
+            // A page-level field is the pane's whole subject, so it gets
+            // body type and a bigger box than a row nested under an
+            // entry, and sits flush with the heading directly above it.
+            dense: false,
+            previewMaxLines: 3,
+            editorMinLines: 3,
+            editorMaxLines: 6,
+            contentPadding: EdgeInsets.zero,
+          ),
         ],
       ),
     );

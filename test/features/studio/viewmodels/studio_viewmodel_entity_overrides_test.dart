@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/draft/draft_omittable_field.dart';
 import 'package:cv_forge/models/draft/text_override_field.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
@@ -5,6 +6,11 @@ import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/education.dart';
+import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/vault/project.dart';
+import 'package:cv_forge/models/vault/publication.dart';
+import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
@@ -116,6 +122,152 @@ void main() {
       expect(hobbies.items, ['Bouldern']);
     });
 
+    test('a publication title and citation override are what render — a '
+        'paper is cited differently by different venues, and only the '
+        'person who wrote it knows which form belongs on this CV', () {
+      const paper = Publication(
+        id: 'pub-1',
+        title: 'On Consensus Under Partition',
+        citation: 'Proc. FOO 2021, pp. 1-12',
+        link: 'https://example.org/paper',
+      );
+      when(
+        vaultService.vault,
+      ).thenReturn(vaultWith(publications: const [paper]));
+      when(draftService.draft).thenReturn(
+        draftWith(
+          publicationIds: const ['pub-1'],
+          publicationTitleOverrides: const {
+            'pub-1': 'Sobre el consenso ante particiones',
+          },
+          publicationCitationOverrides: const {
+            'pub-1': 'Actas FOO 2021, pp. 1-12',
+          },
+        ),
+      );
+
+      final model = StudioViewModel();
+
+      expect(
+        model.publicationTitleText(paper),
+        'Sobre el consenso ante '
+        'particiones',
+      );
+      expect(model.publicationCitationText(paper), 'Actas FOO 2021, pp. 1-12');
+
+      final section = model.resolvedCv.sections
+          .whereType<ResolvedPublicationsSection>()
+          .first;
+      expect(section.items.single.title, 'Sobre el consenso ante particiones');
+      expect(section.items.single.citation, 'Actas FOO 2021, pp. 1-12');
+      // The link is the one part that stays the Vault's.
+      expect(section.items.single.link, 'https://example.org/paper');
+    });
+
+    test('an education location override is what renders — a city has a '
+        'name in each language, unlike the institution beside it', () {
+      const degree = Education(
+        id: 'edu-1',
+        qualification: 'BSc',
+        institution: 'TUM',
+        location: 'Munich',
+      );
+      when(vaultService.vault).thenReturn(vaultWith(education: const [degree]));
+      when(draftService.draft).thenReturn(
+        draftWith(
+          educationIds: const ['edu-1'],
+          educationLocationOverrides: const {'edu-1': 'München'},
+        ),
+      );
+
+      final model = StudioViewModel();
+
+      expect(model.educationLocationText(degree), 'München');
+      final section = model.resolvedCv.sections
+          .whereType<ResolvedEducationSection>()
+          .first;
+      expect(section.items.single.location, 'München');
+      expect(section.items.single.institution, 'TUM');
+    });
+
+    group('experience location overrides in a company group -', () {
+      // Two roles at one employer. The group prints ONE location line, and
+      // `roles.first` after the recency sort is the newer role — so an
+      // override on the older one has to be able to reach the group, or
+      // editing it would silently do nothing.
+      const newer = Experience(
+        id: 'exp-new',
+        role: 'Staff Engineer',
+        company: 'Acme',
+        location: 'Munich',
+        start: YearMonth(year: 2022, month: 1),
+        isCurrent: true,
+        companyGroupId: 'grp-1',
+      );
+      const older = Experience(
+        id: 'exp-old',
+        role: 'Senior Engineer',
+        company: 'Acme',
+        location: 'Munich',
+        start: YearMonth(year: 2019, month: 1),
+        end: YearMonth(year: 2021, month: 12),
+        companyGroupId: 'grp-1',
+      );
+
+      String? printedLocation(StudioViewModel model) => model
+          .resolvedCv
+          .sections
+          .whereType<ResolvedExperienceSection>()
+          .first
+          .groups
+          .single
+          .location;
+
+      test('with no override the group prints the newest role\'s location', () {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: const [newer, older]));
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(experienceIds: const ['exp-new', 'exp-old']));
+
+        expect(printedLocation(StudioViewModel()), 'Munich');
+      });
+
+      test('an override on the older role still reaches the group, so '
+          'editing it is never a no-op', () {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: const [newer, older]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            experienceIds: const ['exp-new', 'exp-old'],
+            experienceLocationOverrides: const {'exp-old': 'München'},
+          ),
+        );
+
+        expect(printedLocation(StudioViewModel()), 'München');
+      });
+
+      test('with both overridden the newest wins, so the result is '
+          'deterministic rather than dependent on edit order', () {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(experiences: const [newer, older]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            experienceIds: const ['exp-new', 'exp-old'],
+            experienceLocationOverrides: const {
+              'exp-new': 'München',
+              'exp-old': 'Muenchen',
+            },
+          ),
+        );
+
+        expect(printedLocation(StudioViewModel()), 'München');
+      });
+    });
+
     test('typing the Vault value back leaves no override behind, so the '
         'field stays connected to future Vault edits', () async {
       when(
@@ -175,6 +327,197 @@ void main() {
       verify(
         draftService.setTextOverride(TextOverrideField.role, 'exp-1', null),
       ).called(1);
+    });
+
+    group('omitted fields -', () {
+      // Three fields nobody may rewrite for one application without
+      // saying something untrue, but that anyone may leave off.
+      const project = Project(
+        id: 'proj-1',
+        title: 'CV Forge',
+        link: 'https://example.org/demo',
+      );
+      const paper = Publication(
+        id: 'pub-1',
+        title: 'On Consensus Under Partition',
+        link: 'https://example.org/paper',
+      );
+      const degree = Education(
+        id: 'edu-1',
+        qualification: 'BSc',
+        institution: 'Leeds',
+        year: 2011,
+      );
+
+      test('with nothing omitted every field prints — a draft saved before '
+          'any of this existed has no map at all, and must be unchanged '
+          'by the upgrade', () {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            projects: const [project],
+            publications: const [paper],
+            education: const [degree],
+          ),
+        );
+        when(draftService.draft).thenReturn(
+          draftWith(
+            projectIds: const ['proj-1'],
+            publicationIds: const ['pub-1'],
+            educationIds: const ['edu-1'],
+          ),
+        );
+
+        final cv = StudioViewModel().resolvedCv;
+
+        expect(
+          cv.sections
+              .whereType<ResolvedProjectsSection>()
+              .first
+              .items
+              .single
+              .link,
+          'https://example.org/demo',
+        );
+        expect(
+          cv.sections
+              .whereType<ResolvedPublicationsSection>()
+              .first
+              .items
+              .single
+              .link,
+          'https://example.org/paper',
+        );
+        expect(
+          cv.sections
+              .whereType<ResolvedEducationSection>()
+              .first
+              .items
+              .single
+              .yearLabel,
+          '2011',
+        );
+      });
+
+      test('an omitted link or year is gone from the document, while the '
+          'Vault still has it for every other CV', () {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            projects: const [project],
+            publications: const [paper],
+            education: const [degree],
+          ),
+        );
+        when(draftService.draft).thenReturn(
+          draftWith(
+            projectIds: const ['proj-1'],
+            publicationIds: const ['pub-1'],
+            educationIds: const ['edu-1'],
+            omittedFields: const {
+              DraftOmittableField.projectLink: ['proj-1'],
+              DraftOmittableField.publicationLink: ['pub-1'],
+              DraftOmittableField.educationYear: ['edu-1'],
+            },
+          ),
+        );
+
+        final model = StudioViewModel();
+        final cv = model.resolvedCv;
+
+        expect(
+          cv.sections
+              .whereType<ResolvedProjectsSection>()
+              .first
+              .items
+              .single
+              .link,
+          isNull,
+        );
+        expect(
+          cv.sections
+              .whereType<ResolvedPublicationsSection>()
+              .first
+              .items
+              .single
+              .link,
+          isNull,
+        );
+        expect(
+          cv.sections
+              .whereType<ResolvedEducationSection>()
+              .first
+              .items
+              .single
+              .yearLabel,
+          isNull,
+        );
+        expect(vaultService.vault.projects.first.link, project.link);
+        expect(vaultService.vault.education.first.year, 2011);
+      });
+
+      test("omitting one entry's field leaves another entry's alone — the "
+          'list is per entity, not per section', () {
+        const other = Project(
+          id: 'proj-2',
+          title: 'Other',
+          link: 'https://example.org/other',
+        );
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(projects: const [project, other]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            projectIds: const ['proj-1', 'proj-2'],
+            omittedFields: const {
+              DraftOmittableField.projectLink: ['proj-1'],
+            },
+          ),
+        );
+
+        final items = StudioViewModel().resolvedCv.sections
+            .whereType<ResolvedProjectsSection>()
+            .first
+            .items;
+
+        expect(items.first.link, isNull);
+        expect(items.last.link, 'https://example.org/other');
+      });
+
+      test('toggleFieldOmitted asks the service for the inverse of what is '
+          'currently stored', () async {
+        when(
+          vaultService.vault,
+        ).thenReturn(vaultWith(projects: const [project]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            projectIds: const ['proj-1'],
+            omittedFields: const {
+              DraftOmittableField.projectLink: ['proj-1'],
+            },
+          ),
+        );
+        when(
+          draftService.setFieldOmitted(any, any, omitted: anyNamed('omitted')),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        expect(
+          model.isFieldOmitted(DraftOmittableField.projectLink, 'proj-1'),
+          isTrue,
+        );
+
+        await model.toggleFieldOmitted(
+          DraftOmittableField.projectLink,
+          'proj-1',
+        );
+
+        verify(
+          draftService.setFieldOmitted(
+            DraftOmittableField.projectLink,
+            'proj-1',
+            omitted: false,
+          ),
+        ).called(1);
+      });
     });
   });
 

@@ -4,6 +4,7 @@ import 'package:stacked/stacked.dart';
 import 'package:cv_forge/features/studio/widgets/studio_document_bar/studio_document_bar.dart';
 import 'package:cv_forge/features/studio/widgets/studio_preview_pane.dart';
 import 'package:cv_forge/features/studio/widgets/studio_section_editor_router/studio_section_editor_router.dart';
+import 'package:cv_forge/features/studio/widgets/studio_xray_findings_panel.dart';
 import 'package:cv_forge/features/studio/widgets/studio_section_nav/studio_section_nav.dart';
 import 'studio_viewmodel.dart';
 
@@ -74,9 +75,14 @@ class StudioViewDesktop extends ViewModelWidget<StudioViewModel> {
                       children: [
                         Expanded(
                           flex: _editorFlex,
-                          child: StudioSectionEditorRouter(
-                            viewModel: viewModel,
-                          ),
+                          // While the X-Ray is on, this column reports
+                          // what the check found instead of editing —
+                          // the widest thing on screen that is not the
+                          // document, and the only place a finding has
+                          // room to say what it is.
+                          child: viewModel.xrayEnabled
+                              ? StudioXrayFindingsPanel(viewModel: viewModel)
+                              : StudioSectionEditorRouter(viewModel: viewModel),
                         ),
                         const VerticalDivider(width: 1),
                         Expanded(

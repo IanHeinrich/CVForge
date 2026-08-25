@@ -59,7 +59,6 @@ CvVault buildExampleVault() => CvVault(
       bullets: const [
         CvBullet(
           id: 'exp-1-b1',
-          label: 'Proactive mitigation',
           text:
               'Partnered with the Security team to bake automated '
               'vulnerability scanning into the release pipeline, catching '
@@ -68,21 +67,18 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-1-b2',
-          label: 'High-performance infra',
           text:
               'Built core card-payment infrastructure optimized for '
               'low-latency processing at scale.',
         ),
         CvBullet(
           id: 'exp-1-b3',
-          label: 'Wallet integration',
           text:
               'Led the design and delivery of a digital wallet '
               'integration, measurably lifting card activation.',
         ),
         CvBullet(
           id: 'exp-1-b4',
-          label: 'Migration',
           text:
               'Drove a transaction schema migration that cut transaction '
               'load times dramatically, unlocking support for new '
@@ -90,14 +86,12 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-1-b5',
-          label: 'Reporting automation',
           text:
               'Built automated regulatory reporting, cutting manual '
               'finance reporting effort by most of its previous overhead.',
         ),
         CvBullet(
           id: 'exp-1-b6',
-          label: 'Testing infrastructure',
           text:
               'Led adoption of a cloud device farm for end-to-end testing '
               '— vendor selection, budget sign-off, framework '
@@ -106,7 +100,6 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-1-b7',
-          label: 'AI-assisted CI',
           text:
               'Built an AI-driven pull request analysis workflow that '
               'selects and runs only the relevant end-to-end tests, '
@@ -124,14 +117,12 @@ CvVault buildExampleVault() => CvVault(
       bullets: const [
         CvBullet(
           id: 'exp-2-b1',
-          label: 'Foundational hire',
           text:
               'One of the first engineers on the team; helped architect '
               'the transactional banking engine from the ground up.',
         ),
         CvBullet(
           id: 'exp-2-b2',
-          label: 'Onboarding automation',
           text:
               'Led the build of a customer due-diligence platform, '
               'automating a large share of manual KYC/KYB checks and '
@@ -139,7 +130,6 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-2-b3',
-          label: 'Compliance',
           text:
               'Created internal training that brought the engineering '
               'team to full compliance with card-industry security '
@@ -147,7 +137,6 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-2-b4',
-          label: 'Security guild',
           text:
               'Founded and led a cross-team security guild, running '
               'workshops on secure data handling and secure-by-default '
@@ -165,7 +154,6 @@ CvVault buildExampleVault() => CvVault(
       bullets: const [
         CvBullet(
           id: 'exp-3-b1',
-          label: 'Architecture',
           text:
               'Designed a scalable multi-tenant architecture, enabling '
               'enterprise clients to securely manage isolated '
@@ -173,7 +161,6 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-3-b2',
-          label: 'Security & privacy',
           text:
               'Led a security audit and remediation plan for highly '
               'sensitive health data, tightening encryption and access '
@@ -181,7 +168,6 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-3-b3',
-          label: 'Performance',
           text:
               'Refactored a slow ORM query path, cutting a critical '
               'page\'s load time from several seconds to well under half '
@@ -199,7 +185,6 @@ CvVault buildExampleVault() => CvVault(
       bullets: const [
         CvBullet(
           id: 'exp-4-b1',
-          label: 'B2B SaaS',
           text:
               'Architected a cross-platform Flutter app with a '
               'serverless cloud backend, working directly with enterprise '
@@ -207,7 +192,6 @@ CvVault buildExampleVault() => CvVault(
         ),
         CvBullet(
           id: 'exp-4-b2',
-          label: 'Architecture-industry tooling',
           text:
               'Built a Flutter app with a custom rendering and '
               'real-time cost-estimation engine, automating a sales '

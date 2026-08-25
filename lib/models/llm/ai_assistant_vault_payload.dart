@@ -41,12 +41,7 @@ class AiAssistantVaultPayload {
             if (e.end != null) 'end': e.end!.toMonYyyy(DocumentLanguage.enGb),
             'isCurrent': e.isCurrent,
             'bullets': [
-              for (final b in e.bullets)
-                {
-                  'id': b.id,
-                  if (b.label != null) 'label': b.label,
-                  'text': b.text,
-                },
+              for (final b in e.bullets) {'id': b.id, 'text': b.text},
             ],
           },
       ],
@@ -56,12 +51,7 @@ class AiAssistantVaultPayload {
             'id': p.id,
             'title': p.title,
             'bullets': [
-              for (final b in p.bullets)
-                {
-                  'id': b.id,
-                  if (b.label != null) 'label': b.label,
-                  'text': b.text,
-                },
+              for (final b in p.bullets) {'id': b.id, 'text': b.text},
             ],
           },
       ],
@@ -93,6 +83,9 @@ class AiAssistantVaultPayload {
             if (ed.year != null) 'year': ed.year,
             if (ed.grade != null) 'grade': ed.grade,
             if (ed.details != null) 'details': ed.details,
+            'bullets': [
+              for (final b in ed.bullets) {'id': b.id, 'text': b.text},
+            ],
           },
       ],
       'hobbies': [
@@ -105,12 +98,7 @@ class AiAssistantVaultPayload {
             'title': p.title,
             if (p.citation != null) 'citation': p.citation,
             'bullets': [
-              for (final b in p.bullets)
-                {
-                  'id': b.id,
-                  if (b.label != null) 'label': b.label,
-                  'text': b.text,
-                },
+              for (final b in p.bullets) {'id': b.id, 'text': b.text},
             ],
           },
       ],

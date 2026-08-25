@@ -1,7 +1,6 @@
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
-import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/widgets/common/app_text_field.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
@@ -10,6 +9,23 @@ import 'package:flutter/services.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'tailorable_field.dart';
+
+/// One [kdTailorHitSize] square in a [TailorIconButtons]-style cluster.
+///
+/// Both a button and a plain glyph go in one, so the two states of the
+/// same slot never differ in width — an undo button appearing where a
+/// Vault glyph was must not shift the row it sits in.
+class TailorIconSlot extends StatelessWidget {
+  const TailorIconSlot({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: kdTailorHitSize,
+    child: Center(child: child),
+  );
+}
 
 /// The trailing icon cluster shared by every tailorable row — always
 /// exactly two icons, never three: a left slot that's a plain
@@ -23,11 +39,12 @@ import 'tailorable_field.dart';
 /// default" control that only appears once a setting has been changed:
 /// the control's presence is the indicator, no separate badge needed.
 ///
-/// `padding: EdgeInsets.zero` + an unbounded `constraints` collapse each
-/// button to exactly [kdTailorIconSize] — `IconButton` otherwise reserves
-/// a ~40dp tap target box around a smaller glyph regardless of the
-/// glyph's own size, which left visible dead space around it. The pencil
-/// toggles [editing] (owned by the caller, not this widget — see
+/// Every slot is exactly [kdTailorHitSize] square, buttons and plain
+/// glyphs alike, so the two states of the left slot are the same width
+/// and a column of rows lines up on one trailing edge. See that constant
+/// for why the tap target is pinned rather than left to `IconButton`'s
+/// default or collapsed onto the glyph. The pencil toggles [editing]
+/// (owned by the caller, not this widget — see
 /// `VaultItemSelectorList._editingTextIds`) rather than opening a dialog,
 /// so the edit box always appears right next to the field it belongs to.
 class TailorIconButtons extends StatelessWidget {
@@ -50,38 +67,116 @@ class TailorIconButtons extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (hasOverride)
-          IconButton(
-            icon: const Icon(RemixIcons.arrow_go_back_line),
-            iconSize: kdTailorIconSize,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            tooltip: context.l10n.studioTailoringReverted,
-            onPressed: onRevert,
+          TailorIconSlot(
+            child: IconButton(
+              icon: const Icon(RemixIcons.arrow_go_back_line),
+              iconSize: kdTailorIconSize,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(
+                width: kdTailorHitSize,
+                height: kdTailorHitSize,
+              ),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              tooltip: context.l10n.studioTailoringReverted,
+              onPressed: onRevert,
+            ),
           )
         else
-          Tooltip(
-            message: context.l10n.studioTailoringFromVault,
+          TailorIconSlot(
+            child: Tooltip(
+              message: context.l10n.studioTailoringFromVault,
+              child: Icon(
+                RemixIcons.safe_line,
+                size: kdTailorIconSize,
+                color: context.appPalette.placeholder,
+              ),
+            ),
+          ),
+        const SizedBox(width: kdTailorIconGap),
+        TailorIconSlot(
+          child: IconButton(
+            icon: Icon(editing ? RemixIcons.check_line : RemixIcons.edit_line),
+            iconSize: kdTailorIconSize,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(
+              width: kdTailorHitSize,
+              height: kdTailorHitSize,
+            ),
+            color: editing
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+            tooltip: editing
+                ? context.l10n.commonDone
+                : context.l10n.studioTailoringEditText,
+            onPressed: onToggleEdit,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The [TailorIconButtons] counterpart for a field that prints from the
+/// Vault and can't be rewritten for one CV — a lock in the left,
+/// where-does-this-come-from slot, carrying the reason.
+///
+/// The right slot holds either nothing, for a field that always prints,
+/// or the drop-it toggle for one that doesn't have to. Both keep the slot
+/// itself, so a column of mixed rows lines up on a single trailing edge.
+/// A locked field that can still be left off is the reason this widget
+/// has an action at all: "you can't say something else here" and "you can
+/// leave it off" are different claims, and the row makes both.
+class VaultLockIcon extends StatelessWidget {
+  const VaultLockIcon({
+    super.key,
+    required this.reason,
+    this.omitted = false,
+    this.onToggleOmitted,
+  });
+
+  final String reason;
+  final bool omitted;
+  final Future<void> Function()? onToggleOmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TailorIconSlot(
+          child: Tooltip(
+            message: reason,
             child: Icon(
-              RemixIcons.safe_line,
+              RemixIcons.lock_line,
               size: kdTailorIconSize,
               color: context.appPalette.placeholder,
             ),
           ),
-        const SizedBox(width: 4),
-        IconButton(
-          icon: Icon(editing ? RemixIcons.check_line : RemixIcons.edit_line),
-          iconSize: kdTailorIconSize,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-          color: editing
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.onSurfaceVariant,
-          tooltip: editing
-              ? context.l10n.commonDone
-              : context.l10n.studioTailoringEditText,
-          onPressed: onToggleEdit,
         ),
+        const SizedBox(width: kdTailorIconGap),
+        if (onToggleOmitted case final toggle?)
+          TailorIconSlot(
+            child: IconButton(
+              icon: Icon(
+                omitted ? RemixIcons.eye_off_line : RemixIcons.eye_line,
+              ),
+              iconSize: kdTailorIconSize,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(
+                width: kdTailorHitSize,
+                height: kdTailorHitSize,
+              ),
+              color: omitted
+                  ? context.appPalette.placeholder
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+              tooltip: omitted
+                  ? context.l10n.studioFieldPrintAgain
+                  : context.l10n.studioFieldDoNotPrint,
+              onPressed: toggle,
+            ),
+          )
+        else
+          const SizedBox(width: kdTailorHitSize),
       ],
     );
   }
@@ -124,20 +219,23 @@ class TailoringHighlight extends StatelessWidget {
   }
 }
 
-/// The inline edit box for a [TailorableField] — rendered by the caller
-/// only while its paired [TailorIconButtons] is toggled to editing, and
-/// always inside a [TailoringHighlight] so it reads as attached to its
-/// row. `AppTextField` already commits on blur/dispose, so there's no
-/// explicit "save" action here; the pencil-turned-checkmark in
-/// [TailorIconButtons] just collapses the box back down — [onDone] is the
-/// same callback, reused so Escape does the same thing as clicking it.
+/// The inline edit box for a [TailorableField] — rendered by
+/// `StudioEntryFieldRow` only while its paired [TailorIconButtons] is
+/// toggled to editing, and always inside a [TailoringHighlight] so it
+/// reads as attached to its row. `AppTextField` already commits on
+/// blur/dispose, so there's no explicit "save" action here; the
+/// pencil-turned-checkmark in [TailorIconButtons] just collapses the box
+/// back down — [onDone] is the same callback, reused so Escape does the
+/// same thing as clicking it.
 ///
-/// The one editor for every tailorable field in Studio, page-level card
-/// included — `StudioFieldOverrideCard` builds a [TailorableField] from
-/// its own primitives and renders this directly rather than keeping a
-/// second copy of the box/Escape/footer wiring. [maxLines]/[minLines]
-/// are the only thing callers vary, since a summary is legitimately
-/// longer prose than a bullet.
+/// The one editor for every tailorable field in Studio. [maxLines]/
+/// [minLines] are the only thing callers vary, since a summary is
+/// legitimately longer prose than a bullet.
+///
+/// Carries no "only affects this CV" note of its own: several editors can
+/// be open at once, which printed it several times, and with none open it
+/// said nothing at all. `StudioSectionEditorRouter` states it once for
+/// the whole pane instead.
 class InlineTextOverrideEditor extends StatelessWidget {
   const InlineTextOverrideEditor({
     super.key,
@@ -158,42 +256,28 @@ class InlineTextOverrideEditor extends StatelessWidget {
       padding: EdgeInsets.symmetric(
         vertical: context.appSpacing.paddingHairline,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Focus(
-            // `canRequestFocus: false` so this node never steals focus
-            // from the text field itself — it only sits in the ancestor
-            // chain to catch Escape, which a plain `TextField` doesn't
-            // consume, as it bubbles up unhandled.
-            canRequestFocus: false,
-            onKeyEvent: (node, event) {
-              if (event is KeyDownEvent &&
-                  event.logicalKey == LogicalKeyboardKey.escape) {
-                onDone();
-                return KeyEventResult.handled;
-              }
-              return KeyEventResult.ignored;
-            },
-            child: AppTextField(
-              initialValue: field.effectiveText,
-              onChanged: field.onChanged,
-              label: field.fieldLabel,
-              maxLines: maxLines,
-              minLines: minLines,
-              autofocus: true,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: context.appSpacing.paddingHairline),
-            child: Text(
-              context.l10n.studioTailoringOnlyThisCv,
-              style: context.appTypography.caption.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ],
+      child: Focus(
+        // `canRequestFocus: false` so this node never steals focus
+        // from the text field itself — it only sits in the ancestor
+        // chain to catch Escape, which a plain `TextField` doesn't
+        // consume, as it bubbles up unhandled.
+        canRequestFocus: false,
+        onKeyEvent: (node, event) {
+          if (event is KeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.escape) {
+            onDone();
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
+        child: AppTextField(
+          initialValue: field.effectiveText,
+          onChanged: field.onChanged,
+          label: field.fieldLabel,
+          maxLines: maxLines,
+          minLines: minLines,
+          autofocus: true,
+        ),
       ),
     );
   }

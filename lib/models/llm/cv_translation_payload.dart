@@ -45,7 +45,7 @@ const _maxFieldsPerChunk = 20;
 /// Identity is never copied on, the same policy (and for the same reason)
 /// as [AiAssistantVaultPayload]: no name, email, phone, location or links.
 /// Nor are the fields that must survive translation untouched — employers,
-/// institutions, publication titles and citations. A field that is never
+/// institutions, and a publication's own title and citation. A field that is never
 /// in a payload cannot come back translated, which makes the
 /// do-not-translate list a structural guarantee rather than an instruction
 /// the model has to be trusted to follow.
@@ -181,9 +181,11 @@ class CvTranslationPayload {
         edu.details,
         draft.educationDetailsOverrides[edu.id],
       );
-      // Education bullets have no per-draft selection of their own — the
-      // composer renders them all — so every one of them ships.
-      final bullets = bulletsFor(edu.bullets.map((b) => b.id));
+      final bullets = bulletsFor(
+        draft.educationBulletSelection(edu.id, [
+          for (final b in edu.bullets) b.id,
+        ]),
+      );
       if (qualification == null &&
           grade == null &&
           details == null &&
@@ -201,8 +203,11 @@ class CvTranslationPayload {
     }
     chunks.addAll(_pack(educationUnits));
 
-    // Publications — only the bullets; a paper's title and citation are
-    // citable and never translated.
+    // Publications — only the bullets. A paper's title and citation are
+    // editable by hand (see `CvDraft`'s override-layer doc) but never
+    // machine-translated: the person rewriting their own citation knows
+    // what they are doing, where a translated one is a reference nobody
+    // can look up, produced by a pass the user never reads line by line.
     final publicationUnits = <_Unit>[];
     for (final p in vault.publications) {
       if (!draft.publicationIds.contains(p.id)) continue;

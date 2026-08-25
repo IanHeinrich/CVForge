@@ -15,21 +15,14 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'studio_empty_preview.dart';
-
-/// A CV is a printed artefact, so the preview should never render the page
-/// larger than its printed size — scaling past 100% shows a zoomed
-/// fragment and answers none of the questions ("does it fit on two
-/// pages", "how does the whole page look") the preview exists for. 96 is
-/// the CSS reference pixel per inch, not the display's real DPI, which the
-/// web cannot know.
-double _printedWidth(PdfPageFormat format) =>
-    format.width / PdfPageFormat.inch * 96;
-
-/// Horizontal gap between the two pages of a [_PreviewPages] two-up row.
-const _twoUpGutter = 24.0;
+import 'studio_preview_geometry.dart';
+import 'studio_xray_pane.dart';
 
 /// The live CV preview — shared by every breakpoint so desktop/tablet/
 /// mobile can't drift on how the preview itself renders.
+///
+/// Page geometry lives in `studio_preview_geometry.dart`, shared with
+/// [StudioXrayPane] so the two modes lay pages out identically.
 ///
 /// This rasterizes the *actual* exported PDF (via `printing.PdfPreviewCustom`,
 /// fed the same [PdfExportService.render] bytes the export button
@@ -176,6 +169,13 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
         break;
     }
 
+    // After the empty-state guards, not before: "nothing to preview" and
+    // "nothing to check" are the same state with the same recovery, so
+    // X-Ray inherits those branches rather than restating them.
+    if (viewModel.xrayEnabled) {
+      return StudioXrayPane(viewModel: viewModel);
+    }
+
     // Writes _settledCv/_debounceTimer here rather than in
     // didUpdateWidget: this pane has no widget-level input to key off of
     // (viewModel is `const`-stable across rebuilds; it's the reactive
@@ -225,10 +225,13 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
     // source, not assumed.
     return LayoutBuilder(
       builder: (context, constraints) {
-        final printedWidth = _printedWidth(viewModel.pageFormat);
-        final twoUp = constraints.maxWidth >= printedWidth * 2 + _twoUpGutter;
+        final printedWidth = printedPageWidth(viewModel.pageFormat);
+        final twoUp = previewIsTwoUp(
+          available: constraints.maxWidth,
+          pageWidth: printedWidth,
+        );
         final maxPageWidth = twoUp
-            ? printedWidth * 2 + _twoUpGutter
+            ? printedWidth * 2 + previewTwoUpGutter
             : printedWidth;
 
         return ColoredBox(
@@ -256,7 +259,7 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
 /// Lays out [PdfPreviewCustom]'s rasterised pages — one scrolling column
 /// normally, or two side by side once [StudioPreviewPane]'s `LayoutBuilder`
 /// decides there's room. [pageWidth] is each page's true printed width
-/// ([_printedWidth]); in the two-up branch each page is boxed to exactly
+/// ([printedPageWidth]); in the two-up branch each page is boxed to exactly
 /// that width rather than left to fill half the row, so a two-up page
 /// reads at the same size as a single one, not stretched.
 class _PreviewPages extends StatelessWidget {
@@ -293,7 +296,7 @@ class _PreviewPages extends StatelessWidget {
               child: _PreviewPageImage(pageData: pages[first]),
             ),
             if (second < pages.length) ...[
-              const SizedBox(width: _twoUpGutter),
+              const SizedBox(width: previewTwoUpGutter),
               SizedBox(
                 width: pageWidth,
                 child: _PreviewPageImage(pageData: pages[second]),

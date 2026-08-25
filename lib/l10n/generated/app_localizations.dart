@@ -2276,11 +2276,35 @@ abstract class AppLocalizations {
   /// **'Export PDF'**
   String get studioExportPdf;
 
+  /// Studio, Publications editor — label on the locked row showing an entry's bibliographic citation.
+  ///
+  /// In en, this message translates to:
+  /// **'Citation'**
+  String get studioFieldCitation;
+
+  /// Studio, Experience editor — label on the row for the organisation a position was at.
+  ///
+  /// In en, this message translates to:
+  /// **'Employer'**
+  String get studioFieldCompany;
+
+  /// Studio, Experience editor — label on the locked row showing a position's start and end dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get studioFieldDates;
+
   /// Studio, Education editor — label on the collapsed row for an entry's free-text details, distinguishing it from the qualification and grade rows beside it.
   ///
   /// In en, this message translates to:
   /// **'Details'**
   String get studioFieldDetails;
+
+  /// Studio — tooltip on the control that drops a Vault-sourced field from this CV without changing it. Shown while the field is still printing.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t print this on this CV'**
+  String get studioFieldDoNotPrint;
 
   /// Studio, Education editor — label on the collapsed row for an entry's grade or classification.
   ///
@@ -2288,11 +2312,41 @@ abstract class AppLocalizations {
   /// **'Grade'**
   String get studioFieldGrade;
 
+  /// Studio, Education editor — label on the row for the school or university an entry was at.
+  ///
+  /// In en, this message translates to:
+  /// **'Institution'**
+  String get studioFieldInstitution;
+
+  /// Studio — label on the locked row showing a project's or publication's URL.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get studioFieldLink;
+
+  /// Studio — label on the row for where a position or education entry was, shared by both editors.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get studioFieldLocation;
+
+  /// Studio — the inverse of studioFieldDoNotPrint, shown while the field is being left off.
+  ///
+  /// In en, this message translates to:
+  /// **'Print this on this CV'**
+  String get studioFieldPrintAgain;
+
   /// Studio, Projects editor — label on the collapsed row for a project's title.
   ///
   /// In en, this message translates to:
   /// **'Project title'**
   String get studioFieldProjectTitle;
+
+  /// Studio, Publications editor — label on the row for a paper's own title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get studioFieldPublicationTitle;
 
   /// Studio, Education editor — label on the collapsed row for an entry's qualification or degree name.
   ///
@@ -2318,17 +2372,17 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get studioFieldSkillCategory;
 
+  /// Studio, Education editor — label on the locked row showing an entry's year.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get studioFieldYear;
+
   /// Studio, Summary editor — checkbox controlling whether the headline line under the name prints on this CV at all. Separate from editing its text.
   ///
   /// In en, this message translates to:
   /// **'Include headline'**
   String get studioHeadlineInclude;
-
-  /// Studio, one bullet shown with its optional label prefix.
-  ///
-  /// In en, this message translates to:
-  /// **'{label}: {text}'**
-  String studioItemLabelledText(String label, String text);
 
   /// Studio warning when the CV runs longer than the chosen market's convention. {note} is the region's own length guidance sentence, already complete.
   ///
@@ -2336,11 +2390,29 @@ abstract class AppLocalizations {
   /// **'Longer than {region} typically expects. {note} Try trimming content, or a denser template.'**
   String studioLengthWarning(String region, String note);
 
+  /// Studio, Experience editor — shown on the lock beside a position's dates, explaining why they cannot be changed for one CV.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates stay as your Vault records them — they are what an employment check verifies, and they set the order this section prints in.'**
+  String get studioLockedDates;
+
+  /// Studio — shown on the lock beside any field that prints from the Vault and has no per-CV override, where there is no reason more specific than where the value comes from.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed from your Vault. Edit it there to change it on every CV.'**
+  String get studioLockedFromVault;
+
   /// Title of the dialog for creating a CV, and the button that opens it.
   ///
   /// In en, this message translates to:
   /// **'{noun, select, cv{New CV} resume{New résumé} other{New document}}'**
   String studioNewDraftTitle(String noun);
+
+  /// Studio, Publications editor — placeholder on the citation row when the Vault entry has none.
+  ///
+  /// In en, this message translates to:
+  /// **'No citation in your Vault yet.'**
+  String get studioNoCitation;
 
   /// Studio empty state when an education entry has no detail text to draw from.
   ///
@@ -2359,6 +2431,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No headline in your Vault yet.'**
   String get studioNoHeadline;
+
+  /// Studio — placeholder on the location row when the Vault entry has none. Shared by the Experience and Education editors.
+  ///
+  /// In en, this message translates to:
+  /// **'No location in your Vault yet.'**
+  String get studioNoLocation;
 
   /// Studio empty state when the Vault has no references note to draw from.
   ///
@@ -2582,6 +2660,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Linked to 1 bullet in this CV} other{Linked to {count} bullets in this CV}}'**
   String studioSkillLinkedBullets(int count);
 
+  /// Studio skill selector — hover text on a skill chip, counting the bullets in THIS CV that are linked to it. Not the Vault-wide count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Linked to 1 bullet in this CV} other{Linked to {count} bullets in this CV}}'**
+  String studioSkillsEvidenceCount(int count);
+
   /// Studio skill selector search placeholder.
   ///
   /// In en, this message translates to:
@@ -2599,6 +2683,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No new evidenced skills to add — every skill linked to an included bullet is already selected'**
   String get studioSkillsNoNewEvidenced;
+
+  /// Studio skill selector, the control that turns each selected skill into an editable row. Off state.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename for this CV'**
+  String get studioSkillsRename;
+
+  /// Studio skill selector, the same control as studioSkillsRename in its on state.
+  ///
+  /// In en, this message translates to:
+  /// **'Done renaming'**
+  String get studioSkillsRenameDone;
 
   /// Studio skill selector, how many skills are included out of those available.
   ///
@@ -2671,6 +2767,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only affects this CV.'**
   String get studioTailoringOnlyThisCv;
+
+  /// Studio, the line above the section editor pane saying which layer the whole pane edits. Replaces a per-editor note, so it must read correctly with nothing open.
+  ///
+  /// In en, this message translates to:
+  /// **'Edits here change this CV only. Your Vault keeps its own wording.'**
+  String get studioTailoringPaneNote;
 
   /// Studio tooltip on text that has been edited for this CV only; the action restores the Vault's original wording.
   ///
@@ -2869,6 +2971,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Machine-translated. Have a fluent speaker read it before you send it.'**
   String get studioTranslateWarning;
+
+  /// Studio, X-Ray preview mode, shown under the spinner while the first pass renders, extracts and analyses the CV.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your CV the way an ATS would…'**
+  String get studioXrayAnalyzing;
+
+  /// Studio document bar, tooltip on the ATS X-Ray toggle. Says what the overlay shows rather than restating the label.
+  ///
+  /// In en, this message translates to:
+  /// **'Show what an ATS pulls out of this page'**
+  String get studioXrayBoxesTooltip;
+
+  /// Studio, X-Ray summary chip counting critical findings. A standalone label in a row of chips, never joined into a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 critical} other{{count} critical}}'**
+  String studioXrayCriticalCount(int count);
+
+  /// Studio, X-Ray error state, button that turns the overlay off and returns to the ordinary rendered preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to preview'**
+  String get studioXrayErrorBackToPreview;
+
+  /// Studio, X-Ray error state body. Must reassure that only the overlay failed, since the ordinary preview and export use a different, still-working path.
+  ///
+  /// In en, this message translates to:
+  /// **'The CV rendered, but couldn\'t be read back for checking. Turn X-Ray off to keep working — your preview and export are unaffected.'**
+  String get studioXrayErrorBody;
+
+  /// Studio, X-Ray, FlutterError report context string. Diagnostic only — never shown to the user.
+  ///
+  /// In en, this message translates to:
+  /// **'while building the Studio ATS X-Ray'**
+  String get studioXrayErrorContext;
+
+  /// Studio, X-Ray error state title, shown when rendering or extraction failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t run the ATS check'**
+  String get studioXrayErrorTitle;
+
+  /// Studio, heading above the ATS findings list that replaces the section editor while the X-Ray is on.
+  ///
+  /// In en, this message translates to:
+  /// **'What an ATS would struggle with'**
+  String get studioXrayFindingsTitle;
+
+  /// Studio document bar, the text segment of the ATS overlay control, which also acts as its on/off switch. An acronym the market uses untranslated in most locales — check before translating it.
+  ///
+  /// In en, this message translates to:
+  /// **'ATS'**
+  String get studioXrayGroupLabel;
+
+  /// Studio document bar, tooltip on the ATS label segment while an overlay is showing. Clicking it returns to the ordinary preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the ATS overlay'**
+  String get studioXrayHide;
+
+  /// Studio, X-Ray summary chip counting informational findings. A standalone label in a row of chips, never joined into a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 note} other{{count} notes}}'**
+  String studioXrayInfoCount(int count);
+
+  /// Studio, X-Ray summary bar when the analysis produced no findings. Deliberately narrow — it claims no known problem was found, not that the CV is good.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here trips a known ATS parsing problem.'**
+  String get studioXrayNoIssues;
+
+  /// Studio, title of the ATS findings empty state. Pairs with studioXrayNoIssues, which carries the narrower claim underneath it.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to fix here'**
+  String get studioXrayNoIssuesTitle;
+
+  /// Studio document bar, tooltip on the reading-order toggle. Says what the overlay shows rather than restating the label.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the order an ATS reads this page in'**
+  String get studioXrayReadingOrderTooltip;
+
+  /// Studio document bar, tooltip on the ATS label segment while the ordinary preview is showing. Clicking it turns the overlay on.
+  ///
+  /// In en, this message translates to:
+  /// **'Show what an ATS sees'**
+  String get studioXrayShow;
+
+  /// Studio, X-Ray summary chip counting warning findings. A standalone label in a row of chips, never joined into a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 warning} other{{count} warnings}}'**
+  String studioXrayWarningCount(int count);
 
   /// Template description in the picker, for the traditional layout.
   ///
@@ -3110,18 +3308,6 @@ abstract class AppLocalizations {
   /// **'Delete bullet'**
   String get vaultBulletDelete;
 
-  /// Vault bullet form field label — an optional short tag grouping bullets.
-  ///
-  /// In en, this message translates to:
-  /// **'Label (optional)'**
-  String get vaultBulletLabel;
-
-  /// Vault bullet label placeholder.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. Performance'**
-  String get vaultBulletLabelHint;
-
   /// Vault, summary of how many skills are tied to this bullet.
   ///
   /// In en, this message translates to:
@@ -3229,6 +3415,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change'**
   String get vaultCvDefaultsChange;
+
+  /// Vault CV defaults panel, label on the checkbox deciding whether a new CV starts with its headline shown. Pinned above the section list; the headline prints in the name block, not as a section.
+  ///
+  /// In en, this message translates to:
+  /// **'Headline'**
+  String get vaultCvDefaultsHeadline;
 
   /// Help text under the document-language row of the Vault's CV defaults panel. Names both of the other two axes explicitly — this is the one place all three meet, and the divide has to be stated rather than inferred.
   ///

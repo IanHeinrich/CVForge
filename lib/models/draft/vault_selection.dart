@@ -36,6 +36,10 @@ class VaultSelection {
           for (final skill in category.skills) skill.id,
       ],
       educationIds = [for (final e in vault.education) e.id],
+      educationBulletIds = {
+        for (final e in vault.education)
+          e.id: [for (final b in e.bullets) b.id],
+      },
       hobbyIds = [for (final h in vault.hobbies) h.id],
       publicationIds = [for (final p in vault.publications) p.id],
       publicationBulletIds = {
@@ -49,6 +53,7 @@ class VaultSelection {
   final Map<String, List<String>> projectBulletIds;
   final List<String> skillIds;
   final List<String> educationIds;
+  final Map<String, List<String>> educationBulletIds;
   final List<String> hobbyIds;
   final List<String> publicationIds;
   final Map<String, List<String>> publicationBulletIds;
@@ -63,6 +68,7 @@ class VaultSelection {
     projectBulletIds: projectBulletIds,
     skillIds: skillIds,
     educationIds: educationIds,
+    educationBulletIds: educationBulletIds,
     hobbyIds: hobbyIds,
     publicationIds: publicationIds,
     publicationBulletIds: publicationBulletIds,

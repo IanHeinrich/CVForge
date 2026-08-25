@@ -4,6 +4,7 @@ import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
 
 import 'cv_section_type.dart';
+import 'draft_omittable_field.dart';
 
 part 'cv_draft.freezed.dart';
 part 'cv_draft.g.dart';
@@ -28,13 +29,19 @@ part 'cv_draft.g.dart';
 /// indistinguishable afterwards — one layer means one revert idiom, one
 /// composer lookup per field, one place to add a new overridable field.
 ///
-/// So the overridable set is also the set a translation may rewrite, which
-/// makes it a product decision. Absent, and to stay absent: `fullName`,
-/// `email`, `phone`, every `location`, `ProfileLink.label`,
-/// `Experience.company`, `Education.institution`, and `Publication`'s
-/// `title`/`citation`/`link`. Employers, institutions and paper titles are
-/// citable proper nouns, and a reader who cannot look them up cannot
-/// verify the document.
+/// Absent, and to stay absent: `fullName`, `email`, `phone`,
+/// `ProfileLink.label`, `Experience.company`, `Education.institution`,
+/// and `Publication.link`. A reader who cannot look a claim up cannot
+/// verify the document, and a link that goes somewhere other than the
+/// real page is the sharpest version of that.
+///
+/// **Overridable is not the same as translatable.** It was, until
+/// publication titles and citations became editable: a person rewriting
+/// their own paper's citation knows what they are doing, where a machine
+/// translating it produces a reference nobody can find, in a pass the
+/// user never reviews line by line. So `CvTranslationPayload` chooses
+/// what it sends, and those two are deliberately not in it — see its own
+/// publications branch.
 @freezed
 abstract class CvDraft with _$CvDraft {
   const factory CvDraft({
@@ -76,6 +83,43 @@ abstract class CvDraft with _$CvDraft {
     /// entity type over for [Publication] bullets.
     @Default(<String, List<String>>{})
     Map<String, List<String>> publicationBulletIds,
+
+    /// publicationId -> rewritten `Publication.title`.
+    @Default(<String, String>{}) Map<String, String> publicationTitleOverrides,
+
+    /// publicationId -> rewritten `Publication.citation`.
+    @Default(<String, String>{})
+    Map<String, String> publicationCitationOverrides,
+
+    /// educationId -> ordered bulletIds included, with one deliberate
+    /// difference from the three maps above: **a missing key means every
+    /// bullet**, not none.
+    ///
+    /// Education bullets printed wholesale before this map existed, so a
+    /// draft saved back then has no key for any entry — and "no key" has
+    /// to keep meaning "all of them", or upgrading would silently strip
+    /// education bullets out of every CV already made. An explicit empty
+    /// list still means none, so the user can genuinely clear an entry's
+    /// bullets; only *absence* is the permissive case.
+    ///
+    /// Read it through [educationBulletSelection], never directly. This
+    /// is the one place in this class where absent and empty differ, and
+    /// that rule lives in exactly one method.
+    @Default(<String, List<String>>{})
+    Map<String, List<String>> educationBulletIds,
+
+    /// Which entries drop which printed field entirely — see
+    /// [DraftOmittableField] for what belongs in here and what doesn't.
+    /// An absent key means nothing is dropped, so this is additive: a
+    /// draft saved before it existed prints exactly what it always did.
+    ///
+    /// Keyed by the enum rather than by its `.name`, matching
+    /// [hiddenSections], and carrying the same known exposure: a draft
+    /// written by a future version that adds a case cannot be decoded by
+    /// this one. That is the existing posture for stored enums here, not
+    /// a new risk introduced by this field.
+    @Default(<DraftOmittableField, List<String>>{})
+    Map<DraftOmittableField, List<String>> omittedFields,
     @Default(<CvSectionType>{}) Set<CvSectionType> hiddenSections,
 
     /// This draft's own print order, reorderable in Studio. Distinct from
@@ -140,6 +184,28 @@ abstract class CvDraft with _$CvDraft {
     /// projectId -> rewritten `Project.title`.
     @Default(<String, String>{}) Map<String, String> projectTitleOverrides,
 
+    /// experienceId -> rewritten `Experience.location`, and below it the
+    /// same for `Education.location`.
+    ///
+    /// A place name is not one fact with one spelling: München and Munich
+    /// are the same office written for two readers, and which one belongs
+    /// on the page is a property of the CV, not of the career history.
+    /// That is the whole reason these are overridable while the employer
+    /// and institution beside them are not.
+    ///
+    /// **A grouped experience takes its printed location from the most
+    /// recent role that has an override**, falling back to the most
+    /// recent role's Vault value — see `CvComposer._buildExperience`. A
+    /// group prints one location for several roles, so an override on any
+    /// member has to be able to reach it; picking the newest keeps it
+    /// deterministic when more than one is set.
+    @Default(<String, String>{})
+    Map<String, String> experienceLocationOverrides,
+
+    /// educationId -> rewritten `Education.location`. See
+    /// [experienceLocationOverrides].
+    @Default(<String, String>{}) Map<String, String> educationLocationOverrides,
+
     /// skillId -> rewritten `Skill.label`.
     @Default(<String, String>{}) Map<String, String> skillLabelOverrides,
 
@@ -202,6 +268,16 @@ abstract class CvDraft with _$CvDraft {
     documentLanguage: documentLanguage,
     updatedAt: DateTime.now(),
   );
+}
+
+extension CvDraftEducationBullets on CvDraft {
+  /// Which of [allBulletIds] print for education entry [educationId] —
+  /// the one place [educationBulletIds]'s absent-means-all rule is
+  /// applied, so no caller re-derives it.
+  List<String> educationBulletSelection(
+    String educationId,
+    List<String> allBulletIds,
+  ) => educationBulletIds[educationId] ?? allBulletIds;
 }
 
 extension CvDraftSectionOrder on CvDraft {

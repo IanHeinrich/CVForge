@@ -65,6 +65,30 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
             MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
       ) ??
       const <String, List<String>>{},
+  publicationTitleOverrides:
+      (json['publicationTitleOverrides'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const <String, String>{},
+  publicationCitationOverrides:
+      (json['publicationCitationOverrides'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const <String, String>{},
+  educationBulletIds:
+      (json['educationBulletIds'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+      ) ??
+      const <String, List<String>>{},
+  omittedFields:
+      (json['omittedFields'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(
+          $enumDecode(_$DraftOmittableFieldEnumMap, k),
+          (e as List<dynamic>).map((e) => e as String).toList(),
+        ),
+      ) ??
+      const <DraftOmittableField, List<String>>{},
   hiddenSections:
       (json['hiddenSections'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$CvSectionTypeEnumMap, e))
@@ -105,6 +129,16 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
       const <String, String>{},
   projectTitleOverrides:
       (json['projectTitleOverrides'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const <String, String>{},
+  experienceLocationOverrides:
+      (json['experienceLocationOverrides'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const <String, String>{},
+  educationLocationOverrides:
+      (json['educationLocationOverrides'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
       ) ??
       const <String, String>{},
@@ -158,6 +192,12 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'hobbyIds': instance.hobbyIds,
   'publicationIds': instance.publicationIds,
   'publicationBulletIds': instance.publicationBulletIds,
+  'publicationTitleOverrides': instance.publicationTitleOverrides,
+  'publicationCitationOverrides': instance.publicationCitationOverrides,
+  'educationBulletIds': instance.educationBulletIds,
+  'omittedFields': instance.omittedFields.map(
+    (k, e) => MapEntry(_$DraftOmittableFieldEnumMap[k]!, e),
+  ),
   'hiddenSections': instance.hiddenSections
       .map((e) => _$CvSectionTypeEnumMap[e]!)
       .toList(),
@@ -172,6 +212,8 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'educationDetailsOverrides': instance.educationDetailsOverrides,
   'roleOverrides': instance.roleOverrides,
   'projectTitleOverrides': instance.projectTitleOverrides,
+  'experienceLocationOverrides': instance.experienceLocationOverrides,
+  'educationLocationOverrides': instance.educationLocationOverrides,
   'skillLabelOverrides': instance.skillLabelOverrides,
   'skillCategoryNameOverrides': instance.skillCategoryNameOverrides,
   'hobbyOverrides': instance.hobbyOverrides,
@@ -211,6 +253,12 @@ const _$DocumentLanguageEnumMap = {
   DocumentLanguage.nb: 'nb',
   DocumentLanguage.da: 'da',
   DocumentLanguage.fi: 'fi',
+};
+
+const _$DraftOmittableFieldEnumMap = {
+  DraftOmittableField.projectLink: 'projectLink',
+  DraftOmittableField.publicationLink: 'publicationLink',
+  DraftOmittableField.educationYear: 'educationYear',
 };
 
 const _$CvSectionTypeEnumMap = {

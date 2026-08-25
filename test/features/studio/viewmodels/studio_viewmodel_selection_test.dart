@@ -5,7 +5,9 @@ import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/vault/bullet_owner.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
+import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
@@ -778,6 +780,183 @@ void main() {
         await model.resetSectionSettings();
 
         verifyNever(draftService.resetSectionSettings(any));
+      });
+    });
+
+    group('education bullets -', () {
+      // `sampleEducation` has none, and deliberately stays that way: every
+      // other test in this file composes it and would start printing
+      // bullets it does not expect.
+      const schooled = Education(
+        id: 'edu-2',
+        qualification: 'MSc Distributed Systems',
+        institution: 'Leeds',
+        bullets: [
+          CvBullet(id: 'eb1', text: 'Dissertation on consensus'),
+          CvBullet(id: 'eb2', text: 'Ran the systems reading group'),
+        ],
+      );
+
+      List<String> printedBullets(StudioViewModel model) {
+        final section =
+            model.resolvedCv.sections.single as ResolvedEducationSection;
+        return [for (final b in section.items.single.bullets) b.text];
+      }
+
+      test('a draft saved before education bullets were selectable still '
+          'prints every one of them — an absent map means all, not none, '
+          'or upgrading would silently strip them from every CV already '
+          'made', () {
+        when(vaultService.vault).thenReturn(vaultWith(education: [schooled]));
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(educationIds: [schooled.id]));
+
+        final model = StudioViewModel();
+
+        expect(printedBullets(model), [
+          'Dissertation on consensus',
+          'Ran the systems reading group',
+        ]);
+        expect(model.isEducationBulletIncluded(schooled.id, 'eb1'), isTrue);
+        expect(model.isEducationBulletIncluded(schooled.id, 'eb2'), isTrue);
+      });
+
+      test('an explicitly empty list means none, so a user who clears an '
+          "entry's bullets is not handed them all back", () {
+        when(vaultService.vault).thenReturn(vaultWith(education: [schooled]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            educationIds: [schooled.id],
+            educationBulletIds: {schooled.id: <String>[]},
+          ),
+        );
+
+        final model = StudioViewModel();
+
+        expect(printedBullets(model), isEmpty);
+        expect(model.isEducationBulletIncluded(schooled.id, 'eb1'), isFalse);
+      });
+
+      test('toggleEducationBullet removes just that bullet, preserving the '
+          "entry's own bullet order", () async {
+        when(vaultService.vault).thenReturn(vaultWith(education: [schooled]));
+        when(draftService.draft).thenReturn(
+          draftWith(
+            educationIds: [schooled.id],
+            educationBulletIds: {
+              schooled.id: ['eb1', 'eb2'],
+            },
+          ),
+        );
+        when(
+          draftService.setBulletIds(BulletOwner.education, any, any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        await model.toggleEducationBullet(schooled, schooled.bullets[0]);
+
+        verify(
+          draftService.setBulletIds(BulletOwner.education, schooled.id, [
+            'eb2',
+          ]),
+        ).called(1);
+      });
+
+      test('toggling a bullet on a draft with no map yet writes the rest of '
+          'them back explicitly, so the absent-means-all default cannot '
+          'quietly restore what was just deselected', () async {
+        when(vaultService.vault).thenReturn(vaultWith(education: [schooled]));
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(educationIds: [schooled.id]));
+        when(
+          draftService.setBulletIds(BulletOwner.education, any, any),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        await model.toggleEducationBullet(schooled, schooled.bullets[0]);
+
+        verify(
+          draftService.setBulletIds(BulletOwner.education, schooled.id, [
+            'eb2',
+          ]),
+        ).called(1);
+      });
+
+      test('removeAllEducationBullets clears the entry down to an explicit '
+          'empty selection', () async {
+        when(vaultService.vault).thenReturn(vaultWith(education: [schooled]));
+        var draft = draftWith(
+          educationIds: [schooled.id],
+          educationBulletIds: {
+            schooled.id: ['eb1', 'eb2'],
+          },
+        );
+        when(draftService.draft).thenAnswer((_) => draft);
+        when(
+          draftService.setBulletIds(BulletOwner.education, any, any),
+        ).thenAnswer((invocation) async {
+          draft = draft.copyWith(
+            educationBulletIds: {
+              schooled.id: invocation.positionalArguments[2] as List<String>,
+            },
+          );
+        });
+
+        final model = StudioViewModel();
+        await model.removeAllEducationBullets(schooled);
+
+        expect(draft.educationBulletIds[schooled.id], isEmpty);
+      });
+
+      test('including an education entry seeds every one of its bullets, so '
+          'it arrives in the draft looking like the Vault entry it came '
+          'from', () async {
+        when(vaultService.vault).thenReturn(vaultWith(education: [schooled]));
+        when(draftService.draft).thenReturn(draftWith());
+        when(
+          draftService.setEducationIncluded(
+            any,
+            included: anyNamed('included'),
+            bulletIds: anyNamed('bulletIds'),
+          ),
+        ).thenAnswer((_) => Future<void>.value());
+
+        final model = StudioViewModel();
+        await model.toggleEducation(schooled);
+
+        verify(
+          draftService.setEducationIncluded(
+            schooled.id,
+            included: true,
+            bulletIds: ['eb1', 'eb2'],
+          ),
+        ).called(1);
+      });
+
+      test('an included education bullet counts as evidence for a skill '
+          'linked to it, the same as any other bullet', () {
+        const skill = Skill(
+          id: 'skill-1',
+          label: 'Distributed systems',
+          linkedBulletIds: ['eb1'],
+        );
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            education: [schooled],
+            skillCategories: const [
+              SkillCategory(id: 'cat-1', name: 'Languages', skills: [skill]),
+            ],
+          ),
+        );
+        when(
+          draftService.draft,
+        ).thenReturn(draftWith(educationIds: [schooled.id]));
+
+        final model = StudioViewModel();
+
+        expect(model.evidenceCountFor(skill), 1);
       });
     });
   });

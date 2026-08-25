@@ -1,6 +1,7 @@
 import 'package:cv_forge/models/document/document_strings.dart';
 import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
+import 'package:cv_forge/models/draft/draft_omittable_field.dart';
 import 'package:cv_forge/models/region/region_presets.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
@@ -136,7 +137,18 @@ abstract final class CvComposer {
             // field and they can legitimately differ (the same employer,
             // a different office).
             company: roles.first.company,
-            location: roles.first.location,
+            // The location is the exception: it's overridable, and a
+            // group prints one for all its roles, so an override on any
+            // member must be able to reach it — otherwise editing the
+            // location of anything but the newest role does nothing
+            // visible. Newest override wins; see
+            // `CvDraft.experienceLocationOverrides`.
+            location:
+                roles
+                    .map((r) => draft.experienceLocationOverrides[r.id])
+                    .nonNulls
+                    .firstOrNull ??
+                roles.first.location,
             positions: [
               for (final experience in roles)
                 ResolvedPosition(
@@ -163,10 +175,9 @@ abstract final class CvComposer {
     return effective.year * 12 + effective.month;
   }
 
-  /// Shared by [_buildExperience], [_buildProjects], and
-  /// [_buildPublications] — each just filters and orders a [CvBullet] list
-  /// by a selected-id list, applying any [CvDraft.bulletOverrides] on the
-  /// way.
+  /// Shared by every bullet-owning section — each just filters and orders
+  /// a [CvBullet] list by a selected-id list, applying any
+  /// [CvDraft.bulletOverrides] on the way.
   static List<ResolvedBullet> _resolveBullets(
     List<CvBullet> bullets,
     List<String> selectedBulletIds,
@@ -176,10 +187,7 @@ abstract final class CvComposer {
     return [
       for (final bulletId in selectedBulletIds)
         if (bulletsById[bulletId] case final bullet?)
-          ResolvedBullet(
-            label: bullet.label,
-            text: overrides[bulletId] ?? bullet.text,
-          ),
+          ResolvedBullet(text: overrides[bulletId] ?? bullet.text),
     ];
   }
 
@@ -194,7 +202,9 @@ abstract final class CvComposer {
         if (byId[id] case final project?)
           ResolvedProject(
             title: draft.projectTitleOverrides[id] ?? project.title,
-            link: project.link,
+            link: DraftOmittableField.projectLink.isOmittedFor(draft, id)
+                ? null
+                : project.link,
             bullets: _resolveBullets(
               project.bullets,
               draft.projectBulletIds[id] ?? const <String>[],
@@ -250,17 +260,20 @@ abstract final class CvComposer {
                 draft.educationQualificationOverrides[edu.id] ??
                 edu.qualification,
             institution: edu.institution,
-            location: edu.location,
-            yearLabel: edu.year?.toString(),
+            location: draft.educationLocationOverrides[edu.id] ?? edu.location,
+            yearLabel:
+                DraftOmittableField.educationYear.isOmittedFor(draft, edu.id)
+                ? null
+                : edu.year?.toString(),
             grade: draft.educationGradeOverrides[edu.id] ?? edu.grade,
             details: draft.educationDetailsOverrides[edu.id] ?? edu.details,
-            bullets: [
-              for (final bullet in edu.bullets)
-                ResolvedBullet(
-                  label: bullet.label,
-                  text: draft.bulletOverrides[bullet.id] ?? bullet.text,
-                ),
-            ],
+            bullets: _resolveBullets(
+              edu.bullets,
+              draft.educationBulletSelection(edu.id, [
+                for (final b in edu.bullets) b.id,
+              ]),
+              draft.bulletOverrides,
+            ),
           ),
     ];
 
@@ -304,9 +317,12 @@ abstract final class CvComposer {
       for (final id in draft.publicationIds)
         if (byId[id] case final publication?)
           ResolvedPublication(
-            title: publication.title,
-            citation: publication.citation,
-            link: publication.link,
+            title: draft.publicationTitleOverrides[id] ?? publication.title,
+            citation:
+                draft.publicationCitationOverrides[id] ?? publication.citation,
+            link: DraftOmittableField.publicationLink.isOmittedFor(draft, id)
+                ? null
+                : publication.link,
             bullets: _resolveBullets(
               publication.bullets,
               draft.publicationBulletIds[id] ?? const <String>[],

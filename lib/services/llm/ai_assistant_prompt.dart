@@ -29,9 +29,14 @@ for THIS job:
 - Cut what isn't relevant, even if it's impressive — an unrelated hobby, a
   skill the role doesn't touch, an experience with nothing worth surfacing
   for this ad. A shorter, targeted CV beats a complete one.
-- Within a kept experience, project, or publication, select only the
-  bullets that support this application. Do not keep a bullet just
-  because it exists.
+- Within a kept experience, project, education entry, or publication,
+  select only the bullets that support this application. Do not keep a
+  bullet just because it exists.
+- An entry is kept by appearing as a key in its section's object at all.
+  Include an entry you want kept even when it has no bullets to select,
+  or when you are selecting none of them — an omitted key drops the whole
+  entry from the CV, which is rarely what you mean for an education entry
+  or a publication.
 - If, after selecting, a section would be empty or provide no signal, add
   its CvSectionType name to hiddenSections.
 

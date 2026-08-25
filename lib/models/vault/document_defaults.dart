@@ -45,6 +45,17 @@ abstract class DocumentDefaults with _$DocumentDefaults {
 
     /// Which sections a new draft starts with hidden. See [sectionOrder].
     Set<CvSectionType>? hiddenSections,
+
+    /// Whether a new draft starts with the headline dropped from the name
+    /// block. Mirrors `CvDraft.hideHeadline`, which is the value that
+    /// actually renders.
+    ///
+    /// Not nullable, unlike [sectionOrder]/[hiddenSections]: those two
+    /// need "no choice made" to fall back to the template's own
+    /// suggestion, where this has a real default of its own. `false` is
+    /// also what stored JSON written before this field existed decodes
+    /// to, which is the pre-existing behaviour — so no migration.
+    @Default(false) bool hideHeadline,
   }) = _DocumentDefaults;
 
   factory DocumentDefaults.fromJson(Map<String, dynamic> json) =>

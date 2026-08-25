@@ -73,21 +73,7 @@ pw.Widget buildBulletRow(
         buildBulletGlyph(tokens, fonts),
         pw.SizedBox(width: _bulletGlyphGap),
         pw.Expanded(
-          child: pw.RichText(
-            text: pw.TextSpan(
-              children: [
-                if (bullet.label != null)
-                  pw.TextSpan(
-                    text: '${bullet.label}: ',
-                    style: tokens.bulletLabel.toPdfStyle(fonts),
-                  ),
-                pw.TextSpan(
-                  text: bullet.text,
-                  style: tokens.bullet.toPdfStyle(fonts),
-                ),
-              ],
-            ),
-          ),
+          child: pw.Text(bullet.text, style: tokens.bullet.toPdfStyle(fonts)),
         ),
       ],
     ),

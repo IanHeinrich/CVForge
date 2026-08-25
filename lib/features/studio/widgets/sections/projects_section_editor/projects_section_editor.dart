@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/sections/entity_bullet_section_editor.dart';
+import 'package:cv_forge/models/draft/draft_omittable_field.dart';
+import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
 
 /// The [CvSectionType.projects] editor.
 class ProjectsSectionEditor extends StatelessWidget {
@@ -17,7 +19,10 @@ class ProjectsSectionEditor extends StatelessWidget {
     untitledLabel: context.l10n.vaultUntitledProject,
     idOf: (p) => p.id,
     titleOf: viewModel.projectTitleText,
-    subtitleOf: (p) => p.link,
+    // A project is identified by its title alone, so the link is a field
+    // row rather than a subtitle. As a subtitle it read as a string
+    // nobody had got round to wiring up — indistinguishable from a bug.
+    subtitleOf: (p) => null,
     bulletsOf: (p) => p.bullets,
     unselectedCount: viewModel.unselectedProjects.length,
     selectedCount: viewModel.selectedProjects.length,
@@ -33,9 +38,25 @@ class ProjectsSectionEditor extends StatelessWidget {
     hasBulletOverride: viewModel.hasBulletOverride,
     onSetBulletOverride: viewModel.setBulletOverride,
     onRevertBulletOverride: viewModel.revertBulletOverride,
-    titleFieldLabel: context.l10n.studioFieldProjectTitle,
-    hasTitleOverride: viewModel.hasProjectTitleOverride,
-    onSetTitleOverride: viewModel.setProjectTitleOverride,
-    onRevertTitleOverride: viewModel.revertProjectTitleOverride,
+    titleFieldOf: (p) => TailorableField(
+      hasOverride: viewModel.hasProjectTitleOverride(p.id),
+      effectiveText: viewModel.projectTitleText(p),
+      fieldLabel: context.l10n.studioFieldProjectTitle,
+      onChanged: (value) => viewModel.setProjectTitleOverride(p, value),
+      onRevert: () => viewModel.revertProjectTitleOverride(p.id),
+    ),
+    fieldsOf: (p) => [
+      VaultOnlyField(
+        fieldLabel: context.l10n.studioFieldLink,
+        value: p.link ?? '',
+        reason: context.l10n.studioLockedFromVault,
+        omitted: viewModel.isFieldOmitted(
+          DraftOmittableField.projectLink,
+          p.id,
+        ),
+        onToggleOmitted: () =>
+            viewModel.toggleFieldOmitted(DraftOmittableField.projectLink, p.id),
+      ),
+    ],
   );
 }

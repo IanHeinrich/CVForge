@@ -1933,17 +1933,53 @@
   "@studioExportPdf": {
     "description": "Studio button that generates and downloads the CV as a PDF."
   },
+  "studioFieldCitation": "Citation",
+  "@studioFieldCitation": {
+    "description": "Studio, Publications editor — label on the locked row showing an entry's bibliographic citation."
+  },
+  "studioFieldCompany": "Employer",
+  "@studioFieldCompany": {
+    "description": "Studio, Experience editor — label on the row for the organisation a position was at."
+  },
+  "studioFieldDates": "Dates",
+  "@studioFieldDates": {
+    "description": "Studio, Experience editor — label on the locked row showing a position's start and end dates."
+  },
   "studioFieldDetails": "Details",
   "@studioFieldDetails": {
     "description": "Studio, Education editor — label on the collapsed row for an entry's free-text details, distinguishing it from the qualification and grade rows beside it."
+  },
+  "studioFieldDoNotPrint": "Don’t print this on this CV",
+  "@studioFieldDoNotPrint": {
+    "description": "Studio — tooltip on the control that drops a Vault-sourced field from this CV without changing it. Shown while the field is still printing."
   },
   "studioFieldGrade": "Grade",
   "@studioFieldGrade": {
     "description": "Studio, Education editor — label on the collapsed row for an entry's grade or classification."
   },
+  "studioFieldInstitution": "Institution",
+  "@studioFieldInstitution": {
+    "description": "Studio, Education editor — label on the row for the school or university an entry was at."
+  },
+  "studioFieldLink": "Link",
+  "@studioFieldLink": {
+    "description": "Studio — label on the locked row showing a project's or publication's URL."
+  },
+  "studioFieldLocation": "Location",
+  "@studioFieldLocation": {
+    "description": "Studio — label on the row for where a position or education entry was, shared by both editors."
+  },
+  "studioFieldPrintAgain": "Print this on this CV",
+  "@studioFieldPrintAgain": {
+    "description": "Studio — the inverse of studioFieldDoNotPrint, shown while the field is being left off."
+  },
   "studioFieldProjectTitle": "Project title",
   "@studioFieldProjectTitle": {
     "description": "Studio, Projects editor — label on the collapsed row for a project's title."
+  },
+  "studioFieldPublicationTitle": "Title",
+  "@studioFieldPublicationTitle": {
+    "description": "Studio, Publications editor — label on the row for a paper's own title."
   },
   "studioFieldQualification": "Qualification",
   "@studioFieldQualification": {
@@ -1961,23 +1997,13 @@
   "@studioFieldSkillCategory": {
     "description": "Studio, Skills editor — label on the collapsed row for a skill category's name."
   },
+  "studioFieldYear": "Year",
+  "@studioFieldYear": {
+    "description": "Studio, Education editor — label on the locked row showing an entry's year."
+  },
   "studioHeadlineInclude": "Include headline",
   "@studioHeadlineInclude": {
     "description": "Studio, Summary editor — checkbox controlling whether the headline line under the name prints on this CV at all. Separate from editing its text."
-  },
-  "studioItemLabelledText": "{label}: {text}",
-  "@studioItemLabelledText": {
-    "description": "Studio, one bullet shown with its optional label prefix.",
-    "placeholders": {
-      "label": {
-        "type": "String",
-        "example": "Performance"
-      },
-      "text": {
-        "type": "String",
-        "example": "Cut p99 latency by 40%"
-      }
-    }
   },
   "studioLengthWarning": "Longer than {region} typically expects. {note} Try trimming content, or a denser template.",
   "@studioLengthWarning": {
@@ -1993,6 +2019,14 @@
       }
     }
   },
+  "studioLockedDates": "Dates stay as your Vault records them — they are what an employment check verifies, and they set the order this section prints in.",
+  "@studioLockedDates": {
+    "description": "Studio, Experience editor — shown on the lock beside a position's dates, explaining why they cannot be changed for one CV."
+  },
+  "studioLockedFromVault": "Printed from your Vault. Edit it there to change it on every CV.",
+  "@studioLockedFromVault": {
+    "description": "Studio — shown on the lock beside any field that prints from the Vault and has no per-CV override, where there is no reason more specific than where the value comes from."
+  },
   "studioNewDraftTitle": "{noun, select, cv{New CV} resume{New résumé} other{New document}}",
   "@studioNewDraftTitle": {
     "description": "Title of the dialog for creating a CV, and the button that opens it.",
@@ -2002,6 +2036,10 @@
         "example": "cv"
       }
     }
+  },
+  "studioNoCitation": "No citation in your Vault yet.",
+  "@studioNoCitation": {
+    "description": "Studio, Publications editor — placeholder on the citation row when the Vault entry has none."
   },
   "studioNoEducationDetails": "No details in your Vault yet.",
   "@studioNoEducationDetails": {
@@ -2014,6 +2052,10 @@
   "studioNoHeadline": "No headline in your Vault yet.",
   "@studioNoHeadline": {
     "description": "Studio empty state when the Vault has no headline to draw from."
+  },
+  "studioNoLocation": "No location in your Vault yet.",
+  "@studioNoLocation": {
+    "description": "Studio — placeholder on the location row when the Vault entry has none. Shared by the Experience and Education editors."
   },
   "studioNoReferences": "No references note in your Vault yet.",
   "@studioNoReferences": {
@@ -2197,6 +2239,16 @@
       }
     }
   },
+  "studioSkillsEvidenceCount": "{count, plural, one{Linked to 1 bullet in this CV} other{Linked to {count} bullets in this CV}}",
+  "@studioSkillsEvidenceCount": {
+    "description": "Studio skill selector — hover text on a skill chip, counting the bullets in THIS CV that are linked to it. Not the Vault-wide count.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "studioSkillsFilter": "Filter skills…",
   "@studioSkillsFilter": {
     "description": "Studio skill selector search placeholder."
@@ -2208,6 +2260,14 @@
   "studioSkillsNoNewEvidenced": "No new evidenced skills to add — every skill linked to an included bullet is already selected",
   "@studioSkillsNoNewEvidenced": {
     "description": "Studio tooltip when the evidenced-skills bulk action would do nothing."
+  },
+  "studioSkillsRename": "Rename for this CV",
+  "@studioSkillsRename": {
+    "description": "Studio skill selector, the control that turns each selected skill into an editable row. Off state."
+  },
+  "studioSkillsRenameDone": "Done renaming",
+  "@studioSkillsRenameDone": {
+    "description": "Studio skill selector, the same control as studioSkillsRename in its on state."
   },
   "studioSkillsSelectedCount": "{selected} of {total} selected",
   "@studioSkillsSelectedCount": {
@@ -2272,6 +2332,10 @@
   "studioTailoringOnlyThisCv": "Only affects this CV.",
   "@studioTailoringOnlyThisCv": {
     "description": "Studio note clarifying that an edit here does not change the Vault."
+  },
+  "studioTailoringPaneNote": "Edits here change this CV only. Your Vault keeps its own wording.",
+  "@studioTailoringPaneNote": {
+    "description": "Studio, the line above the section editor pane saying which layer the whole pane edits. Replaces a per-editor note, so it must read correctly with nothing open."
   },
   "studioTailoringReverted": "Revert to Vault — tailored for this CV",
   "@studioTailoringReverted": {
@@ -2434,6 +2498,88 @@
   "studioTranslateWarning": "Machine-translated. Have a fluent speaker read it before you send it.",
   "@studioTranslateWarning": {
     "description": "Studio, Translate card standing warning once a translation is applied. Permanent rather than dismissible, matching studioAiWarning."
+  },
+  "studioXrayAnalyzing": "Reading your CV the way an ATS would…",
+  "@studioXrayAnalyzing": {
+    "description": "Studio, X-Ray preview mode, shown under the spinner while the first pass renders, extracts and analyses the CV."
+  },
+  "studioXrayBoxesTooltip": "Show what an ATS pulls out of this page",
+  "@studioXrayBoxesTooltip": {
+    "description": "Studio document bar, tooltip on the ATS X-Ray toggle. Says what the overlay shows rather than restating the label."
+  },
+  "studioXrayCriticalCount": "{count, plural, =1{1 critical} other{{count} critical}}",
+  "@studioXrayCriticalCount": {
+    "description": "Studio, X-Ray summary chip counting critical findings. A standalone label in a row of chips, never joined into a sentence.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "studioXrayErrorBackToPreview": "Back to preview",
+  "@studioXrayErrorBackToPreview": {
+    "description": "Studio, X-Ray error state, button that turns the overlay off and returns to the ordinary rendered preview."
+  },
+  "studioXrayErrorBody": "The CV rendered, but couldn't be read back for checking. Turn X-Ray off to keep working — your preview and export are unaffected.",
+  "@studioXrayErrorBody": {
+    "description": "Studio, X-Ray error state body. Must reassure that only the overlay failed, since the ordinary preview and export use a different, still-working path."
+  },
+  "studioXrayErrorContext": "while building the Studio ATS X-Ray",
+  "@studioXrayErrorContext": {
+    "description": "Studio, X-Ray, FlutterError report context string. Diagnostic only — never shown to the user."
+  },
+  "studioXrayErrorTitle": "Couldn't run the ATS check",
+  "@studioXrayErrorTitle": {
+    "description": "Studio, X-Ray error state title, shown when rendering or extraction failed."
+  },
+  "studioXrayFindingsTitle": "What an ATS would struggle with",
+  "@studioXrayFindingsTitle": {
+    "description": "Studio, heading above the ATS findings list that replaces the section editor while the X-Ray is on."
+  },
+  "studioXrayGroupLabel": "ATS",
+  "@studioXrayGroupLabel": {
+    "description": "Studio document bar, the text segment of the ATS overlay control, which also acts as its on/off switch. An acronym the market uses untranslated in most locales — check before translating it."
+  },
+  "studioXrayHide": "Hide the ATS overlay",
+  "@studioXrayHide": {
+    "description": "Studio document bar, tooltip on the ATS label segment while an overlay is showing. Clicking it returns to the ordinary preview."
+  },
+  "studioXrayInfoCount": "{count, plural, =1{1 note} other{{count} notes}}",
+  "@studioXrayInfoCount": {
+    "description": "Studio, X-Ray summary chip counting informational findings. A standalone label in a row of chips, never joined into a sentence.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "studioXrayNoIssues": "Nothing here trips a known ATS parsing problem.",
+  "@studioXrayNoIssues": {
+    "description": "Studio, X-Ray summary bar when the analysis produced no findings. Deliberately narrow — it claims no known problem was found, not that the CV is good."
+  },
+  "studioXrayNoIssuesTitle": "Nothing to fix here",
+  "@studioXrayNoIssuesTitle": {
+    "description": "Studio, title of the ATS findings empty state. Pairs with studioXrayNoIssues, which carries the narrower claim underneath it."
+  },
+  "studioXrayReadingOrderTooltip": "Show the order an ATS reads this page in",
+  "@studioXrayReadingOrderTooltip": {
+    "description": "Studio document bar, tooltip on the reading-order toggle. Says what the overlay shows rather than restating the label."
+  },
+  "studioXrayShow": "Show what an ATS sees",
+  "@studioXrayShow": {
+    "description": "Studio document bar, tooltip on the ATS label segment while the ordinary preview is showing. Clicking it turns the overlay on."
+  },
+  "studioXrayWarningCount": "{count, plural, =1{1 warning} other{{count} warnings}}",
+  "@studioXrayWarningCount": {
+    "description": "Studio, X-Ray summary chip counting warning findings. A standalone label in a row of chips, never joined into a sentence.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "templateDescriptionClassicCentered": "Centred headings and a justified summary, with whitespace in place of section rules.",
   "@templateDescriptionClassicCentered": {
@@ -2605,14 +2751,6 @@
   "@vaultBulletDelete": {
     "description": "Tooltip on the button removing one bullet point."
   },
-  "vaultBulletLabel": "Label (optional)",
-  "@vaultBulletLabel": {
-    "description": "Vault bullet form field label — an optional short tag grouping bullets."
-  },
-  "vaultBulletLabelHint": "e.g. Performance",
-  "@vaultBulletLabelHint": {
-    "description": "Vault bullet label placeholder."
-  },
   "vaultBulletLinkedSkills": "{count, plural, =1{Linked to 1 skill} other{Linked to {count} skills}}",
   "@vaultBulletLinkedSkills": {
     "description": "Vault, summary of how many skills are tied to this bullet.",
@@ -2696,6 +2834,10 @@
   "vaultCvDefaultsChange": "Change",
   "@vaultCvDefaultsChange": {
     "description": "Button on the region row of the Vault's document-defaults panel, opening the region picker."
+  },
+  "vaultCvDefaultsHeadline": "Headline",
+  "@vaultCvDefaultsHeadline": {
+    "description": "Vault CV defaults panel, label on the checkbox deciding whether a new CV starts with its headline shown. Pinned above the section list; the headline prints in the name block, not as a section."
   },
   "vaultCvDefaultsLanguageHelp": "The language your CV is written in — separate from the market above, and from the language CVForge itself is shown in, which you set in Settings.",
   "@vaultCvDefaultsLanguageHelp": {

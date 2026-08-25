@@ -96,7 +96,7 @@ void main() {
           'experiences',
           'projects',
           'skillIds',
-          'educationIds',
+          'education',
           'hobbyIds',
           'publications',
           'hiddenSections',

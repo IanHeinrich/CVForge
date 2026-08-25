@@ -94,6 +94,7 @@ void main() {
             projectBulletIds: anyNamed('projectBulletIds'),
             skillIds: anyNamed('skillIds'),
             educationIds: anyNamed('educationIds'),
+            educationBulletIds: anyNamed('educationBulletIds'),
             hobbyIds: anyNamed('hobbyIds'),
             publicationIds: anyNamed('publicationIds'),
             publicationBulletIds: anyNamed('publicationBulletIds'),
@@ -114,6 +115,7 @@ void main() {
             projectBulletIds: {},
             skillIds: [],
             educationIds: [],
+            educationBulletIds: {},
             hobbyIds: [hobby.id],
             publicationIds: [],
             publicationBulletIds: {},
@@ -141,6 +143,7 @@ void main() {
             projectBulletIds: anyNamed('projectBulletIds'),
             skillIds: anyNamed('skillIds'),
             educationIds: anyNamed('educationIds'),
+            educationBulletIds: anyNamed('educationBulletIds'),
             hobbyIds: anyNamed('hobbyIds'),
             publicationIds: anyNamed('publicationIds'),
             publicationBulletIds: anyNamed('publicationBulletIds'),
@@ -422,6 +425,93 @@ void main() {
           hidden: anyNamed('hidden'),
         ),
       );
+    });
+
+    group('X-Ray view mode -', () {
+      StudioViewModel modelWithDraft() {
+        when(vaultService.vault).thenReturn(CvVault.empty());
+        when(draftService.draft).thenReturn(draftWith());
+        return StudioViewModel();
+      }
+
+      test('starts with no overlay at all', () {
+        final model = modelWithDraft();
+
+        expect(model.xrayMode, StudioXrayMode.off);
+        expect(model.xrayEnabled, isFalse);
+        expect(model.xrayReadingOrder, isFalse);
+      });
+
+      test('toggling a mode turns that overlay on, and toggling the mode '
+          'already showing turns it off again', () {
+        final model = modelWithDraft();
+
+        model.toggleXrayMode(StudioXrayMode.boxes);
+        expect(model.xrayMode, StudioXrayMode.boxes);
+        expect(model.xrayEnabled, isTrue);
+
+        model.toggleXrayMode(StudioXrayMode.boxes);
+        expect(model.xrayMode, StudioXrayMode.off);
+        expect(model.xrayEnabled, isFalse);
+      });
+
+      test("the group's label steps through every state in turn, and wraps "
+          'back to off', () {
+        final model = modelWithDraft();
+
+        model.cycleXrayMode();
+        expect(model.xrayMode, StudioXrayMode.boxes);
+
+        model.cycleXrayMode();
+        expect(model.xrayMode, StudioXrayMode.readingOrder);
+
+        model.cycleXrayMode();
+        expect(model.xrayMode, StudioXrayMode.off);
+      });
+
+      test(
+        'the cycle covers every mode, so a mode added to StudioXrayMode '
+        'joins it by declaration order rather than needing a code change',
+        () {
+          final model = modelWithDraft();
+
+          final seen = <StudioXrayMode>{model.xrayMode};
+          for (var i = 0; i < StudioXrayMode.values.length; i++) {
+            model.cycleXrayMode();
+            seen.add(model.xrayMode);
+          }
+
+          expect(seen, StudioXrayMode.values.toSet());
+          // A full lap lands back where it started.
+          expect(model.xrayMode, StudioXrayMode.off);
+        },
+      );
+
+      test('reading order is a peer, not a sub-mode — reachable directly '
+          'from off, without going through the boxes first', () {
+        final model = modelWithDraft();
+
+        model.toggleXrayMode(StudioXrayMode.readingOrder);
+
+        expect(model.xrayMode, StudioXrayMode.readingOrder);
+        expect(model.xrayEnabled, isTrue);
+        expect(model.xrayReadingOrder, isTrue);
+      });
+
+      test('the two overlays are exclusive — switching between them never '
+          'leaves both claiming to be showing', () {
+        final model = modelWithDraft();
+
+        model.toggleXrayMode(StudioXrayMode.boxes);
+        model.toggleXrayMode(StudioXrayMode.readingOrder);
+        expect(model.xrayMode, StudioXrayMode.readingOrder);
+        expect(model.xrayReadingOrder, isTrue);
+
+        model.toggleXrayMode(StudioXrayMode.boxes);
+        expect(model.xrayMode, StudioXrayMode.boxes);
+        expect(model.xrayReadingOrder, isFalse);
+        expect(model.xrayEnabled, isTrue);
+      });
     });
 
     group('openSection / selectSection -', () {

@@ -39,6 +39,7 @@ void main() {
       bulletOverrides: {},
       skillIds: [],
       educationIds: [],
+      educationBulletIds: {},
       hobbyIds: [],
       hiddenSections: {CvSectionType.hobbies},
       rationale: 'Kept the relevant bits.',

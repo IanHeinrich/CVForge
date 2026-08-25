@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cv_forge/features/studio/views/studio/studio_viewmodel.dart';
 import 'package:cv_forge/features/studio/widgets/sections/entity_bullet_section_editor.dart';
+import 'package:cv_forge/features/studio/widgets/tailorable_field.dart';
 
 /// The [CvSectionType.experience] editor.
 class ExperienceSectionEditor extends StatelessWidget {
@@ -17,6 +18,10 @@ class ExperienceSectionEditor extends StatelessWidget {
     untitledLabel: context.l10n.vaultUntitledRole,
     idOf: (e) => e.id,
     titleOf: viewModel.roleText,
+    // The employer stays the row's subtitle rather than becoming another
+    // field row beneath it: two positions can share a role title, and
+    // this is what tells them apart in a collapsed list. It gets a row of
+    // its own once it's editable, and loses the subtitle then.
     subtitleOf: (e) => e.company,
     bulletsOf: (e) => e.bullets,
     unselectedCount: viewModel.unselectedExperiences.length,
@@ -34,9 +39,22 @@ class ExperienceSectionEditor extends StatelessWidget {
     hasBulletOverride: viewModel.hasBulletOverride,
     onSetBulletOverride: viewModel.setBulletOverride,
     onRevertBulletOverride: viewModel.revertBulletOverride,
-    titleFieldLabel: context.l10n.studioFieldRole,
-    hasTitleOverride: viewModel.hasRoleOverride,
-    onSetTitleOverride: viewModel.setRoleOverride,
-    onRevertTitleOverride: viewModel.revertRoleOverride,
+    titleFieldOf: (e) => TailorableField(
+      hasOverride: viewModel.hasRoleOverride(e.id),
+      effectiveText: viewModel.roleText(e),
+      fieldLabel: context.l10n.studioFieldRole,
+      onChanged: (value) => viewModel.setRoleOverride(e, value),
+      onRevert: () => viewModel.revertRoleOverride(e.id),
+    ),
+    fieldsOf: (e) => [
+      TailorableField(
+        hasOverride: viewModel.hasExperienceLocationOverride(e.id),
+        effectiveText: viewModel.experienceLocationText(e),
+        fieldLabel: context.l10n.studioFieldLocation,
+        emptyMessage: context.l10n.studioNoLocation,
+        onChanged: (value) => viewModel.setExperienceLocationOverride(e, value),
+        onRevert: () => viewModel.revertExperienceLocationOverride(e.id),
+      ),
+    ],
   );
 }

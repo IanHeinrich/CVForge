@@ -26,14 +26,12 @@ class HobbiesSectionEditor extends StatelessWidget {
             title: viewModel.hobbyText(hobby),
             selected: viewModel.isHobbyIncluded(hobby.id),
             onToggle: () => viewModel.toggleHobby(hobby),
-            tailorables: [
-              TailorableField(
-                hasOverride: viewModel.hasHobbyOverride(hobby.id),
-                effectiveText: viewModel.hobbyText(hobby),
-                onChanged: (value) => viewModel.setHobbyOverride(hobby, value),
-                onRevert: () => viewModel.revertHobbyOverride(hobby.id),
-              ),
-            ],
+            titleField: TailorableField(
+              hasOverride: viewModel.hasHobbyOverride(hobby.id),
+              effectiveText: viewModel.hobbyText(hobby),
+              onChanged: (value) => viewModel.setHobbyOverride(hobby, value),
+              onRevert: () => viewModel.revertHobbyOverride(hobby.id),
+            ),
           ),
       ],
     );
