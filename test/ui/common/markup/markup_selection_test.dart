@@ -24,6 +24,15 @@ String _apply(String text, int start, int end, String marker) {
       '${v.text.substring(e)}';
 }
 
+/// [selectionEmphasis] over `text` with the given selection.
+({bool bold, bool italic}) _emphasis(String text, int start, int end) =>
+    selectionEmphasis(
+      TextEditingValue(
+        text: text,
+        selection: TextSelection(baseOffset: start, extentOffset: end),
+      ),
+    );
+
 void main() {
   group('wrapSelectionInMarker -', () {
     test('wraps a selected word and keeps it selected', () {
@@ -122,6 +131,66 @@ void main() {
       expect(controller.text, isNot(original));
       wrapSelectionInMarker(controller, boldMarker);
       expect(controller.text, original);
+    });
+  });
+
+  group('selectionEmphasis -', () {
+    test('reads the run around the selection, whichever side it is on', () {
+      // 'the' selected between existing markers, and the same word with
+      // the markers inside the selection: one state, two ways to select
+      // it, so the buttons cannot light up for only one of them.
+      expect(_emphasis('Led **the** migration', 6, 9), (
+        bold: true,
+        italic: false,
+      ));
+      expect(_emphasis('Led **the** migration', 4, 11), (
+        bold: true,
+        italic: false,
+      ));
+      expect(_emphasis('Led *the* migration', 5, 8), (
+        bold: false,
+        italic: true,
+      ));
+      expect(_emphasis('Led ***the*** migration', 7, 10), (
+        bold: true,
+        italic: true,
+      ));
+      expect(_emphasis('Led the migration', 4, 7), (
+        bold: false,
+        italic: false,
+      ));
+    });
+
+    test('agrees with what pressing the button would do', () {
+      // The claim the toolbar rests on. A button reporting a state its
+      // own press does not act on is worse than no state at all, so the
+      // two are asserted against each other rather than separately.
+      for (final marker in const [boldMarker, italicMarker]) {
+        final controller = TextEditingController(text: 'Led the migration')
+          ..selection = const TextSelection(baseOffset: 4, extentOffset: 7);
+
+        expect(selectionEmphasis(controller.value), (
+          bold: false,
+          italic: false,
+        ));
+        wrapSelectionInMarker(controller, marker);
+        expect(selectionEmphasis(controller.value), (
+          bold: marker == boldMarker,
+          italic: marker == italicMarker,
+        ));
+        wrapSelectionInMarker(controller, marker);
+        expect(selectionEmphasis(controller.value), (
+          bold: false,
+          italic: false,
+        ));
+      }
+    });
+
+    test('a field with no selection reads as nothing on', () {
+      // What a blurred field holds: `EditableText` clears the selection on
+      // losing focus, and the toolbar must not be left lit from before.
+      final controller = TextEditingController(text: 'Led **the** migration');
+      expect(selectionEmphasis(controller.value), (bold: false, italic: false));
     });
   });
 }

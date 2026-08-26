@@ -23,11 +23,20 @@ class MarkupToolbar extends StatelessWidget {
     super.key,
     required this.onBold,
     required this.onItalic,
+    required this.boldActive,
+    required this.italicActive,
     this.onExpand,
   });
 
   final VoidCallback onBold;
   final VoidCallback onItalic;
+
+  /// Whether the selection already carries each emphasis, from
+  /// [selectionEmphasis]. Required rather than defaulted to false: a
+  /// toggle that can be built without being told its state is a toggle
+  /// that will silently render as off.
+  final bool boldActive;
+  final bool italicActive;
 
   /// Opens this field in a roomier editor. Null for a single-line field,
   /// which has nothing to gain from more room.
@@ -42,12 +51,14 @@ class MarkupToolbar extends StatelessWidget {
           icon: RemixIcons.bold,
           tooltip: context.l10n.commonFormatBold,
           onPressed: onBold,
+          active: boldActive,
         ),
         const HGap.tiny(),
         _MarkupButton(
           icon: RemixIcons.italic,
           tooltip: context.l10n.commonFormatItalic,
           onPressed: onItalic,
+          active: italicActive,
         ),
         if (onExpand case final expand?) ...[
           const HGap.tiny(),
@@ -67,19 +78,38 @@ class _MarkupButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.active,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
 
+  /// Null for a button that is an action rather than a state — the expand
+  /// button, which is never "on".
+  final bool? active;
+
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final on = active ?? false;
     return IconButton(
       icon: Icon(icon, size: context.appIconSize.medium),
       tooltip: tooltip,
       onPressed: onPressed,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
+      // Also what tells a screen reader this is a toggle and which way it
+      // is set; the colours below are only the sighted half of that.
+      isSelected: active,
+      style: IconButton.styleFrom(
+        // The brand pair, not M3's `secondaryContainer`/`on-` toggle pair:
+        // those two slots are seed-derived rather than designed (see
+        // `buildAppTheme`), and in the light theme the container lands a
+        // shade of the same lavender the editor card is already painted
+        // in — an "on" state invisible against its own background.
+        // `primary`/`onPrimary` are pinned in both themes.
+        foregroundColor: on ? scheme.onPrimary : scheme.onSurfaceVariant,
+        backgroundColor: on ? scheme.primary : null,
+      ),
       // Tighter than IconButton's 40dp default, so revealing the row does
       // not shove the field it belongs to down the panel.
       visualDensity: VisualDensity.compact,

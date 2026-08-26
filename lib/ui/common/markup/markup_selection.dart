@@ -1,5 +1,6 @@
 /// The one mutation behind both the formatting buttons and their keyboard
-/// shortcuts: turn an emphasis on or off over whatever is selected.
+/// shortcuts — turn an emphasis on or off over whatever is selected — and
+/// the reading of that same state the buttons light up from.
 ///
 /// Lives apart from the toolbar because the shortcut path has no toolbar
 /// to call into — a field can be formatted from the keyboard whether or
@@ -37,23 +38,13 @@ const int _maxRun = 3;
 /// a key event unhandled rather than swallowing it.
 bool wrapSelectionInMarker(TextEditingController controller, String marker) {
   final value = controller.value;
-  final selection = value.selection;
-  if (!selection.isValid) return false;
+  final measured = _measure(value);
+  if (measured == null) return false;
+  final (:applied, :leadInside, :tailInside) = measured;
 
   final text = value.text;
-  final start = selection.start;
-  final end = selection.end;
-
-  // Markers may sit inside the selection (the user selected `**word**`)
-  // or just outside it (they selected `word` between existing markers).
-  // Both are the same edit, so measure the run on each side across the
-  // boundary and treat it as one.
-  final leadInside = _runForward(text, start, end);
-  final leadOutside = _runBackward(text, start);
-  final tailInside = _runBackward(text, end, floor: start);
-  final tailOutside = _runForward(text, end, text.length);
-
-  final applied = _min3(leadInside + leadOutside, tailInside + tailOutside);
+  final start = value.selection.start;
+  final end = value.selection.end;
   final wanted = applied ^ (marker == boldMarker ? 2 : 1);
 
   // Consume the existing run from inside the selection first, then from
@@ -79,6 +70,55 @@ bool wrapSelectionInMarker(TextEditingController controller, String marker) {
     ),
   );
   return true;
+}
+
+/// Which emphases are already on across [value]'s selection.
+///
+/// What the toolbar's buttons draw themselves from, and deliberately the
+/// same measurement [wrapSelectionInMarker] toggles — a button that lit up
+/// from its own reading of the text could show a state its press would not
+/// act on. Both go through [_measure] so they cannot disagree.
+///
+/// Read from the delimiters bounding the selection, so a caret merely
+/// resting inside an emphasised word reads as off. That is not an
+/// approximation to tighten later: pressing bold there wraps the caret,
+/// it does not unbold the word, and the button says what pressing it
+/// does.
+({bool bold, bool italic}) selectionEmphasis(TextEditingValue value) {
+  final applied = _measure(value)?.applied ?? 0;
+  return (bold: applied & 2 != 0, italic: applied & 1 != 0);
+}
+
+/// The delimiter run around [value]'s selection, or null if there is no
+/// selection to measure.
+///
+/// Markers may sit inside the selection (the user selected `**word**`) or
+/// just outside it (they selected `word` between existing markers). Both
+/// are the same run, so it is measured on each side across the boundary
+/// and treated as one. [applied] is that run as a bitmask — 1 italic, 2
+/// bold — and the two inside counts say how much of it the selection
+/// already contains, which is what decides where a rewrite takes its
+/// asterisks from.
+({int applied, int leadInside, int tailInside})? _measure(
+  TextEditingValue value,
+) {
+  final selection = value.selection;
+  if (!selection.isValid) return null;
+
+  final text = value.text;
+  final start = selection.start;
+  final end = selection.end;
+  final leadInside = _runForward(text, start, end);
+  final tailInside = _runBackward(text, end, floor: start);
+
+  return (
+    applied: _min3(
+      leadInside + _runBackward(text, start),
+      tailInside + _runForward(text, end, text.length),
+    ),
+    leadInside: leadInside,
+    tailInside: tailInside,
+  );
 }
 
 int _min3(int a, int b) {
