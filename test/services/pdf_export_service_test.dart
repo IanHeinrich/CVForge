@@ -27,6 +27,7 @@ String _fixturePhotoBase64() {
 ResolvedCv _fixtureCv({
   String bulletText = 'Delivered a standard result.',
   String role = 'Engineer',
+  String summary = 'Experienced engineer.',
   String? workAuthorization,
   String? photoJpegBase64,
 }) => ResolvedCv(
@@ -44,10 +45,7 @@ ResolvedCv _fixtureCv({
     photoJpegBase64: photoJpegBase64,
   ),
   sections: [
-    const ResolvedSection.summary(
-      title: 'Summary',
-      text: 'Experienced engineer.',
-    ),
+    ResolvedSection.summary(title: 'Summary', text: summary),
     ResolvedSection.experience(
       title: 'Experience',
       titleFormal: 'Professional Experience',
@@ -355,13 +353,12 @@ void main() {
     });
 
     test('a single bullet whose own text is too long to fit on any one '
-        'page — even a fresh one — fails the export with a clean '
-        'PdfExportException rather than an uncaught crash. Neither the '
-        'pagination guard nor PdfExportService.render\'s fallback retry '
-        'can rescue this: a bullet is built from a pw.Row, which is '
-        'inherently non-spanning regardless of pw.Inseparable, so a '
-        'single bullet taller than a page is a genuine content limit, not '
-        'a bug either mechanism is meant to paper over', () async {
+        'page — even a fresh one — still renders, by splitting across the '
+        'page break. This is what the unguarded retry is for: the guarded '
+        'first pass throws, because pw.Inseparable is atomic by '
+        'definition, and the retry then rebuilds the bullet in a shape '
+        'that can span. Someone pasting a wall of text into a bullet used '
+        'to take out the live preview and the export together', () async {
       final service = PdfExportService();
 
       final oneEnormousBullet = ResolvedCv(
@@ -402,16 +399,37 @@ void main() {
         ],
       );
 
-      await expectLater(
-        service.render(cv: oneEnormousBullet, templateId: 'compact'),
-        throwsA(
-          isA<PdfExportException>().having(
-            (e) => e.stage,
-            'stage',
-            PdfExportStage.render,
-          ),
-        ),
+      final bytes = await service.render(
+        cv: oneEnormousBullet,
+        templateId: 'compact',
       );
+
+      expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+    });
+
+    test('an oversized prose field renders too, on every template — the '
+        'summary is the field people actually paste an essay into, and '
+        'each template lays its body out differently enough that one '
+        'passing says nothing about the others', () async {
+      final service = PdfExportService();
+      final essay = List.filled(600, 'lorem ipsum dolor sit amet').join(' ');
+
+      for (final templateId in const [
+        'compact',
+        'classic_centered',
+        'photo_header',
+      ]) {
+        final bytes = await service.render(
+          cv: _fixtureCv(summary: essay),
+          templateId: templateId,
+        );
+
+        expect(
+          latin1.decode(bytes.take(5).toList()),
+          '%PDF-',
+          reason: 'template $templateId',
+        );
+      }
     });
 
     test(

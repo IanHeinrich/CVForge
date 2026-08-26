@@ -1,14 +1,20 @@
 /// The one rule both LLM passes enforce on text before it can reach the
 /// document: no single field may be big enough to break rendering.
 ///
-/// `package:pdf` cannot paginate a single text widget. A paragraph taller
-/// than a page throws rather than splitting, and
-/// `PdfExportService.buildPdf`'s retry-without-orphan-protection does not
-/// rescue that case (its own comment says so) — so an oversized field
-/// takes out the live preview and the export together, leaving a CV the
-/// user can edit but cannot see. It has actually happened: a translation
-/// response ignored the per-id structure and returned an entire translated
-/// CV inside `summary`.
+/// An oversized field used to take out the live preview and the export
+/// together, leaving a CV the user could edit but not see. It has actually
+/// happened: a translation response ignored the per-id structure and
+/// returned an entire translated CV inside `summary`.
+///
+/// The renderer now survives that — prose and bullets carry
+/// `pw.TextOverflow.span`, so `PdfExportService.render`'s unguarded retry
+/// splits an over-long field across the page break instead of throwing
+/// (see `markupText`). What that does not cover is the page header, whose
+/// name/headline/work-authorisation block is a `pw.Column` and so cannot
+/// span at all, or a field long enough to drive `pw.MultiPage` past its
+/// 20-page cap. So this bound is no longer the only thing between a long
+/// field and a broken document, but it is still the only thing stopping a
+/// model's runaway answer from becoming one.
 ///
 /// Neither provider can be made to guarantee this. `JsonSchema` has no
 /// length constraint, and Gemini cannot even close an object's key set

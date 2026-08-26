@@ -512,11 +512,17 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get commonDone;
 
-  /// Tooltip on the button that reopens a long CV text field in a roomier dialog, and the fallback dialog title when the field has no label of its own. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot.
+  /// Tooltip on the button that reopens a long CV text field in a roomier dialog. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot.
   ///
   /// In en, this message translates to:
   /// **'Edit in a larger box'**
   String get commonExpandEditor;
+
+  /// Title of the roomier editing dialog when the field it was opened from carries no label of its own. Names the action, not the dialog's size — the dialog being larger is what the user just asked for, not something worth reading back to them.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit text'**
+  String get commonExpandEditorTitle;
 
   /// Tooltip on the bold button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as bold.
   ///

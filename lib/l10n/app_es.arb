@@ -69,6 +69,7 @@
   "commonDisconnect": "Desconectar",
   "commonDone": "Listo",
   "commonExpandEditor": "Editar en un cuadro más grande",
+  "commonExpandEditorTitle": "Editar texto",
   "commonFormatBold": "Negrita",
   "commonFormatItalic": "Cursiva",
   "commonLengthBudgetLeft": "{count, plural, =1{Queda 1 carácter} other{Quedan {count} caracteres}}",

@@ -69,6 +69,8 @@ abstract class CvPdfRenderer {
   pw.Widget bodyProse(List<pw.InlineSpan> spans) => pw.RichText(
     text: pw.TextSpan(children: spans),
     textAlign: bodyAlign,
+    // See `markupText` for why every block of user prose spans.
+    overflow: pw.TextOverflow.span,
   );
 
   pw.Widget positionHeader(
@@ -340,7 +342,15 @@ abstract class CvPdfRenderer {
     required bool preventOrphansAndSplits,
   }) => assembleSectionWidgets(
     heading: heading,
-    body: [for (final b in bullets) buildBulletRow(b, tokens, fonts)],
+    body: [
+      for (final b in bullets)
+        buildBulletRow(
+          b,
+          tokens,
+          fonts,
+          preventOrphansAndSplits: preventOrphansAndSplits,
+        ),
+    ],
     gap: tokens.bulletGap,
     preventOrphansAndSplits: preventOrphansAndSplits,
   );

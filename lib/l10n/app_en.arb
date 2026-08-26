@@ -413,7 +413,11 @@
   },
   "commonExpandEditor": "Edit in a larger box",
   "@commonExpandEditor": {
-    "description": "Tooltip on the button that reopens a long CV text field in a roomier dialog, and the fallback dialog title when the field has no label of its own. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot."
+    "description": "Tooltip on the button that reopens a long CV text field in a roomier dialog. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot."
+  },
+  "commonExpandEditorTitle": "Edit text",
+  "@commonExpandEditorTitle": {
+    "description": "Title of the roomier editing dialog when the field it was opened from carries no label of its own. Names the action, not the dialog's size — the dialog being larger is what the user just asked for, not something worth reading back to them."
   },
   "commonFormatBold": "Bold",
   "@commonFormatBold": {

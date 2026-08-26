@@ -341,6 +341,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonExpandEditor => 'Editar en un cuadro más grande';
 
   @override
+  String get commonExpandEditorTitle => 'Editar texto';
+
+  @override
   String get commonFormatBold => 'Negrita';
 
   @override

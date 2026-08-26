@@ -334,6 +334,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonExpandEditor => 'Edit in a larger box';
 
   @override
+  String get commonExpandEditorTitle => 'Edit text';
+
+  @override
   String get commonFormatBold => 'Bold';
 
   @override
