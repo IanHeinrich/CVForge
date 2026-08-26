@@ -1,0 +1,21 @@
+name: Set up Flutter
+description: Flutter toolchain and dependencies, shared by every CI job.
+
+# The single Flutter pin for ci.yml and update-goldens.yml. deploy.yml still
+# carries its own, because its toolchain step is conditional on a version
+# bump; folding it in here too would consolidate the last copy.
+runs:
+  using: composite
+  steps:
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: "3.47.0"
+        channel: stable
+        # Covers both the SDK and ~/.pub-cache — `pub-cache` falls back to
+        # this value. That second half matters because `dependency_overrides`
+        # pulls `printing` from a SHA-pinned fork, which is a git clone on
+        # every cache miss.
+        cache: true
+
+    - run: flutter pub get
+      shell: bash
