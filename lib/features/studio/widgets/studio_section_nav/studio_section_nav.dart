@@ -103,10 +103,11 @@ class _SectionList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Pinned above the reorderable list, and deliberately outside it:
-        // the headline prints in the name block, so it has no position to
-        // drag to. Its own row all the same, because whether it appears is
-        // independent of the summary — while the two shared an editor, a
-        // CV with a headline and no summary could not reach it at all.
+        // both print in the name block, so neither has a position to drag
+        // to. A row each all the same, because whether either appears is
+        // independent of everything else — while the headline and the
+        // summary shared an editor, a CV with a headline and no summary
+        // could not reach it at all.
         if (viewModel.hasHeadline)
           _NavRow(
             label: context.l10n.studioSectionHeadline,
@@ -114,6 +115,14 @@ class _SectionList extends StatelessWidget {
             selected: viewModel.isHeadlineOpen,
             onToggle: viewModel.toggleHeadline,
             onTap: viewModel.selectHeadline,
+          ),
+        if (viewModel.hasWorkAuthorization)
+          _NavRow(
+            label: context.l10n.studioSectionWorkAuthorization,
+            included: viewModel.includeWorkAuthorization,
+            selected: viewModel.isWorkAuthorizationOpen,
+            onToggle: viewModel.toggleWorkAuthorization,
+            onTap: viewModel.selectWorkAuthorization,
           ),
         _buildSections(context, visible),
       ],

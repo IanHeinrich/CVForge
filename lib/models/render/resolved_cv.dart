@@ -28,10 +28,23 @@ abstract class ResolvedHeader with _$ResolvedHeader {
     required String phone,
     required String location,
 
-    /// The Vault's [ContactBasics.workAuthorization], printed as one more
-    /// contact line. Null or blank prints nothing.
+    /// The Vault's [ContactBasics.workAuthorization], already resolved
+    /// through the draft's override and hide flag. Null or blank prints
+    /// nothing.
+    ///
+    /// Printed on its own line under the contact details rather than as
+    /// one of them: it is a sentence the user wrote ("Right to work in the
+    /// UK, no sponsorship required"), and set among the location and the
+    /// email it reads as one more datum. It also cannot wrap while it is
+    /// one cell of a wrapped run, so a long one ran off the page.
     String? workAuthorization,
     @Default(<ResolvedLink>[]) List<ResolvedLink> links,
+
+    /// What this document's language calls each contact detail, for the
+    /// one template that labels them. Required rather than defaulted to
+    /// English: a header that can be built without deciding is how a
+    /// German CV came to print "Location".
+    required ResolvedContactLabels contactLabels,
 
     /// The Vault photo's JPEG bytes, base64-encoded — carried as the raw
     /// scalar rather than as `CvPhoto` so this file keeps its "templates
@@ -50,4 +63,24 @@ abstract class ResolvedHeader with _$ResolvedHeader {
 abstract class ResolvedLink with _$ResolvedLink {
   const factory ResolvedLink({required String label, required String url}) =
       _ResolvedLink;
+}
+
+/// The contact-block labels in the document's language, resolved from
+/// `DocumentStrings` by the composer.
+///
+/// Carried on [ResolvedHeader] rather than looked up in the renderer
+/// because a template must never see a [DocumentLanguage] — the composer
+/// resolves every app-supplied word, exactly as it already does for
+/// [ResolvedSection.title]. Only `photo_header` reads these; the other two
+/// run their contact details together unlabelled.
+@freezed
+abstract class ResolvedContactLabels with _$ResolvedContactLabels {
+  const factory ResolvedContactLabels({
+    required String location,
+    required String phone,
+    required String email,
+
+    /// Used only when a profile link carries no label of its own.
+    required String link,
+  }) = _ResolvedContactLabels;
 }

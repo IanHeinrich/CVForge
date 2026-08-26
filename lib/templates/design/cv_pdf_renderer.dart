@@ -165,12 +165,14 @@ abstract class CvPdfRenderer {
       for (final link in header.links)
         if (link.url.trim().isNotEmpty)
           contactPart(link.url, url: withScheme(link.url)),
-      // Last, and unlabelled: it is a sentence the user wrote, not a
-      // datum, so it reads as the end of the contact line rather than as
-      // another field in it.
-      if (header.workAuthorization?.trim().isNotEmpty ?? false)
-        contactPart(header.workAuthorization!),
     ];
+
+    // Deliberately NOT one of [contactParts]. It is a sentence the user
+    // wrote, so among the location and the email it reads as one more
+    // datum; and as a single cell of a pw.Wrap it could not break, so a
+    // long one ran off the right margin instead of wrapping. Its own
+    // full-width line fixes both.
+    final workAuthorization = header.workAuthorization?.trim() ?? '';
 
     return pw.Column(
       // Stretch, not the Column default of center — a pw.Text otherwise
@@ -209,6 +211,18 @@ abstract class CvPdfRenderer {
                 contactParts[i],
               ],
             ],
+          ),
+        ],
+        if (workAuthorization.isNotEmpty) ...[
+          pw.SizedBox(height: 2),
+          // Unlabelled: the user wrote the whole sentence, which is what
+          // keeps this from needing a heading transcribed into every
+          // document language. A plain pw.Text under the stretched column
+          // takes the full width, so it wraps on its own.
+          pw.Text(
+            workAuthorization,
+            textAlign: pw.TextAlign.center,
+            style: contactStyle,
           ),
         ],
       ],

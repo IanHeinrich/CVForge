@@ -783,6 +783,40 @@ void main() {
       expect(merged.language, DocumentLanguage.de);
     });
 
+    test('the two header-field toggles merge like every other default — '
+        'they returned local.copyWith and so silently dropped a remote '
+        'change', () {
+      final local = _v(
+        documentDefaults: const DocumentDefaults(hideHeadline: true),
+        at: _t1,
+      );
+      final remote = _v(
+        documentDefaults: const DocumentDefaults(hideWorkAuthorization: true),
+        at: _t1,
+      );
+
+      final merged = mergedDefaults(local, remote)!;
+      expect(merged.hideHeadline, isTrue);
+      expect(merged.hideWorkAuthorization, isTrue);
+
+      // The direction that used to fail: the change is only on the remote
+      // side, so a field left out of the merge kept the local `false`.
+      final remoteOnly = _v(
+        documentDefaults: const DocumentDefaults(hideHeadline: true),
+        at: _t1,
+      );
+      expect(mergedDefaults(_v(), remoteOnly)?.hideHeadline, isTrue);
+
+      final remoteOnlyWorkAuth = _v(
+        documentDefaults: const DocumentDefaults(hideWorkAuthorization: true),
+        at: _t1,
+      );
+      expect(
+        mergedDefaults(_v(), remoteOnlyWorkAuth)?.hideWorkAuthorization,
+        isTrue,
+      );
+    });
+
     test('the same default changed on both sides goes to the later vault', () {
       final local = _v(
         documentDefaults: const DocumentDefaults(language: DocumentLanguage.de),

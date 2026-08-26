@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:mockito/mockito.dart';
 
+import '../helpers/fixtures.dart';
 import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
 
@@ -36,6 +37,7 @@ ResolvedCv _fixtureCv({
     links: const [
       ResolvedLink(label: 'LinkedIn', url: 'linkedin.com/in/jordanellery'),
     ],
+    contactLabels: kEnglishContactLabels,
     photoJpegBase64: photoJpegBase64,
   ),
   sections: [
@@ -45,6 +47,7 @@ ResolvedCv _fixtureCv({
     ),
     ResolvedSection.experience(
       title: 'Experience',
+      titleFormal: 'Professional Experience',
       groups: [
         ResolvedCompanyGroup(
           company: 'Acme',
@@ -191,10 +194,12 @@ void main() {
           phone: '+44 7700 900123',
           location: 'Manchester',
           links: [],
+          contactLabels: kEnglishContactLabels,
         ),
         sections: [
           ResolvedSection.experience(
             title: 'Experience',
+            titleFormal: 'Professional Experience',
             groups: [
               ResolvedCompanyGroup(
                 company: 'Acme',
@@ -242,10 +247,12 @@ void main() {
           phone: '+44 7700 900123',
           location: 'Manchester',
           links: [],
+          contactLabels: kEnglishContactLabels,
         ),
         sections: [
           ResolvedSection.experience(
             title: 'Experience',
+            titleFormal: 'Professional Experience',
             groups: [
               ResolvedCompanyGroup(
                 company: 'Acme',
