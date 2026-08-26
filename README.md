@@ -11,7 +11,7 @@ no tracking. Everything you type stays in your browser.
 
 [![CI](https://github.com/IanHeinrich/CVForge/actions/workflows/ci.yml/badge.svg)](https://github.com/IanHeinrich/CVForge/actions/workflows/ci.yml)
 [![Deploy](https://github.com/IanHeinrich/CVForge/actions/workflows/deploy.yml/badge.svg)](https://github.com/IanHeinrich/CVForge/actions/workflows/deploy.yml)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.47.0-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 
 **[Open the app](https://ianheinrich.github.io/CVForge/)**
@@ -245,7 +245,13 @@ the CLI maintains, and drift from the generated conventions.
 
 ## License
 
-[Apache License 2.0](LICENSE), Copyright 2026 Ian Heinrich.
+[PolyForm Noncommercial License 1.0.0](LICENSE), Copyright 2026 Ian Heinrich.
+
+Source-available, not open source: you may use, modify and redistribute
+CVForge for any noncommercial purpose — personal use, hobby projects, study
+and research, and use by charities, schools, public research bodies and
+government institutions. Commercial use needs a separate licence; open an
+issue to ask.
 
 ## Acknowledgements
 
