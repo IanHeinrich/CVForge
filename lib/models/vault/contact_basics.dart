@@ -15,6 +15,13 @@ abstract class ContactBasics with _$ContactBasics {
     required String phone,
     required String location,
     String? summary,
+
+    /// Printed verbatim in the CV header, with no label of its own — so
+    /// it holds the whole line ("Right to work in the UK, no sponsorship
+    /// required"), not just a status word. That is what keeps it from
+    /// needing a heading translated into every document language for a
+    /// sentence the user is better placed to word than we are.
+    String? workAuthorization,
     @Default(<ProfileLink>[]) List<ProfileLink> links,
 
     /// Uploaded once here and pulled by whichever template renders one —

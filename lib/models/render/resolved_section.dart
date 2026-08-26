@@ -27,6 +27,11 @@ sealed class ResolvedSection with _$ResolvedSection {
     required List<ResolvedSkillGroup> groups,
   }) = ResolvedSkillsSection;
 
+  const factory ResolvedSection.languages({
+    required String title,
+    required List<ResolvedLanguage> items,
+  }) = ResolvedLanguagesSection;
+
   const factory ResolvedSection.education({
     required String title,
     required List<ResolvedQualification> items,
@@ -93,6 +98,20 @@ abstract class ResolvedSkillGroup with _$ResolvedSkillGroup {
     required String category,
     @Default(<String>[]) List<String> skills,
   }) = _ResolvedSkillGroup;
+}
+
+/// One spoken language and, if it was graded, its level.
+@freezed
+abstract class ResolvedLanguage with _$ResolvedLanguage {
+  const factory ResolvedLanguage({
+    required String name,
+
+    /// Pre-formatted — a CEFR band as its own code, or the document
+    /// language's word for a native speaker. Same reasoning as
+    /// [ResolvedPosition.dateRange]: formatting happens in the composer,
+    /// never in a template. Null when the language was left ungraded.
+    String? level,
+  }) = _ResolvedLanguage;
 }
 
 @freezed

@@ -4,6 +4,8 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
+import 'package:cv_forge/models/vault/language_proficiency.dart';
 import 'package:cv_forge/models/vault/profile_link.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
@@ -322,6 +324,21 @@ CvVault buildExampleVault() => CvVault(
   hobbies: const [
     HobbyItem(id: 'hobby-1', text: 'Weekend rock climbing'),
     HobbyItem(id: 'hobby-2', text: 'Training for a first marathon'),
+  ],
+  languages: const [
+    LanguageItem(
+      id: 'lang-1',
+      name: 'English',
+      proficiency: LanguageProficiency.native,
+    ),
+    LanguageItem(
+      id: 'lang-2',
+      name: 'German',
+      proficiency: LanguageProficiency.b2,
+    ),
+    // Deliberately ungraded, so the worked example shows both shapes a
+    // language entry can print in.
+    LanguageItem(id: 'lang-3', name: 'Spanish'),
   ],
   publications: const [
     Publication(

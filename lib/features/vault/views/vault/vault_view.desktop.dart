@@ -78,9 +78,10 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
         // Never more than 60% of the row, however wide [editorPanelWidth]
         // is relative to a narrow window — the list keeps at least 40%
         // for itself even at the low end of the desktop breakpoint.
-        final editorWidth = hasEditor
-            ? editorPanelWidth.clamp(0.0, totalWidth * 0.6)
-            : 0.0;
+        // The width the panel is laid out at, whether or not it is
+        // currently revealed — see the [OverflowBox] below.
+        final targetEditorWidth = editorPanelWidth.clamp(0.0, totalWidth * 0.6);
+        final editorWidth = hasEditor ? targetEditorWidth : 0.0;
         final listWidth = totalWidth - editorWidth;
 
         return Row(
@@ -115,13 +116,26 @@ class VaultViewDesktop extends ViewModelWidget<VaultViewModel> {
                 ),
               ),
               child: ClipRect(
-                child: AnimatedOpacity(
-                  duration: context.appMotion.layout,
-                  curve: _transitionCurve,
-                  opacity: hasEditor ? 1 : 0,
-                  child: ColoredBox(
-                    color: Theme.of(context).colorScheme.surface,
-                    child: VaultEditorPanelRouter(viewModel: viewModel),
+                // Laid out at its full width for the whole reveal, and
+                // clipped down to whatever the animation has uncovered so
+                // far. Letting the panel take the animating width instead
+                // re-lays-out its contents on every frame, which reflows
+                // the text and — because a form row is only as narrow as
+                // its own controls — overflows every row until the
+                // animation is most of the way open. The clip hid that
+                // from the eye; it still threw on each frame.
+                child: OverflowBox(
+                  alignment: AlignmentDirectional.topStart,
+                  minWidth: targetEditorWidth,
+                  maxWidth: targetEditorWidth,
+                  child: AnimatedOpacity(
+                    duration: context.appMotion.layout,
+                    curve: _transitionCurve,
+                    opacity: hasEditor ? 1 : 0,
+                    child: ColoredBox(
+                      color: Theme.of(context).colorScheme.surface,
+                      child: VaultEditorPanelRouter(viewModel: viewModel),
+                    ),
                   ),
                 ),
               ),

@@ -1,9 +1,9 @@
+import 'package:cv_forge/features/vault/widgets/vault_card_section/vault_card_section.dart';
+import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/widgets/common/app_inline_empty_message/app_inline_empty_message.dart';
 import 'package:cv_forge/ui/widgets/common/app_summary_card.dart';
 import 'package:flutter/material.dart';
-
-import 'vault_section_heading.dart';
 
 /// One titled list of entity summary cards — work history, projects, or
 /// education — plus an "add" affordance and an empty-state message. One
@@ -67,29 +67,27 @@ class VaultListSection<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        VaultSectionHeading(title: title, onAdd: onAdd, addLabel: addLabel),
-        if (items.isEmpty)
-          AppInlineEmptyMessage(emptyMessage)
-        else
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final cards = [for (final item in items) _card(context, item)];
-              if (constraints.maxWidth < _twoColumnMinWidth) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: cards,
+    return VaultCardSection(
+      title: title,
+      onAdd: onAdd,
+      addLabel: addLabel,
+      child: items.isEmpty
+          ? AppInlineEmptyMessage(emptyMessage)
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final cards = [for (final item in items) _card(context, item)];
+                if (constraints.maxWidth < _twoColumnMinWidth) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: cards,
+                  );
+                }
+                return _CardColumns(
+                  cards: cards,
+                  gap: context.appSpacing.gapSmall,
                 );
-              }
-              return _CardColumns(
-                cards: cards,
-                gap: context.appSpacing.gapSmall,
-              );
-            },
-          ),
-      ],
+              },
+            ),
     );
   }
 
@@ -100,7 +98,11 @@ class VaultListSection<T> extends StatelessWidget {
     selected: idOf(item) == openId,
     onTap: () => onOpen(idOf(item)),
     onDelete: () => onDelete(idOf(item)),
-    leading: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
+    leading: Icon(
+      icon,
+      size: context.appIconSize.large,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    ),
   );
 }
 

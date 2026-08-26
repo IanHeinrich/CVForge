@@ -12,6 +12,8 @@ import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/year_month.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
+import 'package:cv_forge/models/vault/language_proficiency.dart';
 import 'package:cv_forge/models/vault/skill.dart';
 import 'package:cv_forge/models/vault/skill_category.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -120,6 +122,127 @@ void main() {
           .whereType<ResolvedHobbiesSection>()
           .first;
       expect(hobbies.items, ['Bouldern']);
+    });
+
+    test('work authorisation reaches the header from the Vault, and a '
+        'translation of it wins over the Vault wording', () {
+      const basics = ContactBasics(
+        fullName: 'Morgan Vance',
+        headline: '',
+        email: '',
+        phone: '',
+        location: '',
+        workAuthorization: 'Right to work in the UK',
+      );
+
+      when(vaultService.vault).thenReturn(vaultWith(basics: basics));
+      when(draftService.draft).thenReturn(draftWith());
+
+      expect(
+        StudioViewModel().resolvedCv.header.workAuthorization,
+        'Right to work in the UK',
+      );
+
+      when(draftService.draft).thenReturn(
+        draftWith(workAuthorizationOverride: 'Arbeitserlaubnis für das UK'),
+      );
+
+      expect(
+        StudioViewModel().resolvedCv.header.workAuthorization,
+        'Arbeitserlaubnis für das UK',
+      );
+    });
+
+    test('a language renders its name and its CEFR band, and the band is '
+        'the same code in every document language', () {
+      const german = LanguageItem(
+        id: 'lang-1',
+        name: 'German',
+        proficiency: LanguageProficiency.b2,
+      );
+      const spanish = LanguageItem(id: 'lang-2', name: 'Spanish');
+
+      when(
+        vaultService.vault,
+      ).thenReturn(vaultWith(languages: const [german, spanish]));
+      when(
+        draftService.draft,
+      ).thenReturn(draftWith(languageIds: const ['lang-1', 'lang-2']));
+
+      final languages = StudioViewModel().resolvedCv.sections
+          .whereType<ResolvedLanguagesSection>()
+          .first;
+
+      expect(languages.items.map((l) => l.name), ['German', 'Spanish']);
+      expect(languages.items.first.level, 'B2');
+      // Ungraded prints the language alone rather than inventing a band.
+      expect(languages.items.last.level, isNull);
+    });
+
+    test('a native speaker is the one band that takes the document '
+        "language's own word for it", () {
+      const english = LanguageItem(
+        id: 'lang-1',
+        name: 'Englisch',
+        proficiency: LanguageProficiency.native,
+      );
+
+      when(
+        vaultService.vault,
+      ).thenReturn(vaultWith(languages: const [english]));
+      when(draftService.draft).thenReturn(
+        draftWith(
+          languageIds: const ['lang-1'],
+          documentLanguage: DocumentLanguage.de,
+        ),
+      );
+
+      final languages = StudioViewModel().resolvedCv.sections
+          .whereType<ResolvedLanguagesSection>()
+          .first;
+
+      expect(languages.title, 'Sprachen');
+      expect(languages.items.single.level, 'Muttersprache');
+    });
+
+    test('a language name override reaches the document, and the band it '
+        'carries is left alone — a CEFR code is not wording', () {
+      const german = LanguageItem(
+        id: 'lang-1',
+        name: 'German',
+        proficiency: LanguageProficiency.c1,
+      );
+
+      when(vaultService.vault).thenReturn(vaultWith(languages: const [german]));
+      when(draftService.draft).thenReturn(
+        draftWith(
+          languageIds: const ['lang-1'],
+          languageOverrides: const {'lang-1': 'Deutsch'},
+        ),
+      );
+
+      final model = StudioViewModel();
+      expect(model.languageName(german), 'Deutsch');
+
+      final languages = model.resolvedCv.sections
+          .whereType<ResolvedLanguagesSection>()
+          .first;
+      expect(languages.items.single.name, 'Deutsch');
+      expect(languages.items.single.level, 'C1');
+    });
+
+    test('a Vault with languages none of which this draft selected omits '
+        'the section rather than printing an empty heading', () {
+      when(
+        vaultService.vault,
+      ).thenReturn(vaultWith(languages: const [sampleLanguage]));
+      when(draftService.draft).thenReturn(draftWith());
+
+      expect(
+        StudioViewModel().resolvedCv.sections
+            .whereType<ResolvedLanguagesSection>(),
+        isEmpty,
+      );
     });
 
     test('a publication title and citation override are what render — a '

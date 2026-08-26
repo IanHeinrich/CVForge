@@ -77,6 +77,7 @@ abstract class CvDraft with _$CvDraft {
     @Default(<String>[]) List<String> skillIds,
     @Default(<String>[]) List<String> educationIds,
     @Default(<String>[]) List<String> hobbyIds,
+    @Default(<String>[]) List<String> languageIds,
     @Default(<String>[]) List<String> publicationIds,
 
     /// Same shape and rationale as [bulletIds]/[projectBulletIds], one
@@ -130,6 +131,7 @@ abstract class CvDraft with _$CvDraft {
     @Default(<CvSectionType>[
       CvSectionType.summary,
       CvSectionType.skills,
+      CvSectionType.languages,
       CvSectionType.experience,
       CvSectionType.projects,
       CvSectionType.education,
@@ -173,6 +175,11 @@ abstract class CvDraft with _$CvDraft {
     /// over, for `CvVault.referencesNote`.
     String? referencesOverride,
 
+    /// Same null-means-inherit rationale as [tailoredSummary], for the
+    /// header's work-authorization line. It exists so a translated CV can
+    /// carry the translated sentence — the value is prose, not a code.
+    String? workAuthorizationOverride,
+
     /// educationId -> rewritten `Education.details` text. Same
     /// null-means-inherit rationale as [bulletOverrides], one entity type
     /// over.
@@ -214,6 +221,11 @@ abstract class CvDraft with _$CvDraft {
 
     /// hobbyId -> rewritten `HobbyItem.text`.
     @Default(<String, String>{}) Map<String, String> hobbyOverrides,
+
+    /// languageId -> rewritten `LanguageItem.name`. The proficiency has
+    /// no override: a CEFR band is a code, not wording, and reads the
+    /// same in every language.
+    @Default(<String, String>{}) Map<String, String> languageOverrides,
 
     /// educationId -> rewritten `Education.qualification`.
     @Default(<String, String>{})

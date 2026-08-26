@@ -9,6 +9,8 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
+import 'package:cv_forge/models/vault/language_proficiency.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
@@ -33,6 +35,7 @@ CvVault vaultWith({
   List<Publication> publications = const [],
   List<SkillCategory> skillCategories = const [],
   List<HobbyItem> hobbies = const [],
+  List<LanguageItem> languages = const [],
   ContactBasics? basics,
   String? referencesNote,
 }) => CvVault(
@@ -44,6 +47,7 @@ CvVault vaultWith({
   publications: publications,
   skillCategories: skillCategories,
   hobbies: hobbies,
+  languages: languages,
   referencesNote: referencesNote,
   updatedAt: DateTime.now(),
 );
@@ -68,6 +72,7 @@ CvDraft draftWith({
   List<String> educationIds = const [],
   Map<String, List<String>> educationBulletIds = const {},
   List<String> hobbyIds = const [],
+  List<String> languageIds = const [],
   List<String> publicationIds = const [],
   Map<String, List<String>> publicationBulletIds = const {},
   Map<DraftOmittableField, List<String>> omittedFields = const {},
@@ -77,12 +82,14 @@ CvDraft draftWith({
   String? tailoredSummary,
   String? headlineOverride,
   String? referencesOverride,
+  String? workAuthorizationOverride,
   Map<String, String> educationDetailsOverrides = const {},
   Map<String, String> roleOverrides = const {},
   Map<String, String> projectTitleOverrides = const {},
   Map<String, String> skillLabelOverrides = const {},
   Map<String, String> skillCategoryNameOverrides = const {},
   Map<String, String> hobbyOverrides = const {},
+  Map<String, String> languageOverrides = const {},
   Map<String, String> educationQualificationOverrides = const {},
   Map<String, String> educationGradeOverrides = const {},
   Map<String, String> publicationTitleOverrides = const {},
@@ -109,6 +116,7 @@ CvDraft draftWith({
   educationIds: educationIds,
   educationBulletIds: educationBulletIds,
   hobbyIds: hobbyIds,
+  languageIds: languageIds,
   publicationIds: publicationIds,
   publicationBulletIds: publicationBulletIds,
   omittedFields: omittedFields,
@@ -117,12 +125,14 @@ CvDraft draftWith({
   tailoredSummary: tailoredSummary,
   headlineOverride: headlineOverride,
   referencesOverride: referencesOverride,
+  workAuthorizationOverride: workAuthorizationOverride,
   educationDetailsOverrides: educationDetailsOverrides,
   roleOverrides: roleOverrides,
   projectTitleOverrides: projectTitleOverrides,
   skillLabelOverrides: skillLabelOverrides,
   skillCategoryNameOverrides: skillCategoryNameOverrides,
   hobbyOverrides: hobbyOverrides,
+  languageOverrides: languageOverrides,
   educationQualificationOverrides: educationQualificationOverrides,
   educationGradeOverrides: educationGradeOverrides,
   publicationTitleOverrides: publicationTitleOverrides,
@@ -182,6 +192,12 @@ const sampleSkillCategory = SkillCategory(
 );
 
 const sampleHobby = HobbyItem(id: 'hobby-1', text: 'Climbing');
+
+const sampleLanguage = LanguageItem(
+  id: 'lang-1',
+  name: 'German',
+  proficiency: LanguageProficiency.b2,
+);
 
 /// Backs a [MockLocalStorageService] with a plain in-memory map instead of
 /// per-test `when(storage.read(...)).thenAnswer(...)` boilerplate —

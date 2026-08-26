@@ -51,6 +51,7 @@ class ClassicCenteredTemplate implements CvTemplate {
     CvSectionType.experience,
     CvSectionType.projects,
     CvSectionType.skills,
+    CvSectionType.languages,
     CvSectionType.hobbies,
     CvSectionType.references,
     CvSectionType.publications,

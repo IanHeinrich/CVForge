@@ -15,7 +15,12 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ContactBasics {
 
- String get fullName; String get headline; String get email; String get phone; String get location; String? get summary; List<ProfileLink> get links;/// Uploaded once here and pulled by whichever template renders one —
+ String get fullName; String get headline; String get email; String get phone; String get location; String? get summary;/// Printed verbatim in the CV header, with no label of its own — so
+/// it holds the whole line ("Right to work in the UK, no sponsorship
+/// required"), not just a status word. That is what keeps it from
+/// needing a heading translated into every document language for a
+/// sentence the user is better placed to word than we are.
+ String? get workAuthorization; List<ProfileLink> get links;/// Uploaded once here and pulled by whichever template renders one —
 /// never per draft. A template that declares `TemplateTag.photo` prints
 /// it; the others ignore it entirely, so switching template is how a
 /// user chooses whether a given document carries a photograph. See
@@ -33,16 +38,16 @@ $ContactBasicsCopyWith<ContactBasics> get copyWith => _$ContactBasicsCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContactBasics&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other.links, links)&&(identical(other.photo, photo) || other.photo == photo));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContactBasics&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.workAuthorization, workAuthorization) || other.workAuthorization == workAuthorization)&&const DeepCollectionEquality().equals(other.links, links)&&(identical(other.photo, photo) || other.photo == photo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,summary,const DeepCollectionEquality().hash(links),photo);
+int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,summary,workAuthorization,const DeepCollectionEquality().hash(links),photo);
 
 @override
 String toString() {
-  return 'ContactBasics(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, summary: $summary, links: $links, photo: $photo)';
+  return 'ContactBasics(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, summary: $summary, workAuthorization: $workAuthorization, links: $links, photo: $photo)';
 }
 
 
@@ -53,7 +58,7 @@ abstract mixin class $ContactBasicsCopyWith<$Res>  {
   factory $ContactBasicsCopyWith(ContactBasics value, $Res Function(ContactBasics) _then) = _$ContactBasicsCopyWithImpl;
 @useResult
 $Res call({
- String fullName, String headline, String email, String phone, String location, String? summary, List<ProfileLink> links, CvPhoto? photo
+ String fullName, String headline, String email, String phone, String location, String? summary, String? workAuthorization, List<ProfileLink> links, CvPhoto? photo
 });
 
 
@@ -70,7 +75,7 @@ class _$ContactBasicsCopyWithImpl<$Res>
 
 /// Create a copy of ContactBasics
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? summary = freezed,Object? links = null,Object? photo = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? summary = freezed,Object? workAuthorization = freezed,Object? links = null,Object? photo = freezed,}) {
   return _then(_self.copyWith(
 fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,headline: null == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
@@ -78,6 +83,7 @@ as String,email: null == email ? _self.email : email // ignore: cast_nullable_to
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as String?,workAuthorization: freezed == workAuthorization ? _self.workAuthorization : workAuthorization // ignore: cast_nullable_to_non_nullable
 as String?,links: null == links ? _self.links : links // ignore: cast_nullable_to_non_nullable
 as List<ProfileLink>,photo: freezed == photo ? _self.photo : photo // ignore: cast_nullable_to_non_nullable
 as CvPhoto?,
@@ -177,10 +183,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  String? summary,  List<ProfileLink> links,  CvPhoto? photo)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  String? summary,  String? workAuthorization,  List<ProfileLink> links,  CvPhoto? photo)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ContactBasics() when $default != null:
-return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.summary,_that.links,_that.photo);case _:
+return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.summary,_that.workAuthorization,_that.links,_that.photo);case _:
   return orElse();
 
 }
@@ -198,10 +204,10 @@ return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.loca
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  String? summary,  List<ProfileLink> links,  CvPhoto? photo)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fullName,  String headline,  String email,  String phone,  String location,  String? summary,  String? workAuthorization,  List<ProfileLink> links,  CvPhoto? photo)  $default,) {final _that = this;
 switch (_that) {
 case _ContactBasics():
-return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.summary,_that.links,_that.photo);case _:
+return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.summary,_that.workAuthorization,_that.links,_that.photo);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -218,10 +224,10 @@ return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.loca
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fullName,  String headline,  String email,  String phone,  String location,  String? summary,  List<ProfileLink> links,  CvPhoto? photo)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fullName,  String headline,  String email,  String phone,  String location,  String? summary,  String? workAuthorization,  List<ProfileLink> links,  CvPhoto? photo)?  $default,) {final _that = this;
 switch (_that) {
 case _ContactBasics() when $default != null:
-return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.summary,_that.links,_that.photo);case _:
+return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.location,_that.summary,_that.workAuthorization,_that.links,_that.photo);case _:
   return null;
 
 }
@@ -233,7 +239,7 @@ return $default(_that.fullName,_that.headline,_that.email,_that.phone,_that.loca
 @JsonSerializable()
 
 class _ContactBasics implements ContactBasics {
-  const _ContactBasics({required this.fullName, required this.headline, required this.email, required this.phone, required this.location, this.summary, final  List<ProfileLink> links = const <ProfileLink>[], this.photo}): _links = links;
+  const _ContactBasics({required this.fullName, required this.headline, required this.email, required this.phone, required this.location, this.summary, this.workAuthorization, final  List<ProfileLink> links = const <ProfileLink>[], this.photo}): _links = links;
   factory _ContactBasics.fromJson(Map<String, dynamic> json) => _$ContactBasicsFromJson(json);
 
 @override final  String fullName;
@@ -242,6 +248,12 @@ class _ContactBasics implements ContactBasics {
 @override final  String phone;
 @override final  String location;
 @override final  String? summary;
+/// Printed verbatim in the CV header, with no label of its own — so
+/// it holds the whole line ("Right to work in the UK, no sponsorship
+/// required"), not just a status word. That is what keeps it from
+/// needing a heading translated into every document language for a
+/// sentence the user is better placed to word than we are.
+@override final  String? workAuthorization;
  final  List<ProfileLink> _links;
 @override@JsonKey() List<ProfileLink> get links {
   if (_links is EqualUnmodifiableListView) return _links;
@@ -269,16 +281,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContactBasics&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&(identical(other.summary, summary) || other.summary == summary)&&const DeepCollectionEquality().equals(other._links, _links)&&(identical(other.photo, photo) || other.photo == photo));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContactBasics&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.location, location) || other.location == location)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.workAuthorization, workAuthorization) || other.workAuthorization == workAuthorization)&&const DeepCollectionEquality().equals(other._links, _links)&&(identical(other.photo, photo) || other.photo == photo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,summary,const DeepCollectionEquality().hash(_links),photo);
+int get hashCode => Object.hash(runtimeType,fullName,headline,email,phone,location,summary,workAuthorization,const DeepCollectionEquality().hash(_links),photo);
 
 @override
 String toString() {
-  return 'ContactBasics(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, summary: $summary, links: $links, photo: $photo)';
+  return 'ContactBasics(fullName: $fullName, headline: $headline, email: $email, phone: $phone, location: $location, summary: $summary, workAuthorization: $workAuthorization, links: $links, photo: $photo)';
 }
 
 
@@ -289,7 +301,7 @@ abstract mixin class _$ContactBasicsCopyWith<$Res> implements $ContactBasicsCopy
   factory _$ContactBasicsCopyWith(_ContactBasics value, $Res Function(_ContactBasics) _then) = __$ContactBasicsCopyWithImpl;
 @override @useResult
 $Res call({
- String fullName, String headline, String email, String phone, String location, String? summary, List<ProfileLink> links, CvPhoto? photo
+ String fullName, String headline, String email, String phone, String location, String? summary, String? workAuthorization, List<ProfileLink> links, CvPhoto? photo
 });
 
 
@@ -306,7 +318,7 @@ class __$ContactBasicsCopyWithImpl<$Res>
 
 /// Create a copy of ContactBasics
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? summary = freezed,Object? links = null,Object? photo = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fullName = null,Object? headline = null,Object? email = null,Object? phone = null,Object? location = null,Object? summary = freezed,Object? workAuthorization = freezed,Object? links = null,Object? photo = freezed,}) {
   return _then(_ContactBasics(
 fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,headline: null == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
@@ -314,6 +326,7 @@ as String,email: null == email ? _self.email : email // ignore: cast_nullable_to
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as String?,workAuthorization: freezed == workAuthorization ? _self.workAuthorization : workAuthorization // ignore: cast_nullable_to_non_nullable
 as String?,links: null == links ? _self._links : links // ignore: cast_nullable_to_non_nullable
 as List<ProfileLink>,photo: freezed == photo ? _self.photo : photo // ignore: cast_nullable_to_non_nullable
 as CvPhoto?,

@@ -14,6 +14,7 @@ import 'package:cv_forge/features/studio/widgets/sections/education_section_edit
 import 'package:cv_forge/features/studio/widgets/sections/headline_editor/headline_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/experience_section_editor/experience_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/hobbies_section_editor/hobbies_section_editor.dart';
+import 'package:cv_forge/features/studio/widgets/sections/languages_section_editor/languages_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/projects_section_editor/projects_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/publications_section_editor/publications_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/references_section_editor/references_section_editor.dart';
@@ -66,6 +67,7 @@ class StudioSectionEditorRouter extends StatelessWidget {
         CvSectionType.projects => ProjectsSectionEditor(viewModel: viewModel),
         CvSectionType.education => EducationSectionEditor(viewModel: viewModel),
         CvSectionType.hobbies => HobbiesSectionEditor(viewModel: viewModel),
+        CvSectionType.languages => LanguagesSectionEditor(viewModel: viewModel),
         CvSectionType.references => ReferencesSectionEditor(
           viewModel: viewModel,
         ),

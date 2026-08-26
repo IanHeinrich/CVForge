@@ -37,6 +37,7 @@ void main() {
       educationGrades: {},
       educationDetails: {},
       hobbies: {},
+      languages: {},
       bullets: {},
     );
 

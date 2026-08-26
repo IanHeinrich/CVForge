@@ -10,6 +10,7 @@ import 'bullet_list_editor.dart';
 import 'education_editor_panel.dart';
 import 'experience_editor_panel.dart';
 import 'hobbies_editor_panel.dart';
+import 'languages_editor_panel.dart';
 import 'project_editor_panel.dart';
 import 'publication_editor_panel.dart';
 import 'skills_editor_panel.dart';
@@ -162,6 +163,19 @@ class VaultEditorPanelRouter extends StatelessWidget {
           onAdd: () => viewModel.addHobby(''),
           onChanged: viewModel.updateHobby,
           onDelete: viewModel.deleteHobby,
+        );
+
+      case VaultEditorTarget.languages:
+        return LanguagesEditorPanel(
+          languages: viewModel.vault.languages,
+          onClose: viewModel.closeEditor,
+          // Blank, like a new skill category: an unnamed language is
+          // indistinguishable from any other unfilled entry and gets
+          // dropped on write with the rest of them — see
+          // `CvVaultPruning.withoutBlankEntries`.
+          onAdd: () => viewModel.addLanguage(''),
+          onChanged: viewModel.updateLanguage,
+          onDelete: viewModel.deleteLanguage,
         );
 
       case VaultEditorTarget.publication:

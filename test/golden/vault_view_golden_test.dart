@@ -11,6 +11,7 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/fixtures/example_vault.dart';
 import 'package:cv_forge/services/settings_service.dart';
 import 'package:cv_forge/services/vault_service.dart';
+import 'package:cv_forge/ui/widgets/common/region_flag_stack/region_flag_stack.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mockito/mockito.dart';
@@ -54,5 +55,21 @@ void main() {
     await pumpGoldenScreen(tester, const VaultView());
 
     await screenMatchesGolden(tester, 'vault_view_populated');
+  });
+
+  testGoldens('VaultView - CV defaults panel open', (tester) async {
+    when(vaultService.vault).thenReturn(buildExampleVault());
+
+    await pumpGoldenScreen(tester, const VaultView());
+    await tester.pumpAndSettle();
+
+    // The defaults card is the only thing in the list carrying a
+    // RegionFlagStack, which makes it the one stable handle on it — its
+    // title is a region name that changes with the fixture, and the
+    // AppSummaryCard under it is private to VaultCardList.
+    await tester.tap(find.byType(RegionFlagStack));
+    await tester.pumpAndSettle();
+
+    await screenMatchesGolden(tester, 'vault_view_cv_defaults_open');
   });
 }

@@ -14,6 +14,7 @@ _ContactBasics _$ContactBasicsFromJson(Map<String, dynamic> json) =>
       phone: json['phone'] as String,
       location: json['location'] as String,
       summary: json['summary'] as String?,
+      workAuthorization: json['workAuthorization'] as String?,
       links:
           (json['links'] as List<dynamic>?)
               ?.map((e) => ProfileLink.fromJson(e as Map<String, dynamic>))
@@ -32,6 +33,7 @@ Map<String, dynamic> _$ContactBasicsToJson(_ContactBasics instance) =>
       'phone': instance.phone,
       'location': instance.location,
       'summary': instance.summary,
+      'workAuthorization': instance.workAuthorization,
       'links': instance.links.map((e) => e.toJson()).toList(),
       'photo': instance.photo?.toJson(),
     };

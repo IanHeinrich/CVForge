@@ -24,6 +24,7 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/hobby_item.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
@@ -138,6 +139,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       educationIds: selection.educationIds,
       educationBulletIds: selection.educationBulletIds,
       hobbyIds: selection.hobbyIds,
+      languageIds: selection.languageIds,
       publicationIds: selection.publicationIds,
       publicationBulletIds: selection.publicationBulletIds,
     );
@@ -270,6 +272,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       _allSkills.length +
       education.length +
       hobbies.length +
+      languages.length +
       publications.length;
 
   /// Page count of the most recent successful render, or `null` before the
@@ -466,6 +469,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     await addAllSkills();
     await addAllEducation();
     await addAllHobbies();
+    await addAllLanguages();
     await addAllPublications();
     for (final publication in publications) {
       await addAllPublicationBullets(publication);
@@ -592,6 +596,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
       _draft.headlineOverride != null ||
       _draft.tailoredSummary != null ||
       _draft.referencesOverride != null ||
+      _draft.workAuthorizationOverride != null ||
       _draft.hasAnyTextOverride;
 
   /// Discards every per-draft text edit — hand edits, AI rewrites and any
@@ -638,6 +643,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
     CvSectionType.projects => projects.isNotEmpty,
     CvSectionType.education => education.isNotEmpty,
     CvSectionType.hobbies => hobbies.isNotEmpty,
+    CvSectionType.languages => languages.isNotEmpty,
     CvSectionType.references => hasReferences,
     CvSectionType.publications => publications.isNotEmpty,
   };
@@ -1106,6 +1112,18 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> revertHobbyOverride(String hobbyId) =>
       _revertOverride(TextOverrideField.hobby, hobbyId);
 
+  String languageName(LanguageItem entry) =>
+      _overrideText(TextOverrideField.language, entry.id, entry.name);
+
+  bool hasLanguageOverride(String languageId) =>
+      _hasOverride(TextOverrideField.language, languageId);
+
+  Future<void> setLanguageOverride(LanguageItem entry, String value) =>
+      _setOverride(TextOverrideField.language, entry.id, value, entry.name);
+
+  Future<void> revertLanguageOverride(String languageId) =>
+      _revertOverride(TextOverrideField.language, languageId);
+
   late final _skillSelection = _Selection<Skill>(
     items: () => _allSkills,
     idOf: (s) => s.id,
@@ -1336,6 +1354,29 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   List<HobbyItem> get selectedHobbies => _hobbySelection.selected;
 
   Future<void> removeAllHobbies() => _hobbySelection.removeAll();
+
+  late final _languageSelection = _Selection<LanguageItem>(
+    items: () => _vault.languages,
+    idOf: (l) => l.id,
+    selectedIds: () => _draft.languageIds,
+    setIncluded: (l, {required included}) =>
+        _draftService.setLanguageIncluded(l.id, included: included),
+  );
+
+  List<LanguageItem> get languages => _vault.languages;
+
+  bool isLanguageIncluded(String id) => _languageSelection.isIncluded(id);
+
+  Future<void> toggleLanguage(LanguageItem language) =>
+      _languageSelection.toggle(language);
+
+  List<LanguageItem> get unselectedLanguages => _languageSelection.unselected;
+
+  Future<void> addAllLanguages() => _languageSelection.addAll();
+
+  List<LanguageItem> get selectedLanguages => _languageSelection.selected;
+
+  Future<void> removeAllLanguages() => _languageSelection.removeAll();
 
   late final _publicationSelection = _Selection<Publication>(
     items: () => _vault.publications,

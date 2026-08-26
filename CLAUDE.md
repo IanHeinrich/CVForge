@@ -265,6 +265,15 @@ Every user-facing string lives in `lib/l10n/app_en.arb`. A string literal in a
    page size, date convention and the tailoring prompt's advice, never
    vocabulary. See its own "Region is not a locale" note.
 
+`LanguageItem` is deliberately none of these and is not a fourth axis:
+it is *content*, a language the person speaks, typed by hand and printed
+in a section of their CV like a skill or a hobby. A CV written in English
+can list German at C1. Its name is free text rather than a picked locale
+precisely so it can be spelled in whatever language the document is.
+`LanguageProficiency` is CEFR, which costs one word per document language
+rather than seven, because a band's code reads the same everywhere — only
+the native band needs translating.
+
 **Nothing the UI locale does may reach the document.** Someone reading a
 Spanish interface while preparing an English CV is the ordinary case, not
 an edge one. That rule is enforced structurally rather than by review:

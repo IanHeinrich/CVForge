@@ -7,6 +7,7 @@ import 'package:cv_forge/models/vault/cv_vault.dart';
 import 'package:cv_forge/models/vault/document_defaults.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
+import 'package:cv_forge/models/vault/language_item.dart';
 import 'package:cv_forge/models/vault/project.dart';
 import 'package:cv_forge/models/vault/publication.dart';
 import 'package:cv_forge/models/vault/skill.dart';
@@ -197,6 +198,16 @@ CvVault? _mergeVaults(CvVault? base, CvVault? local, CvVault? remote) {
       idOf: (h) => h.id,
       preferRemote: (_, _, _) => pr,
     ),
+    // Unlike a hobby, a language is two fields — so it needs mergeItem,
+    // or editing the name here and the level there would lose one of
+    // them wholesale rather than keeping both.
+    languages: b.languages.mergeThreeWay(
+      local.languages,
+      remote.languages,
+      idOf: (l) => l.id,
+      preferRemote: (_, _, _) => pr,
+      mergeItem: (bb, l, r) => _mergeLanguage(bb, l, r, pr),
+    ),
     publications: b.publications.mergeThreeWay(
       local.publications,
       remote.publications,
@@ -290,6 +301,12 @@ ContactBasics _mergeBasics(
   phone: _pick(base.phone, local.phone, remote.phone, pr),
   location: _pick(base.location, local.location, remote.location, pr),
   summary: _pick(base.summary, local.summary, remote.summary, pr),
+  workAuthorization: _pick(
+    base.workAuthorization,
+    local.workAuthorization,
+    remote.workAuthorization,
+    pr,
+  ),
   photo: _pick(base.photo, local.photo, remote.photo, pr),
   links: base.links.mergeThreeWay(
     local.links,
@@ -344,6 +361,17 @@ Education _mergeEducation(Education? b, Education l, Education r, bool pr) =>
       details: _pick(b?.details, l.details, r.details, pr),
       bullets: _mergeBullets(b?.bullets, l.bullets, r.bullets, pr),
     );
+
+LanguageItem _mergeLanguage(
+  LanguageItem? b,
+  LanguageItem l,
+  LanguageItem r,
+  bool pr,
+) => LanguageItem(
+  id: l.id,
+  name: _pick(b?.name, l.name, r.name, pr),
+  proficiency: _pick(b?.proficiency, l.proficiency, r.proficiency, pr),
+);
 
 Publication _mergePublication(
   Publication? b,

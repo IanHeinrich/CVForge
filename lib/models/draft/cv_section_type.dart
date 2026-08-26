@@ -7,6 +7,7 @@
 enum CvSectionType {
   summary,
   skills,
+  languages,
   experience,
   projects,
   education,
