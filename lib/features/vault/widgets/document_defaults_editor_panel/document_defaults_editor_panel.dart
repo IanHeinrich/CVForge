@@ -52,6 +52,8 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
     required this.onToggleSectionHidden,
     required this.includeHeadline,
     required this.onToggleHeadline,
+    required this.includeWorkAuthorization,
+    required this.onToggleWorkAuthorization,
   });
 
   final DocumentDefaults defaults;
@@ -76,6 +78,10 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
   /// Whether a new CV starts with its headline shown.
   final bool includeHeadline;
   final VoidCallback onToggleHeadline;
+
+  /// Whether a new CV starts with its work-authorisation line shown.
+  final bool includeWorkAuthorization;
+  final VoidCallback onToggleWorkAuthorization;
 
   @override
   Widget build(BuildContext context) {
@@ -155,12 +161,17 @@ class DocumentDefaultsEditorPanel extends StatelessWidget {
           children: [
             const VGap.medium(),
             // Pinned above the list and outside it, exactly as Studio's
-            // own section nav pins its headline row: the headline prints
-            // in the name block, so it has no position to drag to.
+            // own section nav pins these two rows: both print in the name
+            // block, so neither has a position to drag to.
             DocumentDefaultsRow(
               label: context.l10n.vaultCvDefaultsHeadline,
               included: includeHeadline,
               onToggle: onToggleHeadline,
+            ),
+            DocumentDefaultsRow(
+              label: context.l10n.vaultCvDefaultsWorkAuthorization,
+              included: includeWorkAuthorization,
+              onToggle: onToggleWorkAuthorization,
             ),
             DocumentDefaultsSectionList(
               sectionOrder: sectionOrder,

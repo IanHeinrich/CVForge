@@ -74,13 +74,18 @@ class PhotoHeaderTemplate implements CvTemplate {
       keywords: _keywords(cv),
     );
     final hasPhoto = cv.header.photoJpegBase64 != null;
+    final hasWorkAuthorization =
+        cv.header.workAuthorization?.trim().isNotEmpty ?? false;
     doc.addPage(
       pw.MultiPage(
         pageTheme: pw.PageTheme(
           pageFormat: format,
           margin: tokens.pageMargins,
-          buildBackground: (context) =>
-              _decoration(context, hasPhoto: hasPhoto),
+          buildBackground: (context) => _decoration(
+            context,
+            hasPhoto: hasPhoto,
+            hasWorkAuthorization: hasWorkAuthorization,
+          ),
         ),
         // Pages two and up get back the top margin that page one gives up
         // to seat the name high inside the band. Without this the body
@@ -113,8 +118,16 @@ class PhotoHeaderTemplate implements CvTemplate {
   /// `PhotoHeaderPdfRenderer.headerHeight` reserves matching space in the
   /// content box, so the two cannot drift. The foot mark repeats, because
   /// it is a page mark rather than part of the header.
-  pw.Widget _decoration(pw.Context context, {required bool hasPhoto}) {
+  pw.Widget _decoration(
+    pw.Context context, {
+    required bool hasPhoto,
+    required bool hasWorkAuthorization,
+  }) {
     final firstPage = context.pageNumber == 1;
+    final bandHeight = style.bandHeight(
+      hasPhoto: hasPhoto,
+      hasWorkAuthorization: hasWorkAuthorization,
+    );
     return pw.FullPage(
       ignoreMargins: true,
       child: pw.Stack(
@@ -125,9 +138,7 @@ class PhotoHeaderTemplate implements CvTemplate {
               left: 0,
               right: 0,
               child: pw.Container(
-                height: hasPhoto
-                    ? style.bandHeightPt
-                    : style.bandHeightNoPhotoPt,
+                height: bandHeight,
                 color: PdfColor.fromInt(style.bandFillArgb),
               ),
             ),

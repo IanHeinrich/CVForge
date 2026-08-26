@@ -50,7 +50,7 @@ class BackupService {
   /// than a `package_info_plus` dependency, since nothing reads this back.
   /// Keep it in sync with `pubspec.yaml`'s `version:` at each bump;
   /// `backup_service_test.dart` fails if a bump misses one of the two.
-  static const _appVersion = '2.21.0';
+  static const _appVersion = '2.22.0';
 
   /// The current Vault + every Draft as one envelope — also the payload
   /// `DriveSyncService` pushes to Drive, so a local JSON export and a

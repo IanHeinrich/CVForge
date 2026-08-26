@@ -66,6 +66,14 @@ enum StudioXrayMode {
   readingOrder,
 }
 
+/// The two fields the editor pane can show that are not a
+/// [CvSectionType] — both print in the header's name block rather than as
+/// a section, so neither has a heading or a position to be dragged to.
+///
+/// See [StudioViewModel.openHeaderField] for why this is one nullable
+/// enum rather than a boolean each.
+enum StudioHeaderField { headline, workAuthorization }
+
 /// Owns Studio's selection UI. It reads [VaultService] for the master data
 /// and [DraftService] for what's currently selected, then hands both to
 /// [CvComposer] to produce the [resolvedCv] the preview renders — this is
@@ -590,7 +598,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   ///
   /// The id-keyed half is derived from `TextOverrideField.values`, not
   /// listed here — a new overridable field must not be able to go missing
-  /// from this check. Only the three scalar overrides, which have no id to
+  /// from this check. Only the four scalar overrides, which have no id to
   /// key by and so aren't in that enum, are named individually.
   bool get hasWordingOverrides =>
       _draft.headlineOverride != null ||
@@ -675,6 +683,27 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> toggleHeadline() =>
       _draftService.setHeadlineHidden(includeHeadline);
 
+  String? get vaultWorkAuthorization => _vault.basics.workAuthorization;
+  late final _workAuthorizationOverride = _TextOverride(
+    vaultValue: () => _vault.basics.workAuthorization,
+    draftValue: () => _draft.workAuthorizationOverride,
+    setOverride: _draftService.setWorkAuthorizationOverride,
+  );
+  String get workAuthorizationText => _workAuthorizationOverride.text;
+  bool get hasWorkAuthorizationOverride =>
+      _workAuthorizationOverride.hasOverride;
+  Future<void> setWorkAuthorizationOverride(String value) =>
+      _workAuthorizationOverride.set(value);
+  Future<void> revertWorkAuthorizationToVault() =>
+      _workAuthorizationOverride.revert();
+
+  /// Whether the work-authorization line prints at all. Independent of the
+  /// override, exactly as [includeHeadline] is.
+  bool get includeWorkAuthorization => !_draft.hideWorkAuthorization;
+
+  Future<void> toggleWorkAuthorization() =>
+      _draftService.setWorkAuthorizationHidden(includeWorkAuthorization);
+
   String? get vaultSummary => _vault.basics.summary;
   late final _summaryOverride = _TextOverride(
     vaultValue: () => _vault.basics.summary,
@@ -720,27 +749,40 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   CvSectionType? _openSection;
 
   void selectSection(CvSectionType? type) {
-    if (_openSection == type && !_headlineOpen) return;
+    if (_openSection == type && _openHeaderField == null) return;
     _openSection = type;
-    _headlineOpen = false;
+    _openHeaderField = null;
     notifyListeners();
   }
 
-  /// Whether the editor pane is showing the headline rather than a
-  /// section.
+  /// Which header field the editor pane is showing, if it is showing one
+  /// rather than a section. Null means a section (or nothing) is open.
   ///
-  /// The headline is not a [CvSectionType] and must not become one — it
-  /// prints in the name block, has no heading of its own and cannot be
-  /// reordered, so a ninth case would appear in the reorderable list as a
-  /// draggable row that changes nothing. It still needs its own row and
-  /// its own editor, so "what the pane is showing" is a section *or* the
-  /// headline, and this is the second half of that.
-  bool get isHeadlineOpen => _headlineOpen;
-  bool _headlineOpen = false;
+  /// Neither field is a [CvSectionType], and neither must become one: both
+  /// print in the name block, have no heading of their own and cannot be
+  /// reordered, so either would appear in the reorderable list as a
+  /// draggable row that changes nothing. "What the pane is showing" is
+  /// therefore a section *or* one of these, and this is the second half
+  /// of that.
+  ///
+  /// One nullable enum rather than a bool per field: with two of them,
+  /// separate booleans would be three mutually exclusive flags that
+  /// nothing stops from being set at once.
+  StudioHeaderField? get openHeaderField => _openHeaderField;
+  StudioHeaderField? _openHeaderField;
 
-  void selectHeadline() {
-    if (_headlineOpen) return;
-    _headlineOpen = true;
+  bool get isHeadlineOpen => _openHeaderField == StudioHeaderField.headline;
+  bool get isWorkAuthorizationOpen =>
+      _openHeaderField == StudioHeaderField.workAuthorization;
+
+  void selectHeadline() => _selectHeaderField(StudioHeaderField.headline);
+
+  void selectWorkAuthorization() =>
+      _selectHeaderField(StudioHeaderField.workAuthorization);
+
+  void _selectHeaderField(StudioHeaderField field) {
+    if (_openHeaderField == field) return;
+    _openHeaderField = field;
     _openSection = null;
     notifyListeners();
   }
@@ -750,6 +792,14 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   /// every section.
   bool get hasHeadline =>
       (_draft.headlineOverride ?? _vault.basics.headline).trim().isNotEmpty;
+
+  /// [hasHeadline]'s rule, one field over. Nullable on both sides here,
+  /// where a headline is a non-null empty string.
+  bool get hasWorkAuthorization =>
+      (_draft.workAuthorizationOverride ?? _vault.basics.workAuthorization)
+          ?.trim()
+          .isNotEmpty ??
+      false;
 
   /// This draft's full section order (all [CvSectionType] cases, whether
   /// [sectionHasData] or not) — the "Sections" picker filters this down to
@@ -901,7 +951,7 @@ class StudioViewModel extends ReactiveViewModel implements Initialisable {
   // over a different [TextOverrideField] and Vault fallback. Blank input,
   // or input identical to the Vault's own value, collapses back to "no
   // override" — see [_TextOverride], which applies the same rule to the
-  // three scalar fields.
+  // four scalar fields.
   //
   // Bullet ids are globally unique (see `Skill.linkedBulletIds`), so a
   // bullet override needs only the bullet, never its owning entity.
@@ -1572,8 +1622,9 @@ class _BulletSelection {
   }
 }
 
-/// One of the three scalar draft overrides — headline, tailored summary,
-/// references note — falling back to the Vault's own value.
+/// One of the four scalar draft overrides — headline, tailored summary,
+/// references note, work authorization — falling back to the Vault's own
+/// value.
 ///
 /// Blank input, or input identical to the Vault's, collapses back to "no
 /// override" (`null`); otherwise opening an editor and blurring without

@@ -1640,6 +1640,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioNoSummary => 'No summary in your Vault yet.';
 
   @override
+  String get studioNoWorkAuthorization =>
+      'No work authorisation in your Vault yet.';
+
+  @override
   String studioPageCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1750,6 +1754,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get studioSectionNavPersistError =>
       'Your last selection change couldn\'t be saved.';
+
+  @override
+  String get studioSectionWorkAuthorization => 'Work authorisation';
 
   @override
   String get studioSectionsResetDefault => 'Reset sections to Vault';
@@ -2308,6 +2315,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsTemplateLabel => 'Template';
+
+  @override
+  String get vaultCvDefaultsWorkAuthorization => 'Work authorisation';
 
   @override
   String get vaultDeleteCategoryBody =>

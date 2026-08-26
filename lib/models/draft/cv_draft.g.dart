@@ -124,6 +124,7 @@ _CvDraft _$CvDraftFromJson(Map<String, dynamic> json) => _CvDraft(
   hideHeadline: json['hideHeadline'] as bool? ?? false,
   referencesOverride: json['referencesOverride'] as String?,
   workAuthorizationOverride: json['workAuthorizationOverride'] as String?,
+  hideWorkAuthorization: json['hideWorkAuthorization'] as bool? ?? false,
   educationDetailsOverrides:
       (json['educationDetailsOverrides'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
@@ -223,6 +224,7 @@ Map<String, dynamic> _$CvDraftToJson(_CvDraft instance) => <String, dynamic>{
   'hideHeadline': instance.hideHeadline,
   'referencesOverride': instance.referencesOverride,
   'workAuthorizationOverride': instance.workAuthorizationOverride,
+  'hideWorkAuthorization': instance.hideWorkAuthorization,
   'educationDetailsOverrides': instance.educationDetailsOverrides,
   'roleOverrides': instance.roleOverrides,
   'projectTitleOverrides': instance.projectTitleOverrides,

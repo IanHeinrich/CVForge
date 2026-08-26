@@ -171,11 +171,11 @@ return publications(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedProject> items)?  projects,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedLanguage> items)?  languages,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,TResult Function( String title,  List<ResolvedPublication> items)?  publications,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String title,  String text)?  summary,TResult Function( String title,  String titleFormal,  List<ResolvedCompanyGroup> groups)?  experience,TResult Function( String title,  List<ResolvedProject> items)?  projects,TResult Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult Function( String title,  List<ResolvedLanguage> items)?  languages,TResult Function( String title,  List<ResolvedQualification> items)?  education,TResult Function( String title,  List<String> items)?  hobbies,TResult Function( String title,  String text)?  references,TResult Function( String title,  List<ResolvedPublication> items)?  publications,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
-return experience(_that.title,_that.groups);case ResolvedProjectsSection() when projects != null:
+return experience(_that.title,_that.titleFormal,_that.groups);case ResolvedProjectsSection() when projects != null:
 return projects(_that.title,_that.items);case ResolvedSkillsSection() when skills != null:
 return skills(_that.title,_that.groups);case ResolvedLanguagesSection() when languages != null:
 return languages(_that.title,_that.items);case ResolvedEducationSection() when education != null:
@@ -200,11 +200,11 @@ return publications(_that.title,_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedProject> items)  projects,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedLanguage> items)  languages,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,required TResult Function( String title,  List<ResolvedPublication> items)  publications,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String title,  String text)  summary,required TResult Function( String title,  String titleFormal,  List<ResolvedCompanyGroup> groups)  experience,required TResult Function( String title,  List<ResolvedProject> items)  projects,required TResult Function( String title,  List<ResolvedSkillGroup> groups)  skills,required TResult Function( String title,  List<ResolvedLanguage> items)  languages,required TResult Function( String title,  List<ResolvedQualification> items)  education,required TResult Function( String title,  List<String> items)  hobbies,required TResult Function( String title,  String text)  references,required TResult Function( String title,  List<ResolvedPublication> items)  publications,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection():
 return summary(_that.title,_that.text);case ResolvedExperienceSection():
-return experience(_that.title,_that.groups);case ResolvedProjectsSection():
+return experience(_that.title,_that.titleFormal,_that.groups);case ResolvedProjectsSection():
 return projects(_that.title,_that.items);case ResolvedSkillsSection():
 return skills(_that.title,_that.groups);case ResolvedLanguagesSection():
 return languages(_that.title,_that.items);case ResolvedEducationSection():
@@ -225,11 +225,11 @@ return publications(_that.title,_that.items);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedProject> items)?  projects,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedLanguage> items)?  languages,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,TResult? Function( String title,  List<ResolvedPublication> items)?  publications,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String title,  String text)?  summary,TResult? Function( String title,  String titleFormal,  List<ResolvedCompanyGroup> groups)?  experience,TResult? Function( String title,  List<ResolvedProject> items)?  projects,TResult? Function( String title,  List<ResolvedSkillGroup> groups)?  skills,TResult? Function( String title,  List<ResolvedLanguage> items)?  languages,TResult? Function( String title,  List<ResolvedQualification> items)?  education,TResult? Function( String title,  List<String> items)?  hobbies,TResult? Function( String title,  String text)?  references,TResult? Function( String title,  List<ResolvedPublication> items)?  publications,}) {final _that = this;
 switch (_that) {
 case ResolvedSummarySection() when summary != null:
 return summary(_that.title,_that.text);case ResolvedExperienceSection() when experience != null:
-return experience(_that.title,_that.groups);case ResolvedProjectsSection() when projects != null:
+return experience(_that.title,_that.titleFormal,_that.groups);case ResolvedProjectsSection() when projects != null:
 return projects(_that.title,_that.items);case ResolvedSkillsSection() when skills != null:
 return skills(_that.title,_that.groups);case ResolvedLanguagesSection() when languages != null:
 return languages(_that.title,_that.items);case ResolvedEducationSection() when education != null:
@@ -316,10 +316,16 @@ as String,
 
 
 class ResolvedExperienceSection implements ResolvedSection {
-  const ResolvedExperienceSection({required this.title, required final  List<ResolvedCompanyGroup> groups}): _groups = groups;
+  const ResolvedExperienceSection({required this.title, required this.titleFormal, required final  List<ResolvedCompanyGroup> groups}): _groups = groups;
   
 
 @override final  String title;
+/// The longer register of [title] — "Professional Experience" against
+/// "Experience" — for the one template that prefers it. Resolved here
+/// rather than written into `ClassicCenteredPdfRenderer`, where it was
+/// a hard-coded English string that overrode the translated [title] and
+/// printed on German CVs.
+ final  String titleFormal;
  final  List<ResolvedCompanyGroup> _groups;
  List<ResolvedCompanyGroup> get groups {
   if (_groups is EqualUnmodifiableListView) return _groups;
@@ -338,16 +344,16 @@ $ResolvedExperienceSectionCopyWith<ResolvedExperienceSection> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedExperienceSection&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other._groups, _groups));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolvedExperienceSection&&(identical(other.title, title) || other.title == title)&&(identical(other.titleFormal, titleFormal) || other.titleFormal == titleFormal)&&const DeepCollectionEquality().equals(other._groups, _groups));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,title,const DeepCollectionEquality().hash(_groups));
+int get hashCode => Object.hash(runtimeType,title,titleFormal,const DeepCollectionEquality().hash(_groups));
 
 @override
 String toString() {
-  return 'ResolvedSection.experience(title: $title, groups: $groups)';
+  return 'ResolvedSection.experience(title: $title, titleFormal: $titleFormal, groups: $groups)';
 }
 
 
@@ -358,7 +364,7 @@ abstract mixin class $ResolvedExperienceSectionCopyWith<$Res> implements $Resolv
   factory $ResolvedExperienceSectionCopyWith(ResolvedExperienceSection value, $Res Function(ResolvedExperienceSection) _then) = _$ResolvedExperienceSectionCopyWithImpl;
 @override @useResult
 $Res call({
- String title, List<ResolvedCompanyGroup> groups
+ String title, String titleFormal, List<ResolvedCompanyGroup> groups
 });
 
 
@@ -375,9 +381,10 @@ class _$ResolvedExperienceSectionCopyWithImpl<$Res>
 
 /// Create a copy of ResolvedSection
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? groups = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? titleFormal = null,Object? groups = null,}) {
   return _then(ResolvedExperienceSection(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,titleFormal: null == titleFormal ? _self.titleFormal : titleFormal // ignore: cast_nullable_to_non_nullable
 as String,groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
 as List<ResolvedCompanyGroup>,
   ));

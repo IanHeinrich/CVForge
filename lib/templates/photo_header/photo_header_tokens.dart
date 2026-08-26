@@ -33,6 +33,8 @@ class PhotoHeaderStyle {
     required this.contactLabelWidthPt,
     required this.contactLineHeightPt,
     required this.nameToContactPt,
+    required this.workAuthorizationGapPt,
+    required this.workAuthorizationBandPt,
     required this.afterRuleGapPt,
     required this.continuationTopPt,
     required this.markTopWidthPt,
@@ -99,6 +101,20 @@ class PhotoHeaderStyle {
   /// Name baseline to first contact baseline; 35.4pt in the reference.
   final double nameToContactPt;
 
+  /// Above the work-authorisation line, which sits under the labelled
+  /// rows rather than among them. Larger than the row pitch on purpose:
+  /// it is a sentence rather than another labelled detail, and the gap is
+  /// what says so in the absence of a label.
+  final double workAuthorizationGapPt;
+
+  /// Added to the band when a work-authorisation line is present, so the
+  /// extra line does not push the contact block out through the bottom of
+  /// the band. Two lines' worth: the sentence is the one header value
+  /// long enough to wrap, and reserving for the wrap costs an unused
+  /// [contactLineHeightPt] on the common one-line case, where the band
+  /// simply carries a little more air.
+  final double workAuthorizationBandPt;
+
   /// Hairline to the section's first line.
   ///
   /// A *box* gap, not the baseline-to-baseline figure the reference is
@@ -127,6 +143,20 @@ class PhotoHeaderStyle {
   final double markBottomWidthPt;
   final double markBottomHeightPt;
   final double markBottomRightPt;
+
+  /// How tall the band is for a given CV.
+  ///
+  /// The one place this is decided. `PhotoHeaderPdfRenderer.headerHeight`
+  /// reserves space in the content box and
+  /// `PhotoHeaderTemplate._decoration` paints the band itself; both read
+  /// this, so the painted band and the space reserved under it cannot
+  /// drift apart.
+  double bandHeight({
+    required bool hasPhoto,
+    required bool hasWorkAuthorization,
+  }) =>
+      (hasPhoto ? bandHeightPt : bandHeightNoPhotoPt) +
+      (hasWorkAuthorization ? workAuthorizationBandPt : 0);
 }
 
 /// The reference layout's own numbers. Changing one changes how closely
@@ -145,6 +175,8 @@ const photoHeaderStyle = PhotoHeaderStyle(
   contactLabelWidthPt: 75.3,
   contactLineHeightPt: 15,
   nameToContactPt: 35.4,
+  workAuthorizationGapPt: 6,
+  workAuthorizationBandPt: 34,
   afterRuleGapPt: 7.9,
   continuationTopPt: 27,
   markTopWidthPt: 13.6,

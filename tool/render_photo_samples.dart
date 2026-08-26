@@ -37,10 +37,31 @@ String _photo() {
   return base64Encode(img.encodeJpg(im, quality: 90));
 }
 
+/// The labels `photo_header` prints beside each contact detail. Two sets
+/// so a render can show they actually follow the document language — that
+/// block used to be hard-coded English on every CV.
+const _englishLabels = ResolvedContactLabels(
+  location: 'Location',
+  phone: 'Phone',
+  email: 'Email',
+  link: 'Link',
+);
+
+const _germanLabels = ResolvedContactLabels(
+  location: 'Ort',
+  phone: 'Telefon',
+  email: 'E-Mail',
+  link: 'Link',
+);
+
 ResolvedCv _cv({
   required bool withPhoto,
   String name = 'Jordan Ellery',
   int repeatExperience = 1,
+  String? workAuthorization =
+      'Right to work in the UK, no sponsorship '
+      'required',
+  ResolvedContactLabels labels = _englishLabels,
 }) => ResolvedCv(
   header: ResolvedHeader(
     fullName: name,
@@ -51,6 +72,8 @@ ResolvedCv _cv({
     links: const [
       ResolvedLink(label: 'LinkedIn', url: 'linkedin.com/in/jordanellery'),
     ],
+    workAuthorization: workAuthorization,
+    contactLabels: labels,
     photoJpegBase64: withPhoto ? _photo() : null,
   ),
   sections: [
@@ -63,6 +86,7 @@ ResolvedCv _cv({
     ),
     ResolvedSection.experience(
       title: 'Experience',
+      titleFormal: 'Professional Experience',
       groups: [
         for (var i = 0; i < repeatExperience; i++)
           ResolvedCompanyGroup(
@@ -189,6 +213,8 @@ void main() {
       contactLabelWidthPt: photoHeaderStyle.contactLabelWidthPt,
       contactLineHeightPt: photoHeaderStyle.contactLineHeightPt,
       nameToContactPt: photoHeaderStyle.nameToContactPt,
+      workAuthorizationGapPt: photoHeaderStyle.workAuthorizationGapPt,
+      workAuthorizationBandPt: photoHeaderStyle.workAuthorizationBandPt,
       afterRuleGapPt: photoHeaderStyle.afterRuleGapPt,
       continuationTopPt: photoHeaderStyle.continuationTopPt,
       markTopWidthPt: photoHeaderStyle.markTopWidthPt,
@@ -215,6 +241,26 @@ void main() {
     await write(
       'long_name',
       _cv(withPhoto: true, name: 'Alexandra Fitzwilliam-Beaumont'),
+    );
+    // The work-authorisation line is a whole sentence, so it is the one
+    // header value that can wrap. Long enough here to prove it wraps
+    // rather than clipping, and that the band still seats every row.
+    await write(
+      'long_work_authorization',
+      _cv(
+        withPhoto: true,
+        workAuthorization:
+            'Authorised to work in the United Kingdom and across the '
+            'European Union indefinitely; no visa sponsorship required '
+            'for either.',
+      ),
+    );
+    // Same CV with German labels: the contact block used to say
+    // "Location" whatever language the document was in.
+    await write('german_labels', _cv(withPhoto: true, labels: _germanLabels));
+    await write(
+      'no_work_authorization',
+      _cv(withPhoto: true, workAuthorization: null),
     );
 
     // Colourways, for picking by eye rather than by hex code.

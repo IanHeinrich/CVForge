@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:pdf/pdf.dart';
 
+import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_helpers.dart';
 import '../../../helpers/test_helpers.mocks.dart';
 
@@ -18,6 +19,7 @@ final _cv = ResolvedCv(
     email: 'jordan.ellery@example.com',
     phone: '+44 7700 900123',
     location: 'Manchester',
+    contactLabels: kEnglishContactLabels,
   ),
   sections: const [],
 );
