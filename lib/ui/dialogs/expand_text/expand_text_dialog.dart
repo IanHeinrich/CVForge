@@ -40,8 +40,12 @@ class ExpandTextDialog extends StackedView<ExpandTextDialogModel> {
     Widget? child,
   ) {
     return AppDialogScaffold(
+      // The field's own label when it has one, so the dialog says what is
+      // being edited. Falling back to the button's tooltip named the
+      // dialog's size instead of its subject, which is the one thing the
+      // user does not need reading back to them.
       title: _initial.label.isEmpty
-          ? context.l10n.commonExpandEditor
+          ? context.l10n.commonExpandEditorTitle
           : _initial.label,
       // Wider than the default confirmation width — the whole point is
       // the room, so a 420px dialog would defeat it.
@@ -59,6 +63,9 @@ class ExpandTextDialog extends StackedView<ExpandTextDialogModel> {
           minLines: 10,
           maxLines: 20,
           autofocus: true,
+          // This *is* the larger box. Without this the field inside it
+          // offers to open another one on top.
+          expandable: false,
         ),
       ],
     );

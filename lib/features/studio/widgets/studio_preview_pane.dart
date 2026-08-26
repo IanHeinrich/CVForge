@@ -124,7 +124,7 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
     );
     return AppEmptyState(
       icon: RemixIcons.error_warning_line,
-      title: "Couldn't render the preview",
+      title: context.l10n.studioPreviewErrorTitle,
       message: context.l10n.studioPreviewErrorBody,
     );
   }
@@ -234,22 +234,29 @@ class _StudioPreviewPaneState extends State<StudioPreviewPane> {
             ? printedWidth * 2 + previewTwoUpGutter
             : printedWidth;
 
-        return ColoredBox(
-          color: Theme.of(context).colorScheme.surfaceContainerLowest,
-          child: PdfPreviewCustom(
-            build: _buildPdf,
-            shouldRepaint: shouldRepaint,
-            maxPageWidth: maxPageWidth,
-            onError: _buildPreviewError,
-            pagesBuilder: (context, pages) {
-              _reportPageCount(pages.length);
-              return _PreviewPages(
-                pages: pages,
-                twoUp: twoUp,
-                pageWidth: printedWidth,
-              );
-            },
+        return PdfPreviewCustom(
+          build: _buildPdf,
+          shouldRepaint: shouldRepaint,
+          maxPageWidth: maxPageWidth,
+          onError: _buildPreviewError,
+          // Not decoration on a ColoredBox around this: `PdfPreviewCustom`
+          // paints its own background over the full pane, and its default
+          // is a hard-coded light-grey gradient. Left unset, the pane
+          // ignored the theme entirely — and a failed render then drew
+          // this app's light-on-dark empty state onto that light grey, so
+          // in dark mode the error read as a blank grey panel with no
+          // explanation on it at all.
+          scrollViewDecoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerLowest,
           ),
+          pagesBuilder: (context, pages) {
+            _reportPageCount(pages.length);
+            return _PreviewPages(
+              pages: pages,
+              twoUp: twoUp,
+              pageWidth: printedWidth,
+            );
+          },
         );
       },
     );

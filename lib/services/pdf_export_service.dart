@@ -79,36 +79,37 @@ class PdfExportService {
     } catch (e) {
       throw PdfExportException(PdfExportStage.fonts, e);
     }
+    // Must await inside the try, not return the Future — `save()` is
+    // itself async, and an unawaited return would let a failure inside it
+    // propagate past these catches instead of being retried and tagged.
+    Future<Uint8List> attempt({required bool preventOrphansAndSplits}) async =>
+        template
+            .buildDocument(
+              cv,
+              format,
+              fonts,
+              compress: compress,
+              preventOrphansAndSplits: preventOrphansAndSplits,
+            )
+            .save();
+
     try {
-      final document = template.buildDocument(
-        cv,
-        format,
-        fonts,
-        compress: compress,
-      );
-      // Must await here, not just return the Future — `document.save()`
-      // is itself async, and an unawaited return would let a failure
-      // inside it propagate past this catch instead of getting tagged
-      // with PdfExportStage.render.
       try {
-        return await document.save();
+        return await attempt(preventOrphansAndSplits: true);
       } on PdfException {
-        // A pagination-guard block — a heading glued to its first bullet,
-        // or (rare, and not actually rescued by the retry below — see
-        // assembleSectionWidgets' doc comment) one single bullet whose own
-        // text is too long — was taller than a single page. Retry once
-        // without the guard rather than failing the export outright: for
-        // everything short of that single-bullet case, the CV still
-        // renders correctly, just without orphan/split protection for
-        // this one oversized block.
-        final fallback = template.buildDocument(
-          cv,
-          format,
-          fonts,
-          compress: compress,
-          preventOrphansAndSplits: false,
-        );
-        return await fallback.save();
+        // A pagination-guard block — a heading glued to its first entry,
+        // or one single bullet — was taller than a page. Retry once
+        // without the guard: unguarded, the prose inside an oversized
+        // block is free to split across the page break (see
+        // `markupText`), so this rescues the whole class of
+        // one-field-too-long failures rather than only the glued-heading
+        // case. The cost is that this one block loses orphan protection.
+        //
+        // The retry has to wrap `buildDocument` and not just `save()`:
+        // `pw.MultiPage` lays every page out inside `Document.addPage`,
+        // so an unfittable widget throws while the document is being
+        // built, long before anything is serialised.
+        return await attempt(preventOrphansAndSplits: false);
       }
     } catch (e) {
       throw PdfExportException(PdfExportStage.render, e);

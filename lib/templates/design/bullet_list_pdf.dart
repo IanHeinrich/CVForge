@@ -58,11 +58,19 @@ pw.Widget buildBulletGlyph(CvDesignTokens tokens, CvFontSet fonts) {
 /// `center`: for a bullet that wraps to multiple lines, the glyph should
 /// sit against the FIRST line, not centered against the whole
 /// multi-line block.
+///
+/// [preventOrphansAndSplits] false swaps that Row for [_spanningBulletRow]
+/// — see there for why one bullet cannot both hang its own indent and
+/// break across a page.
 pw.Widget buildBulletRow(
   ResolvedBullet bullet,
   CvDesignTokens tokens,
-  CvFontSet fonts,
-) {
+  CvFontSet fonts, {
+  bool preventOrphansAndSplits = true,
+}) {
+  if (!preventOrphansAndSplits) {
+    return _spanningBulletRow(bullet, tokens, fonts);
+  }
   return pw.Padding(
     padding: pw.EdgeInsets.only(
       left: tokens.bulletIndent,
@@ -78,3 +86,41 @@ pw.Widget buildBulletRow(
     ),
   );
 }
+
+/// The same bullet as one `pw.RichText`, for the retry that runs after a
+/// bullet turned out to be taller than a whole page.
+///
+/// A `pw.Row` is not a `SpanningWidget`, and no amount of making its
+/// children spannable changes that — `pw.MultiPage` asks the top-level
+/// widget itself, so a bullet laid out as glyph-beside-text simply cannot
+/// break across a page and throws instead. Folding the glyph into the
+/// text as a leading span is what makes the bullet a single spannable
+/// widget.
+///
+/// The trade is the hanging indent: continuation lines return to the left
+/// margin rather than aligning under the first line's text. That is the
+/// deliberate cost of `PdfExportService.render`'s unguarded retry, which
+/// exists to get an oversized field onto the page at all — the alternative
+/// on this path is no document. The glyph is drawn at the body size rather
+/// than [CvDesignTokens.bulletGlyph]'s, because a single RichText shares
+/// one baseline across its spans (the reason [buildBulletRow] uses a Row
+/// in the first place).
+pw.Widget _spanningBulletRow(
+  ResolvedBullet bullet,
+  CvDesignTokens tokens,
+  CvFontSet fonts,
+) => pw.Padding(
+  padding: pw.EdgeInsets.only(
+    left: tokens.bulletIndent,
+    bottom: tokens.bulletGap,
+  ),
+  child: pw.RichText(
+    overflow: pw.TextOverflow.span,
+    text: pw.TextSpan(
+      children: [
+        literalSpan('\u2022  ', tokens.bullet, fonts),
+        ...markupSpans(bullet.text, tokens.bullet, fonts),
+      ],
+    ),
+  ),
+);

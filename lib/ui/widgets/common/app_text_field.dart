@@ -33,6 +33,7 @@ class AppTextField extends StatefulWidget {
     this.autofocus = false,
     this.errorText,
     this.markup = false,
+    this.expandable = true,
   });
 
   final String initialValue;
@@ -62,6 +63,11 @@ class AppTextField extends StatefulWidget {
   /// gets neither because it is never printed at all.
   final bool markup;
 
+  /// Whether a multi-line field offers to reopen itself in
+  /// [ExpandTextDialog]. False for the field already inside that dialog,
+  /// which has nowhere roomier to go.
+  final bool expandable;
+
   @override
   State<AppTextField> createState() => _AppTextFieldState();
 }
@@ -82,6 +88,17 @@ class _AppTextFieldState extends State<AppTextField> {
   /// alone would still push a write through the ViewModel to storage.
   late String _lastSent = widget.initialValue;
 
+  /// The last selection this field actually had.
+  ///
+  /// Pressing a formatting button costs the field its focus (the browser
+  /// blurs the engine's editing element the moment the pointer goes down
+  /// somewhere else), and `EditableText` clears the selection on losing
+  /// focus. Without a copy kept here, every toolbar press would arrive at
+  /// [wrapSelectionInMarker] with an invalid selection and do nothing at
+  /// all — the button would look dead. The keyboard shortcuts never lose
+  /// focus, so for them this is always already current.
+  TextSelection? _lastSelection;
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +111,12 @@ class _AppTextFieldState extends State<AppTextField> {
           )
         : TextEditingController(text: widget.initialValue);
     _focusNode.addListener(_handleFocusChange);
+    _controller.addListener(_rememberSelection);
+  }
+
+  void _rememberSelection() {
+    final selection = _controller.selection;
+    if (selection.isValid) _lastSelection = selection;
   }
 
   @override
@@ -116,10 +139,20 @@ class _AppTextFieldState extends State<AppTextField> {
 
   /// Applies a marker and pushes the result through the same debounce a
   /// keystroke takes, so formatting and typing commit identically.
+  ///
+  /// Restores [_lastSelection] first and takes focus back afterwards, so
+  /// a toolbar press acts on the words that were selected when it was
+  /// pressed and leaves the caret — and the toolbar itself — where they
+  /// were. See [_lastSelection] for what destroys them in between.
   void _wrap(String marker) {
+    final remembered = _lastSelection;
+    if (!_controller.selection.isValid && remembered != null) {
+      _controller.selection = remembered;
+    }
     if (wrapSelectionInMarker(_controller, marker)) {
       _handleChanged(_controller.text);
     }
+    _focusNode.requestFocus();
   }
 
   /// Reopens this field in a roomier dialog and takes back whatever it
@@ -173,6 +206,7 @@ class _AppTextFieldState extends State<AppTextField> {
     _flush();
     _focusNode.removeListener(_handleFocusChange);
     _focusNode.dispose();
+    _controller.removeListener(_rememberSelection);
     _controller.dispose();
     super.dispose();
   }
@@ -208,6 +242,7 @@ class _AppTextFieldState extends State<AppTextField> {
     // Prose only. A budget under a one-line role or skill label would be
     // chrome for a limit nothing there could plausibly reach.
     final isProse = widget.maxLines > 1;
+    final canExpand = isProse && widget.expandable;
     final budget = isProse
         ? ValueListenableBuilder<TextEditingValue>(
             valueListenable: _controller,
@@ -215,7 +250,15 @@ class _AppTextFieldState extends State<AppTextField> {
           )
         : const SizedBox.shrink();
 
-    return CallbackShortcuts(
+    // Wraps the field alone, not the whole column. `CallbackShortcuts` is
+    // a `Focus`, and a `Focus` publishes a semantics node — around the
+    // column, that node spanned the toolbar too, and with a screen reader
+    // running the engine sizes the field's own DOM input element to it.
+    // The input then sat invisibly over the toolbar and swallowed every
+    // press, so all three buttons were dead for anyone with assistive
+    // tech on. Key events still reach this from the field below it, which
+    // is the only thing the bindings ever needed.
+    final shortcutField = CallbackShortcuts(
       bindings: {
         // Both platforms' habits, since this ships as a web app: Cmd on
         // macOS, Ctrl elsewhere.
@@ -228,25 +271,38 @@ class _AppTextFieldState extends State<AppTextField> {
         const SingleActivator(LogicalKeyboardKey.keyI, control: true): () =>
             _wrap(italicMarker),
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Reserved at rest rather than absent, so revealing the row
-          // cannot shove the field out from under the cursor that just
-          // clicked into it.
-          SizedBox(
-            height: context.appSpacing.gapMedium,
-            child: _focused
-                ? MarkupToolbar(
-                    controller: _controller,
-                    onExpand: isProse ? _expand : null,
-                  )
-                : const SizedBox.shrink(),
+      child: field,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Reserved at rest rather than absent, so revealing the row cannot
+        // shove the field out from under the cursor that just clicked into
+        // it.
+        //
+        // Hidden rather than swapped out, because pressing one of these
+        // buttons is what loses the field its focus: a row that unmounts
+        // itself on blur is a row that can unmount the very button being
+        // pressed, part-way through the press. `maintainSize` also keeps
+        // the reserved height in one place rather than restating it.
+        SizedBox(
+          height: context.appSpacing.gapMedium,
+          child: Visibility(
+            visible: _focused,
+            maintainState: true,
+            maintainAnimation: true,
+            maintainSize: true,
+            child: MarkupToolbar(
+              onBold: () => _wrap(boldMarker),
+              onItalic: () => _wrap(italicMarker),
+              onExpand: canExpand ? _expand : null,
+            ),
           ),
-          field,
-          budget,
-        ],
-      ),
+        ),
+        shortcutField,
+        budget,
+      ],
     );
   }
 }

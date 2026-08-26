@@ -88,6 +88,17 @@ List<pw.InlineSpan> markupJoin(
 /// change provably byte-neutral for a CV that carries no emphasis — the
 /// golden baselines included. `\*` is the only escape, so "contains no
 /// asterisk" is precisely "parsing would be a no-op".
+///
+/// [pw.TextOverflow.span] is what a field longer than a whole page turns
+/// on: it is the only value for which `pw.RichText.canSpan` is true, and
+/// `pw.MultiPage` throws `PdfException` rather than paginating a
+/// top-level widget that is taller than a page and cannot span. Nothing
+/// about a field that fits changes, and nor does anything in the default
+/// render: `assembleSectionWidgets` wraps every item in a
+/// `pw.Inseparable`, whose own `canSpan` is false, so this only takes
+/// effect in `PdfExportService.render`'s unguarded retry — which is
+/// exactly the path that exists to get an oversized field onto the page
+/// at all.
 pw.Widget markupText(
   String text,
   CvTypeToken base,
@@ -95,11 +106,17 @@ pw.Widget markupText(
   pw.TextAlign? textAlign,
 }) {
   if (!text.contains('*')) {
-    return pw.Text(text, textAlign: textAlign, style: base.toPdfStyle(fonts));
+    return pw.Text(
+      text,
+      textAlign: textAlign,
+      style: base.toPdfStyle(fonts),
+      overflow: pw.TextOverflow.span,
+    );
   }
   return pw.RichText(
     text: pw.TextSpan(children: markupSpans(text, base, fonts)),
     textAlign: textAlign,
+    overflow: pw.TextOverflow.span,
   );
 }
 
