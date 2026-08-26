@@ -83,7 +83,11 @@ class EducationEditorPanel extends StatelessWidget {
           onChanged: (v) =>
               onChanged(education.copyWith(grade: v.orNullIfEmpty)),
         ),
-        const VGap.small(),
+        // A wider gap than the fields above share: everything before this
+        // is a fact with one right answer, and this is prose. No heading,
+        // because a heading over a single field reads as a section that
+        // lost its contents — the gap is the whole signal needed.
+        const VGap.medium(),
         AppTextField(
           label: context.l10n.vaultEducationDetails,
           initialValue: education.details ?? '',

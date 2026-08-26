@@ -331,6 +331,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonDone => 'Done';
 
   @override
+  String get commonExpandEditor => 'Edit in a larger box';
+
+  @override
   String get commonFormatBold => 'Bold';
 
   @override
@@ -2175,6 +2178,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultBasicsFullName => 'Full name';
+
+  @override
+  String get vaultBasicsGroupContact => 'How to reach you';
+
+  @override
+  String get vaultBasicsGroupIdentity => 'Who you are';
+
+  @override
+  String get vaultBasicsGroupWriting => 'What you say';
 
   @override
   String get vaultBasicsHeadline => 'Headline';

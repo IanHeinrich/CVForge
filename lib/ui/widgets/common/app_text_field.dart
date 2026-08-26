@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:stacked_services/stacked_services.dart';
+import 'package:cv_forge/ui/dialogs/expand_text/expand_text_dialog_data.dart';
+import 'package:cv_forge/app/app.locator.dart';
+import 'package:cv_forge/app/app.dialogs.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
 import 'package:cv_forge/ui/common/l10n_extensions.dart';
 import 'package:cv_forge/models/render/cv_markup.dart';
@@ -118,6 +122,31 @@ class _AppTextFieldState extends State<AppTextField> {
     }
   }
 
+  /// Reopens this field in a roomier dialog and takes back whatever it
+  /// returns.
+  ///
+  /// Flushes first so the dialog opens on the current text rather than on
+  /// whatever the last debounce happened to have sent, and commits the
+  /// result immediately rather than debouncing it — the user already
+  /// confirmed it once by pressing Save.
+  Future<void> _expand() async {
+    _flush();
+    final response = await locator<DialogService>()
+        .showCustomDialog<String, ExpandTextDialogData>(
+          variant: DialogType.expandText,
+          data: (
+            label: widget.label ?? '',
+            text: _controller.text,
+            markup: widget.markup,
+          ),
+        );
+    if (response?.confirmed != true) return;
+    final edited = response!.data;
+    if (edited == null || edited == _controller.text) return;
+    _controller.text = edited;
+    _send(edited);
+  }
+
   void _handleChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () => _send(value));
@@ -178,7 +207,8 @@ class _AppTextFieldState extends State<AppTextField> {
 
     // Prose only. A budget under a one-line role or skill label would be
     // chrome for a limit nothing there could plausibly reach.
-    final budget = widget.maxLines > 1
+    final isProse = widget.maxLines > 1;
+    final budget = isProse
         ? ValueListenableBuilder<TextEditingValue>(
             valueListenable: _controller,
             builder: (context, value, _) => _LengthBudget(text: value.text),
@@ -207,7 +237,10 @@ class _AppTextFieldState extends State<AppTextField> {
           SizedBox(
             height: context.appSpacing.gapMedium,
             child: _focused
-                ? MarkupToolbar(controller: _controller)
+                ? MarkupToolbar(
+                    controller: _controller,
+                    onExpand: isProse ? _expand : null,
+                  )
                 : const SizedBox.shrink(),
           ),
           field,

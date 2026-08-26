@@ -411,6 +411,10 @@
   "@commonDone": {
     "description": "Button that closes an inline editor and keeps what was typed."
   },
+  "commonExpandEditor": "Edit in a larger box",
+  "@commonExpandEditor": {
+    "description": "Tooltip on the button that reopens a long CV text field in a roomier dialog, and the fallback dialog title when the field has no label of its own. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot."
+  },
   "commonFormatBold": "Bold",
   "@commonFormatBold": {
     "description": "Tooltip on the bold button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as bold."
@@ -2739,6 +2743,18 @@
   "vaultBasicsFullName": "Full name",
   "@vaultBasicsFullName": {
     "description": "Vault basics form field label."
+  },
+  "vaultBasicsGroupContact": "How to reach you",
+  "@vaultBasicsGroupContact": {
+    "description": "Heading over the email, phone and location fields in the Vault's About you panel. Groups the lookup values, as against the writing below them."
+  },
+  "vaultBasicsGroupIdentity": "Who you are",
+  "@vaultBasicsGroupIdentity": {
+    "description": "Heading over the photo, name and headline fields at the top of the Vault's About you panel."
+  },
+  "vaultBasicsGroupWriting": "What you say",
+  "@vaultBasicsGroupWriting": {
+    "description": "Heading over the summary and work-authorisation fields in the Vault's About you panel. These are prose the reader judges, unlike the lookup values above."
   },
   "vaultBasicsHeadline": "Headline",
   "@vaultBasicsHeadline": {

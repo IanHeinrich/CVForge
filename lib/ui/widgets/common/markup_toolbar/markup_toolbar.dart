@@ -18,9 +18,13 @@ import 'package:remixicon/remixicon.dart';
 /// dense Vault panel is noise; revealed on focus, at most one is on
 /// screen at a time and it costs nothing at rest.
 class MarkupToolbar extends StatelessWidget {
-  const MarkupToolbar({super.key, required this.controller});
+  const MarkupToolbar({super.key, required this.controller, this.onExpand});
 
   final TextEditingController controller;
+
+  /// Opens this field in a roomier editor. Null for a single-line field,
+  /// which has nothing to gain from more room.
+  final VoidCallback? onExpand;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +42,14 @@ class MarkupToolbar extends StatelessWidget {
           tooltip: context.l10n.commonFormatItalic,
           onPressed: () => wrapSelectionInMarker(controller, italicMarker),
         ),
+        if (onExpand case final expand?) ...[
+          const HGap.tiny(),
+          _MarkupButton(
+            icon: RemixIcons.expand_diagonal_line,
+            tooltip: context.l10n.commonExpandEditor,
+            onPressed: expand,
+          ),
+        ],
       ],
     );
   }

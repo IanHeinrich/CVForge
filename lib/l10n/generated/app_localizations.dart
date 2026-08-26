@@ -512,6 +512,12 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get commonDone;
 
+  /// Tooltip on the button that reopens a long CV text field in a roomier dialog, and the fallback dialog title when the field has no label of its own. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit in a larger box'**
+  String get commonExpandEditor;
+
   /// Tooltip on the bold button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as bold.
   ///
   /// In en, this message translates to:
@@ -3271,6 +3277,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Full name'**
   String get vaultBasicsFullName;
+
+  /// Heading over the email, phone and location fields in the Vault's About you panel. Groups the lookup values, as against the writing below them.
+  ///
+  /// In en, this message translates to:
+  /// **'How to reach you'**
+  String get vaultBasicsGroupContact;
+
+  /// Heading over the photo, name and headline fields at the top of the Vault's About you panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Who you are'**
+  String get vaultBasicsGroupIdentity;
+
+  /// Heading over the summary and work-authorisation fields in the Vault's About you panel. These are prose the reader judges, unlike the lookup values above.
+  ///
+  /// In en, this message translates to:
+  /// **'What you say'**
+  String get vaultBasicsGroupWriting;
 
   /// Vault basics form field label. A short professional title line shown under the name on a CV.
   ///

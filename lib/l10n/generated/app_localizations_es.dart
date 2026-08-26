@@ -338,6 +338,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonDone => 'Listo';
 
   @override
+  String get commonExpandEditor => 'Editar en un cuadro más grande';
+
+  @override
   String get commonFormatBold => 'Negrita';
 
   @override
@@ -2198,6 +2201,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultBasicsFullName => 'Nombre completo';
+
+  @override
+  String get vaultBasicsGroupContact => 'Cómo contactarte';
+
+  @override
+  String get vaultBasicsGroupIdentity => 'Quién eres';
+
+  @override
+  String get vaultBasicsGroupWriting => 'Lo que dices';
 
   @override
   String get vaultBasicsHeadline => 'Titular';
