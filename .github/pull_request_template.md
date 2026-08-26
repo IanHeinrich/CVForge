@@ -10,7 +10,8 @@ it is, the faster it lands.
 ## How it was verified
 
 <!--
-Tick what you ran. CI runs format, analyze and test on Linux against every PR.
+Tick what you ran. CI re-runs all of this on Linux against every PR, as three
+parallel jobs: Format & analyze, Test, and Golden.
 -->
 
 - [ ] `dart format --output=none --set-exit-if-changed .`
