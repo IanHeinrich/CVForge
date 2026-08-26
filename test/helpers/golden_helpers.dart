@@ -17,8 +17,8 @@ const goldenSurfaceSize = Size(1600, 1000);
 /// pixel ratio — lands on every baseline at once instead of drifting
 /// between files. Baselines are generated on `ubuntu-latest` (see
 /// `.github/workflows/update-goldens.yml`) and compared there again on
-/// every PR by `ci.yml`'s plain `flutter test`; font rasterization differs
-/// by platform, so these fail with a small pixel diff on a non-Linux dev
+/// every PR by `ci.yml`'s `Golden` job; font rasterization differs by
+/// platform, so these fail with a small pixel diff on a non-Linux dev
 /// machine even with no changes at all.
 Future<void> pumpGoldenScreen(WidgetTester tester, Widget view) async {
   await loadAppFonts();

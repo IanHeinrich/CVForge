@@ -8,23 +8,52 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Analyze & test
+  analyze:
+    name: Format & analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-flutter
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.47.0"
-          channel: stable
-          cache: true
-
-      - run: flutter pub get
-
+      # Must run after `flutter pub get`: pubspec sets `generate: true`, so
+      # pub get regenerates lib/l10n/generated/, which is committed and
+      # therefore format-checked like any other source.
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - run: flutter analyze
 
-      - run: flutter test
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-flutter
+
+      - run: flutter test --exclude-tags=golden
+
+  golden:
+    name: Golden
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-flutter
+
+      - run: flutter test --tags=golden
+
+      # Baselines are compared byte-for-byte, so a red golden job is only
+      # actionable if you can see what moved. These diffs are gitignored, so
+      # without this step they exist solely on a runner that is about to be
+      # destroyed.
+      - name: Upload golden diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: test/**/failures/**
+          if-no-files-found: ignore
+          # Pixel diffs have no value once the PR merges; repo default is 90.
+          retention-days: 7

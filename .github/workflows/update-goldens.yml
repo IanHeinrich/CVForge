@@ -1,30 +1,82 @@
 name: Update goldens
 
-# Manual only. Golden baselines are OS-dependent (font rasterization
-# differs between Windows and Linux), so a locally-generated baseline
-# reliably fails on CI (ubuntu-latest). Generate/update them here instead,
-# on the same OS the CI test job actually runs on, then commit the
-# resulting PNGs from the downloaded artifact.
+# Manual. Golden baselines are OS-dependent (font rasterization differs
+# between Windows and Linux), so a locally-generated baseline reliably fails
+# on CI. Regenerate them here instead, on the same OS and with the same
+# command ci.yml's golden job uses, and commit them straight back to the
+# branch you dispatched against.
 on:
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+# A second dispatch while the first is still running would race on the push.
+# Queue rather than cancel: cancelling could kill a run mid-push, and a
+# half-written baseline set is worse than a slow one.
+concurrency:
+  group: update-goldens-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.47.0"
-          channel: stable
-          cache: true
+          # Land on a real branch rather than a detached HEAD, so the push
+          # below has somewhere to go.
+          ref: ${{ github.ref_name }}
 
-      - run: flutter pub get
+      - uses: ./.github/actions/setup-flutter
 
-      - run: flutter test --update-goldens
+      # Deliberately the same selector as ci.yml's golden job, so the two
+      # cannot drift into producing different baselines. Only test/golden/
+      # has baselines, so this is the whole job the old bare `flutter test
+      # --update-goldens` was doing, minus 45 files of nothing.
+      - run: flutter test --tags=golden --update-goldens
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: goldens
-          path: test/**/goldens
+      - name: Commit regenerated baselines
+        env:
+          # Through the environment rather than interpolated into the script
+          # body, so a branch name can never be read as shell syntax.
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Scoped to the baselines: the run also leaves .dart_tool/ and
+          # test/golden/failures/ behind. Staging before testing is what makes
+          # a brand-new baseline count — an untracked file is invisible to a
+          # plain `git diff`.
+          git add -- test/golden/goldens
+
+          if git diff --cached --quiet -- test/golden/goldens; then
+            echo "Baselines already up to date — nothing to commit." \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git commit -m "Update golden baselines"
+          git push origin "HEAD:refs/heads/$BRANCH"
+
+          {
+            echo "### Golden baselines updated on \`$BRANCH\`"
+            echo
+            echo '```'
+            git show --stat --format= HEAD -- test/golden/goldens
+            echo '```'
+            echo
+            echo "> Pushed with the default \`GITHUB_TOKEN\`, which **does not"
+            echo "> re-trigger \`pull_request\` workflows**. If this branch has an"
+            echo "> open PR, **close and reopen it** to run CI against the new"
+            echo "> baselines. Re-running the existing CI run will not work — it"
+            echo "> replays the old commit."
+            echo
+            echo "> \`--update-goldens\` rewrites baselines without comparing, so"
+            echo "> it accepts a rendering regression as readily as a real change."
+            echo "> Review the PNG diff on the PR before merging."
+          } >> "$GITHUB_STEP_SUMMARY"
