@@ -240,6 +240,12 @@ CvVault? _mergeVaults(CvVault? base, CvVault? local, CvVault? remote) {
 /// differ from the ancestor, so it would fall through to the timestamp
 /// tie-break and take one side entire. Same shape as [_mergeBasics], for
 /// the same reason.
+///
+/// Every field, and it has to stay that way: this returns
+/// `local.copyWith(...)`, so a field left out here is not merged
+/// conservatively, it silently keeps the local value and discards the
+/// remote one. [DocumentDefaults.hideHeadline] was missed when it was
+/// added and did exactly that.
 DocumentDefaults _mergeDocumentDefaults(
   DocumentDefaults base,
   DocumentDefaults local,
@@ -264,6 +270,18 @@ DocumentDefaults _mergeDocumentDefaults(
     base.hiddenSections,
     local.hiddenSections,
     remote.hiddenSections,
+    preferRemote,
+  ),
+  hideHeadline: _pick(
+    base.hideHeadline,
+    local.hideHeadline,
+    remote.hideHeadline,
+    preferRemote,
+  ),
+  hideWorkAuthorization: _pick(
+    base.hideWorkAuthorization,
+    local.hideWorkAuthorization,
+    remote.hideWorkAuthorization,
     preferRemote,
   ),
 );

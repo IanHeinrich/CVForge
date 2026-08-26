@@ -37,6 +37,7 @@ CvVault buildExampleVault() => CvVault(
     email: 'morgan.vance@example.com',
     phone: '+44 7700 900198',
     location: 'London',
+    workAuthorization: 'Right to work in the UK, no sponsorship required',
     summary:
         'Results-driven Senior Software Engineer with a strong track '
         'record of architecting secure, high-performance FinTech '

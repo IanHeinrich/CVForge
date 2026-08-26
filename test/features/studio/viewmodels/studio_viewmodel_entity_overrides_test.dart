@@ -6,6 +6,7 @@ import 'package:cv_forge/models/document/document_language.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
+import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/project.dart';
@@ -150,6 +151,145 @@ void main() {
       expect(
         StudioViewModel().resolvedCv.header.workAuthorization,
         'Arbeitserlaubnis für das UK',
+      );
+    });
+
+    test('hiding work authorisation drops it from the header while the '
+        'override survives, so unhiding restores the edit', () {
+      const basics = ContactBasics(
+        fullName: 'Morgan Vance',
+        headline: '',
+        email: '',
+        phone: '',
+        location: '',
+        workAuthorization: 'Right to work in the UK',
+      );
+      when(vaultService.vault).thenReturn(vaultWith(basics: basics));
+
+      when(draftService.draft).thenReturn(
+        draftWith(
+          workAuthorizationOverride: 'Arbeitserlaubnis für das UK',
+          hideWorkAuthorization: true,
+        ),
+      );
+      expect(
+        StudioViewModel().resolvedCv.header.workAuthorization,
+        isNull,
+        reason: 'a hidden line must not reach the document',
+      );
+
+      when(draftService.draft).thenReturn(
+        draftWith(workAuthorizationOverride: 'Arbeitserlaubnis für das UK'),
+      );
+      expect(
+        StudioViewModel().resolvedCv.header.workAuthorization,
+        'Arbeitserlaubnis für das UK',
+      );
+    });
+
+    test('the editor pane shows a section or one header field, never two '
+        'at once', () {
+      const basics = ContactBasics(
+        fullName: 'Morgan Vance',
+        headline: 'Senior Engineer',
+        email: '',
+        phone: '',
+        location: '',
+        workAuthorization: 'Right to work in the UK',
+      );
+      when(vaultService.vault).thenReturn(vaultWith(basics: basics));
+      when(draftService.draft).thenReturn(draftWith());
+
+      final model = StudioViewModel()..selectHeadline();
+      expect(model.isHeadlineOpen, isTrue);
+      expect(model.isWorkAuthorizationOpen, isFalse);
+      expect(model.openSection, isNull);
+
+      model.selectWorkAuthorization();
+      expect(model.isWorkAuthorizationOpen, isTrue);
+      expect(
+        model.isHeadlineOpen,
+        isFalse,
+        reason: 'selecting one header field must close the other',
+      );
+      expect(model.openSection, isNull);
+
+      model.selectSection(CvSectionType.skills);
+      expect(model.openSection, CvSectionType.skills);
+      expect(model.isWorkAuthorizationOpen, isFalse);
+      expect(model.isHeadlineOpen, isFalse);
+    });
+
+    test('the contact labels and both experience headings follow the '
+        'document language, never the UI locale', () {
+      when(vaultService.vault).thenReturn(
+        vaultWith(
+          experiences: [
+            Experience(
+              id: 'e1',
+              role: 'Entwicklerin',
+              company: 'Acme',
+              location: 'Berlin',
+              start: const YearMonth(year: 2020, month: 1),
+              bullets: const [CvBullet(id: 'b1', text: 'Etwas geliefert.')],
+            ),
+          ],
+        ),
+      );
+      when(draftService.draft).thenReturn(
+        draftWith(
+          documentLanguage: DocumentLanguage.de,
+          experienceIds: const ['e1'],
+          bulletIds: const {
+            'e1': ['b1'],
+          },
+        ),
+      );
+
+      final cv = StudioViewModel().resolvedCv;
+
+      // photo_header labels these rows; they used to be English literals
+      // in the renderer, so a German CV printed "Location".
+      expect(cv.header.contactLabels.location, 'Ort');
+      expect(cv.header.contactLabels.phone, 'Telefon');
+      expect(cv.header.contactLabels.email, 'E-Mail');
+
+      final experience = cv.sections
+          .whereType<ResolvedExperienceSection>()
+          .single;
+      expect(experience.title, 'Berufserfahrung');
+      // classic_centered prints this one, and hard-coded it in English.
+      expect(experience.titleFormal, 'Beruflicher Werdegang');
+    });
+
+    test('the work-authorisation nav row appears only when there is a line '
+        'behind it', () {
+      const withLine = ContactBasics(
+        fullName: 'Morgan Vance',
+        headline: '',
+        email: '',
+        phone: '',
+        location: '',
+        workAuthorization: 'Right to work in the UK',
+      );
+      const blank = ContactBasics(
+        fullName: 'Morgan Vance',
+        headline: '',
+        email: '',
+        phone: '',
+        location: '',
+        workAuthorization: '   ',
+      );
+      when(draftService.draft).thenReturn(draftWith());
+
+      when(vaultService.vault).thenReturn(vaultWith(basics: withLine));
+      expect(StudioViewModel().hasWorkAuthorization, isTrue);
+
+      when(vaultService.vault).thenReturn(vaultWith(basics: blank));
+      expect(
+        StudioViewModel().hasWorkAuthorization,
+        isFalse,
+        reason: 'whitespace is not a line',
       );
     });
 

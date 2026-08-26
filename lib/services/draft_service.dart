@@ -109,6 +109,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
       sectionOrder: _seedSectionOrder(templateId, defaults),
       hiddenSections: _seedHiddenSections(defaults),
       hideHeadline: defaults.hideHeadline,
+      hideWorkAuthorization: defaults.hideWorkAuthorization,
     );
   }
 
@@ -296,6 +297,7 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
           sectionOrder: _seedSectionOrder(resolvedTemplateId, defaults),
           hiddenSections: _seedHiddenSections(defaults),
           hideHeadline: defaults.hideHeadline,
+          hideWorkAuthorization: defaults.hideWorkAuthorization,
         );
     _drafts.value = _sortedByRecency([..._drafts.value, created]);
     _activeDraftId.value = id;
@@ -1011,6 +1013,16 @@ class DraftService with ListenableServiceMixin, PersistedStoreMixin<CvDraft> {
   Future<void> setHeadlineHidden(bool hidden) async {
     await ready();
     _setDraft((d) => d.copyWith(hideHeadline: hidden));
+  }
+
+  Future<void> setWorkAuthorizationOverride(String? workAuthorization) async {
+    await ready();
+    _setDraft((d) => d.copyWith(workAuthorizationOverride: workAuthorization));
+  }
+
+  Future<void> setWorkAuthorizationHidden(bool hidden) async {
+    await ready();
+    _setDraft((d) => d.copyWith(hideWorkAuthorization: hidden));
   }
 
   /// Applies [update] to the active draft, stamps it, and schedules a

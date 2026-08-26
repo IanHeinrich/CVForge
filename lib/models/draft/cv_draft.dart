@@ -180,6 +180,16 @@ abstract class CvDraft with _$CvDraft {
     /// carry the translated sentence — the value is prose, not a code.
     String? workAuthorizationOverride,
 
+    /// Drops the work-authorization line from this draft, on exactly the
+    /// terms [hideHeadline] drops the headline — see that field for why
+    /// neither is a [CvSectionType], and why the override survives being
+    /// hidden.
+    ///
+    /// Worth having separately from simply clearing the Vault field: the
+    /// line matters on a minority of applications, so the useful state is
+    /// "kept in the Vault, printed only when it is relevant".
+    @Default(false) bool hideWorkAuthorization,
+
     /// educationId -> rewritten `Education.details` text. Same
     /// null-means-inherit rationale as [bulletOverrides], one entity type
     /// over.

@@ -68,6 +68,11 @@ class DocumentStrings {
     required this.nativeLanguage,
     required this.references,
     required this.publications,
+    required this.experienceFormal,
+    required this.contactLocation,
+    required this.contactPhone,
+    required this.contactEmail,
+    required this.contactLink,
     required this.present,
     required this.months,
   });
@@ -105,6 +110,25 @@ class DocumentStrings {
 
   final String references;
   final String publications;
+
+  /// The longer, more formal name for [experience] — "Professional
+  /// Experience" against "Experience". Only `classic_centered` prints it,
+  /// which is why it is a second field rather than a replacement: the
+  /// other two templates deliberately keep the shorter heading.
+  final String experienceFormal;
+
+  /// The labels on `photo_header`'s stacked contact block, the one
+  /// template that labels its contact details rather than running them
+  /// together. Here rather than hard-coded in the renderer because they
+  /// print on the document, so they follow the document language — a
+  /// German CV saying "Location" was a real defect.
+  ///
+  /// [contactLink] is only a fallback, used when a profile link carries no
+  /// label of its own; a link the user named prints that name.
+  final String contactLocation;
+  final String contactPhone;
+  final String contactEmail;
+  final String contactLink;
 
   /// The end of an ongoing role, as in "Mar 2020 - Present". Capitalized
   /// in every language: ATS parsers regex for this marker to decide a role

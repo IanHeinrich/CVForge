@@ -56,6 +56,15 @@ abstract class DocumentDefaults with _$DocumentDefaults {
     /// also what stored JSON written before this field existed decodes
     /// to, which is the pre-existing behaviour — so no migration.
     @Default(false) bool hideHeadline,
+
+    /// Whether a new draft starts with the work-authorization line
+    /// dropped. Mirrors `CvDraft.hideWorkAuthorization` on the same terms
+    /// [hideHeadline] mirrors its own draft field.
+    ///
+    /// The default that earns its keep: the line is relevant to a minority
+    /// of applications, so someone who keeps a sentence in the Vault
+    /// mostly wants it off and turned on deliberately.
+    @Default(false) bool hideWorkAuthorization,
   }) = _DocumentDefaults;
 
   factory DocumentDefaults.fromJson(Map<String, dynamic> json) =>

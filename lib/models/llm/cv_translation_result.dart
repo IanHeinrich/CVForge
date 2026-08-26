@@ -107,7 +107,7 @@ abstract class CvTranslationResult with _$CvTranslationResult {
       return value;
     }
 
-    /// One of the three scalar fields, accepted only if it was asked about.
+    /// One of the four scalar fields, accepted only if it was asked about.
     String? scalar(String key) {
       final source = request[key];
       if (source is! String) return null;
