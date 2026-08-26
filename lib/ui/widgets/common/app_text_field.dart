@@ -293,10 +293,22 @@ class _AppTextFieldState extends State<AppTextField> {
             maintainState: true,
             maintainAnimation: true,
             maintainSize: true,
-            child: MarkupToolbar(
-              onBold: () => _wrap(boldMarker),
-              onItalic: () => _wrap(italicMarker),
-              onExpand: canExpand ? _expand : null,
+            // Rebuilt from the controller rather than from `setState`, so
+            // the buttons follow the caret as it is dragged across an
+            // emphasised word — a selection change notifies the controller
+            // without changing anything this State holds.
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _controller,
+              builder: (context, value, _) {
+                final emphasis = selectionEmphasis(value);
+                return MarkupToolbar(
+                  onBold: () => _wrap(boldMarker),
+                  onItalic: () => _wrap(italicMarker),
+                  boldActive: emphasis.bold,
+                  italicActive: emphasis.italic,
+                  onExpand: canExpand ? _expand : null,
+                );
+              },
             ),
           ),
         ),
