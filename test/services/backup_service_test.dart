@@ -46,9 +46,9 @@ Map<String, String> _wireMemoryStorage(MockLocalStorageService storage) {
 }
 
 void main() {
-  test('the version stamped on a bundle matches pubspec — the only thing '
-      'keeping the two in step is a doc comment saying to bump both, so '
-      'this is what actually notices when one is missed', () {
+  test('the version stamped on a bundle matches pubspec — now that the '
+      'constant is generated from it, this is what notices a stale '
+      'checked-in app_version.dart rather than a forgotten second edit', () {
     final declared = File('pubspec.yaml')
         .readAsLinesSync()
         .firstWhere((line) => line.startsWith('version:'))

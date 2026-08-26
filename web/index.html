@@ -54,10 +54,20 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png" />
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
+  <!--
+    No font preconnect, deliberately. Roboto is registered in pubspec.yaml's
+    `fonts:` and so ships in the bundle; CanvasKit finds it in the asset
+    manifest rather than fetching it. Re-adding a preconnect would open a
+    connection to Google on every load for a file this app no longer asks
+    for.
+
+    Not the whole story: CanvasKit still fetches Noto Color Emoji from
+    fonts.gstatic.com the first time a glyph no embedded font covers is
+    painted, which here means `RegionPreset.flags`. Preconnecting would
+    speed that up on the screens that show a flag and cost a wasted
+    connection on the ones that don't — and the fetch itself is the thing
+    worth removing, not making faster. See pubspec.yaml's `fonts:` note.
+  -->
 
   <title>CVForge</title>
   <link rel="manifest" href="manifest.json">
@@ -275,6 +285,18 @@
     window.addEventListener('load', function (ev) {
       var loaderContent = document.querySelector('#loader-content');
       _flutter.loader.load({
+        config: {
+          // Load CanvasKit from this origin rather than gstatic.com, for
+          // the same reason dartPdfJsBaseUrl is set above: a privacy-first
+          // app that keeps every CV on-device should not announce each
+          // page load to a third party, and the whole point is undercut if
+          // the renderer itself is a Google request.
+          //
+          // Costs nothing to ship: `flutter build web` already copies
+          // canvaskit/ into build/web, so these bytes were being deployed
+          // and then ignored. Also what makes the app work offline.
+          canvasKitBaseUrl: 'canvaskit/'
+        },
         onEntrypointLoaded: async function (engineInitializer) {
           var appRunner = await engineInitializer.initializeEngine();
           loaderContent.style.opacity = "0";

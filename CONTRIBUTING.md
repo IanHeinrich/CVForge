@@ -355,6 +355,11 @@ python -c "import json;json.load(open('web/manifest.json'));print('ok')"
   in the browser.
 - Bump `version:` in `pubspec.yaml` if the change should deploy —
   `deploy.yml` looks for a version bump to decide whether to publish and tag.
+  That one edit is the whole release: `lib/app/app_version.dart` is
+  generated from it by `build_version`, so run `stacked generate` after
+  bumping and commit the result. It used to be two literals kept in step by
+  a test, and a merge that missed the second shipped a bundle stamped with
+  the previous version.
 
 ---
 

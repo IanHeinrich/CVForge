@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_saver/file_saver.dart';
 
+import 'package:cv_forge/app/app_version.dart';
 import 'package:cv_forge/app/app.locator.dart';
 import 'package:cv_forge/models/backup/cv_backup_bundle.dart';
 import 'package:cv_forge/models/vault/vault_pruning.dart';
@@ -46,11 +47,15 @@ class BackupService {
   /// crosses app versions rather than just in-app storage upgrades.
   static const bundleVersion = 1;
 
-  /// Provenance only, never branched on — a small hardcoded literal rather
-  /// than a `package_info_plus` dependency, since nothing reads this back.
-  /// Keep it in sync with `pubspec.yaml`'s `version:` at each bump;
-  /// `backup_service_test.dart` fails if a bump misses one of the two.
-  static const _appVersion = '2.22.0';
+  /// Provenance only, never branched on.
+  ///
+  /// Read from the generated [packageVersion] rather than restated here, so
+  /// `pubspec.yaml`'s `version:` is the only place a release is edited —
+  /// this used to be a second literal kept in step by a test, which is a
+  /// tripwire for drift rather than a way of preventing it. Generated at
+  /// build time by `build_version` (see `build.yaml`), so the app still
+  /// carries no plugin just to learn its own version.
+  static const _appVersion = packageVersion;
 
   /// The current Vault + every Draft as one envelope — also the payload
   /// `DriveSyncService` pushes to Drive, so a local JSON export and a

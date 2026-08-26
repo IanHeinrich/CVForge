@@ -11,3 +11,9 @@ targets:
           # instead of a nested JSON object — a silent persistence bug.
           explicit_to_json: true
           field_rename: none
+      # Emits `const packageVersion` from pubspec's `version:`. Pointed at
+      # lib/app/ because that is where this project's other generated,
+      # app-wide files live (app.locator.dart, app.router.dart).
+      build_version:
+        options:
+          output: lib/app/app_version.dart
