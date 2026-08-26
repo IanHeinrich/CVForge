@@ -71,9 +71,10 @@ class TermsView extends StackedView<TermsViewModel> {
           ],
         ),
         LegalSection(
-          heading: 'Open source',
+          heading: 'Source available',
           paragraphs: [
-            'CVForge is source-available on GitHub. See the '
+            'CVForge is source-available on GitHub under the '
+                'PolyForm Noncommercial License 1.0.0. See the '
                 "repository's own license file for the exact "
                 'terms governing the code itself.',
           ],
