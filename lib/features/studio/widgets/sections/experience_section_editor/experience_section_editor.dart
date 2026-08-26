@@ -42,6 +42,7 @@ class ExperienceSectionEditor extends StatelessWidget {
     titleFieldOf: (e) => TailorableField(
       hasOverride: viewModel.hasRoleOverride(e.id),
       effectiveText: viewModel.roleText(e),
+      vaultText: e.role,
       fieldLabel: context.l10n.studioFieldRole,
       onChanged: (value) => viewModel.setRoleOverride(e, value),
       onRevert: () => viewModel.revertRoleOverride(e.id),
@@ -50,6 +51,7 @@ class ExperienceSectionEditor extends StatelessWidget {
       TailorableField(
         hasOverride: viewModel.hasExperienceLocationOverride(e.id),
         effectiveText: viewModel.experienceLocationText(e),
+        vaultText: e.location,
         fieldLabel: context.l10n.studioFieldLocation,
         emptyMessage: context.l10n.studioNoLocation,
         onChanged: (value) => viewModel.setExperienceLocationOverride(e, value),

@@ -51,6 +51,13 @@ class BasicsEditorPanel extends StatelessWidget {
       title: context.l10n.vaultBasicsTitle,
       onClose: onClose,
       children: [
+        // Grouped rather than one flat run of identical boxes. A name, an
+        // email and a four-line summary are three different kinds of
+        // thing — a fact, a lookup value, and prose a reader will judge
+        // — and stacking them at one gap said none of that. The headings
+        // are the same ones the Vault's own card list uses, so the panel
+        // reads with the rhythm of the list it was opened from.
+        VaultSectionHeading(title: context.l10n.vaultBasicsGroupIdentity),
         PhotoEditorField(
           photo: basics.photo,
           onPick: onPickPhoto,
@@ -69,9 +76,11 @@ class BasicsEditorPanel extends StatelessWidget {
           label: context.l10n.vaultBasicsHeadline,
           hint: context.l10n.vaultBasicsHeadlineHint,
           initialValue: basics.headline,
+          markup: true,
           onChanged: (v) => onChanged(basics.copyWith(headline: v)),
         ),
-        const VGap.small(),
+        const VGap.medium(),
+        VaultSectionHeading(title: context.l10n.vaultBasicsGroupContact),
         AppTextField(
           label: context.l10n.vaultBasicsEmail,
           initialValue: basics.email,
@@ -91,11 +100,13 @@ class BasicsEditorPanel extends StatelessWidget {
           initialValue: basics.location,
           onChanged: (v) => onChanged(basics.copyWith(location: v)),
         ),
-        const VGap.small(),
+        const VGap.medium(),
+        VaultSectionHeading(title: context.l10n.vaultBasicsGroupWriting),
         AppTextField(
           label: context.l10n.vaultBasicsWorkAuthorization,
           hint: context.l10n.vaultBasicsWorkAuthorizationHint,
           initialValue: basics.workAuthorization ?? '',
+          markup: true,
           onChanged: (v) => onChanged(
             basics.copyWith(workAuthorization: v.isEmpty ? null : v),
           ),
@@ -104,6 +115,7 @@ class BasicsEditorPanel extends StatelessWidget {
         AppTextField(
           label: context.l10n.vaultBasicsSummary,
           initialValue: basics.summary ?? '',
+          markup: true,
           maxLines: 4,
           onChanged: (v) =>
               onChanged(basics.copyWith(summary: v.orNullIfEmpty)),
@@ -148,6 +160,7 @@ class BasicsEditorPanel extends StatelessWidget {
           label: context.l10n.vaultBasicsReferences,
           hint: context.l10n.vaultBasicsReferencesHint,
           initialValue: referencesNote ?? '',
+          markup: true,
           onChanged: (v) => onReferencesChanged(v.orNullIfEmpty),
         ),
       ],

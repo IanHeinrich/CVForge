@@ -26,6 +26,8 @@ String _fixturePhotoBase64() {
 
 ResolvedCv _fixtureCv({
   String bulletText = 'Delivered a standard result.',
+  String role = 'Engineer',
+  String? workAuthorization,
   String? photoJpegBase64,
 }) => ResolvedCv(
   header: ResolvedHeader(
@@ -38,6 +40,7 @@ ResolvedCv _fixtureCv({
       ResolvedLink(label: 'LinkedIn', url: 'linkedin.com/in/jordanellery'),
     ],
     contactLabels: kEnglishContactLabels,
+    workAuthorization: workAuthorization,
     photoJpegBase64: photoJpegBase64,
   ),
   sections: [
@@ -54,7 +57,7 @@ ResolvedCv _fixtureCv({
           location: 'London',
           positions: [
             ResolvedPosition(
-              role: 'Engineer',
+              role: role,
               dateRange: '01/2020 - current',
               bullets: [ResolvedBullet(text: bulletText)],
             ),
@@ -177,6 +180,128 @@ void main() {
 
       expect(bytes, isNotEmpty);
       expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+    });
+
+    /// The fonts a rendered PDF actually embeds, by their `/BaseFont`
+    /// names. This is the observable proof that emphasis reached the
+    /// page: the text itself is CID-encoded under Identity-H, so the
+    /// words cannot be read back out of the bytes, but a face that was
+    /// never asked for is never embedded.
+    Future<Set<String>> embeddedFonts(String bulletText) async {
+      final bytes = await PdfExportService().render(
+        cv: _fixtureCv(bulletText: bulletText),
+        templateId: 'compact',
+        compress: false,
+      );
+      return RegExp(
+        r'/BaseFont\s*/([A-Za-z0-9+\-]+)',
+      ).allMatches(latin1.decode(bytes)).map((m) => m.group(1)!).toSet();
+    }
+
+    test('a bullet written with *italic* is rendered in the italic face, '
+        'which the same bullet without markup never pulls in — `compact` '
+        'sets italic on no token of its own, so the face can only be '
+        'there because the markup asked for it', () async {
+      expect(
+        await embeddedFonts('Delivered a result.'),
+        isNot(contains('Roboto-Italic')),
+      );
+      expect(
+        await embeddedFonts('Delivered a *result*.'),
+        contains('Roboto-Italic'),
+      );
+    });
+
+    test('a bullet written with ***bold italic*** reaches the fourth face — '
+        'the one combination that needs its own TTF rather than a '
+        'synthesised slant', () async {
+      expect(
+        await embeddedFonts('Delivered a ***result***.'),
+        contains('Roboto-BoldItalic'),
+      );
+    });
+
+    test('asterisks that are not emphasis print as themselves rather than '
+        'throwing — a multiplication sign, an A-level grade, and an '
+        'unclosed marker are all ordinary CV text', () async {
+      final bytes = await PdfExportService().render(
+        cv: _fixtureCv(
+          bulletText: 'Scaled 3 * 4 clusters; graded A*A*A; **unclosed',
+        ),
+        templateId: 'compact',
+      );
+
+      expect(bytes, isNotEmpty);
+      expect(latin1.decode(bytes.take(5).toList()), '%PDF-');
+    });
+
+    test('emphasis typed into an entry header reaches the page in every '
+        'template, not just in bullets — a role is a field someone edits, '
+        'so the header methods each renderer overrides have to honour it '
+        'too', () async {
+      for (final templateId in [
+        'compact',
+        'classic_centered',
+        'photo_header',
+      ]) {
+        Future<Set<String>> fontsFor(String role) async {
+          final bytes = await PdfExportService().render(
+            cv: _fixtureCv(role: role),
+            templateId: templateId,
+            compress: false,
+          );
+          return RegExp(
+            r'/BaseFont\s*/([A-Za-z0-9+\-]+)',
+          ).allMatches(latin1.decode(bytes)).map((m) => m.group(1)!).toSet();
+        }
+
+        // Bold-italic is the discriminator: no template sets both on a
+        // token of its own, so the fourth face can only appear because
+        // `***` asked for it.
+        expect(
+          await fontsFor('Senior Engineer'),
+          isNot(contains('Roboto-BoldItalic')),
+          reason: '$templateId embedded bold-italic with no markup present',
+        );
+        expect(
+          await fontsFor('***Senior*** Engineer'),
+          contains('Roboto-BoldItalic'),
+          reason: '$templateId dropped the emphasis in a role',
+        );
+      }
+    });
+
+    test('the work-authorisation line honours emphasis in every template — '
+        'it is the one part of the header that is a sentence someone '
+        'wrote rather than an address an ATS matches by regex, and it '
+        'prints from a different place in each template', () async {
+      for (final templateId in [
+        'compact',
+        'classic_centered',
+        'photo_header',
+      ]) {
+        Future<Set<String>> fontsFor(String line) async {
+          final bytes = await PdfExportService().render(
+            cv: _fixtureCv(workAuthorization: line),
+            templateId: templateId,
+            compress: false,
+          );
+          return RegExp(
+            r'/BaseFont\s*/([A-Za-z0-9+\-]+)',
+          ).allMatches(latin1.decode(bytes)).map((m) => m.group(1)!).toSet();
+        }
+
+        expect(
+          await fontsFor('Right to work in the UK'),
+          isNot(contains('Roboto-BoldItalic')),
+          reason: '$templateId embedded bold-italic with no markup present',
+        );
+        expect(
+          await fontsFor('Right to work, ***no sponsorship*** required'),
+          contains('Roboto-BoldItalic'),
+          reason: '$templateId dropped emphasis in the work-authorisation line',
+        );
+      }
     });
 
     test('an entry with far more bullets than fit on one page paginates '

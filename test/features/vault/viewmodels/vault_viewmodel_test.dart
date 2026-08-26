@@ -657,6 +657,68 @@ void main() {
         expect(modelSearching('reliable').basicsMatchQuery, isTrue);
         expect(modelSearching('kubernetes').basicsMatchQuery, isFalse);
       });
+
+      test(
+        'search reads what a field prints, not the emphasis markers around '
+        'it — a word someone bolded is still the word they will look for',
+        () {
+          when(vaultService.vault).thenReturn(
+            vaultWith(
+              experiences: const [
+                Experience(
+                  id: 'e1',
+                  role: '**Senior** Platform Engineer',
+                  company: 'Acme',
+                  location: 'London',
+                  start: YearMonth(year: 2020, month: 1),
+                ),
+              ],
+              hobbies: const [HobbyItem(id: 'h1', text: 'Competitive *chess*')],
+              basics: const ContactBasics(
+                fullName: 'Jordan Ellery',
+                headline: 'Builds **reliable** systems',
+                email: 'jordan@example.com',
+                phone: '',
+                location: '',
+              ),
+            ),
+          );
+
+          final model = VaultViewModel()..setQuery('senior');
+          expect(model.filteredExperiences, hasLength(1));
+
+          expect(
+            (VaultViewModel()..setQuery('chess')).filteredHobbies,
+            hasLength(1),
+          );
+          expect(
+            (VaultViewModel()..setQuery('reliable')).basicsMatchQuery,
+            isTrue,
+          );
+        },
+      );
+
+      test('a query spanning a marker finds nothing, because that is not what '
+          'the field says', () {
+        when(vaultService.vault).thenReturn(
+          vaultWith(
+            experiences: const [
+              Experience(
+                id: 'e1',
+                role: '**Senior** Engineer',
+                company: 'Acme',
+                location: 'London',
+                start: YearMonth(year: 2020, month: 1),
+              ),
+            ],
+          ),
+        );
+
+        expect(
+          (VaultViewModel()..setQuery('**senior')).filteredExperiences,
+          isEmpty,
+        );
+      });
     });
   });
 }

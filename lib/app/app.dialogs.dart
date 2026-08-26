@@ -15,6 +15,7 @@ import '../features/studio/dialogs/region_gallery/region_gallery_dialog.dart';
 import '../features/studio/dialogs/template_gallery/template_gallery_dialog.dart';
 import '../features/vault/dialogs/confirm_delete/confirm_delete_dialog.dart';
 import '../features/vault/dialogs/crop_photo/crop_photo_dialog.dart';
+import '../ui/dialogs/expand_text/expand_text_dialog.dart';
 
 enum DialogType {
   confirmDelete,
@@ -24,6 +25,7 @@ enum DialogType {
   regionGallery,
   cropPhoto,
   cvTranslationRun,
+  expandText,
 }
 
 void setupDialogUi() {
@@ -44,6 +46,8 @@ void setupDialogUi() {
         CropPhotoDialog(request: request, completer: completer),
     DialogType.cvTranslationRun: (context, request, completer) =>
         CvTranslationRunDialog(request: request, completer: completer),
+    DialogType.expandText: (context, request, completer) =>
+        ExpandTextDialog(request: request, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);

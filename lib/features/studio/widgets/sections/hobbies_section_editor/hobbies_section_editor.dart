@@ -29,6 +29,7 @@ class HobbiesSectionEditor extends StatelessWidget {
             titleField: TailorableField(
               hasOverride: viewModel.hasHobbyOverride(hobby.id),
               effectiveText: viewModel.hobbyText(hobby),
+              vaultText: hobby.text,
               onChanged: (value) => viewModel.setHobbyOverride(hobby, value),
               onRevert: () => viewModel.revertHobbyOverride(hobby.id),
             ),

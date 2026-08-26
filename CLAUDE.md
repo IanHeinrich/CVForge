@@ -117,9 +117,11 @@ Two non-feature layers sit alongside these:
 - `lib/models/` — pure Dart freezed models (`vault/`, `draft/`, `render/`).
   **Must never import `flutter` or `pdf`.** `render/cv_composer.dart` is the
   only place Vault and Draft data are joined.
-- `lib/templates/` — the single-renderer boundary. `design/` holds
-  framework-agnostic tokens plus one `pdf`-only adapter
-  (`cv_design_tokens_pdf.dart`). `design/cv_pdf_renderer.dart`'s
+- `lib/templates/` — the single-renderer boundary. `design/` holds the
+  framework-agnostic tokens (`cv_design_tokens.dart`) alongside the files
+  that consume them; anything importing `pdf` carries the `*_pdf.dart`
+  suffix, and `cv_design_tokens_pdf.dart` specifically owns the
+  token→`pw.TextStyle` mapping. `design/cv_pdf_renderer.dart`'s
   `CvPdfRenderer` owns the walk from `ResolvedCv` to a flat widget list;
   a template subclasses it and overrides presentation only — section
   heading, body alignment, and each entry type's header widget. A

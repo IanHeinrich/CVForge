@@ -411,6 +411,43 @@
   "@commonDone": {
     "description": "Button that closes an inline editor and keeps what was typed."
   },
+  "commonExpandEditor": "Edit in a larger box",
+  "@commonExpandEditor": {
+    "description": "Tooltip on the button that reopens a long CV text field in a roomier dialog, and the fallback dialog title when the field has no label of its own. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot."
+  },
+  "commonFormatBold": "Bold",
+  "@commonFormatBold": {
+    "description": "Tooltip on the bold button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as bold."
+  },
+  "commonFormatItalic": "Italic",
+  "@commonFormatItalic": {
+    "description": "Tooltip on the italic button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as italic."
+  },
+  "commonLengthBudgetLeft": "{count, plural, =1{1 character left} other{{count} characters left}}",
+  "@commonLengthBudgetLeft": {
+    "description": "Shown under a long CV text field as it nears the length that still fits on a page. Silent until close to the limit, so it reads as a warning rather than as a permanent counter. Counts printed characters, so emphasis markers do not count against it.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "120"
+      }
+    }
+  },
+  "commonLengthBudgetOver": "Too long to fit on one page",
+  "@commonLengthBudgetOver": {
+    "description": "Shown under a CV text field whose text has passed the length that fits on a page. States the consequence rather than a number, because the number is not what the writer needs to act on.",
+    "@@x-note": "Not a validation error — the text is kept and can still be edited."
+  },
+  "commonVaultOriginal": "Vault: {text}",
+  "@commonVaultOriginal": {
+    "description": "Shown above an open Studio editor when the field has been tailored, giving the wording the Vault still holds so the writer can see what this CV is diverging from. The prefix names the Vault, which is the app's own term for the master record.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "Senior Platform Engineer"
+      }
+    }
+  },
   "commonMore": "More",
   "@commonMore": {
     "description": "Tooltip on a button that opens an overflow menu of extra actions."
@@ -1717,6 +1754,10 @@
   "@studioBackToSections": {
     "description": "Studio narrow-layout button returning from one section's editor to the section list."
   },
+  "studioBlankRestoresVault": "Leave empty to use the Vault's wording",
+  "@studioBlankRestoresVault": {
+    "description": "Hint inside an open Studio editor for a field the Vault also has wording for. Clearing the box removes the per-CV override rather than blanking the field, so the Vault's text reappears — said up front, because watching it come back unexplained reads as the edit having failed."
+  },
   "studioBulletsSelected": "{selected}/{total} bullets",
   "@studioBulletsSelected": {
     "description": "Studio, how many of an entry's bullets are included in this CV.",
@@ -2714,6 +2755,18 @@
   "vaultBasicsFullName": "Full name",
   "@vaultBasicsFullName": {
     "description": "Vault basics form field label."
+  },
+  "vaultBasicsGroupContact": "How to reach you",
+  "@vaultBasicsGroupContact": {
+    "description": "Heading over the email, phone and location fields in the Vault's About you panel. Groups the lookup values, as against the writing below them."
+  },
+  "vaultBasicsGroupIdentity": "Who you are",
+  "@vaultBasicsGroupIdentity": {
+    "description": "Heading over the photo, name and headline fields at the top of the Vault's About you panel."
+  },
+  "vaultBasicsGroupWriting": "What you say",
+  "@vaultBasicsGroupWriting": {
+    "description": "Heading over the summary and work-authorisation fields in the Vault's About you panel. These are prose the reader judges, unlike the lookup values above."
   },
   "vaultBasicsHeadline": "Headline",
   "@vaultBasicsHeadline": {

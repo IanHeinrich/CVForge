@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/cv_markup_flutter.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_icon_size.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -86,9 +87,14 @@ class SelectorItem {
 /// Bullet sub-lists are collapsed by default and expand per entry — local
 /// `_expandedIds` is pure presentation state, not draft data, matching
 /// `_SkillBulletLinkPicker`'s rationale for the same pattern in Vault.
-/// `_editingTextIds` is the same idea one field over, for which
-/// [SelectorItem.fields] entry currently has its inline editor open
-/// — keyed `'<itemId>_<index>'`, since one row can own several fields.
+/// `_editingTextId` is the same idea one field over: which single row
+/// currently has its inline editor open, keyed `'<itemId>_<index>'` since
+/// one entry can own several fields.
+///
+/// One at a time, not a set. Every editor opens with `autofocus`, so a
+/// second one stole the caret from the first while both stayed open and
+/// both stayed tinted, with nothing saying which was being typed into.
+/// `StudioSkillSelector` already held its editing id this way.
 class VaultItemSelectorList extends StatefulWidget {
   const VaultItemSelectorList({
     super.key,
@@ -116,10 +122,26 @@ class VaultItemSelectorList extends StatefulWidget {
 
 class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
   final _expandedIds = <String>{};
-  final _editingTextIds = <String>{};
+  String? _editingTextId;
 
   void _toggleId(Set<String> ids, String id) =>
       setState(() => ids.contains(id) ? ids.remove(id) : ids.add(id));
+
+  void _toggleEditing(String id) =>
+      setState(() => _editingTextId = _editingTextId == id ? null : id);
+
+  @override
+  void didUpdateWidget(covariant VaultItemSelectorList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // An open editor belongs to a row that is on screen. Dropping an
+    // entry from the CV hides its rows but used to leave the id behind,
+    // so re-including it silently reopened an editor nobody asked for.
+    final open = _editingTextId;
+    if (open == null) return;
+    final owner = open.substring(0, open.lastIndexOf('_'));
+    final stillShown = widget.items.any((i) => i.id == owner && i.selected);
+    if (!stillShown) _editingTextId = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,9 +176,8 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
             _EntityRow(
               key: ValueKey('item_${item.id}'),
               item: item,
-              editing: _editingTextIds.contains('${item.id}_title'),
-              onToggleEdit: () =>
-                  _toggleId(_editingTextIds, '${item.id}_title'),
+              editing: _editingTextId == '${item.id}_title',
+              onToggleEdit: () => _toggleEditing('${item.id}_title'),
             ),
             if (item.selected && item.bullets.isNotEmpty)
               _BulletSublist(
@@ -164,8 +185,8 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                 item: item,
                 expanded: _expandedIds.contains(item.id),
                 onToggleExpanded: () => _toggleId(_expandedIds, item.id),
-                editingTextIds: _editingTextIds,
-                onToggleEditingText: (id) => _toggleId(_editingTextIds, id),
+                editingTextId: _editingTextId,
+                onToggleEditingText: _toggleEditing,
               ),
             // An entity's own printed fields — an employer, an education
             // entry's grade/details — have no checkbox row of their own to
@@ -184,9 +205,8 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                   ),
                   child: StudioEntryFieldRow(
                     field: field,
-                    editing: _editingTextIds.contains('${item.id}_$index'),
-                    onToggleEdit: () =>
-                        _toggleId(_editingTextIds, '${item.id}_$index'),
+                    editing: _editingTextId == '${item.id}_$index',
+                    onToggleEdit: () => _toggleEditing('${item.id}_$index'),
                   ),
                 ),
           ],
@@ -231,13 +251,13 @@ class _EntityRow extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       controlAffinity: ListTileControlAffinity.leading,
       activeColor: Theme.of(context).colorScheme.primary,
-      title: Text(
+      title: cvMarkupText(
         item.title,
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       ),
       subtitle: item.subtitle == null || item.subtitle!.isEmpty
           ? null
-          : Text(
+          : cvMarkupText(
               item.subtitle!,
               style: context.appTypography.caption.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -291,14 +311,14 @@ class _BulletSublist extends StatelessWidget {
     required this.item,
     required this.expanded,
     required this.onToggleExpanded,
-    required this.editingTextIds,
+    required this.editingTextId,
     required this.onToggleEditingText,
   });
 
   final SelectorItem item;
   final bool expanded;
   final VoidCallback onToggleExpanded;
-  final Set<String> editingTextIds;
+  final String? editingTextId;
   final ValueChanged<String> onToggleEditingText;
 
   @override
@@ -371,7 +391,7 @@ class _BulletSublist extends StatelessWidget {
               _BulletRow(
                 key: ValueKey('bullet_${bullet.id}'),
                 bullet: bullet,
-                editing: editingTextIds.contains(bullet.id),
+                editing: editingTextId == bullet.id,
                 onToggleEdit: () => onToggleEditingText(bullet.id),
               ),
         ],
@@ -421,7 +441,7 @@ class _BulletRow extends StatelessWidget {
             ),
             controlAffinity: ListTileControlAffinity.leading,
             activeColor: Theme.of(context).colorScheme.primary,
-            title: Text(
+            title: cvMarkupText(
               bullet.title,
               style: context.appTypography.bodySmall,
               maxLines: editing ? 1 : 2,

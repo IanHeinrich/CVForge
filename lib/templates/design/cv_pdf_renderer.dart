@@ -6,6 +6,7 @@ import 'package:cv_forge/templates/design/bullet_list_pdf.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
+import 'package:cv_forge/templates/design/cv_markup_pdf.dart';
 import 'package:cv_forge/templates/design/section_pagination_pdf.dart';
 
 /// A PDF hyperlink destination needs an explicit scheme. Vault links are
@@ -49,8 +50,26 @@ abstract class CvPdfRenderer {
     CvFontSet fonts,
   );
 
-  /// Summary, hobbies and references prose.
-  pw.Widget bodyText(String text, CvDesignTokens tokens, CvFontSet fonts);
+  /// How body prose is aligned — the only thing the three templates'
+  /// summary, hobbies and references prose ever actually differed in.
+  /// Null is `pw.Text`'s own default, ragged-right.
+  pw.TextAlign? get bodyAlign => null;
+
+  /// Summary and references prose.
+  ///
+  /// Concrete rather than abstract: the emphasis a user typed has to be
+  /// handled in one place, and a template that wants its prose laid out
+  /// differently overrides [bodyAlign], not this.
+  pw.Widget bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
+      markupText(text, tokens.body, fonts, textAlign: bodyAlign);
+
+  /// The same prose widget built from spans that were parsed elsewhere —
+  /// for hobbies, whose items are separate fields and so must each be
+  /// parsed on their own rather than after being joined.
+  pw.Widget bodyProse(List<pw.InlineSpan> spans) => pw.RichText(
+    text: pw.TextSpan(children: spans),
+    textAlign: bodyAlign,
+  );
 
   pw.Widget positionHeader(
     ResolvedPosition position,
@@ -191,10 +210,11 @@ abstract class CvPdfRenderer {
         ),
         if (header.headline.trim().isNotEmpty) ...[
           pw.SizedBox(height: 2),
-          pw.Text(
+          markupText(
             header.headline,
+            headlineStyle(tokens),
+            fonts,
             textAlign: pw.TextAlign.center,
-            style: headlineStyle(tokens).toPdfStyle(fonts),
           ),
         ],
         if (contactParts.isNotEmpty) ...[
@@ -217,12 +237,18 @@ abstract class CvPdfRenderer {
           pw.SizedBox(height: 2),
           // Unlabelled: the user wrote the whole sentence, which is what
           // keeps this from needing a heading transcribed into every
-          // document language. A plain pw.Text under the stretched column
-          // takes the full width, so it wraps on its own.
-          pw.Text(
+          // document language. Under the stretched column it takes the
+          // full width, so it wraps on its own.
+          //
+          // Being a sentence someone wrote is also why it is the one part
+          // of the header whose emphasis is honoured — the rest of this
+          // block is addresses an ATS matches with regexes over the text
+          // layer, where a stray marker is how a match stops happening.
+          markupText(
             workAuthorization,
+            tokens.contact,
+            fonts,
             textAlign: pw.TextAlign.center,
-            style: contactStyle,
           ),
         ],
       ],
@@ -286,7 +312,7 @@ abstract class CvPdfRenderer {
       fonts,
     ),
     ResolvedHobbiesSection(items: final items) => [
-      bodyText(items.join(', '), tokens, fonts),
+      bodyProse(markupJoin(items, ', ', tokens.body, fonts)),
     ],
     ResolvedReferencesSection(text: final text) => [
       bodyText(text, tokens, fonts),
@@ -396,15 +422,14 @@ abstract class CvPdfRenderer {
         child: pw.RichText(
           text: pw.TextSpan(
             children: [
-              pw.TextSpan(
-                // No trailing colon when there is no level to introduce.
-                text: language.level == null
-                    ? language.name
-                    : '${language.name}: ',
-                style: tokens.inlineLabel.toPdfStyle(fonts),
-              ),
-              if (language.level case final level?)
+              ...markupSpans(language.name, tokens.inlineLabel, fonts),
+              // No trailing colon when there is no level to introduce.
+              // The level is a CEFR band the composer formatted, not
+              // something typed, so it is never parsed for emphasis.
+              if (language.level case final level?) ...[
+                literalSpan(': ', tokens.inlineLabel, fonts),
                 pw.TextSpan(text: level, style: tokens.body.toPdfStyle(fonts)),
+              ],
             ],
           ),
         ),
@@ -422,14 +447,9 @@ abstract class CvPdfRenderer {
         child: pw.RichText(
           text: pw.TextSpan(
             children: [
-              pw.TextSpan(
-                text: '${group.category}: ',
-                style: tokens.inlineLabel.toPdfStyle(fonts),
-              ),
-              pw.TextSpan(
-                text: group.skills.join(', '),
-                style: tokens.body.toPdfStyle(fonts),
-              ),
+              ...markupSpans(group.category, tokens.inlineLabel, fonts),
+              literalSpan(': ', tokens.inlineLabel, fonts),
+              ...markupJoin(group.skills, ', ', tokens.body, fonts),
             ],
           ),
         ),

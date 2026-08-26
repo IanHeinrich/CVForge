@@ -47,6 +47,7 @@ class PublicationsSectionEditor extends StatelessWidget {
     titleFieldOf: (p) => TailorableField(
       hasOverride: viewModel.hasPublicationTitleOverride(p.id),
       effectiveText: viewModel.publicationTitleText(p),
+      vaultText: p.title,
       fieldLabel: context.l10n.studioFieldPublicationTitle,
       onChanged: (value) => viewModel.setPublicationTitleOverride(p, value),
       onRevert: () => viewModel.revertPublicationTitleOverride(p.id),
@@ -55,6 +56,7 @@ class PublicationsSectionEditor extends StatelessWidget {
       TailorableField(
         hasOverride: viewModel.hasPublicationCitationOverride(p.id),
         effectiveText: viewModel.publicationCitationText(p),
+        vaultText: p.citation,
         fieldLabel: context.l10n.studioFieldCitation,
         emptyMessage: context.l10n.studioNoCitation,
         onChanged: (value) =>

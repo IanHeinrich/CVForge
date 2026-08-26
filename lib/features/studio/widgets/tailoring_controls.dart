@@ -1,3 +1,6 @@
+import 'package:cv_forge/ui/common/cv_markup_flutter.dart';
+import 'package:cv_forge/ui/common/tokens/app_typography.dart';
+import 'package:cv_forge/ui/common/ui_helpers.dart';
 import 'package:cv_forge/ui/common/tokens/app_motion.dart';
 import 'package:cv_forge/ui/common/tokens/app_radius.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
@@ -243,12 +246,22 @@ class InlineTextOverrideEditor extends StatelessWidget {
     required this.onDone,
     this.maxLines = 4,
     this.minLines = 2,
+    this.markup = true,
   });
 
   final TailorableField field;
   final VoidCallback onDone;
   final int maxLines;
   final int minLines;
+
+  /// Whether this field's text prints on the CV.
+  ///
+  /// True for every tailorable field, which is what this editor is for.
+  /// False for the one caller that borrows it to edit something the CV
+  /// never shows — `AiAssistantConfigCard`'s job-description box, which
+  /// wraps a pasted job ad in a synthetic [TailorableField]. Offering to
+  /// bold a word in a job ad would be offering to change nothing.
+  final bool markup;
 
   @override
   Widget build(BuildContext context) {
@@ -270,15 +283,61 @@ class InlineTextOverrideEditor extends StatelessWidget {
           }
           return KeyEventResult.ignored;
         },
-        child: AppTextField(
-          initialValue: field.effectiveText,
-          onChanged: field.onChanged,
-          label: field.fieldLabel,
-          maxLines: maxLines,
-          minLines: minLines,
-          autofocus: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // What the Vault still says, when this CV says otherwise.
+            // The undo button beside the row reports *that* a field was
+            // tailored but never *from what*, which left no way to see
+            // the original short of reverting and losing the rewrite.
+            if (vaultOriginal case final original?) ...[
+              cvMarkupText(
+                context.l10n.commonVaultOriginal(original),
+                style: context.appTypography.caption.copyWith(
+                  color: context.appPalette.placeholder,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const VGap.tiny(),
+            ],
+            AppTextField(
+              initialValue: field.effectiveText,
+              onChanged: field.onChanged,
+              // Clearing the box removes the override rather than
+              // blanking the field, so the Vault's wording comes back.
+              // Said before it happens: watching text reappear on its own
+              // reads as the edit having failed.
+              hint: _restoresVaultWhenBlank
+                  ? context.l10n.studioBlankRestoresVault
+                  : null,
+              // No label of its own: the row that opened this already names
+              // the field directly above, and printing it twice read as
+              // "Grade" stacked over "Grade".
+              maxLines: maxLines,
+              minLines: minLines,
+              autofocus: true,
+              markup: markup,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  /// Whether emptying this box would bring the Vault's wording back,
+  /// rather than leaving the field blank. False when the Vault has
+  /// nothing to fall back to, where clearing really does clear.
+  bool get _restoresVaultWhenBlank => (field.vaultText ?? '').trim().isNotEmpty;
+
+  /// The Vault's wording, or null when there is nothing worth showing —
+  /// no override, no recorded original, or an original identical to what
+  /// is in the box.
+  String? get vaultOriginal {
+    if (!field.hasOverride) return null;
+    final original = field.vaultText?.trim();
+    if (original == null || original.isEmpty) return null;
+    if (original == field.effectiveText.trim()) return null;
+    return original;
   }
 }

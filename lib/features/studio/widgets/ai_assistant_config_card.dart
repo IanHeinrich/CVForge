@@ -167,6 +167,9 @@ class _AiAssistantConfigCardState extends State<AiAssistantConfigCard> {
               onDone: _toggleEditing,
               maxLines: 10,
               minLines: 4,
+              // A pasted job ad is never printed, so emphasis in it would
+              // mean nothing — no formatting controls here.
+              markup: false,
             ),
           const VGap.small(),
           // A `Wrap`, not a `Row` — this card lives in Studio's fixed

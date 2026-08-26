@@ -45,6 +45,7 @@ final class TailorableField extends StudioEntryField {
     required this.effectiveText,
     required this.onChanged,
     required this.onRevert,
+    this.vaultText,
     super.emptyMessage,
     super.fieldLabel,
   });
@@ -52,6 +53,15 @@ final class TailorableField extends StudioEntryField {
   @override
   final bool hasOverride;
   final String effectiveText;
+
+  /// What the Vault says, when this CV says something else.
+  ///
+  /// Shown above the box while editing an overridden field. Until now the
+  /// only sign a field had been tailored was an undo button, which says
+  /// *that* it diverged but never *from what* — leaving no way to see the
+  /// original short of reverting and losing the rewrite. Null when there
+  /// is no override, since then the two are the same text.
+  final String? vaultText;
   final Future<void> Function(String value) onChanged;
   final Future<void> Function() onRevert;
 

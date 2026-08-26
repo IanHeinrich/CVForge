@@ -1,3 +1,4 @@
+import 'package:cv_forge/models/render/cv_markup.dart';
 import 'package:cv_forge/models/vault/education.dart';
 import 'package:cv_forge/models/vault/experience.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
@@ -86,13 +87,15 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
   List<Skill> _matchingSkills(SkillCategory category) {
     if (_query.isEmpty) return category.skills;
     return category.skills
-        .where((s) => s.label.toLowerCase().contains(_query))
+        .where((s) => stripCvMarkup(s.label).toLowerCase().contains(_query))
         .toList();
   }
 
   bool _categoryVisible(SkillCategory category) {
     if (_query.isEmpty) return true;
-    if (category.name.toLowerCase().contains(_query)) return true;
+    if (stripCvMarkup(category.name).toLowerCase().contains(_query)) {
+      return true;
+    }
     return _matchingSkills(category).isNotEmpty;
   }
 
@@ -205,6 +208,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                         label: context.l10n.vaultSkillsCategoryName,
                         hint: context.l10n.vaultSkillsCategoryNameHint,
                         initialValue: category.name,
+                        markup: true,
                         onChanged: (v) =>
                             widget.onUpdateCategory(category.copyWith(name: v)),
                       ),
@@ -229,6 +233,7 @@ class _SkillsEditorPanelState extends State<SkillsEditorPanel> {
                               child: AppTextField(
                                 hint: context.l10n.vaultSkillsSkillLabel,
                                 initialValue: skill.label,
+                                markup: true,
                                 onChanged: (v) => widget.onUpdateSkill(
                                   category.id,
                                   skill.copyWith(label: v),
@@ -338,7 +343,7 @@ class _SkillBulletLinkPickerState extends State<_SkillBulletLinkPicker> {
   List<CvBullet> _matchingBullets(_BulletGroup group) {
     if (_query.isEmpty) return group.bullets;
     return group.bullets
-        .where((b) => b.text.toLowerCase().contains(_query))
+        .where((b) => stripCvMarkup(b.text).toLowerCase().contains(_query))
         .toList();
   }
 

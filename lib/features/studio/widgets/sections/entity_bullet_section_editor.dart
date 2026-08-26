@@ -132,6 +132,7 @@ class EntityBulletSectionEditor<T> extends StatelessWidget {
                   titleField: TailorableField(
                     hasOverride: hasBulletOverride(bullet.id),
                     effectiveText: bulletText(bullet),
+                    vaultText: bullet.text,
                     onChanged: (value) => onSetBulletOverride(bullet, value),
                     onRevert: () => onRevertBulletOverride(bullet.id),
                   ),

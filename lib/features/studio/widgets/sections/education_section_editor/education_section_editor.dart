@@ -41,6 +41,7 @@ class EducationSectionEditor extends StatelessWidget {
     titleFieldOf: (e) => TailorableField(
       hasOverride: viewModel.hasEducationQualificationOverride(e.id),
       effectiveText: viewModel.educationQualificationText(e),
+      vaultText: e.qualification,
       fieldLabel: context.l10n.studioFieldQualification,
       onChanged: (value) =>
           viewModel.setEducationQualificationOverride(e, value),
@@ -50,6 +51,7 @@ class EducationSectionEditor extends StatelessWidget {
       TailorableField(
         hasOverride: viewModel.hasEducationLocationOverride(e.id),
         effectiveText: viewModel.educationLocationText(e),
+        vaultText: e.location,
         fieldLabel: context.l10n.studioFieldLocation,
         emptyMessage: context.l10n.studioNoLocation,
         onChanged: (value) => viewModel.setEducationLocationOverride(e, value),
@@ -74,6 +76,7 @@ class EducationSectionEditor extends StatelessWidget {
       TailorableField(
         hasOverride: viewModel.hasEducationGradeOverride(e.id),
         effectiveText: viewModel.educationGradeText(e),
+        vaultText: e.grade,
         fieldLabel: context.l10n.studioFieldGrade,
         emptyMessage: context.l10n.studioNoGrade,
         onChanged: (value) => viewModel.setEducationGradeOverride(e, value),
@@ -82,6 +85,7 @@ class EducationSectionEditor extends StatelessWidget {
       TailorableField(
         hasOverride: viewModel.hasEducationDetailsOverride(e.id),
         effectiveText: viewModel.educationDetailsText(e),
+        vaultText: e.details,
         fieldLabel: context.l10n.studioFieldDetails,
         emptyMessage: context.l10n.studioNoEducationDetails,
         onChanged: (value) => viewModel.setEducationDetailsOverride(e, value),

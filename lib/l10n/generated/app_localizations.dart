@@ -512,6 +512,42 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get commonDone;
 
+  /// Tooltip on the button that reopens a long CV text field in a roomier dialog, and the fallback dialog title when the field has no label of its own. Studio's editor pane is narrow beside the live preview, so long prose is otherwise written through a slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit in a larger box'**
+  String get commonExpandEditor;
+
+  /// Tooltip on the bold button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as bold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get commonFormatBold;
+
+  /// Tooltip on the italic button above a focused CV text field. The button wraps the selected words in the emphasis markers the document prints as italic.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get commonFormatItalic;
+
+  /// Shown under a long CV text field as it nears the length that still fits on a page. Silent until close to the limit, so it reads as a warning rather than as a permanent counter. Counts printed characters, so emphasis markers do not count against it.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 character left} other{{count} characters left}}'**
+  String commonLengthBudgetLeft(int count);
+
+  /// Shown under a CV text field whose text has passed the length that fits on a page. States the consequence rather than a number, because the number is not what the writer needs to act on.
+  ///
+  /// In en, this message translates to:
+  /// **'Too long to fit on one page'**
+  String get commonLengthBudgetOver;
+
+  /// Shown above an open Studio editor when the field has been tailored, giving the wording the Vault still holds so the writer can see what this CV is diverging from. The prefix names the Vault, which is the app's own term for the master record.
+  ///
+  /// In en, this message translates to:
+  /// **'Vault: {text}'**
+  String commonVaultOriginal(String text);
+
   /// Tooltip on a button that opens an overflow menu of extra actions.
   ///
   /// In en, this message translates to:
@@ -2108,6 +2144,12 @@ abstract class AppLocalizations {
   /// **'Back to sections'**
   String get studioBackToSections;
 
+  /// Hint inside an open Studio editor for a field the Vault also has wording for. Clearing the box removes the per-CV override rather than blanking the field, so the Vault's text reappears — said up front, because watching it come back unexplained reads as the edit having failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to use the Vault\'s wording'**
+  String get studioBlankRestoresVault;
+
   /// Studio, how many of an entry's bullets are included in this CV.
   ///
   /// In en, this message translates to:
@@ -3253,6 +3295,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Full name'**
   String get vaultBasicsFullName;
+
+  /// Heading over the email, phone and location fields in the Vault's About you panel. Groups the lookup values, as against the writing below them.
+  ///
+  /// In en, this message translates to:
+  /// **'How to reach you'**
+  String get vaultBasicsGroupContact;
+
+  /// Heading over the photo, name and headline fields at the top of the Vault's About you panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Who you are'**
+  String get vaultBasicsGroupIdentity;
+
+  /// Heading over the summary and work-authorisation fields in the Vault's About you panel. These are prose the reader judges, unlike the lookup values above.
+  ///
+  /// In en, this message translates to:
+  /// **'What you say'**
+  String get vaultBasicsGroupWriting;
 
   /// Vault basics form field label. A short professional title line shown under the name on a CV.
   ///

@@ -338,6 +338,35 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonDone => 'Listo';
 
   @override
+  String get commonExpandEditor => 'Editar en un cuadro más grande';
+
+  @override
+  String get commonFormatBold => 'Negrita';
+
+  @override
+  String get commonFormatItalic => 'Cursiva';
+
+  @override
+  String commonLengthBudgetLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan $count caracteres',
+      one: 'Queda 1 carácter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonLengthBudgetOver =>
+      'Demasiado largo para caber en una página';
+
+  @override
+  String commonVaultOriginal(String text) {
+    return 'Baúl: $text';
+  }
+
+  @override
   String get commonMore => 'Más';
 
   @override
@@ -1369,6 +1398,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioBackToSections => 'Volver a las secciones';
 
   @override
+  String get studioBlankRestoresVault =>
+      'Déjalo vacío para usar el texto del Baúl';
+
+  @override
   String studioBulletsSelected(int selected, int total) {
     return '$selected/$total logros';
   }
@@ -2179,6 +2212,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultBasicsFullName => 'Nombre completo';
+
+  @override
+  String get vaultBasicsGroupContact => 'Cómo contactarte';
+
+  @override
+  String get vaultBasicsGroupIdentity => 'Quién eres';
+
+  @override
+  String get vaultBasicsGroupWriting => 'Lo que dices';
 
   @override
   String get vaultBasicsHeadline => 'Titular';

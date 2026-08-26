@@ -49,18 +49,21 @@ class EducationEditorPanel extends StatelessWidget {
           label: context.l10n.vaultEducationQualification,
           hint: context.l10n.vaultEducationQualificationHint,
           initialValue: education.qualification,
+          markup: true,
           onChanged: (v) => onChanged(education.copyWith(qualification: v)),
         ),
         const VGap.small(),
         AppTextField(
           label: context.l10n.vaultEducationInstitution,
           initialValue: education.institution,
+          markup: true,
           onChanged: (v) => onChanged(education.copyWith(institution: v)),
         ),
         const VGap.small(),
         AppTextField(
           label: context.l10n.vaultEducationLocation,
           initialValue: education.location ?? '',
+          markup: true,
           onChanged: (v) =>
               onChanged(education.copyWith(location: v.orNullIfEmpty)),
         ),
@@ -76,13 +79,19 @@ class EducationEditorPanel extends StatelessWidget {
           label: context.l10n.vaultEducationGrade,
           hint: context.l10n.vaultEducationGradeHint,
           initialValue: education.grade ?? '',
+          markup: true,
           onChanged: (v) =>
               onChanged(education.copyWith(grade: v.orNullIfEmpty)),
         ),
-        const VGap.small(),
+        // A wider gap than the fields above share: everything before this
+        // is a fact with one right answer, and this is prose. No heading,
+        // because a heading over a single field reads as a section that
+        // lost its contents — the gap is the whole signal needed.
+        const VGap.medium(),
         AppTextField(
           label: context.l10n.vaultEducationDetails,
           initialValue: education.details ?? '',
+          markup: true,
           maxLines: 3,
           onChanged: (v) =>
               onChanged(education.copyWith(details: v.orNullIfEmpty)),

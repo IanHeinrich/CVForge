@@ -137,6 +137,7 @@ class _StudioFieldOverrideCardState extends State<StudioFieldOverrideCard> {
               // the edit box opens blank rather than pre-filled with that
               // prompt as if it were text.
               effectiveText: hasAnyValue ? widget.effectiveValue : '',
+              vaultText: widget.vaultValue,
               onChanged: widget.onChanged,
               onRevert: widget.onRevert,
               emptyMessage: widget.emptyVaultMessage,

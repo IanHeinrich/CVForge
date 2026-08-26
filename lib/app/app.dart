@@ -68,6 +68,8 @@ import 'package:cv_forge/services/cv_translation_service.dart';
 
 import 'package:cv_forge/features/studio/dialogs/cv_translation_run/cv_translation_run_dialog.dart';
 
+import 'package:cv_forge/ui/dialogs/expand_text/expand_text_dialog.dart';
+
 // @stacked-import
 
 @StackedApp(
@@ -131,6 +133,7 @@ import 'package:cv_forge/features/studio/dialogs/cv_translation_run/cv_translati
     StackedDialog(classType: RegionGalleryDialog),
     StackedDialog(classType: CropPhotoDialog),
     StackedDialog(classType: CvTranslationRunDialog),
+    StackedDialog(classType: ExpandTextDialog),
     // @stacked-dialog
   ],
 )

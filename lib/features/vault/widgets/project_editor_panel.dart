@@ -42,6 +42,7 @@ class ProjectEditorPanel extends StatelessWidget {
         AppTextField(
           label: context.l10n.vaultProjectTitle,
           initialValue: project.title,
+          markup: true,
           onChanged: (v) => onChanged(project.copyWith(title: v)),
         ),
         const VGap.small(),

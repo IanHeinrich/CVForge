@@ -8,6 +8,7 @@ import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
+import 'package:cv_forge/templates/design/cv_markup_pdf.dart';
 import 'package:cv_forge/templates/design/cv_pdf_renderer.dart';
 import 'photo_header_tokens.dart';
 
@@ -65,10 +66,6 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
 
   @override
   CvTypeToken headlineStyle(CvDesignTokens tokens) => tokens.company;
-
-  @override
-  pw.Widget bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
-      pw.Text(text, style: tokens.body.toPdfStyle(fonts));
 
   /// The header occupies exactly the band's remaining height, so the first
   /// section heading starts at the band's bottom edge rather than partway
@@ -158,10 +155,7 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
       children: [
         pw.Text(header.fullName, style: tokens.name.toPdfStyle(fonts)),
         if (header.headline.trim().isNotEmpty)
-          pw.Text(
-            header.headline,
-            style: headlineStyle(tokens).toPdfStyle(fonts),
-          ),
+          markupText(header.headline, headlineStyle(tokens), fonts),
         if (rows.isNotEmpty) ...[
           pw.SizedBox(height: style.nameToContactPt - tokens.name.sizePt),
           for (final row in rows) _contactRow(row, tokens, fonts),
@@ -171,7 +165,7 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
           // with nothing in the label column to align to, an indent would
           // only look like a row whose label failed to print.
           pw.SizedBox(height: style.workAuthorizationGapPt),
-          pw.Text(workAuthorization, style: tokens.contact.toPdfStyle(fonts)),
+          markupText(workAuthorization, tokens.contact, fonts),
         ],
       ],
     );
@@ -315,14 +309,11 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
     pw.RichText(
       text: pw.TextSpan(
         children: [
-          pw.TextSpan(
-            text: position.role,
-            style: tokens.role.toPdfStyle(fonts),
-          ),
-          pw.TextSpan(
-            text: ' at ${group.company}, ${group.location}',
-            style: tokens.company.toPdfStyle(fonts),
-          ),
+          ...markupSpans(position.role, tokens.role, fonts),
+          literalSpan(' at ', tokens.company, fonts),
+          ...markupSpans(group.company, tokens.company, fonts),
+          literalSpan(', ', tokens.company, fonts),
+          ...markupSpans(group.location, tokens.company, fonts),
         ],
       ),
     ),
@@ -347,7 +338,7 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
     CvFontSet fonts,
   ) => _datedEntry(
     position.dateRange,
-    pw.Text(position.role, style: tokens.company.toPdfStyle(fonts)),
+    markupText(position.role, tokens.company, fonts),
     tokens,
     fonts,
   );
@@ -365,7 +356,7 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        pw.Text(project.title, style: tokens.role.toPdfStyle(fonts)),
+        markupText(project.title, tokens.role, fonts),
         if (link != null && link.trim().isNotEmpty)
           pw.UrlLink(
             destination: withScheme(link),
@@ -384,26 +375,25 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
     final detail = [
       edu.grade,
       edu.details,
-    ].where((s) => s != null && s.trim().isNotEmpty).join(', ');
-    final suffix = detail.isEmpty ? '' : ', $detail';
+    ].where((s) => s != null && s.trim().isNotEmpty).cast<String>();
     final location = edu.location;
-    final where = location == null || location.trim().isEmpty
-        ? edu.institution
-        : '${edu.institution}, $location';
+    // Institution, location, grade and details are four separately
+    // edited fields; each is parsed alone and glued with unparsed
+    // separators so no marker can pair across a comma.
+    final where = [
+      edu.institution,
+      if (location != null && location.trim().isNotEmpty) location,
+      ...detail,
+    ];
 
     return _datedEntry(
       edu.yearLabel,
       pw.RichText(
         text: pw.TextSpan(
           children: [
-            pw.TextSpan(
-              text: edu.qualification,
-              style: tokens.role.toPdfStyle(fonts),
-            ),
-            pw.TextSpan(
-              text: ' at $where$suffix',
-              style: tokens.company.toPdfStyle(fonts),
-            ),
+            ...markupSpans(edu.qualification, tokens.role, fonts),
+            literalSpan(' at ', tokens.company, fonts),
+            ...markupJoin(where, ', ', tokens.company, fonts),
           ],
         ),
       ),
@@ -423,9 +413,9 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        pw.Text(publication.title, style: tokens.role.toPdfStyle(fonts)),
+        markupText(publication.title, tokens.role, fonts),
         if (citation != null && citation.trim().isNotEmpty)
-          pw.Text(citation, style: tokens.meta.toPdfStyle(fonts)),
+          markupText(citation, tokens.meta, fonts),
         if (link != null && link.trim().isNotEmpty)
           pw.UrlLink(
             destination: withScheme(link),

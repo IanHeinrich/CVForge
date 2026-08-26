@@ -70,6 +70,28 @@ Return the text unchanged for any of these:
 Where a term has a genuine, established equivalent in the target market's
 professional vocabulary, use it. Where it does not, leave it.
 
+## Emphasis marks
+
+Some strings carry inline emphasis marks: `**bold**`, `*italic*` and
+`***bold italic***`. They are formatting the document prints, not content
+and not typos.
+
+Carry them across with the phrase they mark, not with the position they
+sat at. Word order changes between languages, so the marks move with the
+words: "increased **revenue** by 30%" becomes "aumentó los **ingresos**
+un 30 %", never "aumentó los ingresos un **30 %**".
+
+Every string comes back with the same number of emphasised phrases it
+arrived with — no more, no fewer. Do not add emphasis a string did not
+have, and do not drop emphasis it did. Where the emphasised phrase has no
+single counterpart in the target language, mark the phrase that carries
+its meaning instead.
+
+A lone `*` that is not part of a pair is literal text (a grade like `A*`,
+a multiplication sign, a footnote marker). Return it unchanged and never
+pair it with another one. Underscores are not emphasis; leave
+`snake_case` names alone, the same as any other identifier.
+
 ## Faithfulness
 
 A translation must state exactly what the original stated. Nothing may be

@@ -331,6 +331,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonDone => 'Done';
 
   @override
+  String get commonExpandEditor => 'Edit in a larger box';
+
+  @override
+  String get commonFormatBold => 'Bold';
+
+  @override
+  String get commonFormatItalic => 'Italic';
+
+  @override
+  String commonLengthBudgetLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters left',
+      one: '1 character left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonLengthBudgetOver => 'Too long to fit on one page';
+
+  @override
+  String commonVaultOriginal(String text) {
+    return 'Vault: $text';
+  }
+
+  @override
   String get commonMore => 'More';
 
   @override
@@ -1355,6 +1383,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioBackToSections => 'Back to sections';
 
   @override
+  String get studioBlankRestoresVault =>
+      'Leave empty to use the Vault\'s wording';
+
+  @override
   String studioBulletsSelected(int selected, int total) {
     return '$selected/$total bullets';
   }
@@ -2157,6 +2189,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaultBasicsFullName => 'Full name';
+
+  @override
+  String get vaultBasicsGroupContact => 'How to reach you';
+
+  @override
+  String get vaultBasicsGroupIdentity => 'Who you are';
+
+  @override
+  String get vaultBasicsGroupWriting => 'What you say';
 
   @override
   String get vaultBasicsHeadline => 'Headline';

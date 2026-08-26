@@ -6,6 +6,7 @@ import 'package:cv_forge/models/render/resolved_section.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens.dart';
 import 'package:cv_forge/templates/design/cv_design_tokens_pdf.dart';
 import 'package:cv_forge/templates/design/cv_font_set.dart';
+import 'package:cv_forge/templates/design/cv_markup_pdf.dart';
 import 'package:cv_forge/templates/design/cv_pdf_renderer.dart';
 
 /// The `compact` style: left-aligned section headings underlined by a
@@ -21,10 +22,6 @@ class CompactPdfRenderer extends CvPdfRenderer {
 
   @override
   CvTypeToken headlineStyle(CvDesignTokens tokens) => tokens.company;
-
-  @override
-  pw.Widget bodyText(String text, CvDesignTokens tokens, CvFontSet fonts) =>
-      pw.Text(text, style: tokens.body.toPdfStyle(fonts));
 
   @override
   pw.Widget? sectionHeading(
@@ -56,18 +53,13 @@ class CompactPdfRenderer extends CvPdfRenderer {
     CvDesignTokens tokens,
     CvFontSet fonts,
   ) => _labelledRow(
-    pw.TextSpan(
-      children: [
-        pw.TextSpan(
-          text: '${position.role}, ',
-          style: tokens.role.toPdfStyle(fonts),
-        ),
-        pw.TextSpan(
-          text: '${group.company} – ${group.location}',
-          style: tokens.company.toPdfStyle(fonts),
-        ),
-      ],
-    ),
+    [
+      ...markupSpans(position.role, tokens.role, fonts),
+      literalSpan(', ', tokens.role, fonts),
+      ...markupSpans(group.company, tokens.company, fonts),
+      literalSpan(' – ', tokens.company, fonts),
+      ...markupSpans(group.location, tokens.company, fonts),
+    ],
     position.dateRange,
     tokens,
     fonts,
@@ -78,9 +70,14 @@ class CompactPdfRenderer extends CvPdfRenderer {
     ResolvedCompanyGroup group,
     CvDesignTokens tokens,
     CvFontSet fonts,
-  ) => pw.Text(
-    '${group.company} – ${group.location}',
-    style: tokens.role.toPdfStyle(fonts),
+  ) => pw.RichText(
+    text: pw.TextSpan(
+      children: [
+        ...markupSpans(group.company, tokens.role, fonts),
+        literalSpan(' – ', tokens.role, fonts),
+        ...markupSpans(group.location, tokens.role, fonts),
+      ],
+    ),
   );
 
   @override
@@ -89,7 +86,7 @@ class CompactPdfRenderer extends CvPdfRenderer {
     CvDesignTokens tokens,
     CvFontSet fonts,
   ) => _labelledRow(
-    pw.TextSpan(text: position.role, style: tokens.company.toPdfStyle(fonts)),
+    markupSpans(position.role, tokens.company, fonts),
     position.dateRange,
     tokens,
     fonts,
@@ -104,7 +101,7 @@ class CompactPdfRenderer extends CvPdfRenderer {
     CvDesignTokens tokens,
     CvFontSet fonts,
   ) => _labelledRow(
-    pw.TextSpan(text: project.title, style: tokens.role.toPdfStyle(fonts)),
+    markupSpans(project.title, tokens.role, fonts),
     project.link,
     tokens,
     fonts,
@@ -120,25 +117,24 @@ class CompactPdfRenderer extends CvPdfRenderer {
     CvDesignTokens tokens,
     CvFontSet fonts,
   ) {
+    // Each field is parsed on its own and glued with unparsed separators
+    // — joining first would let a stray marker in `grade` pair with one
+    // in `details` across the comma.
     final detail = [
       edu.grade,
       edu.details,
-    ].where((s) => s != null && s.trim().isNotEmpty).join(', ');
-    final suffix = detail.isEmpty ? '' : ', $detail';
+    ].where((s) => s != null && s.trim().isNotEmpty).cast<String>();
 
     return _labelledRow(
-      pw.TextSpan(
-        children: [
-          pw.TextSpan(
-            text: edu.institution,
-            style: tokens.role.toPdfStyle(fonts),
-          ),
-          pw.TextSpan(
-            text: ' – ${edu.qualification}$suffix',
-            style: tokens.company.toPdfStyle(fonts),
-          ),
+      [
+        ...markupSpans(edu.institution, tokens.role, fonts),
+        literalSpan(' – ', tokens.company, fonts),
+        ...markupSpans(edu.qualification, tokens.company, fonts),
+        if (detail.isNotEmpty) ...[
+          literalSpan(', ', tokens.company, fonts),
+          ...markupJoin(detail, ', ', tokens.company, fonts),
         ],
-      ),
+      ],
       edu.yearLabel,
       tokens,
       fonts,
@@ -156,9 +152,9 @@ class CompactPdfRenderer extends CvPdfRenderer {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        pw.Text(publication.title, style: tokens.role.toPdfStyle(fonts)),
+        markupText(publication.title, tokens.role, fonts),
         if (citation != null && citation.trim().isNotEmpty)
-          pw.Text(citation, style: tokens.meta.toPdfStyle(fonts)),
+          markupText(citation, tokens.meta, fonts),
         if (link != null && link.trim().isNotEmpty)
           pw.UrlLink(
             destination: withScheme(link),
@@ -176,7 +172,7 @@ class CompactPdfRenderer extends CvPdfRenderer {
 /// [rightUrl], when given, makes the right-hand value (e.g. a project
 /// link) a clickable hyperlink rather than plain text.
 pw.Widget _labelledRow(
-  pw.InlineSpan left,
+  List<pw.InlineSpan> left,
   String? right,
   CvDesignTokens tokens,
   CvFontSet fonts, {
@@ -190,7 +186,7 @@ pw.Widget _labelledRow(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
       pw.Expanded(
-        child: pw.RichText(text: pw.TextSpan(children: [left])),
+        child: pw.RichText(text: pw.TextSpan(children: left)),
       ),
       if (rightWidget != null)
         rightUrl == null

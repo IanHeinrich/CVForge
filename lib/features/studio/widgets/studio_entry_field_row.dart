@@ -1,3 +1,4 @@
+import 'package:cv_forge/ui/common/cv_markup_flutter.dart';
 import 'package:cv_forge/ui/common/tokens/app_palette.dart';
 import 'package:cv_forge/ui/common/tokens/app_spacing.dart';
 import 'package:cv_forge/ui/common/tokens/app_typography.dart';
@@ -59,7 +60,13 @@ class StudioEntryFieldRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final baseStyle = dense ? context.appTypography.caption : const TextStyle();
+    // Both branches tokenised. The page-level one used to be a bare
+    // `TextStyle()`, which meant a headline or summary row inherited
+    // whatever ambient `DefaultTextStyle` happened to apply — the one
+    // type treatment in this pane that was not a deliberate choice.
+    final baseStyle = dense
+        ? context.appTypography.caption
+        : context.appTypography.bodySmall;
     // An omitted field still shows its value — you need to see what you
     // are choosing to leave off — but struck through and in the
     // placeholder colour, so a glance down the column says what prints.
@@ -68,9 +75,11 @@ class StudioEntryFieldRow extends StatelessWidget {
       _ => false,
     };
     final hasText = field.displayText.trim().isNotEmpty;
-    // Editing collapses the preview to one line: the box directly below
-    // is already showing the same text in full.
-    final maxLines = editing ? 1 : previewMaxLines;
+    // While editing, the value is dropped from the preview entirely —
+    // the box directly below holds the same text, in full and editable,
+    // and showing it twice made the row read as two fields. The label
+    // stays, because the editor no longer carries one.
+    final showValue = !editing;
 
     return TailoringHighlight(
       active: editing,
@@ -99,14 +108,20 @@ class StudioEntryFieldRow extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                        TextSpan(
-                          text: hasText
-                              ? field.displayText
-                              : (field.emptyMessage ?? ''),
-                        ),
+                        // Emphasis-only spans, so the outer style below
+                        // still supplies the colour, the italic an empty
+                        // field is drawn in, and the strikethrough on an
+                        // omitted one. The empty message is localized
+                        // chrome, never user text, so it is not parsed.
+                        if (!showValue)
+                          const TextSpan(text: '')
+                        else if (hasText)
+                          ...cvMarkupSpans(field.displayText)
+                        else
+                          TextSpan(text: field.emptyMessage ?? ''),
                       ],
                     ),
-                    maxLines: maxLines,
+                    maxLines: previewMaxLines,
                     overflow: TextOverflow.ellipsis,
                     style: baseStyle.copyWith(
                       color: hasText && !omitted
