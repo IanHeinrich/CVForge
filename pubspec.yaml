@@ -1,7 +1,7 @@
 name: cv_forge
 description: "CVForge - resume/CV builder web app"
 publish_to: 'none'
-version: 2.22.0
+version: 2.23.0
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
@@ -56,6 +56,12 @@ dev_dependencies:
   freezed: ^3.2.5
   json_serializable: ^6.14.1
   theme_tailor: ^3.1.3
+  # Generates lib/app/app_version.dart from `version:` above, so a release
+  # is one edit rather than two kept in step by a test. A dev dependency
+  # producing a committed constant, not a runtime one — which is the same
+  # reason `package_info_plus` was declined: nothing reads this back, so
+  # the app should not carry a plugin to learn its own version.
+  build_version: ^2.1.3
 
 # See docs/printing-fork.md — printing 5.15.0 plus a one-line fix for an
 # upstream web bug that blocks this app's privacy stance, carried on a
@@ -76,13 +82,40 @@ flutter:
   generate: true
 
   # rootBundle.load() needs this to find the raw TTF bytes for
-  # pw.Font.ttf() — the sole renderer now (Studio's preview rasterizes the
-  # same PDF the export produces), so no `fonts:` family registration is
-  # needed for a Flutter TextStyle(fontFamily: ...) that no longer exists.
+  # pw.Font.ttf() — the PDF renderer reads them as bytes, not as a
+  # registered family, so the `assets:` entry is what that path needs.
   assets:
     - assets/fonts/
     # The brand marks, rendered in-app by BrandMark. SVG rather than PNG so
     # the mark takes a theme colour and stays crisp at any size; see
     # assets/brand/README.md for which file is which.
     - assets/brand/
+
+  # The same four files again, this time registered as a family. Flutter's
+  # default text style asks for "Roboto", and on web CanvasKit satisfies
+  # that by downloading it from fonts.gstatic.com unless the asset manifest
+  # already has it — so without this, every page load fetched a font from
+  # Google in an app whose whole claim is that a CV never leaves the
+  # device. Same reason index.html sets dartPdfJsBaseUrl and
+  # canvasKitBaseUrl to local paths.
+  #
+  # The bytes are already in the bundle for the PDF, so registering them
+  # costs nothing beyond the manifest entry.
+  #
+  # This does NOT make the app request-free. CanvasKit downloads a fallback
+  # font for any glyph no embedded font covers, and `RegionPreset.flags` is
+  # emoji — so a screen showing a region flag still fetches Noto Color
+  # Emoji. Closing that means either bundling a ~10MB emoji font or drawing
+  # the flags as assets instead; neither belongs in a font registration.
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Roboto-BoldItalic.ttf
+          weight: 700
+          style: italic
 

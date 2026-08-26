@@ -1987,6 +1987,26 @@ class MockDraftService extends _i1.Mock implements _i44.DraftService {
           as _i33.Future<void>);
 
   @override
+  _i33.Future<void> setWorkAuthorizationOverride(String? workAuthorization) =>
+      (super.noSuchMethod(
+            Invocation.method(#setWorkAuthorizationOverride, [
+              workAuthorization,
+            ]),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
+          )
+          as _i33.Future<void>);
+
+  @override
+  _i33.Future<void> setWorkAuthorizationHidden(bool? hidden) =>
+      (super.noSuchMethod(
+            Invocation.method(#setWorkAuthorizationHidden, [hidden]),
+            returnValue: _i33.Future<void>.value(),
+            returnValueForMissingStub: _i33.Future<void>.value(),
+          )
+          as _i33.Future<void>);
+
+  @override
   _i33.Future<void> flushPendingWrites() =>
       (super.noSuchMethod(
             Invocation.method(#flushPendingWrites, []),

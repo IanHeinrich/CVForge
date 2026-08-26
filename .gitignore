@@ -48,7 +48,12 @@ app.*.map.json
 .widget_preview/
 
 # Claude Code local tooling config (machine/environment-specific, not portable)
-.claude/
+.claude/*
+# ...except skills, which are the opposite: repo-specific knowledge meant to
+# be shared, and read by any contributor's session. `run-app` is the one
+# that matters — it carries how to launch this app headlessly, which the PR
+# template asks for on anything under lib/features/studio/widgets/.
+!.claude/skills/
 # Dart MCP server config — command/env.PATH point at this machine's Flutter
 # SDK install location, not portable across devs or OSes.
 .mcp.json
