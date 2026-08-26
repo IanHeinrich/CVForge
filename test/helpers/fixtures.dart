@@ -3,6 +3,7 @@ import 'package:cv_forge/models/draft/cv_draft.dart';
 import 'package:cv_forge/models/draft/cv_section_type.dart';
 import 'package:cv_forge/models/draft/draft_omittable_field.dart';
 import 'package:cv_forge/models/region/region_profile.dart';
+import 'package:cv_forge/models/render/resolved_cv.dart';
 import 'package:cv_forge/models/vault/contact_basics.dart';
 import 'package:cv_forge/models/vault/cv_bullet.dart';
 import 'package:cv_forge/models/vault/cv_vault.dart';
@@ -97,6 +98,7 @@ CvDraft draftWith({
   Map<String, String> experienceLocationOverrides = const {},
   Map<String, String> educationLocationOverrides = const {},
   bool hideHeadline = false,
+  bool hideWorkAuthorization = false,
   DocumentLanguage? translatedTo,
   String? targetJobDescription,
   DateTime? updatedAt,
@@ -140,6 +142,7 @@ CvDraft draftWith({
   experienceLocationOverrides: experienceLocationOverrides,
   educationLocationOverrides: educationLocationOverrides,
   hideHeadline: hideHeadline,
+  hideWorkAuthorization: hideWorkAuthorization,
   translatedTo: translatedTo,
   targetJobDescription: targetJobDescription,
   sectionOrder: sectionOrder ?? CvSectionType.values,
@@ -229,3 +232,17 @@ Map<String, String> stubInMemoryStorage(MockLocalStorageService storage) {
   });
   return data;
 }
+
+/// English contact labels for the `ResolvedCv` fixtures below and in the
+/// PDF/template tests, which build a `ResolvedHeader` directly rather than
+/// through `CvComposer`.
+///
+/// A shared constant rather than a default on `ResolvedContactLabels`
+/// itself: the production field is deliberately required, so that a header
+/// cannot be built without deciding what language its labels are in.
+const kEnglishContactLabels = ResolvedContactLabels(
+  location: 'Location',
+  phone: 'Phone',
+  email: 'Email',
+  link: 'Link',
+);

@@ -14,6 +14,13 @@ sealed class ResolvedSection with _$ResolvedSection {
 
   const factory ResolvedSection.experience({
     required String title,
+
+    /// The longer register of [title] — "Professional Experience" against
+    /// "Experience" — for the one template that prefers it. Resolved here
+    /// rather than written into `ClassicCenteredPdfRenderer`, where it was
+    /// a hard-coded English string that overrode the translated [title] and
+    /// printed on German CVs.
+    required String titleFormal,
     required List<ResolvedCompanyGroup> groups,
   }) = ResolvedExperienceSection;
 

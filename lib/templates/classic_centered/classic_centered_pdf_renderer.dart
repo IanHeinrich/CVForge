@@ -29,9 +29,13 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
   pw.TextAlign? get bodyAlign => pw.TextAlign.justify;
 
   /// Centered, bold, no rule — the reference this template clones leans on
-  /// whitespace rather than a line to separate sections. "Experience"
-  /// reads as "Professional Experience" here, matching that reference,
-  /// while `compact` keeps the shorter shared title.
+  /// whitespace rather than a line to separate sections. Experience takes
+  /// the longer register here, matching that reference, while `compact`
+  /// keeps the shorter shared title.
+  ///
+  /// Both come resolved from the composer. This used to be a literal
+  /// "Professional Experience", which overrode the translated title and
+  /// so printed English on a CV written in any other language.
   @override
   pw.Widget sectionHeading(
     ResolvedSection section,
@@ -39,7 +43,7 @@ class ClassicCenteredPdfRenderer extends CvPdfRenderer {
     CvFontSet fonts,
   ) {
     final title = switch (section) {
-      ResolvedExperienceSection() => 'Professional Experience',
+      ResolvedExperienceSection(titleFormal: final formal) => formal,
       _ => section.title,
     };
     return pw.Column(

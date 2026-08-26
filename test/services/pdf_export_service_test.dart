@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:mockito/mockito.dart';
 
+import '../helpers/fixtures.dart';
 import '../helpers/test_helpers.dart';
 import '../helpers/test_helpers.mocks.dart';
 
@@ -26,6 +27,7 @@ String _fixturePhotoBase64() {
 ResolvedCv _fixtureCv({
   String bulletText = 'Delivered a standard result.',
   String role = 'Engineer',
+  String? workAuthorization,
   String? photoJpegBase64,
 }) => ResolvedCv(
   header: ResolvedHeader(
@@ -37,6 +39,8 @@ ResolvedCv _fixtureCv({
     links: const [
       ResolvedLink(label: 'LinkedIn', url: 'linkedin.com/in/jordanellery'),
     ],
+    contactLabels: kEnglishContactLabels,
+    workAuthorization: workAuthorization,
     photoJpegBase64: photoJpegBase64,
   ),
   sections: [
@@ -46,6 +50,7 @@ ResolvedCv _fixtureCv({
     ),
     ResolvedSection.experience(
       title: 'Experience',
+      titleFormal: 'Professional Experience',
       groups: [
         ResolvedCompanyGroup(
           company: 'Acme',
@@ -266,6 +271,39 @@ void main() {
       }
     });
 
+    test('the work-authorisation line honours emphasis in every template — '
+        'it is the one part of the header that is a sentence someone '
+        'wrote rather than an address an ATS matches by regex, and it '
+        'prints from a different place in each template', () async {
+      for (final templateId in [
+        'compact',
+        'classic_centered',
+        'photo_header',
+      ]) {
+        Future<Set<String>> fontsFor(String line) async {
+          final bytes = await PdfExportService().render(
+            cv: _fixtureCv(workAuthorization: line),
+            templateId: templateId,
+            compress: false,
+          );
+          return RegExp(
+            r'/BaseFont\s*/([A-Za-z0-9+\-]+)',
+          ).allMatches(latin1.decode(bytes)).map((m) => m.group(1)!).toSet();
+        }
+
+        expect(
+          await fontsFor('Right to work in the UK'),
+          isNot(contains('Roboto-BoldItalic')),
+          reason: '$templateId embedded bold-italic with no markup present',
+        );
+        expect(
+          await fontsFor('Right to work, ***no sponsorship*** required'),
+          contains('Roboto-BoldItalic'),
+          reason: '$templateId dropped emphasis in the work-authorisation line',
+        );
+      }
+    });
+
     test('an entry with far more bullets than fit on one page paginates '
         'across as many pages as it needs, rather than failing the '
         'export — each bullet is its own top-level pw.MultiPage widget, '
@@ -281,10 +319,12 @@ void main() {
           phone: '+44 7700 900123',
           location: 'Manchester',
           links: [],
+          contactLabels: kEnglishContactLabels,
         ),
         sections: [
           ResolvedSection.experience(
             title: 'Experience',
+            titleFormal: 'Professional Experience',
             groups: [
               ResolvedCompanyGroup(
                 company: 'Acme',
@@ -332,10 +372,12 @@ void main() {
           phone: '+44 7700 900123',
           location: 'Manchester',
           links: [],
+          contactLabels: kEnglishContactLabels,
         ),
         sections: [
           ResolvedSection.experience(
             title: 'Experience',
+            titleFormal: 'Professional Experience',
             groups: [
               ResolvedCompanyGroup(
                 company: 'Acme',

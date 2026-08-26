@@ -226,6 +226,7 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
       basics.headline,
       basics.email,
       basics.summary ?? '',
+      basics.workAuthorization ?? '',
     ].any((field) => stripCvMarkup(field).toLowerCase().contains(_query));
   }
 
@@ -363,6 +364,22 @@ class VaultViewModel extends ReactiveViewModel implements Initialisable {
   Future<void> toggleDefaultHeadline() => _vaultService.setDocumentDefaults(
     documentDefaults.copyWith(hideHeadline: !documentDefaults.hideHeadline),
   );
+
+  /// Whether a new CV starts with its work-authorisation line shown — the
+  /// same question Studio's pinned row asks per draft, one level up.
+  ///
+  /// Worth a default of its own rather than leaving it per-CV: the line is
+  /// relevant to a minority of applications, so someone who keeps a
+  /// sentence in the Vault mostly wants it off and turned on deliberately.
+  bool get includeDefaultWorkAuthorization =>
+      !documentDefaults.hideWorkAuthorization;
+
+  Future<void> toggleDefaultWorkAuthorization() =>
+      _vaultService.setDocumentDefaults(
+        documentDefaults.copyWith(
+          hideWorkAuthorization: !documentDefaults.hideWorkAuthorization,
+        ),
+      );
 
   /// Unlike Studio's list, which shows only the sections the open draft has
   /// data for, this one lists every section: a default is being set for

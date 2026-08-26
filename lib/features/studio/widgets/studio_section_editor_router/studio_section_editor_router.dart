@@ -20,6 +20,7 @@ import 'package:cv_forge/features/studio/widgets/sections/publications_section_e
 import 'package:cv_forge/features/studio/widgets/sections/references_section_editor/references_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/skills_section_editor/skills_section_editor.dart';
 import 'package:cv_forge/features/studio/widgets/sections/summary_section_editor/summary_section_editor.dart';
+import 'package:cv_forge/features/studio/widgets/sections/work_authorization_editor/work_authorization_editor.dart';
 
 /// Resolves [StudioViewModel.openSection] to the correct section editor
 /// widget. Kept in one place so desktop/compact layouts don't each
@@ -34,14 +35,21 @@ class StudioSectionEditorRouter extends StatelessWidget {
     final Widget editor;
 
     /// Distinguishes this editor's scroll offset from every other one's —
-    /// `CvSectionType.name` for a section, and a literal the enum cannot
-    /// produce for the headline, which is not a section (see
-    /// [StudioViewModel.isHeadlineOpen]).
+    /// `CvSectionType.name` for a section, and `StudioHeaderField.name`
+    /// for the two fields that are not sections. The two enums share no
+    /// case names, so one namespace is safe (see
+    /// [StudioViewModel.openHeaderField]).
     final String storageKey;
 
-    if (viewModel.isHeadlineOpen) {
-      editor = HeadlineEditor(viewModel: viewModel);
-      storageKey = 'headline';
+    final headerField = viewModel.openHeaderField;
+    if (headerField != null) {
+      editor = switch (headerField) {
+        StudioHeaderField.headline => HeadlineEditor(viewModel: viewModel),
+        StudioHeaderField.workAuthorization => WorkAuthorizationEditor(
+          viewModel: viewModel,
+        ),
+      };
+      storageKey = headerField.name;
     } else {
       final type = viewModel.openSection;
       // A hidden/no-data section can't normally reach here — the nav only
@@ -79,9 +87,10 @@ class StudioSectionEditorRouter extends StatelessWidget {
     }
 
     // Every editor is wrapped here rather than padding itself, so the
-    // headline — which is structurally identical to the summary editor,
+    // two header-field editors — structurally identical to the summary's,
     // one card in a column — cannot end up flush against the pane edge
-    // while the summary sits inset. It used to, by returning early.
+    // while the summary sits inset. The headline used to, by returning
+    // early.
     //
     // A distinct `PageStorageKey` per editor so switching and coming back
     // restores each one's own scroll offset rather than bleeding a stale

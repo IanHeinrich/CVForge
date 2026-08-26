@@ -71,8 +71,15 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
   /// section heading starts at the band's bottom edge rather than partway
   /// up it. Derived rather than stated twice: the band is measured from
   /// the top of the page and the content box starts one top margin down.
-  double headerHeight(CvDesignTokens tokens, {required bool hasPhoto}) =>
-      (hasPhoto ? style.bandHeightPt : style.bandHeightNoPhotoPt) -
+  double headerHeight(
+    CvDesignTokens tokens, {
+    required bool hasPhoto,
+    required bool hasWorkAuthorization,
+  }) =>
+      style.bandHeight(
+        hasPhoto: hasPhoto,
+        hasWorkAuthorization: hasWorkAuthorization,
+      ) -
       tokens.marginTop;
 
   @override
@@ -84,7 +91,12 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
     final photo = header.photoJpegBase64;
 
     return pw.SizedBox(
-      height: headerHeight(tokens, hasPhoto: photo != null),
+      height: headerHeight(
+        tokens,
+        hasPhoto: photo != null,
+        hasWorkAuthorization:
+            header.workAuthorization?.trim().isNotEmpty ?? false,
+      ),
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -113,26 +125,29 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
     CvDesignTokens tokens,
     CvFontSet fonts,
   ) {
+    final labels = header.contactLabels;
     final rows = <_ContactRow>[
       if (header.location.trim().isNotEmpty)
-        _ContactRow('Location', header.location),
-      if (header.phone.trim().isNotEmpty) _ContactRow('Phone', header.phone),
+        _ContactRow(labels.location, header.location),
+      if (header.phone.trim().isNotEmpty)
+        _ContactRow(labels.phone, header.phone),
       if (header.email.trim().isNotEmpty)
-        _ContactRow('Email', header.email, url: 'mailto:${header.email}'),
+        _ContactRow(labels.email, header.email, url: 'mailto:${header.email}'),
       for (final link in header.links)
         if (link.url.trim().isNotEmpty)
           _ContactRow(
-            link.label.trim().isEmpty ? 'Link' : link.label,
+            link.label.trim().isEmpty ? labels.link : link.label,
             link.url,
             url: withScheme(link.url),
           ),
-      // Labelless, unlike every row above it: the value is already a
-      // whole sentence, and the labels here are hard-coded English that
-      // does not follow the document language — a defect worth fixing on
-      // its own, not worth a fifth instance of.
-      if (header.workAuthorization?.trim().isNotEmpty ?? false)
-        _ContactRow('', header.workAuthorization!),
     ];
+
+    // Not a [_ContactRow]. It has no label — the user wrote the whole
+    // sentence — and an empty one printed a bare ":" in the label column,
+    // since [_contactRow] always renders "<label>:". It is also the only
+    // header value long enough to wrap, and a row is a fixed-height box
+    // that would clip the second line.
+    final workAuthorization = header.workAuthorization?.trim() ?? '';
 
     return pw.Column(
       mainAxisSize: pw.MainAxisSize.min,
@@ -144,6 +159,13 @@ class PhotoHeaderPdfRenderer extends CvPdfRenderer {
         if (rows.isNotEmpty) ...[
           pw.SizedBox(height: style.nameToContactPt - tokens.name.sizePt),
           for (final row in rows) _contactRow(row, tokens, fonts),
+        ],
+        if (workAuthorization.isNotEmpty) ...[
+          // Spanning both columns rather than sitting in the value one:
+          // with nothing in the label column to align to, an indent would
+          // only look like a row whose label failed to print.
+          pw.SizedBox(height: style.workAuthorizationGapPt),
+          markupText(workAuthorization, tokens.contact, fonts),
         ],
       ],
     );

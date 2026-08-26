@@ -1691,6 +1691,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioNoSummary => 'Aún no hay perfil profesional en tu Bóveda.';
 
   @override
+  String get studioNoWorkAuthorization =>
+      'Aún no hay autorización de trabajo en tu Bóveda.';
+
+  @override
   String studioPageCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1803,6 +1807,9 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get studioSectionNavPersistError =>
       'No se pudo guardar tu último cambio de selección.';
+
+  @override
+  String get studioSectionWorkAuthorization => 'Autorización de trabajo';
 
   @override
   String get studioSectionsResetDefault =>
@@ -2374,6 +2381,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get vaultCvDefaultsTemplateLabel => 'Plantilla';
+
+  @override
+  String get vaultCvDefaultsWorkAuthorization => 'Autorización de trabajo';
 
   @override
   String get vaultDeleteCategoryBody =>

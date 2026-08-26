@@ -37,7 +37,14 @@ mixin _$DocumentDefaults {
 /// suggestion, where this has a real default of its own. `false` is
 /// also what stored JSON written before this field existed decodes
 /// to, which is the pre-existing behaviour — so no migration.
- bool get hideHeadline;
+ bool get hideHeadline;/// Whether a new draft starts with the work-authorization line
+/// dropped. Mirrors `CvDraft.hideWorkAuthorization` on the same terms
+/// [hideHeadline] mirrors its own draft field.
+///
+/// The default that earns its keep: the line is relevant to a minority
+/// of applications, so someone who keeps a sentence in the Vault
+/// mostly wants it off and turned on deliberately.
+ bool get hideWorkAuthorization;
 /// Create a copy of DocumentDefaults
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -50,16 +57,16 @@ $DocumentDefaultsCopyWith<DocumentDefaults> get copyWith => _$DocumentDefaultsCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DocumentDefaults&&(identical(other.region, region) || other.region == region)&&(identical(other.language, language) || other.language == language)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&const DeepCollectionEquality().equals(other.sectionOrder, sectionOrder)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&(identical(other.hideHeadline, hideHeadline) || other.hideHeadline == hideHeadline));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DocumentDefaults&&(identical(other.region, region) || other.region == region)&&(identical(other.language, language) || other.language == language)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&const DeepCollectionEquality().equals(other.sectionOrder, sectionOrder)&&const DeepCollectionEquality().equals(other.hiddenSections, hiddenSections)&&(identical(other.hideHeadline, hideHeadline) || other.hideHeadline == hideHeadline)&&(identical(other.hideWorkAuthorization, hideWorkAuthorization) || other.hideWorkAuthorization == hideWorkAuthorization));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,region,language,templateId,const DeepCollectionEquality().hash(sectionOrder),const DeepCollectionEquality().hash(hiddenSections),hideHeadline);
+int get hashCode => Object.hash(runtimeType,region,language,templateId,const DeepCollectionEquality().hash(sectionOrder),const DeepCollectionEquality().hash(hiddenSections),hideHeadline,hideWorkAuthorization);
 
 @override
 String toString() {
-  return 'DocumentDefaults(region: $region, language: $language, templateId: $templateId, sectionOrder: $sectionOrder, hiddenSections: $hiddenSections, hideHeadline: $hideHeadline)';
+  return 'DocumentDefaults(region: $region, language: $language, templateId: $templateId, sectionOrder: $sectionOrder, hiddenSections: $hiddenSections, hideHeadline: $hideHeadline, hideWorkAuthorization: $hideWorkAuthorization)';
 }
 
 
@@ -70,7 +77,7 @@ abstract mixin class $DocumentDefaultsCopyWith<$Res>  {
   factory $DocumentDefaultsCopyWith(DocumentDefaults value, $Res Function(DocumentDefaults) _then) = _$DocumentDefaultsCopyWithImpl;
 @useResult
 $Res call({
- RegionProfile region, DocumentLanguage language, String? templateId, List<CvSectionType>? sectionOrder, Set<CvSectionType>? hiddenSections, bool hideHeadline
+ RegionProfile region, DocumentLanguage language, String? templateId, List<CvSectionType>? sectionOrder, Set<CvSectionType>? hiddenSections, bool hideHeadline, bool hideWorkAuthorization
 });
 
 
@@ -87,7 +94,7 @@ class _$DocumentDefaultsCopyWithImpl<$Res>
 
 /// Create a copy of DocumentDefaults
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? region = null,Object? language = null,Object? templateId = freezed,Object? sectionOrder = freezed,Object? hiddenSections = freezed,Object? hideHeadline = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? region = null,Object? language = null,Object? templateId = freezed,Object? sectionOrder = freezed,Object? hiddenSections = freezed,Object? hideHeadline = null,Object? hideWorkAuthorization = null,}) {
   return _then(_self.copyWith(
 region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
 as RegionProfile,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
@@ -95,6 +102,7 @@ as DocumentLanguage,templateId: freezed == templateId ? _self.templateId : templ
 as String?,sectionOrder: freezed == sectionOrder ? _self.sectionOrder : sectionOrder // ignore: cast_nullable_to_non_nullable
 as List<CvSectionType>?,hiddenSections: freezed == hiddenSections ? _self.hiddenSections : hiddenSections // ignore: cast_nullable_to_non_nullable
 as Set<CvSectionType>?,hideHeadline: null == hideHeadline ? _self.hideHeadline : hideHeadline // ignore: cast_nullable_to_non_nullable
+as bool,hideWorkAuthorization: null == hideWorkAuthorization ? _self.hideWorkAuthorization : hideWorkAuthorization // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -180,10 +188,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RegionProfile region,  DocumentLanguage language,  String? templateId,  List<CvSectionType>? sectionOrder,  Set<CvSectionType>? hiddenSections,  bool hideHeadline)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RegionProfile region,  DocumentLanguage language,  String? templateId,  List<CvSectionType>? sectionOrder,  Set<CvSectionType>? hiddenSections,  bool hideHeadline,  bool hideWorkAuthorization)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DocumentDefaults() when $default != null:
-return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,_that.hiddenSections,_that.hideHeadline);case _:
+return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,_that.hiddenSections,_that.hideHeadline,_that.hideWorkAuthorization);case _:
   return orElse();
 
 }
@@ -201,10 +209,10 @@ return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RegionProfile region,  DocumentLanguage language,  String? templateId,  List<CvSectionType>? sectionOrder,  Set<CvSectionType>? hiddenSections,  bool hideHeadline)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RegionProfile region,  DocumentLanguage language,  String? templateId,  List<CvSectionType>? sectionOrder,  Set<CvSectionType>? hiddenSections,  bool hideHeadline,  bool hideWorkAuthorization)  $default,) {final _that = this;
 switch (_that) {
 case _DocumentDefaults():
-return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,_that.hiddenSections,_that.hideHeadline);case _:
+return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,_that.hiddenSections,_that.hideHeadline,_that.hideWorkAuthorization);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -221,10 +229,10 @@ return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RegionProfile region,  DocumentLanguage language,  String? templateId,  List<CvSectionType>? sectionOrder,  Set<CvSectionType>? hiddenSections,  bool hideHeadline)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RegionProfile region,  DocumentLanguage language,  String? templateId,  List<CvSectionType>? sectionOrder,  Set<CvSectionType>? hiddenSections,  bool hideHeadline,  bool hideWorkAuthorization)?  $default,) {final _that = this;
 switch (_that) {
 case _DocumentDefaults() when $default != null:
-return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,_that.hiddenSections,_that.hideHeadline);case _:
+return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,_that.hiddenSections,_that.hideHeadline,_that.hideWorkAuthorization);case _:
   return null;
 
 }
@@ -236,7 +244,7 @@ return $default(_that.region,_that.language,_that.templateId,_that.sectionOrder,
 @JsonSerializable()
 
 class _DocumentDefaults implements DocumentDefaults {
-  const _DocumentDefaults({this.region = RegionProfile.uk, this.language = DocumentLanguage.enGb, this.templateId, final  List<CvSectionType>? sectionOrder, final  Set<CvSectionType>? hiddenSections, this.hideHeadline = false}): _sectionOrder = sectionOrder,_hiddenSections = hiddenSections;
+  const _DocumentDefaults({this.region = RegionProfile.uk, this.language = DocumentLanguage.enGb, this.templateId, final  List<CvSectionType>? sectionOrder, final  Set<CvSectionType>? hiddenSections, this.hideHeadline = false, this.hideWorkAuthorization = false}): _sectionOrder = sectionOrder,_hiddenSections = hiddenSections;
   factory _DocumentDefaults.fromJson(Map<String, dynamic> json) => _$DocumentDefaultsFromJson(json);
 
 @override@JsonKey() final  RegionProfile region;
@@ -287,6 +295,14 @@ class _DocumentDefaults implements DocumentDefaults {
 /// also what stored JSON written before this field existed decodes
 /// to, which is the pre-existing behaviour — so no migration.
 @override@JsonKey() final  bool hideHeadline;
+/// Whether a new draft starts with the work-authorization line
+/// dropped. Mirrors `CvDraft.hideWorkAuthorization` on the same terms
+/// [hideHeadline] mirrors its own draft field.
+///
+/// The default that earns its keep: the line is relevant to a minority
+/// of applications, so someone who keeps a sentence in the Vault
+/// mostly wants it off and turned on deliberately.
+@override@JsonKey() final  bool hideWorkAuthorization;
 
 /// Create a copy of DocumentDefaults
 /// with the given fields replaced by the non-null parameter values.
@@ -301,16 +317,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DocumentDefaults&&(identical(other.region, region) || other.region == region)&&(identical(other.language, language) || other.language == language)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&const DeepCollectionEquality().equals(other._sectionOrder, _sectionOrder)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&(identical(other.hideHeadline, hideHeadline) || other.hideHeadline == hideHeadline));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DocumentDefaults&&(identical(other.region, region) || other.region == region)&&(identical(other.language, language) || other.language == language)&&(identical(other.templateId, templateId) || other.templateId == templateId)&&const DeepCollectionEquality().equals(other._sectionOrder, _sectionOrder)&&const DeepCollectionEquality().equals(other._hiddenSections, _hiddenSections)&&(identical(other.hideHeadline, hideHeadline) || other.hideHeadline == hideHeadline)&&(identical(other.hideWorkAuthorization, hideWorkAuthorization) || other.hideWorkAuthorization == hideWorkAuthorization));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,region,language,templateId,const DeepCollectionEquality().hash(_sectionOrder),const DeepCollectionEquality().hash(_hiddenSections),hideHeadline);
+int get hashCode => Object.hash(runtimeType,region,language,templateId,const DeepCollectionEquality().hash(_sectionOrder),const DeepCollectionEquality().hash(_hiddenSections),hideHeadline,hideWorkAuthorization);
 
 @override
 String toString() {
-  return 'DocumentDefaults(region: $region, language: $language, templateId: $templateId, sectionOrder: $sectionOrder, hiddenSections: $hiddenSections, hideHeadline: $hideHeadline)';
+  return 'DocumentDefaults(region: $region, language: $language, templateId: $templateId, sectionOrder: $sectionOrder, hiddenSections: $hiddenSections, hideHeadline: $hideHeadline, hideWorkAuthorization: $hideWorkAuthorization)';
 }
 
 
@@ -321,7 +337,7 @@ abstract mixin class _$DocumentDefaultsCopyWith<$Res> implements $DocumentDefaul
   factory _$DocumentDefaultsCopyWith(_DocumentDefaults value, $Res Function(_DocumentDefaults) _then) = __$DocumentDefaultsCopyWithImpl;
 @override @useResult
 $Res call({
- RegionProfile region, DocumentLanguage language, String? templateId, List<CvSectionType>? sectionOrder, Set<CvSectionType>? hiddenSections, bool hideHeadline
+ RegionProfile region, DocumentLanguage language, String? templateId, List<CvSectionType>? sectionOrder, Set<CvSectionType>? hiddenSections, bool hideHeadline, bool hideWorkAuthorization
 });
 
 
@@ -338,7 +354,7 @@ class __$DocumentDefaultsCopyWithImpl<$Res>
 
 /// Create a copy of DocumentDefaults
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? region = null,Object? language = null,Object? templateId = freezed,Object? sectionOrder = freezed,Object? hiddenSections = freezed,Object? hideHeadline = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? region = null,Object? language = null,Object? templateId = freezed,Object? sectionOrder = freezed,Object? hiddenSections = freezed,Object? hideHeadline = null,Object? hideWorkAuthorization = null,}) {
   return _then(_DocumentDefaults(
 region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
 as RegionProfile,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
@@ -346,6 +362,7 @@ as DocumentLanguage,templateId: freezed == templateId ? _self.templateId : templ
 as String?,sectionOrder: freezed == sectionOrder ? _self._sectionOrder : sectionOrder // ignore: cast_nullable_to_non_nullable
 as List<CvSectionType>?,hiddenSections: freezed == hiddenSections ? _self._hiddenSections : hiddenSections // ignore: cast_nullable_to_non_nullable
 as Set<CvSectionType>?,hideHeadline: null == hideHeadline ? _self.hideHeadline : hideHeadline // ignore: cast_nullable_to_non_nullable
+as bool,hideWorkAuthorization: null == hideWorkAuthorization ? _self.hideWorkAuthorization : hideWorkAuthorization // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

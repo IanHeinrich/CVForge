@@ -45,12 +45,22 @@ abstract final class CvComposer {
       email: vault.basics.email,
       phone: vault.basics.phone,
       location: vault.basics.location,
-      workAuthorization:
-          draft.workAuthorizationOverride ?? vault.basics.workAuthorization,
+      // Same shape as [headline] above, and hidden the same way — except
+      // this one stays null rather than becoming empty, because it is
+      // already nullable for the Vault-has-none case.
+      workAuthorization: draft.hideWorkAuthorization
+          ? null
+          : (draft.workAuthorizationOverride ?? vault.basics.workAuthorization),
       links: [
         for (final link in vault.basics.links)
           ResolvedLink(label: link.label, url: link.url),
       ],
+      contactLabels: ResolvedContactLabels(
+        location: strings.contactLocation,
+        phone: strings.contactPhone,
+        email: strings.contactEmail,
+        link: strings.contactLink,
+      ),
       photoJpegBase64: vault.basics.photo?.jpegBase64,
     );
 
@@ -133,6 +143,7 @@ abstract final class CvComposer {
 
     return ResolvedSection.experience(
       title: language.strings.experience,
+      titleFormal: language.strings.experienceFormal,
       groups: [
         for (final roles in members)
           ResolvedCompanyGroup(

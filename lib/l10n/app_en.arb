@@ -2118,6 +2118,10 @@
   "@studioNoSummary": {
     "description": "Studio empty state when the Vault has no professional summary to draw from."
   },
+  "studioNoWorkAuthorization": "No work authorisation in your Vault yet.",
+  "@studioNoWorkAuthorization": {
+    "description": "Studio empty state when the Vault has no work-authorisation line to draw from."
+  },
   "studioPageCount": "{count, plural, =1{1 page} other{{count} pages}}",
   "@studioPageCount": {
     "description": "Studio, how many pages the exported CV currently runs to.",
@@ -2257,6 +2261,10 @@
   "studioSectionNavPersistError": "Your last selection change couldn't be saved.",
   "@studioSectionNavPersistError": {
     "description": "Studio banner shown when saving the section order or selection failed."
+  },
+  "studioSectionWorkAuthorization": "Work authorisation",
+  "@studioSectionWorkAuthorization": {
+    "description": "Studio nav row and editor label for the optional right-to-work line printed under the contact details."
   },
   "studioSectionsResetDefault": "Reset sections to Vault",
   "@studioSectionsResetDefault": {
@@ -2957,6 +2965,10 @@
   "vaultCvDefaultsTemplateLabel": "Template",
   "@vaultCvDefaultsTemplateLabel": {
     "description": "Label for the default-template row of the Vault's CV defaults panel."
+  },
+  "vaultCvDefaultsWorkAuthorization": "Work authorisation",
+  "@vaultCvDefaultsWorkAuthorization": {
+    "description": "Row in the Vault CV-defaults card controlling whether a new CV starts with the work-authorisation line shown."
   },
   "vaultDeleteCategoryBody": "This removes it and all of its skills.",
   "@vaultDeleteCategoryBody": {

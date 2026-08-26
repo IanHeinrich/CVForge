@@ -2510,6 +2510,12 @@ abstract class AppLocalizations {
   /// **'No summary in your Vault yet.'**
   String get studioNoSummary;
 
+  /// Studio empty state when the Vault has no work-authorisation line to draw from.
+  ///
+  /// In en, this message translates to:
+  /// **'No work authorisation in your Vault yet.'**
+  String get studioNoWorkAuthorization;
+
   /// Studio, how many pages the exported CV currently runs to.
   ///
   /// In en, this message translates to:
@@ -2677,6 +2683,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your last selection change couldn\'t be saved.'**
   String get studioSectionNavPersistError;
+
+  /// Studio nav row and editor label for the optional right-to-work line printed under the contact details.
+  ///
+  /// In en, this message translates to:
+  /// **'Work authorisation'**
+  String get studioSectionWorkAuthorization;
 
   /// Studio, section nav — button restoring the section order and visibility saved as the Vault's CV defaults. Deliberately parallel to studioResetWording ('Reset wording to Vault'): both reset this CV to the Vault, and the middle word is what says which axis. Keep the two phrased alike in every locale, or the pair stops reading as a pair.
   ///
@@ -3571,6 +3583,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Template'**
   String get vaultCvDefaultsTemplateLabel;
+
+  /// Row in the Vault CV-defaults card controlling whether a new CV starts with the work-authorisation line shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Work authorisation'**
+  String get vaultCvDefaultsWorkAuthorization;
 
   /// Confirmation dialog body for deleting a skill category.
   ///

@@ -35,6 +35,11 @@ void main() {
         'nativeLanguage': s.nativeLanguage,
         'references': s.references,
         'publications': s.publications,
+        'experienceFormal': s.experienceFormal,
+        'contactLocation': s.contactLocation,
+        'contactPhone': s.contactPhone,
+        'contactEmail': s.contactEmail,
+        'contactLink': s.contactLink,
         'present': s.present,
       };
       fields.forEach((field, value) {
@@ -72,6 +77,11 @@ void main() {
         s.nativeLanguage,
         s.references,
         s.publications,
+        s.experienceFormal,
+        s.contactLocation,
+        s.contactPhone,
+        s.contactEmail,
+        s.contactLink,
         s.present,
         ...s.months,
       ].join(' ');

@@ -4,8 +4,9 @@ import 'package:cv_forge/models/draft/cv_draft.dart';
 /// them that `BulletOwner` plays for the bullet-selection maps: one enum
 /// and one switch, rather than a near-identical setter per field.
 ///
-/// The three scalar overrides (headline, summary, references note) are not
-/// here — they are single `String?` fields with no id to key by.
+/// The four scalar overrides (headline, summary, references note, work
+/// authorization) are not here — they are single `String?` fields with no
+/// id to key by.
 enum TextOverrideField {
   bullet,
   role,
@@ -94,9 +95,9 @@ extension TextOverrideFieldAccess on TextOverrideField {
 /// exists at all.
 extension CvDraftTextOverrides on CvDraft {
   /// Whether this draft says anything the Vault doesn't, in any id-keyed
-  /// field. The three scalar overrides (headline, summary, references
-  /// note) are not [TextOverrideField]s and are checked separately by
-  /// callers — see that enum's doc comment.
+  /// field. The four scalar overrides (headline, summary, references note,
+  /// work authorization) are not [TextOverrideField]s and are checked
+  /// separately by callers — see that enum's doc comment.
   bool get hasAnyTextOverride =>
       TextOverrideField.values.any((field) => field.of(this).isNotEmpty);
 

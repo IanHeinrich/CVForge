@@ -58,6 +58,8 @@ class VaultEditorPanelRouter extends StatelessWidget {
           onToggleSectionHidden: viewModel.toggleDefaultSectionHidden,
           includeHeadline: viewModel.includeDefaultHeadline,
           onToggleHeadline: viewModel.toggleDefaultHeadline,
+          includeWorkAuthorization: viewModel.includeDefaultWorkAuthorization,
+          onToggleWorkAuthorization: viewModel.toggleDefaultWorkAuthorization,
         );
 
       case VaultEditorTarget.basics:
