@@ -2144,6 +2144,12 @@ abstract class AppLocalizations {
   /// **'Back to sections'**
   String get studioBackToSections;
 
+  /// Hint inside an open Studio editor for a field the Vault also has wording for. Clearing the box removes the per-CV override rather than blanking the field, so the Vault's text reappears — said up front, because watching it come back unexplained reads as the edit having failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to use the Vault\'s wording'**
+  String get studioBlankRestoresVault;
+
   /// Studio, how many of an entry's bullets are included in this CV.
   ///
   /// In en, this message translates to:

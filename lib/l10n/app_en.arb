@@ -1754,6 +1754,10 @@
   "@studioBackToSections": {
     "description": "Studio narrow-layout button returning from one section's editor to the section list."
   },
+  "studioBlankRestoresVault": "Leave empty to use the Vault's wording",
+  "@studioBlankRestoresVault": {
+    "description": "Hint inside an open Studio editor for a field the Vault also has wording for. Clearing the box removes the per-CV override rather than blanking the field, so the Vault's text reappears — said up front, because watching it come back unexplained reads as the edit having failed."
+  },
   "studioBulletsSelected": "{selected}/{total} bullets",
   "@studioBulletsSelected": {
     "description": "Studio, how many of an entry's bullets are included in this CV.",

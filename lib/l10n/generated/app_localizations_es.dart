@@ -1398,6 +1398,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studioBackToSections => 'Volver a las secciones';
 
   @override
+  String get studioBlankRestoresVault =>
+      'Déjalo vacío para usar el texto del Baúl';
+
+  @override
   String studioBulletsSelected(int selected, int total) {
     return '$selected/$total logros';
   }

@@ -339,6 +339,7 @@
   "studioAiSetUpInSettings": "Configurar en Configuración",
   "studioAiUndo": "Deshacer los cambios de la IA",
   "studioAiWarning": "Escrito por IA. Revisa cada logro reescrito y compáralo con lo que realmente hiciste.",
+  "studioBlankRestoresVault": "Déjalo vacío para usar el texto del Baúl",
   "studioBackToDrafts": "{noun, select, cv{Volver a tus CV} resume{Volver a tus currículums} other{Volver a tus documentos}}",
   "studioBackToSections": "Volver a las secciones",
   "studioBulletsSelected": "{selected}/{total} logros",

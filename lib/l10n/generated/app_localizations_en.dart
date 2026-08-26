@@ -1383,6 +1383,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studioBackToSections => 'Back to sections';
 
   @override
+  String get studioBlankRestoresVault =>
+      'Leave empty to use the Vault\'s wording';
+
+  @override
   String studioBulletsSelected(int selected, int total) {
     return '$selected/$total bullets';
   }

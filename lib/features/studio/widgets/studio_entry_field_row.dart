@@ -60,7 +60,13 @@ class StudioEntryFieldRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final baseStyle = dense ? context.appTypography.caption : const TextStyle();
+    // Both branches tokenised. The page-level one used to be a bare
+    // `TextStyle()`, which meant a headline or summary row inherited
+    // whatever ambient `DefaultTextStyle` happened to apply — the one
+    // type treatment in this pane that was not a deliberate choice.
+    final baseStyle = dense
+        ? context.appTypography.caption
+        : context.appTypography.bodySmall;
     // An omitted field still shows its value — you need to see what you
     // are choosing to leave off — but struck through and in the
     // placeholder colour, so a glance down the column says what prints.

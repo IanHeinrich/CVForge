@@ -304,6 +304,13 @@ class InlineTextOverrideEditor extends StatelessWidget {
             AppTextField(
               initialValue: field.effectiveText,
               onChanged: field.onChanged,
+              // Clearing the box removes the override rather than
+              // blanking the field, so the Vault's wording comes back.
+              // Said before it happens: watching text reappear on its own
+              // reads as the edit having failed.
+              hint: _restoresVaultWhenBlank
+                  ? context.l10n.studioBlankRestoresVault
+                  : null,
               // No label of its own: the row that opened this already names
               // the field directly above, and printing it twice read as
               // "Grade" stacked over "Grade".
@@ -317,6 +324,11 @@ class InlineTextOverrideEditor extends StatelessWidget {
       ),
     );
   }
+
+  /// Whether emptying this box would bring the Vault's wording back,
+  /// rather than leaving the field blank. False when the Vault has
+  /// nothing to fall back to, where clearing really does clear.
+  bool get _restoresVaultWhenBlank => (field.vaultText ?? '').trim().isNotEmpty;
 
   /// The Vault's wording, or null when there is nothing worth showing —
   /// no override, no recorded original, or an original identical to what
