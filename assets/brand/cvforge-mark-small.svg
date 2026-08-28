@@ -1,28 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192"
-     fill="none" stroke="currentColor" stroke-width="16"
+     fill="none" stroke="currentColor" stroke-width="14"
      stroke-linecap="round" stroke-linejoin="round">
   <title>CVForge small mark</title>
-  <!-- The 24px-and-below optical size of cvforge-mark.svg. Identical outer
-       contour and the same page-into-anvil morph; three things come off because
-       they close into a blob at this stroke weight, verified by rendering at
-       16/20/24/32:
-       - the hammer (two shapes survive 16px, three do not);
-       - the scallop in the base;
-       - the lower-left pocket, so the anvil's face line runs the full width of
-         the page and the page's bottom-left corner reads as the anvil's foot.
-       The page keeps all three rules, at a lighter weight than the contour.
-       This is why the two files are not one file with a stroke-width swap: edit
-       the detail mark first, then bring the change across by hand. The horn's
-       single-cubic underside is load-bearing there too, for the same reason. -->
-  <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
-           C150 116 120 130 104 154
-           H134 V176 H44 V154 H74
-           C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
-  <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
-  <path d="M100 100 H20"/>
-  <g stroke-width="10">
-    <path d="M34 54 H78"/>
-    <path d="M34 69 H86"/>
-    <path d="M34 84 H86"/>
+  <!-- The 24px-and-below optical size of cvforge-mark.svg: same page, same
+       anvil body, heavier stroke. Verified by rendering at 16/20/24/32:
+       - The hammer comes off (two shapes survive 16px, three do not).
+       - The step and the base arch come off: at this weight the step is
+         sub-pixel and the arch closes into a notch, so the face flows
+         straight into the horn and the base is solid with sloped feet.
+       - The page keeps two rules instead of three, at 9 rather than 7 —
+         three at this weight fuse into a grey slab.
+       - The waist and feet survive, so the body itself is not simplified;
+         a trial with a straight-sided body read as a solid block.
+       This is why the two files are not one file with a stroke-width swap:
+       edit the detail mark first, then bring the change across by hand. -->
+  <path d="M30 100 H152
+           C164 100 176 103 184 112
+           C175 121 161 126 147 126
+           H124
+           C121 134 120 140 120 146
+           C120 153 130 158 146 160
+           L150 176
+           H42 L46 160
+           C62 159 75 154 75 147
+           C75 140 74 133 72 126
+           H30 Z"/>
+  <g transform="translate(66 58) rotate(-10)">
+    <path d="M-28 -24 L-12 -40 H20 A8 8 0 0 1 28 -32 V40 H-28 Z"/>
+    <path d="M-12 -40 V-30 A6 6 0 0 1 -18 -24 H-28"/>
+    <g stroke-width="9">
+      <path d="M-16 -10 H12"/>
+      <path d="M-16 6 H16"/>
+    </g>
   </g>
 </svg>

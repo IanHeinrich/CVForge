@@ -154,8 +154,9 @@
          the end face on the anvil while the haft stays visibly diagonal, which
          is what makes the head read as the thing doing the work.
 
-       Contact lands at (134,94): the middle of the strip of anvil face the page
-       doesn't cover.
+       Contact lands at (134,94), on the strip of anvil face between the page's
+       lifted corner and the horn root — the numbers predate the anvil redraw,
+       which kept the face top at y=100 precisely so they could survive it.
 
        The rotation is about the haft tip, but the haft tip is not a fixed
        point — a swing hinged on one pivot reads as a lever being worked, not
@@ -315,19 +316,30 @@
            and why it is drawn that way. -->
       <svg class="splash-mark" xmlns="http://www.w3.org/2000/svg"
            viewBox="-20 -20 232 232" fill="none" stroke="currentColor"
-           stroke-width="12" stroke-linecap="round" stroke-linejoin="round"
+           stroke-width="10" stroke-linecap="round" stroke-linejoin="round"
            role="img" aria-label="CVForge">
         <g class="splash-anvil">
-          <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
-                   C150 116 120 130 104 154
-                   H134 V176 H104 A26 26 0 0 0 72 176 H44 V154 H74
-                   C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
-          <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
-          <path d="M100 100 H60 V118 C60 126 58 130 56 132"/>
-          <g stroke-width="8">
-            <path d="M34 54 H78"/>
-            <path d="M34 70 H86"/>
-            <path d="M34 86 H86"/>
+          <path d="M30 100 H152 V107
+                   C162 107 174 107 184 112
+                   C175 121 161 126 147 126
+                   H124
+                   C121 134 120 140 120 146
+                   C120 153 130 158 146 160
+                   L150 176
+                   H120
+                   C110 163 82 163 72 176
+                   H42 L46 160
+                   C62 159 75 154 75 147
+                   C75 140 74 133 72 126
+                   H30 Z"/>
+          <g transform="translate(66 58) rotate(-10)">
+            <path d="M-28 -24 L-12 -40 H20 A8 8 0 0 1 28 -32 V40 H-28 Z"/>
+            <path d="M-12 -40 V-30 A6 6 0 0 1 -18 -24 H-28"/>
+            <g stroke-width="7">
+              <path d="M-16 -12 H12"/>
+              <path d="M-16 2 H16"/>
+              <path d="M-16 16 H16"/>
+            </g>
           </g>
         </g>
         <g class="splash-hammer">
@@ -338,11 +350,12 @@
           </g>
         </g>
         <!-- Struck off the contact corner at (134,94), placed clear of the
-             head's own silhouette so they are not hidden behind it. -->
-        <g class="splash-sparks" stroke="#9600FF" stroke-width="8"
+             head's own silhouette so they are not hidden behind it — and, on
+             the left pair, clear of the page's lifted corner at (101,93). -->
+        <g class="splash-sparks" stroke="#9600FF" stroke-width="7"
            stroke-linecap="round">
           <path d="M126 99 L112 101"/>
-          <path d="M120 95 L106 89"/>
+          <path d="M122 93 L110 85"/>
           <path d="M146 99 L160 101"/>
           <path d="M152 96 L166 91"/>
         </g>

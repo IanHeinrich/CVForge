@@ -1,41 +1,70 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192"
-     fill="none" stroke="currentColor" stroke-width="12"
+     fill="none" stroke="currentColor" stroke-width="10"
      stroke-linecap="round" stroke-linejoin="round">
   <title>CVForge detail mark</title>
-  <!-- One closed contour, as in the original (whose page and anvil are also a
-       single path). The page's left edge is the leftmost thing in the mark and
-       its bottom-left corner runs down into the anvil's waist, so the sheet
-       becomes the anvil rather than sitting on it. The right edge steps out
-       into the face and horn. Fold is top-left: the hammer owns the top-right.
-       Three shapes are easy to lose and worth knowing before editing:
-       - The horn's underside and the body's right side are ONE cubic, from the
-         horn tip straight down to the waist. Splitting them into two curves
-         puts a shoulder at the join, and a shoulder only works if it is a hard
-         corner; anything in between reads as a dent in the underside.
-       - The page's bottom edge sits well above the base, or its corner reads as
-         a second foot beside the base.
-       - The base's scallop is a shallow arc, not a semicircle, which at this
-         base height would punch through and split the base in two. -->
-  <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
-           C150 116 120 130 104 154
-           H134 V176 H104 A26 26 0 0 0 72 176 H44 V154 H74
-           C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
-  <!-- Fold flap. -->
-  <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
-  <!-- The anvil's face line and left side, drawn across the page. These are what
-       separate the anvil from the sheet it is made of; the pocket they leave at
-       the lower left is the page showing through, as in the original. -->
-  <path d="M100 100 H60 V118 C60 126 58 130 56 132"/>
-  <!-- Page rules carry a lighter weight than the contour. They are texture, not
-       structure; at the contour's weight they read as bars and crowd the page. -->
-  <g stroke-width="8">
-    <path d="M34 54 H78"/>
-    <path d="M34 70 H86"/>
-    <path d="M34 86 H86"/>
+  <!-- A page resting on an anvil, hammer mid-swing. The page used to *merge*
+       into the anvil — its left edge ran to the floor and the anvil grew out
+       of its bottom — and that stack (tall box over a waisted pedestal) read
+       as a toilet: tank, bowl, foot. The cure was not better anvil detailing,
+       it was breaking the stack. The anvil is its own complete, centred form
+       and the page is a separate sheet leaning on its face, so no vertical
+       silhouette survives to misread.
+
+       Two invariants keep the loader/splash animation valid without retuning:
+       - The face's top edge stays at y=100, and the strike contact stays at
+         (134,94) — the same numbers the pre-redraw mark used — so every
+         pose, keyframe and spark in web/index.html and
+         brand_mark_loader.dart carries over unchanged.
+       - The hammer (pose, head, haft) is untouched from the old mark.
+
+       The anvil is a London pattern read left to right — heel overhang,
+       face, step, horn — over a waisted body on an arched base:
+       - The step (the drop from face to horn root at x=152) is the single
+         most identifying line of anvil iconography; without it the horn
+         reads as the face drooping. It also bounds the strike zone: the
+         face strip from the page's lifted corner (~x=101) to the step is
+         what the head lands on, and the head at impact needs all of it.
+       - The horn's top edge runs level off the step and dips only at the
+         tip; its underside sweeps back to the slab's bottom in one cubic.
+       - The waist must stay visibly narrower than both the slab and the
+         base, and the base is two feet with an arch between them — a
+         straight-sided body over a solid slab is a pedestal again, the
+         exact thing this redraw removes. The arch is safe here where the
+         old base scallop was not because the silhouette around it is a
+         wide horizontal anvil, not a tall stack.
+       - The page tilts 10deg with its low corner just overlapping the
+         face's stroke, so it reads as resting on the anvil, not floating
+         over it. -->
+  <path d="M30 100 H152 V107
+           C162 107 174 107 184 112
+           C175 121 161 126 147 126
+           H124
+           C121 134 120 140 120 146
+           C120 153 130 158 146 160
+           L150 176
+           H120
+           C110 163 82 163 72 176
+           H42 L46 160
+           C62 159 75 154 75 147
+           C75 140 74 133 72 126
+           H30 Z"/>
+  <!-- The sheet. Fold top-left, rounded corner top-right. Rules are texture,
+       not structure, so they carry a lighter weight than the contour; at the
+       contour's weight they read as bars. -->
+  <g transform="translate(66 58) rotate(-10)">
+    <path d="M-28 -24 L-12 -40 H20 A8 8 0 0 1 28 -32 V40 H-28 Z"/>
+    <path d="M-12 -40 V-30 A6 6 0 0 1 -18 -24 H-28"/>
+    <g stroke-width="7">
+      <path d="M-16 -12 H12"/>
+      <path d="M-16 2 H16"/>
+      <path d="M-16 16 H16"/>
+    </g>
   </g>
-  <!-- Hammer, mid-strike. Solid head so it reads as mass rather than a second
-       outlined box; haft kept longer than the head so the pair does not
-       collapse into a checkmark. Dropped from the small mark. -->
+  <!-- Hammer, mid-strike — identical to the pre-redraw mark, which is what
+       lets the animation reuse its tuned numbers (the haft simply inherits
+       the contour weight). Solid head so it reads as mass rather than a
+       second outlined box; haft kept longer than the head so the pair does
+       not collapse into a checkmark. Dropped from the small mark. -->
   <g transform="translate(134 68) rotate(35)">
     <rect x="-20" y="-10" width="40" height="20" rx="4" fill="currentColor" stroke="none"/>
     <path d="M0 -10 V-60"/>

@@ -61,8 +61,10 @@ const _viewBoxOrigin = -20.0;
 /// about this point plus a translation of it.
 const _pivot = Offset(168, 19);
 
-/// Where the head's end face meets the anvil: the middle of the strip of face
-/// the page doesn't cover. The sparks are struck from here.
+/// Where the head's end face meets the anvil: on the strip of face between
+/// the page's lifted corner and the horn root. The sparks are struck from
+/// here. The value predates the anvil redraw, which kept the face top at
+/// y=100 precisely so this — and every pose below — could survive it.
 const _contact = Offset(134, 94);
 
 /// Rotation is on top of the +35deg the hammer already carries in the asset,
@@ -318,11 +320,12 @@ const _hammerAsset = 'assets/brand/cvforge-mark-hammer.svg';
 
 /// The four sparks struck off the contact corner, in mark coordinates. They
 /// sit clear of the head's own silhouette at the moment of impact, so they are
-/// not hidden behind it. Painted rather than shipped as a third asset: they
+/// not hidden behind it — and, on the left pair, clear of the page's lifted
+/// corner at (101,93). Painted rather than shipped as a third asset: they
 /// are four straight lines, not brand art.
 const _sparks = <List<double>>[
   [126, 99, 112, 101],
-  [120, 95, 106, 89],
+  [122, 93, 110, 85],
   [146, 99, 160, 101],
   [152, 96, 166, 91],
 ];
@@ -350,7 +353,9 @@ class _SparksPainter extends CustomPainter {
       // brand accent is deliberately the same value in both themes (see
       // `app_colors.dart`), so threading a colour in would buy nothing.
       ..color = kcPrimaryColor
-      ..strokeWidth = 8 * scale
+      // Matches the splash's spark weight: one step lighter than the mark's
+      // 10-weight contour, so the burst reads as debris rather than limbs.
+      ..strokeWidth = 7 * scale
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 

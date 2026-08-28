@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// The CVForge mark — the page-into-anvil logo — for use inside the app.
+/// The CVForge mark — the page-on-anvil logo — for use inside the app.
 ///
 /// Deliberately not an `Icon`: this is a brand graphic, not part of the
 /// icon set, so it sizes on its own scale rather than
@@ -10,9 +10,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 ///
 /// The mark ships in two optical sizes and this widget picks between them,
 /// which is the whole point of there being two: below
-/// [_smallMarkThreshold] the detail mark's hammer, base scallop and
-/// lower-left pocket close into a blob, so the simplified mark is used
-/// instead. Call sites should not reach for the asset paths directly —
+/// [_smallMarkThreshold] the detail mark's hammer and third page rule
+/// close into a blob, so the simplified mark is used instead. Call sites should not reach for the asset paths directly —
 /// that is how the two marks end up used at the wrong sizes.
 ///
 /// Decorative by default. Every current call site sits next to text that
