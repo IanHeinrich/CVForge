@@ -1,26 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 232 232" width="232" height="232"
      fill="none" stroke="currentColor" stroke-width="12"
      stroke-linecap="round" stroke-linejoin="round">
-  <title>CVForge detail mark, anvil only</title>
+  <title>CVForge detail mark, anvil and page only</title>
   <!-- The detail mark with the hammer removed, for BrandMarkLoader to animate
-       the two apart. The paths are exactly those in cvforge-mark.svg — that
-       file is the source of truth for what each shape is and why it is drawn
-       that way; do not edit these in isolation.
+       the two apart. The page rides this layer rather than the hammer's, so
+       the anvil's jolt carries the sheet with it — a strike that shakes the
+       anvil but not the thing lying on it reads as two unrelated drawings.
+       The paths are exactly those in cvforge-mark.svg — that file is the
+       source of truth for what each shape is and why it is drawn that way;
+       do not edit these in isolation.
 
        The viewBox is wider than the mark's own 192 box because the swing
        carries the hand out past the mark's right edge. It stays square and
        centred on the mark's centre (96,96), so the art sits exactly where the
        static mark's does. cvforge-mark-hammer.svg uses the same box, so the
        two overlay without any per-layer offset. -->
-  <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
-           C150 116 120 130 104 154
-           H134 V176 H104 A26 26 0 0 0 72 176 H44 V154 H74
-           C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
-  <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
-  <path d="M100 100 H60 V118 C60 126 58 130 56 132"/>
-  <g stroke-width="8">
-    <path d="M34 54 H78"/>
-    <path d="M34 70 H86"/>
-    <path d="M34 86 H86"/>
+  <path d="M30 100 H146 C160 100 172 100 182 105 C174 116 158 126 145 126 H124
+           C122 133 121 138 121 144 C121 151 128 155 135 157
+           L144 176 H42 L51 157 H62
+           C69 155 76 151 76 144 C76 137 75 132 73 126 H30 Z"/>
+  <g transform="translate(66 58) rotate(-10)">
+    <path d="M-28 -24 L-12 -40 H20 A8 8 0 0 1 28 -32 V40 H-28 Z"/>
+    <path d="M-12 -40 V-30 A6 6 0 0 1 -18 -24 H-28"/>
+    <g stroke-width="8">
+      <path d="M-16 -12 H12"/>
+      <path d="M-16 2 H16"/>
+      <path d="M-16 16 H16"/>
+    </g>
   </g>
 </svg>

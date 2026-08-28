@@ -2,27 +2,27 @@
      fill="none" stroke="currentColor" stroke-width="16"
      stroke-linecap="round" stroke-linejoin="round">
   <title>CVForge small mark</title>
-  <!-- The 24px-and-below optical size of cvforge-mark.svg. Identical outer
-       contour and the same page-into-anvil morph; three things come off because
-       they close into a blob at this stroke weight, verified by rendering at
-       16/20/24/32:
-       - the hammer (two shapes survive 16px, three do not);
-       - the scallop in the base;
-       - the lower-left pocket, so the anvil's face line runs the full width of
-         the page and the page's bottom-left corner reads as the anvil's foot.
-       The page keeps all three rules, at a lighter weight than the contour.
-       This is why the two files are not one file with a stroke-width swap: edit
-       the detail mark first, then bring the change across by hand. The horn's
-       single-cubic underside is load-bearing there too, for the same reason. -->
-  <path d="M20 36 L40 16 H92 A8 8 0 0 1 100 24 V100 H168 L174 103
-           C150 116 120 130 104 154
-           H134 V176 H44 V154 H74
-           C70 146 64 138 56 132 H36 A16 16 0 0 1 20 116 Z"/>
-  <path d="M40 16 V30 A6 6 0 0 1 34 36 H20"/>
-  <path d="M100 100 H20"/>
-  <g stroke-width="10">
-    <path d="M34 54 H78"/>
-    <path d="M34 69 H86"/>
-    <path d="M34 84 H86"/>
+  <!-- The 24px-and-below optical size of cvforge-mark.svg: identical anvil and
+       page contours, heavier stroke. Verified by rendering at 16/20/24/32:
+       - The hammer comes off (two shapes survive 16px, three do not).
+       - The page keeps two rules instead of three, at 10 rather than 8 —
+         three at this weight fuse into a grey slab.
+       - The anvil's waist and feet survive the heavier stroke, so unlike the
+         old small mark no simplification of the body is needed; a trial with
+         a straight-sided body read as a solid block (and, at a squint, as
+         the toilet this redraw exists to kill).
+       This is why the two files are not one file with a stroke-width swap:
+       edit the detail mark first, then bring the change across by hand. -->
+  <path d="M30 100 H146 C160 100 172 100 182 105 C174 116 158 126 145 126 H124
+           C122 133 121 138 121 144 C121 151 128 155 135 157
+           L144 176 H42 L51 157 H62
+           C69 155 76 151 76 144 C76 137 75 132 73 126 H30 Z"/>
+  <g transform="translate(66 58) rotate(-10)">
+    <path d="M-28 -24 L-12 -40 H20 A8 8 0 0 1 28 -32 V40 H-28 Z"/>
+    <path d="M-12 -40 V-30 A6 6 0 0 1 -18 -24 H-28"/>
+    <g stroke-width="10">
+      <path d="M-16 -10 H12"/>
+      <path d="M-16 6 H16"/>
+    </g>
   </g>
 </svg>
