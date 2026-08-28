@@ -353,7 +353,9 @@ class _SparksPainter extends CustomPainter {
       // brand accent is deliberately the same value in both themes (see
       // `app_colors.dart`), so threading a colour in would buy nothing.
       ..color = kcPrimaryColor
-      ..strokeWidth = 8 * scale
+      // Matches the splash's spark weight: one step lighter than the mark's
+      // 10-weight contour, so the burst reads as debris rather than limbs.
+      ..strokeWidth = 7 * scale
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 

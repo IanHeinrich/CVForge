@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 232 232" width="232" height="232"
-     fill="none" stroke="currentColor" stroke-width="12"
+     fill="none" stroke="currentColor" stroke-width="10"
      stroke-linecap="round" stroke-linejoin="round">
   <title>CVForge detail mark, anvil and page only</title>
   <!-- The detail mark with the hammer removed, for BrandMarkLoader to animate
@@ -15,14 +15,23 @@
        centred on the mark's centre (96,96), so the art sits exactly where the
        static mark's does. cvforge-mark-hammer.svg uses the same box, so the
        two overlay without any per-layer offset. -->
-  <path d="M30 100 H146 C160 100 172 100 182 105 C174 116 158 126 145 126 H124
-           C122 133 121 138 121 144 C121 151 128 155 135 157
-           L144 176 H42 L51 157 H62
-           C69 155 76 151 76 144 C76 137 75 132 73 126 H30 Z"/>
+  <path d="M30 100 H152 V107
+           C162 107 174 107 184 112
+           C175 121 161 126 147 126
+           H124
+           C121 134 120 140 120 146
+           C120 153 130 158 146 160
+           L150 176
+           H120
+           C110 163 82 163 72 176
+           H42 L46 160
+           C62 159 75 154 75 147
+           C75 140 74 133 72 126
+           H30 Z"/>
   <g transform="translate(66 58) rotate(-10)">
     <path d="M-28 -24 L-12 -40 H20 A8 8 0 0 1 28 -32 V40 H-28 Z"/>
     <path d="M-12 -40 V-30 A6 6 0 0 1 -18 -24 H-28"/>
-    <g stroke-width="8">
+    <g stroke-width="7">
       <path d="M-16 -12 H12"/>
       <path d="M-16 2 H16"/>
       <path d="M-16 16 H16"/>
