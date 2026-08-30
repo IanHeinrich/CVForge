@@ -87,9 +87,10 @@ class SelectorItem {
 /// Bullet sub-lists are collapsed by default and expand per entry — local
 /// `_expandedIds` is pure presentation state, not draft data, matching
 /// `_SkillBulletLinkPicker`'s rationale for the same pattern in Vault.
-/// `_editingTextId` is the same idea one field over: which single row
-/// currently has its inline editor open, keyed `'<itemId>_<index>'` since
-/// one entry can own several fields.
+/// `_editing` is the same idea one field over: which single row currently
+/// has its inline editor open. See [_OpenEditor] for how a row is named
+/// and why the entry it belongs to is carried beside the name rather than
+/// parsed out of it.
 ///
 /// One at a time, not a set. Every editor opens with `autofocus`, so a
 /// second one stole the caret from the first while both stayed open and
@@ -120,15 +121,29 @@ class VaultItemSelectorList extends StatefulWidget {
   State<VaultItemSelectorList> createState() => _VaultItemSelectorListState();
 }
 
+/// Which row currently has its inline editor open, and which entry that
+/// row hangs off.
+///
+/// [ownerId] is carried rather than recovered from [id], because the ids
+/// are composed three different ways — `'<itemId>_title'` for an entry's
+/// own title, `'<itemId>_<n>'` for its other fields, and a bullet's bare
+/// id for a bullet — and only the call site knows which. Parsing an owner
+/// back out of the string got this wrong twice over for a bullet: a uuid
+/// or a fixture id like `exp-1-b1` has no `_` to split on at all, and
+/// splitting one that happened to contain one would have named an entry
+/// that does not exist.
+typedef _OpenEditor = ({String id, String ownerId});
+
 class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
   final _expandedIds = <String>{};
-  String? _editingTextId;
+  _OpenEditor? _editing;
 
   void _toggleId(Set<String> ids, String id) =>
       setState(() => ids.contains(id) ? ids.remove(id) : ids.add(id));
 
-  void _toggleEditing(String id) =>
-      setState(() => _editingTextId = _editingTextId == id ? null : id);
+  void _toggleEditing(String id, String ownerId) => setState(
+    () => _editing = _editing?.id == id ? null : (id: id, ownerId: ownerId),
+  );
 
   @override
   void didUpdateWidget(covariant VaultItemSelectorList oldWidget) {
@@ -136,11 +151,12 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
     // An open editor belongs to a row that is on screen. Dropping an
     // entry from the CV hides its rows but used to leave the id behind,
     // so re-including it silently reopened an editor nobody asked for.
-    final open = _editingTextId;
+    final open = _editing;
     if (open == null) return;
-    final owner = open.substring(0, open.lastIndexOf('_'));
-    final stillShown = widget.items.any((i) => i.id == owner && i.selected);
-    if (!stillShown) _editingTextId = null;
+    final stillShown = widget.items.any(
+      (i) => i.id == open.ownerId && i.selected,
+    );
+    if (!stillShown) _editing = null;
   }
 
   @override
@@ -176,8 +192,8 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
             _EntityRow(
               key: ValueKey('item_${item.id}'),
               item: item,
-              editing: _editingTextId == '${item.id}_title',
-              onToggleEdit: () => _toggleEditing('${item.id}_title'),
+              editing: _editing?.id == '${item.id}_title',
+              onToggleEdit: () => _toggleEditing('${item.id}_title', item.id),
             ),
             if (item.selected && item.bullets.isNotEmpty)
               _BulletSublist(
@@ -185,8 +201,11 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                 item: item,
                 expanded: _expandedIds.contains(item.id),
                 onToggleExpanded: () => _toggleId(_expandedIds, item.id),
-                editingTextId: _editingTextId,
-                onToggleEditingText: _toggleEditing,
+                editingTextId: _editing?.id,
+                // The owner is bound here rather than passed down, because
+                // a bullet's id says nothing about the entry it belongs to.
+                onToggleEditingText: (bulletId) =>
+                    _toggleEditing(bulletId, item.id),
               ),
             // An entity's own printed fields — an employer, an education
             // entry's grade/details — have no checkbox row of their own to
@@ -205,8 +224,9 @@ class _VaultItemSelectorListState extends State<VaultItemSelectorList> {
                   ),
                   child: StudioEntryFieldRow(
                     field: field,
-                    editing: _editingTextId == '${item.id}_$index',
-                    onToggleEdit: () => _toggleEditing('${item.id}_$index'),
+                    editing: _editing?.id == '${item.id}_$index',
+                    onToggleEdit: () =>
+                        _toggleEditing('${item.id}_$index', item.id),
                   ),
                 ),
           ],
