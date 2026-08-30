@@ -11,7 +11,11 @@ const ROOT = path.resolve('build/web');
 const PORT = Number(process.env.PORT ?? 8088);
 
 const TYPES = {
+  // .mjs matters: the preview pane's PDF rasterizer is pdfjs/pdf.min.mjs, and
+  // a module script served as octet-stream is rejected outright by strict MIME
+  // checking, so the preview spins for ever with no error in the app itself.
   '.html': 'text/html', '.js': 'application/javascript', '.json': 'application/json',
+  '.mjs': 'application/javascript',
   '.wasm': 'application/wasm', '.png': 'image/png', '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml', '.ttf': 'font/ttf', '.otf': 'font/otf',
   '.ico': 'image/x-icon', '.map': 'application/json', '.symbols': 'text/plain',
